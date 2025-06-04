@@ -1,15 +1,135 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Prisma schema for Client Onboarding System
+
+model Admin {
+  id           Int                @id @default(autoincrement())
+  name         String?
+  email        String             @unique
+  passwordHash String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  logs         FormActivityLog[]
+}
+
+model Client {
+  id         Int                @id @default(autoincrement())
+  name       String
+  email      String?            @unique
+  passwordHash String?          // Nullable as client login is not needed
+  ndisNumber String?            @unique
+  phone      String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  forms      ClientForm[]
+  progress   FormProgress[]
+  submissions FormSubmission[]
+  contracts  Contract[]
+  logs       FormActivityLog[]
+  links      FormAccessLink[]
+  signatures FormSignature[]
+}
+
+model MasterForm {
+  id        Int      @id @default(autoincrement())
+  formKey   String
+  title     String
+  version   Int
+  schema    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([formKey, version])
+}
+
+model ClientForm {
+  id        Int      @id @default(autoincrement())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  Int
+  formKey   String
+  version   Int
+  status    String   @default("assigned")
+  assignedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FormSubmission {
+  id          Int      @id @default(autoincrement())
+  client      Client   @relation(fields: [clientId], references: [id])
+  clientId    Int
+  formKey     String
+  version     Int
+  data        Json
+  isSubmitted Boolean  @default(false)
+  submittedAt DateTime?
+  updatedAt   DateTime @updatedAt
+}
+
+model FormAccessLink {
+  id         String   @id @default(uuid())
+  client     Client   @relation(fields: [clientId], references: [id])
+  clientId   Int
+  formKey    String
+  version    Int
+  token      String   @unique
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Contract {
+  id         Int      @id @default(autoincrement())
+  client     Client   @relation(fields: [clientId], references: [id])
+  clientId   Int
+  version    Decimal  @db.Decimal(3, 1)
+  startDate  DateTime
+  endDate    DateTime
+  termsJson  Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([clientId, version])
+}
+
+model FormActivityLog {
+  id          Int      @id @default(autoincrement())
+  client      Client?  @relation(fields: [clientId], references: [id])
+  clientId    Int?
+  formKey     String?
+  version     Int?
+  action      String
+  performedBy Admin?   @relation(fields: [performedById], references: [id])
+  performedById Int?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+}
+
+model FormProgress {
+  id             Int      @id @default(autoincrement())
+  client         Client   @relation(fields: [clientId], references: [id])
+  clientId       Int
+  formKey        String
+  version        Int
+  currentSection String?
+  updatedAt      DateTime @updatedAt
+}
+
+model FormSignature {
+  id          Int      @id @default(autoincrement())
+  client      Client   @relation(fields: [clientId], references: [id])
+  clientId    Int
+  formKey     String
+  version     Int
+  signatureUrl String
+  signedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
