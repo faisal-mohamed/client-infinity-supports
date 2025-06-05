@@ -3,19 +3,29 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Valid form statuses
+const VALID_STATUSES = ['assigned', 'in-progress', 'submitted', 'approved', 'rejected'];
+
 export async function PUT(
   req: NextRequest,
   {
     params
   }: {
-    params: { clientId: string; formKey: string; clientVersion: string };
+    params: { clientId: string; formKey: string; version: string };
   }
 ) {
   try {
     const { status, data } = await req.json();
     const clientId = parseInt(params.clientId);
-    const clientVersion = parseInt(params.clientVersion);
+    const clientVersion = parseInt(params.version);
     const { formKey } = params;
+
+    // Validate status if provided
+    if (status && !VALID_STATUSES.includes(status)) {
+      return NextResponse.json({ 
+        error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` 
+      }, { status: 400 });
+    }
 
     // Step 1: Check if client form assignment exists
     const existing = await prisma.clientForm.findFirst({
@@ -31,8 +41,8 @@ export async function PUT(
     }
 
     if (!existing?.baseVersion) {
-  return NextResponse.json({ error: 'Base version missing on assignment' }, { status: 500 });
-}
+      return NextResponse.json({ error: 'Base version missing on assignment' }, { status: 500 });
+    }
 
     // Step 2: Update status if provided
     const updatedAssignment = await prisma.clientForm.updateMany({
@@ -42,7 +52,7 @@ export async function PUT(
         clientVersion
       },
       data: {
-        status: status || 'assigned',
+        status: status || existing.status,
         updatedAt: new Date()
       }
     });
@@ -60,19 +70,37 @@ export async function PUT(
         },
         update: {
           data,
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          isSubmitted: status === 'submitted' ? true : undefined,
+          submittedAt: status === 'submitted' ? new Date() : undefined
         },
-       create: {
-  clientId,
-  formKey,
-  clientVersion,
-  baseVersion: existing.baseVersion, // ✅ This fixes the error
-  data,
-  isSubmitted: false
-}
-
+        create: {
+          clientId,
+          formKey,
+          clientVersion,
+          baseVersion: existing.baseVersion,
+          data,
+          isSubmitted: status === 'submitted',
+          submittedAt: status === 'submitted' ? new Date() : null
+        }
       });
     }
+
+    // Step 4: Log the activity
+    await prisma.formActivityLog.create({
+      data: {
+        clientId,
+        formKey,
+        baseVersion: existing.baseVersion,
+        clientVersion,
+        action: status ? `FORM_STATUS_${status.toUpperCase()}` : 'FORM_DATA_UPDATED',
+        performedById: req.headers.get('x-admin-id') ? parseInt(req.headers.get('x-admin-id') as string) : null,
+        metadata: {
+          updatedAt: new Date().toISOString(),
+          hasDataChanges: !!data
+        }
+      }
+    });
 
     return NextResponse.json({
       message: 'Client form updated successfully',
