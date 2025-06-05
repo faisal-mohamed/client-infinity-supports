@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,8 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// Prisma schema for Client Onboarding System
 
 model Admin {
   id           Int                @id @default(autoincrement())
@@ -21,21 +18,21 @@ model Admin {
 }
 
 model Client {
-  id         Int                @id @default(autoincrement())
-  name       String
-  email      String?            @unique
-  passwordHash String?          // Nullable as client login is not needed
-  ndisNumber String?            @unique
-  phone      String?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  forms      ClientForm[]
-  progress   FormProgress[]
-  submissions FormSubmission[]
-  contracts  Contract[]
-  logs       FormActivityLog[]
-  links      FormAccessLink[]
-  signatures FormSignature[]
+  id           Int                 @id @default(autoincrement())
+  name         String
+  email        String?             @unique
+  passwordHash String?             // Nullable as client login is not needed
+  ndisNumber   String?             @unique
+  phone        String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  forms        ClientForm[]
+  progress     FormProgress[]
+  submissions  FormSubmission[]
+  contracts    Contract[]
+  logs         FormActivityLog[]
+  links        FormAccessLink[]
+  signatures   FormSignature[]
 }
 
 model MasterForm {
@@ -51,26 +48,32 @@ model MasterForm {
 }
 
 model ClientForm {
-  id        Int      @id @default(autoincrement())
-  client    Client   @relation(fields: [clientId], references: [id])
-  clientId  Int
-  formKey   String
-  version   Int
-  status    String   @default("assigned")
-  assignedAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  client        Client   @relation(fields: [clientId], references: [id])
+  clientId      Int
+  formKey       String
+  baseVersion   Int      // From MasterForm.version
+  clientVersion Int      // Local to this client only
+  status        String   @default("assigned")
+  assignedAt    DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clientId, formKey, clientVersion])
 }
 
 model FormSubmission {
-  id          Int      @id @default(autoincrement())
-  client      Client   @relation(fields: [clientId], references: [id])
-  clientId    Int
-  formKey     String
-  version     Int
-  data        Json
-  isSubmitted Boolean  @default(false)
-  submittedAt DateTime?
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  client        Client   @relation(fields: [clientId], references: [id])
+  clientId      Int
+  formKey       String
+  baseVersion   Int
+  clientVersion Int
+  data          Json
+  isSubmitted   Boolean  @default(false)
+  submittedAt   DateTime?
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clientId, formKey, clientVersion])
 }
 
 model FormAccessLink {
@@ -78,7 +81,7 @@ model FormAccessLink {
   client     Client   @relation(fields: [clientId], references: [id])
   clientId   Int
   formKey    String
-  version    Int
+  clientVersion Int
   token      String   @unique
   expiresAt  DateTime
   used       Boolean  @default(false)
@@ -101,16 +104,17 @@ model Contract {
 }
 
 model FormActivityLog {
-  id          Int      @id @default(autoincrement())
-  client      Client?  @relation(fields: [clientId], references: [id])
-  clientId    Int?
-  formKey     String?
-  version     Int?
-  action      String
-  performedBy Admin?   @relation(fields: [performedById], references: [id])
+  id            Int      @id @default(autoincrement())
+  client        Client?  @relation(fields: [clientId], references: [id])
+  clientId      Int?
+  formKey       String?
+  baseVersion   Int?
+  clientVersion Int?
+  action        String
+  performedBy   Admin?   @relation(fields: [performedById], references: [id])
   performedById Int?
-  metadata    Json?
-  createdAt   DateTime @default(now())
+  metadata      Json?
+  createdAt     DateTime @default(now())
 }
 
 model FormProgress {
@@ -118,18 +122,22 @@ model FormProgress {
   client         Client   @relation(fields: [clientId], references: [id])
   clientId       Int
   formKey        String
-  version        Int
+  clientVersion  Int
   currentSection String?
   updatedAt      DateTime @updatedAt
+
+  @@unique([clientId, formKey, clientVersion])
 }
 
 model FormSignature {
-  id          Int      @id @default(autoincrement())
-  client      Client   @relation(fields: [clientId], references: [id])
-  clientId    Int
-  formKey     String
-  version     Int
-  signatureUrl String
-  signedAt    DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  client        Client   @relation(fields: [clientId], references: [id])
+  clientId      Int
+  formKey       String
+  clientVersion Int
+  signatureUrl  String
+  signedAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([clientId, formKey, clientVersion])
 }
