@@ -1,143 +1,159 @@
+// Prisma client generator
 generator client {
   provider = "prisma-client-js"
 }
 
+// PostgreSQL datasource configuration
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")  // Ensure DATABASE_URL is set in your .env file
 }
 
 model Admin {
   id           Int                @id @default(autoincrement())
-  name         String?
-  email        String             @unique
+  name         String
+  email        String             @unique(map: "Admin_email_unique")  // Custom constraint name
   passwordHash String
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
-  logs         FormActivityLog[]
+  logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
+  clients      Client[]           // Admin's clients (who they created)
 }
 
 model Client {
-  id           Int                 @id @default(autoincrement())
-  name         String
-  email        String?             @unique
-  passwordHash String?             // Nullable as client login is not needed
-  ndisNumber   String?             @unique
-  phone        String?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  forms        ClientForm[]
-  progress     FormProgress[]
-  submissions  FormSubmission[]
-  contracts    Contract[]
-  logs         FormActivityLog[]
-  links        FormAccessLink[]
-  signatures   FormSignature[]
+  id            Int               @id @default(autoincrement())
+  name          String
+  email         String?           @unique(map: "Client_email_unique") // Custom constraint name
+  phone         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  forms         FormSubmission[]  // Link to submitted forms
+  progress      FormProgress[]    // Form progress tracking
+  signatures    FormSignature[]   // Client signatures
+  commonFields  CommonField[]     // Client's predefined common fields
+  insights      Insight[]         // Insights related to the client
+  createdBy     Admin?            @relation(fields: [createdById], references: [id]) // Admin who created the client
+  createdById   Int?
+
+  // Reverse relation for activities related to this client
+  logs          FormActivityLog[]  // Client-related activity logs
+
+  @@unique([email])  // Ensuring unique email (with custom name)
 }
 
 model MasterForm {
   id        Int      @id @default(autoincrement())
-  formKey   String
+  formKey   String   @unique
   title     String
-  version   Int
-  schema    Json
+  version   Int      // Form version (e.g., 1, 2, 3)
+  schema    Json     // JSON schema for the form structure
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([formKey, version])
-}
+  // Reverse relation for form submissions linked to this form
+  formSubmissions FormSubmission[]
 
-model ClientForm {
-  id            Int      @id @default(autoincrement())
-  client        Client   @relation(fields: [clientId], references: [id])
-  clientId      Int
-  formKey       String
-  baseVersion   Int      // From MasterForm.version
-  clientVersion Int      // Local to this client only
-  status        String   @default("assigned")
-  assignedAt    DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  // Reverse relation for form progress linked to this form
+  formProgress    FormProgress[]
 
-  @@unique([clientId, formKey, clientVersion])
+  // Unique combination of formKey and version
+  @@unique([formKey, version])  
 }
 
 model FormSubmission {
   id            Int      @id @default(autoincrement())
-  client        Client   @relation(fields: [clientId], references: [id])
-  clientId      Int
-  formKey       String
-  baseVersion   Int
-  clientVersion Int
-  data          Json
+  clientId      Int      // Reference to Client
+  formId        Int      // Reference to MasterForm
+  formVersion   Int      // Version of the form being submitted
+  data          Json     // JSON containing the form submission data
   isSubmitted   Boolean  @default(false)
   submittedAt   DateTime?
   updatedAt     DateTime @updatedAt
 
-  @@unique([clientId, formKey, clientVersion])
-}
+  client        Client   @relation(fields: [clientId], references: [id])
+  form          MasterForm @relation(fields: [formId], references: [id])
 
-model FormAccessLink {
-  id         String   @id @default(uuid())
-  client     Client   @relation(fields: [clientId], references: [id])
-  clientId   Int
-  formKey    String
-  clientVersion Int
-  token      String   @unique
-  expiresAt  DateTime
-  used       Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Contract {
-  id         Int      @id @default(autoincrement())
-  client     Client   @relation(fields: [clientId], references: [id])
-  clientId   Int
-  version    Decimal  @db.Decimal(3, 1)
-  startDate  DateTime
-  endDate    DateTime
-  termsJson  Json?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([clientId, version])
-}
-
-model FormActivityLog {
-  id            Int      @id @default(autoincrement())
-  client        Client?  @relation(fields: [clientId], references: [id])
-  clientId      Int?
-  formKey       String?
-  baseVersion   Int?
-  clientVersion Int?
-  action        String
-  performedBy   Admin?   @relation(fields: [performedById], references: [id])
-  performedById Int?
-  metadata      Json?
-  createdAt     DateTime @default(now())
+  // Ensure each submission for a client-form combination is unique
+  @@unique([clientId, formId, formVersion])
 }
 
 model FormProgress {
   id             Int      @id @default(autoincrement())
-  client         Client   @relation(fields: [clientId], references: [id])
   clientId       Int
-  formKey        String
-  clientVersion  Int
-  currentSection String?
+  formId         Int
+  formVersion    Int      // Version of the form
+  currentSection String?  // Current section the client is on
   updatedAt      DateTime @updatedAt
 
-  @@unique([clientId, formKey, clientVersion])
+  client         Client   @relation(fields: [clientId], references: [id])
+  form           MasterForm @relation(fields: [formId], references: [id])
+
+  // Ensure unique progress tracking for client-form-version
+  @@unique([clientId, formId, formVersion])
 }
 
 model FormSignature {
   id            Int      @id @default(autoincrement())
-  client        Client   @relation(fields: [clientId], references: [id])
   clientId      Int
-  formKey       String
-  clientVersion Int
-  signatureUrl  String
-  signedAt      DateTime @default(now())
+  signatureUrl  String   // URL to the client's signature image
+  signedAt      DateTime @default(now()) // Timestamp when signed
   updatedAt     DateTime @updatedAt
 
-  @@unique([clientId, formKey, clientVersion])
+  client        Client   @relation(fields: [clientId], references: [id])
+
+  // One signature per client (for all forms)
+  @@unique([clientId])  
+}
+
+model CommonField {
+  id        Int      @id @default(autoincrement())
+  clientId  Int      // Reference to the client
+  name      String?  // Client's name
+  age       Int?     // Client's age
+  email     String?  // Client's email
+  address   String?  // Client's address
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client    Client   @relation(fields: [clientId], references: [id])
+  
+  // Ensures one entry per client
+  @@unique([clientId])
+}
+
+model Insight {
+  id            Int      @id @default(autoincrement())
+  clientId      Int      // Reference to the client
+  client        Client   @relation(fields: [clientId], references: [id])
+  age           Int?     // Example: Age of the client
+  location      String?  // Example: Location of the client
+  disability    String?  // Example: Disability information
+  language      String?  // Example: Primary spoken language
+  contractStart DateTime? // Example: Contract start date
+  contractEnd   DateTime? // Example: Contract end date
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FormActivityLog {
+  id            Int      @id @default(autoincrement())
+  clientId      Int?
+  adminId       Int?
+  logType       LogType  // Differentiates client actions from admin actions
+  action        String   // Action performed (e.g., "Client Filled Form", "Admin Assigned Form")
+  metadata      Json?    // Extra metadata related to the action (e.g., form details, section number)
+  createdAt     DateTime @default(now())
+
+  // Relations to Client and Admin models
+  client        Client?  @relation(fields: [clientId], references: [id])
+  admin         Admin?   @relation(fields: [adminId], references: [id])
+
+  // Ensuring both types of logs (client and admin) can exist
+  @@index([clientId, adminId]) // Indexing the client and admin fields for better search performance
+}
+
+// Enum for differentiating between client and admin logs
+enum LogType {
+  CLIENT
+  ADMIN
 }
