@@ -581,7 +581,7 @@ const MedicationInfoForm = ({ formSchema, formData }) => {
                     checked={formData[field.key] === "No"}
                     readOnly
                   />
-                  <span className="sr-only">No</span>
+                  <span className="m-1">No</span>
                 </td>
               </tr>
             ))}
@@ -650,7 +650,7 @@ const SafetyConsiderationForm = ({ formSchema, formData }) => {
                     checked={formData[field.key] === "No"}
                     readOnly
                   />
-                  <span className="sr-only">No</span>
+                  <span>No</span>
                 </td>
               </tr>
             ))}

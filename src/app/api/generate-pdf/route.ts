@@ -289,25 +289,99 @@ export async function generateHTML(formData: any, formSchemas: any) {
   const ReactDOMServer = await import('react-dom/server');
   const { default: CombinedForms } = await import('@/components-server/PrintableForms/ClientIntakev2');
 
-  const cssPath = path.resolve(process.cwd(), 'public/tailwind-pdf.css');
-  const css = fs.readFileSync(cssPath, 'utf8');
+  const cssPath = path.resolve(process.cwd(), 'public/tailwind-pdf.css'); // Path to external CSS file
+  const css = fs.readFileSync(cssPath, 'utf8'); // Read the external CSS file
 
   const element = React.createElement(CombinedForms, { formData, formSchemas });
 
-  return `
-    <!DOCTYPE html>
+
+
+  return `<!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8" />
-        <style>${css}</style>
+        <!-- Link to Google Fonts for Lexend font -->
+        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
+
         <style>
-          body { font-family: sans-serif; }
+          /* Add external CSS */
+          ${css}
+
+          /* Add page break styling for each form container */
+          .form {
+            page-break-before: always; /* Forces each form to start on a new page */
+            margin-bottom: 20px; /* Optional: adds spacing between forms */
+          }
+
+          
+
+          /* Optional: Setting margins for the PDF page */
+          @page {
+            size: A4;
+            margin: 20mm;
+          }
+
+          /* Global font settings */
+          body {
+            font-family: 'Lexend', sans-serif;
+            margin: 0;
+            padding: 0;
+          }
+
+          /* Custom styles for the table and form layout */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+
+          th, td {
+            padding: 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+            font-size: 12px;
+          }
+
+          th {
+            background-color: #f0f0f0;
+          }
+
+          /* Footer Styling */
+          .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            margin-top: 20px;
+          }
+
+          /* Adjust the layout of Yes/No checkboxes to avoid squeezing */
+          .yes-no-container {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Add space between Yes/No options */
+          }
+
+          .yes-no-container label {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 12px;
+          }
+
+          /* Specific width for 'Yes' and 'No' options */
+          .yes-no-container input[type="checkbox"] {
+            margin-right: 5px; /* Add space between checkbox and label */
+          }
+
         </style>
       </head>
-      <body>${ReactDOMServer.renderToString(element)}</body>
-    </html>
-  `;
+      <body>
+        <!-- Ensure that each form gets wrapped with the 'form' class -->
+        <div class="form">${ReactDOMServer.renderToString(element)}</div>
+      </body>
+    </html>`;
 }
+
+
 
 
 export async function GET(req: NextRequest) {
@@ -315,7 +389,7 @@ const formSchemas = {
   clientIntakeSchema: {
     pageTitle: "Client Intake Form",
     logo: {
-      src: "/infinity_logo.png",
+      src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
       alt: "Infinity Supports WA logo with text below",
       width: 200,
       height: 60,
@@ -390,14 +464,14 @@ const formSchemas = {
       {
         type: "sectionHeader",
         label: "What other supports including mainstream health services you receive at present",
-        colSpan: 1,
+        colSpan: 2,
         bgColor: "bg-gray-300",
       },
       {
         label: "",
         key: "otherSupports",
         type: "textarea",
-        colSpan: 1,
+        colSpan: 2,
         height: 256,
       },
     ],
