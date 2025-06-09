@@ -3,10 +3,13 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 
 
-import { Lexend } from 'next/font/google';
+import { Lexend , Montserrat} from 'next/font/google';
+import { Providers } from './providers';
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' });
 
 const inter = Inter({ subsets: ['latin'] });
+
+const Monst = Montserrat({subsets: ['latin']})
 
 export const metadata: Metadata = {
   title: 'Infinity Support Portal',
@@ -20,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={lexend.className}>{children}</body>
+      <body className={Monst.className}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

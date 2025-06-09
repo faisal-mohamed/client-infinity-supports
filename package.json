@@ -10,6 +10,7 @@
     "seed": "prisma db seed"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@prisma/client": "^6.9.0",
     "@sparticuz/chromium": "^133.0.0",
     "bcrypt": "^6.0.0",
@@ -22,7 +23,8 @@
     "puppeteer": "^24.10.0",
     "puppeteer-core": "^24.10.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

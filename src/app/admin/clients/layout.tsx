@@ -96,7 +96,7 @@ export default async function AdminDashboardLayout({
                 key={item.href}
                 href={item.href}
                 className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
-                  ${item.href === '/admin/dashboard'
+                  ${item.href === '/admin/clients'
                     ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
                     : 'hover:bg-indigo-600'
                   }`}
