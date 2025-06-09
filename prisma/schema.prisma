@@ -39,6 +39,7 @@ model Client {
   logs          FormActivityLog[]  // Client-related activity logs
 
   @@unique([email])  // Ensuring unique email (with custom name)
+  FormAssignment FormAssignment[]
 }
 
 model MasterForm {
@@ -58,6 +59,7 @@ model MasterForm {
 
   // Unique combination of formKey and version
   @@unique([formKey, version])  
+  FormAssignment FormAssignment[]
 }
 
 model FormSubmission {
@@ -111,6 +113,13 @@ model CommonField {
   name      String?  // Client's name
   age       Int?     // Client's age
   email     String?  // Client's email
+  sex       String?
+  street    String?
+  state     String?
+  postCode  String?
+  dob       String?
+  ndis      String?
+  disability  String?
   address   String?  // Client's address
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,6 +128,24 @@ model CommonField {
   
   // Ensures one entry per client
   @@unique([clientId])
+}
+
+
+model FormAssignment {
+  id            Int       @id @default(autoincrement())
+  clientId      Int       // Reference to Client
+  formId        Int       // Reference to MasterForm
+  formVersion   Int       // Version of the form being assigned
+  assignedAt    DateTime  @default(now())
+  expiresAt     DateTime  // When the assignment/link expires
+  accessToken   String    @unique // Temporary access token
+  isCompleted   Boolean   @default(false)
+
+  client        Client    @relation(fields: [clientId], references: [id])
+  form          MasterForm @relation(fields: [formId], references: [id])
+
+  // Ensure unique assignment for client-form-version
+  @@unique([clientId, formId, formVersion])
 }
 
 model Insight {

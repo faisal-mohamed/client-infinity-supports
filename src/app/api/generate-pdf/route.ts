@@ -1,281 +1,3 @@
-// // import { NextRequest, NextResponse } from "next/server";
-// // import puppeteer from "puppeteer";
-// // import { generateHTMLFromComponent } from "@/lib/renderPdf";
-
-// // export const dynamic = "force-dynamic"; // Important for Edge-compatible SSR
-
-// // export async function POST(req: NextRequest) {
-// //   const { formData, uiSchema } = await req.json();
-
-// //   try {
-// //     const html = generateHTMLFromComponent(formData, uiSchema);
-
-// //     const browser = await puppeteer.launch({
-// //       headless: true,
-// //       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-// //     });
-
-// //     const page = await browser.newPage();
-// //     await page.setContent(html, { waitUntil: "networkidle0" });
-
-// //     const pdfBuffer = await page.pdf({
-// //       format: "A4",
-// //       printBackground: true,
-// //       margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" }
-// //     });
-
-// //     await browser.close();
-
-// //     return new NextResponse(pdfBuffer, {
-// //       status: 200,
-// //       headers: {
-// //         "Content-Type": "application/pdf",
-// //         "Content-Disposition": "attachment; filename=form.pdf"
-// //       }
-// //     });
-// //   } catch (err) {
-// //     console.error("PDF generation failed:", err);
-// //     return NextResponse.json({ error: "PDF generation failed" }, { status: 500 });
-// //   }
-// // }
-
-// // src/app/api/generate-pdf/route.ts
-// // app/api/generate-pdf/route.ts
-// import { NextRequest, NextResponse } from "next/server";
-// import puppeteer from "puppeteer-core";
-// import React from "react";
-
-// import fs from "fs";
-// export const dynamic = "force-dynamic";
-
-// async function generateHTML(formData: any, uiSchema: any) {
-//   const ReactDOMServer = await import('react-dom/server');
-//   const { default: PrintableForm } = await import('@/components-server/PrintableForms/ClientIntakeForm');
-  
-//   const element = React.createElement(PrintableForm, { formData, uiSchema });
-//   return "<!DOCTYPE html>" + ReactDOMServer.renderToString(element);
-// }
-
-// function getBrowserConfig() {
-//   const isDev = process.env.NODE_ENV === 'development';
-//   const isWindows = process.platform === 'win32';
-//   const isMac = process.platform === 'darwin';
-//   const isLinux = process.platform === 'linux';
-
-//   let executablePath;
-
-//   if (isDev) {
-//     // Development - try common local installations
-//     if (isWindows) {
-//       executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-//     } else if (isMac) {
-//       executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-//     } else if (isLinux) {
-//       executablePath = '/usr/bin/google-chrome-stable';
-//     }
-//   } else {
-//     // Production - use environment variable or container path
-//     executablePath = process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/chromium-browser';
-//   }
-
-//   return {
-//     headless: true,
-//     executablePath,
-//     args: [
-//       '--no-sandbox',
-//       '--disable-setuid-sandbox',
-//       '--disable-dev-shm-usage',
-//       '--disable-accelerated-2d-canvas',
-//       '--no-first-run',
-//       '--no-zygote',
-//       '--disable-gpu'
-//     ]
-//   };
-// }
-
-// export async function GET(req: NextRequest) {
-//   const formData = {
-//   // Page 1
-//   date: "17/05/2025",
-//   ndisNumber: "",
-//   givenName: "",
-//   surname: "",
-//   sex: [],
-//   sexOther: "",
-//   pronoun: "",
-//   aboriginal: [],
-//   preferredName: "",
-//   dob: "",
-//   street: "",
-//   state: "",
-//   postcode: "",
-//   email: "",
-//   homePhone: "",
-//   mobile: "",
-//   disability: "",
-
-//   // Page 2
-//   medicalCentre: "",
-//   medicalPhone: "",
-//   coordinatorName: "",
-//   coordinatorEmail: "",
-//   coordinatorCompany: "",
-//   coordinatorContact: "",
-//   otherSupports: "",
-
-//   // Page 3
-//   advocateName: "",
-//   advocateRelation: "",
-//   advocatePhone: "",
-//   advocateMobile: "",
-//   advocateEmail: "",
-//   advocateAddress: "",
-//   postalAddress: "",
-//   otherInfo: "",
-//   culturalBarriers: [],
-//   interpreterNeeded: "",
-//   spokenLanguage: "",
-//   culturalValues: "",
-//   culturalBehaviours: "",
-//   literacy: "",
-//   countryOfBirth: "",
-
-//   // Page 4
-//   primaryContactName: "",
-//   primaryRelationship: "",
-//   primaryHomePhone: "",
-//   primaryMobile: "",
-//   secondaryContactName: "",
-//   secondaryRelationship: "",
-//   secondaryHomePhone: "",
-//   secondaryMobile: "",
-//   livingArrangements: [],
-//   otherLiving: "",
-//   travelMethods: [],
-//   otherTravel: ""
-// };
-
-// const uiSchema = [
-//   // Page 1
-//   { type: "title", label: "Client Intake Form" },
-//   { type: "field", label: "Date", key: "date" },
-//   { type: "field", label: "NDIS Number", key: "ndisNumber" },
-//   { type: "field", label: "Given Name", key: "givenName" },
-//   { type: "field", label: "Surname", key: "surname" },
-//   { type: "checkbox-group", label: "Sex", key: "sex", options: ["Male", "Female", "Prefer not to say"] },
-//   { type: "field", label: "Other (Sex)", key: "sexOther" },
-//   { type: "field", label: "Pronoun", key: "pronoun" },
-//   { type: "checkbox-group", label: "Are you an Aboriginal or Torres Strait Island descent?", key: "aboriginal", options: ["Yes", "No"] },
-//   { type: "field", label: "Preferred Name", key: "preferredName" },
-//   { type: "field", label: "Date of Birth", key: "dob" },
-//   { type: "field", label: "Street", key: "street" },
-//   { type: "field", label: "State", key: "state" },
-//   { type: "field", label: "Postcode", key: "postcode" },
-//   { type: "field", label: "Email", key: "email" },
-//   { type: "field", label: "Home Phone No", key: "homePhone" },
-//   { type: "field", label: "Mobile No", key: "mobile" },
-//   { type: "textarea", label: "Disability Details", key: "disability" },
-
-//   // Page 2
-//   { type: "title", label: "GP & Support Coordinator" },
-//   { type: "field", label: "Medical Centre", key: "medicalCentre" },
-//   { type: "field", label: "Medical Phone", key: "medicalPhone" },
-//   { type: "field", label: "Support Coordinator Name", key: "coordinatorName" },
-//   { type: "field", label: "Coordinator Email", key: "coordinatorEmail" },
-//   { type: "field", label: "Coordinator Company", key: "coordinatorCompany" },
-//   { type: "field", label: "Coordinator Contact No", key: "coordinatorContact" },
-//   { type: "textarea", label: "Other Supports/Agencies Involved", key: "otherSupports" },
-
-//   // Page 3
-//   { type: "title", label: "Advocate / Representative Details" },
-//   { type: "field", label: "Advocate Name", key: "advocateName" },
-//   { type: "field", label: "Relationship with Participant", key: "advocateRelation" },
-//   { type: "field", label: "Phone No", key: "advocatePhone" },
-//   { type: "field", label: "Mobile No", key: "advocateMobile" },
-//   { type: "field", label: "Email", key: "advocateEmail" },
-//   { type: "field", label: "Address", key: "advocateAddress" },
-//   { type: "field", label: "Postal Address", key: "postalAddress" },
-//   { type: "textarea", label: "Other Information", key: "otherInfo" },
-//   { type: "checkbox-group", label: "Any cultural/communication/intimacy issues?", key: "culturalBarriers", options: ["Yes", "No"] },
-//   { type: "field", label: "Interpreter Needed?", key: "interpreterNeeded" },
-//   { type: "field", label: "Spoken Language", key: "spokenLanguage" },
-//   { type: "field", label: "Cultural Values/Beliefs", key: "culturalValues" },
-//   { type: "field", label: "Cultural Behaviours", key: "culturalBehaviours" },
-//   { type: "field", label: "Written Literacy", key: "literacy" },
-//   { type: "field", label: "Country of Birth", key: "countryOfBirth" },
-
-//   // Page 4
-//   { type: "title", label: "Primary Contact" },
-//   { type: "field", label: "Contact Name", key: "primaryContactName" },
-//   { type: "field", label: "Relationship", key: "primaryRelationship" },
-//   { type: "field", label: "Home Phone No", key: "primaryHomePhone" },
-//   { type: "field", label: "Mobile No", key: "primaryMobile" },
-
-//   { type: "title", label: "Secondary Contact" },
-//   { type: "field", label: "Contact Name", key: "secondaryContactName" },
-//   { type: "field", label: "Relationship", key: "secondaryRelationship" },
-//   { type: "field", label: "Home Phone No", key: "secondaryHomePhone" },
-//   { type: "field", label: "Mobile No", key: "secondaryMobile" },
-
-//   { type: "title", label: "Living and Support Arrangements" },
-//   { type: "checkbox-group", label: "What is your current living arrangement?", key: "livingArrangements", options: [
-//     "Live with Parent/Family/Support Person",
-//     "Live in private rental arrangement with others",
-//     "Live in private rental arrangement alone",
-//     "Owns own home.",
-//     "Aged Care Facility",
-//     "Mental Health Facility",
-//     "Lives in public housing",
-//     "Short Term Crisis/Respite",
-//     "Staff Supported Group Home",
-//     "Hostel/SRS Private Accommodation"
-//   ] },
-//   { type: "field", label: "Other Living Arrangement", key: "otherLiving" },
-
-//   { type: "title", label: "Travel" },
-//   { type: "checkbox-group", label: "How do you travel to your day service?", key: "travelMethods", options: [
-//     "Taxi",
-//     "Pick up/ drop off by Parent/Family/Support Person",
-//     "Transport by a provider",
-//     "Independently use Public Transport",
-//     "Walk",
-//     "Assisted Public Transport",
-//     "Drive own car."
-//   ] },
-//   { type: "field", label: "Other Travel Method", key: "otherTravel" }
-// ];
-
-//   try {
-//     const browserConfig = getBrowserConfig();
-//     const browser = await puppeteer.launch(browserConfig);
-
-//     const page = await browser.newPage();
-//     const html = await generateHTML(formData, uiSchema);
-
-//     fs.writeFileSync("puppeteer-debug.html", html);
-//     await page.setContent(html, { waitUntil: "networkidle0" });
-
-
-
-//     const pdf = await page.pdf({
-//       format: "A4",
-//       printBackground: true,
-//       margin: { top: "20mm", bottom: "20mm", left: "10mm", right: "10mm" }
-//     });
-
-//     await browser.close();
-
-//     return new NextResponse(pdf, {
-//       headers: {
-//         "Content-Type": "application/pdf",
-//         "Content-Disposition": 'attachment; filename="form.pdf"',
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Error generating PDF:', error);
-//     return new NextResponse(`Error generating PDF: ${error.message}`, { status: 500 });
-//   }
-// }
 
 
 import { NextRequest, NextResponse } from "next/server";
@@ -284,15 +6,57 @@ import React from "react";
 import fs from "fs";
 import path from 'path'
 
+import os from "os"
+
+
+
+export async function encodeImageToBase64(imagePath: string): Promise<string> {
+  try {
+    let imageBuffer: Buffer;
+    let extension: string;
+
+    if (imagePath.startsWith('http')) {
+      // Remote image
+      const response = await fetch(imagePath);
+      if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+      imageBuffer = Buffer.from(await response.arrayBuffer());
+      const urlParts = imagePath.split('.');
+      extension = urlParts[urlParts.length - 1].split('?')[0]; // e.g. jpg, png
+    } else {
+      // Local image
+      const fullPath = path.join(process.cwd(), 'public', imagePath);
+      imageBuffer = fs.readFileSync(fullPath);
+      extension = path.extname(imagePath).substring(1); // e.g. jpg, png
+    }
+
+    return `data:image/${extension};base64,${imageBuffer.toString('base64')}`;
+  } catch (error) {
+    console.error(`Error encoding image ${imagePath}:`, error);
+    return '';
+  }
+}
 
 export async function generateHTML(formData: any, formSchemas: any) {
+   const processedSchemas = JSON.parse(JSON.stringify(formSchemas)); // Deep clone
+
+  // Make encodeImageToBase64 async
+if (processedSchemas.clientIntakeSchema?.logo?.src) {
+  const src = processedSchemas.clientIntakeSchema.logo.src;
+  processedSchemas.clientIntakeSchema.logo.src = await encodeImageToBase64(src);
+  processedSchemas.gpMedicalSupportSchema.logo.src = await encodeImageToBase64(src);
+  processedSchemas.allAboutMeSchema.logo.src = await encodeImageToBase64(src);
+  processedSchemas.contactsLivingTravelSchema.logo.src = await encodeImageToBase64(src);
+  processedSchemas.medicationInfoSchema.logo.src = await encodeImageToBase64(src);
+  processedSchemas.safetyConsiderationSchema.logo.src = await encodeImageToBase64(src);
+}
+
   const ReactDOMServer = await import('react-dom/server');
   const { default: CombinedForms } = await import('@/components-server/PrintableForms/ClientIntakev2');
 
   const cssPath = path.resolve(process.cwd(), 'public/tailwind-pdf.css'); // Path to external CSS file
   const css = fs.readFileSync(cssPath, 'utf8'); // Read the external CSS file
 
-  const element = React.createElement(CombinedForms, { formData, formSchemas });
+  const element = React.createElement(CombinedForms, { formData, formSchemas: processedSchemas });
 
 
 
@@ -445,7 +209,7 @@ const formSchemas = {
   gpMedicalSupportSchema: {
     pageTitle: "GP Medical Contact & Support Coordinator",
     logo: {
-      src: "https://storage.googleapis.com/a1aa/image/60c7494d-1742-4d0b-7807-ebe4a74c7ae5.jpg",
+      src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
       alt: "Infinity Supports WA logo with infinity symbol and text Achieving Goals and Beyond",
       width: 150,
       height: 60,
@@ -480,7 +244,7 @@ const formSchemas = {
 
    allAboutMeSchema :  {
   logo: {
-    src: "https://storage.googleapis.com/a1aa/image/dafeefca-969e-49a6-bb3f-e65ee9da3763.jpg",
+    src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
     alt: "Infinity Supports WA logo with infinity symbol and text Achieving Goals and Beyond",
     width: 150,
     height: 60,
@@ -529,7 +293,7 @@ const formSchemas = {
   contactsLivingTravelSchema: {
     pageTitle: "Contacts, Living and Travel",
     logo: {
-      src: "https://storage.googleapis.com/a1aa/image/584716cd-8f5f-4d0c-5fb6-9e8ec638f94b.jpg",
+      src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
       alt: "Infinity Supports WA logo with pink infinity symbol and text below",
       width: 150,
       height: 70,
@@ -607,7 +371,7 @@ const formSchemas = {
   },
  medicationInfoSchema : {
   logo: {
-    src: "https://storage.googleapis.com/a1aa/image/9190d8d0-4133-41db-1cc6-1a07bdd4a03c.jpg",
+    src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
     alt: "Infinity Supports WA logo with infinity symbol in red above text",
     width: 120,
     height: 50,
@@ -681,7 +445,7 @@ const formSchemas = {
 },
 safetyConsiderationSchema : {
   logo: {
-    src: "https://storage.googleapis.com/a1aa/image/9190d8d0-4133-41db-1cc6-1a07bdd4a03c.jpg",
+    src: "https://infinity-portal.s3.ap-southeast-1.amazonaws.com/infinity_logo.png",
     alt: "Infinity Supports WA logo with infinity symbol in red above text",
     width: 120,
     height: 50,
@@ -834,20 +598,13 @@ const formData = {
     fs.writeFileSync("playwright-debug.html", html);
 
     const browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu'
-      ],
-    });
+  headless: true,
+});
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
+
+    await page.evaluateHandle('document.fonts.ready');
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -868,3 +625,4 @@ const formData = {
     return new NextResponse(`Error generating PDF: ${error.message}`, { status: 500 });
   }
 }
+
