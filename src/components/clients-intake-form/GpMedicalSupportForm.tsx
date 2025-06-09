@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 
-const ClientIntakeForm = ({ formSchema, formData = {} }) => {
+const GpMedicalSupportForm = ({ formSchema, formData = {} }) => {
   const displayCheckboxGroup = (options, selected = [], otherValue = "") => (
     <div className="space-y-1 text-xs">
       {options.map((opt) => (
@@ -39,21 +41,15 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
           className="object-contain"
         />
       </div>
+
       <div className="px-6 flex-1 flex flex-col">
-        <table className="w-full flex-1 border-collapse border border-black text-xs">
-          <thead>
-            <tr>
-              <th className="border border-black font-bold text-center py-1" colSpan={3}>
-                {formSchema.pageTitle}
-              </th>
-            </tr>
-          </thead>
+        <table className="w-full flex-1 border-collapse border border-black text-[13px]">
           <tbody>
             {formSchema.fields.map((field, idx) => {
               if (field.type === "sectionHeader") {
                 return (
-                  <tr key={idx} className="bg-gray-300 font-semibold text-xs">
-                    <td className="border border-black px-1 py-0.5" colSpan={field.colSpan || 3}>
+                  <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
+                    <td className="border border-black px-2 py-1" colSpan={field.colSpan || 2}>
                       {field.label}
                     </td>
                   </tr>
@@ -64,9 +60,9 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
                 return (
                   <tr key={idx}>
                     <td
-                      className="border border-black px-1 py-0.5 align-top"
-                      colSpan={field.colSpan || 3}
-                      style={{ height: field.height || 100 }}
+                      className="border border-black align-top p-2"
+                      colSpan={field.colSpan || 2}
+                      style={{ height: field.height || 256 }}
                     >
                       {formData[field.key] || ""}
                     </td>
@@ -78,13 +74,13 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
                 return (
                   <tr key={idx}>
                     <td
-                      className="border border-black px-1 py-0.5 font-semibold align-top"
+                      className="border border-black px-2 py-1 font-semibold"
                       style={{ width: field.width || "auto" }}
                       colSpan={field.colSpan || 1}
                     >
                       {field.label}
                     </td>
-                    <td className="border border-black px-1 py-0.5">
+                    <td className="border border-black px-2 py-1">
                       {displayCheckboxGroup(
                         field.options,
                         formData[field.key],
@@ -95,23 +91,34 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
                 );
               }
 
-              // Default text field
-              return (
-                <tr key={idx}>
-                  <td
-                    className="border border-black px-1 py-0.5 font-semibold"
-                    style={{ width: field.width || "auto" }}
-                  >
-                    {field.label}
-                  </td>
-                  <td className="border border-black px-1 py-0.5" colSpan={field.colSpan || 2}>
-                    {formData[field.key] || ""}
-                  </td>
-                </tr>
-              );
+              if (field.type === "field") {
+                return (
+                  <tr key={idx}>
+                    <td className="border border-black px-2 py-1" colSpan={2}>
+                      {field.label} {formData[field.key] || ""}
+                    </td>
+                  </tr>
+                );
+              }
+              
+              if (field.type === "text") {
+                return (
+                  <tr key={idx}>
+                    <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }}>
+                      {field.label}
+                    </td>
+                    <td className="border border-black px-2 py-1">
+                      {formData[field.key] || ""}
+                    </td>
+                  </tr>
+                );
+              }
+
+              return null;
             })}
           </tbody>
         </table>
+
         {formSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
             <div>Website: infinitysupportswa.org</div>
@@ -124,4 +131,4 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
   );
 };
 
-export default ClientIntakeForm;
+export default GpMedicalSupportForm;
