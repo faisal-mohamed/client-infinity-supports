@@ -6,27 +6,28 @@ export async function GET(
   { params }: { params: { id: string; formId: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
-    const formId = parseInt(params.formId);
-    
+    // Make sure to parse params safely
+    const clientId = parseInt(params.id || "0");
+    const formId = parseInt(params.formId || "0");
+
     // Get the form submission for this client and form
     const formSubmission = await prisma.formSubmission.findFirst({
       where: {
         clientId,
-        formId
+        formId,
       },
       include: {
-        form: true
-      }
+        form: true,
+      },
     });
-    
+
     if (!formSubmission) {
       return NextResponse.json(
         { error: "Form submission not found" },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json(formSubmission);
   } catch (error: any) {
     console.error("Error fetching form submission:", error);
@@ -42,60 +43,72 @@ export async function PUT(
   { params }: { params: { id: string; formId: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
-    const formId = parseInt(params.formId);
+    const clientId = parseInt(params.id || "0");
+    const formId = parseInt(params.formId || "0");
     const body = await req.json();
-    const { data, isSubmitted } = body;
-    
-    // Get the form to check if it exists and get its version
+    const { data, isSubmitted = false } = body;
+
+    // Get the form to get its version
     const form = await prisma.masterForm.findUnique({
-      where: { id: formId }
+      where: { id: formId },
     });
-    
+
     if (!form) {
       return NextResponse.json(
         { error: "Form not found" },
         { status: 404 }
       );
     }
-    
-    // Update or create the form submission
-    const formSubmission = await prisma.formSubmission.upsert({
+
+    // Check if a submission already exists
+    const existingSubmission = await prisma.formSubmission.findFirst({
       where: {
-        clientId_formId_formVersion: {
-          clientId,
-          formId,
-          formVersion: form.version
-        }
-      },
-      update: {
-        data,
-        isSubmitted: isSubmitted || false,
-        submittedAt: isSubmitted ? new Date() : null
-      },
-      create: {
         clientId,
         formId,
-        formVersion: form.version,
-        data,
-        isSubmitted: isSubmitted || false,
-        submittedAt: isSubmitted ? new Date() : null
-      }
+      },
     });
-    
+
+    let formSubmission;
+
+    if (existingSubmission) {
+      // Update existing submission
+      formSubmission = await prisma.formSubmission.update({
+        where: {
+          id: existingSubmission.id,
+        },
+        data: {
+          data,
+          isSubmitted,
+          submittedAt: isSubmitted ? new Date() : existingSubmission.submittedAt,
+        },
+      });
+    } else {
+      // Create new submission
+      formSubmission = await prisma.formSubmission.create({
+        data: {
+          clientId,
+          formId,
+          formVersion: form.version,
+          data,
+          isSubmitted,
+          submittedAt: isSubmitted ? new Date() : null,
+        },
+      });
+    }
+
     // If the form is submitted, update the form assignment status
     if (isSubmitted) {
       await prisma.formAssignment.updateMany({
         where: {
           clientId,
-          formId
+          formId,
         },
         data: {
-          isCompleted: true
-        }
+          isCompleted: true,
+        },
       });
-      
-      // Log the form submission activity
+
+      // Log the form submission
       await prisma.formActivityLog.create({
         data: {
           clientId,
@@ -103,31 +116,13 @@ export async function PUT(
           action: "Submitted Form",
           metadata: {
             formId,
-            formKey: form.formKey,
             formTitle: form.title,
             formVersion: form.version,
-            submissionId: formSubmission.id
-          }
-        }
-      });
-    } else {
-      // Log the form progress activity
-      await prisma.formActivityLog.create({
-        data: {
-          clientId,
-          logType: "CLIENT",
-          action: "Saved Form Progress",
-          metadata: {
-            formId,
-            formKey: form.formKey,
-            formTitle: form.title,
-            formVersion: form.version,
-            submissionId: formSubmission.id
-          }
-        }
+          },
+        },
       });
     }
-    
+
     return NextResponse.json(formSubmission);
   } catch (error: any) {
     console.error("Error updating form submission:", error);

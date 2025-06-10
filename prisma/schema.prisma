@@ -34,6 +34,7 @@ model Client {
   insights      Insight[]         // Insights related to the client
   createdBy     Admin?            @relation(fields: [createdById], references: [id]) // Admin who created the client
   createdById   Int?
+  formBatches   FormBatch[]       // Batches of forms assigned to this client
 
   // Reverse relation for activities related to this client
   logs          FormActivityLog[]  // Client-related activity logs
@@ -60,6 +61,39 @@ model MasterForm {
   // Unique combination of formKey and version
   @@unique([formKey, version])  
   FormAssignment FormAssignment[]
+}
+
+model FormBatch {
+  id            Int       @id @default(autoincrement())
+  clientId      Int
+  batchToken    String    @unique  // Unique token for accessing all forms in this batch
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  
+  client        Client    @relation(fields: [clientId], references: [id])
+  assignments   FormAssignment[]
+}
+
+model FormAssignment {
+  id                    Int       @id @default(autoincrement())
+  clientId              Int       // Reference to Client
+  formId                Int       // Reference to MasterForm
+  formVersion           Int       // Version of the form being assigned
+  assignedAt            DateTime  @default(now())
+  expiresAt             DateTime  // When the assignment/link expires
+  accessToken           String    @unique // Temporary access token
+  isCompleted           Boolean   @default(false)
+  passcode              String?   // Optional passcode for additional security
+  isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
+  displayOrder          Int       @default(0) // Order in which forms should be displayed
+  batchId               Int?      // Reference to FormBatch (optional)
+
+  client                Client    @relation(fields: [clientId], references: [id])
+  form                  MasterForm @relation(fields: [formId], references: [id])
+  batch                 FormBatch? @relation(fields: [batchId], references: [id])
+
+  // Ensure unique assignment for client-form-version
+  @@unique([clientId, formId, formVersion])
 }
 
 model FormSubmission {
@@ -128,24 +162,6 @@ model CommonField {
   
   // Ensures one entry per client
   @@unique([clientId])
-}
-
-
-model FormAssignment {
-  id            Int       @id @default(autoincrement())
-  clientId      Int       // Reference to Client
-  formId        Int       // Reference to MasterForm
-  formVersion   Int       // Version of the form being assigned
-  assignedAt    DateTime  @default(now())
-  expiresAt     DateTime  // When the assignment/link expires
-  accessToken   String    @unique // Temporary access token
-  isCompleted   Boolean   @default(false)
-
-  client        Client    @relation(fields: [clientId], references: [id])
-  form          MasterForm @relation(fields: [formId], references: [id])
-
-  // Ensure unique assignment for client-form-version
-  @@unique([clientId, formId, formVersion])
 }
 
 model Insight {

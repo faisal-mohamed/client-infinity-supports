@@ -6,28 +6,29 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
-    
+    const clientId = parseInt(params.id || "0");
+
     const client = await prisma.client.findUnique({
       where: { id: clientId },
       include: {
         commonFields: true,
-        logs: {
-          orderBy: { createdAt: 'desc' },
-          take: 10 // Get only the 10 most recent logs
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
         },
-        forms: {
-          include: {
-            form: true
-          }
-        }
-      }
+      },
     });
-    
+
     if (!client) {
-      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Client not found" },
+        { status: 404 }
+      );
     }
-    
+
     return NextResponse.json(client);
   } catch (error: any) {
     console.error("Error fetching client:", error);
@@ -43,81 +44,54 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
+    const clientId = parseInt(params.id || "0");
     const body = await req.json();
     const { name, email, phone, commonFields } = body;
 
-    // Validate required fields
-    if (!name) {
-      return NextResponse.json(
-        { error: "Missing required field: name" },
-        { status: 400 }
-      );
-    }
-
-    // Start a transaction to update both client and common fields
-    const result = await prisma.$transaction(async (tx) => {
-      // Update the client
-      const updatedClient = await tx.client.update({
-        where: { id: clientId },
-        data: {
-          name,
-          email,
-          phone,
-        }
-      });
-
-      // Update common fields if provided
-      if (commonFields) {
-        await tx.commonField.upsert({
-          where: { clientId },
-          update: {
-            name: commonFields.name || name,
-            age: commonFields.age,
-            email: commonFields.email || email,
-            sex: commonFields.sex,
-            street: commonFields.street,
-            state: commonFields.state,
-            postCode: commonFields.postCode,
-            dob: commonFields.dob,
-            ndis: commonFields.ndis,
-            disability: commonFields.disability,
-            address: commonFields.address,
-          },
-          create: {
-            clientId,
-            name: commonFields.name || name,
-            age: commonFields.age,
-            email: commonFields.email || email,
-            sex: commonFields.sex,
-            street: commonFields.street,
-            state: commonFields.state,
-            postCode: commonFields.postCode,
-            dob: commonFields.dob,
-            ndis: commonFields.ndis,
-            disability: commonFields.disability,
-            address: commonFields.address,
-          }
-        });
-      }
-
-      // Log the client update activity
-      await tx.formActivityLog.create({
-        data: {
-          clientId,
-          logType: "ADMIN",
-          action: "Updated Client",
-          metadata: {
-            clientId,
-            clientName: name
-          }
-        }
-      });
-
-      return updatedClient;
+    // Update client
+    const updatedClient = await prisma.client.update({
+      where: { id: clientId },
+      data: {
+        name,
+        email,
+        phone,
+      },
+      include: {
+        commonFields: true,
+      },
     });
 
-    return NextResponse.json(result);
+    // Update or create common fields if provided
+    if (commonFields) {
+      if (updatedClient.commonFields.length > 0) {
+        // Update existing common fields
+        await prisma.commonField.update({
+          where: { clientId },
+          data: {
+            ...commonFields,
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        // Create new common fields
+        await prisma.commonField.create({
+          data: {
+            clientId,
+            ...commonFields,
+          },
+        });
+      }
+    }
+
+    // Get the updated client with common fields
+    const clientWithCommonFields = await prisma.client.findUnique({
+      where: { id: clientId },
+      include: {
+        commonFields: true,
+      },
+    });
+
+    return NextResponse.json(clientWithCommonFields);
   } catch (error: any) {
     console.error("Error updating client:", error);
     return NextResponse.json(
@@ -132,48 +106,48 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
+    const clientId = parseInt(params.id || "0");
 
     // Start a transaction to delete client and related data
     await prisma.$transaction(async (tx) => {
       // Delete common fields
       await tx.commonField.deleteMany({
-        where: { clientId }
+        where: { clientId },
       });
 
       // Delete form submissions
       await tx.formSubmission.deleteMany({
-        where: { clientId }
+        where: { clientId },
       });
 
       // Delete form progress
       await tx.formProgress.deleteMany({
-        where: { clientId }
+        where: { clientId },
+      });
+
+      // Delete form signatures
+      await tx.formSignature.deleteMany({
+        where: { clientId },
       });
 
       // Delete form assignments
       await tx.formAssignment.deleteMany({
-        where: { clientId }
-      });
-
-      // Delete signatures
-      await tx.formSignature.deleteMany({
-        where: { clientId }
-      });
-
-      // Delete logs
-      await tx.formActivityLog.deleteMany({
-        where: { clientId }
+        where: { clientId },
       });
 
       // Delete insights
       await tx.insight.deleteMany({
-        where: { clientId }
+        where: { clientId },
       });
 
-      // Finally delete the client
+      // Delete activity logs
+      await tx.formActivityLog.deleteMany({
+        where: { clientId },
+      });
+
+      // Delete the client
       await tx.client.delete({
-        where: { id: clientId }
+        where: { id: clientId },
       });
     });
 

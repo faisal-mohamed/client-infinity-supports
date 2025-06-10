@@ -2,8 +2,8 @@
 
 import React from "react";
 
-const AllAboutMeForm = ({ formSchema, formData = {} }) => {
-  const renderPersonalSituation = (psSchema, psData = {}) => (
+const AllAboutMeForm = ({ formSchema, formData = {} } : any) => {
+  const renderPersonalSituation = (psSchema, psData = {} )  => (
     <div className="space-y-1 text-[11px]">
       <div>
         <span className="font-bold">{psSchema.barriers.label}</span>

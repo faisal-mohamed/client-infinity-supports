@@ -193,6 +193,26 @@ export async function assignFormToClient(clientId: number, data: {
   return response.json();
 }
 
+export async function assignFormBatchToClient(clientId: number, data: {
+  formIds: number[];
+  expiresAt: string; // ISO date string
+}) {
+  const response = await fetch(`/api/clients/${clientId}/forms/assign-batch`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to assign form batch');
+  }
+  
+  return response.json();
+}
+
 export async function getClientFormSubmission(clientId: number, formId: number) {
   const response = await fetch(`/api/clients/${clientId}/forms/${formId}`);
   if (!response.ok) {
@@ -217,6 +237,74 @@ export async function saveClientFormSubmission(clientId: number, formId: number,
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to save form submission');
+  }
+  
+  return response.json();
+}
+
+// Form Access API functions
+export async function getFormBatchByToken(token: string, passcode?: string) {
+  let url = `/api/forms/access/${token}`;
+  if (passcode) {
+    url += `?passcode=${passcode}`;
+  }
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to access forms');
+  }
+  
+  return response.json();
+}
+
+export async function updateCommonFields(token: string, commonFieldsData: any, passcode?: string) {
+  let url = `/api/forms/access/${token}/common-fields`;
+  if (passcode) {
+    url += `?passcode=${encodeURIComponent(passcode)}`;
+  }
+  
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(commonFieldsData),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update common fields');
+  }
+  
+  return response.json();
+}
+
+export async function getFormDataByToken(token: string) {
+  const response = await fetch(`/api/forms/view/${token}/data`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to fetch form data');
+  }
+  
+  return response.json();
+}
+
+export async function saveFormDataByToken(token: string, data: {
+  data: any;
+  isSubmitted?: boolean;
+}) {
+  const response = await fetch(`/api/forms/view/${token}/data`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to save form data');
   }
   
   return response.json();

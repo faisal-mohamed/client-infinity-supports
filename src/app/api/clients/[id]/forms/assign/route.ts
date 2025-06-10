@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const clientId = parseInt(params.id);
+    const clientId = parseInt(params.id || "0");
     const body = await req.json();
     const { formId, expiresAt } = body;
 
@@ -32,7 +32,7 @@ export async function POST(
     }
 
     // Generate a unique access token
-    const accessToken = crypto.randomBytes(32).toString('hex');
+    const accessToken = crypto.randomBytes(16).toString('hex');
 
     // Create the form assignment
     const formAssignment = await prisma.formAssignment.create({
@@ -42,11 +42,11 @@ export async function POST(
         formVersion: form.version,
         expiresAt: new Date(expiresAt),
         accessToken,
-        isCompleted: false
+        isCompleted: false,
       }
     });
 
-    // Log the form assignment activity
+    // Log the assignment activity
     await prisma.formActivityLog.create({
       data: {
         clientId,
@@ -54,15 +54,17 @@ export async function POST(
         action: "Assigned Form",
         metadata: {
           formId,
-          formKey: form.formKey,
           formTitle: form.title,
           formVersion: form.version,
-          assignmentId: formAssignment.id
+          expiresAt
         }
       }
     });
 
-    return NextResponse.json(formAssignment, { status: 201 });
+    return NextResponse.json({
+      ...formAssignment,
+      accessLink: `${process.env.NEXT_PUBLIC_BASE_URL || ''}/forms/${formAssignment.id}`
+    }, { status: 201 });
   } catch (error: any) {
     console.error("Error assigning form:", error);
     return NextResponse.json(
