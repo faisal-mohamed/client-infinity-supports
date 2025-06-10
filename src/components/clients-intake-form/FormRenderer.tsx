@@ -8,10 +8,10 @@ import ContactsLivingTravelForm from "./ContactsLivingTravelForm";
 import MedicationInfoForm from "./MedicationInfoForm";
 import SafetyConsiderationForm from "./SafetyConsiderationForm";
 
-const FormRenderer = ({ formKey, formSchema, formData = {}, onChange }) => {
+const FormRenderer = ({ formKey, formSchema, formData = {}, onChange } : any) => {
   const [localFormData, setLocalFormData] = useState(formData);
   
-  const handleFormChange = (newData) => {
+  const handleFormChange = (newData : any) => {
     setLocalFormData(newData);
     if (onChange) {
       onChange(newData);

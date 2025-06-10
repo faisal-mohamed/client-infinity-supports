@@ -3,7 +3,7 @@
 import React from "react";
 
 const AllAboutMeForm = ({ formSchema, formData = {} } : any) => {
-  const renderPersonalSituation = (psSchema, psData = {} )  => (
+  const renderPersonalSituation = (psSchema : any, psData : any = {} )  => (
     <div className="space-y-1 text-[11px]">
       <div>
         <span className="font-bold">{psSchema.barriers.label}</span>

@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getFormDataByToken, saveFormDataByToken } from '@/lib/api';
 import { FaCheck, FaExclamationTriangle, FaSave, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import FormRenderer from '@/components/clients-intake-form/FormRenderer';
+import ClientIntakeFormRenderer from '@/app/components/ClientIntakeFormRenderer';
+import DynamicFormRenderer from '@/app/components/DynamicFormRender';
+
 
 export default function FormViewClient({ token }: { token: string }) {
   const router = useRouter();
@@ -26,6 +28,8 @@ export default function FormViewClient({ token }: { token: string }) {
         // Load form data
         const data = await getFormDataByToken(token);
         setFormData(data);
+
+        console.log("formData: ", data);
         
         // Check if form is expired
         const now = new Date();
@@ -205,12 +209,15 @@ export default function FormViewClient({ token }: { token: string }) {
             )}
             
             <div className="mb-6">
-              <FormRenderer 
-                formKey={formData.form.formKey}
-                formSchema={formData.form.schema}
-                formData={formValues}
-                onChange={handleFormChange}
-              />
+              
+                <DynamicFormRenderer
+  formKey={formData.form.formKey}
+  formSchema={formData.form.schema}
+  formData={formValues}
+  commonFieldsData={formData.commonFields || {}}
+  onChange={handleFormChange}
+  readOnly={isSubmitted}
+/>
             </div>
             
             <div className="flex justify-between">

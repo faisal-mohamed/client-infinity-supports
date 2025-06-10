@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const { name, email, phone, commonFields } = body;
 
     // Use "Unnamed Client" if no name is provided
-    const clientName = name?.trim() || "Unnamed Client";
+    const clientName = name?.trim();
 
     // Start a transaction to create both client and common fields
     const result = await prisma.$transaction(async (tx) => {

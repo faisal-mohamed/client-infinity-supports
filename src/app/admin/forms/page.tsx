@@ -281,6 +281,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { FaPlus, FaEye, FaFileAlt, FaArrowLeft, FaSearch } from "react-icons/fa";
 
 // Skeleton loader row
 function SkeletonRow() {
@@ -299,6 +300,7 @@ export default function FormsManagement() {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -321,104 +323,212 @@ export default function FormsManagement() {
     fetchForms();
   }, []);
 
-  const handleViewForm = (formId) => {
+  const handleViewForm = (formId : string) => {
     router.push(`/admin/forms/${formId}`);
   };
 
+  const filteredForms = forms.filter((form : any)   =>
+    form.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    form.formKey.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Form Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Overview of your available forms.</p>
+    <div className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center">
+              <div className="bg-indigo-100 p-3 rounded-lg mr-4">
+                <FaFileAlt className="text-indigo-600 text-xl" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Form Management</h1>
+                <p className="text-sm text-gray-500 mt-1">Overview of your available forms and templates</p>
+              </div>
+            </div>
+            <div className="mt-4 md:mt-0 flex space-x-3">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
+              >
+                <FaArrowLeft className="mr-2" /> Back to Dashboard
+              </Link>
+              <button
+                onClick={() => router.push('/admin/forms/create')}
+                className="flex items-center text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg shadow-sm"
+              >
+                <FaPlus className="mr-2" /> Create Form
+              </button>
+            </div>
+          </div>
         </div>
-        <Link
-          href="/admin/dashboard"
-          className="text-sm text-indigo-600 hover:text-indigo-800 transition"
-        >
-          ← Back to Dashboard
-        </Link>
-      </div>
 
-      {/* Error state */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg shadow-sm mb-6 text-sm">
-          {error}
-          <button
-            onClick={() => window.location.reload()}
-            className="ml-4 underline hover:text-red-800"
-          >
-            Retry
-          </button>
+        {/* Search and filters */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-grow max-w-md">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search forms by title or key..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div className="text-sm text-gray-500">
+              {!loading && (
+                <span>
+                  Showing <span className="font-medium text-gray-700">{filteredForms.length}</span> of{" "}
+                  <span className="font-medium text-gray-700">{forms.length}</span> forms
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Table layout */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 border rounded-md shadow-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              {["Title", "Form Key", "Version", "Created At", "Actions"].map((header) => (
-                <th
-                  key={header}
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+        {/* Error state */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-6 animate-fade-in">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-1 text-sm font-medium underline hover:text-red-800"
                 >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {/* Loading rows */}
-            {loading && [...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
+                  Retry
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-            {/* Empty state */}
-            {!loading && forms.length === 0 && !error && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-10 text-center text-sm text-gray-500 italic"
-                >
-                  No forms available.
-                </td>
-              </tr>
-            )}
-
-            {/* Actual form rows */}
-            {!loading &&
-              !error &&
-              forms.map((form) => (
-                <tr
-                  key={form.id}
-                  onClick={() => handleViewForm(form.id)}
-                  className="hover:bg-gray-50 transition cursor-pointer"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {form.title}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{form.formKey}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{form.version}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(form.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewForm(form.id);
-                      }}
-                      className="text-indigo-600 hover:text-indigo-800 transition font-medium"
-                      aria-label={`View ${form.title}`}
+        {/* Table layout */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {["Title", "Form Key", "Version", "Created At", "Actions"].map((header) => (
+                    <th
+                      key={header}
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
                     >
-                      View
-                    </button>
-                  </td>
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {/* Loading rows */}
+                {loading && [...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
+
+                {/* Empty state */}
+                {!loading && filteredForms.length === 0 && !error && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-6 py-16 text-center"
+                    >
+                      <div className="flex flex-col items-center">
+                        <div className="bg-gray-100 rounded-full p-4 mb-4">
+                          <FaFileAlt className="text-gray-400 text-2xl" />
+                        </div>
+                        <p className="text-gray-500 font-medium mb-1">
+                          {searchTerm ? "No forms match your search" : "No forms available"}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {searchTerm ? "Try adjusting your search terms" : "Create your first form to get started"}
+                        </p>
+                        {searchTerm && (
+                          <button
+                            onClick={() => setSearchTerm("")}
+                            className="mt-4 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                          >
+                            Clear search
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+
+                {/* Actual form rows */}
+                {!loading &&
+                  !error &&
+                  filteredForms.map((form : any, index) => (
+                    <tr
+                      key={form.id}
+                      onClick={() => handleViewForm(form.id)}
+                      className="hover:bg-indigo-50 transition cursor-pointer"
+                      style={{
+                        animationDelay: `${index * 50}ms`,
+                        animation: 'fadeIn 0.5s ease-in-out forwards'
+                      }}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <FaFileAlt className="text-indigo-600" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{form.title}</div>
+                            <div className="text-xs text-gray-500">ID: {form.id}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {form.formKey}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          v{form.version}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {new Date(form.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewForm(form.id);
+                          }}
+                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          aria-label={`View ${form.title}`}
+                        >
+                          <FaEye className="mr-1" /> View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
