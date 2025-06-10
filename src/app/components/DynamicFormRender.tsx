@@ -1,31 +1,103 @@
-// src/components/DynamicFormRenderer.tsx
-"use client";
+import React, { useState, useEffect } from 'react';
+import { FaAsterisk, FaArrowRight } from 'react-icons/fa';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { FaAsterisk } from 'react-icons/fa';
+const ClientIntakeForm = ({ commonFieldsData }) => {
+  const [formData, setFormData] = useState({
+    // Participant Details
+    date: new Date().toISOString().split('T')[0], // Default to today's date
+    ndisNumber: '',
+    givenName: '',
+    surname: '',
+    sex: [], // For multiple options, use an array
+    pronoun: '',
+    aboriginalTorres: [], // Aboriginal or Torres Strait Island descent options
+    preferredName: '',
+    dateOfBirth: '',
 
-interface DynamicFormRendererProps {
-  formKey: string;
-  formSchema: any;
-  formData: any;
-  commonFieldsData: any;
-  onChange: (values: any) => void;
-  readOnly?: boolean;
-}
+    // Residential Address Details
+    addressNumberStreet: '',
+    state: '',
+    postcode: '',
 
-const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
-  formKey,
-  formSchema,
-  formData,
-  commonFieldsData,
-  onChange,
-  readOnly = false
-}) => {
-  const [values, setValues] = useState<any>(formData || {});
+    // Participant Contact Details
+    email: '',
+    homePhone: '',
+    mobile: '',
 
-  // Define mapping between form fields and common fields
-  const commonFieldsMapping: Record<string, string> = {
+    // Disability Conditions
+    disabilityConditions: '',
+
+    // GP Medical Contact
+    medicalCentreName: '',
+    medicalPhone: '',
+
+    // Support Coordinator
+    supportCoordinatorName: '',
+    supportCoordinatorEmail: '',
+    supportCoordinatorCompany: '',
+    supportCoordinatorContact: '',
+
+    // Other Supports
+    otherSupports: '',
+
+    // All About Me
+    advocateName: '',
+    advocateRelationship: '',
+    advocatePhone: '',
+    advocateMobile: '',
+    advocateEmail: '',
+    advocateAddress: '',
+    advocatePostalAddress: '',
+    advocateOtherInfo: '',
+    barriers: '', // Yes/No field, can be a string like 'yes' or 'no'
+    interpreter: '', // Yes/No field
+    language: '',
+    culturalValues: '',
+    culturalBehaviours: '',
+    writtenCommunication: '',
+    countryOfBirth: '',
+
+    // Contacts, Living and Travel
+    primaryContactName: '',
+    primaryContactRelationship: '',
+    primaryContactHomePhone: '',
+    primaryContactMobile: '',
+    secondaryContactName: '',
+    secondaryContactRelationship: '',
+    secondaryContactHomePhone: '',
+    secondaryContactMobile: '',
+    livingArrangements: [], // Array to hold selected options
+    livingArrangementsOther: '', // For "Other" option
+    travelArrangements: [], // Array to hold selected options
+    travelArrangementsOther: '', // For "Other" option
+
+    // Medication Information
+    medicationChart: '', // Yes/No field
+    mealtimeManagement: '', // Yes/No field
+    bowelCare: '', // Yes/No field
+    menstrualIssues: '', // Yes/No field
+    epilepsy: '', // Yes/No field
+    asthmatic: '', // Yes/No field
+    allergies: '', // Yes/No field
+    anaphylactic: '', // Yes/No field
+    minorInjury: '', // Yes/No field
+    training: '', // Yes/No field
+    othermedical: '', // Yes/No field
+    trigger: '', // Yes/No field
+
+    // Safety Considerations
+    absconding: '', // Yes/No field
+    historyOfFalls: '', // Yes/No field
+    behaviourConcern: '', // Yes/No field
+    positiveBehaviour: '', // Yes/No field
+    communicationAssistance: '', // Yes/No field
+    physicalAssistance: '', // Yes/No field
+    languageConcern: '', // Yes/No field
+    personalGoals: '', // Yes/No field
+  });
+
+  // Define common fields mapping
+  const commonFieldsMapping = {
     ndisNumber: 'ndis',
     givenName: 'name',
     sex: 'sex',
@@ -34,685 +106,565 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
     state: 'state',
     postcode: 'postCode',
     email: 'email',
-    disabilityConditions: 'disability',
-    age: 'age'
+    homePhone: 'phone',
+    disabilityConditions: 'disability'
   };
 
-  // Initialize form with common fields data
-  useEffect(() => {
-    if (commonFieldsData && Object.keys(commonFieldsData).length > 0) {
-      const initialValues = { ...formData };
+  // Track which fields are mapped from common fields
+  const [mappedFields, setMappedFields] = useState({});
 
-      // Map common fields to form fields
-      Object.entries(commonFieldsMapping).forEach(([formKey, commonKey]) => {
-        if (commonFieldsData[commonKey] !== undefined) {
-          initialValues[formKey] = commonFieldsData[commonKey];
+  useEffect(() => {
+    // Map common fields to the corresponding values in formData
+    const mappedData = {};
+    const mappedFieldsTracking = {};
+
+    Object.keys(commonFieldsMapping).forEach(key => {
+      const commonKey = commonFieldsMapping[key];
+      if (commonKey && commonFieldsData && commonFieldsData[commonKey] !== undefined) {
+        mappedData[key] = commonFieldsData[commonKey];
+        mappedFieldsTracking[key] = true; // Mark this field as mapped
+      }
+    });
+
+    // Update formData with common field values
+    setFormData(prev => ({ ...prev, ...mappedData }));
+    // Update tracked mapped fields
+    setMappedFields(mappedFieldsTracking);
+  }, [commonFieldsData]);
+
+  // Handle input change
+  const handleInputChange = (key, value) => {
+    // Only allow changes to fields that are not mapped from common fields
+    if (!mappedFields[key]) {
+      setFormData(prev => ({ ...prev, [key]: value }));
+    }
+  };
+
+  // Handle checkbox change (multiple selections)
+  const handleCheckboxChange = (key, option, checked) => {
+    // Only allow changes to fields that are not mapped from common fields
+    if (!mappedFields[key]) {
+      setFormData(prev => {
+        const current = prev[key] || [];
+        if (checked) {
+          return { ...prev, [key]: [...current, option] };
+        } else {
+          return { ...prev, [key]: current.filter(item => item !== option) };
         }
       });
-
-      setValues(initialValues);
     }
-  }, [commonFieldsData, formData]);
-
-  // Update parent component when values change
-  useEffect(() => {
-    onChange(values);
-  }, [values, onChange]);
-
-  // Handle field value change
-  const handleFieldChange = (key: string, value: any) => {
-    setValues(prev => ({
-      ...prev,
-      [key]: value
-    }));
   };
 
-  // Check if a field should be pre-filled and read-only
-  const isCommonField = (key: string) => {
-    const commonKey = commonFieldsMapping[key];
-    return commonKey && commonFieldsData && commonFieldsData[commonKey] !== undefined;
-  };
-
-  // Determine which schema to use based on the form key
-  const getActiveSchema = () => {
-    if (formSchema.clientIntakeSchema) return formSchema.clientIntakeSchema;
-    if (formSchema.medicationInfoSchema) return formSchema.medicationInfoSchema;
-    if (formSchema.allAboutMeSchema) return formSchema.allAboutMeSchema;
-    if (formSchema.safetyConsiderationSchema) return formSchema.safetyConsiderationSchema;
-    if (formSchema.gpMedicalSupportSchema) return formSchema.gpMedicalSupportSchema;
-    if (formSchema.contactsLivingTravelSchema) return formSchema.contactsLivingTravelSchema;
-
-    return null;
-  };
-
-  const activeSchema = getActiveSchema();
-
-  if (!activeSchema) {
+  // Text Input Component
+  const TextInput = ({ label, keyName, type = "text", colSpan = 1, width = "w-full", required = false }) => {
+    const isMapped = mappedFields[keyName];
+    
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-600">
-          Form schema not found.
-        </p>
+      <div className={`${colSpan === 2 ? 'col-span-2' : colSpan === 3 ? 'col-span-3' : ''} ${width}`}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+          {required && <FaAsterisk className="inline-block text-red-500 text-xs ml-1" />}
+        </label>
+        <input
+          type={type}
+          value={formData[keyName] || ""}
+          onChange={(e) => handleInputChange(keyName, e.target.value)}
+          className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isMapped ? 'bg-gray-100' : ''
+          }`}
+          required={required}
+          disabled={isMapped}
+          readOnly={isMapped}
+        />
+        {isMapped && (
+          <p className="text-xs text-gray-500 mt-1">
+            This field is pre-filled from your profile information
+          </p>
+        )}
       </div>
     );
-  }
+  };
 
-  // Render logo and title
-  const renderHeader = () => {
+  // TextArea Component
+  const TextArea = ({ label, keyName, height = 100, colSpan = 1 }) => {
+    const isMapped = mappedFields[keyName];
+    
     return (
-      <>
-        {activeSchema.logo && (
-          <div className="flex justify-center mb-6">
-            <Image
-              src={activeSchema.logo.src}
-              alt={activeSchema.logo.alt}
-              width={activeSchema.logo.width}
-              height={activeSchema.logo.height}
+      <div className={`${colSpan === 2 ? 'col-span-2' : colSpan === 3 ? 'col-span-3' : ''}`}>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label}
+        </label>
+        <textarea
+          value={formData[keyName] || ""}
+          onChange={(e) => handleInputChange(keyName, e.target.value)}
+          style={{ height: `${height}px` }}
+          className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical ${
+            isMapped ? 'bg-gray-100' : ''
+          }`}
+          disabled={isMapped}
+          readOnly={isMapped}
+        />
+        {isMapped && (
+          <p className="text-xs text-gray-500 mt-1">
+            This field is pre-filled from your profile information
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // Checkbox Group Component
+  const CheckboxGroup = ({ label, keyName, options, colSpan = 1 }) => {
+    const isMapped = mappedFields[keyName];
+    
+    return (
+      <div className={`${colSpan === 2 ? 'col-span-2' : colSpan === 3 ? 'col-span-3' : ''}`}>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+        <div className="space-y-2">
+          {options.map((option) => (
+            <label key={option} className="flex items-center">
+              <input
+                type="checkbox"
+                checked={Array.isArray(formData[keyName]) 
+                  ? formData[keyName].includes(option) 
+                  : formData[keyName] === option}
+                onChange={(e) => handleCheckboxChange(keyName, option, e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                disabled={isMapped}
+              />
+              <span className={`ml-2 text-sm ${isMapped ? 'text-gray-500' : 'text-gray-700'}`}>
+                {option}
+              </span>
+            </label>
+          ))}
+        </div>
+        {isMapped && (
+          <p className="text-xs text-gray-500 mt-1">
+            This selection is pre-filled from your profile information
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  // Yes/No Question Component
+  const YesNoQuestion = ({ label, keyName, yesDetail }) => {
+    const isMapped = mappedFields[keyName];
+    
+    return (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          {label}
+        </label>
+        <div className="flex space-x-4 mb-3">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name={keyName}
+              value="yes"
+              checked={formData[keyName] === 'yes'}
+              onChange={(e) => handleInputChange(keyName, e.target.value)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              disabled={isMapped}
+            />
+            <span className={`ml-2 text-sm ${isMapped ? 'text-gray-500' : 'text-gray-700'}`}>
+              Yes
+            </span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name={keyName}
+              value="no"
+              checked={formData[keyName] === 'no'}
+              onChange={(e) => handleInputChange(keyName, e.target.value)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              disabled={isMapped}
+            />
+            <span className={`ml-2 text-sm ${isMapped ? 'text-gray-500' : 'text-gray-700'}`}>
+              No
+            </span>
+          </label>
+        </div>
+        {formData[keyName] === 'yes' && yesDetail && (
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">{yesDetail}</label>
+            <textarea
+              value={formData[`${keyName}_detail`] || ''}
+              onChange={(e) => handleInputChange(`${keyName}_detail`, e.target.value)}
+              className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isMapped ? 'bg-gray-100' : ''
+              }`}
+              rows="3"
+              disabled={isMapped}
+              readOnly={isMapped}
             />
           </div>
         )}
-
-        {activeSchema.pageTitle && (
-          <h1 className="text-xl font-bold text-center mb-6">
-            {activeSchema.pageTitle}
-          </h1>
+        {isMapped && (
+          <p className="text-xs text-gray-500 mt-1">
+            This response is pre-filled from your profile information
+          </p>
         )}
-
-        {activeSchema.title && !activeSchema.pageTitle && (
-          <h1 className="text-xl font-bold text-center mb-6">
-            {activeSchema.title}
-          </h1>
-        )}
-      </>
-    );
-  };
-
-  // Render footer
-  const renderFooter = () => {
-    if (activeSchema.footer) {
-      return (
-        <div className="mt-8 pt-4 border-t border-gray-200 text-sm text-gray-500 text-center">
-          © {new Date().getFullYear()} Infinity Support Services. All rights reserved.
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Render a standard input field
-  const renderInputField = (key: string, type: string, isDisabled: boolean, fieldValue: any, fieldConfig: any = {}) => {
-    const baseClasses = `w-full px-3 py-2 border ${
-      isDisabled ? 'bg-gray-100 border-gray-300' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-    } rounded-md shadow-sm`;
-
-    switch (type) {
-      case 'text':
-        return (
-          <input
-            type="text"
-            value={fieldValue || ''}
-            onChange={(e) => handleFieldChange(key, e.target.value)}
-            disabled={isDisabled}
-            className={baseClasses}
-            required={fieldConfig.required}
-          />
-        );
-
-      case 'textarea':
-        return (
-          <textarea
-            value={fieldValue || ''}
-            onChange={(e) => handleFieldChange(key, e.target.value)}
-            disabled={isDisabled}
-            className={baseClasses}
-            rows={fieldConfig.height ? Math.floor(fieldConfig.height / 20) : 4}
-            required={fieldConfig.required}
-          />
-        );
-
-      case 'checkboxGroup':
-        return (
-          <div className="flex flex-wrap gap-4">
-            {fieldConfig.options.map((option: string, i: number) => (
-              <div key={`${key}-${i}`} className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`${key}-${i}`}
-                  checked={Array.isArray(fieldValue)
-                    ? fieldValue.includes(option)
-                    : fieldValue === option}
-                  onChange={() => {
-                    if (Array.isArray(fieldValue)) {
-                      // Toggle in array
-                      const newValue = fieldValue.includes(option)
-                        ? fieldValue.filter((v: string) => v !== option)
-                        : [...fieldValue, option];
-                      handleFieldChange(key, newValue);
-                    } else {
-                      // Single selection
-                      handleFieldChange(key, option);
-                    }
-                  }}
-                  disabled={isDisabled}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor={`${key}-${i}`} className="ml-2 text-sm text-gray-900">
-                  {option}
-                </label>
-              </div>
-            ))}
-            {fieldConfig.otherKey && (
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`${key}-other`}
-                  checked={!!values[fieldConfig.otherKey]}
-                  onChange={() => {
-                    if (values[fieldConfig.otherKey]) {
-                      handleFieldChange(fieldConfig.otherKey, '');
-                    } else {
-                      handleFieldChange(fieldConfig.otherKey, ' ');
-                    }
-                  }}
-                  disabled={isDisabled}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor={`${key}-other`} className="ml-2 text-sm text-gray-900">
-                  Other:
-                </label>
-                <input
-                  type="text"
-                  value={values[fieldConfig.otherKey] || ''}
-                  onChange={(e) => handleFieldChange(fieldConfig.otherKey, e.target.value)}
-                  disabled={isDisabled || !values[fieldConfig.otherKey]}
-                  className="ml-2 px-2 py-1 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
-            )}
-          </div>
-        );
-
-      default:
-        return (
-          <input
-            type="text"
-            value={fieldValue || ''}
-            onChange={(e) => handleFieldChange(key, e.target.value)}
-            disabled={isDisabled}
-            className={baseClasses}
-            required={fieldConfig.required}
-          />
-        );
-    }
-  };
-
-  // Render Client Intake Form
-  const renderClientIntakeForm = () => {
-    return (
-      <div className="grid grid-cols-3 gap-4">
-        {activeSchema.fields.map((field: any, index: number) => {
-          // If it's a section header, render a heading
-          if (field.type === 'sectionHeader') {
-            return (
-              <div
-                key={`header-${index}`}
-                className={`col-span-${field.colSpan || 1} py-2 px-4 font-bold text-lg ${field.bgColor || 'bg-blue-100'}`}
-              >
-                {field.label}
-              </div>
-            );
-          }
-
-          // For standard fields with a key, render the appropriate input
-          if (field.key) {
-            const isCommon = isCommonField(field.key);
-            const fieldValue = values[field.key] || '';
-            const isDisabled = readOnly || isCommon;
-
-            const colSpan = field.colSpan || 1;
-            const fieldWidth = field.width || '100%';
-
-            return (
-              <div
-                key={field.key}
-                className={`col-span-${colSpan}`}
-                style={{ width: fieldWidth }}
-              >
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                  {field.required && (
-                    <FaAsterisk className="inline-block text-red-500 text-xs ml-1" />
-                  )}
-                  {isCommon && (
-                    <span className="ml-1 text-xs text-blue-600">(Pre-filled)</span>
-                  )}
-                </label>
-
-                {renderInputField(field.key, field.type, isDisabled, fieldValue, field)}
-              </div>
-            );
-          }
-
-          return null;
-        })}
-      </div>
-    );
-  };
-
-  // Render Medication Info Form
-  const renderMedicationInfoForm = () => {
-    return (
-      <div className="border border-gray-200 rounded-md p-4">
-        {Object.entries(activeSchema.fields).map(([fieldKey, field]: [string, any], index: number) => (
-          <div key={fieldKey} className="mb-6 pb-6 border-b border-gray-200 last:border-b-0">
-            <div className="flex justify-between items-start mb-2">
-              <label className="text-sm font-medium text-gray-700 flex-1">
-                {field.label}
-              </label>
-
-              <div className="flex space-x-4">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id={`${fieldKey}-yes`}
-                    name={fieldKey}
-                    value="Yes"
-                    checked={values[fieldKey] === 'Yes'}
-                    onChange={() => handleFieldChange(fieldKey, 'Yes')}
-                    disabled={readOnly || isCommonField(fieldKey)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor={`${fieldKey}-yes`} className="ml-2 text-sm text-gray-900">
-                    Yes
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id={`${fieldKey}-no`}
-                    name={fieldKey}
-                    value="No"
-                    checked={values[fieldKey] === 'No'}
-                    onChange={() => handleFieldChange(fieldKey, 'No')}
-                    disabled={readOnly || isCommonField(fieldKey)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor={`${fieldKey}-no`} className="ml-2 text-sm text-gray-900">
-                    No
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {field.yesDetail && values[fieldKey] === 'Yes' && (
-              <div className="mt-2 ml-4 pl-4 border-l-2 border-blue-200">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.yesDetail}
-                </label>
-                <textarea
-                  value={values[`${fieldKey}Detail`] || ''}
-                  onChange={(e) => handleFieldChange(`${fieldKey}Detail`, e.target.value)}
-                  disabled={readOnly}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  rows={3}
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // Render All About Me Form
-  const renderAllAboutMeForm = () => {
-    return (
-      <div className="space-y-6">
-        {Object.entries(activeSchema.sections).map(([sectionKey, section]: [string, any]) => (
-          <div key={sectionKey} className="border border-gray-200 rounded-md p-4">
-            <h2 className="text-lg font-bold mb-4">{section.title}</h2>
-
-            {section.fields && (
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries(section.fields).map(([fieldKey, field]: [string, any]) => {
-                  // Handle different field structures
-                  if (typeof field === 'string') {
-                    // Simple label field
-                    const isCommon = isCommonField(fieldKey);
-                    const fieldValue = values[fieldKey] || '';
-                    const isDisabled = readOnly || isCommon;
-
-                    return (
-                      <div key={fieldKey} className="col-span-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          {field}
-                          {isCommon && (
-                            <span className="ml-1 text-xs text-blue-600">(Pre-filled)</span>
-                          )}
-                        </label>
-                        {renderInputField(fieldKey, 'text', isDisabled, fieldValue)}
-                      </div>
-                    );
-                  } else if (typeof field === 'object') {
-                    // Complex field with options
-                    const isCommon = isCommonField(fieldKey);
-                    const fieldValue = values[fieldKey] || '';
-                    const isDisabled = readOnly || isCommon;
-
-                    return (
-                      <div key={fieldKey} className="col-span-2 mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {field.label}
-                          {isCommon && (
-                            <span className="ml-1 text-xs text-blue-600">(Pre-filled)</span>
-                          )}
-                        </label>
-
-                        {field.options && (
-                          <div className="flex space-x-4 mb-2">
-                            {field.options.map((option: string, i: number) => (
-                              <div key={`${fieldKey}-${i}`} className="flex items-center">
-                                <input
-                                  type="radio"
-                                  id={`${fieldKey}-${i}`}
-                                  name={fieldKey}
-                                  value={option}
-                                  checked={fieldValue === option}
-                                  onChange={() => handleFieldChange(fieldKey, option)}
-                                  disabled={isDisabled}
-                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                />
-                                <label htmlFor={`${fieldKey}-${i}`} className="ml-2 text-sm text-gray-900">
-                                  {option}
-                                </label>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {field.followUp && fieldValue === 'Yes' && (
-                          <div className="mt-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {field.followUp}
-                            </label>
-                            <textarea
-                              value={values[`${fieldKey}Detail`] || ''}
-                              onChange={(e) => handleFieldChange(`${fieldKey}Detail`, e.target.value)}
-                              disabled={readOnly}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                              rows={3}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // Render GP Medical Support Form
-  const renderGpMedicalSupportForm = () => {
-    return (
-      <div className="grid grid-cols-2 gap-4">
-        {activeSchema.fields.map((field: any, index: number) => {
-          // If it's a section header, render a heading
-          if (field.type === 'sectionHeader') {
-            return (
-              <div
-                key={`header-${index}`}
-                className={`col-span-${field.colSpan || 1} py-2 px-4 font-bold text-lg ${field.bgColor || 'bg-blue-100'}`}
-              >
-                {field.label}
-              </div>
-            );
-          }
-
-          // For standard fields with a key, render the appropriate input
-          if (field.key) {
-            const isCommon = isCommonField(field.key);
-            const fieldValue = values[field.key] || '';
-            const isDisabled = readOnly || isCommon;
-
-            const colSpan = field.colSpan || 1;
-            const fieldWidth = field.width || '100%';
-
-            return (
-              <div
-                key={field.key}
-                className={`col-span-${colSpan}`}
-                style={{ width: fieldWidth }}
-              >
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                  {field.required && (
-                    <FaAsterisk className="inline-block text-red-500 text-xs ml-1" />
-                  )}
-                  {isCommon && (
-                    <span className="ml-1 text-xs text-blue-600">(Pre-filled)</span>
-                  )}
-                </label>
-
-                {renderInputField(field.key, field.type, isDisabled, fieldValue, field)}
-              </div>
-            );
-          }
-
-          return null;
-        })}
-      </div>
-    );
-  };
-
-  // Render Safety Consideration Form
-  const renderSafetyConsiderationForm = () => {
-    return (
-      <div className="border border-gray-200 rounded-md p-4">
-        {Object.entries(activeSchema.fields).map(([fieldKey, field]: [string, any], index: number) => (
-          <div key={fieldKey} className="mb-6 pb-6 border-b border-gray-200 last:border-b-0">
-            <div className="flex justify-between items-start mb-2">
-              <label className="text-sm font-medium text-gray-700 flex-1">
-                {field.label}
-              </label>
-
-              <div className="flex space-x-4">
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id={`${fieldKey}-yes`}
-                    name={fieldKey}
-                    value="Yes"
-                    checked={values[fieldKey] === 'Yes'}
-                    onChange={() => handleFieldChange(fieldKey, 'Yes')}
-                    disabled={readOnly || isCommonField(fieldKey)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor={`${fieldKey}-yes`} className="ml-2 text-sm text-gray-900">
-                    Yes
-                  </label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id={`${fieldKey}-no`}
-                    name={fieldKey}
-                    value="No"
-                    checked={values[fieldKey] === 'No'}
-                    onChange={() => handleFieldChange(fieldKey, 'No')}
-                    disabled={readOnly || isCommonField(fieldKey)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <label htmlFor={`${fieldKey}-no`} className="ml-2 text-sm text-gray-900">
-                    No
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {field.yesDetail && values[fieldKey] === 'Yes' && (
-              <div className="mt-2 ml-4 pl-4 border-l-2 border-blue-200">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.yesDetail}
-                </label>
-                <textarea
-                  value={values[`${fieldKey}Detail`] || ''}
-                  onChange={(e) => handleFieldChange(`${fieldKey}Detail`, e.target.value)}
-                  disabled={readOnly}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  rows={3}
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // Render Contacts Living Travel Form
-  const renderContactsLivingTravelForm = () => {
-    return (
-      <div className="space-y-6">
-        {activeSchema.fields.map((field: any, index: number) => {
-          // Handle contact header
-          if (field.type === 'contactHeader') {
-            return (
-              <div
-                key={`contact-header-${index}`}
-                className="col-span-2 py-2 px-4 font-bold text-lg bg-blue-50 mt-4"
-              >
-                {field.label}
-              </div>
-            );
-          }
-
-          // Handle contact row
-          if (field.type === 'contactRow') {
-            return (
-              <div
-                key={`contact-row-${index}`}
-                className="grid grid-cols-2 gap-4"
-              >
-                {field.columns.map((column: any, colIndex: number) => {
-                  const isCommon = isCommonField(column.key);
-                  const fieldValue = values[column.key] || '';
-                  const isDisabled = readOnly || isCommon;
-
-                  return (
-                    <div key={`col-${colIndex}`} className="flex flex-col">
-                      <label className="text-sm font-medium text-gray-700 mb-1">
-                        {column.label}
-                        {isCommon && (
-                          <span className="ml-1 text-xs text-blue-600">(Pre-filled)</span>
-                        )}
-                      </label>
-                      {renderInputField(column.key, 'text', isDisabled, fieldValue)}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }
-
-          // Handle box section
-          if (field.type === 'boxSection') {
-            return (
-              <div
-                key={`box-section-${index}`}
-                className="border border-gray-200 rounded-md p-4 mb-4"
-              >
-                <h3 className="font-bold mb-2">{field.heading}</h3>
-                <p className="mb-4">{field.question}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {field.options.map((option: string, optIndex: number) => {
-                    const isCommon = isCommonField(field.key);
-                    const fieldValue = values[field.key] || '';
-                    const isDisabled = readOnly || isCommon;
-
-                    return (
-                      <div key={`opt-${optIndex}`} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`${field.key}-${optIndex}`}
-                          checked={fieldValue === option}
-                          onChange={() => handleFieldChange(field.key, option)}
-                          disabled={isDisabled}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor={`${field.key}-${optIndex}`} className="ml-2 text-sm text-gray-900">
-                          {option}
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-                {field.otherKey && (
-                  <div className="mt-4">
-                    <label className="text-sm font-medium text-gray-700 mb-1">
-                      Other (please specify):
-                    </label>
-                    <input
-                      type="text"
-                      value={values[field.otherKey] || ''}
-                      onChange={(e) => handleFieldChange(field.otherKey, e.target.value)}
-                      disabled={readOnly || isCommonField(field.otherKey)}
-                      className={`w-full px-3 py-2 border ${
-                        readOnly || isCommonField(field.otherKey) ? 'bg-gray-100 border-gray-300' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm`}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          return null;
-        })}
-      </div>
-    );
-  };
-
-  // Render the appropriate form based on the schema
-  const renderFormContent = () => {
-    if (activeSchema === formSchema.clientIntakeSchema) {
-      return renderClientIntakeForm();
-    } else if (activeSchema === formSchema.medicationInfoSchema) {
-      return renderMedicationInfoForm();
-    } else if (activeSchema === formSchema.allAboutMeSchema) {
-      return renderAllAboutMeForm();
-    } else if (activeSchema === formSchema.safetyConsiderationSchema) {
-      return renderSafetyConsiderationForm();
-    } else if (activeSchema === formSchema.gpMedicalSupportSchema) {
-      return renderGpMedicalSupportForm();
-    } else if (activeSchema === formSchema.contactsLivingTravelSchema) {
-      return renderContactsLivingTravelForm();
-    }
-
-    return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-600">
-          Unknown form schema type.
-        </p>
       </div>
     );
   };
 
   return (
-    <div className="dynamic-form-renderer">
-      {renderHeader()}
-      {renderFormContent()}
-      {renderFooter()}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+            <div className="text-4xl mb-3 font-bold">∞</div>
+            <h1 className="text-2xl font-bold mb-1">Infinity Supports WA</h1>
+            <p className="text-lg opacity-90">Client Intake Form</p>
+            <p className="text-sm opacity-75 mt-1">Achieving Goals and Beyond</p>
+          </div>
+        </div>
+
+        {/* Pre-filled information notice */}
+        {Object.keys(mappedFields).length > 0 && (
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-md">
+            <div className="flex">
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Some fields have been pre-filled with your profile information. These fields are read-only.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <form>
+          {/* Participant Details */}
+          <SectionHeader title="Participant Details" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <TextInput label="Date:" keyName="date" colSpan={2} />
+              <TextInput label="NDIS Number:" keyName="ndisNumber" colSpan={2} />
+              <TextInput label="Given name(s):" keyName="givenName" />
+              <TextInput label="Surname:" keyName="surname" />
+              <CheckboxGroup label="Sex:" keyName="sex" options={["Male", "Female", "Prefer not to say"]} />
+              <TextInput label="Pronoun:" keyName="pronoun" colSpan={3} />
+              <CheckboxGroup label="Are you an Aboriginal or Torres Strait Island descent?" keyName="aboriginalTorres" options={["Yes", "No"]} />
+              <TextInput label="Preferred name:" keyName="preferredName" colSpan={2} />
+              <TextInput label="Date of Birth:" keyName="dateOfBirth" type="date" />
+            </div>
+          </div>
+
+          {/* Residential Address Details */}
+          <SectionHeader title="Residential Address Details" bgColor="bg-green-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <TextInput label="Number / Street:" keyName="addressNumberStreet" colSpan={3} />
+              <TextInput label="State:" keyName="state" />
+              <TextInput label="Postcode:" keyName="postcode" colSpan={2} />
+            </div>
+          </div>
+
+          {/* Participant Contact Details */}
+          <SectionHeader title="Participant Contact Details" bgColor="bg-blue-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <TextInput label="Email address:" keyName="email" type="email" colSpan={3} />
+              <TextInput label="Home Phone No:" keyName="homePhone" />
+              <TextInput label="Mobile No:" keyName="mobile" colSpan={2} />
+            </div>
+          </div>
+
+          {/* Disability Conditions */}
+          <SectionHeader title="Disability Conditions/Disability type(s)" bgColor="bg-red-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <TextArea label="Please describe disability conditions/types:" keyName="disabilityConditions" height={150} colSpan={3} />
+          </div>
+
+          {/* GP Medical Contact */}
+          <SectionHeader title="GP Medical Contact" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TextInput label="Medical Centre Name:" keyName="medicalCentreName" colSpan={2} />
+              <TextInput label="Phone:" keyName="medicalPhone" colSpan={2} />
+            </div>
+          </div>
+
+          {/* Support Coordinator */}
+          <SectionHeader title="Support Coordinator" bgColor="bg-gray-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TextInput label="Name:" keyName="supportCoordinatorName" />
+              <TextInput label="Email Address:" keyName="supportCoordinatorEmail" />
+              <TextInput label="Company:" keyName="supportCoordinatorCompany" />
+              <TextInput label="Contact number:" keyName="supportCoordinatorContact" />
+            </div>
+          </div>
+
+          {/* Other Supports */}
+          <SectionHeader title="Other Supports" bgColor="bg-gray-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <TextArea label="What other supports including mainstream health services you receive at present:" keyName="otherSupports" height={256} colSpan={2} />
+          </div>
+
+          <SectionHeader title="All About Me" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="text-lg font-semibold mb-4">Advocate/representative details (if applicable)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TextInput label="Name:" keyName="advocateName" />
+                <TextInput label="Relationship with the participant:" keyName="advocateRelationship" />
+                <TextInput label="Phone No:" keyName="advocatePhone" />
+                <TextInput label="Mobile No:" keyName="advocateMobile" />
+                <TextInput label="Email:" keyName="advocateEmail" colSpan={2} />
+                <TextInput label="Address Details:" keyName="advocateAddress" colSpan={2} />
+                <TextInput label="Postal Address Details:" keyName="advocatePostalAddress" colSpan={2} />
+                <TextArea label="Other Information:" keyName="advocateOtherInfo" colSpan={2} />
+              </div>
+            </div>
+            <div className="p-6">
+              <h4 className="text-lg font-semibold mb-4">Personal Situation</h4>
+              <div className="space-y-4">
+                <YesNoQuestion 
+                  label="Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?"
+                  keyName="barriers"
+                  yesDetail="If yes, please indicate below:"
+                />
+                <YesNoQuestion 
+                  label="Verbal communication or spoken language - Is an interpreter needed?"
+                  keyName="interpreter" 
+                  yesDetail={undefined}
+                />
+                <TextInput label="Language:" keyName="language" />
+                <TextInput label="Cultural values/ beliefs or assumptions:" keyName="culturalValues" />
+                <TextInput label="Cultural behaviours:" keyName="culturalBehaviours" />
+                <TextInput label="Written communication/literacy:" keyName="writtenCommunication" />
+                <TextInput label="Country of birth:" keyName="countryOfBirth" />
+              </div>
+            </div>
+          </div>
+
+          <SectionHeader title="Contacts, Living and Travel" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="text-lg font-semibold mb-4">Primary Contact</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TextInput label="Contact Name:" keyName="primaryContactName" />
+                <TextInput label="Relationship:" keyName="primaryContactRelationship" />
+                <TextInput label="Home Phone No:" keyName="primaryContactHomePhone" />
+                <TextInput label="Mobile No:" keyName="primaryContactMobile" />
+              </div>
+            </div>
+
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="text-lg font-semibold mb-4">Secondary Contact</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <TextInput label="Contact Name:" keyName="secondaryContactName" />
+                <TextInput label="Relationship:" keyName="secondaryContactRelationship" />
+                <TextInput label="Home Phone No:" keyName="secondaryContactHomePhone" />
+                <TextInput label="Mobile No:" keyName="secondaryContactMobile" />
+              </div>
+            </div>
+
+            <div className="p-6 border-b border-gray-200">
+              <h4 className="text-lg font-semibold mb-4">Living and support arrangements</h4>
+              <p className="mb-4 text-gray-700">What is your current living arrangement? (Please tick the appropriate box)</p>
+              <CheckboxGroup 
+                keyName="livingArrangements"
+                options={[
+                  "Live with Parent/Family/Support Person",
+                  "Live in private rental arrangement with others",
+                  "Live in private rental arrangement alone",
+                  "Owns own home",
+                  "Aged Care Facility",
+                  "Mental Health Facility",
+                  "Lives in public housing",
+                  "Short Term Crisis/Respite",
+                  "Staff Supported Group Home",
+                  "Hostel/SRS Private Accommodation",
+                  "Other"
+                ]}
+              />
+              {(formData.livingArrangements || []).includes("Other") && (
+                <div className="mt-4">
+                  <TextInput label="Please specify:" keyName="livingArrangementsOther" />
+                </div>
+              )}
+            </div>
+
+            <div className="p-6">
+              <h4 className="text-lg font-semibold mb-4">Travel</h4>
+              <p className="mb-4 text-gray-700">How do you travel to work or to your day service? (Please tick the appropriate box)</p>
+              <CheckboxGroup 
+                keyName="travelArrangements"
+                options={[
+                  "Taxi",
+                  "Pick up/ drop off by Parent/Family/Support Person",
+                  "Transport by a provider",
+                  "Independently use Public Transport",
+                  "Walk",
+                  "Assisted Public Transport",
+                  "Drive own car",
+                  "Other"
+                ]} 
+                label={undefined}
+              />
+              {(formData.travelArrangements || []).includes("Other") && (
+                <div className="mt-4">
+                  <TextInput label="Please specify:" keyName="travelArrangementsOther" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <SectionHeader title="Medication Information/Diagnosis/Health Concerns" bgColor="bg-red-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="space-y-4">
+              <YesNoQuestion 
+                label="Does the Participant require a Medication Chart?"
+                keyName="medicationChart"
+                yesDetail="If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment"
+              />
+              
+              <YesNoQuestion 
+                label="Does the Participant require Mealtime Management?"
+                keyName="mealtimeManagement"
+                yesDetail="If yes, refer to Mealtime Management Plan Form"
+              />
+              
+              <YesNoQuestion 
+                label="Does the participant require Bowel Care Management?"
+                keyName="bowelCare"
+                yesDetail="If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care."
+              />
+              
+              <YesNoQuestion 
+                label="Are there any issues with a menstrual cycle or is assistance needed with female hygiene?"
+                keyName="menstrualIssues"
+                yesDetail="If yes, please specify:"
+              />
+              
+              <YesNoQuestion 
+                label="Does the Participant have Epilepsy?"
+                keyName="epilepsy"
+                yesDetail="If yes, ensure Participant's Doctor completes an Epilepsy Plan"
+              />
+              
+              <YesNoQuestion 
+                label="Is the Participant an Asthmatic?"
+                keyName="asthmatic"
+                yesDetail="If yes, ensure Participant's Doctor completes an Asthma Plan"
+              />
+              
+              <YesNoQuestion 
+                label="Does the Participant have any allergies?"
+                keyName="allergies"
+                yesDetail="If yes, ensure to have an Allergy Plan from Participant's Doctor"
+              />
+              
+              <YesNoQuestion 
+                label="Is the Participant anaphylactic?"
+                keyName="anaphylactic"
+                yesDetail="If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor"
+              />
+              
+              <YesNoQuestion 
+                label="Do you give permission for our company's staff to administer band-aids in cases of a minor injury?"
+                keyName="minorInjury"
+              />
+              
+              <YesNoQuestion 
+                label="Does this participant require specific training?"
+                keyName="training"
+                yesDetail="If yes, ensure to provide information such as implementing a positive behaviour support plan."
+              />
+              
+              <YesNoQuestion 
+                label="Are there any other medication conditions that will be relevant to the care provided to this Participant?"
+                keyName="othermedical"
+                yesDetail="If yes, Please specify"
+              />
+              
+              <YesNoQuestion 
+                label="Is there any specific trigger for community activities?"
+                keyName="trigger"
+                yesDetail="If yes, please specify and complete the Risk assessment for participants."
+              />
+            </div>
+          </div>
+
+          <SectionHeader title="Safety Considerations" bgColor="bg-orange-600" />
+          <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6">
+            <div className="space-y-4">
+              <YesNoQuestion 
+                label="Does the Participant show signs or a history of unexpectedly leaving (absconding)?"
+                keyName="absconding"
+                yesDetail="If yes, please specify."
+              />
+              
+              <YesNoQuestion 
+                label="Is this participant prone to falls or have a history of falls?"
+                keyName="historyOfFalls"
+              />
+              
+              <YesNoQuestion 
+                label="Are there any behaviours of concern? E.g.: kicking, biting"
+                keyName="behaviourConcern"
+                yesDetail="If yes, please specify."
+              />
+              
+              <YesNoQuestion 
+                label="Is there a current Positive Behaviour Support Plan in place?"
+                keyName="positiveBehaviour"
+                yesDetail="If yes, refer to High Risk Participant Register."
+              />
+              
+              <YesNoQuestion 
+                label="Does the participant require communication assistance?"
+                keyName="communicationAssistance"
+                yesDetail="If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan"
+              />
+              
+              <YesNoQuestion 
+                label="Is there any physical assistance or physical assistance preference for this Participant?"
+                keyName="physicalAssistance"
+                yesDetail="If yes, specify"
+              />
+              
+              <YesNoQuestion 
+                label="Does the Participant have any expressive language concerns?"
+                keyName="languageConcern"
+                yesDetail="If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication"
+              />
+              
+              <YesNoQuestion 
+                label="Does this Participant have any personal preferences & personal goals?"
+                keyName="personalGoals"
+                yesDetail="If yes, refer to form Support Plan"
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="mt-6 flex justify-end">
+            <button 
+              type="submit" 
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md flex items-center font-medium transition-colors"
+            >
+              Submit Form <FaArrowRight className="ml-2" />
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default DynamicFormRenderer
+// Section Header Component
+const SectionHeader = ({ title, bgColor = "bg-blue-600" }) => (
+  <div className={`${bgColor} text-white p-4 rounded-t-lg mb-0`}>
+    <h3 className="text-xl font-semibold">{title}</h3>
+  </div>
+);
+
+export default ClientIntakeForm;

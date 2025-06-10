@@ -44,6 +44,27 @@ export async function PUT(
       }
     }
 
+    // Prepare data for update - ensure correct types
+    const dataToUpdate = {
+      name: commonFieldsData.name,
+      email: commonFieldsData.email,
+      sex: commonFieldsData.sex,
+      street: commonFieldsData.street,
+      state: commonFieldsData.state,
+      postCode: commonFieldsData.postCode,
+      dob: commonFieldsData.dob,
+      ndis: commonFieldsData.ndis,
+      disability: commonFieldsData.disability,
+      address: commonFieldsData.address,
+      // Ensure age is an integer or null
+      age: commonFieldsData.age ? 
+        typeof commonFieldsData.age === 'string' ? 
+          parseInt(commonFieldsData.age, 10) : 
+          commonFieldsData.age 
+        : null,
+      updatedAt: new Date()
+    };
+
     // Update or create common fields
     const clientId = batch.clientId;
     const existingCommonFields = await prisma.commonField.findFirst({
@@ -55,17 +76,14 @@ export async function PUT(
       // Update existing common fields
       commonFields = await prisma.commonField.update({
         where: { clientId },
-        data: {
-          ...commonFieldsData,
-          updatedAt: new Date()
-        }
+        data: dataToUpdate
       });
     } else {
       // Create new common fields
       commonFields = await prisma.commonField.create({
         data: {
           clientId,
-          ...commonFieldsData
+          ...dataToUpdate
         }
       });
     }

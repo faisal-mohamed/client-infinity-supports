@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params:Promise<{ token: string }> }
 ) {
   try {
-    const token = params.token || "";
+    const {token} = await params 
     const passcode = req.nextUrl.searchParams.get('passcode');
 
     // Find the batch by token

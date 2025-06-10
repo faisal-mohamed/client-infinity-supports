@@ -41,6 +41,15 @@ export async function POST(req: NextRequest) {
             address: commonFields.address,
           }
         });
+      } else {
+        await tx.commonField.create({
+          data: {
+            clientId: newClient.id,
+            name: newClient.name,
+            email: newClient.email,   
+            phone: newClient.phone         
+          }
+        })
       }
 
       // Log the client creation activity
@@ -69,7 +78,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Get all clients
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
@@ -79,8 +87,13 @@ export async function GET(req: NextRequest) {
     const hasNdis = url.searchParams.get('hasNdis') as string | undefined;
     const hasDisability = url.searchParams.get('hasDisability') as string | undefined;
 
+    // Pagination parameters
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
+    const skip = (page - 1) * pageSize;
+
     let whereClause: any = {};
-    
+
     // Search filter
     if (search) {
       whereClause.OR = [
@@ -92,43 +105,65 @@ export async function GET(req: NextRequest) {
 
     // Additional filters for common fields
     let commonFieldsFilter: any = {};
-    
+
     if (state) {
       commonFieldsFilter.state = state;
     }
-    
+
     if (sex) {
       commonFieldsFilter.sex = sex;
     }
-    
+
     if (hasNdis === 'true') {
       commonFieldsFilter.ndis = { not: null };
     } else if (hasNdis === 'false') {
       commonFieldsFilter.ndis = null;
     }
-    
+
     if (hasDisability === 'true') {
       commonFieldsFilter.disability = { not: null };
     } else if (hasDisability === 'false') {
       commonFieldsFilter.disability = null;
     }
-    
-    // Add common fields filter if any are set
+
     if (Object.keys(commonFieldsFilter).length > 0) {
       whereClause.commonFields = {
         some: commonFieldsFilter
       };
     }
 
+    // Get total count for pagination
+    const totalCount = await prisma.client.count({
+      where: whereClause
+    });
+
+    // Paginated clients
     const clients = await prisma.client.findMany({
       where: whereClause,
       include: {
         commonFields: true,
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: pageSize
     });
 
-    return NextResponse.json(clients);
+    // Pagination metadata
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return NextResponse.json({
+      clients,
+      pagination: {
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage
+      }
+    });
   } catch (error: any) {
     console.error("Error fetching clients:", error);
     return NextResponse.json(

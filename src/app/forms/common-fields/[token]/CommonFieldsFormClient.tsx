@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getFormBatchByToken, updateCommonFields } from '@/lib/api';
 import { FaExclamationTriangle, FaSave, FaArrowRight } from 'react-icons/fa';
 
-export default function CommonFieldsFormClient({ token }: { token: string }) {
+export default function CommonFieldsFormClient({ token }:{ token: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const passcode = searchParams.get('passcode');
@@ -15,7 +15,8 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
   const [error, setError] = useState('');
   const [batchData, setBatchData] = useState<any>(null);
   const [formValues, setFormValues] = useState<any>({});
-  
+  const [prefilledFields, setPrefilledFields] = useState<any>({});
+
   useEffect(() => {
     const loadBatchData = async () => {
       try {
@@ -27,7 +28,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
         
         // Pre-fill form values from existing common fields if available
         if (data.client.commonFields && data.client.commonFields.length > 0) {
-          setFormValues(data.client.commonFields[0]);
+          const prefilled = data.client.commonFields[0];
+          setFormValues(prefilled);
+          setPrefilledFields(prefilled);  // Track pre-filled fields
         }
       } catch (err: any) {
         setError(err.message || "Failed to load forms");
@@ -50,8 +53,15 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
         return;
       }
       
+      // Process form values to ensure correct types
+      const processedFormValues = {
+        ...formValues,
+        // Convert age to number if it exists
+        age: formValues.age ? parseInt(formValues.age, 10) : null
+      };
+      
       // Save common fields with passcode
-      await updateCommonFields(token, formValues, passcode || undefined);
+      await updateCommonFields(token, processedFormValues, passcode || undefined);
       
       // Redirect to the first form
       if (batchData.forms.length > 0) {
@@ -63,7 +73,16 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
       setSaving(false);
     }
   };
-  
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, field: string) => {
+    setFormValues({ ...formValues, [field]: e.target.value });
+  };
+
+  const isFieldDisabled = (field: string) => {
+    // Disable the field if it's pre-filled and hasn't been edited
+    return prefilledFields[field] && formValues[field] === prefilledFields[field];
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -110,9 +129,10 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="text"
                   value={formValues.name || ''}
-                  onChange={(e) => setFormValues({...formValues, name: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'name')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
+                  disabled={isFieldDisabled('name')}
                 />
               </div>
               
@@ -123,8 +143,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="email"
                   value={formValues.email || ''}
-                  onChange={(e) => setFormValues({...formValues, email: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'email')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('email')}
                 />
               </div>
               
@@ -135,8 +156,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="date"
                   value={formValues.dob || ''}
-                  onChange={(e) => setFormValues({...formValues, dob: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'dob')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('dob')}
                 />
               </div>
               
@@ -147,7 +169,8 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="number"
                   value={formValues.age || ''}
-                  onChange={(e) => setFormValues({...formValues, age: parseInt(e.target.value) || ''})}
+                  onChange={(e) => handleInputChange(e, 'age')}
+                  disabled={isFieldDisabled('age')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -158,8 +181,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 </label>
                 <select
                   value={formValues.sex || ''}
-                  onChange={(e) => setFormValues({...formValues, sex: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'sex')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('sex')}
                 >
                   <option value="">Select...</option>
                   <option value="Male">Male</option>
@@ -175,8 +199,22 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="text"
                   value={formValues.ndis || ''}
-                  onChange={(e) => setFormValues({...formValues, ndis: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'ndis')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('ndis')}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone no
+                </label>
+                <input
+                  type="text"
+                  value={formValues.phone || ''}
+                  onChange={(e) => handleInputChange(e, 'phone')}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('phone')}
                 />
               </div>
               
@@ -187,8 +225,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="text"
                   value={formValues.street || ''}
-                  onChange={(e) => setFormValues({...formValues, street: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'street')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('street')}
                 />
               </div>
               
@@ -198,8 +237,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 </label>
                 <select
                   value={formValues.state || ''}
-                  onChange={(e) => setFormValues({...formValues, state: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'state')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('state')}
                 >
                   <option value="">Select...</option>
                   <option value="NSW">New South Wales</option>
@@ -220,8 +260,9 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 <input
                   type="text"
                   value={formValues.postCode || ''}
-                  onChange={(e) => setFormValues({...formValues, postCode: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'postCode')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isFieldDisabled('postCode')}
                 />
               </div>
               
@@ -231,9 +272,10 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 </label>
                 <textarea
                   value={formValues.disability || ''}
-                  onChange={(e) => setFormValues({...formValues, disability: e.target.value})}
+                  onChange={(e) => handleInputChange(e, 'disability')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
+                  disabled={isFieldDisabled('disability')}
                 ></textarea>
               </div>
             </div>
@@ -245,10 +287,7 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
               >
                 {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
                 ) : (
                   <>
                     Continue <FaArrowRight className="ml-2" />

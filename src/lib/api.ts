@@ -46,32 +46,42 @@ export async function createForm(formData: {
   return response.json();
 }
 
-// Client API functions
-export async function getClients(search?: string, filters?: {
-  state?: string;
-  sex?: string;
-  hasNdis?: boolean;
-  hasDisability?: boolean;
+export async function getClients(options?: {
+  search?: string;
+  filters?: {
+    state?: string;
+    sex?: string;
+    hasNdis?: boolean;
+    hasDisability?: boolean;
+  };
+  page?: number;
+  pageSize?: number;
 }) {
   let url = '/api/clients';
   const params = new URLSearchParams();
-  
-  if (search) {
-    params.append('search', search);
+
+  // Add search parameter
+  if (options?.search) {
+    params.append('search', options.search);
   }
-  
-  if (filters) {
-    if (filters.state) params.append('state', filters.state);
-    if (filters.sex) params.append('sex', filters.sex);
-    if (filters.hasNdis !== undefined) params.append('hasNdis', String(filters.hasNdis));
-    if (filters.hasDisability !== undefined) params.append('hasDisability', String(filters.hasDisability));
+
+  // Add filter parameters
+  if (options?.filters) {
+    if (options.filters.state) params.append('state', options.filters.state);
+    if (options.filters.sex) params.append('sex', options.filters.sex);
+    if (options.filters.hasNdis !== undefined) params.append('hasNdis', String(options.filters.hasNdis));
+    if (options.filters.hasDisability !== undefined) params.append('hasDisability', String(options.filters.hasDisability));
   }
-  
+
+  // Add pagination parameters
+  if (options?.page !== undefined) params.append('page', String(options.page));
+  if (options?.pageSize !== undefined) params.append('pageSize', String(options.pageSize));
+
   const queryString = params.toString();
   if (queryString) {
     url += `?${queryString}`;
   }
-    
+
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch clients');

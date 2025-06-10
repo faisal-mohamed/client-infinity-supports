@@ -110,6 +110,32 @@ export async function DELETE(
 
     // Start a transaction to delete client and related data
     await prisma.$transaction(async (tx) => {
+      // Delete form batches first (this was missing)
+      // We need to delete FormAssignments linked to batches first
+      const batches = await tx.formBatch.findMany({
+        where: { clientId },
+        select: { id: true }
+      });
+      
+      const batchIds = batches.map(batch => batch.id);
+      
+      // Delete form assignments linked to batches
+      if (batchIds.length > 0) {
+        await tx.formAssignment.deleteMany({
+          where: { batchId: { in: batchIds } },
+        });
+      }
+      
+      // Now delete the batches
+      await tx.formBatch.deleteMany({
+        where: { clientId },
+      });
+      
+      // Delete remaining form assignments not linked to batches
+      await tx.formAssignment.deleteMany({
+        where: { clientId },
+      });
+
       // Delete common fields
       await tx.commonField.deleteMany({
         where: { clientId },
@@ -127,11 +153,6 @@ export async function DELETE(
 
       // Delete form signatures
       await tx.formSignature.deleteMany({
-        where: { clientId },
-      });
-
-      // Delete form assignments
-      await tx.formAssignment.deleteMany({
         where: { clientId },
       });
 

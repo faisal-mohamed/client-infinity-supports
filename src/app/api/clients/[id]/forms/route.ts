@@ -3,10 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }  // params is now a Promise
 ) {
   try {
-    const clientId = parseInt(params.id || "0");
+    const { id } = await context.params;  // await params here
+    const clientId = parseInt(id || "0");
 
     // Get all form assignments for this client
     const formAssignments = await prisma.formAssignment.findMany({
@@ -17,8 +18,8 @@ export async function GET(
         form: true,
       },
       orderBy: {
-      assignedAt: "desc",
-},
+        assignedAt: "desc",
+      },
     });
 
     // Get form submissions for this client
@@ -33,7 +34,7 @@ export async function GET(
       const submission = formSubmissions.find(
         (sub) => sub.formId === assignment.formId
       );
-      
+
       return {
         id: assignment.id,
         clientId: assignment.clientId,
