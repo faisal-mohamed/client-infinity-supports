@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getFormDataByToken, saveFormDataByToken } from "@/lib/api";
+import { getValidationForForm } from "@/app/components/forms/FormValidation";
 import {
   FaCheck,
   FaExclamationTriangle,
@@ -10,8 +11,7 @@ import {
   FaArrowLeft,
   FaArrowRight,
 } from "react-icons/fa";
-import ClientIntakeFormRenderer from "@/app/components/ClientIntakeFormRenderer";
-import DynamicFormRenderer from "@/app/components/DynamicFormRender";
+import DynamicFormRenderer from "@/app/components/DynamicFormRenderer";
 
 export default function FormViewClient({ token }: { token: string }) {
   const router = useRouter();
@@ -33,9 +33,7 @@ export default function FormViewClient({ token }: { token: string }) {
         // Load form data
         const data = await getFormDataByToken(token);
         setFormData(data);
-
-        console.log("formData: ", data);
-
+        
         // Check if form is expired
         const now = new Date();
         const expiryDate = new Date(data.assignment.expiresAt);
@@ -44,42 +42,16 @@ export default function FormViewClient({ token }: { token: string }) {
         // Check if form is already submitted
         setIsSubmitted(data.isSubmitted);
 
-        // Set initial form values - merge common fields with existing form data
-        const initialValues = { ...data.formData };
-
-        // If we have common fields, map them to the form fields based on the form type
-        if (data.commonFields) {
-          // This is where you would implement your field mapping logic
-          // For example, if the form has a "name" field and commonFields has a "name" field:
-          if (data.form.formKey === "client_intake_form") {
-            // Map common fields to client intake form fields
-            if (data.commonFields.name)
-              initialValues.givenName = data.commonFields.name;
-            if (data.commonFields.email)
-              initialValues.email = data.commonFields.email;
-            if (data.commonFields.age)
-              initialValues.age = data.commonFields.age;
-            if (data.commonFields.sex)
-              initialValues.sex = [data.commonFields.sex];
-            if (data.commonFields.dob)
-              initialValues.dateOfBirth = data.commonFields.dob;
-            if (data.commonFields.ndis)
-              initialValues.ndisNumber = data.commonFields.ndis;
-            if (data.commonFields.street)
-              initialValues.addressNumberStreet = data.commonFields.street;
-            if (data.commonFields.state)
-              initialValues.state = data.commonFields.state;
-            if (data.commonFields.postCode)
-              initialValues.postcode = data.commonFields.postCode;
-            if (data.commonFields.disability)
-              initialValues.disabilityConditions = data.commonFields.disability;
-            if (data.commonFields.phone)
-              initialValues.phone - data.commonFields.phone;
-          }
-          // Add more form types as needed
-        }
-
-        setFormValues(initialValues);
+        // Set initial form values from the API response
+        // Make sure we're not passing undefined or null
+        setFormValues(data.formData || {});
+        
+        // Log the data for debugging
+        console.log("Form data loaded:", {
+          formData: data.formData,
+          commonFields: data.commonFields
+        });
+        
         setError("");
       } catch (err: any) {
         setError(err.message || "Failed to load form");
@@ -94,7 +66,17 @@ export default function FormViewClient({ token }: { token: string }) {
 
   const handleSave = async (submit: boolean = false) => {
     try {
+      // Basic form validation if submitting
       if (submit) {
+        // Get the appropriate validation function for this form type
+        const validateForm = getValidationForForm(formData.form.formKey);
+        const validationError = validateForm(formValues);
+        
+        if (validationError) {
+          setError(validationError);
+          return;
+        }
+        
         setSubmitting(true);
       } else {
         setSaving(true);
@@ -139,6 +121,8 @@ export default function FormViewClient({ token }: { token: string }) {
   };
 
   const handleFormChange = (newValues: any) => {
+    // This function is called whenever the form values change
+    // Use a functional update to ensure we're working with the latest state
     setFormValues(newValues);
   };
 
@@ -247,6 +231,7 @@ export default function FormViewClient({ token }: { token: string }) {
                 formData={formValues}
                 commonFieldsData={formData.commonFields || {}}
                 onChange={handleFormChange}
+                onSubmit={() => handleSave(true)}
                 readOnly={isSubmitted}
               />
             </div>
