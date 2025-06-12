@@ -15,6 +15,7 @@ import DynamicFormRenderer from "@/app/components/DynamicFormRenderer";
 
 export default function FormViewClient({ token }: { token: string }) {
   const router = useRouter();
+
   const [formData, setFormData] = useState<any>(null);
   const [formValues, setFormValues] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -24,34 +25,31 @@ export default function FormViewClient({ token }: { token: string }) {
   const [success, setSuccess] = useState("");
   const [isExpired, setIsExpired] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [passcode, setPasscode] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  // Extract passcode from URL query param
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPasscode = urlParams.get("passcode");
+    if (urlPasscode) {
+      setPasscode(urlPasscode);
+    }
+  }, []);
+
+  // Load form data
   useEffect(() => {
     const loadFormData = async () => {
       try {
         setLoading(true);
-
-        // Load form data
         const data = await getFormDataByToken(token);
         setFormData(data);
-        
-        // Check if form is expired
+
         const now = new Date();
         const expiryDate = new Date(data.assignment.expiresAt);
         setIsExpired(expiryDate < now);
-
-        // Check if form is already submitted
         setIsSubmitted(data.isSubmitted);
-
-        // Set initial form values from the API response
-        // Make sure we're not passing undefined or null
         setFormValues(data.formData || {});
-        
-        // Log the data for debugging
-        console.log("Form data loaded:", {
-          formData: data.formData,
-          commonFields: data.commonFields
-        });
-        
         setError("");
       } catch (err: any) {
         setError(err.message || "Failed to load form");
@@ -66,24 +64,23 @@ export default function FormViewClient({ token }: { token: string }) {
 
   const handleSave = async (submit: boolean = false) => {
     try {
-      // Basic form validation if submitting
+      setError("");
+      setFieldErrors({});
+
       if (submit) {
-        // Get the appropriate validation function for this form type
         const validateForm = getValidationForForm(formData.form.formKey);
-        const validationError = validateForm(formValues);
-        
-        if (validationError) {
-          setError(validationError);
+        const validationResult = validateForm(formValues);
+
+        if (!validationResult.isValid) {
+          setFieldErrors(validationResult.errors);
+          setError("Please correct the errors in the form");
           return;
         }
-        
+
         setSubmitting(true);
       } else {
         setSaving(true);
       }
-
-      setError("");
-      setSuccess("");
 
       await saveFormDataByToken(token, {
         data: formValues,
@@ -94,19 +91,21 @@ export default function FormViewClient({ token }: { token: string }) {
         setIsSubmitted(true);
         setSuccess("Form submitted successfully!");
 
-        // If there's a next form, navigate to it
-        if (formData.navigation.nextForm) {
-          setTimeout(() => {
+        setTimeout(() => {
+          if (formData.navigation.nextForm) {
             router.push(
-              `/forms/view-form/${formData.navigation.nextForm.accessToken}`
+              `/forms/view-form/${formData.navigation.nextForm.accessToken}${
+                passcode ? `?passcode=${passcode}` : ""
+              }`
             );
-          }, 1500);
-        } else {
-          // All forms completed, go to completion page
-          setTimeout(() => {
-            router.push(`/forms/completed/${formData.navigation.batchToken}`);
-          }, 1500);
-        }
+          } else {
+            router.push(
+              `/forms/completed/${formData.navigation.batchToken}${
+                passcode ? `?passcode=${passcode}` : ""
+              }`
+            );
+          }
+        }, 1500);
       } else {
         setSuccess("Progress saved successfully!");
         setTimeout(() => setSuccess(""), 3000);
@@ -121,15 +120,15 @@ export default function FormViewClient({ token }: { token: string }) {
   };
 
   const handleFormChange = (newValues: any) => {
-    // This function is called whenever the form values change
-    // Use a functional update to ensure we're working with the latest state
     setFormValues(newValues);
   };
 
   const navigateToPreviousForm = () => {
     if (formData.navigation.previousForm) {
       router.push(
-        `/forms/view-form/${formData.navigation.previousForm.accessToken}`
+        `/forms/view-form/${formData.navigation.previousForm.accessToken}${
+          passcode ? `?passcode=${passcode}` : ""
+        }`
       );
     }
   };
@@ -157,9 +156,6 @@ export default function FormViewClient({ token }: { token: string }) {
           <p className="text-gray-600 text-center mb-6">
             This form has expired and is no longer available for submission.
           </p>
-          <p className="text-gray-600 text-center">
-            Please contact the administrator for assistance.
-          </p>
         </div>
       </div>
     );
@@ -184,7 +180,9 @@ export default function FormViewClient({ token }: { token: string }) {
             <button
               onClick={() =>
                 router.push(
-                  `/forms/completed/${formData.navigation.batchToken}`
+                  `/forms/completed/${formData.navigation.batchToken}${
+                    passcode ? `?passcode=${passcode}` : ""
+                  }`
                 )
               }
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
@@ -217,7 +215,6 @@ export default function FormViewClient({ token }: { token: string }) {
                 {error}
               </div>
             )}
-
             {success && (
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 {success}
@@ -233,6 +230,7 @@ export default function FormViewClient({ token }: { token: string }) {
                 onChange={handleFormChange}
                 onSubmit={() => handleSave(true)}
                 readOnly={isSubmitted}
+                fieldErrors={fieldErrors}
               />
             </div>
 
@@ -275,7 +273,7 @@ export default function FormViewClient({ token }: { token: string }) {
                   </>
                 ) : (
                   <>
-                    {formData.navigation.nextForm ? "Next Form" : "Submit Form"}{" "}
+                    {formData.navigation.nextForm ? "Next Form" : "Submit Form"}
                     <FaArrowRight className="ml-2" />
                   </>
                 )}

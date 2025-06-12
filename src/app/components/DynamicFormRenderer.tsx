@@ -11,11 +11,12 @@ interface DynamicFormRendererProps {
   onChange: (values: any) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
+  fieldErrors?: Record<string, string>; // Add field errors prop
 }
 
 /**
  * DynamicFormRenderer - Renders the appropriate form component based on formKey
- * 
+ *
  * This component acts as a bridge between the form registry and the application.
  * It selects the correct form component based on the formKey and passes all
  * necessary props to it.
@@ -27,11 +28,12 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
   commonFieldsData,
   onChange,
   onSubmit,
-  readOnly = false
+  readOnly = false,
+  fieldErrors = {} // Default to empty object
 }) => {
   // Get the appropriate form component based on formKey
   const FormComponent = formRegistry[formKey];
-  
+
   if (!FormComponent) {
     return (
       <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
@@ -40,15 +42,16 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
       </div>
     );
   }
-  
+
   return (
-    <FormComponent 
+    <FormComponent
       formData={formData}
       formSchema={formSchema}
       commonFieldsData={commonFieldsData}
       onChange={onChange}
       onSubmit={onSubmit}
       readOnly={readOnly}
+      fieldErrors={fieldErrors} // Pass field errors to the form component
     />
   );
 };

@@ -691,15 +691,27 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
   };
 
   const copyToClipboard = (text: string, type: 'link' | 'passcode') => {
-    navigator.clipboard.writeText(text);
-    if (type === 'link') {
-      setCopiedLink(1); // Just a flag to show "Copied!" message
-      setTimeout(() => setCopiedLink(null), 2000);
-    } else {
-      setCopiedPasscode(true);
-      setTimeout(() => setCopiedPasscode(false), 2000);
-    }
-  };
+  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        if (type === 'link') {
+          setCopiedLink(1);
+          setTimeout(() => setCopiedLink(null), 2000);
+        } else {
+          setCopiedPasscode(true);
+          setTimeout(() => setCopiedPasscode(false), 2000);
+        }
+      })
+      .catch((err) => {
+        console.error("Clipboard copy failed:", err);
+        alert("Clipboard copy failed.");
+      });
+  } else {
+    console.warn("Clipboard API not supported.");
+    alert("Copy to clipboard is not supported in this browser or environment.");
+  }
+};
+
 
   const getFormStatusBadge = (form: AssignedForm) => {
     const now = new Date();

@@ -9,6 +9,7 @@ interface FormProps {
   onChange: (values: any) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
+  fieldErrors?: Record<string, string>; // Add this prop
 }
 
 const commonFieldsMapping: Record<string, string> = {
@@ -51,7 +52,7 @@ const travelArrangementsOptions = [
   "Other, please specify: _______________________"
 ];
 
-const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onChange, onSubmit, readOnly = false }) => {
+const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onChange, onSubmit, readOnly = false, fieldErrors = {} }) => {
   const initialValues = {
     date: new Date().toISOString().split("T")[0],
     ndisNumber: "",
@@ -159,11 +160,15 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly || (commonFieldsMapping[name] && commonFieldsData?.[commonFieldsMapping[name]])}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        className={`w-full px-3 py-2 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-md`}
       />
+      {fieldErrors[name] && (
+        <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
+      )}
     </div>
   );
 
+  // Similarly update renderTextArea
   const renderTextArea = (label: string, name: string) => (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -172,12 +177,16 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        className={`w-full px-3 py-2 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-md`}
         rows={4}
       />
+      {fieldErrors[name] && (
+        <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
+      )}
     </div>
   );
 
+  // Update renderDropdown
   const renderDropdown = (label: string, name: string, options: string[]) => (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -186,19 +195,23 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        className={`w-full px-3 py-2 border ${fieldErrors[name] ? 'border-red-500' : 'border-gray-300'} rounded-md`}
       >
         <option value="">Select</option>
         {options.map((option) => (
           <option key={option} value={option}>{option}</option>
         ))}
       </select>
+      {fieldErrors[name] && (
+        <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
+      )}
     </div>
   );
 
+  // Update renderCheckboxGroup
   const renderCheckboxGroup = (label: string, name: string, options: string[]) => (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className={`block text-sm font-medium ${fieldErrors[name] ? 'text-red-600' : 'text-gray-700'} mb-1`}>{label}</label>
       <div className="flex flex-wrap gap-4">
         {options.map((option) => (
           <label key={option} className="inline-flex items-center">
@@ -223,39 +236,46 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
           </label>
         ))}
       </div>
+      {fieldErrors[name] && (
+        <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
+      )}
     </div>
   );
 
+  // Update renderMultiSelectCheckbox
   const renderMultiSelectCheckbox = (label: string, name: string, options: string[]) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-    <div className="flex flex-col gap-2">
-      {options.map((option) => (
-        <label key={option} className="inline-flex items-center">
-          <input
-            type="checkbox"
-            value={option}
-            checked={Array.isArray(localValues[name]) && localValues[name].includes(option)}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setLocalValues((prev: any) => {
-                const current = Array.isArray(prev[name]) ? prev[name] : [];
-                return {
-                  ...prev,
-                  [name]: checked
-                    ? [...current, option]
-                    : current.filter((val: string) => val !== option),
-                };
-              });
-            }}
-            className="mr-2"
-          />
-          {option}
-        </label>
-      ))}
+    <div>
+      <label className={`block text-sm font-medium ${fieldErrors[name] ? 'text-red-600' : 'text-gray-700'} mb-1`}>{label}</label>
+      <div className="flex flex-col gap-2">
+        {options.map((option) => (
+          <label key={option} className="inline-flex items-center">
+            <input
+              type="checkbox"
+              value={option}
+              checked={Array.isArray(localValues[name]) && localValues[name].includes(option)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setLocalValues((prev: any) => {
+                  const current = Array.isArray(prev[name]) ? prev[name] : [];
+                  return {
+                    ...prev,
+                    [name]: checked
+                      ? [...current, option]
+                      : current.filter((val: string) => val !== option),
+                  };
+                });
+              }}
+              className="mr-2"
+            />
+            {option}
+          </label>
+        ))}
+      </div>
+      {fieldErrors[name] && (
+        <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
+      )}
     </div>
-  </div>
-);
+  );
 
 
   return (
@@ -318,9 +338,9 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
       {renderInput("Other Living Arrangement", "livingArrangementsOther")}
       {renderMultiSelectCheckbox("Travel Arrangements", "travelArrangements", travelArrangementsOptions)}
       {renderInput("Other Travel Arrangement", "travelArrangementsOther")}
-      {renderCheckboxGroup("Requires Medication Chart?", "medicationChart", yesNoOptions)}
-      {renderCheckboxGroup("Requires Mealtime Management?", "mealtimeManagement", yesNoOptions)}
-      {renderCheckboxGroup("Requires Bowel Care Management?", "bowelCare", yesNoOptions)}
+      {renderDropdown("Requires Medication Chart?", "medicationChart", yesNoOptions)}
+      {renderDropdown("Requires Mealtime Management?", "mealtimeManagement", yesNoOptions)}
+      {renderDropdown("Requires Bowel Care Management?", "bowelCare", yesNoOptions)}
       {renderDropdown("Menstrual Cycle Issues / Female Hygiene Help", "menstrualIssues", yesNoOptions)}
       {renderDropdown("Has Epilepsy?", "epilepsy", yesNoOptions)}
       {renderDropdown("Is Asthmatic?", "asthmatic", yesNoOptions)}

@@ -44,7 +44,7 @@ export default function RegisterPage() {
       setIsLoading(true);
       setError('');
 
-      const response = await fetch('/api/admin/register', {
+      const response = await fetch('/api/admins/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
