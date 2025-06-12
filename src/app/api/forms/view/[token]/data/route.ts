@@ -7,6 +7,7 @@ export async function GET(
 ) {
   try {
     const {token} = await params
+    const passcode = req.nextUrl.searchParams.get('passcode');
     
     // Find the form assignment by access token
     const assignment = await prisma.formAssignment.findUnique({
@@ -35,6 +36,16 @@ export async function GET(
         { error: "Access link has expired" },
         { status: 403 }
       );
+    }
+    
+    // Verify passcode if required
+    if (assignment.passcode) {
+      if (!passcode || assignment.passcode !== passcode) {
+        return NextResponse.json(
+          { error: "Invalid passcode" },
+          { status: 403 }
+        );
+      }
     }
     
     // Get existing form submission if any
@@ -108,6 +119,7 @@ export async function PUT(
 ) {
   try {
     const token = params.token || "";
+    const passcode = req.nextUrl.searchParams.get('passcode');
     const body = await req.json();
     
     // Find the form assignment by access token
@@ -131,6 +143,16 @@ export async function PUT(
         { error: "Access link has expired" },
         { status: 403 }
       );
+    }
+    
+    // Verify passcode if required
+    if (assignment.passcode) {
+      if (!passcode || assignment.passcode !== passcode) {
+        return NextResponse.json(
+          { error: "Invalid passcode" },
+          { status: 403 }
+        );
+      }
     }
     
     // Check if already submitted

@@ -39,10 +39,12 @@ export default function FormViewClient({ token }: { token: string }) {
 
   // Load form data
   useEffect(() => {
+    if (!passcode) return; // Don't load data until passcode is available
+    
     const loadFormData = async () => {
       try {
         setLoading(true);
-        const data = await getFormDataByToken(token);
+        const data = await getFormDataByToken(token, passcode);
         setFormData(data);
 
         const now = new Date();
@@ -60,7 +62,7 @@ export default function FormViewClient({ token }: { token: string }) {
     };
 
     loadFormData();
-  }, [token]);
+  }, [token, passcode]);
 
   const handleSave = async (submit: boolean = false) => {
     try {
@@ -85,7 +87,7 @@ export default function FormViewClient({ token }: { token: string }) {
       await saveFormDataByToken(token, {
         data: formValues,
         isSubmitted: submit,
-      });
+      }, passcode || undefined);
 
       if (submit) {
         setIsSubmitted(true);
@@ -100,9 +102,7 @@ export default function FormViewClient({ token }: { token: string }) {
             );
           } else {
             router.push(
-              `/forms/completed/${formData.navigation.batchToken}${
-                passcode ? `?passcode=${passcode}` : ""
-              }`
+              `/forms/completed/${formData.navigation.batchToken}?passcode=${encodeURIComponent(passcode || '')}`
             );
           }
         }, 1500);
@@ -126,9 +126,7 @@ export default function FormViewClient({ token }: { token: string }) {
   const navigateToPreviousForm = () => {
     if (formData.navigation.previousForm) {
       router.push(
-        `/forms/view-form/${formData.navigation.previousForm.accessToken}${
-          passcode ? `?passcode=${passcode}` : ""
-        }`
+        `/forms/view-form/${formData.navigation.previousForm.accessToken}?passcode=${encodeURIComponent(passcode || '')}`
       );
     }
   };

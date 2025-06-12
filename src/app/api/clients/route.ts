@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
+
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
@@ -87,14 +88,12 @@ export async function GET(req: NextRequest) {
     const hasNdis = url.searchParams.get('hasNdis') as string | undefined;
     const hasDisability = url.searchParams.get('hasDisability') as string | undefined;
 
-    // Pagination parameters
     const page = parseInt(url.searchParams.get('page') || '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
     const skip = (page - 1) * pageSize;
 
     let whereClause: any = {};
 
-    // Search filter
     if (search) {
       whereClause.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -103,28 +102,16 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // Additional filters for common fields
     let commonFieldsFilter: any = {};
 
-    if (state) {
-      commonFieldsFilter.state = state;
-    }
+    if (state) commonFieldsFilter.state = state;
+    if (sex) commonFieldsFilter.sex = sex;
 
-    if (sex) {
-      commonFieldsFilter.sex = sex;
-    }
+    if (hasNdis === 'true') commonFieldsFilter.ndis = { not: null };
+    else if (hasNdis === 'false') commonFieldsFilter.ndis = null;
 
-    if (hasNdis === 'true') {
-      commonFieldsFilter.ndis = { not: null };
-    } else if (hasNdis === 'false') {
-      commonFieldsFilter.ndis = null;
-    }
-
-    if (hasDisability === 'true') {
-      commonFieldsFilter.disability = { not: null };
-    } else if (hasDisability === 'false') {
-      commonFieldsFilter.disability = null;
-    }
+    if (hasDisability === 'true') commonFieldsFilter.disability = { not: null };
+    else if (hasDisability === 'false') commonFieldsFilter.disability = null;
 
     if (Object.keys(commonFieldsFilter).length > 0) {
       whereClause.commonFields = {
@@ -132,29 +119,40 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    // Get total count for pagination
-    const totalCount = await prisma.client.count({
-      where: whereClause
-    });
+    const totalCount = await prisma.client.count({ where: whereClause });
 
-    // Paginated clients
     const clients = await prisma.client.findMany({
       where: whereClause,
       include: {
         commonFields: true,
+        logs: {
+          orderBy: { createdAt: 'desc' },
+          take: 3 // ✅ limit logs per client (adjust as needed)
+        }
       },
       orderBy: { createdAt: 'desc' },
       skip,
       take: pageSize
     });
 
-    // Pagination metadata
     const totalPages = Math.ceil(totalCount / pageSize);
     const hasNextPage = page < totalPages;
     const hasPreviousPage = page > 1;
 
+    // Optional: serialize logs safely (especially metadata)
+    const serializedClients = clients.map(client => ({
+      ...client,
+      logs: client.logs.map(log => ({
+        id: log.id,
+        action: log.action,
+        createdAt: log.createdAt,
+        metadata: log.metadata ?? null,
+        logType: log.logType
+      }))
+    }));
+
     return NextResponse.json({
-      clients,
+      clients: serializedClients,
       pagination: {
         page,
         pageSize,
@@ -164,6 +162,7 @@ export async function GET(req: NextRequest) {
         hasPreviousPage
       }
     });
+
   } catch (error: any) {
     console.error("Error fetching clients:", error);
     return NextResponse.json(
@@ -172,3 +171,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+

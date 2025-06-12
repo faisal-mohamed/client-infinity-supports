@@ -3,29 +3,36 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const token = params.token || "";
+    const { token } = await params;
     const passcode = req.nextUrl.searchParams.get('passcode');
-    const commonFieldsData = await req.json();
-
-    // Find the batch by token
+    const body = await req.json();
+    
+    // Find the form batch by batch token
     const batch = await prisma.formBatch.findUnique({
       where: { batchToken: token },
       include: {
         client: true,
-        assignments: true
+        assignments: {
+          include: {
+            form: true
+          },
+          orderBy: {
+            displayOrder: 'asc'
+          }
+        }
       }
     });
-
+    
     if (!batch) {
       return NextResponse.json(
         { error: "Invalid access token" },
         { status: 404 }
       );
     }
-
+    
     // Check if expired
     if (new Date() > new Date(batch.expiresAt)) {
       return NextResponse.json(
@@ -33,62 +40,44 @@ export async function PUT(
         { status: 403 }
       );
     }
-
-    // Verify passcode if provided or required
-    if (batch.assignments[0]?.passcode) {
-      if (!passcode || batch.assignments[0].passcode !== passcode) {
+    
+    // Check if passcode is required
+    // For batch-level passcode, we'll check the first assignment's passcode
+    const firstAssignment = batch.assignments[0];
+    if (firstAssignment?.passcode) {
+      // If no passcode provided, return error
+      if (!passcode) {
+        return NextResponse.json(
+          { error: "Passcode required" },
+          { status: 403 }
+        );
+      }
+      
+      // If passcode doesn't match, return error
+      if (firstAssignment.passcode !== passcode) {
         return NextResponse.json(
           { error: "Invalid passcode" },
           { status: 403 }
         );
       }
     }
-
-    // Prepare data for update - ensure correct types
-    const dataToUpdate = {
-      name: commonFieldsData.name,
-      email: commonFieldsData.email,
-      sex: commonFieldsData.sex,
-      street: commonFieldsData.street,
-      state: commonFieldsData.state,
-      postCode: commonFieldsData.postCode,
-      dob: commonFieldsData.dob,
-      ndis: commonFieldsData.ndis,
-      disability: commonFieldsData.disability,
-      address: commonFieldsData.address,
-      // Ensure age is an integer or null
-      age: commonFieldsData.age ? 
-        typeof commonFieldsData.age === 'string' ? 
-          parseInt(commonFieldsData.age, 10) : 
-          commonFieldsData.age 
-        : null,
-      updatedAt: new Date()
-    };
-
-    // Update or create common fields
-    const clientId = batch.clientId;
-    const existingCommonFields = await prisma.commonField.findFirst({
-      where: { clientId }
+    
+    // Update or create common fields for the client
+    const commonFields = await prisma.commonField.upsert({
+      where: {
+        clientId: batch.clientId
+      },
+      update: {
+        ...body,
+        updatedAt: new Date()
+      },
+      create: {
+        clientId: batch.clientId,
+        ...body
+      }
     });
-
-    let commonFields;
-    if (existingCommonFields) {
-      // Update existing common fields
-      commonFields = await prisma.commonField.update({
-        where: { clientId },
-        data: dataToUpdate
-      });
-    } else {
-      // Create new common fields
-      commonFields = await prisma.commonField.create({
-        data: {
-          clientId,
-          ...dataToUpdate
-        }
-      });
-    }
-
-    // Mark all assignments as having common fields completed
+    
+    // Mark all assignments in the batch as having common fields completed
     await prisma.formAssignment.updateMany({
       where: {
         batchId: batch.id
@@ -97,20 +86,23 @@ export async function PUT(
         isCommonFieldsCompleted: true
       }
     });
-
-    // Log the activity
+    
+    // Log the common fields update
     await prisma.formActivityLog.create({
       data: {
-        clientId,
+        clientId: batch.clientId,
         logType: "CLIENT",
         action: "Updated Common Fields",
         metadata: {
-          batchToken: token
+          batchId: batch.id
         }
       }
     });
-
-    return NextResponse.json(commonFields);
+    
+    return NextResponse.json({
+      success: true,
+      commonFields
+    });
   } catch (error: any) {
     console.error("Error updating common fields:", error);
     return NextResponse.json(

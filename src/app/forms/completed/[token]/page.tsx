@@ -1,5 +1,6 @@
-import FormCompletionClient from './FormCompletionClient';
+import CompletedFormsClient from './CompletedFormsClient';
 
-export default function FormCompletionPage({ params }: { params: { token: string } }) {
-  return <FormCompletionClient token={params.token} />;
+export default async function CompletedFormsPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  return <CompletedFormsClient token={token} />;
 }

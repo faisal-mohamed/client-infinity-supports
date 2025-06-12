@@ -1,5 +1,6 @@
 import FormAccessPageClient from './FormAccessPageClient';
 
-export default function FormAccessPage({ params }: { params: { token: string } }) {
-  return <FormAccessPageClient token={params.token} />;
+export default async function FormAccessPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  return <FormAccessPageClient token={token} />;
 }

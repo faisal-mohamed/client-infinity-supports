@@ -256,7 +256,7 @@ export async function saveClientFormSubmission(clientId: number, formId: number,
 export async function getFormBatchByToken(token: string, passcode?: string) {
   let url = `/api/forms/access/${token}`;
   if (passcode) {
-    url += `?passcode=${passcode}`;
+    url += `?passcode=${encodeURIComponent(passcode)}`;
   }
   
   const response = await fetch(url);
@@ -290,8 +290,13 @@ export async function updateCommonFields(token: string, commonFieldsData: any, p
   return response.json();
 }
 
-export async function getFormDataByToken(token: string) {
-  const response = await fetch(`/api/forms/view/${token}/data`);
+export async function getFormDataByToken(token: string, passcode?: string) {
+  let url = `/api/forms/view/${token}/data`;
+  if (passcode) {
+    url += `?passcode=${encodeURIComponent(passcode)}`;
+  }
+  
+  const response = await fetch(url);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to fetch form data');
@@ -303,8 +308,13 @@ export async function getFormDataByToken(token: string) {
 export async function saveFormDataByToken(token: string, data: {
   data: any;
   isSubmitted?: boolean;
-}) {
-  const response = await fetch(`/api/forms/view/${token}/data`, {
+}, passcode?: string) {
+  let url = `/api/forms/view/${token}/data`;
+  if (passcode) {
+    url += `?passcode=${encodeURIComponent(passcode)}`;
+  }
+  
+  const response = await fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

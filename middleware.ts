@@ -32,6 +32,21 @@ export async function middleware(request: NextRequest) {
     }
   }
   
+  // Form routes passcode protection
+  if ((path.startsWith('/forms/view-form/') || 
+       path.startsWith('/forms/common-fields/') ||
+       path.startsWith('/forms/completed/')) && 
+      !path.startsWith('/forms/access/')) {
+    
+    const token = path.split('/').pop();
+    const passcode = request.nextUrl.searchParams.get('passcode');
+    
+    // If no passcode provided, redirect to access page
+    if (!passcode && token) {
+      return NextResponse.redirect(new URL(`/forms/access/${token}`, request.url));
+    }
+  }
+  
   return NextResponse.next();
 }
 
@@ -42,5 +57,9 @@ export const config = {
     '/api/forms/:path*',
     '/api/clients/:path*',
     '/api/generate-pdf/:path*',
+    // Match form routes that need passcode protection
+    '/forms/view-form/:path*',
+    '/forms/common-fields/:path*',
+    '/forms/completed/:path*'
   ],
 };

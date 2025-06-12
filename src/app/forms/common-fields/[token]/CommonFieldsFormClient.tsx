@@ -25,6 +25,8 @@ export default function CommonFieldsFormClient({ token }:{ token: string }) {
         // Load batch data with passcode if available
         const data = await getFormBatchByToken(token, passcode || undefined);
         setBatchData(data);
+
+        console.log("data: ", data);
         
         // Pre-fill form values from existing common fields if available
         if (data.client.commonFields && data.client.commonFields.length > 0) {
@@ -65,7 +67,7 @@ export default function CommonFieldsFormClient({ token }:{ token: string }) {
       
       // Redirect to the first form
       if (batchData.forms.length > 0) {
-        router.push(`/forms/view-form/${batchData.forms[0].accessToken}`);
+        router.push(`/forms/view-form/${batchData.forms[0].accessToken}?passcode=${encodeURIComponent(passcode || '')}`);
       }
     } catch (err: any) {
       setError(err.message || "Failed to save common fields");
