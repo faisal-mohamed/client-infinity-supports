@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
-
+import { useToast } from "@/components/ui/Toast";
 const handleDownload = async () => {
+  const {showToast} = useToast();
   try {
     const response = await fetch("/api/generate-pdf", {
       method: "GET",
@@ -23,7 +24,12 @@ const handleDownload = async () => {
     URL.revokeObjectURL(url);
   } catch (error) {
     console.error("Error downloading PDF:", error);
-    alert("Failed to download PDF");
+    showToast({
+      type: 'error',
+      title: `Error`,
+      message: `Error Downloading the PDF`,
+      duration: 3000,
+    });
   }
 };
 
@@ -37,6 +43,10 @@ function getTodayDateFormatted() {
 }
 
 const ClientIntakeForm = ({ formSchema, formData }: any) => {
+
+  
+
+
   const displayCheckboxGroup = (
     options: any,
     selected: any[] = [],

@@ -183,6 +183,15 @@ export async function getClientForms(clientId: number) {
   return response.json();
 }
 
+export async function getClientFormAssignments(clientId: number) {
+  const response = await fetch(`/api/clients/${clientId}/form-assignments`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to fetch client form assignments');
+  }
+  return response.json();
+}
+
 export async function assignFormToClient(clientId: number, data: {
   formId: number;
   expiresAt: string; // ISO date string
