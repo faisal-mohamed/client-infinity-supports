@@ -31,7 +31,7 @@ const ClientIntakeFormRenderer: React.FC<ClientIntakeFormRendererProps> = ({
 
   // Handle field value change
   const handleFieldChange = (key: string, value: any) => {
-    setValues(prev => ({
+    setValues((prev : any) => ({
       ...prev,
       [key]: value
     }));

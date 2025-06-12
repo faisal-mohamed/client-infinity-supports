@@ -357,3 +357,12 @@ export function generatePdfUrl(options: {
   
   return `/api/generate-pdf?${params.toString()}`;
 }
+// Form Schema API functions
+export async function getFormSchemaById(formId: number) {
+  const response = await fetch(`/api/forms/schema/${formId}`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to fetch form schema');
+  }
+  return response.json();
+}

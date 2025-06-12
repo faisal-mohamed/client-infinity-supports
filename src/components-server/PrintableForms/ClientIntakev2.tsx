@@ -5,13 +5,22 @@
 
 import React from "react";
 
-const ClientIntakeForm = ({ formSchema, formData }) => {
-  const displayCheckboxGroup = (options, selected = [], otherValue = "") => (
+
+function getTodayDateFormatted() {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, "0"); // Ensure 2-digit day
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // Month is 0-based
+  const year = today.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+const ClientIntakeForm = ({ formSchema, formData } : any) => {
+  const displayCheckboxGroup = (options : any, selected : any[] = [], otherValue : any= "") => (
     <div className="space-y-1 text-xs">
-      {options.map((opt) => (
+      {options.map((opt : any) => (
         <div key={opt} className="flex items-center space-x-1 m-4">
           <span className="w-4 h-4 border border-black flex justify-center items-center">
-            {selected.includes(opt) ? "✔" : ""}
+            {selected.includes(opt)  ? "✔" : ""}
           </span>
           <span className="m-1">{opt}</span>
         </div>
@@ -54,7 +63,7 @@ const ClientIntakeForm = ({ formSchema, formData }) => {
             </tr>
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field : any, idx : any) => {
               if (field.type === "sectionHeader") {
                 return (
                   <tr key={idx} className="bg-gray-300 font-semibold text-xs">
@@ -121,7 +130,7 @@ const ClientIntakeForm = ({ formSchema, formData }) => {
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
             <div>Website: infinitysupportswa.org</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {getTodayDateFormatted()}</div>
           </div>
         )}
       </div>
@@ -129,10 +138,10 @@ const ClientIntakeForm = ({ formSchema, formData }) => {
   );
 };
 
-const GpMedicalSupportForm = ({ formSchema, formData }) => {
-  const displayCheckboxGroup = (options, selected = [], otherValue = "") => (
+const GpMedicalSupportForm = ({ formSchema, formData } : any) => {
+  const displayCheckboxGroup = (options : any, selected : any[] = [], otherValue = "") => (
     <div className="space-y-1 text-xs">
-      {options.map((opt) => (
+      {options.map((opt : any) => (
         <div key={opt} className="flex items-center space-x-1">
           <span className="w-4 h-4 border border-black flex justify-center items-center">
             {selected.includes(opt) ? "✔" : ""}
@@ -179,7 +188,7 @@ const GpMedicalSupportForm = ({ formSchema, formData }) => {
             </tr> */}
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field : any, idx : any) => {
               if (field.type === "sectionHeader") {
                 return (
                   <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
@@ -257,7 +266,7 @@ const GpMedicalSupportForm = ({ formSchema, formData }) => {
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
             <div>Website: infinitysupportswa.org</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {getTodayDateFormatted()}</div>
           </div>
         )}
       </div>
@@ -265,39 +274,42 @@ const GpMedicalSupportForm = ({ formSchema, formData }) => {
   );
 };
 
-const AllAboutMeForm = ({ formSchema, formData }) => {
-  const renderPersonalSituation = (psSchema, psData) => (
-    <div className="space-y-1 text-[11px]">
-      <div>
-        <span className="font-bold">{psSchema.barriers.label}</span>
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
-          {psData.barriers === "Yes" ? "✔" : ""}
-        </span>
-        {psSchema.barriers.options[0]}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
-          {psData.barriers === "No" ? "✔" : ""}
-        </span>
-        {psSchema.barriers.options[1]}
-        <span className="ml-2">{psSchema.barriers.followUp}</span>
-      </div>
-      <div>
-        {psSchema.interpreter.label}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
-          {psData.interpreter === "Yes" ? "✔" : ""}
-        </span>
-        {psSchema.interpreter.options[0]}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
-          {psData.interpreter === "No" ? "✔" : ""}
-        </span>
-        {psSchema.interpreter.options[1]}
-      </div>
-      <div>{psSchema.language.label} {psData.language || ""}</div>
-      <div>{psSchema.culturalValues.label} {psData.culturalValues || ""}</div>
-      <div>{psSchema.culturalBehaviours.label} {psData.culturalBehaviours || ""}</div>
-      <div>{psSchema.writtenCommunication.label} {psData.writtenCommunication || ""}</div>
-      <div>{psSchema.countryOfBirth.label} {psData.countryOfBirth || ""}</div>
+const AllAboutMeForm = ({ formSchema, formData }: any) => {
+  const renderPersonalSituation = (psSchema : any, flatData : any) => (
+  <div className="space-y-1 text-[11px]">
+    <div>
+      <span className="font-bold">{psSchema.barriers.label}</span>
+      <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
+        {flatData.barriers === "Yes" ? "✔" : ""}
+      </span>
+      {psSchema.barriers.options[0]}
+      <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
+        {flatData.barriers === "No" ? "✔" : ""}
+      </span>
+      {psSchema.barriers.options[1]}
+      <span className="ml-2">{psSchema.barriers.followUp}</span>
     </div>
-  );
+
+    <div>
+      {psSchema.interpreter.label}
+      <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
+        {flatData.interpreter === "Yes" ? "✔" : ""}
+      </span>
+      {psSchema.interpreter.options[0]}
+      <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex items-center justify-center">
+        {flatData.interpreter === "No" ? "✔" : ""}
+      </span>
+      {psSchema.interpreter.options[1]}
+    </div>
+
+    <div>{psSchema.language.label} {flatData.language || ""}</div>
+    <div>{psSchema.culturalValues.label} {flatData.culturalValues || ""}</div>
+    <div>{psSchema.culturalBehaviours.label} {flatData.culturalBehaviours || ""}</div>
+    <div>{psSchema.writtenCommunication.label} {flatData.writtenCommunication || ""}</div>
+    <div>{psSchema.countryOfBirth.label} {flatData.countryOfBirth || ""}</div>
+  </div>
+);
+
 
   return (
     <div
@@ -387,7 +399,7 @@ const AllAboutMeForm = ({ formSchema, formData }) => {
     style={{ paddingTop: '0', paddingBottom: '0', margin: '0' }}
     colSpan={2}
   >
-    {renderPersonalSituation(formSchema.sections.personalSituation.fields, formData.personalSituation)}
+{renderPersonalSituation(formSchema.sections.personalSituation.fields, formData)}
   </td>
 </tr>
 
@@ -397,17 +409,16 @@ const AllAboutMeForm = ({ formSchema, formData }) => {
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
           <div>Website: infinitysupportswa.org</div>
           <div>CF001</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Review Date: {getTodayDateFormatted()}</div>
         </div>
       </div>
     </div>
   );
 };
-
-const ContactsLivingTravelForm = ({ formSchema, formData }) => {
-  const renderCheckboxList = (options, selected, otherValue) => (
+const ContactsLivingTravelForm = ({ formSchema, formData }: any) => {
+  const renderCheckboxList = (options : any, selected: any, otherValue: any) => (
     <ul className="list-none ml-4 space-y-0.5">
-      {options.map((opt) => (
+      {options.map((opt : any) => (
         <li key={opt} className="flex items-center space-x-2">
           <label className="inline-flex items-center flex-shrink-0 space-x-2">
             <span className="w-4 h-4 border border-black flex items-center justify-center mr-2">
@@ -447,7 +458,7 @@ const ContactsLivingTravelForm = ({ formSchema, formData }) => {
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border border-black border-collapse text-[13px]">
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field : any, idx : any) => {
               if (field.type === "contactHeader") {
                 return (
                   <tr key={idx} className="bg-gray-300 font-bold text-[13px]">
@@ -493,7 +504,7 @@ const ContactsLivingTravelForm = ({ formSchema, formData }) => {
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
             <div>Website: infinitysupportswa.org</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {getTodayDateFormatted()}</div>
           </div>
         )}
       </div>
@@ -501,7 +512,7 @@ const ContactsLivingTravelForm = ({ formSchema, formData }) => {
   );
 };
 
-const MedicationInfoForm = ({ formSchema, formData }) => {
+const MedicationInfoForm = ({ formSchema, formData }: any) => {
   return (
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
@@ -533,7 +544,7 @@ const MedicationInfoForm = ({ formSchema, formData }) => {
             </tr>
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => (
+            {formSchema.fields.map((field : any, idx : any) => (
               <tr key={idx}>
                 <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
                 <td className="border border-black p-1 align-top text-[11px]">
@@ -563,14 +574,14 @@ const MedicationInfoForm = ({ formSchema, formData }) => {
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: infinitysupportswa.org</div>
           <div>CF001</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Review Date: {getTodayDateFormatted()}</div>
         </div>
       </div>
     </div>
   );
 };
 
-const SafetyConsiderationForm = ({ formSchema, formData }) => {
+const SafetyConsiderationForm = ({ formSchema, formData } : any) => {
   return (
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
@@ -602,7 +613,7 @@ const SafetyConsiderationForm = ({ formSchema, formData }) => {
             </tr>
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => (
+            {formSchema.fields.map((field: any, idx : any) => (
               <tr key={idx}>
                 <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
                 <td className="border border-black p-1 align-top text-[11px]">
@@ -632,7 +643,7 @@ const SafetyConsiderationForm = ({ formSchema, formData }) => {
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: infinitysupportswa.org</div>
           <div>CF001</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Review Date: {getTodayDateFormatted()}</div>
         </div>
       </div>
     </div>
@@ -643,7 +654,7 @@ const SafetyConsiderationForm = ({ formSchema, formData }) => {
 
 
 // ====== Main container rendering all forms ======
-const CombinedForms = ({formData, formSchemas}) => (
+const CombinedForms = ({formData, formSchemas} : any) => (
   <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
     <ClientIntakeForm
       formSchema={formSchemas.clientIntakeSchema}

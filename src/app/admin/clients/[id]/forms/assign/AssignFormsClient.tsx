@@ -65,6 +65,8 @@ export default function AssignFormsClient({ clientId }: { clientId: string }) {
       }
     });
   };
+
+ 
   
   const handleAssignForms = async () => {
     try {
@@ -157,7 +159,7 @@ export default function AssignFormsClient({ clientId }: { clientId: string }) {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    value={assignmentResult.accessLink}
+                    value={`${assignmentResult.accessLink}`}
                     readOnly
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md bg-gray-50"
                   />

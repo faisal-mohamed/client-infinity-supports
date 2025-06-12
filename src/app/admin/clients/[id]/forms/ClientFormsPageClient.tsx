@@ -566,6 +566,7 @@ type AssignedForm = {
   isSubmitted: boolean;
   createdAt: string;
   updatedAt: string;
+  formVersion: number
   form: Form;
 };
 
@@ -576,6 +577,11 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
   const [assignedForms, setAssignedForms] = useState<AssignedForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+
+  useEffect(() => {
+    console.log("assi: ", assignedForms[0]?.formVersion);
+  },[assignedForms])
 
   // Form assignment state
   const [showAssignForm, setShowAssignForm] = useState(false);
@@ -782,6 +788,8 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
     );
   }
 
+   
+
   // If we have assignment results, show the success screen
   if (assignmentResult) {
     return (
@@ -832,12 +840,12 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     <div className="flex items-center">
                       <input
                         type="text"
-                        value={assignmentResult.accessLink}
+                        value={`${window.location.origin}${assignmentResult.accessLink}`}
                         readOnly
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700"
                       />
                       <button
-                        onClick={() => copyToClipboard(assignmentResult.accessLink, 'link')}
+                        onClick={() => copyToClipboard(`${window.location.origin}${assignmentResult.accessLink}`, 'link')}
                         className={`${
                           copiedLink
                             ? 'bg-green-600 hover:bg-green-700'
@@ -1218,8 +1226,8 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
-                          onClick={() => router.push(`/admin/clients/${clientId}/forms/assign-batch`)}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          onClick={() => router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}
+                          className="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           <FaLink className="mr-1" />
                           View Details

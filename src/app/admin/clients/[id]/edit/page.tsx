@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { getClient, updateClient } from '@/lib/api';
 
-export default function EditClientPage({ params }) {
+export default function EditClientPage({ params } : any) {
   const router = useRouter();
   const { id } = params;
   
@@ -59,7 +59,7 @@ export default function EditClientPage({ params }) {
     loadClient();
   }, [id]);
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e : any) => {
     e.preventDefault();
     setSaving(true);
     setError('');
@@ -85,7 +85,7 @@ export default function EditClientPage({ params }) {
       // Redirect back to client details
       router.push(`/admin/clients/${id}`);
       router.refresh();
-    } catch (err) {
+    } catch (err : any) {
       setError(err.message || 'Failed to update client');
     } finally {
       setSaving(false);
