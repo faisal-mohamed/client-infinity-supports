@@ -2,10 +2,10 @@
 
 import React from "react";
 
-const ContactsLivingTravelForm = ({ formSchema, formData = {} }) => {
-  const renderCheckboxList = (options, selected = [], otherValue = "") => (
+const ContactsLivingTravelForm = ({ formSchema, formData = {} } : any) => {
+  const renderCheckboxList = (options : any, selected : any[] = [], otherValue = "") => (
     <ul className="list-none ml-4 space-y-0.5">
-      {options.map((opt) => (
+      {options.map((opt: any) => (
         <li key={opt} className="flex items-center space-x-2">
           <label className="inline-flex items-center flex-shrink-0 space-x-2">
             <span className="w-4 h-4 border border-black flex items-center justify-center mr-2">
@@ -45,7 +45,7 @@ const ContactsLivingTravelForm = ({ formSchema, formData = {} }) => {
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border border-black border-collapse text-[13px]">
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field: any, idx: any) => {
               if (field.type === "contactHeader") {
                 return (
                   <tr key={idx} className="bg-gray-300 font-bold text-[13px]">

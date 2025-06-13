@@ -2,6 +2,9 @@
 import React from "react";
 import { useToast } from "@/components/ui/Toast";
 
+export const dynamic = "force-dynamic";
+
+
 
 const handleDownload = async () => {
     const {showToast} = useToast();
@@ -187,7 +190,7 @@ const ClientIntakeForm = ({ formSchema, formData }: any) => {
   );
 };
 
-const GpMedicalSupportForm = ({ formSchema, formData }: any) => {
+ const GpMedicalSupportForm = ({ formSchema, formData }: any) => {
   const displayCheckboxGroup = (
     options: any,
     selected: any[] = [],

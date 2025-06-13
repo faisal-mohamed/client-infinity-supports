@@ -2,7 +2,7 @@
 
 import React from "react";
 
-const SafetyConsiderationForm = ({ formSchema, formData = {} }) => {
+const SafetyConsiderationForm = ({ formSchema, formData = {} }: any) => {
   return (
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
@@ -34,7 +34,7 @@ const SafetyConsiderationForm = ({ formSchema, formData = {} }) => {
             </tr>
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => (
+            {formSchema.fields.map((field: any, idx: any) => (
               <tr key={idx}>
                 <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
                 <td className="border border-black p-1 align-top text-[11px]">

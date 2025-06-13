@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
     const pageSize = parseInt(url.searchParams.get('pageSize') || '10');
     const skip = (page - 1) * pageSize;
 
-    let whereClause: any = {};
+    const whereClause: any = {};
 
     if (search) {
       whereClause.OR = [
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    let commonFieldsFilter: any = {};
+    const commonFieldsFilter: any = {};
 
     if (state) commonFieldsFilter.state = state;
     if (sex) commonFieldsFilter.sex = sex;

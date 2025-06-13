@@ -2,10 +2,10 @@
 
 import React from "react";
 
-const GpMedicalSupportForm = ({ formSchema, formData = {} }) => {
-  const displayCheckboxGroup = (options, selected = [], otherValue = "") => (
+const GpMedicalSupportForm = ({ formSchema, formData = {} }: any) => {
+  const displayCheckboxGroup = (options: any, selected : any[] = [], otherValue : any = "") => (
     <div className="space-y-1 text-xs">
-      {options.map((opt) => (
+      {options.map((opt: any) => (
         <div key={opt} className="flex items-center space-x-1">
           <span className="w-4 h-4 border border-black flex justify-center items-center">
             {selected?.includes(opt) ? "✔" : ""}
@@ -45,7 +45,7 @@ const GpMedicalSupportForm = ({ formSchema, formData = {} }) => {
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border-collapse border border-black text-[13px]">
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field: any, idx: any) => {
               if (field.type === "sectionHeader") {
                 return (
                   <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>

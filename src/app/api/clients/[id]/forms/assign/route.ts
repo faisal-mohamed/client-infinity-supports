@@ -4,10 +4,11 @@ import crypto from "crypto";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clientId = parseInt(params.id || "0");
+    const {id} = await params;
+    const clientId = parseInt(id || "0");
     const body = await req.json();
     const { formId, expiresAt } = body;
 

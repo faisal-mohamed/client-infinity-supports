@@ -9,7 +9,7 @@ type FormAssignment = {
   id: number;
   clientId: number;
   formId: number;
-  formVersion: int;
+  formVersion: number;
   assignedAt: string;
   expiresAt: string;
   accessToken: string;
@@ -248,7 +248,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
           <div>
             <h2 className="text-lg font-semibold mb-4">Individual Form Assignments</h2>
             
-            {groupedAssignments.individual.map((assignment) => (
+            {groupedAssignments.individual.map((assignment : any) => (
               <div key={assignment.id} className="mb-6 border border-gray-200 rounded-lg overflow-hidden">
                 <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                   <h3 className="font-medium">{assignment.form.title} (v{assignment.form.version})</h3>

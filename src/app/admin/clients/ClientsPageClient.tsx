@@ -1451,7 +1451,7 @@ export default function ClientsPageClient() {
   };
 
   // Apply sorting to clients
-  const sortedClients = [...clients].sort((a, b) => {
+  const sortedClients = [...clients].sort((a : any, b : any) => {
     let aValue: any = a[sortField as keyof Client];
     let bValue: any = b[sortField as keyof Client];
 

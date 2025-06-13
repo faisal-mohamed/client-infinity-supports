@@ -115,16 +115,16 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const token = params.token || "";
+        const {token} = await params;
     const passcode = req.nextUrl.searchParams.get('passcode');
     const body = await req.json();
     
     // Find the form assignment by access token
     const assignment = await prisma.formAssignment.findUnique({
-      where: { accessToken: token },
+      where: { accessToken: token && '' },
       include: {
         form: true
       }

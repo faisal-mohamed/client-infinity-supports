@@ -2,13 +2,13 @@
 
 import React from "react";
 
-const ClientIntakeForm = ({ formSchema, formData = {} }) => {
-  const displayCheckboxGroup = (options, selected = [], otherValue = "") => (
+const ClientIntakeForm = ({ formSchema , formData = {} } : any) => {
+  const displayCheckboxGroup = (options : any, selected : any[] = [] , otherValue : any = "") => (
     <div className="space-y-1 text-xs">
-      {options.map((opt) => (
+      {options.map((opt : any) => (
         <div key={opt} className="flex items-center space-x-1">
           <span className="w-4 h-4 border border-black flex justify-center items-center">
-            {selected?.includes(opt) ? "✔" : ""}
+            {selected?.includes((opt)) ? "✔" : ""}
           </span>
           <span>{opt}</span>
         </div>
@@ -51,7 +51,7 @@ const ClientIntakeForm = ({ formSchema, formData = {} }) => {
             </tr>
           </thead>
           <tbody>
-            {formSchema.fields.map((field, idx) => {
+            {formSchema.fields.map((field : any, idx : any) => {
               if (field.type === "sectionHeader") {
                 return (
                   <tr key={idx} className="bg-gray-300 font-semibold text-xs">
