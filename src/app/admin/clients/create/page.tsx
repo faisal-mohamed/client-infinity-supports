@@ -36,7 +36,7 @@ export default function CreateClientPage() {
       // Call the API to create the client with all provided info
       // Use "Unnamed Client" if no name is provided
       const newClient = await createClient({
-        name: name.trim() || "Unnamed Client",
+        name: name  || undefined,
         email: email || undefined,
         phone: phone || undefined,
         commonFields: showAdditionalFields ? {
@@ -123,7 +123,7 @@ export default function CreateClientPage() {
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
                   <p className="text-sm text-gray-500">
-                    All fields are optional. If no name is provided, "Unnamed Client" will be used.
+                    All fields are optional. If no name is provided, &quot;Unnamed Client&quot; will be used.
                   </p>
                 </div>
               </div>

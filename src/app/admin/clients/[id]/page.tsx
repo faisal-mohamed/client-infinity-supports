@@ -98,13 +98,13 @@ export default function ClientDetailPage() {
               <div className="flex items-center">
                 <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
                   <span className="text-xl font-bold text-indigo-600">
-                    {client.name.charAt(0).toUpperCase()}
+                    {client?.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{client?.name}</h1>
                   <p className="text-sm text-gray-500 mt-1">
-                    Client ID: {client.id} • Created: {new Date(client.createdAt).toLocaleDateString()}
+                    Client ID: {client.id} • Created: {new Date(client?.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -116,12 +116,12 @@ export default function ClientDetailPage() {
               >
                 <FaFileAlt className="mr-2" /> Client Forms
               </Link>
-              <Link
+              {/* <Link
                 href={`/admin/clients/${id}/edit`}
                 className="flex items-center text-sm text-white bg-amber-600 hover:bg-amber-700 transition px-4 py-2 rounded-lg shadow-sm"
               >
                 <FaEdit className="mr-2" /> Edit Client
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default function ClientDetailPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-gray-500">Name</p>
-                    <p className="font-medium text-gray-900">{client.name}</p>
+                    <p className="font-medium text-gray-900">{client?.name}</p>
                   </div>
                 </div>
 
@@ -156,7 +156,7 @@ export default function ClientDetailPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium text-gray-900">{client.email || 'Not provided'}</p>
+                    <p className="font-medium text-gray-900">{client?.email || 'Not provided'}</p>
                   </div>
                 </div>
 
@@ -166,7 +166,7 @@ export default function ClientDetailPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-900">{client.phone || 'Not provided'}</p>
+                    <p className="font-medium text-gray-900">{client?.phone || 'Not provided'}</p>
                   </div>
                 </div>
 
@@ -177,7 +177,7 @@ export default function ClientDetailPage() {
                   <div className="ml-3">
                     <p className="text-sm text-gray-500">Created</p>
                     <p className="font-medium text-gray-900">
-                      {new Date(client.createdAt).toLocaleDateString('en-US', {
+                      {new Date(client?.createdAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
@@ -208,7 +208,7 @@ export default function ClientDetailPage() {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-gray-500">NDIS Number</p>
-                      <p className="font-medium text-gray-900">{client.commonFields[0].ndis || 'Not provided'}</p>
+                      <p className="font-medium text-gray-900">{client?.commonFields[0].ndis || 'Not provided'}</p>
                     </div>
                   </div>
 
@@ -218,7 +218,7 @@ export default function ClientDetailPage() {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-gray-500">Date of Birth</p>
-                      <p className="font-medium text-gray-900">{client.commonFields[0].dob || 'Not provided'}</p>
+                      <p className="font-medium text-gray-900">{client?.commonFields[0].dob || 'Not provided'}</p>
                     </div>
                   </div>
 
@@ -228,7 +228,7 @@ export default function ClientDetailPage() {
                     </div>
                     <div className="ml-3">
                       <p className="text-sm text-gray-500">Sex</p>
-                      <p className="font-medium text-gray-900">{client.commonFields[0].sex || 'Not provided'}</p>
+                      <p className="font-medium text-gray-900">{client?.commonFields[0].sex || 'Not provided'}</p>
                     </div>
                   </div>
                 </div>
@@ -252,7 +252,7 @@ export default function ClientDetailPage() {
               </div>
             </div>
             <div className="p-6">
-              {client.commonFields ? (
+              {client?.commonFields ? (
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 w-8 text-gray-400">

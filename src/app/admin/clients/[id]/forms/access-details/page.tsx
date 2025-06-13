@@ -1,5 +1,12 @@
+
 import AccessDetailsPageClient from './AccessDetailsPageClient';
 
-export default function AccessDetailsPage({ params }: { params: { id: string } }) {
-  return <AccessDetailsPageClient clientId={params.id} />;
+// Option 1: Using async/await (recommended)
+export default async function AccessDetailsPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params;
+  return <AccessDetailsPageClient clientId={id} />;
 }

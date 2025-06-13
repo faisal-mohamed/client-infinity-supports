@@ -61,6 +61,18 @@ export async function PUT(
         );
       }
     }
+
+
+     const client = await prisma.client.update({
+  where: { id: batch.clientId },
+  data: {
+    ...(body.name && { name: body.name }),
+    ...(body.email && { email: body.email }),
+    ...(body.phone && { phone: body.phone })
+  }
+});
+
+  
     
     // Update or create common fields for the client
     const commonFields = await prisma.commonField.upsert({

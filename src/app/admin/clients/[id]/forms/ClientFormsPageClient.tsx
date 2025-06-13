@@ -629,7 +629,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                 <FaFileAlt className="text-gray-400 text-2xl" />
               </div>
               <p className="text-gray-500 font-medium">No forms have been assigned to this client yet</p>
-              <p className="text-sm text-gray-400 mt-2">Use the "Assign Forms" button to get started</p>
+              <p className="text-sm text-gray-400 mt-2">Use the &quot;Assign Forms&quot; button to get started</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

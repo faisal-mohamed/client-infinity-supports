@@ -1933,7 +1933,7 @@ export default function ClientsPageClient() {
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center">
                                 <span className="font-medium text-indigo-600">
-                                  {client.name.charAt(0).toUpperCase()}
+                                  {client?.name?.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                               <div className="ml-4">
@@ -1945,21 +1945,21 @@ export default function ClientsPageClient() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {client.email ? (
+                            {client?.email ? (
                               <span className="text-sm text-gray-900">{client.email}</span>
                             ) : (
                               <span className="text-sm text-gray-400">—</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {client.phone ? (
+                            {client?.phone ? (
                               <span className="text-sm text-gray-900">{client.phone}</span>
                             ) : (
                               <span className="text-sm text-gray-400">—</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {client.commonFields?.state ? (
+                            {client?.commonFields?.state ? (
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                 {client.commonFields.state}
                               </span>

@@ -22,7 +22,7 @@ model Admin {
 
 model Client {
   id            Int               @id @default(autoincrement())
-  name          String
+  name          String?
   email         String?           @unique(map: "Client_email_unique") // Custom constraint name
   phone         String?
   createdAt     DateTime          @default(now())

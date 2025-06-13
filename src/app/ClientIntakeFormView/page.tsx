@@ -1,8 +1,10 @@
 "use client";
 import React from "react";
 import { useToast } from "@/components/ui/Toast";
+
+
 const handleDownload = async () => {
-  const {showToast} = useToast();
+    const {showToast} = useToast();
   try {
     const response = await fetch("/api/generate-pdf", {
       method: "GET",

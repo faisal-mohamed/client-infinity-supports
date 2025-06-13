@@ -83,6 +83,7 @@ export default function CompletedFormsClient({ token }: { token: string }) {
             
             <p className="text-center mb-6">
               You have successfully completed all your forms. We will review your submissions and contact you if needed.
+               <br /> You can close this window now.
             </p>
             
             <div className="mb-6">

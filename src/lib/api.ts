@@ -98,7 +98,7 @@ export async function getClient(id: number) {
 }
 
 export async function createClient(clientData: {
-  name: string;
+  name?: string;
   email?: string;
   phone?: string;
   commonFields?: {
