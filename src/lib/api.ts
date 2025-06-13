@@ -330,6 +330,8 @@ export async function saveFormDataByToken(token: string, data: {
     },
     body: JSON.stringify(data),
   });
+
+  console.log("response from data token: ", response);
   
   if (!response.ok) {
     const error = await response.json();

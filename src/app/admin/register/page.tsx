@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -75,10 +76,15 @@ if (!hasMounted) return null;
 
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 sm:p-10 z-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-indigo-100 flex items-center justify-center">
-            <span className="text-indigo-600 text-2xl font-bold">IS</span>
+          <div className="mx-auto mb-4 rounded-full  flex items-center justify-center">
+            {/* <span className="text-indigo-600 text-2xl font-bold">IS</span> */}
+            <Image
+            src={'/client_full_logo.jpg'}
+            alt='Infinity Support WA'
+            width={200}
+            height={60}
+            />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800">Infinity Support</h2>
           <p className="text-sm text-gray-500 mt-1">Register to access the admin dashboard</p>
         </div>
 

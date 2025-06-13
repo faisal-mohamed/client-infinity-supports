@@ -124,7 +124,7 @@ export async function PUT(
     
     // Find the form assignment by access token
     const assignment = await prisma.formAssignment.findUnique({
-      where: { accessToken: token && '' },
+      where: { accessToken: token },
       include: {
         form: true
       }

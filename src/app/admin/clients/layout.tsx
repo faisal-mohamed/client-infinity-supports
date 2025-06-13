@@ -168,6 +168,7 @@ import { Montserrat } from 'next/font/google';
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import SignOutButton from '@/components/SignOutButton';
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: '400', display: 'swap' });
 
@@ -272,30 +273,9 @@ export default async function AdminDashboardLayout({
             ))}
           </nav>
 
-          <div className="p-4 border-t border-indigo-600">
-            <form action="/api/auth/signout" method="POST">
-              <button
-                type="submit"
-                className="flex w-full items-center px-4 py-2 text-white hover:bg-indigo-600 rounded-lg transition duration-150"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-3"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                Sign Out
-              </button>
-            </form>
-          </div>
+           <div className="p-4 border-t border-indigo-600">
+                      <SignOutButton />
+                    </div>
         </aside>
 
         {/* Mobile sidebar */}

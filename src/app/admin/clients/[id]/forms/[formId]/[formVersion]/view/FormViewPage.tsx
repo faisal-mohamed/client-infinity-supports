@@ -42,8 +42,13 @@ export default function FormViewPage({
   //   window.print();
   // };
 
+  const [downloading, setDownloading] = useState(false);
+
+
   const handleDownload = async () => {
     try {
+          setDownloading(true);
+
       const response = await fetch(`/api/generate-pdf/${formSubmission.id}/${formSubmission.formId}`, {
         method: "GET",
       });
@@ -65,6 +70,9 @@ export default function FormViewPage({
     } catch (error) {
       console.error("Error downloading PDF:", error);
       alert("Failed to download PDF");
+    }
+    finally {
+      setDownloading(false)
     }
   };
 
@@ -115,11 +123,34 @@ export default function FormViewPage({
           </button> */}
           
           <button
-            onClick={handleDownload}
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
-          >
-            <FaDownload className="mr-2" /> Download PDF
-          </button>
+  onClick={handleDownload}
+  disabled={downloading}
+  className={`flex items-center py-2 px-4 rounded-md text-white transition-all duration-200 ${
+    downloading
+      ? 'bg-blue-400 cursor-not-allowed'
+      : 'bg-blue-600 hover:bg-blue-700'
+  }`}
+>
+  {downloading ? (
+    <>
+      <svg className="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        />
+      </svg>
+      Downloading...
+    </>
+  ) : (
+    <>
+      <FaDownload className="mr-2" />
+      Download PDF
+    </>
+  )}
+</button>
+
         </div>
       </div>
       
@@ -127,7 +158,7 @@ export default function FormViewPage({
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h1 className="text-xl font-bold text-gray-900">{formSubmission.form.title}</h1>
           <p className="text-sm text-gray-500">
-            Submitted on {new Date(formSubmission.createdAt).toLocaleDateString()} by {formSubmission.client.name}
+            Submitted on {new Date(formSubmission.submittedAt).toLocaleDateString()} by {formSubmission.client.name}
           </p>
         </div>
         

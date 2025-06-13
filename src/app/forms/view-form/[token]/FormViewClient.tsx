@@ -45,6 +45,7 @@ export default function FormViewClient({ token }: { token: string }) {
       try {
         setLoading(true);
         const data = await getFormDataByToken(token, passcode);
+        console.log("DATA: ", data)
         setFormData(data);
 
         const now = new Date();
