@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaSave, FaTimes, FaChevronDown, FaChevronUp, FaUserPlus, FaArrowLeft, FaIdCard, FaCalendarAlt, FaVenusMars, FaMapMarkerAlt, FaGlobe, FaMailBulk, FaPhone } from 'react-icons/fa';
 import { createClient } from '@/lib/api';
+import { useToast } from '@/components/ui/Toast';
 
 export default function CreateClientPage() {
   const router = useRouter();
@@ -13,6 +14,43 @@ export default function CreateClientPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+
+  const validateForm = () => {
+  const newErrors: { [key: string]: string } = {};
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    newErrors.email = "Invalid email format";
+  }
+
+  if (phone && !/^\d{10}$/.test(phone.replace(/\s+/g, ''))) {
+    newErrors.phone = "Phone must be 10 digits";
+  }
+
+  if (postCode) {
+    if (!/^\d{4}$/.test(postCode)) {
+      newErrors.postCode = "Postcode must be 4 digits";
+    } else {
+      // Convert to string to ensure it's treated as a string in the database
+      setPostCode(postCode.toString());
+    }
+  }
+
+  if (dateOfBirth && new Date(dateOfBirth) > new Date()) {
+    newErrors.dateOfBirth = "Date of birth must be in the past";
+  }
+
+  if (ndisNumber && !/^\d+$/.test(ndisNumber)) {
+    newErrors.ndisNumber = "NDIS number must contain digits only";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+
 
   // Additional client fields
   const [ndisNumber, setNdisNumber] = useState('');
@@ -26,47 +64,81 @@ export default function CreateClientPage() {
   // New state to control navigation behavior
   const [navigateToAssignForms, setNavigateToAssignForms] = useState(true);
 
+  const {showToast} = useToast();
+
   const handleSubmit = async (e : any) => {
-    e.preventDefault();
+      e.preventDefault();
+      setError('');
 
-    setLoading(true);
-    setError('');
+      if (!validateForm()) return; // 🛑 Stop if validation fails
 
-    try {
-      // Call the API to create the client with all provided info
-      // Use "Unnamed Client" if no name is provided
-      const newClient = await createClient({
-        name: name  || undefined,
-        email: email || undefined,
-        phone: phone || undefined,
-        commonFields: showAdditionalFields ? {
-          ndis: ndisNumber || undefined,
-          dob: dateOfBirth || undefined,
-          address: address || undefined,
-          street: address || undefined,
-          state: state || undefined,
-          postCode: postCode || undefined,
-          disability: disability || undefined,
-          sex: sex || undefined,
-        } : undefined
-      });
+      setLoading(true);
 
-      console.log("new client created: ", newClient)
+      try {
+        // Prepare the client data
+        const clientData: any = {
+          name: name || undefined,
+          email: email || undefined,
+          phone: phone || undefined
+        };
 
-      // Check if we should navigate to form assignment page
-      if (navigateToAssignForms && newClient && newClient.id) {
-        // Navigate to the form assignment page for this client
-        router.push(`/admin/clients/${newClient.id}/forms`);
-      } else {
-        // Redirect back to clients list (original behavior)
-        router.push('/admin/clients');
+        // Only add commonFields if the additional fields section is shown
+        if (showAdditionalFields) {
+          // Create a clean commonFields object with only defined values
+          const cleanCommonFields: any = {};
+          
+          if (ndisNumber) cleanCommonFields.ndis = ndisNumber;
+          if (dateOfBirth) cleanCommonFields.dob = dateOfBirth;
+          if (address) {
+            cleanCommonFields.address = address;
+            cleanCommonFields.street = address;
+          }
+          if (state) cleanCommonFields.state = state;
+          
+          // Handle postCode specially - ensure it's a string
+          if (postCode) {
+            cleanCommonFields.postCode = postCode.toString();
+          }
+          
+          if (disability) cleanCommonFields.disability = disability;
+          if (sex) cleanCommonFields.sex = sex;
+          
+          // Only add commonFields if there's at least one property
+          if (Object.keys(cleanCommonFields).length > 0) {
+            clientData.commonFields = cleanCommonFields;
+          }
+        }
+
+        console.log("Sending client data:", JSON.stringify(clientData));
+        
+        // Call the API to create the client
+        const newClient = await createClient(clientData);
+        
+        console.log("New client created:", newClient);
+        
+        // Show success toast
+        showToast({
+          type: 'success',
+          title: 'Client Created',
+          message: `${newClient.name || 'New client'} has been created successfully.`,
+          duration: 3000,
+        });
+
+        // Navigate based on user preference - use setTimeout to ensure navigation happens
+        setTimeout(() => {
+          if (navigateToAssignForms && newClient && newClient.id) {
+            // Navigate to the form assignment page for this client
+            router.push(`/admin/clients/${newClient.id}/forms`);
+          } else {
+            // Redirect back to clients list
+            router.push('/admin/clients');
+          }
+        }, 100);
+      } catch (err : any) {
+        console.error("Error creating client:", err);
+        setError(err.message || 'Failed to create client');
+        setLoading(false);
       }
-      
-      router.refresh();
-    } catch (err : any) {
-      setError(err.message || 'Failed to create client');
-      setLoading(false);
-    }
   };
 
   return (
@@ -159,6 +231,9 @@ export default function CreateClientPage() {
                       className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="john.doe@example.com"
                     />
+                      {errors.email && (
+    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+  )}
                   </div>
                 </div>
 
@@ -177,6 +252,9 @@ export default function CreateClientPage() {
                       className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="0412 345 678"
                     />
+                      {errors.phone && (
+    <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+  )}
                   </div>
                 </div>
               </div>
@@ -229,6 +307,9 @@ export default function CreateClientPage() {
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="NDIS123456"
                       />
+                        {errors.ndisNumber && (
+    <p className="text-red-600 text-sm mt-1">{errors.ndisNumber}</p>
+  )}
                     </div>
                   </div>
 
@@ -244,8 +325,14 @@ export default function CreateClientPage() {
                         type="date"
                         value={dateOfBirth}
                         onChange={(e) => setDateOfBirth(e.target.value)}
+                          max={new Date().toISOString().split("T")[0]} // 🛑 disables future dates
+
                         className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       />
+                      
+                      {errors.dateOfBirth && (
+    <p className="text-red-600 text-sm mt-1">{errors.dateOfBirth}</p>
+  )}
                     </div>
                   </div>
 
@@ -322,8 +409,16 @@ export default function CreateClientPage() {
                         value={postCode}
                         onChange={(e) => setPostCode(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="6000"
+                        onKeyDown={(e) => {
+                          // Prevent form submission when Enter is pressed in this field
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
                       />
+                      {errors.postCode && (
+                        <p className="text-red-600 text-sm mt-1">{errors.postCode}</p>
+                      )}
                     </div>
                   </div>
 

@@ -12,6 +12,7 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import DynamicFormRenderer from "@/app/components/DynamicFormRenderer";
+import { useToast } from "@/components/ui/Toast";
 
 export default function FormViewClient({ token }: { token: string }) {
   const router = useRouter();
@@ -28,6 +29,8 @@ export default function FormViewClient({ token }: { token: string }) {
   const [passcode, setPasscode] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+
+  const {showToast} = useToast();
   // Extract passcode from URL query param
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -76,7 +79,13 @@ export default function FormViewClient({ token }: { token: string }) {
 
         if (!validationResult.isValid) {
           setFieldErrors(validationResult.errors);
-          setError("Please correct the errors in the form");
+
+          showToast({
+            type: 'error',
+            title: 'Validation Error',
+            message: 'Please correct the errors in the forms',
+            duration: 3000
+          })
           return;
         }
 

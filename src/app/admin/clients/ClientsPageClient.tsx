@@ -243,28 +243,137 @@ export default function ClientsPageClient() {
     setPagination({ ...pagination, page: 1, pageSize: newPageSize });
   };
 
-  const exportToCSV = () => {
-    // Create CSV content
-    const headers = ['Name', 'Email', 'Phone', 'NDIS Number', 'State', 'Sex', 'Created Date'];
-    const csvContent = [
-      headers.join(','),
-      ...sortedClients.map(client => [
-        `"${client.name}"`,
-        `"${client.email || ''}"`,
-        `"${client.phone || ''}"`,
-        `"${client.commonFields?.ndis || ''}"`,
-        `"${client.commonFields?.state || ''}"`,
-        `"${client.commonFields?.sex || ''}"`,
-        `"${new Date(client.createdAt).toLocaleDateString()}"`,
-      ].join(','))
-    ].join('\n');
-
+  const exportToExcel = () => {
+    // Create Excel XML content with custom styling
+    const companyName = "Infinity Supports WA - Client Details";
+    const reportTitle = "Clients Report";
+    const reportDate = new Date().toLocaleDateString();
+    
+    // XML header and styles
+    let excelContent = `
+      <?xml version="1.0"?>
+      <?mso-application progid="Excel.Sheet"?>
+      <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+       xmlns:o="urn:schemas-microsoft-com:office:office"
+       xmlns:x="urn:schemas-microsoft-com:office:excel"
+       xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+       xmlns:html="http://www.w3.org/TR/REC-html40">
+       <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+        <Author>Infinity Support Portal</Author>
+        <LastAuthor>Infinity Support Portal</LastAuthor>
+        <Created>${new Date().toISOString()}</Created>
+       </DocumentProperties>
+       <Styles>
+        <Style ss:ID="Default" ss:Name="Normal">
+         <Alignment ss:Vertical="Bottom"/>
+         <Borders/>
+         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+        </Style>
+        <Style ss:ID="Title">
+         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="16" ss:Color="#FFFFFF" ss:Bold="1"/>
+         <Interior ss:Color="#4F46E5" ss:Pattern="Solid"/>
+        </Style>
+        <Style ss:ID="Subtitle">
+         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#FFFFFF" ss:Bold="1"/>
+         <Interior ss:Color="#6366F1" ss:Pattern="Solid"/>
+        </Style>
+        <Style ss:ID="HeaderRow">
+         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+         <Borders>
+          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
+         </Borders>
+         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+         <Interior ss:Color="#818CF8" ss:Pattern="Solid"/>
+        </Style>
+        <Style ss:ID="DataRow">
+         <Alignment ss:Vertical="Center"/>
+         <Borders>
+          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+         </Borders>
+        </Style>
+        <Style ss:ID="AlternateRow">
+         <Alignment ss:Vertical="Center"/>
+         <Borders>
+          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
+         </Borders>
+         <Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/>
+        </Style>
+       </Styles>
+      <Worksheet ss:Name="Clients">
+      <Table>
+        <Column ss:Width="150"/>
+        <Column ss:Width="200"/>
+        <Column ss:Width="120"/>
+        <Column ss:Width="100"/>
+        <Column ss:Width="80"/>
+        <Column ss:Width="80"/>
+        <Column ss:Width="120"/>
+    `;
+    
+    // Title and subtitle rows
+    excelContent += `
+      <Row ss:Height="30">
+        <Cell ss:MergeAcross="6" ss:StyleID="Title"><Data ss:Type="String">${companyName}</Data></Cell>
+      </Row>
+      <Row ss:Height="25">
+        <Cell ss:MergeAcross="6" ss:StyleID="Subtitle"><Data ss:Type="String">${reportTitle} - Generated on ${reportDate}</Data></Cell>
+      </Row>
+      <Row></Row>
+    `;
+    
+    // Header row
+    excelContent += `
+      <Row ss:Height="20">
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Name</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Email</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Phone</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">NDIS Number</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">State</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Sex</Data></Cell>
+        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Created Date</Data></Cell>
+      </Row>
+    `;
+    
+    // Data rows
+    sortedClients.forEach((client, index) => {
+      const rowStyle = index % 2 === 0 ? "DataRow" : "AlternateRow";
+      excelContent += `
+        <Row>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.name || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.email || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.phone || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.ndis || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.state || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.sex || ""}</Data></Cell>
+          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${new Date(client.createdAt).toLocaleDateString()}</Data></Cell>
+        </Row>
+      `;
+    });
+    
+    // Close XML tags
+    excelContent += `
+        </Table>
+       </Worksheet>
+      </Workbook>
+    `;
+    
     // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `clients_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `infinity_support_clients_${new Date().toISOString().split('T')[0]}.xls`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -282,7 +391,7 @@ export default function ClientsPageClient() {
                 <FaUserFriends className="text-indigo-600 text-xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Clients Management</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Client Management</h1>
                 <p className="text-sm text-gray-500 mt-1">Manage your clients and their information</p>
               </div>
             </div>
@@ -334,10 +443,10 @@ export default function ClientsPageClient() {
 
               <button
                 type="button"
-                onClick={exportToCSV}
+                onClick={exportToExcel}
                 className="flex items-center px-4 py-2 border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg transition"
               >
-                <FaDownload className="mr-2" /> Export
+                <FaDownload className="mr-2" /> Export to Excel
               </button>
 
               {selectedClients.length > 0 && (

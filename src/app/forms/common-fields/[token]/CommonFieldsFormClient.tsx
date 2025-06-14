@@ -67,6 +67,29 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
     loadBatchData();
   }, [token, passcode]);
 
+
+  useEffect(() => {
+  if (formValues.dob) {
+    const dobDate = new Date(formValues.dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - dobDate.getFullYear();
+    const hasBirthdayPassed =
+      today.getMonth() > dobDate.getMonth() ||
+      (today.getMonth() === dobDate.getMonth() && today.getDate() >= dobDate.getDate());
+
+    if (!hasBirthdayPassed) age -= 1;
+
+    if (age >= 0 && age !== formValues.age) {
+      setFormValues((prev: any) => ({
+        ...prev,
+        age: age,
+      }));
+    }
+  }
+}, [formValues.dob]);
+
+
   const handleSaveCommonFields = async () => {
     const errors = validateFields();
     if (Object.keys(errors).length > 0) {

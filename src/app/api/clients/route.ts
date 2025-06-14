@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
             ndis: commonFields.ndis,
             disability: commonFields.disability,
             address: commonFields.address,
+            phone: commonFields.phone || phone
           }
         });
       } else {
