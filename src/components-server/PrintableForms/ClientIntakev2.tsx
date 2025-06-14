@@ -657,29 +657,29 @@ const SafetyConsiderationForm = ({ formSchema, formData } : any) => {
 const CombinedForms = ({formData, formSchemas} : any) => (
   <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
     <ClientIntakeForm
-      formSchema={formSchemas.clientIntakeSchema}
+      formSchema={formSchemas?.clientIntakeSchema}
       formData={formData}
     />
     <GpMedicalSupportForm
-      formSchema={formSchemas.gpMedicalSupportSchema}
+      formSchema={formSchemas?.gpMedicalSupportSchema}
       formData={formData}
     />
     <AllAboutMeForm
-      formSchema={formSchemas.allAboutMeSchema}
+      formSchema={formSchemas?.allAboutMeSchema}
       formData={formData}
     />
     <ContactsLivingTravelForm
-      formSchema={formSchemas.contactsLivingTravelSchema}
+      formSchema={formSchemas?.contactsLivingTravelSchema}
       formData={formData}
     />
 
     <MedicationInfoForm
-  formSchema={formSchemas.medicationInfoSchema}
+  formSchema={formSchemas?.medicationInfoSchema}
   formData={formData}
 />
 
     <SafetyConsiderationForm
-  formSchema={formSchemas.safetyConsiderationSchema}
+  formSchema={formSchemas?.safetyConsiderationSchema}
   formData={formData}
 />
 

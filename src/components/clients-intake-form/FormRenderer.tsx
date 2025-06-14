@@ -23,27 +23,27 @@ const FormRenderer = ({ formKey, formSchema, formData = {}, onChange } : any) =>
     return (
       <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
         <ClientIntakeForm
-          formSchema={formSchema.clientIntakeSchema}
+          formSchema={formSchema?.clientIntakeSchema}
           formData={localFormData}
         />
         <GpMedicalSupportForm
-          formSchema={formSchema.gpMedicalSupportSchema}
+          formSchema={formSchema?.gpMedicalSupportSchema}
           formData={localFormData}
         />
         <AllAboutMeForm
-          formSchema={formSchema.allAboutMeSchema}
+          formSchema={formSchema?.allAboutMeSchema}
           formData={localFormData}
         />
         <ContactsLivingTravelForm
-          formSchema={formSchema.contactsLivingTravelSchema}
+          formSchema={formSchema?.contactsLivingTravelSchema}
           formData={localFormData}
         />
         <MedicationInfoForm
-          formSchema={formSchema.medicationInfoSchema}
+          formSchema={formSchema?.medicationInfoSchema}
           formData={localFormData}
         />
         <SafetyConsiderationForm
-          formSchema={formSchema.safetyConsiderationSchema}
+          formSchema={formSchema?.safetyConsiderationSchema}
           formData={localFormData}
         />
       </div>
