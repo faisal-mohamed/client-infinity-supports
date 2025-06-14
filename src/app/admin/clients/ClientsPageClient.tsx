@@ -243,7 +243,22 @@ export default function ClientsPageClient() {
     setPagination({ ...pagination, page: 1, pageSize: newPageSize });
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
+
+    const response = await fetch('/api/clients/export?' + new URLSearchParams({
+      search: searchTerm || '',
+      state: filters.state || '',
+      sex: filters.sex || '',
+      hasNdis: filters.hasNdis || '',
+      hasDisability: filters.hasDisability || ''
+    }));
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch clients for export');
+    }
+
+    const data = await response.json();
+    const allClients = data.clients;
     // Create Excel XML content with custom styling
     const companyName = "Infinity Supports WA - Client Details";
     const reportTitle = "Clients Report";
@@ -346,7 +361,7 @@ export default function ClientsPageClient() {
     `;
     
     // Data rows
-    sortedClients.forEach((client, index) => {
+    allClients.forEach((client : any , index : any) => {
       const rowStyle = index % 2 === 0 ? "DataRow" : "AlternateRow";
       excelContent += `
         <Row>
