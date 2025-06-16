@@ -557,7 +557,11 @@ const MedicationInfoForm = ({ formSchema, formData }: any) => {
                     />
                     <span>Yes</span>
                   </label>
-                  <div className="mt-1 leading-tight">{field.yesDetail}</div>
+{formData?.[field?.key] === "Yes" && formData?.[`${field.key}Others`] && (
+  <div className="mt-1 text-[11px] text-gray-800 italic leading-tight">
+    {formData[`${field.key}Others`]}
+  </div>
+)}
                 </td>
                 <td className="border border-black p-1 text-center align-top">
                   <input
@@ -626,7 +630,11 @@ const SafetyConsiderationForm = ({ formSchema, formData } : any) => {
                     />
                     <span>Yes</span>
                   </label>
-                  <div className="mt-1 leading-tight">{field.yesDetail}</div>
+{formData?.[field?.key] === "Yes" && formData?.[`${field.key}Others`] && (
+  <div className="mt-1 text-[11px] text-gray-800 italic leading-tight">
+    {formData[`${field.key}Others`]}
+  </div>
+)}
                 </td>
                 <td className="border border-black p-1 text-center align-top">
                   <input

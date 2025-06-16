@@ -186,8 +186,16 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
     </div>
   );
 
-  // Update renderDropdown
-  const renderDropdown = (label: string, name: string, options: string[]) => (
+    const renderDropdown = (
+  label: string,
+  name: string,
+  options: string[],
+  showIfYes?: {
+    label: string;
+    inputName?: string; // If provided, show input. If not, show only label.
+  }
+) => (
+  <div className="space-y-2">
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <select
@@ -206,7 +214,31 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
         <p className="mt-1 text-sm text-red-600">{fieldErrors[name]}</p>
       )}
     </div>
-  );
+
+    {showIfYes && localValues[name] === "Yes" && (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{showIfYes.label}</label>
+
+        {showIfYes.inputName && (
+          <input
+            type="text"
+            name={showIfYes.inputName}
+            value={localValues[showIfYes.inputName] || ""}
+            onChange={handleChange}
+            disabled={readOnly}
+            className={`w-full px-3 py-2 border ${fieldErrors[showIfYes.inputName] ? 'border-red-500' : 'border-gray-300'} rounded-md`}
+          />
+        )}
+
+        {showIfYes.inputName && fieldErrors[showIfYes.inputName] && (
+          <p className="mt-1 text-sm text-red-600">{fieldErrors[showIfYes.inputName]}</p>
+        )}
+      </div>
+    )}
+  </div>
+);
+
+
 
   // Update renderCheckboxGroup
   const renderCheckboxGroup = (label: string, name: string, options: string[]) => (
@@ -338,26 +370,26 @@ const ClientIntakeForm: React.FC<FormProps> = ({ formData, commonFieldsData, onC
       {renderInput("Other Living Arrangement", "livingArrangementsOther")}
       {renderMultiSelectCheckbox("Travel Arrangements", "travelArrangements", travelArrangementsOptions)}
       {renderInput("Other Travel Arrangement", "travelArrangementsOther")}
-      {renderDropdown("Requires Medication Chart?", "medicationChart", yesNoOptions)}
-      {renderDropdown("Requires Mealtime Management?", "mealtimeManagement", yesNoOptions)}
-      {renderDropdown("Requires Bowel Care Management?", "bowelCare", yesNoOptions)}
-      {renderDropdown("Menstrual Cycle Issues / Female Hygiene Help", "menstrualIssues", yesNoOptions)}
-      {renderDropdown("Has Epilepsy?", "epilepsy", yesNoOptions)}
-      {renderDropdown("Is Asthmatic?", "asthmatic", yesNoOptions)}
-      {renderDropdown("Has Allergies?", "allergies", yesNoOptions)}
-      {renderDropdown("Is Anaphylactic?", "anaphylactic", yesNoOptions)}
-      {renderDropdown("Can Staff Administer Band-aids?", "minorInjury", yesNoOptions)}
-      {renderDropdown("Requires Specific Training?", "training", yesNoOptions)}
-      {renderDropdown("Other Relevant Medication Conditions?", "othermedical", yesNoOptions)}
-      {renderDropdown("Triggers for Community Activities?", "trigger", yesNoOptions)}
-      {renderDropdown("History of Absconding?", "absconding", yesNoOptions)}
+      {renderDropdown("Requires Medication Chart?", "medicationChart", yesNoOptions, { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: 'medicationChartOthers' })}
+      {renderDropdown("Requires Mealtime Management?", "mealtimeManagement", yesNoOptions, { label: "If yes, refer to Mealtime Management Plan Form" })}
+      {renderDropdown("Requires Bowel Care Management?", "bowelCare", yesNoOptions, { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers"})}
+      {renderDropdown("Menstrual Cycle Issues / Female Hygiene Help", "menstrualIssues", yesNoOptions, { label: "If yes, Please specify", inputName: "menstrualIssuesOthers"})}
+      {renderDropdown("Has Epilepsy?", "epilepsy", yesNoOptions, {label: 'If yes, ensure Participant’s Doctor completes an Epilepsy Plan', inputName: 'epilepsyOthers'})}
+      {renderDropdown("Is Asthmatic?", "asthmatic", yesNoOptions, {label: 'If yes, ensure Participant’s Doctor completes an Asthma Plan', inputName: 'asthmaticOthers'})}
+      {renderDropdown("Has Allergies?", "allergies", yesNoOptions, {label: 'If yes, ensure to have an Allergy Plan from Participant’s Doctor', inputName: 'allergiesOthers'})}
+      {renderDropdown("Is Anaphylactic?", "anaphylactic", yesNoOptions, {label: 'If yes, ensure to have an anaphylaxis Plan from the Participant’s Doctor', inputName: 'anaphylacticOthers'})}
+      {renderDropdown("Do you give permission for our company’s staff to administer band-aids in cases of a minor injury?", "minorInjury", yesNoOptions)}
+      {renderDropdown("Requires Specific Training?", "training", yesNoOptions, {label: 'If yes, ensure to provide information such as implementing a positive behaviour support plan.', inputName: 'trainingOthers'})}
+      {renderDropdown("Other Relevant Medication Conditions?", "othermedical", yesNoOptions, {label: 'If yes, please specify.', inputName: 'othermedicalOthers'})}
+      {renderDropdown("Triggers for Community Activities?", "trigger", yesNoOptions, {label: 'If yes, please specify and complete the Risk assessment for participants.', inputName: 'triggerOthers'})}
+      {renderDropdown(" Does the Participant show signs or a history of unexpectedly leaving (absconding)?", "absconding", yesNoOptions, {label: 'If yes, please specify.', inputName: 'abscondingOthers'})}
       {renderDropdown("Prone to Falls?", "historyOfFalls", yesNoOptions)}
-      {renderDropdown("Behaviours of Concern?", "behaviourConcern", yesNoOptions)}
-      {renderDropdown("Positive Behaviour Plan In Place?", "positiveBehaviour", yesNoOptions)}
-      {renderDropdown("Risk Plan Communication Mode Set?", "communicationAssistance", yesNoOptions)}
-      {renderDropdown("Requires Physical Assistance?", "physicalAssistance", yesNoOptions)}
-      {renderDropdown("Expressive Language Concerns?", "languageConcern", yesNoOptions)}
-      {renderTextArea("Personal Preferences & Personal Goals", "personalGoals")}
+      {renderDropdown("Behaviours of Concern?", "behaviourConcern", yesNoOptions, {label: 'If yes, please specify.', inputName: 'behaviourConcernOthers'})}
+      {renderDropdown("Positive Behaviour Plan In Place?", "positiveBehaviour", yesNoOptions, {label: 'If yes, refer to High Risk Participant Register.', inputName: 'positiveBehaviourOthers'})}
+      {renderDropdown("Does the participant require communication assistance?", "communicationAssistance", yesNoOptions, {label: 'If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.', inputName: 'communicationAssistanceOthers'})}
+      {renderDropdown("Requires Physical Assistance?", "physicalAssistance", yesNoOptions, {label: 'If yes, specify.', inputName: 'physicalAssistanceOthers'})}
+      {renderDropdown("Expressive Language Concerns?", "languageConcern", yesNoOptions, {label: 'If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.', inputName: 'languageConcernOthers'})}
+      {renderDropdown("Personal Preferences & Personal Goals", "personalGoals", yesNoOptions, {label: 'If yes, refer to form Support Plan'})}
 
     </form>
   );

@@ -1187,7 +1187,11 @@ const MedicationInfoForm = ({ formSchema, formData }: any) => {
                     />
                     <span>Yes</span>
                   </label>
-                  <div className="mt-1 leading-tight">{field?.yesDetail}</div>
+{formData?.[field?.key] === "Yes" && formData?.[`${field.key}Others`] && (
+  <div className="mt-1 text-[11px] text-gray-800 italic leading-tight">
+    {formData[`${field.key}Others`]}
+  </div>
+)}
                 </td>
                 <td className="border border-black p-1 text-center align-top">
                   <input
@@ -1768,17 +1772,24 @@ const SafetyConsiderationForm = ({ formSchema, formData }: any) => {
                   {field?.label}
                 </td>
                 <td className="border border-black p-1 align-top text-[11px]">
-                  <label className="inline-flex items-start space-x-1">
-                    <input
-                      className="mt-1"
-                      type="checkbox"
-                      checked={formData?.[field?.key] === "Yes"}
-                      readOnly
-                    />
-                    <span>Yes</span>
-                  </label>
-                  <div className="mt-1 leading-tight">{field?.yesDetail}</div>
-                </td>
+  <label className="inline-flex items-start space-x-1">
+    <input
+      className="mt-1"
+      type="checkbox"
+      checked={formData?.[field?.key] === "Yes"}
+      readOnly
+    />
+    <span>Yes</span>
+  </label>
+
+  {/* Show value from field.key + 'Others' only if Yes is selected */}
+  {formData?.[field?.key] === "Yes" && formData?.[`${field.key}Others`] && (
+    <div className="mt-1 text-[11px] text-gray-800 italic">
+      {formData[`${field.key}Others`]}
+    </div>
+  )}
+</td>
+
                 <td className="border border-black p-1 text-center align-top">
                   <input
                     type="checkbox"
