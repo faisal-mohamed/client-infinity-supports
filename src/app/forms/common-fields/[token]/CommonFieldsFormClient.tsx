@@ -42,37 +42,53 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
 
   useEffect(() => {
     const loadBatchData = async () => {
-      try {
-        setLoading(true);
+  try {
+    setLoading(true);
 
-        // Load batch data with passcode if available
-        const data = await getFormBatchByToken(token, passcode || undefined);
-        setBatchData(data);
+    // Load batch data with passcode if available
+    const data = await getFormBatchByToken(token, passcode || undefined);
+    setBatchData(data);
 
-        console.log("data: ", data);
+    console.log("data: ", data);
 
-        // Pre-fill form values from existing common fields if available
-        if (data.client.commonFields && data.client.commonFields.length > 0) {
-          const prefilled = data.client.commonFields[0];
-          setFormValues(prefilled);
-          setPrefilledFields(prefilled); // Track pre-filled fields
-        }
-      } catch (err: any) {
-        setError(err.message || "Failed to load forms");
-      } finally {
-        setLoading(false);
+    // Pre-fill form values from existing common fields if available
+    if (data.client.commonFields && data.client.commonFields.length > 0) {
+      const prefilled = data.client.commonFields[0];
+
+      // Calculate age if DOB exists before setting form values
+      if (prefilled.dob) {
+        const dobDate = new Date(prefilled.dob);
+        const today = new Date();
+        let age = today.getFullYear() - dobDate.getFullYear();
+        const hasBirthdayPassed =
+          today.getMonth() > dobDate.getMonth() ||
+          (today.getMonth() === dobDate.getMonth() && today.getDate() >= dobDate.getDate());
+
+        if (!hasBirthdayPassed) age -= 1;
+
+        prefilled.age = age >= 0 ? age : 0;
       }
-    };
+
+      setFormValues(prefilled);
+      setPrefilledFields(prefilled); // Track pre-filled fields
+    }
+  } catch (err : any) {
+    setError(err.message || "Failed to load forms");
+  } finally {
+    setLoading(false);
+  }
+};
 
     loadBatchData();
   }, [token, passcode]);
 
 
-  useEffect(() => {
+useEffect(() => {
   if (formValues.dob) {
     const dobDate = new Date(formValues.dob);
-    const today = new Date();
+    if (isNaN(dobDate.getTime())) return; // Invalid date check
 
+    const today = new Date();
     let age = today.getFullYear() - dobDate.getFullYear();
     const hasBirthdayPassed =
       today.getMonth() > dobDate.getMonth() ||
@@ -80,15 +96,13 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
 
     if (!hasBirthdayPassed) age -= 1;
 
-    if (age >= 0 && age !== formValues.age) {
-      setFormValues((prev: any) => ({
-        ...prev,
-        age: age,
-      }));
-    }
+    // Always update age regardless of previous value
+    setFormValues((prev : any) => ({
+      ...prev,
+      age: age >= 0 ? age : 0,
+    }));
   }
 }, [formValues.dob]);
-
 
   const handleSaveCommonFields = async () => {
     const errors = validateFields();
@@ -164,6 +178,35 @@ export default function CommonFieldsFormClient({ token }: { token: string }) {
       prefilledFields[field] && formValues[field] === prefilledFields[field]
     );
   };
+
+
+
+  const [dob, setDob] = useState('');
+const [age, setAge] = useState('');
+
+// This effect will run whenever dob changes (including when loaded from backend)
+useEffect(() => {
+  if (dob) {
+    const calculatedAge : any = calculateAgeFromDOB(dob);
+    setAge(calculatedAge);
+  }
+}, [dob]);
+
+// Function to calculate age from DOB
+const calculateAgeFromDOB = (dateOfBirth : any) => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+};
+
+
 
   if (loading) {
     return (

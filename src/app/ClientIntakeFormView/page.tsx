@@ -4,37 +4,37 @@ import { useToast } from "@/components/ui/Toast";
 
 export const dynamic = "force-dynamic";
 
-const handleDownload = async () => {
-  const { showToast } = useToast();
-  try {
-    const response = await fetch("/api/generate-pdf", {
-      method: "GET",
-    });
+// const handleDownload = async () => {
+//   const { showToast } = useToast();
+//   try {
+//     const response = await fetch("/api/generate-pdf", {
+//       method: "GET",
+//     });
 
-    if (!response.ok) {
-      throw new Error("Failed to generate PDF");
-    }
+//     if (!response.ok) {
+//       throw new Error("Failed to generate PDF");
+//     }
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+//     const blob = await response.blob();
+//     const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "form.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error downloading PDF:", error);
-    showToast({
-      type: "error",
-      title: `Error`,
-      message: `Error Downloading the PDF`,
-      duration: 3000,
-    });
-  }
-};
+//     const link = document.createElement("a");
+//     link.href = url;
+//     link.download = "form.pdf";
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//     URL.revokeObjectURL(url);
+//   } catch (error) {
+//     console.error("Error downloading PDF:", error);
+//     showToast({
+//       type: "error",
+//       title: `Error`,
+//       message: `Error Downloading the PDF`,
+//       duration: 3000,
+//     });
+//   }
+// };
 
 function getTodayDateFormatted() {
   const today = new Date();
@@ -1843,7 +1843,7 @@ const CombinedForms = ({ formSchemas, formData }: any) => (
       formData={formData}
     />
 
-    <button onClick={handleDownload}>Download</button>
+    {/* <button onClick={handleDownload}>Download</button> */}
   </div>
 );
 

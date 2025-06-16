@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import SignOutButton from '@/components/SignOutButton';
+import Image from 'next/image';
 
 const montserrat = Montserrat({ subsets: ['latin'] });
 
@@ -83,11 +84,17 @@ export default async function AdminDashboardLayout({
         {/* Sidebar */}
         <aside className="hidden md:flex md:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg">
           <div className="h-16 flex items-center justify-center border-b border-indigo-600">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+            <div className="flex flex-col items-center space-x-2">
+              {/* <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
                 <span className="text-indigo-700 text-lg font-bold">IS</span>
-              </div>
-              <span className="text-xl font-semibold">Infinity Support</span>
+              </div> */}
+                     <Image
+                            src={'/client_logo.png'}
+                            alt='Client Logo'
+                            width={70}
+                            height={40}
+                            />
+                            <span className="text-sm font-semibold">Infinity Support WA</span> 
             </div>
           </div>
 
