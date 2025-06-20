@@ -1,233 +1,110 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaTimes } from 'react-icons/fa';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { FaCheck, FaExclamationTriangle, FaInfoCircle, FaTimes } from 'react-icons/fa';
 
-// Define toast types
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
-
-// Define toast data structure
-export interface ToastData {
+interface ToastMessage {
   id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
-  title?: string;
-}
-
-// Define context type
-interface ToastContextType {
-  toasts: ToastData[];
-  showToast: (toast: Omit<ToastData, 'id'>) => void;
-  hideToast: (id: string) => void;
-}
-
-// Create context with default values
-const ToastContext = createContext<ToastContextType>({
-  toasts: [],
-  showToast: () => {},
-  hideToast: () => {},
-});
-
-// Hook to use the toast context
-export const useToast = () => useContext(ToastContext);
-
-// Toast provider component
-export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<ToastData[]>([]);
-
-  // Function to show a toast
-  const showToast = (toast: Omit<ToastData, 'id'>) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const newToast = { ...toast, id };
-    setToasts((prevToasts) => [...prevToasts, newToast]);
-  };
-
-  // Function to hide a toast
-  const hideToast = (id: string) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-  };
-
-  return (
-    <ToastContext.Provider value={{ toasts, showToast, hideToast }}>
-      {children}
-      <ToastContainer />
-    </ToastContext.Provider>
-  );
-}
-
-// Toast container component
-function ToastContainer() {
-  const { toasts, hideToast } = useToast();
-
-  return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 w-full max-w-md">
-      {toasts.map((toast) => (
-        <Toast key={toast.id} toast={toast} onClose={() => hideToast(toast.id)} />
-      ))}
-    </div>
-  );
-}
-
-// Individual toast component
-function Toast({ toast, onClose }: { toast: ToastData; onClose: () => void }) {
-  useEffect(() => {
-    if (toast.duration !== 0) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, toast.duration || 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [toast, onClose]);
-
-  // Get the appropriate icon and styles based on toast type
-  const getToastStyles = () => {
-    switch (toast.type) {
-      case 'success':
-        return {
-          icon: <FaCheckCircle className="text-white text-xl" />,
-          bgColor: 'bg-green-600',
-          borderColor: 'border-green-700',
-        };
-      case 'error':
-        return {
-          icon: <FaExclamationTriangle className="text-white text-xl" />,
-          bgColor: 'bg-red-600',
-          borderColor: 'border-red-700',
-        };
-      case 'warning':
-        return {
-          icon: <FaExclamationTriangle className="text-white text-xl" />,
-          bgColor: 'bg-yellow-500',
-          borderColor: 'border-yellow-600',
-        };
-      case 'info':
-      default:
-        return {
-          icon: <FaInfoCircle className="text-white text-xl" />,
-          bgColor: 'bg-blue-600',
-          borderColor: 'border-blue-700',
-        };
-    }
-  };
-
-  const { icon, bgColor, borderColor } = getToastStyles();
-
-  return (
-    <div
-      className={`${bgColor} ${borderColor} border-l-4 rounded-md shadow-lg transform transition-all duration-300 ease-in-out animate-slide-in`}
-      role="alert"
-    >
-      <div className="flex p-4 items-center">
-        <div className="flex-shrink-0 mr-3">{icon}</div>
-        <div className="flex-1 mr-2">
-          {toast.title && (
-            <h3 className="font-medium text-white">{toast.title}</h3>
-          )}
-          <p className="text-white">{toast.message}</p>
-        </div>
-        <button
-          onClick={onClose}
-          className="text-white hover:text-gray-200 focus:outline-none"
-          aria-label="Close"
-        >
-          <FaTimes />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// Alert dialog component for confirmations
-export function AlertDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  type = 'info',
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  type: 'success' | 'error' | 'info' | 'warning';
   title: string;
   message: string;
-  confirmText?: string;
-  cancelText?: string;
-  type?: ToastType;
-}) {
-  if (!isOpen) return null;
+  duration?: number;
+}
 
-  // Get the appropriate icon and styles based on alert type
-  const getAlertStyles = () => {
+interface ToastContextType {
+  showToast: (toast: Omit<ToastMessage, 'id'>) => void;
+}
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+};
+
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const showToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const newToast = { ...toast, id };
+    
+    setToasts(prev => [...prev, newToast]);
+
+    // Auto remove toast after duration
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, toast.duration || 5000);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  const getIcon = (type: ToastMessage['type']) => {
     switch (type) {
       case 'success':
-        return {
-          icon: <FaCheckCircle className="text-green-600 text-2xl" />,
-          confirmBtnColor: 'bg-green-600 hover:bg-green-700',
-        };
+        return <FaCheck className="w-5 h-5" />;
       case 'error':
-        return {
-          icon: <FaExclamationTriangle className="text-red-600 text-2xl" />,
-          confirmBtnColor: 'bg-red-600 hover:bg-red-700',
-        };
+        return <FaExclamationTriangle className="w-5 h-5" />;
       case 'warning':
-        return {
-          icon: <FaExclamationTriangle className="text-yellow-500 text-2xl" />,
-          confirmBtnColor: 'bg-yellow-500 hover:bg-yellow-600',
-        };
+        return <FaExclamationTriangle className="w-5 h-5" />;
       case 'info':
+        return <FaInfoCircle className="w-5 h-5" />;
       default:
-        return {
-          icon: <FaInfoCircle className="text-blue-600 text-2xl" />,
-          confirmBtnColor: 'bg-blue-600 hover:bg-blue-700',
-        };
+        return <FaInfoCircle className="w-5 h-5" />;
     }
   };
 
-  const { icon, confirmBtnColor } = getAlertStyles();
+  const getToastStyles = (type: ToastMessage['type']) => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-50 border-green-200 text-green-800';
+      case 'error':
+        return 'bg-red-50 border-red-200 text-red-800';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+      case 'info':
+        return 'bg-blue-50 border-blue-200 text-blue-800';
+      default:
+        return 'bg-gray-50 border-gray-200 text-gray-800';
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={onClose}></div>
-        
-        <div className="bg-white rounded-lg max-w-md w-full mx-auto shadow-xl z-10 overflow-hidden transform transition-all animate-fade-in">
-          <div className="p-6">
-            <div className="flex items-center mb-4">
-              <div className="mr-3">{icon}</div>
-              <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-            </div>
-            
-            <div className="mt-2">
-              <p className="text-gray-600">{message}</p>
-            </div>
-            
-            <div className="mt-6 flex justify-end space-x-3">
-              <button
-                type="button"
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-                onClick={onClose}
-              >
-                {cancelText}
-              </button>
-              <button
-                type="button"
-                className={`px-4 py-2 ${confirmBtnColor} text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2`}
-                onClick={() => {
-                  onConfirm();
-                  onClose();
-                }}
-              >
-                {confirmText}
-              </button>
+    <ToastContext.Provider value={{ showToast }}>
+      {children}
+      
+      {/* Toast Container */}
+      <div className="fixed top-4 right-4 z-50 space-y-2">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`max-w-sm w-full border rounded-lg shadow-lg p-4 transition-all duration-300 ${getToastStyles(toast.type)}`}
+          >
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                {getIcon(toast.type)}
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium">{toast.title}</p>
+                <p className="mt-1 text-sm opacity-90">{toast.message}</p>
+              </div>
+              <div className="ml-4 flex-shrink-0">
+                <button
+                  onClick={() => removeToast(toast.id)}
+                  className="inline-flex rounded-md p-1.5 hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                >
+                  <FaTimes className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
-    </div>
+    </ToastContext.Provider>
   );
-}
+};
