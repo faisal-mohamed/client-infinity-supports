@@ -3,73 +3,74 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse the request body
     const body = await req.json();
-
-    // Extract client data from the request
     const { name, email, phone, commonFields } = body;
 
-    // Use "Unnamed Client" if no name is provided
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email is required to create a client." },
+        { status: 400 }
+      );
+    }
+
+    // 🔍 Step 1: Check if email already exists
+    const existingClient = await prisma.client.findUnique({
+      where: { email },
+    });
+
+    if (existingClient) {
+      return NextResponse.json(
+        { error: "Client already exists with this email." },
+        { status: 409 } // 409 Conflict
+      );
+    }
+
+    // 🛠 Step 2: Proceed with creation inside a transaction
     const clientName = name?.trim();
 
-    // Start a transaction to create both client and common fields
     const result = await prisma.$transaction(async (tx) => {
-      // Create the new client
       const newClient = await tx.client.create({
         data: {
           name: clientName,
           email,
           phone,
-        }
+        },
       });
 
-      // Create common fields if provided
-      if (commonFields) {
-        await tx.commonField.create({
-          data: {
-            clientId: newClient.id,
-            name: commonFields.name || clientName,
-            age: commonFields.age,
-            email: commonFields.email || email,
-            sex: commonFields.sex,
-            street: commonFields.street,
-            state: commonFields.state,
-            postCode: commonFields.postCode,
-            dob: commonFields.dob,
-            ndis: commonFields.ndis,
-            disability: commonFields.disability,
-            address: commonFields.address,
-            phone: commonFields.phone || phone
-          }
-        });
-      } else {
-        await tx.commonField.create({
-          data: {
-            clientId: newClient.id,
-            name: newClient.name,
-            email: newClient.email,   
-            phone: newClient.phone         
-          }
-        })
-      }
+      await tx.commonField.create({
+        data: {
+          clientId: newClient.id,
+          name: commonFields?.name || clientName,
+          age: commonFields?.age,
+          email: commonFields?.email || email,
+          sex: commonFields?.sex,
+          street: commonFields?.street,
+          state: commonFields?.state,
+          postCode: commonFields?.postCode,
+          dob: commonFields?.dob,
+          ndis: commonFields?.ndis,
+          disability: commonFields?.disability,
+          address: commonFields?.address,
+          phone: commonFields?.phone || phone,
+        },
+      });
 
-      // Log the client creation activity
       await tx.formActivityLog.create({
         data: {
           logType: "ADMIN",
           action: "Created Client",
           metadata: {
             clientId: newClient.id,
-            clientName: newClient.name
-          }
-        }
+            clientName: newClient.name,
+          },
+        },
       });
 
       return newClient;
     });
 
-    // Return the created client
     return NextResponse.json(result, { status: 201 });
+
   } catch (error: any) {
     console.error("Error creating client:", error);
     return NextResponse.json(
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 
 
 export async function GET(req: NextRequest) {

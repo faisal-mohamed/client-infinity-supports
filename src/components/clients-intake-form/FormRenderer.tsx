@@ -1,5 +1,8 @@
 "use client";
 
+
+//------------This component is responsible for rendering when form viewed in List forms Page ----------------------------
+
 import React, { useState } from "react";
 import ClientIntakeForm from "./ClientIntakeForm";
 import GpMedicalSupportForm from "./GpMedicalSupportForm";

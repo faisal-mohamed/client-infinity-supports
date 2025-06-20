@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { FaPlus, FaEdit, FaEye, FaTrash, FaFileAlt, FaFilter, FaSearch, FaSort, FaSortUp, FaSortDown, FaDownload, FaUserFriends, FaArrowLeft, FaUserPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { getClients, deleteClient } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useConfirm } from '@/components/ui/Confirm';
 
 // Define client type
 type Client = {
@@ -53,6 +54,8 @@ export default function ClientsPageClient() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+
+  const confirm = useConfirm();
 
   // Pagination state
   const [pagination, setPagination] = useState<Pagination>({
@@ -151,49 +154,64 @@ export default function ClientsPageClient() {
   });
 
   const handleDeleteClient = async (id: number) => {
-    if (isDeleting) return;
+  if (isDeleting) return;
 
-    if (confirm('Are you sure you want to delete this client? This will also delete all associated data.')) {
-      try {
-        setIsDeleting(true);
-        await deleteClient(id);
-        // Reload clients after deletion
-        loadClients();
-        setError('');
-      } catch (err) {
-        setError('Failed to delete client');
-        console.error(err);
-      } finally {
-        setIsDeleting(false);
-      }
+  const confirmed = await confirm.confirm({
+    title: "Delete Client",
+    message: "Are you sure you want to delete this client? This will also delete all associated data.",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    type: "danger",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    setIsDeleting(true);
+    await deleteClient(id);
+    loadClients();
+    setError('');
+  } catch (err) {
+    setError('Failed to delete client');
+    console.error(err);
+  } finally {
+    setIsDeleting(false);
+  }
+};
+
+
+ const handleDeleteSelected = async () => {
+  if (isDeleting || selectedClients.length === 0) return;
+
+  const confirmed = await confirm.confirm({
+    title: "Delete Selected Clients",
+    message: `Are you sure you want to delete ${selectedClients.length} selected client(s)? This will also delete all associated data.`,
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    type: "danger",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    setIsDeleting(true);
+
+    for (const id of selectedClients) {
+      await deleteClient(id);
     }
-  };
 
-  const handleDeleteSelected = async () => {
-    if (isDeleting || selectedClients.length === 0) return;
+    loadClients();
+    setSelectedClients([]);
+    setSelectAll(false);
+    setError('');
+  } catch (err) {
+    setError('Failed to delete selected clients');
+    console.error(err);
+  } finally {
+    setIsDeleting(false);
+  }
+};
 
-    if (confirm(`Are you sure you want to delete ${selectedClients.length} selected clients? This will also delete all associated data.`)) {
-      try {
-        setIsDeleting(true);
-
-        // Delete clients one by one
-        for (const id of selectedClients) {
-          await deleteClient(id);
-        }
-
-        // Reload clients after deletion
-        loadClients();
-        setSelectedClients([]);
-        setSelectAll(false);
-        setError('');
-      } catch (err) {
-        setError('Failed to delete selected clients');
-        console.error(err);
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-  };
 
   const handleSelectAll = () => {
     if (selectAll) {
@@ -243,7 +261,9 @@ export default function ClientsPageClient() {
     setPagination({ ...pagination, page: 1, pageSize: newPageSize });
   };
 
+  const [excelLoading, setExcelLoading] = useState(false);
   const exportToExcel = async () => {
+    setExcelLoading(true)
 
     const response = await fetch('/api/clients/export?' + new URLSearchParams({
       search: searchTerm || '',
@@ -383,6 +403,7 @@ export default function ClientsPageClient() {
       </Workbook>
     `;
     
+    setExcelLoading(false)
     // Create download link
     const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
@@ -459,9 +480,11 @@ export default function ClientsPageClient() {
               <button
                 type="button"
                 onClick={exportToExcel}
+                disabled={excelLoading}
                 className="flex items-center px-4 py-2 border border-green-300 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg transition"
               >
-                <FaDownload className="mr-2" /> Export to Excel
+<FaDownload className="mr-2" />
+{!excelLoading ? "Download Excel" : "Downloading Excel..."}
               </button>
 
               {selectedClients.length > 0 && (
@@ -804,94 +827,133 @@ export default function ClientsPageClient() {
 
               {/* Pagination Controls */}
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row justify-between items-center">
-                  <div className="flex items-center mb-4 sm:mb-0">
-                    <p className="text-sm text-gray-700 mr-4">
-                      Showing <span className="font-medium">{sortedClients.length}</span> of{' '}
-                      <span className="font-medium">{pagination.totalCount}</span> clients
-                    </p>
-                    <div className="flex items-center">
-                      <label htmlFor="pageSize" className="text-sm text-gray-600 mr-2">
-                        Show:
-                      </label>
-                      <select
-                        id="pageSize"
-                        value={pagination.pageSize}
-                        onChange={handlePageSizeChange}
-                        className="border border-gray-300 rounded-md text-sm py-1 pl-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                      </select>
-                    </div>
-                  </div>
+  <div className="flex flex-col sm:flex-row justify-between items-center">
+    <div className="flex items-center mb-4 sm:mb-0">
+      <p className="text-sm text-gray-700 mr-4">
+        Showing <span className="font-medium">{sortedClients.length}</span> of{' '}
+        <span className="font-medium">{pagination.totalCount}</span> clients
+      </p>
+      <div className="flex items-center">
+        <label htmlFor="pageSize" className="text-sm text-gray-600 mr-2">
+          Show:
+        </label>
+        <select
+          id="pageSize"
+          value={pagination.pageSize}
+          onChange={handlePageSizeChange}
+          className="border border-gray-300 rounded-md text-sm py-1 pl-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
 
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handlePageChange(1)}
-                      disabled={!pagination.hasPreviousPage}
-                      className={`px-2 py-1 border rounded-md ${
-                        pagination.hasPreviousPage
-                          ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                          : 'border-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                      title="First Page"
-                    >
-                      <span className="sr-only">First Page</span>
-                      <FaChevronLeft className="h-3 w-3" />
-                      <FaChevronLeft className="h-3 w-3 -ml-1" />
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      disabled={!pagination.hasPreviousPage}
-                      className={`px-2 py-1 border rounded-md ${
-                        pagination.hasPreviousPage
-                          ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                          : 'border-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                      title="Previous Page"
-                    >
-                      <span className="sr-only">Previous Page</span>
-                      <FaChevronLeft className="h-3 w-3" />
-                    </button>
+    <div className="flex items-center">
+      {/* Pagination Navigation */}
+      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        {/* First Page */}
+        <button
+          onClick={() => handlePageChange(1)}
+          disabled={!pagination.hasPreviousPage}
+          className={`relative inline-flex items-center px-2 py-2 rounded-l-md border ${
+            pagination.hasPreviousPage
+              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+          }`}
+        >
+          <span className="sr-only">First Page</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
 
-                    <div className="text-sm text-gray-700">
-                      <span className="font-medium">{pagination.page}</span> of{' '}
-                      <span className="font-medium">{pagination.totalPages}</span>
-                    </div>
+        {/* Previous Page */}
+        <button
+          onClick={() => handlePageChange(pagination.page - 1)}
+          disabled={!pagination.hasPreviousPage}
+          className={`relative inline-flex items-center px-2 py-2 border ${
+            pagination.hasPreviousPage
+              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+          }`}
+        >
+          <span className="sr-only">Previous</span>
+          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
 
-                    <button
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      disabled={!pagination.hasNextPage}
-                      className={`px-2 py-1 border rounded-md ${
-                        pagination.hasNextPage
-                          ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                          : 'border-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                      title="Next Page"
-                    >
-                      <span className="sr-only">Next Page</span>
-                      <FaChevronRight className="h-3 w-3" />
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.totalPages)}
-                      disabled={!pagination.hasNextPage}
-                      className={`px-2 py-1 border rounded-md ${
-                        pagination.hasNextPage
-                          ? 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                          : 'border-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                      title="Last Page"
-                    >
-                      <span className="sr-only">Last Page</span>
-                      <FaChevronRight className="h-3 w-3" />
-                      <FaChevronRight className="h-3 w-3 -ml-1" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+        {/* Page Numbers */}
+        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+          // Logic to show pages around current page
+          let pageNum;
+          if (pagination.totalPages <= 5) {
+            pageNum = i + 1;
+          } else if (pagination.page <= 3) {
+            pageNum = i + 1;
+          } else if (pagination.page >= pagination.totalPages - 2) {
+            pageNum = pagination.totalPages - 4 + i;
+          } else {
+            pageNum = pagination.page - 2 + i;
+          }
+
+          // Only render if pageNum is valid
+          if (pageNum > 0 && pageNum <= pagination.totalPages) {
+            return (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                className={`relative inline-flex items-center px-4 py-2 border ${
+                  pagination.page === pageNum
+                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          }
+          return null;
+        })}
+
+        {/* Next Page */}
+        <button
+          onClick={() => handlePageChange(pagination.page + 1)}
+          disabled={!pagination.hasNextPage}
+          className={`relative inline-flex items-center px-2 py-2 border ${
+            pagination.hasNextPage
+              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+          }`}
+        >
+          <span className="sr-only">Next</span>
+          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
+
+        {/* Last Page */}
+        <button
+          onClick={() => handlePageChange(pagination.totalPages)}
+          disabled={!pagination.hasNextPage}
+          className={`relative inline-flex items-center px-2 py-2 rounded-r-md border ${
+            pagination.hasNextPage
+              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+          }`}
+        >
+          <span className="sr-only">Last Page</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10 4.293 14.293a1 1 0 000 1.414zm6 0a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L15.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
             </>
           )}
         </div>
