@@ -69,6 +69,7 @@ export default function FormViewClient({ token }: { token: string }) {
   }, [token, passcode]);
 
   const handleSave = async (submit: boolean = false) => {
+    console.log("handle save: ", submit)
     try {
       setError("");
       setFieldErrors({});
@@ -76,6 +77,9 @@ export default function FormViewClient({ token }: { token: string }) {
       if (submit) {
         const validateForm = getValidationForForm(formData.form.formKey);
         const validationResult = validateForm(formValues);
+
+            console.log("validation result ", validationResult)
+
 
         if (!validationResult.isValid) {
           setFieldErrors(validationResult.errors);
@@ -269,7 +273,7 @@ export default function FormViewClient({ token }: { token: string }) {
                 </button>
               )}
 
-              <button
+              {/* <button
                 onClick={() => handleSave(true)}
                 disabled={saving || submitting}
                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
@@ -285,7 +289,7 @@ export default function FormViewClient({ token }: { token: string }) {
                     <FaArrowRight className="ml-2" />
                   </>
                 )}
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
