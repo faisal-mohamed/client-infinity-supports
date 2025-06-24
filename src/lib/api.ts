@@ -192,25 +192,25 @@ export async function getClientFormAssignments(clientId: number) {
   return response.json();
 }
 
-export async function assignFormToClient(clientId: number, data: {
-  formId: number;
-  expiresAt: string; // ISO date string
-}) {
-  const response = await fetch(`/api/clients/${clientId}/forms/assign`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+// export async function assignFormToClient(clientId: number, data: {
+//   formId: number;
+//   expiresAt: string; // ISO date string
+// }) {
+//   const response = await fetch(`/api/clients/${clientId}/forms/assign`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(data),
+//   });
   
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to assign form');
-  }
+//   if (!response.ok) {
+//     const error = await response.json();
+//     throw new Error(error.error || 'Failed to assign form');
+//   }
   
-  return response.json();
-}
+//   return response.json();
+// }
 
 export async function assignFormBatchToClient(clientId: number, data: {
   formIds: number[];
@@ -374,6 +374,21 @@ export async function getFormSchemaById(formId: number) {
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to fetch form schema');
+  }
+  return response.json();
+}
+
+export async function submitBatchSignature(batchToken: string, signature: string) {
+  const response = await fetch('/api/batch/signature', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ batchToken, signature }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to submit batch signature');
   }
   return response.json();
 }

@@ -29,8 +29,7 @@ export default function FormViewClient({ token }: { token: string }) {
   const [passcode, setPasscode] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   // Extract passcode from URL query param
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -43,12 +42,12 @@ export default function FormViewClient({ token }: { token: string }) {
   // Load form data
   useEffect(() => {
     if (!passcode) return; // Don't load data until passcode is available
-    
+
     const loadFormData = async () => {
       try {
         setLoading(true);
         const data = await getFormDataByToken(token, passcode);
-        console.log("DATA: ", data)
+        console.log("DATA: ", data);
         setFormData(data);
 
         const now = new Date();
@@ -69,7 +68,7 @@ export default function FormViewClient({ token }: { token: string }) {
   }, [token, passcode]);
 
   const handleSave = async (submit: boolean = false) => {
-    console.log("handle save: ", submit)
+    console.log("handle save: ", submit);
     try {
       setError("");
       setFieldErrors({});
@@ -78,18 +77,17 @@ export default function FormViewClient({ token }: { token: string }) {
         const validateForm = getValidationForForm(formData.form.formKey);
         const validationResult = validateForm(formValues);
 
-            console.log("validation result ", validationResult)
-
+        console.log("validation result ", validationResult);
 
         if (!validationResult.isValid) {
           setFieldErrors(validationResult.errors);
 
           showToast({
-            type: 'error',
-            title: 'Validation Error',
-            message: 'Please correct the errors in the forms',
-            duration: 3000
-          })
+            type: "error",
+            title: "Validation Error",
+            message: "Please correct the errors in the forms",
+            duration: 3000,
+          });
           return;
         }
 
@@ -98,10 +96,14 @@ export default function FormViewClient({ token }: { token: string }) {
         setSaving(true);
       }
 
-      await saveFormDataByToken(token, {
-        data: formValues,
-        isSubmitted: submit,
-      }, passcode || undefined);
+      await saveFormDataByToken(
+        token,
+        {
+          data: formValues,
+          isSubmitted: submit,
+        },
+        passcode || undefined
+      );
 
       if (submit) {
         setIsSubmitted(true);
@@ -114,9 +116,19 @@ export default function FormViewClient({ token }: { token: string }) {
                 passcode ? `?passcode=${passcode}` : ""
               }`
             );
-          } else {
+          } else if (formData.navigation.batchToken) {
+            // Redirect to batch signature step if batchToken exists
             router.push(
-              `/forms/completed/${formData.navigation.batchToken}?passcode=${encodeURIComponent(passcode || '')}`
+              `/forms/view-form/${formData.navigation.batchToken}/batch-signature?passcode=${encodeURIComponent(
+                passcode || ""
+              )}`
+            );
+          } else {
+            // fallback: completed page
+            router.push(
+              `/forms/completed/${formData.navigation.batchToken}?passcode=${encodeURIComponent(
+                passcode || ""
+              )}`
             );
           }
         }, 1500);
@@ -140,7 +152,9 @@ export default function FormViewClient({ token }: { token: string }) {
   const navigateToPreviousForm = () => {
     if (formData.navigation.previousForm) {
       router.push(
-        `/forms/view-form/${formData.navigation.previousForm.accessToken}?passcode=${encodeURIComponent(passcode || '')}`
+        `/forms/view-form/${formData.navigation.previousForm.accessToken}?passcode=${encodeURIComponent(
+          passcode || ""
+        )}`
       );
     }
   };
@@ -243,6 +257,7 @@ export default function FormViewClient({ token }: { token: string }) {
                 onSubmit={() => handleSave(true)}
                 readOnly={isSubmitted}
                 fieldErrors={fieldErrors}
+                handleSave={handleSave}
               />
             </div>
 
@@ -255,22 +270,24 @@ export default function FormViewClient({ token }: { token: string }) {
                   <FaArrowLeft className="mr-2" /> Previous Form
                 </button>
               ) : (
-                <button
-                  onClick={() => handleSave(false)}
-                  disabled={saving || submitting}
-                  className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
-                >
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <FaSave className="mr-2" /> Save Progress
-                    </>
-                  )}
-                </button>
+                // <button
+                //   onClick={() => handleSave(false)}
+                //   disabled={saving || submitting}
+                //   className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
+                // >
+                //   {saving ? (
+                //     <>
+                //       <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                //       Saving...
+                //     </>
+                //   ) : (
+                //     <>
+                //       <FaSave className="mr-2" /> Save Progress
+                //     </>
+                //   )}
+                // </button>
+
+                <></>
               )}
 
               {/* <button

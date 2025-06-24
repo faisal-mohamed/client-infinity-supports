@@ -406,10 +406,7 @@ export async function DELETE(
         where: { clientId },
       });
 
-      // Delete form signatures
-      await tx.formSignature.deleteMany({
-        where: { clientId },
-      });
+      
 
       // Delete insights
       await tx.insight.deleteMany({

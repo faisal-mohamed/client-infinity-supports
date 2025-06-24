@@ -29,7 +29,6 @@ model Client {
   updatedAt     DateTime          @updatedAt
   forms         FormSubmission[]  // Link to submitted forms
   progress      FormProgress[]    // Form progress tracking
-  signatures    FormSignature[]   // Client signatures
   commonFields  CommonField[]     // Client's predefined common fields
   insights      Insight[]         // Insights related to the client
   createdBy     Admin?            @relation(fields: [createdById], references: [id]) // Admin who created the client
@@ -69,7 +68,12 @@ model FormBatch {
   batchToken    String    @unique  // Unique token for accessing all forms in this batch
   expiresAt     DateTime
   createdAt     DateTime  @default(now())
-  
+  // Signature and submission status for the batch
+  signature     String?   // base64, SVG, or URL to signature image
+  isSigned      Boolean   @default(false)
+  signedBy      String?   // 'client' or 'admin'
+  signedAt      DateTime?
+
   client        Client    @relation(fields: [clientId], references: [id])
   assignments   FormAssignment[]
 }
@@ -86,11 +90,11 @@ model FormAssignment {
   passcode              String?   // Optional passcode for additional security
   isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
   displayOrder          Int       @default(0) // Order in which forms should be displayed
-  batchId               Int?      // Reference to FormBatch (optional)
+  batchId               Int      // Reference to FormBatch (required)
 
   client                Client    @relation(fields: [clientId], references: [id])
   form                  MasterForm @relation(fields: [formId], references: [id])
-  batch                 FormBatch? @relation(fields: [batchId], references: [id])
+  batch                 FormBatch @relation(fields: [batchId], references: [id])
 
   // Ensure unique assignment for client-form-version
   @@unique([clientId, formId, formVersion])
@@ -126,19 +130,6 @@ model FormProgress {
 
   // Ensure unique progress tracking for client-form-version
   @@unique([clientId, formId, formVersion])
-}
-
-model FormSignature {
-  id            Int      @id @default(autoincrement())
-  clientId      Int
-  signatureUrl  String   // URL to the client's signature image
-  signedAt      DateTime @default(now()) // Timestamp when signed
-  updatedAt     DateTime @updatedAt
-
-  client        Client   @relation(fields: [clientId], references: [id])
-
-  // One signature per client (for all forms)
-  @@unique([clientId])  
 }
 
 model CommonField {
