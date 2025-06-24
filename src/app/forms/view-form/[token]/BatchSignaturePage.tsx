@@ -5,11 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getFormBatchByToken } from "@/lib/api";
 import BatchSignatureStep from "@/app/components/forms/BatchSignatureStep";
 import { submitBatchSignature } from "@/lib/api";
+import { useToast } from "@/components/ui/Toast";
 
 export default function BatchSignaturePage({ batchToken }: { batchToken: string }) {
   const searchParams = useSearchParams();
   const passcode = searchParams.get("passcode");
   const router = useRouter();
+
+  const {showToast} = useToast();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,8 +54,25 @@ export default function BatchSignaturePage({ batchToken }: { batchToken: string 
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (success) return <div>Signature submitted! Redirecting...</div>;
+  if (error) {
+    showToast({
+      type: "error",
+      title: "Error",
+      message: error,
+      duration: 3000,
+    });
+    return;
+  }
+  if (success) {
+    showToast({
+      type: "success",
+      title: "Signature submitted",
+      message: "Redirecting...",
+      duration: 3000,
+    });
+
+    return;
+  }
 
   return (
     <BatchSignatureStep

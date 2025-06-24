@@ -92,6 +92,9 @@ export default function AssignFormsClient({ clientId }: { clientId: string }) {
       });
       
       setAssignmentResult(result);
+
+      console.log("Result:", result);
+
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "Failed to assign forms");
@@ -299,7 +302,7 @@ export default function AssignFormsClient({ clientId }: { clientId: string }) {
             >
               Cancel
             </button>
-            
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Minima at incidunt, ipsa odit enim facilis ipsum illo quaerat quas atque necessitatibus illum vel? Quam aliquid optio sint unde laborum veritatis ipsum sunt voluptas molestias accusamus dignissimos veniam distinctio odit, laboriosam vel nam blanditiis repellat voluptatibus? Beatae quae natus dolorum ipsa?
             <button
               onClick={handleAssignForms}
               disabled={submitting || selectedForms.length === 0 || !expiryDate || !expiryTime}

@@ -672,6 +672,18 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
                       livingArrangementsOptions,
                       isFieldRequired("livingArrangements")
                     )}
+                    {/* Show input if 'Other' is selected */}
+                    {Array.isArray(localValues.livingArrangements) && localValues.livingArrangements.some((opt: string) => opt.toLowerCase().includes('other')) && (
+                      <div className="mt-2">
+                        {renderInput(
+                          "Please specify other living arrangement",
+                          "livingArrangementsOther",
+                          "text",
+                          "Specify other...",
+                          isFieldRequired("livingArrangementsOther")
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     {renderMultiSelectCheckbox(
@@ -679,6 +691,18 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
                       "travelArrangements",
                       travelArrangementsOptions,
                       isFieldRequired("travelArrangements")
+                    )}
+                    {/* Show input if 'Other' is selected */}
+                    {Array.isArray(localValues.travelArrangements) && localValues.travelArrangements.some((opt: string) => opt.toLowerCase().includes('other')) && (
+                      <div className="mt-2">
+                        {renderInput(
+                          "Please specify other travel arrangement",
+                          "travelArrangementsOther",
+                          "text",
+                          "Specify other...",
+                          isFieldRequired("travelArrangementsOther")
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1149,50 +1173,54 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_, index) => (
-              <div
-                key={index}
-                className={`w-4 h-4 rounded-full border-2 duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow-lg" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}
-              />
-            ))}
-          </div>
-          {/* Navigation Buttons - Stacked Vertically on Mobile, Horizontally on md+ */}
-          <div className="flex flex-col w-full gap-3 md:flex-row md:gap-4 md:justify-between">
-            <button
-              type="button"
-              onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
-              className={`flex items-center justify-center space-x-2 px-8 py-3 rounded-full font-bold transition-all text-base shadow-md border-2 duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
-            >
-              <FaChevronLeft className="w-5 h-5" />
-              <span>Previous</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-2 px-8 py-3 rounded-full font-bold transition-all text-base shadow-md border-2 duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
-            >
-              <span>Next</span>
-              <FaChevronRight className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => handleSave(false)}
-              className="flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-base bg-gray-600 hover:bg-gray-700 text-white shadow-md border-2 border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
-            >
-              <FaSave className="mr-2" /> Save Progress
-            </button>
-          </div>
-          {/* Submit Button */}
-          {currentStep === FORM_SECTIONS.length - 1 && (
-            <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-3 py-3 rounded-full font-semibold text-base bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow-xl transition"
-              onClick={onSubmit}
-            >
-              <FaCheck className="w-5 h-5" />
-              Submit
-            </button>
-          )}
+  {FORM_SECTIONS.map((_, index) => (
+    <div
+      key={index}
+      className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}
+    />
+  ))}
+</div>
+
+<div className="flex flex-col w-full gap-2 md:flex-row md:gap-3 md:justify-between">
+  <button
+    type="button"
+    onClick={handlePreviousSequential}
+    disabled={currentStep === 0}
+    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
+  >
+    <FaChevronLeft className="w-4 h-4" />
+    <span>Previous</span>
+  </button>
+
+  <button
+    type="button"
+    onClick={handleNextSequential}
+    disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
+    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+  >
+    <span>Next</span>
+    <FaChevronRight className="w-4 h-4" />
+  </button>
+
+  <button
+    onClick={() => handleSave(false)}
+    className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
+  >
+    <FaSave className="w-4 h-4" />
+    Save
+  </button>
+</div>
+
+{currentStep === FORM_SECTIONS.length - 1 && (
+  <button
+    className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+    onClick={onSubmit}
+  >
+    <FaCheck className="w-4 h-4" />
+    Submit
+  </button>
+)}
+
         </footer>
 
 

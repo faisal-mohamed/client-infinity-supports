@@ -1,9 +1,6 @@
-
-
-
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getClient, getForms, assignFormBatchToClient, getClientForms } from '@/lib/api';
 import { FaPlus, FaLink, FaCalendarAlt, FaCheck, FaClock, FaExclamationTriangle, FaTimes, FaCopy, FaArrowLeft, FaFileAlt, FaClipboard, FaLock, FaRegClock, FaUserEdit } from 'react-icons/fa';
@@ -60,6 +57,9 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
   const [copiedPasscode, setCopiedPasscode] = useState<boolean>(false);
   const [assignmentResult, setAssignmentResult] = useState<any>(null);
 
+  // Track if we've already auto-opened the link for this assignment
+  const autoOpenedRef = useRef<string | null>(null);
+
   // Calculate default expiration date (30 minutes from now)
   useEffect(() => {
     const thirtyMinutesFromNow = new Date();
@@ -113,6 +113,43 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
     loadData();
   }, [clientId]);
 
+
+
+  useEffect(() => {
+    console.log("assignedResult", assignmentResult);
+  }, [assignmentResult]);
+
+  // Helper to get the direct common fields URL
+  const getDirectCommonFieldsUrl = () => {
+    if (!assignmentResult?.batch?.batchToken || !assignmentResult?.passcode) {
+      console.log("No batch token or passcode");
+      return '';
+    }
+    return `${window.location.origin}/forms/common-fields/${assignmentResult.batch.batchToken}?passcode=${encodeURIComponent(assignmentResult.passcode)}`;
+  };
+
+  // Helper to get the passcode page URL (for copy/share)
+  const getAccessPageUrl = () => {
+    if (!assignmentResult?.batch?.batchToken) return '';
+    return `${window.location.origin}/forms/access/${assignmentResult.batch.batchToken}`;
+  };
+
+  // Auto-open the assigned form link in a new tab with passcode after assignment
+  useEffect(() => {
+    if (
+      assignmentResult &&
+      assignmentResult.batch?.batchToken &&
+      assignmentResult.passcode &&
+      autoOpenedRef.current !== assignmentResult.batch.batchToken
+    ) {
+      const url = getDirectCommonFieldsUrl();
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        autoOpenedRef.current = assignmentResult.batch.batchToken;
+      }
+    }
+  }, [assignmentResult]);
+
   const handleToggleFormSelection = (formId: number) => {
     if (selectedFormIds.includes(formId)) {
       setSelectedFormIds(selectedFormIds.filter(id => id !== formId));
@@ -123,6 +160,8 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
 
   const handleAssignForms = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    console.log("Selected form IDs:", selectedFormIds); 
 
     if (selectedFormIds.length === 0) {
       setError('Please select at least one form to assign');
@@ -146,6 +185,8 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
         formIds: selectedFormIds,
         expiresAt: expiresAt.toISOString(),
       });
+
+      console.log("Result:", result);
 
       setAssignmentResult(result);
 
@@ -307,12 +348,12 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     <div className="flex items-center">
                       <input
                         type="text"
-                        value={`${window.location.origin}${assignmentResult.accessLink}`}
+                        value={getAccessPageUrl()}
                         readOnly
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700"
                       />
                       <button
-                        onClick={() => copyToClipboard(`${window.location.origin}${assignmentResult.accessLink}`, 'link')}
+                        onClick={() => copyToClipboard(getAccessPageUrl(), 'link')}
                         className={`${
                           copiedLink
                             ? 'bg-green-600 hover:bg-green-700'
@@ -328,6 +369,16 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                             <FaCopy className="mr-2" /> Copy
                           </>
                         )}
+                      </button>
+                      <button
+                        onClick={() => {
+                          const url = getDirectCommonFieldsUrl();
+                          if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="ml-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors flex items-center"
+                        title="Open as client (auto-fills passcode)"
+                      >
+                        <FaLink className="mr-2" /> Open as Client
                       </button>
                     </div>
                     <p className="mt-1 text-xs text-gray-500">
