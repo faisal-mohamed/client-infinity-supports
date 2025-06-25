@@ -1,13 +1,9 @@
-
-import React from 'react';
+"use client";
+import React, { useState } from 'react';
 import { Montserrat } from 'next/font/google';
-import { getServerSession } from 'next-auth/next';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import SignOutButton from '@/components/SignOutButton';
-
 import { ConfirmProvider } from '@/components/ui/Confirm';
-
 import Image from 'next/image';
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: '400', display: 'swap' });
@@ -71,40 +67,29 @@ const menuItems = [
   },
 ];
 
-export default async function AdminDashboardLayout({
+export default function AdminClientsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side session check
-  const session = await getServerSession();
-  if (!session) {
-    redirect('/admin/login');
-  }
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className={`min-h-screen bg-gray-50 ${montserrat.className}`}>
       <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <aside className="hidden md:flex md:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg">
+        {/* Sidebar for desktop */}
+        <aside className="hidden md:flex md:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg z-20">
           <div className="h-16 flex items-center justify-center border-b border-indigo-600">
-            <div className="flex items-center space-x-2 flex-col">
-              {/* <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <span className="text-indigo-700 text-lg font-bold">IS</span>
-              </div>
-              <span className="text-xl font-semibold">Infinity Support</span> */}
-             {/* <div className='flex flex-col'> */}
-               <Image
-              src={'/client_logo.png'}
-              alt='Client Logo'
-              width={70}
-              height={40}
+            <div className="flex flex-col items-center space-x-2">
+              <Image
+                src={'/client_logo.png'}
+                alt='Client Logo'
+                width={70}
+                height={40}
               />
-              <span className="text-sm font-semibold">Infinity Support WA</span> 
-             {/* </div> */}
+              <span className="text-sm font-semibold">Infinity Support WA</span>
             </div>
           </div>
-
           <nav className="flex-1 px-2 py-4 space-y-1">
             {menuItems.map((item) => (
               <Link
@@ -121,22 +106,24 @@ export default async function AdminDashboardLayout({
               </Link>
             ))}
           </nav>
-
-           <div className="p-4 border-t border-indigo-600">
-                      <SignOutButton />
-                    </div>
+          <div className="p-4 border-t border-indigo-600">
+            <SignOutButton />
+          </div>
         </aside>
 
-        {/* Mobile sidebar */}
-        <div className="md:hidden bg-indigo-700 text-white h-16 w-full fixed top-0 z-10 flex items-center justify-between px-4">
+        {/* Topbar for mobile */}
+        <div className="md:hidden bg-indigo-700 text-white h-16 w-full fixed top-0 z-30 flex items-center justify-between px-4">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
               <span className="text-indigo-700 text-lg font-bold">IS</span>
             </div>
             <span className="text-xl font-semibold">Infinity Support</span>
           </div>
-
-          <button className="text-white focus:outline-none">
+          <button
+            className="text-white focus:outline-none"
+            aria-label="Open menu"
+            onClick={() => setMobileMenuOpen(true)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
@@ -149,9 +136,74 @@ export default async function AdminDashboardLayout({
           </button>
         </div>
 
+        {/* Mobile menu drawer */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-40 flex">
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black bg-opacity-40 transition-opacity"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
+            {/* Drawer */}
+            <aside className="relative w-64 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg flex flex-col h-full animate-slide-in-left z-50">
+              <div className="h-16 flex items-center justify-between border-b border-indigo-600 px-4">
+                <div className="flex items-center space-x-2">
+                  <Image
+                    src={'/client_logo.png'}
+                    alt='Client Logo'
+                    width={60}
+                    height={34}
+                  />
+                  <span className="text-sm font-semibold">Infinity Support WA</span>
+                </div>
+                <button
+                  className="text-white focus:outline-none"
+                  aria-label="Close menu"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <nav className="flex-1 px-2 py-4 space-y-1">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
+                      ${item.href === '/admin/clients'
+                        ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
+                        : 'hover:bg-indigo-600'
+                      }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+              <div className="p-4 border-t border-indigo-600">
+                <SignOutButton />
+              </div>
+            </aside>
+          </div>
+        )}
+
         {/* Main content */}
-        <main className="md:ml-64 flex-1 p-6 pt-20 md:pt-6"><ConfirmProvider>{children}</ConfirmProvider></main>
+        <main className="flex-1 p-6 pt-20 md:pt-6 md:ml-64 transition-all duration-300"><ConfirmProvider>{children}</ConfirmProvider></main>
       </div>
+      {/* Animations */}
+      <style jsx global>{`
+        @keyframes slide-in-left {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slide-in-left {
+          animation: slide-in-left 0.3s cubic-bezier(0.4,0,0.2,1) both;
+        }
+      `}</style>
     </div>
   );
 }

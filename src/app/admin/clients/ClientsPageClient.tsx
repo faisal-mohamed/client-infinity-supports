@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -262,185 +260,73 @@ export default function ClientsPageClient() {
   };
 
   const [excelLoading, setExcelLoading] = useState(false);
+
+
   const exportToExcel = async () => {
-    setExcelLoading(true)
+    setExcelLoading(true);
+    try {
+      const query = new URLSearchParams({
+        search: searchTerm || "",
+        state: filters.state || "",
+        sex: filters.sex || "",
+        hasNdis: filters.hasNdis || "",
+        hasDisability: filters.hasDisability || "",
+      });
 
-    const response = await fetch('/api/clients/export?' + new URLSearchParams({
-      search: searchTerm || '',
-      state: filters.state || '',
-      sex: filters.sex || '',
-      hasNdis: filters.hasNdis || '',
-      hasDisability: filters.hasDisability || ''
-    }));
+      console.log("query:",query.toString());
+  
+      const response = await fetch(`/api/clients/export?${query.toString()}`);
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch clients for export');
+      console.log("response:",response);
+  
+      if (!response.ok) {
+        throw new Error("Failed to download Excel");
+      }
+  
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `infinity_support_clients_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Excel export failed:", error);
+      alert("Failed to export Excel file.");
+    } finally {
+      setExcelLoading(false);
     }
-
-    const data = await response.json();
-    const allClients = data.clients;
-    // Create Excel XML content with custom styling
-    const companyName = "Infinity Supports WA - Client Details";
-    const reportTitle = "Clients Report";
-    const reportDate = new Date().toLocaleDateString();
-    
-    // XML header and styles
-    let excelContent = `
-      <?xml version="1.0"?>
-      <?mso-application progid="Excel.Sheet"?>
-      <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-       xmlns:o="urn:schemas-microsoft-com:office:office"
-       xmlns:x="urn:schemas-microsoft-com:office:excel"
-       xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
-       xmlns:html="http://www.w3.org/TR/REC-html40">
-       <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-        <Author>Infinity Support Portal</Author>
-        <LastAuthor>Infinity Support Portal</LastAuthor>
-        <Created>${new Date().toISOString()}</Created>
-       </DocumentProperties>
-       <Styles>
-        <Style ss:ID="Default" ss:Name="Normal">
-         <Alignment ss:Vertical="Bottom"/>
-         <Borders/>
-         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
-        </Style>
-        <Style ss:ID="Title">
-         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="16" ss:Color="#FFFFFF" ss:Bold="1"/>
-         <Interior ss:Color="#4F46E5" ss:Pattern="Solid"/>
-        </Style>
-        <Style ss:ID="Subtitle">
-         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="12" ss:Color="#FFFFFF" ss:Bold="1"/>
-         <Interior ss:Color="#6366F1" ss:Pattern="Solid"/>
-        </Style>
-        <Style ss:ID="HeaderRow">
-         <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-         <Borders>
-          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
-          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
-          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
-          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#CCCCCC"/>
-         </Borders>
-         <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
-         <Interior ss:Color="#818CF8" ss:Pattern="Solid"/>
-        </Style>
-        <Style ss:ID="DataRow">
-         <Alignment ss:Vertical="Center"/>
-         <Borders>
-          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-         </Borders>
-        </Style>
-        <Style ss:ID="AlternateRow">
-         <Alignment ss:Vertical="Center"/>
-         <Borders>
-          <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-          <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#EEEEEE"/>
-         </Borders>
-         <Interior ss:Color="#F3F4F6" ss:Pattern="Solid"/>
-        </Style>
-       </Styles>
-      <Worksheet ss:Name="Clients">
-      <Table>
-        <Column ss:Width="150"/>
-        <Column ss:Width="200"/>
-        <Column ss:Width="120"/>
-        <Column ss:Width="100"/>
-        <Column ss:Width="80"/>
-        <Column ss:Width="80"/>
-        <Column ss:Width="120"/>
-    `;
-    
-    // Title and subtitle rows
-    excelContent += `
-      <Row ss:Height="30">
-        <Cell ss:MergeAcross="6" ss:StyleID="Title"><Data ss:Type="String">${companyName}</Data></Cell>
-      </Row>
-      <Row ss:Height="25">
-        <Cell ss:MergeAcross="6" ss:StyleID="Subtitle"><Data ss:Type="String">${reportTitle} - Generated on ${reportDate}</Data></Cell>
-      </Row>
-      <Row></Row>
-    `;
-    
-    // Header row
-    excelContent += `
-      <Row ss:Height="20">
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Name</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Email</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Phone</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">NDIS Number</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">State</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Sex</Data></Cell>
-        <Cell ss:StyleID="HeaderRow"><Data ss:Type="String">Created Date</Data></Cell>
-      </Row>
-    `;
-    
-    // Data rows
-    allClients.forEach((client : any , index : any) => {
-      const rowStyle = index % 2 === 0 ? "DataRow" : "AlternateRow";
-      excelContent += `
-        <Row>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.name || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.email || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.phone || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.ndis || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.state || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${client.commonFields?.sex || ""}</Data></Cell>
-          <Cell ss:StyleID="${rowStyle}"><Data ss:Type="String">${new Date(client.createdAt).toLocaleDateString()}</Data></Cell>
-        </Row>
-      `;
-    });
-    
-    // Close XML tags
-    excelContent += `
-        </Table>
-       </Worksheet>
-      </Workbook>
-    `;
-    
-    setExcelLoading(false)
-    // Create download link
-    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `infinity_support_clients_${new Date().toISOString().split('T')[0]}.xls`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
+  
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
             <div className="flex items-center">
-              <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                <FaUserFriends className="text-indigo-600 text-xl" />
+              <div className="bg-indigo-100 p-2 sm:p-3 rounded-lg mr-3 sm:mr-4">
+                <FaUserFriends className="text-indigo-600 text-lg sm:text-xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Client Management</h1>
-                <p className="text-sm text-gray-500 mt-1">Manage your clients and their information</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Client Management</h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">Manage your clients and their information</p>
               </div>
             </div>
-            <div className="mt-4 md:mt-0 flex space-x-3">
+            <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2 sm:gap-3 w-full md:w-auto">
               <Link
                 href="/admin/dashboard"
-                className="flex items-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
+                className="flex items-center text-xs sm:text-sm text-gray-600 hover:text-indigo-600 transition px-3 sm:px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50 justify-center"
               >
                 <FaArrowLeft className="mr-2" /> Back to Dashboard
               </Link>
               <Link
                 href="/admin/clients/create"
-                className="flex items-center text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg shadow-sm"
+                className="flex items-center text-xs sm:text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-3 sm:px-4 py-2 rounded-lg shadow-sm justify-center"
               >
                 <FaUserPlus className="mr-2" /> Add New Client
               </Link>
@@ -449,8 +335,8 @@ export default function ClientsPageClient() {
         </div>
 
         {/* Actions and Search */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 justify-between">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3 sm:gap-4 justify-between">
             <div className="flex-grow relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FaSearch className="text-gray-400" />
@@ -458,7 +344,7 @@ export default function ClientsPageClient() {
               <input
                 type="text"
                 placeholder="Search clients by name, email or phone..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -502,17 +388,17 @@ export default function ClientsPageClient() {
 
           {/* Filters */}
           {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex justify-between items-center mb-3">
+            <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
                 <h3 className="font-medium text-gray-700">Filter Clients</h3>
                 <button
                   onClick={resetFilters}
-                  className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                  className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-medium"
                 >
                   Reset Filters
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                   <select
@@ -603,7 +489,7 @@ export default function ClientsPageClient() {
         )}
 
         {/* Clients Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
@@ -826,134 +712,134 @@ export default function ClientsPageClient() {
               </div>
 
               {/* Pagination Controls */}
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-  <div className="flex flex-col sm:flex-row justify-between items-center">
-    <div className="flex items-center mb-4 sm:mb-0">
-      <p className="text-sm text-gray-700 mr-4">
-        Showing <span className="font-medium">{sortedClients.length}</span> of{' '}
-        <span className="font-medium">{pagination.totalCount}</span> clients
-      </p>
-      <div className="flex items-center">
-        <label htmlFor="pageSize" className="text-sm text-gray-600 mr-2">
-          Show:
-        </label>
-        <select
-          id="pageSize"
-          value={pagination.pageSize}
-          onChange={handlePageSizeChange}
-          className="border border-gray-300 rounded-md text-sm py-1 pl-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50">50</option>
-        </select>
-      </div>
-    </div>
+              <div className="px-2 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+                  <div className="flex items-center mb-4 sm:mb-0">
+                    <p className="text-sm text-gray-700 mr-4">
+                      Showing <span className="font-medium">{sortedClients.length}</span> of{' '}
+                      <span className="font-medium">{pagination.totalCount}</span> clients
+                    </p>
+                    <div className="flex items-center">
+                      <label htmlFor="pageSize" className="text-sm text-gray-600 mr-2">
+                        Show:
+                      </label>
+                      <select
+                        id="pageSize"
+                        value={pagination.pageSize}
+                        onChange={handlePageSizeChange}
+                        className="border border-gray-300 rounded-md text-sm py-1 pl-2 pr-8 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                      </select>
+                    </div>
+                  </div>
 
-    <div className="flex items-center">
-      {/* Pagination Navigation */}
-      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-        {/* First Page */}
-        <button
-          onClick={() => handlePageChange(1)}
-          disabled={!pagination.hasPreviousPage}
-          className={`relative inline-flex items-center px-2 py-2 rounded-l-md border ${
-            pagination.hasPreviousPage
-              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
-          }`}
-        >
-          <span className="sr-only">First Page</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
+                  <div className="flex items-center">
+                    {/* Pagination Navigation */}
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                      {/* First Page */}
+                      <button
+                        onClick={() => handlePageChange(1)}
+                        disabled={!pagination.hasPreviousPage}
+                        className={`relative inline-flex items-center px-2 py-2 rounded-l-md border ${
+                          pagination.hasPreviousPage
+                            ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="sr-only">First Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
 
-        {/* Previous Page */}
-        <button
-          onClick={() => handlePageChange(pagination.page - 1)}
-          disabled={!pagination.hasPreviousPage}
-          className={`relative inline-flex items-center px-2 py-2 border ${
-            pagination.hasPreviousPage
-              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
-          }`}
-        >
-          <span className="sr-only">Previous</span>
-          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-        </button>
+                      {/* Previous Page */}
+                      <button
+                        onClick={() => handlePageChange(pagination.page - 1)}
+                        disabled={!pagination.hasPreviousPage}
+                        className={`relative inline-flex items-center px-2 py-2 border ${
+                          pagination.hasPreviousPage
+                            ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="sr-only">Previous</span>
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </button>
 
-        {/* Page Numbers */}
-        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-          // Logic to show pages around current page
-          let pageNum;
-          if (pagination.totalPages <= 5) {
-            pageNum = i + 1;
-          } else if (pagination.page <= 3) {
-            pageNum = i + 1;
-          } else if (pagination.page >= pagination.totalPages - 2) {
-            pageNum = pagination.totalPages - 4 + i;
-          } else {
-            pageNum = pagination.page - 2 + i;
-          }
+                      {/* Page Numbers */}
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        // Logic to show pages around current page
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (pagination.page <= 3) {
+                          pageNum = i + 1;
+                        } else if (pagination.page >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = pagination.page - 2 + i;
+                        }
 
-          // Only render if pageNum is valid
-          if (pageNum > 0 && pageNum <= pagination.totalPages) {
-            return (
-              <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                className={`relative inline-flex items-center px-4 py-2 border ${
-                  pagination.page === pageNum
-                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          }
-          return null;
-        })}
+                        // Only render if pageNum is valid
+                        if (pageNum > 0 && pageNum <= pagination.totalPages) {
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`relative inline-flex items-center px-4 py-2 border ${
+                                pagination.page === pageNum
+                                  ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        }
+                        return null;
+                      })}
 
-        {/* Next Page */}
-        <button
-          onClick={() => handlePageChange(pagination.page + 1)}
-          disabled={!pagination.hasNextPage}
-          className={`relative inline-flex items-center px-2 py-2 border ${
-            pagination.hasNextPage
-              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
-          }`}
-        >
-          <span className="sr-only">Next</span>
-          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
-        </button>
+                      {/* Next Page */}
+                      <button
+                        onClick={() => handlePageChange(pagination.page + 1)}
+                        disabled={!pagination.hasNextPage}
+                        className={`relative inline-flex items-center px-2 py-2 border ${
+                          pagination.hasNextPage
+                            ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="sr-only">Next</span>
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </button>
 
-        {/* Last Page */}
-        <button
-          onClick={() => handlePageChange(pagination.totalPages)}
-          disabled={!pagination.hasNextPage}
-          className={`relative inline-flex items-center px-2 py-2 rounded-r-md border ${
-            pagination.hasNextPage
-              ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-              : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
-          }`}
-        >
-          <span className="sr-only">Last Page</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10 4.293 14.293a1 1 0 000 1.414zm6 0a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L15.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </nav>
-    </div>
-  </div>
-</div>
+                      {/* Last Page */}
+                      <button
+                        onClick={() => handlePageChange(pagination.totalPages)}
+                        disabled={!pagination.hasNextPage}
+                        className={`relative inline-flex items-center px-2 py-2 rounded-r-md border ${
+                          pagination.hasNextPage
+                            ? 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        <span className="sr-only">Last Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10 4.293 14.293a1 1 0 000 1.414zm6 0a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L15.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
             </>
           )}
         </div>

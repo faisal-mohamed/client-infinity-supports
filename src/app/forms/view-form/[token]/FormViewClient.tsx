@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { getFormDataByToken, saveFormDataByToken } from "@/lib/api";
 import { getValidationForForm } from "@/app/components/forms/FormValidation";
@@ -13,6 +13,18 @@ import {
 } from "react-icons/fa";
 import DynamicFormRenderer from "@/app/components/DynamicFormRenderer";
 import { useToast } from "@/components/ui/Toast";
+
+// Helper to format time difference as 'X ago'
+function formatTimeAgo(date: Date | null) {
+  if (!date) return "Not saved yet.";
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 5) return "just now";
+  if (diff < 60) return `${diff} seconds ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+  return date.toLocaleString();
+}
 
 export default function FormViewClient({ token }: { token: string }) {
   const router = useRouter();
@@ -28,6 +40,7 @@ export default function FormViewClient({ token }: { token: string }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [passcode, setPasscode] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   const { showToast } = useToast();
   // Extract passcode from URL query param
@@ -56,6 +69,7 @@ export default function FormViewClient({ token }: { token: string }) {
         setIsSubmitted(data.isSubmitted);
         setFormValues(data.formData || {});
         setError("");
+        setLastSavedAt(data.lastSavedAt ? new Date(data.lastSavedAt) : null);
       } catch (err: any) {
         setError(err.message || "Failed to load form");
         console.error(err);
@@ -68,7 +82,6 @@ export default function FormViewClient({ token }: { token: string }) {
   }, [token, passcode]);
 
   const handleSave = async (submit: boolean = false) => {
-    console.log("handle save: ", submit);
     try {
       setError("");
       setFieldErrors({});
@@ -105,6 +118,8 @@ export default function FormViewClient({ token }: { token: string }) {
         passcode || undefined
       );
 
+      setLastSavedAt(new Date());
+
       if (submit) {
         setIsSubmitted(true);
         setSuccess("Form submitted successfully!");
@@ -134,6 +149,12 @@ export default function FormViewClient({ token }: { token: string }) {
         }, 1500);
       } else {
         setSuccess("Progress saved successfully!");
+        showToast({
+          type: "info",
+          title: "Data Saved",
+          message: "Your changes have been saved. You can continue working or close this window.",
+          duration: 3000,
+        });
         setTimeout(() => setSuccess(""), 3000);
       }
     } catch (err: any) {
@@ -189,34 +210,44 @@ export default function FormViewClient({ token }: { token: string }) {
 
   if (isSubmitted && !formData.navigation.nextForm) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border border-green-100 animate-fade-in">
           <div className="flex justify-center mb-4">
-            <div className="rounded-full bg-green-100 p-3">
-              <FaCheck className="text-green-600 text-3xl" />
+            <div className="rounded-full bg-green-100 p-5 shadow-lg animate-bounce-slow">
+              <FaCheck className="text-green-600 text-5xl" />
             </div>
           </div>
-          <h1 className="text-xl font-bold text-center text-gray-900 mb-2">
-            Form Submitted
+          <h1 className="text-2xl font-extrabold text-center text-green-700 mb-2 tracking-tight">
+            Form Submitted!
           </h1>
-          <p className="text-gray-600 text-center mb-6">
-            Thank you! Your form has been successfully submitted.
+          <p className="text-gray-600 text-center mb-8 text-lg">
+            Thank you! Your form has been <span className="text-green-600 font-semibold">successfully submitted</span>.
           </p>
-          {formData.navigation.batchToken && (
+          {/* {formData.navigation.batchToken && (
             <button
-              onClick={() =>
-                router.push(
-                  `/forms/completed/${formData.navigation.batchToken}${
-                    passcode ? `?passcode=${passcode}` : ""
-                  }`
-                )
-              }
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-green-400 hover:from-blue-700 hover:to-green-500 text-white py-3 px-4 rounded-full font-bold text-lg shadow transition"
             >
+              <FaCheck className="w-5 h-5" />
               View All Forms
             </button>
-          )}
+          )} */}
         </div>
+        <style jsx>{`
+          .animate-bounce-slow {
+            animation: bounce 1.5s infinite;
+          }
+          @keyframes bounce {
+            0%, 100% { transform: translateY(0);}
+            50% { transform: translateY(-10px);}
+          }
+          .animate-fade-in {
+            animation: fade-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+          }
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(24px);}
+            to { opacity: 1; transform: none;}
+          }
+        `}</style>
       </div>
     );
   }
@@ -225,13 +256,15 @@ export default function FormViewClient({ token }: { token: string }) {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-gray-900">
+          <div className="px-4 md:px-8 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-white via-blue-50 to-green-50 rounded-t-2xl shadow-sm">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight">
               {formData?.form?.title}
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Please complete the form below. Your progress will be saved
-              automatically.
+            <p className="mt-2 text-base md:text-lg text-gray-500 font-medium flex items-center gap-2">
+              <span className="inline-flex items-center gap-1">
+                <FaSave className="w-4 h-4 text-gray-400" />
+                Last saved: {formatTimeAgo(lastSavedAt)}
+              </span>
             </p>
           </div>
 
@@ -270,43 +303,8 @@ export default function FormViewClient({ token }: { token: string }) {
                   <FaArrowLeft className="mr-2" /> Previous Form
                 </button>
               ) : (
-                // <button
-                //   onClick={() => handleSave(false)}
-                //   disabled={saving || submitting}
-                //   className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
-                // >
-                //   {saving ? (
-                //     <>
-                //       <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                //       Saving...
-                //     </>
-                //   ) : (
-                //     <>
-                //       <FaSave className="mr-2" /> Save Progress
-                //     </>
-                //   )}
-                // </button>
-
                 <></>
               )}
-
-              {/* <button
-                onClick={() => handleSave(true)}
-                disabled={saving || submitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
-              >
-                {submitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    {formData.navigation.nextForm ? "Next Form" : "Submit Form"}
-                    <FaArrowRight className="ml-2" />
-                  </>
-                )}
-              </button> */}
             </div>
           </div>
         </div>

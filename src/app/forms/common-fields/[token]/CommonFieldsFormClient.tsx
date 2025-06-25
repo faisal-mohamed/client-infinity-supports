@@ -237,19 +237,20 @@ const calculateAgeFromDOB = (dateOfBirth : any) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-gray-900">
+        <div className="bg-white shadow-xl rounded-3xl overflow-hidden border border-gray-100">
+          {/* Header */}
+          <div className="px-4 md:px-8 pt-6 pb-4 border-b border-gray-100 bg-gradient-to-r from-white via-blue-50 to-green-50 rounded-t-2xl shadow-sm">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight">
               Personal Information
             </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Please provide your personal information. This will be used across
-              all forms.
+            <p className="mt-2 text-base md:text-lg text-gray-500 font-medium">
+              Please provide your personal information. This will be used across all forms.
             </p>
           </div>
 
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Form */}
+          <div className="p-6 md:p-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name <span className="text-red-500">*</span>
@@ -459,7 +460,7 @@ const calculateAgeFromDOB = (dateOfBirth : any) => {
               <button
                 onClick={handleSaveCommonFields}
                 disabled={saving || !formValues.name}
-                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
+                className="bg-gradient-to-r from-blue-600 to-green-400 hover:from-blue-700 hover:to-green-500 text-white py-2 px-6 rounded-full flex items-center font-bold text-lg shadow disabled:opacity-50 transition"
               >
                 {saving ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>

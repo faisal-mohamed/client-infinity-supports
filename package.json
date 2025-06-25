@@ -17,6 +17,7 @@
     "@prisma/client": "^6.9.0",
     "@sparticuz/chromium": "^133.0.0",
     "bcrypt": "^6.0.0",
+    "exceljs": "^4.4.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "next": "15.3.3",
@@ -28,7 +29,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "react-signature-canvas": "^1.1.0-alpha.2"
+    "react-signature-canvas": "^1.1.0-alpha.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

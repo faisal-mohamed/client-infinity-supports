@@ -305,8 +305,8 @@ export default function CreateClientPage() {
                         value={ndisNumber}
                         onChange={(e) => setNdisNumber(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="NDIS123456"
-                      />
+                        placeholder="1234567890"
+                        />
                         {errors.ndisNumber && (
     <p className="text-red-600 text-sm mt-1">{errors.ndisNumber}</p>
   )}

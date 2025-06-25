@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   FaUser,
+  FaStethoscope,
+  FaRegSmile,
+  FaGavel,
+  FaInfoCircle,
+  FaPhoneAlt,
   FaHome,
-  FaPhone,
-  FaUserMd,
+  FaNotesMedical,
   FaShieldAlt,
-  FaHeart,
-  FaBullseye,
   FaChevronLeft,
   FaChevronRight,
   FaCheck,
@@ -26,57 +28,142 @@ interface FormProps {
 }
 
 // Form sections configuration
+// const FORM_SECTIONS = [
+//   {
+//     id: "personal",
+//     title: "Personal Information",
+//     icon: FaUser,
+//     description: "Basic personal details and identification",
+//     requiredFields: ["givenName", "surname", "dateOfBirth", "sex"],
+//   },
+//   {
+//     id: "contact",
+//     title: "Contact & Address",
+//     icon: FaHome,
+//     description: "Contact information and residential details",
+//     requiredFields: ["addressNumberStreet", "state", "postcode", "email"],
+//   },
+//   {
+//     id: "emergency",
+//     title: "Emergency Contacts",
+//     icon: FaPhone,
+//     description: "Primary and secondary emergency contacts",
+//     requiredFields: ["primaryContactName", "primaryContactRelationship"],
+//   },
+//   {
+//     id: "medical",
+//     title: "Medical Information",
+//     icon: FaUserMd,
+//     description: "Medical conditions and healthcare providers",
+//     requiredFields: ["medicalCentreName"],
+//   },
+//   {
+//     id: "support",
+//     title: "Support Services",
+//     icon: FaShieldAlt,
+//     description: "Support coordinators and advocacy services",
+//     requiredFields: [],
+//   },
+//   {
+//     id: "health",
+//     title: "Health & Safety",
+//     icon: FaHeart,
+//     description: "Health conditions and safety considerations",
+//     requiredFields: [],
+//   },
+//   {
+//     id: "goals",
+//     title: "Goals & Preferences",
+//     icon: FaBullseye,
+//     description: "Personal goals and preferences",
+//     requiredFields: [],
+//   },
+// ];
+
+
+
 const FORM_SECTIONS = [
   {
     id: "personal",
     title: "Personal Information",
     icon: FaUser,
     description: "Basic personal details and identification",
-    requiredFields: ["givenName", "surname", "dateOfBirth", "sex"],
+    fields: [
+      "ndisNumber", "givenName", "surname", "dateOfBirth", "sex", "addressNumberStreet", "state", "postcode", "email","pronoun","aboriginalTorres","preferredName","homePhone","mobile","disabilityConditions"
+    ],
+    requiredFields: ["givenName", "surname", "dateOfBirth", "sex", "addressNumberStreet", "state", "postcode", "email"],
   },
   {
     id: "contact",
-    title: "Contact & Address",
-    icon: FaHome,
-    description: "Contact information and residential details",
-    requiredFields: ["addressNumberStreet", "state", "postcode", "email"],
+    title: "Medical Contact",
+    icon: FaStethoscope,
+    description: "GP Medical Contact & Support Coordinator",
+    fields: [
+      "medicalCentreName", "medicalPhone", "supportCoordinatorName", "supportCoordinatorEmail", "supportCoordinatorCompany", "supportCoordinatorContact","otherSupports"
+    ],
+    requiredFields: ["medicalCentreName", "supportCoordinatorName"],
   },
   {
-    id: "emergency",
-    title: "Emergency Contacts",
-    icon: FaPhone,
+    id: "aboutMe",
+    title: "All About Me",
+    icon: FaRegSmile,
+    description: "About me",
+    requiredFields: ["aboutMe"],
+    fields: ["aboutMe"],  
+  },
+  {
+    id: "advocate",
+    title: "Advocate Details",
+    icon: FaGavel,
+    description: "Advocate/representative details (if applicable)",
+    requiredFields: ["medicalCentreName"],
+    fields: ["advocateName", "advocateEmail", "advocatePhone", "advocateMobile", "advocateAddress", "advocatePostalAddress", "advocateOtherInfo", "advocateRelationship"],
+  },
+  {
+    id: "personalSituation",
+    title: "Personal Situation",
+    icon: FaInfoCircle,
+    description: "Personal situation",
+    requiredFields: ["barriers"],
+    fields: ["barriers", "language", "countryOfBirth", "culturalValues", "culturalBehaviours", "writtenCommunication"]
+  },
+  {
+    id: "contact",
+    title: "Contact Details",
+    icon: FaPhoneAlt,
     description: "Primary and secondary emergency contacts",
     requiredFields: ["primaryContactName", "primaryContactRelationship"],
+    fields: ["primaryContactName", "primaryContactRelationship", "primaryContactHomePhone", "primaryContactMobile", "secondaryContactName", "secondaryContactRelationship", "secondaryContactHomePhone", "secondaryContactMobile"],
   },
   {
-    id: "medical",
+    id: "livingArrangements",
+    title: "Arrangements",
+    icon: FaHome,
+    description: "Living Arrangements & Travel Arrangements",
+    requiredFields: [],
+    fields: ["livingArrangements", "travelArrangements"],
+  },
+  {
+    id: "medicalInfo",
     title: "Medical Information",
-    icon: FaUserMd,
-    description: "Medical conditions and healthcare providers",
-    requiredFields: ["medicalCentreName"],
+    icon: FaNotesMedical,
+    description: "Medication Information/Diagnosis/Health Concerns",
+    requiredFields: [],
+    fields: ["medicationChart", "mealtimeManagement", "bowelCare", "menstrualIssues", "epilepsy", "asthmatic", "allergies", "anaphylactic", "minorInjury", "training", "othermedical", "trigger"] 
   },
   {
-    id: "support",
-    title: "Support Services",
+    id: "safety",
+    title: "Safety Considerations",
     icon: FaShieldAlt,
-    description: "Support coordinators and advocacy services",
+    description: "Safety Considerations",
     requiredFields: [],
-  },
-  {
-    id: "health",
-    title: "Health & Safety",
-    icon: FaHeart,
-    description: "Health conditions and safety considerations",
-    requiredFields: [],
-  },
-  {
-    id: "goals",
-    title: "Goals & Preferences",
-    icon: FaBullseye,
-    description: "Personal goals and preferences",
-    requiredFields: [],
+    fields: ["absconding", "historyOfFalls", "behaviourConcern", "positiveBehaviour", "communicationAssistance", "physicalAssistance", "languageConcern", "personalGoals"],
   },
 ];
+
+
+
+
 
 const commonFieldsMapping: Record<string, string> = {
   ndisNumber: "ndis",
@@ -256,11 +343,7 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
   };
 
   const getProgressPercentage = () => {
-    return (
-      ((completedSteps.size + (currentStep > 0 ? 1 : 0)) /
-        FORM_SECTIONS.length) *
-      100
-    );
+    return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
   };
 
   // Sequential step logic
@@ -447,11 +530,12 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className={`flex flex-col gap-2 w-full`}>
         {options.map((option) => (
           <label
             key={option}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer w-full"
+            style={{ width: '100%' }}
           >
             <input
               type="checkbox"
@@ -489,36 +573,121 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
   };
 
+  // Field metadata for dynamic rendering
+  const FIELD_METADATA: Record<string, any> = {
+    ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter your NDIS number" },
+    givenName: { label: "Given Name", type: "text", placeholder: "Enter your first name" },
+    surname: { label: "Surname", type: "text", placeholder: "Enter your last name" },
+    preferredName: { label: "Preferred Name", type: "text", placeholder: "How would you like to be called?" },
+    dateOfBirth: { label: "Date of Birth", type: "date", placeholder: "Enter your date of birth" },
+    sex: { label: "Sex", type: "dropdown", options: ["Male", "Female", "Other"] },
+    pronoun: { label: "Pronoun", type: "text", placeholder: "e.g., he/him, she/her, they/them" },
+    aboriginalTorres: { label: "Aboriginal or Torres Strait Islander?", type: "dropdown", options: yesNoOptions },
+    addressNumberStreet: { label: "Address (Number/Street)", type: "text", placeholder: "Enter your street address" },
+    state: { label: "State", type: "text", placeholder: "Enter your state" },
+    postcode: { label: "Postcode", type: "text", placeholder: "Enter your postcode" },
+    email: { label: "Email", type: "email", placeholder: "Enter your email address" },
+    homePhone: { label: "Home Phone", type: "tel", placeholder: "Enter your home phone number" },
+    mobile: { label: "Mobile", type: "tel", placeholder: "Enter your mobile number" },
+    disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3 },
+    medicalCentreName: { label: "Medical Centre Name", type: "text", placeholder: "Name of your medical centre" },
+    medicalPhone: { label: "Medical Centre Phone", type: "tel", placeholder: "Medical centre phone number" },
+    supportCoordinatorName: { label: "Support Coordinator Name", type: "text", placeholder: "Coordinator's name" },
+    supportCoordinatorEmail: { label: "Support Coordinator Email", type: "email", placeholder: "Coordinator's email" },
+    supportCoordinatorCompany: { label: "Support Coordinator Company", type: "text", placeholder: "Company name" },
+    supportCoordinatorContact: { label: "Support Coordinator Contact", type: "tel", placeholder: "Contact number" },
+    otherSupports: { label: "Other Supports", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4 },
+    aboutMe: { label: "About Me", type: "textarea", placeholder: "Tell us about yourself", rows: 4 },
+    advocateName: { label: "Advocate Name", type: "text", placeholder: "Advocate's full name" },
+    advocateEmail: { label: "Advocate Email", type: "email", placeholder: "Advocate's email" },
+    advocatePhone: { label: "Advocate Phone", type: "tel", placeholder: "Advocate's phone" },
+    advocateMobile: { label: "Advocate Mobile", type: "tel", placeholder: "Advocate's mobile" },
+    advocateAddress: { label: "Advocate Address", type: "text", placeholder: "Advocate's address" },
+    advocatePostalAddress: { label: "Advocate Postal Address", type: "text", placeholder: "Advocate's postal address" },
+    advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3 },
+    advocateRelationship: { label: "Relationship with Participant", type: "text", placeholder: "Relationship to you" },
+    barriers: { label: "Cultural, Communication Barriers or Intimacy Issues", type: "dropdown", options: yesNoOptions },
+    language: { label: "Language", type: "text", placeholder: "Primary language spoken" },
+    interpreter: { label: "Interpreter Needed?", type: "dropdown", options: yesNoOptions },
+    countryOfBirth: { label: "Country of Birth", type: "text", placeholder: "Enter your country of birth" },
+    culturalValues: { label: "Cultural Values", type: "text", placeholder: "Important cultural values" },
+    culturalBehaviours: { label: "Cultural Behaviours", type: "text", placeholder: "Important cultural behaviours" },
+    writtenCommunication: { label: "Written Communication / Literacy", type: "text", placeholder: "Communication preferences" },
+    primaryContactName: { label: "Primary Contact Name", type: "text", placeholder: "Primary contact's full name" },
+    primaryContactRelationship: { label: "Primary Contact Relationship", type: "text", placeholder: "Relationship to you" },
+    primaryContactHomePhone: { label: "Primary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
+    primaryContactMobile: { label: "Primary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
+    secondaryContactName: { label: "Secondary Contact Name", type: "text", placeholder: "Secondary contact's full name" },
+    secondaryContactRelationship: { label: "Secondary Contact Relationship", type: "text", placeholder: "Relationship to you" },
+    secondaryContactHomePhone: { label: "Secondary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
+    secondaryContactMobile: { label: "Secondary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
+    livingArrangements: { label: "Living Arrangements", type: "checkbox", options: livingArrangementsOptions },
+    livingArrangementsOther: { label: "Please specify other living arrangement", type: "text", placeholder: "Specify other..." },
+    travelArrangements: { label: "Travel Arrangements", type: "checkbox", options: travelArrangementsOptions },
+    travelArrangementsOther: { label: "Please specify other travel arrangement", type: "text", placeholder: "Specify other..." },
+    medicationChart: { label: "Requires Medication Chart?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: "medicationChartOthers" } },
+    mealtimeManagement: { label: "Requires Mealtime Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Mealtime Management Plan Form" } },
+    bowelCare: { label: "Requires Bowel Care Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers" } },
+    menstrualIssues: { label: "Menstrual Cycle Issues / Female Hygiene Help", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, Please specify", inputName: "menstrualIssuesOthers" } },
+    epilepsy: { label: "Has Epilepsy?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", inputName: "epilepsyOthers" } },
+    asthmatic: { label: "Is Asthmatic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Asthma Plan", inputName: "asthmaticOthers" } },
+    allergies: { label: "Has Allergies?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", inputName: "allergiesOthers" } },
+    anaphylactic: { label: "Is Anaphylactic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", inputName: "anaphylacticOthers" } },
+    minorInjury: { label: "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?", type: "dropdown", options: yesNoOptions },
+    training: { label: "Requires Specific Training?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to provide information such as implementing a positive behaviour support plan.", inputName: "trainingOthers" } },
+    othermedical: { label: "Other Relevant Medication Conditions?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "othermedicalOthers" } },
+    trigger: { label: "Triggers for Community Activities?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify and complete the Risk assessment for participants.", inputName: "triggerOthers" } },
+    absconding: { label: "Does the Participant show signs or a history of unexpectedly leaving (absconding)?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "abscondingOthers" } },
+    historyOfFalls: { label: "Prone to Falls?", type: "dropdown", options: yesNoOptions },
+    behaviourConcern: { label: "Behaviours of Concern?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "behaviourConcernOthers" } },
+    positiveBehaviour: { label: "Positive Behaviour Plan In Place?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to High Risk Participant Register.", inputName: "positiveBehaviourOthers" } },
+    communicationAssistance: { label: "Does the participant require communication assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.", inputName: "communicationAssistanceOthers" } },
+    physicalAssistance: { label: "Requires Physical Assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, specify.", inputName: "physicalAssistanceOthers" } },
+    languageConcern: { label: "Expressive Language Concerns?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.", inputName: "languageConcernOthers" } },
+    personalGoals: { label: "Personal Preferences & Personal Goals", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
+  };
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="">
       {/* Progress Bar */}
-      <div className="w-full max-w-2xl mx-auto pt-8 px-2">
+      <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
         <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
           <div className="h-2 bg-gradient-to-r from-indigo-500 to-green-400 rounded-full transition-all" style={{ width: `${getProgressPercentage()}%` }} />
         </div>
-        {/* Horizontal Stepper (sequential, locked steps) */}
-        <nav className="flex items-center justify-between gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
+        {/* Horizontal Stepper (sequential, locked steps) with Tooltips */}
+        <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
           {FORM_SECTIONS.map((section, idx) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
-              <button
-                key={section.id}
-                type="button"
-                onClick={() => handleStepClickSequential(idx)}
-                className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-indigo-700' : unlocked ? 'text-green-600' : 'text-gray-400 opacity-50 cursor-not-allowed'}`}
-                aria-current={active ? 'step' : undefined}
-                aria-label={section.title}
-                disabled={!unlocked}
-                tabIndex={unlocked ? 0 : -1}
-              >
-                <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-indigo-700 border-indigo-500 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-gray-200 border-gray-300 text-gray-400'}`}>
-                  {unlocked ? <FaCheck className="w-4 h-4" /> : React.createElement(section.icon, { className: "w-4 h-4" })}
-                </span>
-                <span className="text-xs font-semibold text-center max-w-[60px] truncate">{section.title.split(' ')[0]}</span>
-                <span className="text-[10px] font-medium">{idx + 1}</span>
-                {!unlocked && <span className="text-[10px] text-gray-400 mt-1">Locked</span>}
-              </button>
+              <div key={section.id} className="relative flex flex-col items-center group">
+                <button
+                  type="button"
+                  onClick={() => handleStepClickSequential(idx)}
+                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-indigo-700' : unlocked ? 'text-green-600' : 'text-gray-400 opacity-50 cursor-not-allowed'}`}
+                  aria-current={active ? 'step' : undefined}
+                  aria-label={section.title}
+                  disabled={!unlocked}
+                  tabIndex={unlocked ? 0 : -1}
+                  onFocus={e => e.currentTarget.classList.add('ring-2', 'ring-indigo-400')}
+                  onBlur={e => e.currentTarget.classList.remove('ring-2', 'ring-indigo-400')}
+                >
+                  <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-indigo-700 border-indigo-500 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-gray-200 border-gray-300 text-gray-400'}`}>
+                    {completedSteps.has(idx)
+                      ? <FaCheck className="w-4 h-4" />
+                      : React.createElement(section.icon, { className: "w-4 h-4" })}
+                  </span>
+                  <span className="text-[10px] font-medium">{idx + 1}</span>
+                  {!unlocked && <span className="text-[10px] text-gray-400 mt-1">Locked</span>}
+                </button>
+                {/* Tooltip for full section title */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-12 z-20 hidden group-hover:flex group-focus-within:flex flex-col items-center pointer-events-none">
+                  <span className="bg-gray-900 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
+                    {section.title}
+                  </span>
+                  <span className="w-2 h-2 bg-gray-900 rotate-45 mt-[-4px]"></span>
+                </div>
+              </div>
             );
           })}
         </nav>
@@ -526,7 +695,10 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
 
       {/* Form Card */}
       <main className="w-full flex flex-col items-center justify-center flex-1">
-        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col gap-8 mt-4 animate-fade-in">
+        
+        <section
+          className={`w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in ${FORM_SECTIONS[currentStep].fields.length === 1 ? 'gap-2' : 'gap-4 md:gap-8'}`}
+        >
           {/* Section Header */}
           <div className="mb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -543,627 +715,63 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
             }}
             className="flex flex-col gap-6"
           >
-            <div className="space-y-6 md:space-y-8">
-              {/* Personal Information Section */}
-              {currentStep === 0 && (
+            <div className={`${FORM_SECTIONS[currentStep].fields.length === 1 ? 'space-y-2' : 'space-y-4 md:space-y-8'}`}>
+              {/* Dynamic Section Rendering */}
+              {FORM_SECTIONS[currentStep].id === "livingArrangements" ? (
+                <div className="flex flex-col gap-8 w-full">
+                  {/* Living Arrangements */}
+                  {(() => {
+                    const meta = FIELD_METADATA["livingArrangements"];
+                    const required = isFieldRequired("livingArrangements");
+                    const showOther = Array.isArray(localValues.livingArrangements) && localValues.livingArrangements.some((opt: string) => opt.toLowerCase().includes('other'));
+                    return <React.Fragment key="livingArrangements">
+                      {renderMultiSelectCheckbox(meta.label, "livingArrangements", meta.options || [], required)}
+                      {showOther && (
+                        <div className="mt-2 w-full">
+                          {renderInput(FIELD_METADATA.livingArrangementsOther.label, "livingArrangementsOther", "text", FIELD_METADATA.livingArrangementsOther.placeholder, isFieldRequired("livingArrangementsOther"))}
+                        </div>
+                      )}
+                    </React.Fragment>;
+                  })()}
+                  {/* Travel Arrangements */}
+                  {(() => {
+                    const meta = FIELD_METADATA["travelArrangements"];
+                    const required = isFieldRequired("travelArrangements");
+                    const showOther = Array.isArray(localValues.travelArrangements) && localValues.travelArrangements.some((opt: string) => opt.toLowerCase().includes('other'));
+                    return <React.Fragment key="travelArrangements">
+                      {renderMultiSelectCheckbox(meta.label, "travelArrangements", meta.options || [], required)}
+                      {showOther && (
+                        <div className="mt-2 w-full">
+                          {renderInput(FIELD_METADATA.travelArrangementsOther.label, "travelArrangementsOther", "text", FIELD_METADATA.travelArrangementsOther.placeholder, isFieldRequired("travelArrangementsOther"))}
+                        </div>
+                      )}
+                    </React.Fragment>;
+                  })()}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "aboutMe" ? (
+                <div className="w-full">
+                  {(() => {
+                    const meta = FIELD_METADATA["aboutMe"];
+                    const required = isFieldRequired("aboutMe");
+                    return renderTextArea(meta.label, "aboutMe", meta.rows || 4, meta.placeholder, required);
+                  })()}
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {renderInput(
-                    "NDIS Number",
-                    "ndisNumber",
-                    "text",
-                    "Enter your NDIS number",
-                    isFieldRequired("ndisNumber")
-                  )}
-                  {renderInput(
-                    "Given Name",
-                    "givenName",
-                    "text",
-                    "Enter your first name",
-                    isFieldRequired("givenName")
-                  )}
-                  {renderInput(
-                    "Surname",
-                    "surname",
-                    "text",
-                    "Enter your last name",
-                    isFieldRequired("surname")
-                  )}
-                  {renderInput(
-                    "Preferred Name",
-                    "preferredName",
-                    "text",
-                    "How would you like to be called?",
-                    isFieldRequired("preferredName")
-                  )}
-                  {renderInput("Date of Birth", "dateOfBirth", "date", "Enter your date of birth", isFieldRequired("dateOfBirth"))}
-                  {renderDropdown("Sex", "sex", ["Male", "Female", "Other"], undefined, isFieldRequired("sex"))}
-                  {renderInput(
-                    "Pronoun",
-                    "pronoun",
-                    "text",
-                    "e.g., he/him, she/her, they/them",
-                    isFieldRequired("pronoun")
-                  )}
-                  {renderDropdown(
-                    "Aboriginal or Torres Strait Islander?",
-                    "aboriginalTorres",
-                    yesNoOptions,
-                    undefined,
-                    isFieldRequired("aboriginalTorres")
-                  )}
-                  <div className="md:col-span-2">
-                    {renderTextArea(
-                      "Disability Conditions/Disability type(s)",
-                      "disabilityConditions",
-                      3,
-                      "Please describe your disability conditions or types",
-                      isFieldRequired("disabilityConditions")
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact & Address Section */}
-              {currentStep === 1 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    {renderInput(
-                      "Address (Number/Street)",
-                      "addressNumberStreet",
-                      "text",
-                      "Enter your street address",
-                      isFieldRequired("addressNumberStreet")
-                    )}
-                  </div>
-                  {renderInput("State", "state", "text", "Enter your state", isFieldRequired("state"))}
-                  {renderInput(
-                    "Postcode",
-                    "postcode",
-                    "text",
-                    "Enter your postcode",
-                    isFieldRequired("postcode")
-                  )}
-                  {renderInput(
-                    "Email",
-                    "email",
-                    "email",
-                    "Enter your email address",
-                    isFieldRequired("email")
-                  )}
-                  {renderInput(
-                    "Home Phone",
-                    "homePhone",
-                    "tel",
-                    "Enter your home phone number",
-                    isFieldRequired("homePhone")
-                  )}
-                  {renderInput(
-                    "Mobile",
-                    "mobile",
-                    "tel",
-                    "Enter your mobile number",
-                    isFieldRequired("mobile")
-                  )}
-                  {renderInput(
-                    "Language",
-                    "language",
-                    "text",
-                    "Primary language spoken",
-                    isFieldRequired("language")
-                  )}
-                  {renderDropdown(
-                    "Interpreter Needed?",
-                    "interpreter",
-                    yesNoOptions,
-                    undefined,
-                    isFieldRequired("interpreter")
-                  )}
-                  {renderInput(
-                    "Country of Birth",
-                    "countryOfBirth",
-                    "text",
-                    "Enter your country of birth",
-                    isFieldRequired("countryOfBirth")
-                  )}
-                  <div className="md:col-span-2">
-                    {renderMultiSelectCheckbox(
-                      "Living Arrangements",
-                      "livingArrangements",
-                      livingArrangementsOptions,
-                      isFieldRequired("livingArrangements")
-                    )}
-                    {/* Show input if 'Other' is selected */}
-                    {Array.isArray(localValues.livingArrangements) && localValues.livingArrangements.some((opt: string) => opt.toLowerCase().includes('other')) && (
-                      <div className="mt-2">
-                        {renderInput(
-                          "Please specify other living arrangement",
-                          "livingArrangementsOther",
-                          "text",
-                          "Specify other...",
-                          isFieldRequired("livingArrangementsOther")
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="md:col-span-2">
-                    {renderMultiSelectCheckbox(
-                      "Travel Arrangements",
-                      "travelArrangements",
-                      travelArrangementsOptions,
-                      isFieldRequired("travelArrangements")
-                    )}
-                    {/* Show input if 'Other' is selected */}
-                    {Array.isArray(localValues.travelArrangements) && localValues.travelArrangements.some((opt: string) => opt.toLowerCase().includes('other')) && (
-                      <div className="mt-2">
-                        {renderInput(
-                          "Please specify other travel arrangement",
-                          "travelArrangementsOther",
-                          "text",
-                          "Specify other...",
-                          isFieldRequired("travelArrangementsOther")
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Emergency Contacts Section */}
-              {currentStep === 2 && (
-                <div className="space-y-8">
-                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">
-                      Primary Contact
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {renderInput(
-                        "Name",
-                        "primaryContactName",
-                        "text",
-                        "Primary contact's full name",
-                        isFieldRequired("primaryContactName")
-                      )}
-                      {renderInput(
-                        "Relationship",
-                        "primaryContactRelationship",
-                        "text",
-                        "Relationship to you",
-                        isFieldRequired("primaryContactRelationship")
-                      )}
-                      {renderInput(
-                        "Home Phone",
-                        "primaryContactHomePhone",
-                        "tel",
-                        "Home phone number",
-                        isFieldRequired("primaryContactHomePhone")
-                      )}
-                      {renderInput(
-                        "Mobile",
-                        "primaryContactMobile",
-                        "tel",
-                        "Mobile phone number",
-                        isFieldRequired("primaryContactMobile")
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 p-6 rounded-xl border border-green-200">
-                    <h3 className="text-lg font-semibold text-green-800 mb-4">
-                      Secondary Contact
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {renderInput(
-                        "Name",
-                        "secondaryContactName",
-                        "text",
-                        "Secondary contact's full name",
-                        isFieldRequired("secondaryContactName")
-                      )}
-                      {renderInput(
-                        "Relationship",
-                        "secondaryContactRelationship",
-                        "text",
-                        "Relationship to you",
-                        isFieldRequired("secondaryContactRelationship")
-                      )}
-                      {renderInput(
-                        "Home Phone",
-                        "secondaryContactHomePhone",
-                        "tel",
-                        "Home phone number",
-                        isFieldRequired("secondaryContactHomePhone")
-                      )}
-                      {renderInput(
-                        "Mobile",
-                        "secondaryContactMobile",
-                        "tel",
-                        "Mobile phone number",
-                        isFieldRequired("secondaryContactMobile")
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                    <h3 className="text-lg font-semibold text-purple-800 mb-4">
-                      Advocate Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {renderInput(
-                        "Advocate Name",
-                        "advocateName",
-                        "text",
-                        "Advocate's full name",
-                        isFieldRequired("advocateName")
-                      )}
-                      {renderInput(
-                        "Advocate Email",
-                        "advocateEmail",
-                        "email",
-                        "Advocate's email",
-                        isFieldRequired("advocateEmail")
-                      )}
-                      {renderInput(
-                        "Advocate Phone",
-                        "advocatePhone",
-                        "tel",
-                        "Advocate's phone",
-                        isFieldRequired("advocatePhone")
-                      )}
-                      {renderInput(
-                        "Advocate Mobile",
-                        "advocateMobile",
-                        "tel",
-                        "Advocate's mobile",
-                        isFieldRequired("advocateMobile")
-                      )}
-                      {renderInput(
-                        "Relationship with Participant",
-                        "advocateRelationship",
-                        "text",
-                        "Relationship to you",
-                        isFieldRequired("advocateRelationship")
-                      )}
-                      <div className="md:col-span-2">
-                        {renderInput(
-                          "Advocate Address",
-                          "advocateAddress",
-                          "text",
-                          "Advocate's address",
-                          isFieldRequired("advocateAddress")
-                        )}
-                      </div>
-                      <div className="md:col-span-2">
-                        {renderTextArea(
-                          "Additional Information",
-                          "advocateOtherInfo",
-                          3,
-                          "Any additional information about your advocate",
-                          isFieldRequired("advocateOtherInfo")
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Medical Information Section */}
-              {currentStep === 3 && (
-                <div className="space-y-6">
-                  <div className="bg-red-50 p-6 rounded-xl border border-red-200">
-                    <h3 className="text-lg font-semibold text-red-800 mb-4">
-                      Medical Centre Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {renderInput(
-                        "Medical Centre Name",
-                        "medicalCentreName",
-                        "text",
-                        "Name of your medical centre",
-                        isFieldRequired("medicalCentreName")
-                      )}
-                      {renderInput(
-                        "Medical Centre Phone",
-                        "medicalPhone",
-                        "tel",
-                        "Medical centre phone number",
-                        isFieldRequired("medicalPhone")
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6">
-                    {renderDropdown(
-                      "Cultural, Communication Barriers or Intimacy Issues",
-                      "barriers",
-                      yesNoOptions,
-                      undefined,
-                      isFieldRequired("barriers")
-                    )}
-                    {renderInput(
-                      "Cultural Values",
-                      "culturalValues",
-                      "text",
-                      "Important cultural values",
-                      isFieldRequired("culturalValues")
-                    )}
-                    {renderInput(
-                      "Cultural Behaviours",
-                      "culturalBehaviours",
-                      "text",
-                      "Important cultural behaviours",
-                      isFieldRequired("culturalBehaviours")
-                    )}
-                    {renderInput(
-                      "Written Communication / Literacy",
-                      "writtenCommunication",
-                      "text",
-                      "Communication preferences",
-                      isFieldRequired("writtenCommunication")
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Support Services Section */}
-              {currentStep === 4 && (
-                <div className="space-y-6">
-                  <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200">
-                    <h3 className="text-lg font-semibold text-indigo-800 mb-4">
-                      Support Coordinator
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {renderInput(
-                        "Support Coordinator Name",
-                        "supportCoordinatorName",
-                        "text",
-                        "Coordinator's name",
-                        isFieldRequired("supportCoordinatorName")
-                      )}
-                      {renderInput(
-                        "Support Coordinator Email",
-                        "supportCoordinatorEmail",
-                        "email",
-                        "Coordinator's email",
-                        isFieldRequired("supportCoordinatorEmail")
-                      )}
-                      {renderInput(
-                        "Support Coordinator Company",
-                        "supportCoordinatorCompany",
-                        "text",
-                        "Company name",
-                        isFieldRequired("supportCoordinatorCompany")
-                      )}
-                      {renderInput(
-                        "Support Coordinator Contact",
-                        "supportCoordinatorContact",
-                        "tel",
-                        "Contact number",
-                        isFieldRequired("supportCoordinatorContact")
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    {renderTextArea(
-                      "Other Supports",
-                      "otherSupports",
-                      4,
-                      "Describe any other support services you receive",
-                      isFieldRequired("otherSupports")
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Health & Safety Section */}
-              {currentStep === 5 && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    {renderDropdown(
-                      "Requires Medication Chart?",
-                      "medicationChart",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment",
-                        inputName: "medicationChartOthers",
-                      },
-                      isFieldRequired("medicationChart")
-                    )}
-                    {renderDropdown(
-                      "Requires Mealtime Management?",
-                      "mealtimeManagement",
-                      yesNoOptions,
-                      {
-                        label: "If yes, refer to Mealtime Management Plan Form",
-                      },
-                      isFieldRequired("mealtimeManagement")
-                    )}
-                    {renderDropdown(
-                      "Requires Bowel Care Management?",
-                      "bowelCare",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.",
-                        inputName: "bowelCareOthers",
-                      },
-                      isFieldRequired("bowelCare")
-                    )}
-                    {renderDropdown(
-                      "Menstrual Cycle Issues / Female Hygiene Help",
-                      "menstrualIssues",
-                      yesNoOptions,
-                      {
-                        label: "If yes, Please specify",
-                        inputName: "menstrualIssuesOthers",
-                      },
-                      isFieldRequired("menstrualIssues")
-                    )}
-                    {renderDropdown("Has Epilepsy?", "epilepsy", yesNoOptions, {
-                      label:
-                        "If yes, ensure Participant's Doctor completes an Epilepsy Plan",
-                      inputName: "epilepsyOthers",
-                    }, isFieldRequired("epilepsy"))}
-                    {renderDropdown(
-                      "Is Asthmatic?",
-                      "asthmatic",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, ensure Participant's Doctor completes an Asthma Plan",
-                        inputName: "asthmaticOthers",
-                      },
-                      isFieldRequired("asthmatic")
-                    )}
-                    {renderDropdown(
-                      "Has Allergies?",
-                      "allergies",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, ensure to have an Allergy Plan from Participant's Doctor",
-                        inputName: "allergiesOthers",
-                      },
-                      isFieldRequired("allergies")
-                    )}
-                    {renderDropdown(
-                      "Is Anaphylactic?",
-                      "anaphylactic",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor",
-                        inputName: "anaphylacticOthers",
-                      },
-                      isFieldRequired("anaphylactic")
-                    )}
-                    {renderDropdown(
-                      "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?",
-                      "minorInjury",
-                      yesNoOptions,
-                      undefined,
-                      isFieldRequired("minorInjury")
-                    )}
-                    {renderDropdown(
-                      "Requires Specific Training?",
-                      "training",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, ensure to provide information such as implementing a positive behaviour support plan.",
-                        inputName: "trainingOthers",
-                      },
-                      isFieldRequired("training")
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Goals & Preferences Section */}
-              {currentStep === 6 && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    {renderDropdown(
-                      "Other Relevant Medication Conditions?",
-                      "othermedical",
-                      yesNoOptions,
-                      {
-                        label: "If yes, please specify.",
-                        inputName: "othermedicalOthers",
-                      },
-                      isFieldRequired("othermedical")
-                    )}
-                    {renderDropdown(
-                      "Triggers for Community Activities?",
-                      "trigger",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, please specify and complete the Risk assessment for participants.",
-                        inputName: "triggerOthers",
-                      },
-                      isFieldRequired("trigger")
-                    )}
-                    {renderDropdown(
-                      "Does the Participant show signs or a history of unexpectedly leaving (absconding)?",
-                      "absconding",
-                      yesNoOptions,
-                      {
-                        label: "If yes, please specify.",
-                        inputName: "abscondingOthers",
-                      },
-                      isFieldRequired("absconding")
-                    )}
-                    {renderDropdown(
-                      "Prone to Falls?",
-                      "historyOfFalls",
-                      yesNoOptions,
-                      undefined,
-                      isFieldRequired("historyOfFalls")
-                    )}
-                    {renderDropdown(
-                      "Behaviours of Concern?",
-                      "behaviourConcern",
-                      yesNoOptions,
-                      {
-                        label: "If yes, please specify.",
-                        inputName: "behaviourConcernOthers",
-                      },
-                      isFieldRequired("behaviourConcern")
-                    )}
-                    {renderDropdown(
-                      "Positive Behaviour Plan In Place?",
-                      "positiveBehaviour",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, refer to High Risk Participant Register.",
-                        inputName: "positiveBehaviourOthers",
-                      },
-                      isFieldRequired("positiveBehaviour")
-                    )}
-                    {renderDropdown(
-                      "Does the participant require communication assistance?",
-                      "communicationAssistance",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.",
-                        inputName: "communicationAssistanceOthers",
-                      },
-                      isFieldRequired("communicationAssistance")
-                    )}
-                    {renderDropdown(
-                      "Requires Physical Assistance?",
-                      "physicalAssistance",
-                      yesNoOptions,
-                      {
-                        label: "If yes, specify.",
-                        inputName: "physicalAssistanceOthers",
-                      },
-                      isFieldRequired("physicalAssistance")
-                    )}
-                    {renderDropdown(
-                      "Expressive Language Concerns?",
-                      "languageConcern",
-                      yesNoOptions,
-                      {
-                        label:
-                          "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.",
-                        inputName: "languageConcernOthers",
-                      },
-                      isFieldRequired("languageConcern")
-                    )}
-                    {renderDropdown(
-                      "Personal Preferences & Personal Goals",
-                      "personalGoals",
-                      yesNoOptions,
-                      {
-                        label: "If yes, refer to form Support Plan",
-                      },
-                      isFieldRequired("personalGoals")
-                    )}
-                  </div>
+                  {FORM_SECTIONS[currentStep].fields.map((field) => {
+                    const meta = FIELD_METADATA[field] || { label: field, type: "text" };
+                    const required = isFieldRequired(field);
+                    if (meta.type === "textarea") {
+                      return renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required);
+                    }
+                    if (meta.type === "dropdown") {
+                      return renderDropdown(meta.label, field, meta.options || [], meta.showIfYes, required);
+                    }
+                    if (meta.type === "checkbox") {
+                      return renderMultiSelectCheckbox(meta.label, field, meta.options || [], required);
+                    }
+                    return renderInput(meta.label, field, meta.type || "text", meta.placeholder, required);
+                  })}
                 </div>
               )}
             </div>
@@ -1241,6 +849,13 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
         }
         .animate-fade-in {
           animation: fade-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+      `}</style>
+
+      {/* Prevent scrollbars on progress bar/stepper area */}
+      <style jsx>{`
+        nav::-webkit-scrollbar, nav::-webkit-scrollbar-thumb {
+          display: none !important;
         }
       `}</style>
     </div>

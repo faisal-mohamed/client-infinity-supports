@@ -170,7 +170,7 @@ export default function EditClientPage({ params } : any) {
                 value={ndisNumber}
                 onChange={(e) => setNdisNumber(e.target.value)}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="NDIS123456"
+                placeholder="1234567890"
               />
             </div>
             
