@@ -16,6 +16,10 @@ import {
   FaCheck,
   FaSave,
 } from "react-icons/fa";
+import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/Confirm";
+import { updateCommonFields } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 
 interface FormProps {
   formData: any;
@@ -27,58 +31,6 @@ interface FormProps {
   handleSave: (submit: boolean) => void;
 }
 
-// Form sections configuration
-// const FORM_SECTIONS = [
-//   {
-//     id: "personal",
-//     title: "Personal Information",
-//     icon: FaUser,
-//     description: "Basic personal details and identification",
-//     requiredFields: ["givenName", "surname", "dateOfBirth", "sex"],
-//   },
-//   {
-//     id: "contact",
-//     title: "Contact & Address",
-//     icon: FaHome,
-//     description: "Contact information and residential details",
-//     requiredFields: ["addressNumberStreet", "state", "postcode", "email"],
-//   },
-//   {
-//     id: "emergency",
-//     title: "Emergency Contacts",
-//     icon: FaPhone,
-//     description: "Primary and secondary emergency contacts",
-//     requiredFields: ["primaryContactName", "primaryContactRelationship"],
-//   },
-//   {
-//     id: "medical",
-//     title: "Medical Information",
-//     icon: FaUserMd,
-//     description: "Medical conditions and healthcare providers",
-//     requiredFields: ["medicalCentreName"],
-//   },
-//   {
-//     id: "support",
-//     title: "Support Services",
-//     icon: FaShieldAlt,
-//     description: "Support coordinators and advocacy services",
-//     requiredFields: [],
-//   },
-//   {
-//     id: "health",
-//     title: "Health & Safety",
-//     icon: FaHeart,
-//     description: "Health conditions and safety considerations",
-//     requiredFields: [],
-//   },
-//   {
-//     id: "goals",
-//     title: "Goals & Preferences",
-//     icon: FaBullseye,
-//     description: "Personal goals and preferences",
-//     requiredFields: [],
-//   },
-// ];
 
 
 
@@ -94,7 +46,7 @@ const FORM_SECTIONS = [
     requiredFields: ["givenName", "surname", "dateOfBirth", "sex", "addressNumberStreet", "state", "postcode", "email"],
   },
   {
-    id: "contact",
+    id: "medicalContact",
     title: "Medical Contact",
     icon: FaStethoscope,
     description: "GP Medical Contact & Support Coordinator",
@@ -128,7 +80,7 @@ const FORM_SECTIONS = [
     fields: ["barriers", "language", "countryOfBirth", "culturalValues", "culturalBehaviours", "writtenCommunication"]
   },
   {
-    id: "contact",
+    id: "contactDetails",
     title: "Contact Details",
     icon: FaPhoneAlt,
     description: "Primary and secondary emergency contacts",
@@ -205,14 +157,15 @@ const travelArrangementsOptions = [
   "Other, please specify: ",
 ];
 
-const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
+const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   formData,
   commonFieldsData,
   onChange,
   onSubmit,
   readOnly = false,
   fieldErrors = {},
-  handleSave
+  handleSave,
+  token // <-- batch token, optional for backward compatibility
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -301,6 +254,13 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
 
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { showToast } = useToast();
+  const confirm = useConfirm();
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const passcode = searchParams ? searchParams.get("passcode") : undefined;
+
+  // Track pending changes to common fields
+  const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -312,13 +272,83 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     };
   }, [localValues, onChange]);
 
+  // Update handleChange to track changes but not confirm immediately
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
+
+    console.log("name", name);
+    console.log("value", value);
+
+    // Track pending changes for common fields
+    const commonKey = commonFieldsMapping[name];
+
+    console.log("commonKey", commonKey);
+    console.log("token: ", token);
+    if (commonKey && token) {
+      if (commonFieldsData?.[commonKey] !== value) {
+        setPendingCommonFieldChanges((prev) => ({ ...prev, [commonKey]: value }));
+        
+      } else {
+        
+        setPendingCommonFieldChanges((prev) => {
+          const updated = { ...prev };
+          delete updated[commonKey];
+          return updated;
+        });
+      }
+    }
     setLocalValues((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  // Helper to confirm and update common fields if needed
+  const confirmAndUpdateCommonFields = async () => {
+    console.log("pendingCommonFieldChanges", pendingCommonFieldChanges);
+    const changedKeys = Object.keys(pendingCommonFieldChanges);
+    if (changedKeys.length === 0) return true; // No changes, proceed
+    // Build a list of changed fields and their new values
+    const fieldList = changedKeys.map(
+      (key) => `- ${key}: ${pendingCommonFieldChanges[key]}`
+    ).join("\n");
+    const confirmed = await confirm.confirm({
+      title: "Update Common Fields?",
+      message:
+        `You have changed the following common fields. This will update the value across all forms.\n\n${fieldList}`,
+      confirmText: "Update",
+      cancelText: "Cancel",
+      type: "info",
+    });
+    if (confirmed) {
+      try {
+        const updatePayload = { ...commonFieldsData, ...pendingCommonFieldChanges };
+
+        console.log("UPDATE PAYLOAD", updatePayload);
+        console.log("token", token);
+        console.log("passcode", passcode);
+
+        await updateCommonFields(token || '', updatePayload, String(passcode || ''));
+        showToast({
+          type: "success",
+          title: "Fields Updated",
+          message: `The values for these fields have been updated across all forms.`,
+          duration: 4000,
+        });
+        setPendingCommonFieldChanges({});
+        return true;
+      } catch (err: any) {
+        showToast({
+          type: "error",
+          title: "Update Failed",
+          message: err.message || "Failed to update common fields.",
+          duration: 4000,
+        });
+        return false;
+      }
+    }
+    return false;
   };
 
   const handleNext = () => {
@@ -362,9 +392,11 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     }
   };
 
-  // On Next, unlock the next step
-  const handleNextSequential = () => {
+  // Update Next and Save handlers to use confirmation
+  const handleNextSequential = async () => {
     if (currentStep < FORM_SECTIONS.length - 1 && isCurrentSectionComplete()) {
+      const ok = await confirmAndUpdateCommonFields();
+      if (!ok) return;
       setMaxStep((prev) => Math.max(prev, currentStep + 1));
       setCurrentStep(currentStep + 1);
     }
@@ -400,11 +432,6 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
         value={localValues[name] || ""}
         onChange={handleChange}
         placeholder={placeholder}
-        disabled={
-          readOnly ||
-          (commonFieldsMapping[name] &&
-            commonFieldsData?.[commonFieldsMapping[name]])
-        }
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
           fieldErrors[name]
             ? "border-red-300 bg-red-50"
@@ -647,6 +674,12 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     personalGoals: { label: "Personal Preferences & Personal Goals", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
   };
 
+  const handleSaveWithConfirm = async (submit: boolean) => {
+    const ok = await confirmAndUpdateCommonFields();
+    if (!ok) return;
+    handleSave(submit);
+  };
+
   return (
     <div className="">
       {/* Progress Bar */}
@@ -811,7 +844,7 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
   </button>
 
   <button
-    onClick={() => handleSave(false)}
+    onClick={() => handleSaveWithConfirm(false)}
     className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
   >
     <FaSave className="w-4 h-4" />

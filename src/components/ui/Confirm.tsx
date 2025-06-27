@@ -139,8 +139,13 @@ function ConfirmDialog({
             </div>
             
             <div className="mt-2">
-              <p className="text-gray-600">{message}</p>
-            </div>
+  {message.split('\n').map((line, index) => (
+    <p key={index} className="text-gray-600">
+      {line}
+    </p>
+  ))}
+</div>
+
             
             <div className="mt-6 flex justify-end space-x-3">
               <button

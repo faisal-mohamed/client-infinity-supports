@@ -13,6 +13,7 @@ interface DynamicFormRendererProps {
   readOnly?: boolean;
   fieldErrors?: Record<string, string>; // Add field errors prop
   handleSave: (submit: boolean) => void;
+  token: string;
 }
 
 /**
@@ -31,7 +32,8 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
   onSubmit,
   readOnly = false,
   fieldErrors = {}, // Default to empty object
-  handleSave
+  handleSave,
+  token
 }) => {
   // Get the appropriate form component based on formKey
   const FormComponent = formRegistry[formKey];
@@ -53,8 +55,9 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
       onChange={onChange}
       onSubmit={onSubmit}
       readOnly={readOnly}
-      fieldErrors={fieldErrors} // Pass field errors to the form component
+      fieldErrors={fieldErrors} 
       handleSave={handleSave}
+      token={token}
     />
   );
 };

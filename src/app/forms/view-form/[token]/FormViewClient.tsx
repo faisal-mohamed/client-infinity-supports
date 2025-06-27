@@ -52,6 +52,11 @@ export default function FormViewClient({ token }: { token: string }) {
     }
   }, []);
 
+
+  useEffect(() => {
+    console.log("token: ", token);
+  }, [token]);
+
   // Load form data
   useEffect(() => {
     if (!passcode) return; // Don't load data until passcode is available
@@ -291,6 +296,7 @@ export default function FormViewClient({ token }: { token: string }) {
                 readOnly={isSubmitted}
                 fieldErrors={fieldErrors}
                 handleSave={handleSave}
+                token={token}
               />
             </div>
 
