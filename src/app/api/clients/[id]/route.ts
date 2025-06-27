@@ -446,3 +446,62 @@ export async function DELETE(
   }
 }
 
+// PATCH /api/clients/[id]/form-batches/[batchId] - Update batch expiry
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string; batchId: string } }
+) {
+  try {
+    const clientId = parseInt(params.id || "0");
+    const batchId = parseInt(params.batchId || "0");
+    const body = await req.json();
+    const { expiresAt } = body;
+
+    if (!expiresAt) {
+      return NextResponse.json(
+        { error: "Missing required field: expiresAt" },
+        { status: 400 }
+      );
+    }
+
+    const newExpiresAt = new Date(expiresAt);
+    if (isNaN(newExpiresAt.getTime()) || newExpiresAt < new Date()) {
+      return NextResponse.json(
+        { error: "Invalid or past expiresAt date" },
+        { status: 400 }
+      );
+    }
+
+    // Update the FormBatch's expiresAt
+    const updatedBatch = await prisma.formBatch.updateMany({
+      where: {
+        id: batchId,
+        clientId: clientId,
+      },
+      data: {
+        expiresAt: newExpiresAt,
+      },
+    });
+
+    if (updatedBatch.count === 0) {
+      return NextResponse.json(
+        { error: "Form batch not found" },
+        { status: 404 }
+      );
+    }
+
+    // Optionally, fetch and return the updated batch
+    const batch = await prisma.formBatch.findUnique({
+      where: { id: batchId },
+    });
+
+    return NextResponse.json({ success: true, batch });
+  } catch (error: any) {
+    console.error("Error updating form batch expiry:", error);
+    return NextResponse.json(
+      { error: "Failed to update form batch expiry", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+

@@ -164,9 +164,9 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
         </div>
 
         <div className="mb-4 border-b border-gray-200">
-          <div className="flex">
+          <div className="flex flex-col md:flex-row">
             <button
-              className={`py-2 px-4 font-medium ${
+              className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'formatted'
                   ? 'text-blue-600 border-b-2 border-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
@@ -176,7 +176,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
               Formatted View
             </button>
             <button
-              className={`py-2 px-4 font-medium ${
+              className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'raw'
                   ? 'text-blue-600 border-b-2 border-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
