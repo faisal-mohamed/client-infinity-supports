@@ -8,12 +8,13 @@ interface DynamicFormRendererProps {
   formSchema: any;
   formData: any;
   commonFieldsData: any;
-  onChange: (values: any) => void;
+  onChange: (values: any, fieldName: string, isCommon: boolean) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
   fieldErrors?: Record<string, string>; // Add field errors prop
   handleSave: (submit: boolean) => void;
   token: string;
+  onCommonFieldsUpdated?: () => void;
 }
 
 /**
@@ -33,7 +34,8 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
   readOnly = false,
   fieldErrors = {}, // Default to empty object
   handleSave,
-  token
+  token,
+  onCommonFieldsUpdated
 }) => {
   // Get the appropriate form component based on formKey
   const FormComponent = formRegistry[formKey];
@@ -58,6 +60,7 @@ const DynamicFormRenderer: React.FC<DynamicFormRendererProps> = ({
       fieldErrors={fieldErrors} 
       handleSave={handleSave}
       token={token}
+      onCommonFieldsUpdated={onCommonFieldsUpdated}
     />
   );
 };

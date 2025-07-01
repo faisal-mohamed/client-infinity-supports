@@ -299,46 +299,36 @@ export async function updateCommonFields(token: string, commonFieldsData: any, p
   return response.json();
 }
 
-export async function getFormDataByToken(token: string, passcode?: string) {
-  let url = `/api/forms/view/${token}/data`;
-  if (passcode) {
-    url += `?passcode=${encodeURIComponent(passcode)}`;
+export async function getFormDataByToken(
+  batchToken: string,
+  formId: number,
+  passcode?: string
+) {
+  const url = `/api/forms/view/${batchToken}/data?formId=${formId}&passcode=${encodeURIComponent(passcode || "")}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to fetch form data");
   }
-  
-  const response = await fetch(url);
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to fetch form data');
-  }
-  
-  return response.json();
+  return res.json();
 }
 
-export async function saveFormDataByToken(token: string, data: {
-  data: any;
-  isSubmitted?: boolean;
-}, passcode?: string) {
-  let url = `/api/forms/view/${token}/data`;
-  if (passcode) {
-    url += `?passcode=${encodeURIComponent(passcode)}`;
-  }
-  
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
+export async function saveFormDataByToken(
+  batchToken: string,
+  { formId, data, isSubmitted }: { formId: number, data: any, isSubmitted?: boolean },
+  passcode?: string
+) {
+  const url = `/api/forms/view/${batchToken}/data?passcode=${encodeURIComponent(passcode || "")}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ formId, data, isSubmitted }),
   });
-
-  console.log("response from data token: ", response);
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to save form data');
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to save form data");
   }
-  
-  return response.json();
+  return res.json();
 }
 
 // PDF Generation

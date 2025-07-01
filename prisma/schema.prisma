@@ -66,6 +66,7 @@ model FormBatch {
   id            Int       @id @default(autoincrement())
   clientId      Int
   batchToken    String    @unique  // Unique token for accessing all forms in this batch
+  passcode      String?   // Passcode for the entire batch
   expiresAt     DateTime
   createdAt     DateTime  @default(now())
   // Signature and submission status for the batch
@@ -85,9 +86,7 @@ model FormAssignment {
   formVersion           Int       // Version of the form being assigned
   assignedAt            DateTime  @default(now())
   expiresAt             DateTime  // When the assignment/link expires
-  accessToken           String    @unique // Temporary access token
   isCompleted           Boolean   @default(false)
-  passcode              String?   // Optional passcode for additional security
   isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
   displayOrder          Int       @default(0) // Order in which forms should be displayed
   batchId               Int      // Reference to FormBatch (required)

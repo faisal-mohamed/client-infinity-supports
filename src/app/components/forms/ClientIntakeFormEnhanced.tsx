@@ -17,18 +17,18 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
-import { useConfirm } from "@/components/ui/Confirm";
 import { updateCommonFields } from "@/lib/api";
 import { useSearchParams } from "next/navigation";
 
 interface FormProps {
   formData: any;
   commonFieldsData: any;
-  onChange: (values: any) => void;
+  onChange: (values: any, field?: string, isCommon?: boolean) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
+  onCommonFieldsUpdated?: () => void;
 }
 
 
@@ -165,7 +165,8 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   readOnly = false,
   fieldErrors = {},
   handleSave,
-  token // <-- batch token, optional for backward compatibility
+  token, // <-- batch token, optional for backward compatibility
+  onCommonFieldsUpdated,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -255,12 +256,44 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
-  const confirm = useConfirm();
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const passcode = searchParams ? searchParams.get("passcode") : undefined;
 
   // Track pending changes to common fields
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
+
+  // Track changes to common fields
+  const trackCommonFieldChange = (name: string, value: any) => {
+    const commonKey = commonFieldsMapping[name];
+    if (!commonKey) return;
+    if (commonFieldsData?.[commonKey] !== value) {
+      setPendingCommonFieldChanges((prev) => ({ ...prev, [commonKey]: value }));
+    } else {
+      setPendingCommonFieldChanges((prev) => {
+        const updated = { ...prev };
+        delete updated[commonKey];
+        return updated;
+      });
+    }
+  };
+
+  // Sync common fields into localValues when commonFieldsData changes
+  useEffect(() => {
+  console.log("commonFieldsData", commonFieldsData);
+    if (!commonFieldsData) return;
+    setLocalValues((prev: any) => {
+      const updated = { ...prev };
+      for (const [formKey, commonKey] of Object.entries(commonFieldsMapping)) {
+        if (
+          commonFieldsData[commonKey] &&
+          (!updated[formKey] || updated[formKey] === "")
+        ) {
+          updated[formKey] = commonFieldsData[commonKey];
+        }
+      }
+      return updated;
+    });
+  }, [commonFieldsData]);
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -279,76 +312,12 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
     >
   ) => {
     const { name, value } = e.target;
+    const newValues = { ...localValues, [name]: value };
+    setLocalValues(newValues);
 
-    console.log("name", name);
-    console.log("value", value);
-
-    // Track pending changes for common fields
-    const commonKey = commonFieldsMapping[name];
-
-    console.log("commonKey", commonKey);
-    console.log("token: ", token);
-    if (commonKey && token) {
-      if (commonFieldsData?.[commonKey] !== value) {
-        setPendingCommonFieldChanges((prev) => ({ ...prev, [commonKey]: value }));
-        
-      } else {
-        
-        setPendingCommonFieldChanges((prev) => {
-          const updated = { ...prev };
-          delete updated[commonKey];
-          return updated;
-        });
-      }
-    }
-    setLocalValues((prev: any) => ({ ...prev, [name]: value }));
-  };
-
-  // Helper to confirm and update common fields if needed
-  const confirmAndUpdateCommonFields = async () => {
-    console.log("pendingCommonFieldChanges", pendingCommonFieldChanges);
-    const changedKeys = Object.keys(pendingCommonFieldChanges);
-    if (changedKeys.length === 0) return true; // No changes, proceed
-    // Build a list of changed fields and their new values
-    const fieldList = changedKeys.map(
-      (key) => `- ${key}: ${pendingCommonFieldChanges[key]}`
-    ).join("\n");
-    const confirmed = await confirm.confirm({
-      title: "Update Common Fields?",
-      message:
-        `You have changed the following common fields. This will update the value across all forms.\n\n${fieldList}`,
-      confirmText: "Update",
-      cancelText: "Cancel",
-      type: "info",
-    });
-    if (confirmed) {
-      try {
-        const updatePayload = { ...commonFieldsData, ...pendingCommonFieldChanges };
-
-        console.log("UPDATE PAYLOAD", updatePayload);
-        console.log("token", token);
-        console.log("passcode", passcode);
-
-        await updateCommonFields(token || '', updatePayload, String(passcode || ''));
-        showToast({
-          type: "success",
-          title: "Fields Updated",
-          message: `The values for these fields have been updated across all forms.`,
-          duration: 4000,
-        });
-        setPendingCommonFieldChanges({});
-        return true;
-      } catch (err: any) {
-        showToast({
-          type: "error",
-          title: "Update Failed",
-          message: err.message || "Failed to update common fields.",
-          duration: 4000,
-        });
-        return false;
-      }
-    }
-    return false;
+    const isCommon = !!commonFieldsMapping[name];
+    if (isCommon) trackCommonFieldChange(name, value);
+    onChange(newValues, name, isCommon);
   };
 
   const handleNext = () => {
@@ -392,14 +361,12 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
     }
   };
 
-  // Update Next and Save handlers to use confirmation
+  // Update Next handler to always save progress before moving to the next section
   const handleNextSequential = async () => {
-    if (currentStep < FORM_SECTIONS.length - 1 && isCurrentSectionComplete()) {
-      const ok = await confirmAndUpdateCommonFields();
-      if (!ok) return;
-      setMaxStep((prev) => Math.max(prev, currentStep + 1));
-      setCurrentStep(currentStep + 1);
-    }
+    // Save current section's data before proceeding
+    if (typeof handleSave === 'function') await handleSave(false);
+    // No confirmation modal logic here
+    handleNext();
   };
 
   // On Previous
@@ -675,9 +642,50 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   };
 
   const handleSaveWithConfirm = async (submit: boolean) => {
-    const ok = await confirmAndUpdateCommonFields();
-    if (!ok) return;
-    handleSave(submit);
+    // If there are pending common field changes, update them directly (no modal)
+    if (Object.keys(pendingCommonFieldChanges).length > 0) {
+      try {
+        await updateCommonFields(token || '', { ...commonFieldsData, ...pendingCommonFieldChanges }, String(passcode || ''));
+        showToast({
+          type: "success",
+          title: "Common Fields Updated",
+          message: "The values for these fields have been updated across all forms.",
+          duration: 4000,
+        });
+        setPendingCommonFieldChanges({});
+        if (typeof onCommonFieldsUpdated === 'function') onCommonFieldsUpdated();
+        if (typeof handleSave === 'function') await handleSave(false);
+      } catch (err: any) {
+        showToast({
+          type: "error",
+          title: "Update Failed",
+          message: err.message || "Failed to update common fields.",
+          duration: 4000,
+        });
+        return;
+      }
+    } else {
+      handleSave(submit);
+    }
+  };
+
+  // const handleSaveAndExit = async () => {
+  //   const canProceed = await confirmAndUpdateCommonFields();
+  //   if (canProceed) {
+  //     if (onSubmit) {
+  //       onSubmit(localValues);
+  //     }
+  //   }
+  // };
+
+  // Helper to get nested properties from formValues
+  const getFieldValue = (name: string) => {
+    const parts = name.split('.');
+    let value = localValues;
+    for (const part of parts) {
+      value = value[part];
+    }
+    return value;
   };
 
   return (
@@ -795,15 +803,15 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
                     if (meta.type === "textarea") {
-                      return renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required);
+                      return <React.Fragment key={field}>{renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}</React.Fragment>;
                     }
                     if (meta.type === "dropdown") {
-                      return renderDropdown(meta.label, field, meta.options || [], meta.showIfYes, required);
+                      return <React.Fragment key={field}>{renderDropdown(meta.label, field, meta.options || [], meta.showIfYes, required)}</React.Fragment>;
                     }
                     if (meta.type === "checkbox") {
-                      return renderMultiSelectCheckbox(meta.label, field, meta.options || [], required);
+                      return <React.Fragment key={field}>{renderMultiSelectCheckbox(meta.label, field, meta.options || [], required)}</React.Fragment>;
                     }
-                    return renderInput(meta.label, field, meta.type || "text", meta.placeholder, required);
+                    return <React.Fragment key={field}>{renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}</React.Fragment>;
                   })}
                 </div>
               )}

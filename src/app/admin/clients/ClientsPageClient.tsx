@@ -151,6 +151,11 @@ export default function ClientsPageClient() {
     }
   });
 
+
+  useEffect(() => {
+    console.log("Sorted Clients:", sortedClients);
+  }, [sortedClients]);
+
   const handleDeleteClient = async (id: number) => {
   if (isDeleting) return;
 
@@ -617,7 +622,7 @@ export default function ClientsPageClient() {
                         </td>
                       </tr>
                     ) : (
-                      sortedClients.map((client, index) => (
+                      sortedClients.map((client : any, index) => (
                         <tr
                           key={client.id}
                           className="hover:bg-indigo-50 transition"
@@ -643,8 +648,8 @@ export default function ClientsPageClient() {
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                                {client.commonFields?.ndis && (
-                                  <div className="text-xs text-gray-500">NDIS: {client.commonFields.ndis}</div>
+                                {client.commonFields[0]?.ndis && (
+                                  <div className="text-xs text-gray-500">NDIS: {client.commonFields[0].ndis}</div>
                                 )}
                               </div>
                             </div>
@@ -664,9 +669,9 @@ export default function ClientsPageClient() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {client?.commonFields?.state ? (
+                            {client?.commonFields[0]?.state ? (
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {client.commonFields.state}
+                                {client.commonFields[0].state}
                               </span>
                             ) : (
                               <span className="text-sm text-gray-400">—</span>

@@ -10,6 +10,32 @@ export async function PUT(
     const passcode = req.nextUrl.searchParams.get('passcode');
     const body = await req.json();
     
+    // Map frontend field names to DB field names
+    const fieldMap = {
+      givenName: "name",
+      dateOfBirth: "dob",
+      ndisNumber: "ndis",
+      addressNumberStreet: "street",
+      postcode: "postCode",
+      homePhone: "phone",
+      disabilityConditions: "disability",
+      // Add more mappings as needed
+    };
+    const mappedBody: Record<string, any> = {};
+    for (const [frontendKey, dbKey] of Object.entries(fieldMap)) {
+      if (body[frontendKey] !== undefined) {
+        mappedBody[dbKey] = body[frontendKey];
+      }
+    }
+    // Also include any fields that are already correct
+    [
+      "name", "age", "email", "sex", "street", "state", "postCode", "dob", "ndis", "disability", "address", "phone"
+    ].forEach((key) => {
+      if (body[key] !== undefined) {
+        mappedBody[key] = body[key];
+      }
+    });
+    
     // Find the form batch by batch token
     const batch = await prisma.formBatch.findUnique({
       where: { batchToken: token },
@@ -42,19 +68,15 @@ export async function PUT(
     }
     
     // Check if passcode is required
-    // For batch-level passcode, we'll check the first assignment's passcode
-    const firstAssignment = batch.assignments[0];
-    if (firstAssignment?.passcode) {
-      // If no passcode provided, return error
+    // For batch-level passcode, check batch.passcode
+    if (batch.passcode) {
       if (!passcode) {
         return NextResponse.json(
           { error: "Passcode required" },
           { status: 403 }
         );
       }
-      
-      // If passcode doesn't match, return error
-      if (firstAssignment.passcode !== passcode) {
+      if (batch.passcode !== passcode) {
         return NextResponse.json(
           { error: "Invalid passcode" },
           { status: 403 }
@@ -80,12 +102,12 @@ export async function PUT(
         clientId: batch.clientId
       },
       update: {
-        ...body,
+        ...mappedBody,
         updatedAt: new Date()
       },
       create: {
         clientId: batch.clientId,
-        ...body
+        ...mappedBody
       }
     });
     

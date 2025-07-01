@@ -162,16 +162,16 @@ export async function GET(
       );
     }
 
-    const firstAssignment = batch.assignments[0];
-    if (firstAssignment?.passcode) {
+    // Check if passcode is required and validate it
+    if (batch.passcode) {
       if (!passcode) {
         return NextResponse.json(
           { error: "Passcode required" },
           { status: 403 }
         );
       }
-
-      if (firstAssignment.passcode !== passcode) {
+      
+      if (batch.passcode !== passcode) {
         return NextResponse.json(
           { error: "Invalid passcode" },
           { status: 403 }
@@ -179,14 +179,10 @@ export async function GET(
       }
     }
 
-    // Optional: safely map logs (avoid BigInt/complex data issues)
-    const logs = batch.client.logs.map(log => ({
-      id: log.id,
-      action: log.action,
-      createdAt: log.createdAt,
-      metadata: log.metadata ?? null,
-      logType: log.logType
-    }));
+    // After fetching the batch, fetch all submissions for this client
+    const submissions = await prisma.formSubmission.findMany({
+      where: { clientId: batch.client.id },
+    });
 
     const responseData = {
       batch: {
@@ -200,19 +196,26 @@ export async function GET(
         name: batch.client.name,
         email: batch.client.email,
         commonFields: batch.client.commonFields,
-        logs
+        logs: batch.client.logs
       },
-      forms: batch.assignments.map(assignment => ({
-        id: assignment.id,
-        accessToken: assignment.accessToken,
-        title: assignment.form.title,
-        displayOrder: assignment.displayOrder,
-        isCompleted: assignment.isCompleted
-      }))
+      forms: batch.assignments.map((assignment) => {
+        // Find the submission for the current assignment
+        const submission = submissions.find(s => s.formId === assignment.formId);
+        return {
+          id: assignment.id,
+          formId: assignment.formId,
+          title: assignment.form.title,
+          displayOrder: assignment.displayOrder,
+          isCompleted: assignment.isCompleted,
+          formKey: assignment.form.formKey,
+          schema: assignment.form.schema,
+          submission: submission || null,
+        }
+      }),
     };
 
-    console.log("Fetched logs count:", logs.length);
-    console.log("Sample log metadata:", logs[0]?.metadata);
+    console.log("Fetched logs count:", batch.client.logs.length);
+    console.log("Sample log metadata:", batch.client.logs[0]?.metadata);
 
     return NextResponse.json(responseData);
   } catch (error: any) {

@@ -127,11 +127,12 @@ useEffect(() => {
         passcode || undefined
       );
 
+      // Redirect to the first form in the batch, using the batch token
       if (batchData.forms.length > 0) {
         router.push(
-          `/forms/view-form/${
-            batchData.forms[0].accessToken
-          }?passcode=${encodeURIComponent(passcode || "")}`
+          `/forms/view-form/${token}?passcode=${encodeURIComponent(
+            passcode || ""
+          )}&step=0`
         );
       }
     } catch (err: any) {

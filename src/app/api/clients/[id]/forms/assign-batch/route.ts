@@ -139,8 +139,9 @@ export async function POST(
         data: {
           clientId,
           batchToken,
+          passcode, // Save passcode to the batch
           expiresAt: new Date(expiresAt),
-        }
+        },
       });
 
       // Create form assignments for each form
@@ -158,19 +159,16 @@ export async function POST(
         }
 
         // Create the form assignment
-        const accessToken = crypto.randomBytes(16).toString('hex');
         const assignment = await tx.formAssignment.create({
           data: {
             clientId,
             formId,
             formVersion: form.version,
             expiresAt: new Date(expiresAt),
-            accessToken,
             isCompleted: false,
-            passcode: i === 0 ? passcode : null, // Only set passcode for the first form
             displayOrder: i,
-            batchId: batch.id
-          }
+            batchId: batch.id,
+          },
         });
 
         assignments.push(assignment);

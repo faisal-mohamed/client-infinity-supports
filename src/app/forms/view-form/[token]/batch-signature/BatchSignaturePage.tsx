@@ -49,9 +49,13 @@ export default function BatchSignaturePage ({ batchToken }: { batchToken: string
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="flex justify-center items-center min-h-screen bg-gray-50">
+  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+</div>;
   if (error) return <div className="text-red-600">{error}</div>;
-  if (success) return <div>Signature submitted! Redirecting...</div>;
+  if (success) return <div className="flex justify-center items-center min-h-screen bg-gray-50">
+  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+</div>;
 
   return (
     <BatchSignatureStep
