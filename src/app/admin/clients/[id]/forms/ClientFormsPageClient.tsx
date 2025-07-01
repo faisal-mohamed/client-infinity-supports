@@ -304,19 +304,19 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
       <div className="bg-gray-50 min-h-screen">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-green-50">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-green-50">
               <div className="flex items-center">
-                <div className="bg-green-100 p-3 rounded-lg mr-4">
-                  <FaCheck className="text-green-600 text-xl" />
+                <div className="bg-green-100 p-2 sm:p-3 rounded-lg mr-3 sm:mr-4 flex-shrink-0">
+                  <FaCheck className="text-green-600 text-lg sm:text-xl" />
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Forms Assigned Successfully</h1>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Forms Assigned Successfully</h1>
                   <p className="text-sm text-gray-500 mt-1">The forms have been assigned to {client.name}</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                   <FaFileAlt className="mr-2 text-indigo-500" /> Assigned Forms
@@ -327,15 +327,15 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     const form = availableForms.find(f => f.id === formId);
                     return (
                       <li key={formId} className="flex items-center">
-                        <FaCheck className="text-green-500 mr-2" />
-                        <span>{form?.title}</span>
+                        <FaCheck className="text-green-500 mr-2 flex-shrink-0" />
+                        <span className="truncate">{form?.title}</span>
                       </li>
                     );
                   })}
                 </ul>
               </div>
 
-              <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-6 mb-6">
+              <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 sm:p-6 mb-6">
                 <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
                   <FaLink className="mr-2 text-indigo-500" /> Access Information
                 </h2>
@@ -345,41 +345,43 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                       <FaLink className="mr-2 text-gray-500" /> Access Link
                     </label>
-                    <div className="flex items-center">
+                    <div className="flex flex-col sm:flex-row">
                       <input
                         type="text"
                         value={getAccessPageUrl()}
                         readOnly
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg sm:rounded-r-none bg-gray-50 text-gray-700 text-sm"
                       />
-                      <button
-                        onClick={() => copyToClipboard(getAccessPageUrl(), 'link')}
-                        className={`${
-                          copiedLink
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-indigo-600 hover:bg-indigo-700'
-                        } text-white px-4 py-2 rounded-r-lg transition-colors flex items-center`}
-                      >
-                        {copiedLink ? (
-                          <>
-                            <FaCheck className="mr-2" /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <FaCopy className="mr-2" /> Copy
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => {
-                          const url = getDirectCommonFieldsUrl();
-                          if (url) window.open(url, '_blank', 'noopener,noreferrer');
-                        }}
-                        className="ml-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors flex items-center"
-                        title="Open as client (auto-fills passcode)"
-                      >
-                        <FaLink className="mr-2" /> Open as Client
-                      </button>
+                      <div className="flex mt-2 sm:mt-0">
+                        <button
+                          onClick={() => copyToClipboard(getAccessPageUrl(), 'link')}
+                          className={`${
+                            copiedLink
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-indigo-600 hover:bg-indigo-700'
+                          } text-white px-4 py-2 rounded-lg sm:rounded-l-none sm:rounded-r-none transition-colors flex items-center text-sm flex-1 sm:flex-none justify-center`}
+                        >
+                          {copiedLink ? (
+                            <>
+                              <FaCheck className="mr-2" /> Copied!
+                            </>
+                          ) : (
+                            <>
+                              <FaCopy className="mr-2" /> Copy
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            const url = getDirectCommonFieldsUrl();
+                            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg sm:rounded-l-none transition-colors flex items-center text-sm flex-1 sm:flex-none justify-center sm:ml-2 mt-2 sm:mt-0"
+                          title="Open as client (auto-fills passcode)"
+                        >
+                          <FaLink className="mr-2" /> Open as Client
+                        </button>
+                      </div>
                     </div>
                     <p className="mt-1 text-xs text-gray-500">
                       Share this link with the client to access their forms
@@ -390,12 +392,12 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                       <FaLock className="mr-2 text-gray-500" /> Passcode
                     </label>
-                    <div className="flex items-center">
+                    <div className="flex flex-col sm:flex-row">
                       <input
                         type="text"
                         value={assignmentResult.passcode}
                         readOnly
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-50 text-gray-700 font-mono tracking-wider"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg sm:rounded-r-none bg-gray-50 text-gray-700 font-mono tracking-wider text-sm"
                       />
                       <button
                         onClick={() => copyToClipboard(assignmentResult.passcode, 'passcode')}
@@ -403,7 +405,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                           copiedPasscode
                             ? 'bg-green-600 hover:bg-green-700'
                             : 'bg-indigo-600 hover:bg-indigo-700'
-                        } text-white px-4 py-2 rounded-r-lg transition-colors flex items-center`}
+                        } text-white px-4 py-2 rounded-lg sm:rounded-l-none transition-colors flex items-center text-sm justify-center mt-2 sm:mt-0`}
                       >
                         {copiedPasscode ? (
                           <>
@@ -426,7 +428,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                       <FaRegClock className="mr-2 text-gray-500" /> Expires At
                     </label>
                     <div className="flex items-center">
-                      <div className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
+                      <div className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm">
                         {new Date(assignmentResult.batch.expiresAt).toLocaleString()}
                       </div>
                     </div>
@@ -467,33 +469,35 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3">
               <div className="flex items-center">
-                <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                  <FaFileAlt className="text-indigo-600 text-xl" />
+                <div className="bg-indigo-100 p-2 sm:p-3 rounded-lg mr-3 sm:mr-4 flex-shrink-0">
+                  <FaFileAlt className="text-indigo-600 text-lg sm:text-xl" />
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Forms for {client?.name || 'Client'}
-                </h1>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
+                    Forms for {client?.name || 'Client'}
+                  </h1>
+                </div>
               </div>
-              <p className="text-sm text-gray-500 mt-1 sm:mt-0 sm:ml-16">
+              <p className="text-sm text-gray-500 ml-11 sm:ml-16">
                 Manage forms assigned to this client
               </p>
             </div>
-            <div className="flex flex-col gap-2 w-full md:w-auto md:flex-row md:gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 lg:flex-shrink-0">
               <button
                 onClick={() => router.back()}
-                className="flex items-center justify-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50 w-full md:w-auto"
+                className="flex items-center justify-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
               >
                 <FaArrowLeft className="mr-2" /> Back to Client
               </button>
               <button
                 onClick={() => setShowAssignForm(!showAssignForm)}
-                className="flex items-center justify-center text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg shadow-sm w-full md:w-auto"
+                className="flex items-center justify-center text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg shadow-sm"
               >
                 {showAssignForm ? (
                   <>
@@ -528,12 +532,12 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
         {/* Form Assignment Panel */}
         {showAssignForm && (
           <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 animate-fade-in">
-            <div className="px-6 py-4 border-b border-gray-100 bg-indigo-50">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-indigo-50">
               <div className="flex items-center">
-                <div className="bg-indigo-100 p-2 rounded-md mr-3">
+                <div className="bg-indigo-100 p-2 rounded-md mr-3 flex-shrink-0">
                   <FaUserEdit className="text-indigo-600" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <h2 className="text-lg font-semibold text-gray-800">Assign Forms</h2>
                   <p className="text-sm text-gray-500">
                     Select one or more forms to assign to this client
@@ -541,34 +545,34 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                 </div>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <form onSubmit={handleAssignForms}>
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Expiration Date and Time
                   </label>
-                  <div className="flex flex-col sm:flex-row gap-4 max-w-md">
+                  <div className="flex flex-col sm:flex-row gap-3 max-w-md">
                     <div className="relative flex-1">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaCalendarAlt className="text-gray-400" />
+                        <FaCalendarAlt className="text-gray-400 text-sm" />
                       </div>
                       <input
                         type="date"
                         value={expirationDate}
                         onChange={(e) => setExpirationDate(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                         required
                       />
                     </div>
                     <div className="relative flex-1">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaClock className="text-gray-400" />
+                        <FaClock className="text-gray-400 text-sm" />
                       </div>
                       <input
                         type="time"
                         value={expirationTime}
                         onChange={(e) => setExpirationTime(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                         required
                       />
                     </div>
@@ -579,7 +583,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                 </div>
 
                 <div className="mb-6">
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-2">
                     <label className="block text-sm font-medium text-gray-700">
                       Available Forms
                     </label>
@@ -588,21 +592,21 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                     {availableForms.map((form) => {
                       const isSelected = selectedFormIds.includes(form.id);
                       return (
                         <div
                           key={form.id}
                           onClick={() => handleToggleFormSelection(form.id)}
-                          className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                          className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
                             isSelected
                               ? 'border-indigo-500 bg-indigo-50 shadow-sm'
                               : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50'
                           }`}
                         >
                           <div className="flex items-start">
-                            <div className="flex-shrink-0">
+                            <div className="flex-shrink-0 mt-0.5">
                               <input
                                 type="checkbox"
                                 checked={isSelected}
@@ -610,8 +614,8 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                               />
                             </div>
-                            <div className="ml-3">
-                              <h3 className="text-sm font-medium text-gray-900">{form.title}</h3>
+                            <div className="ml-3 min-w-0 flex-1">
+                              <h3 className="text-sm font-medium text-gray-900 truncate">{form.title}</h3>
                               <p className="text-xs text-gray-500">Version {form.version}</p>
                               {form.description && (
                                 <p className="mt-1 text-xs text-gray-500 line-clamp-2">{form.description}</p>
@@ -641,7 +645,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
                   <button
                     type="submit"
                     disabled={assigningForm || selectedFormIds.length === 0}
-                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm flex items-center justify-center disabled:opacity-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm flex items-center justify-center disabled:opacity-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     {assigningForm ? (
                       <>
@@ -665,9 +669,9 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
 
         {/* Assigned Forms Table */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
             <div className="flex items-center">
-              <div className="bg-green-100 p-2 rounded-md mr-3">
+              <div className="bg-green-100 p-2 rounded-md mr-3 flex-shrink-0">
                 <FaClipboard className="text-green-600" />
               </div>
               <h2 className="text-lg font-semibold text-gray-800">Assigned Forms</h2>
@@ -675,7 +679,7 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
           </div>
 
           {assignedForms.length === 0 ? (
-            <div className="p-12 text-center">
+            <div className="p-8 sm:p-12 text-center">
               <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
                 <FaFileAlt className="text-gray-400 text-2xl" />
               </div>
@@ -683,86 +687,159 @@ export default function ClientFormsPageClient({ clientId }: { clientId: string }
               <p className="text-sm text-gray-400 mt-2">Use the &quot;Assign Forms&quot; button to get started</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Form Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Assigned Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Expiration Date
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Form Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Assigned Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Expiration Date
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {assignedForms.map((form, index) => (
+                      <tr
+                        key={form.id}
+                        className="hover:bg-indigo-50 transition"
+                        style={{
+                          animationDelay: `${index * 30}ms`,
+                          animation: 'fadeIn 0.5s ease-in-out forwards'
+                        }}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                              <FaFileAlt className="text-indigo-600" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="font-medium text-gray-900">{form.form.title}</div>
+                              <div className="text-sm text-gray-500">Version {form.form.version}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getFormStatusBadge(form)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(form.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(form.expiresAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => {
+                              
+                              if(!form.isSubmitted) {
+                                handleShowToast('warning')
+                                return;
+                              }
+                              router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}}
+                            
+                            className="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            <FaLink className="mr-1" />
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile/Tablet Card View */}
+              <div className="lg:hidden">
+                <div className="divide-y divide-gray-200">
                   {assignedForms.map((form, index) => (
-                    <tr
+                    <div
                       key={form.id}
-                      className="hover:bg-indigo-50 transition"
+                      className="p-4 sm:p-6 hover:bg-gray-50 transition"
                       style={{
                         animationDelay: `${index * 30}ms`,
                         animation: 'fadeIn 0.5s ease-in-out forwards'
                       }}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start flex-1 min-w-0">
                           <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                             <FaFileAlt className="text-indigo-600" />
                           </div>
-                          <div className="ml-4">
-                            <div className="font-medium text-gray-900">{form.form.title}</div>
+                          <div className="ml-3 flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 truncate">{form.form.title}</div>
                             <div className="text-sm text-gray-500">Version {form.form.version}</div>
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              {getFormStatusBadge(form)}
+                            </div>
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getFormStatusBadge(form)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(form.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(form.expiresAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => {
+                        <div className="ml-4 flex-shrink-0">
+                          <button
+                            onClick={() => {
+                              
+                              if(!form.isSubmitted) {
+                                handleShowToast('warning')
+                                return;
+                              }
+                              router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}}
                             
-                            if(!form.isSubmitted) {
-                              handleShowToast('warning')
-                              return;
-                            }
-                            router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}}
-                          
-                          className="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                          <FaLink className="mr-1" />
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            <FaLink className="mr-1" />
+                            View
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 grid grid-cols-2 gap-4 text-sm text-gray-500">
+                        <div>
+                          <span className="font-medium">Assigned:</span>
+                          <div className="mt-1">
+                            {new Date(form.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="font-medium">Expires:</span>
+                          <div className="mt-1">
+                            {new Date(form.expiresAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

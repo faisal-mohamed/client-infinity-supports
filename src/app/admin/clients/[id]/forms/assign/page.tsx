@@ -1,4 +1,4 @@
-import AssignFormsClient from './AssignFormsClient';
+// import AssignFormsClient from './AssignFormsClient';
 
 export default async function AssignFormsPage({ 
   params 
@@ -6,5 +6,7 @@ export default async function AssignFormsPage({
   params: Promise<{ id: string }> 
 }) {
   const { id } = await params;
-  return <AssignFormsClient clientId={id} />;
+  return <div>
+    <h1>Assign Forms to Client {id}</h1>
+  </div>
 }
