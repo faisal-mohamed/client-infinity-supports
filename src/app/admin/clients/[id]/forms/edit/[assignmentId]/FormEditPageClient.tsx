@@ -1,0 +1,238 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { useToast } from '@/components/ui/Toast';
+import { getFormComponent } from '@/app/forms/registry';
+
+// Types
+interface FormAssignmentData {
+  id: number;
+  clientId: number;
+  formId: number;
+  formVersion: number;
+  form: {
+    formKey: string;
+    title: string;
+    schema: any;
+  };
+  client: {
+    name: string;
+    email: string;
+  };
+  existingData?: any; // Existing FormSubmission data if available
+}
+
+export default function FormEditPageClient() {
+  const params = useParams();
+  const router = useRouter();
+  const { showToast } = useToast();
+  
+  const clientId = parseInt(params.id as string);
+  const assignmentId = parseInt(params.assignmentId as string);
+  
+  const [assignment, setAssignment] = useState<FormAssignmentData | null>(null);
+  const [formData, setFormData] = useState<any>({});
+  const [commonFieldsData, setCommonFieldsData] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Load assignment and existing data
+  useEffect(() => {
+    loadAssignmentData();
+  }, [assignmentId]);
+
+  const loadAssignmentData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get assignment details and existing submission data
+      const response = await fetch(`/api/form-assignments/${assignmentId}`);
+      if (!response.ok) throw new Error('Failed to load assignment data');
+      
+      const data = await response.json();
+      console.log('Loaded assignment data:', data);
+      setAssignment(data.assignment);
+      setFormData(data.existingData || {});
+      setCommonFieldsData(data.commonFields || {});
+      
+    } catch (error) {
+      console.error('Error loading assignment data:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load form data',
+        duration: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFormChange = (values: any, field?: string, isCommon?: boolean) => {
+    if (isCommon) {
+      setCommonFieldsData((prev : any)  => ({ ...prev, ...values }));
+    } else {
+      setFormData((prev : any) => ({ ...prev, ...values }));
+    }
+  };
+
+  const handleSave = async (submit: boolean = true) => {
+    if (!assignment) return;
+    try {
+      setSaving(true);
+
+      // Save form data
+      const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+          submit,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save form data');
+
+      showToast({
+        type: 'success',
+        title: 'Success',
+        message: submit ? 'Form completed successfully!' : 'Progress saved',
+        duration: 3000,
+      });
+
+      if (submit) {
+        // Navigate back to forms list after successful submission
+        setTimeout(() => {
+          router.push(`/admin/clients/${clientId}/forms`);
+        }, 1000); // Small delay to show the success message
+      }
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to save form data',
+        duration: 3000,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle form submission (when submit button is clicked)
+  const handleFormSubmit = async (formValues: any) => {
+    // Update local state with the latest form values
+    setFormData((prev : any) => ({ ...prev, ...formValues }));
+    
+    // Call save with submit = true
+    await handleSave(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!assignment) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Not Found</h1>
+          <Link 
+            href={`/admin/clients/${clientId}/forms`}
+            className="text-indigo-600 hover:text-indigo-800"
+          >
+            Back to Forms List
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the appropriate form component from registry
+  let FormEditComponent;
+  try {
+    FormEditComponent = getFormComponent(assignment.form.formKey, 'edit');
+  } catch (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Component Not Found</h1>
+          <p className="text-gray-600 mb-4">
+            No edit component found for form: {assignment.form.formKey}
+          </p>
+          <Link 
+            href={`/admin/clients/${clientId}/forms`}
+            className="text-indigo-600 hover:text-indigo-800"
+          >
+            Back to Forms List
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Minimal Header Bar */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Link 
+                href={`/admin/clients/${clientId}/forms`}
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
+              >
+                <FaArrowLeft className="h-4 w-4 mr-2" />
+                Back to Forms
+              </Link>
+              <div className="border-l border-gray-300 pl-4">
+                <h1 className="text-xl font-semibold text-gray-900">
+                  Edit: {assignment?.form.title}
+                </h1>
+                <p className="text-sm text-gray-600">
+                  {assignment?.client.name} • {assignment?.client.email}
+                </p>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => handleSave(true)}
+              disabled={saving}
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FaSave className="mr-2 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Form'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Full Width Form Content */}
+      <div className="max-w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white shadow-sm rounded-lg">
+          <FormEditComponent
+            formData={formData}
+            commonFieldsData={commonFieldsData}
+            onChange={handleFormChange}
+            onSubmit={handleFormSubmit}
+            handleSave={handleSave}
+            readOnly={false}
+            fieldErrors={{}}
+            onCommonFieldsUpdated={() => {
+              // Handle common fields update if needed
+            }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}

@@ -66,17 +66,16 @@ model FormBatch {
   id            Int       @id @default(autoincrement())
   clientId      Int
   batchToken    String    @unique  // Unique token for accessing all forms in this batch
-  passcode      String?   // Passcode for the entire batch
+  passcode      String?   // Passcode for the entire batch (can be null for signature-only access)
   expiresAt     DateTime
   createdAt     DateTime  @default(now())
-  // Signature and submission status for the batch
-  signature     String?   // base64, SVG, or URL to signature image
-  isSigned      Boolean   @default(false)
-  signedBy      String?   // 'client' or 'admin'
-  signedAt      DateTime?
+  
+  // NEW FIELD for signature-only access
+  isSignatureOnly Boolean @default(false) // True when this batch is for signature collection only
 
   client        Client    @relation(fields: [clientId], references: [id])
   assignments   FormAssignment[]
+  signatureForms SignatureBatchForm[] // NEW: Forms included in this signature batch
 }
 
 model FormAssignment {
@@ -89,7 +88,7 @@ model FormAssignment {
   isCompleted           Boolean   @default(false)
   isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
   displayOrder          Int       @default(0) // Order in which forms should be displayed
-  batchId               Int      // Reference to FormBatch (required)
+  batchId               Int       // Reference to FormBatch (required)
 
   client                Client    @relation(fields: [clientId], references: [id])
   form                  MasterForm @relation(fields: [formId], references: [id])
@@ -104,13 +103,20 @@ model FormSubmission {
   clientId      Int      // Reference to Client
   formId        Int      // Reference to MasterForm
   formVersion   Int      // Version of the form being submitted
-  data          Json     // JSON containing the form submission data
+  data          Json     // JSON containing the form submission data (filled by admin or client)
   isSubmitted   Boolean  @default(false)
   submittedAt   DateTime?
   updatedAt     DateTime @updatedAt
+  
+  // NEW FIELDS for admin-managed workflow
+  filledByAdmin Boolean  @default(false) // Track if admin filled this form
+  adminFilledAt DateTime? // When admin filled the form
+  clientSignature String? // Client's signature for this specific form
+  clientSignedAt DateTime? // When client signed this form
 
   client        Client   @relation(fields: [clientId], references: [id])
   form          MasterForm @relation(fields: [formId], references: [id])
+  signatureBatches SignatureBatchForm[] // NEW: Which signature batches include this form
 
   // Ensure each submission for a client-form combination is unique
   @@unique([clientId, formId, formVersion])
@@ -184,6 +190,19 @@ model FormActivityLog {
 
   // Ensuring both types of logs (client and admin) can exist
   @@index([clientId, adminId]) // Indexing the client and admin fields for better search performance
+}
+
+// NEW MODEL: Junction table connecting signature batches to specific forms
+model SignatureBatchForm {
+  id               Int @id @default(autoincrement())
+  batchId          Int // Reference to FormBatch
+  formSubmissionId Int // Reference to FormSubmission
+  createdAt        DateTime @default(now())
+  
+  batch            FormBatch @relation(fields: [batchId], references: [id])
+  formSubmission   FormSubmission @relation(fields: [formSubmissionId], references: [id])
+  
+  @@unique([batchId, formSubmissionId]) // Prevent duplicate entries
 }
 
 // Enum for differentiating between client and admin logs

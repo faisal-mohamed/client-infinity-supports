@@ -17,8 +17,6 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
-import { updateCommonFields } from "@/lib/api";
-import { useSearchParams } from "next/navigation";
 
 interface FormProps {
   formData: any;
@@ -157,7 +155,7 @@ const travelArrangementsOptions = [
   "Other, please specify: ",
 ];
 
-const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
+const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
   formData,
   commonFieldsData,
   onChange,
@@ -165,7 +163,6 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   readOnly = false,
   fieldErrors = {},
   handleSave,
-  token, // <-- batch token, optional for backward compatibility
   onCommonFieldsUpdated,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -256,8 +253,6 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const passcode = searchParams ? searchParams.get("passcode") : undefined;
 
   // Track pending changes to common fields
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -642,19 +637,24 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
   };
 
   const handleSaveWithConfirm = async (submit: boolean) => {
-    // If there are pending common field changes, update them directly (no modal)
+    // If there are pending common field changes, update them via admin API
     if (Object.keys(pendingCommonFieldChanges).length > 0) {
       try {
-        await updateCommonFields(token || '', { ...commonFieldsData, ...pendingCommonFieldChanges }, String(passcode || ''));
-        showToast({
-          type: "success",
-          title: "Common Fields Updated",
-          message: "The values for these fields have been updated across all forms.",
-          duration: 4000,
-        });
-        setPendingCommonFieldChanges({});
-        if (typeof onCommonFieldsUpdated === 'function') onCommonFieldsUpdated();
-        if (typeof handleSave === 'function') await handleSave(false);
+        // Admin context only - use the handleSave prop which calls the correct API
+        if (typeof handleSave === 'function') {
+          await handleSave(false); // This will call /api/form-assignments/[assignmentId]/save
+          
+          showToast({
+            type: "success",
+            title: "Common Fields Updated",
+            message: "The values for these fields have been updated across all forms.",
+            duration: 4000,
+          });
+          setPendingCommonFieldChanges({});
+          if (typeof onCommonFieldsUpdated === 'function') onCommonFieldsUpdated();
+        } else {
+          throw new Error("Save function not available");
+        }
       } catch (err: any) {
         showToast({
           type: "error",
@@ -863,7 +863,10 @@ const ClientIntakeFormEnhanced: React.FC<FormProps & { token?: string }> = ({
 {currentStep === FORM_SECTIONS.length - 1 && (
   <button
     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
-    onClick={onSubmit}
+    onClick={(e) => {
+      e.preventDefault();
+      if (onSubmit) onSubmit(localValues);
+    }}
   >
     <FaCheck className="w-4 h-4" />
     Submit

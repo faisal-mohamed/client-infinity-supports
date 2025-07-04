@@ -1,863 +1,657 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { getClient, getForms, assignFormBatchToClient, getClientForms } from '@/lib/api';
-import { FaPlus, FaLink, FaCalendarAlt, FaCheck, FaClock, FaExclamationTriangle, FaTimes, FaCopy, FaArrowLeft, FaFileAlt, FaClipboard, FaLock, FaRegClock, FaUserEdit } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { FaEdit, FaEye, FaArrowLeft, FaPlus, FaSignature, FaCheck, FaClock, FaFileAlt, FaTimes, FaLink, FaCopy } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
+import { getAllForms } from '@/app/forms/registry';
 
-type Form = {
+// Types
+interface FormAssignmentWithDetails {
   id: number;
+  formId: number;
+  formVersion: number;
+  assignedAt: string;
+  displayOrder: number;
+  form: {
+    id: number;
+    formKey: string;
+    title: string;
+    version: number;
+  };
+  // Check if FormSubmission exists
+  hasSubmission: boolean;
+  submissionId?: number;
+  filledByAdmin: boolean;
+  adminFilledAt?: string;
+  clientSignature?: string;
+  clientSignedAt?: string;
+}
+
+interface ClientInfo {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface AvailableForm {
+  id: number;
+  formKey: string;
   title: string;
   version: number;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-};
+}
 
-type AssignedForm = {
-  id: number;
-  clientId: number;
-  formId: number;
-  expiresAt: string;
-  isSubmitted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  formVersion: number
-  form: Form;
-};
-
-export default function ClientFormsPageClient({ clientId }: { clientId: string }) {
+export default function ClientFormsPageClient() {
+  const params = useParams();
   const router = useRouter();
-  const [client, setClient] = useState<any>(null);
-  const [availableForms, setAvailableForms] = useState<Form[]>([]);
-  const [assignedForms, setAssignedForms] = useState<AssignedForm[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-    const { showToast } = useToast();
+  const { showToast } = useToast();
   
+  const clientId = parseInt(params.id as string);
+  
+  const [client, setClient] = useState<ClientInfo | null>(null);
+  const [assignments, setAssignments] = useState<FormAssignmentWithDetails[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedForms, setSelectedForms] = useState<number[]>([]);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  
+  // Form assignment modal state
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [availableForms, setAvailableForms] = useState<AvailableForm[]>([]);
+  const [selectedFormsToAssign, setSelectedFormsToAssign] = useState<number[]>([]);
+  const [assigning, setAssigning] = useState(false);
 
-  const handleShowToast = (type: 'success' | 'error' | 'warning' | 'info') => {
-    showToast({
-      type,
-      title: `Form Pending`,
-      message: `The form is pending and will be available after the client submits it.`,
-      duration: 3000,
-    });
-  };
+  // Signature link modal state
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<{
+    url: string;
+    token: string;
+    formsCount: number;
+    forms: { formTitle: string; formKey: string; }[];
+    expiresAt: string;
+  } | null>(null);
 
-  // Form assignment state
-  const [showAssignForm, setShowAssignForm] = useState(false);
-  const [selectedFormIds, setSelectedFormIds] = useState<number[]>([]);
-  const [expirationDate, setExpirationDate] = useState('');
-  const [expirationTime, setExpirationTime] = useState('');
-  const [assigningForm, setAssigningForm] = useState(false);
-  const [copiedLink, setCopiedLink] = useState<number | null>(null);
-  const [copiedPasscode, setCopiedPasscode] = useState<boolean>(false);
-  const [assignmentResult, setAssignmentResult] = useState<any>(null);
-
-  // Track if we've already auto-opened the link for this assignment
-  const autoOpenedRef = useRef<string | null>(null);
-
-  // Calculate default expiration date (30 minutes from now)
+  // Load client and form assignments
   useEffect(() => {
-    const thirtyMinutesFromNow = new Date();
-    thirtyMinutesFromNow.setMinutes(thirtyMinutesFromNow.getMinutes() + 30);
-
-    // Format date as YYYY-MM-DD
-    setExpirationDate(thirtyMinutesFromNow.toISOString().split('T')[0]);
-
-    // Format time as HH:MM
-    const hours = thirtyMinutesFromNow.getHours().toString().padStart(2, '0');
-    const minutes = thirtyMinutesFromNow.getMinutes().toString().padStart(2, '0');
-    setExpirationTime(`${hours}:${minutes}`);
-  }, []);
-
-  // Load data when component mounts
-  useEffect(() => {
-    // Parse the client ID
-    const parsedClientId = parseInt(clientId);
-    console.log("Parsed client ID:", parsedClientId);
-
-    if (isNaN(parsedClientId)) {
-      setError('Invalid client ID');
-      setLoading(false);
-      return;
-    }
-
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        // Load client details
-        const clientData = await getClient(parsedClientId);
-        setClient(clientData);
-
-        // Load available forms
-        const formsData = await getForms();
-        setAvailableForms(formsData);
-
-        // Load assigned forms
-        const clientFormsData = await getClientForms(parsedClientId);
-        setAssignedForms(clientFormsData);
-
-        setError('');
-      } catch (err: any) {
-        console.error("Error loading data:", err);
-        setError('Failed to load data: ' + (err.message || 'Unknown error'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
+    loadClientForms();
+    loadAvailableForms();
   }, [clientId]);
 
-
-
-  useEffect(() => {
-    console.log("assignedResult", assignmentResult);
-  }, [assignmentResult]);
-
-  // Helper to get the direct common fields URL
-  const getDirectCommonFieldsUrl = () => {
-    if (!assignmentResult?.batch?.batchToken || !assignmentResult?.passcode) {
-      console.log("No batch token or passcode");
-      return '';
-    }
-    return `${window.location.origin}/forms/common-fields/${assignmentResult.batch.batchToken}?passcode=${encodeURIComponent(assignmentResult.passcode)}`;
-  };
-
-  // Helper to get the passcode page URL (for copy/share)
-  const getAccessPageUrl = () => {
-    if (!assignmentResult?.batch?.batchToken) return '';
-    return `${window.location.origin}/forms/access/${assignmentResult.batch.batchToken}`;
-  };
-
-  // Auto-open the assigned form link in a new tab with passcode after assignment
-  useEffect(() => {
-    if (
-      assignmentResult &&
-      assignmentResult.batch?.batchToken &&
-      assignmentResult.passcode &&
-      autoOpenedRef.current !== assignmentResult.batch.batchToken
-    ) {
-      const url = getDirectCommonFieldsUrl();
-      if (url) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-        autoOpenedRef.current = assignmentResult.batch.batchToken;
-      }
-    }
-  }, [assignmentResult]);
-
-  const handleToggleFormSelection = (formId: number) => {
-    if (selectedFormIds.includes(formId)) {
-      setSelectedFormIds(selectedFormIds.filter(id => id !== formId));
-    } else {
-      setSelectedFormIds([...selectedFormIds, formId]);
+  const loadClientForms = async () => {
+    try {
+      setLoading(true);
+      
+      // Get client info and form assignments
+      const response = await fetch(`/api/clients/${clientId}/form-assignments`);
+      if (!response.ok) throw new Error('Failed to load client forms');
+      
+      const data = await response.json();
+      setClient(data.client);
+      setAssignments(data.assignments);
+      
+    } catch (error) {
+      console.error('Error loading client forms:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to load client forms',
+        duration: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAssignForms = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const loadAvailableForms = async () => {
+    try {
+      // Get all available forms from the system
+      const response = await fetch('/api/forms');
+      if (!response.ok) throw new Error('Failed to load available forms');
+      
+      const data = await response.json();
+      console.log('Available forms:', data);
+      setAvailableForms(data || []);
+      
+    } catch (error) {
+      console.error('Error loading available forms:', error);
+    }
+  };
 
-    console.log("Selected form IDs:", selectedFormIds); 
+  const handleFormSelection = (assignmentId: number) => {
+    setSelectedForms(prev => 
+      prev.includes(assignmentId) 
+        ? prev.filter(id => id !== assignmentId)
+        : [...prev, assignmentId]
+    );
+  };
 
-    if (selectedFormIds.length === 0) {
-      setError('Please select at least one form to assign');
+  const handleFormAssignmentSelection = (formId: number) => {
+    setSelectedFormsToAssign(prev => 
+      prev.includes(formId) 
+        ? prev.filter(id => id !== formId)
+        : [...prev, formId]
+    );
+  };
+
+  const assignFormsToClient = async () => {
+    if (selectedFormsToAssign.length === 0) {
+      showToast({
+        type: 'error',
+        title: 'No Forms Selected',
+        message: 'Please select at least one form to assign',
+        duration: 3000,
+      });
       return;
     }
 
     try {
-      setAssigningForm(true);
-      setError('');
-
-      const parsedClientId = parseInt(clientId);
-      if (isNaN(parsedClientId)) {
-        throw new Error('Invalid client ID');
-      }
-
-      // Combine date and time for expiration
-      const expiresAt = new Date(`${expirationDate}T${expirationTime}`);
-
-      // Use the batch assignment method
-      const result = await assignFormBatchToClient(parsedClientId, {
-        formIds: selectedFormIds,
-        expiresAt: expiresAt.toISOString(),
+      setAssigning(true);
+      
+      const response = await fetch(`/api/clients/${clientId}/assign-forms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          formIds: selectedFormsToAssign 
+        }),
       });
 
-      console.log("Result:", result);
+      if (!response.ok) throw new Error('Failed to assign forms');
+      
+      showToast({
+        type: 'success',
+        title: 'Forms Assigned',
+        message: `Successfully assigned ${selectedFormsToAssign.length} form(s) to client`,
+        duration: 3000,
+      });
 
-      setAssignmentResult(result);
-
-      // Reload assigned forms
-      const clientFormsData = await getClientForms(parsedClientId);
-      setAssignedForms(clientFormsData);
-
-      // Reset form
-      setSelectedFormIds([]);
-    } catch (err: any) {
-      setError('Failed to assign forms: ' + (err.message || 'Unknown error'));
-      console.error(err);
+      // Reset and reload
+      setSelectedFormsToAssign([]);
+      setShowAssignModal(false);
+      loadClientForms();
+      
+    } catch (error) {
+      console.error('Error assigning forms:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to assign forms to client',
+        duration: 3000,
+      });
     } finally {
-      setAssigningForm(false);
+      setAssigning(false);
     }
   };
 
-  const copyToClipboard = (text: string, type: 'link' | 'passcode') => {
-  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        if (type === 'link') {
-          setCopiedLink(1);
-          setTimeout(() => setCopiedLink(null), 2000);
-        } else {
-          setCopiedPasscode(true);
-          setTimeout(() => setCopiedPasscode(false), 2000);
-        }
-      })
-      .catch((err) => {
-        console.error("Clipboard copy failed:", err);
-        alert("Clipboard copy failed.");
+  const copyLinkToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast({
+        type: 'success',
+        title: 'Link Copied',
+        message: 'Signature link copied to clipboard',
+        duration: 2000,
       });
-  } else {
-    console.warn("Clipboard API not supported.");
-    alert("Copy to clipboard is not supported in this browser or environment.");
-  }
-};
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      showToast({
+        type: 'success',
+        title: 'Link Copied',
+        message: 'Signature link copied to clipboard',
+        duration: 2000,
+      });
+    }
+  };
 
+  const generateSignatureLink = async () => {
+    if (selectedForms.length === 0) {
+      showToast({
+        type: 'error',
+        title: 'No Forms Selected',
+        message: 'Please select at least one form for signature',
+        duration: 3000,
+      });
+      return;
+    }
 
-  const getFormStatusBadge = (form: AssignedForm) => {
-    const now = new Date();
-    const expiryDate = new Date(form.expiresAt);
+    try {
+      setGeneratingLink(true);
+      
+      const response = await fetch(`/api/clients/${clientId}/generate-signature-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          formAssignmentIds: selectedForms 
+        }),
+      });
 
-    if (form.isSubmitted) {
-      return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <FaCheck className="mr-1" /> Completed
-        </span>
-      );
-    } else if (expiryDate < now) {
-      return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          <FaExclamationTriangle className="mr-1" /> Expired
-        </span>
-      );
+      if (!response.ok) throw new Error('Failed to generate signature link');
+      
+      const data = await response.json();
+      
+      // Show modal instead of toast
+      setGeneratedLink({
+        url: data.signatureUrl,
+        token: data.token,
+        formsCount: data.formsCount,
+        forms: data.forms,
+        expiresAt: data.expiresAt,
+      });
+      setShowLinkModal(true);
+
+      // Reset selection
+      setSelectedForms([]);
+      
+    } catch (error) {
+      console.error('Error generating signature link:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to generate signature link',
+        duration: 3000,
+      });
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
+  const getFormStatus = (assignment: FormAssignmentWithDetails) => {
+    if (assignment.clientSignature) {
+      return { status: 'Signed', color: 'text-green-600 bg-green-100', icon: FaCheck };
+    } else if (assignment.filledByAdmin) {
+      return { status: 'Filled by Admin', color: 'text-blue-600 bg-blue-100', icon: FaFileAlt };
     } else {
-      return (
-        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <FaClock className="mr-1" /> Pending
-        </span>
-      );
+      return { status: 'Not Filled', color: 'text-gray-600 bg-gray-100', icon: FaClock };
     }
   };
 
   if (loading) {
     return (
-      <div className="bg-gray-50 min-h-screen py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center min-h-[60vh]">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto"></div>
-              <p className="mt-6 text-gray-600 font-medium">Loading client forms...</p>
-              <p className="text-sm text-gray-500 mt-2">This may take a moment</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-gray-50 min-h-screen py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-              <div className="flex justify-center mb-6">
-                <div className="bg-red-100 rounded-full p-3">
-                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">Error</h1>
-              <p className="text-red-600 mb-6 text-center">{error}</p>
-              <button
-                onClick={() => router.back()}
-                className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition text-center font-medium shadow-sm"
-              >
-                Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-   
-
-  // If we have assignment results, show the success screen
-  if (assignmentResult) {
-    return (
-      <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-green-50">
-              <div className="flex items-center">
-                <div className="bg-green-100 p-2 sm:p-3 rounded-lg mr-3 sm:mr-4 flex-shrink-0">
-                  <FaCheck className="text-green-600 text-lg sm:text-xl" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Forms Assigned Successfully</h1>
-                  <p className="text-sm text-gray-500 mt-1">The forms have been assigned to {client.name}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 sm:p-6">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
-                  <FaFileAlt className="mr-2 text-indigo-500" /> Assigned Forms
-                </h2>
-
-                <ul className="space-y-2 mb-4">
-                  {selectedFormIds.map(formId => {
-                    const form = availableForms.find(f => f.id === formId);
-                    return (
-                      <li key={formId} className="flex items-center">
-                        <FaCheck className="text-green-500 mr-2 flex-shrink-0" />
-                        <span className="truncate">{form?.title}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-4 sm:p-6 mb-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center text-gray-800">
-                  <FaLink className="mr-2 text-indigo-500" /> Access Information
-                </h2>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                      <FaLink className="mr-2 text-gray-500" /> Access Link
-                    </label>
-                    <div className="flex flex-col sm:flex-row">
-                      <input
-                        type="text"
-                        value={getAccessPageUrl()}
-                        readOnly
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg sm:rounded-r-none bg-gray-50 text-gray-700 text-sm"
-                      />
-                      <div className="flex mt-2 sm:mt-0">
-                        <button
-                          onClick={() => copyToClipboard(getAccessPageUrl(), 'link')}
-                          className={`${
-                            copiedLink
-                              ? 'bg-green-600 hover:bg-green-700'
-                              : 'bg-indigo-600 hover:bg-indigo-700'
-                          } text-white px-4 py-2 rounded-lg sm:rounded-l-none sm:rounded-r-none transition-colors flex items-center text-sm flex-1 sm:flex-none justify-center`}
-                        >
-                          {copiedLink ? (
-                            <>
-                              <FaCheck className="mr-2" /> Copied!
-                            </>
-                          ) : (
-                            <>
-                              <FaCopy className="mr-2" /> Copy
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            const url = getDirectCommonFieldsUrl();
-                            if (url) window.open(url, '_blank', 'noopener,noreferrer');
-                          }}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg sm:rounded-l-none transition-colors flex items-center text-sm flex-1 sm:flex-none justify-center sm:ml-2 mt-2 sm:mt-0"
-                          title="Open as client (auto-fills passcode)"
-                        >
-                          <FaLink className="mr-2" /> Open as Client
-                        </button>
-                      </div>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Share this link with the client to access their forms
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                      <FaLock className="mr-2 text-gray-500" /> Passcode
-                    </label>
-                    <div className="flex flex-col sm:flex-row">
-                      <input
-                        type="text"
-                        value={assignmentResult.passcode}
-                        readOnly
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg sm:rounded-r-none bg-gray-50 text-gray-700 font-mono tracking-wider text-sm"
-                      />
-                      <button
-                        onClick={() => copyToClipboard(assignmentResult.passcode, 'passcode')}
-                        className={`${
-                          copiedPasscode
-                            ? 'bg-green-600 hover:bg-green-700'
-                            : 'bg-indigo-600 hover:bg-indigo-700'
-                        } text-white px-4 py-2 rounded-lg sm:rounded-l-none transition-colors flex items-center text-sm justify-center mt-2 sm:mt-0`}
-                      >
-                        {copiedPasscode ? (
-                          <>
-                            <FaCheck className="mr-2" /> Copied!
-                          </>
-                        ) : (
-                          <>
-                            <FaCopy className="mr-2" /> Copy
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      The client will need this passcode to access their forms
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                      <FaRegClock className="mr-2 text-gray-500" /> Expires At
-                    </label>
-                    <div className="flex items-center">
-                      <div className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm">
-                        {new Date(assignmentResult.batch.expiresAt).toLocaleString()}
-                      </div>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      The access link will expire after this time
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <button
-                  onClick={() => {
-                    setAssignmentResult(null);
-                    setShowAssignForm(false);
-                  }}
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  <FaArrowLeft className="mr-2" /> Back to Forms
-                </button>
-
-                <button
-                  onClick={() => {
-                    setAssignmentResult(null);
-                    setShowAssignForm(true);
-                  }}
-                  className="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-sm"
-                >
-                  <FaPlus className="mr-2" /> Assign More Forms
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center">
-                <div className="bg-indigo-100 p-2 sm:p-3 rounded-lg mr-3 sm:mr-4 flex-shrink-0">
-                  <FaFileAlt className="text-indigo-600 text-lg sm:text-xl" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
-                    Forms for {client?.name || 'Client'}
-                  </h1>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 ml-11 sm:ml-16">
-                Manage forms assigned to this client
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 lg:flex-shrink-0">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center justify-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
-              >
-                <FaArrowLeft className="mr-2" /> Back to Client
-              </button>
-              <button
-                onClick={() => setShowAssignForm(!showAssignForm)}
-                className="flex items-center justify-center text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition px-4 py-2 rounded-lg shadow-sm"
-              >
-                {showAssignForm ? (
-                  <>
-                    <FaTimes className="mr-2" /> Cancel
-                  </>
-                ) : (
-                  <>
-                    <FaPlus className="mr-2" /> Assign Forms
-                  </>
-                )}
-              </button>
-            </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center mb-4">
+          <Link 
+            href="/admin/clients" 
+            className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <FaArrowLeft className="h-5 w-5 text-gray-600" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Forms for {client?.name}
+            </h1>
+            <p className="text-gray-600 mt-1">{client?.email}</p>
           </div>
         </div>
 
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-6 animate-fade-in">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Action Buttons */}
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowAssignModal(true)}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors"
+          >
+            <FaPlus className="mr-2" />
+            Assign Forms
+          </button>
 
-        {/* Form Assignment Panel */}
-        {showAssignForm && (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6 animate-fade-in">
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-100 bg-indigo-50">
-              <div className="flex items-center">
-                <div className="bg-indigo-100 p-2 rounded-md mr-3 flex-shrink-0">
-                  <FaUserEdit className="text-indigo-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-lg font-semibold text-gray-800">Assign Forms</h2>
-                  <p className="text-sm text-gray-500">
-                    Select one or more forms to assign to this client
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 sm:p-6">
-              <form onSubmit={handleAssignForms}>
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Expiration Date and Time
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-3 max-w-md">
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaCalendarAlt className="text-gray-400 text-sm" />
-                      </div>
-                      <input
-                        type="date"
-                        value={expirationDate}
-                        onChange={(e) => setExpirationDate(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                        required
-                      />
-                    </div>
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaClock className="text-gray-400 text-sm" />
-                      </div>
-                      <input
-                        type="time"
-                        value={expirationTime}
-                        onChange={(e) => setExpirationTime(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <p className="mt-1 text-sm text-gray-500">
-                    The access link will expire after this time
-                  </p>
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Available Forms
-                    </label>
-                    <span className="text-sm text-indigo-600 font-medium">
-                      {selectedFormIds.length} selected
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-                    {availableForms.map((form) => {
-                      const isSelected = selectedFormIds.includes(form.id);
-                      return (
-                        <div
-                          key={form.id}
-                          onClick={() => handleToggleFormSelection(form.id)}
-                          className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-all ${
-                            isSelected
-                              ? 'border-indigo-500 bg-indigo-50 shadow-sm'
-                              : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50'
-                          }`}
-                        >
-                          <div className="flex items-start">
-                            <div className="flex-shrink-0 mt-0.5">
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => {}} // Handled by parent div click
-                                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                              />
-                            </div>
-                            <div className="ml-3 min-w-0 flex-1">
-                              <h3 className="text-sm font-medium text-gray-900 truncate">{form.title}</h3>
-                              <p className="text-xs text-gray-500">Version {form.version}</p>
-                              {form.description && (
-                                <p className="mt-1 text-xs text-gray-500 line-clamp-2">{form.description}</p>
-                              )}
-                              <p className="mt-1 text-xs text-gray-400">
-                                Created: {new Date(form.createdAt).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {availableForms.length === 0 && (
-                    <div className="text-center py-8">
-                      <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
-                        <FaFileAlt className="text-gray-400 text-2xl" />
-                      </div>
-                      <p className="text-gray-500 font-medium">No forms available to assign</p>
-                      <p className="text-sm text-gray-400 mt-2">Please create forms first</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={assigningForm || selectedFormIds.length === 0}
-                    className="w-full sm:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm flex items-center justify-center disabled:opacity-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    {assigningForm ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                        Assigning...
-                      </>
-                    ) : (
-                      <>
-                        <FaPlus className="mr-2" />
-                        {selectedFormIds.length === 0
-                          ? 'Select Forms to Assign'
-                          : `Assign ${selectedFormIds.length} Form${selectedFormIds.length > 1 ? 's' : ''}`}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Assigned Forms Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center">
-              <div className="bg-green-100 p-2 rounded-md mr-3 flex-shrink-0">
-                <FaClipboard className="text-green-600" />
-              </div>
-              <h2 className="text-lg font-semibold text-gray-800">Assigned Forms</h2>
-            </div>
-          </div>
-
-          {assignedForms.length === 0 ? (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
-                <FaFileAlt className="text-gray-400 text-2xl" />
-              </div>
-              <p className="text-gray-500 font-medium">No forms have been assigned to this client yet</p>
-              <p className="text-sm text-gray-400 mt-2">Use the &quot;Assign Forms&quot; button to get started</p>
-            </div>
-          ) : (
-            <>
-              {/* Desktop Table View */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Form Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Assigned Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Expiration Date
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {assignedForms.map((form, index) => (
-                      <tr
-                        key={form.id}
-                        className="hover:bg-indigo-50 transition"
-                        style={{
-                          animationDelay: `${index * 30}ms`,
-                          animation: 'fadeIn 0.5s ease-in-out forwards'
-                        }}
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                              <FaFileAlt className="text-indigo-600" />
-                            </div>
-                            <div className="ml-4">
-                              <div className="font-medium text-gray-900">{form.form.title}</div>
-                              <div className="text-sm text-gray-500">Version {form.form.version}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getFormStatusBadge(form)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(form.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(form.expiresAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => {
-                              
-                              if(!form.isSubmitted) {
-                                handleShowToast('warning')
-                                return;
-                              }
-                              router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}}
-                            
-                            className="inline-flex items-center px-2 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                          >
-                            <FaLink className="mr-1" />
-                            View Details
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile/Tablet Card View */}
-              <div className="lg:hidden">
-                <div className="divide-y divide-gray-200">
-                  {assignedForms.map((form, index) => (
-                    <div
-                      key={form.id}
-                      className="p-4 sm:p-6 hover:bg-gray-50 transition"
-                      style={{
-                        animationDelay: `${index * 30}ms`,
-                        animation: 'fadeIn 0.5s ease-in-out forwards'
-                      }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start flex-1 min-w-0">
-                          <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <FaFileAlt className="text-indigo-600" />
-                          </div>
-                          <div className="ml-3 flex-1 min-w-0">
-                            <div className="font-medium text-gray-900 truncate">{form.form.title}</div>
-                            <div className="text-sm text-gray-500">Version {form.form.version}</div>
-                            <div className="mt-2 flex flex-wrap items-center gap-2">
-                              {getFormStatusBadge(form)}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="ml-4 flex-shrink-0">
-                          <button
-                            onClick={() => {
-                              
-                              if(!form.isSubmitted) {
-                                handleShowToast('warning')
-                                return;
-                              }
-                              router.push(`/admin/clients/${clientId}/forms/${assignedForms[0].formId}/${assignedForms[0].formVersion}/view`)}}
-                            
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                          >
-                            <FaLink className="mr-1" />
-                            View
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 grid grid-cols-2 gap-4 text-sm text-gray-500">
-                        <div>
-                          <span className="font-medium">Assigned:</span>
-                          <div className="mt-1">
-                            {new Date(form.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="font-medium">Expires:</span>
-                          <div className="mt-1">
-                            {new Date(form.expiresAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
+          <Link
+            href={`/admin/clients/${clientId}/signature-links`}
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors"
+          >
+            <FaLink className="mr-2" />
+            View Signature Links
+          </Link>
+          
+          <button
+            onClick={generateSignatureLink}
+            disabled={selectedForms.length === 0 || generatingLink}
+            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+              selectedForms.length === 0 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-indigo-600 text-white hover:bg-indigo-700'
+            }`}
+          >
+            <FaSignature className="mr-2" />
+            {generatingLink ? 'Generating...' : `Generate Signature Link (${selectedForms.length})`}
+          </button>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.3s ease-in-out forwards;
-        }
-      `}</style>
+      {/* Forms List */}
+      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Assigned Forms</h2>
+        </div>
+
+        {assignments.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Forms Assigned</h3>
+            <p className="text-gray-600">This client has no forms assigned yet.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Select
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Form Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assigned Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {assignments.map((assignment) => {
+                  const statusInfo = getFormStatus(assignment);
+                  const StatusIcon = statusInfo.icon;
+                  
+                  return (
+                    <tr key={assignment.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedForms.includes(assignment.id)}
+                          onChange={() => handleFormSelection(assignment.id)}
+                          disabled={!assignment.filledByAdmin}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <FaFileAlt className="h-5 w-5 text-gray-400 mr-3" />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {assignment.form.title}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Version {assignment.form.version}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                          <StatusIcon className="mr-1 h-3 w-3" />
+                          {statusInfo.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(assignment.assignedAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <Link
+                            href={`/admin/clients/${clientId}/forms/edit/${assignment.id}`}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            <FaEdit className="mr-1 h-3 w-3" />
+                            Edit
+                          </Link>
+                          {assignment.hasSubmission && (
+                            <Link
+                              href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}
+                              className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            >
+                              <FaEye className="mr-1 h-3 w-3" />
+                              View
+                            </Link>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Form Assignment Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Assign Forms to {client?.name}
+              </h3>
+              <button
+                onClick={() => setShowAssignModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FaTimes className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-96">
+              {availableForms.length === 0 ? (
+                <div className="text-center py-8">
+                  <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <p className="text-gray-600">No forms available to assign</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {availableForms.map((form) => {
+                    // Check if this form is already assigned
+                    const isAlreadyAssigned = assignments.some(
+                      assignment => assignment.formId === form.id && assignment.formVersion === form.version
+                    );
+                    
+                    return (
+                      <div
+                        key={`${form.id}-${form.version}`}
+                        className={`flex items-center p-4 border rounded-lg transition-colors ${
+                          isAlreadyAssigned 
+                            ? 'bg-gray-50 border-gray-200 opacity-50' 
+                            : selectedFormsToAssign.includes(form.id)
+                            ? 'bg-indigo-50 border-indigo-200'
+                            : 'bg-white border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedFormsToAssign.includes(form.id)}
+                          onChange={() => handleFormAssignmentSelection(form.id)}
+                          disabled={isAlreadyAssigned}
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50"
+                        />
+                        <div className="ml-3 flex-1">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">
+                                {form.title}
+                              </h4>
+                              <p className="text-sm text-gray-500">
+                                Version {form.version} • Key: {form.formKey}
+                              </p>
+                            </div>
+                            {isAlreadyAssigned && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Already Assigned
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between p-6 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                {selectedFormsToAssign.length} form(s) selected
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={assignFormsToClient}
+                  disabled={selectedFormsToAssign.length === 0 || assigning}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFormsToAssign.length === 0 || assigning
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {assigning ? 'Assigning...' : `Assign ${selectedFormsToAssign.length} Form(s)`}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Signature Link Generated Modal */}
+      {showLinkModal && generatedLink && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Signature Link Generated Successfully
+              </h3>
+              <button
+                onClick={() => setShowLinkModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FaTimes className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <FaCheck className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h4 className="text-lg font-medium text-gray-900">
+                      Link Ready for {client?.name}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {generatedLink.formsCount} form(s) included • Expires {new Date(generatedLink.expiresAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Signature Link:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={generatedLink.url}
+                      readOnly
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm font-mono"
+                    />
+                    <button
+                      onClick={() => copyLinkToClipboard(generatedLink.url)}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      <FaCopy className="mr-1 h-3 w-3" />
+                      Copy
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">
+                    Forms included in this link:
+                  </h5>
+                  <div className="space-y-2">
+                    {generatedLink.forms.map((form, index) => (
+                      <div key={index} className="flex items-center text-sm text-gray-600">
+                        <FaFileAlt className="h-4 w-4 mr-2 text-gray-400" />
+                        {form.formTitle}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-blue-800">
+                        Next Steps
+                      </h3>
+                      <div className="mt-2 text-sm text-blue-700">
+                        <ul className="list-disc list-inside space-y-1">
+                          <li>Copy the link above and send it to your client</li>
+                          <li>Client can access the link without any password</li>
+                          <li>You can view all signature links in the "View Signature Links" section</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-6 border-t border-gray-200">
+              <Link
+                href={`/admin/clients/${clientId}/signature-links`}
+                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              >
+                View All Signature Links
+              </Link>
+              <div className="flex space-x-3">
+                <Link
+                  href={generatedLink.url}
+                  target="_blank"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <FaEye className="mr-2 h-4 w-4" />
+                  Preview Link
+                </Link>
+                <button
+                  onClick={() => setShowLinkModal(false)}
+                  className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
-
