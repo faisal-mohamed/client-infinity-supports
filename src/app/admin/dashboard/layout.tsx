@@ -1,12 +1,13 @@
 "use client";
-
 import React, { useState } from 'react';
 import { Montserrat } from 'next/font/google';
 import Link from 'next/link';
 import SignOutButton from '@/components/SignOutButton';
+import { ConfirmProvider } from '@/components/ui/Confirm';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const montserrat = Montserrat({ subsets: ['latin'], weight: '400', display: 'swap' });
 
 // Define menu items outside the component
 const menuItems = [
@@ -67,77 +68,85 @@ const menuItems = [
   },
 ];
 
-export default function AdminDashboardLayout({
+export default function AdminClientsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  
+  // Check if current route is form edit or view page
+  const isFormEditOrViewPage = pathname.includes('/forms/edit/') || pathname.includes('/forms/view/');
 
   return (
     <div className={`min-h-screen bg-gray-50 ${montserrat.className}`}>
       <div className="flex min-h-screen">
-        {/* Sidebar for desktop */}
-        <aside className="hidden md:flex md:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg z-20">
-          <div className="h-16 flex items-center justify-center border-b border-indigo-600">
-            <div className="flex flex-col items-center space-x-2">
-              <Image
-                src={'/client_logo.png'}
-                alt='Client Logo'
-                width={70}
-                height={40}
-              />
-              <span className="text-sm font-semibold">Infinity Support WA</span>
+        {/* Sidebar for desktop - hide on form edit/view pages */}
+        {!isFormEditOrViewPage && (
+          <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg z-20">
+            <div className="h-16 flex items-center justify-center border-b border-indigo-600">
+              <div className="flex flex-col items-center space-x-2">
+                <Image
+                  src={'/client_logo.png'}
+                  alt='Client Logo'
+                  width={70}
+                  height={40}
+                />
+                <span className="text-sm font-semibold">Infinity Support WA</span>
+              </div>
             </div>
-          </div>
-          <nav className="flex-1 px-2 py-4 space-y-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
-                  ${item.href === '/admin/dashboard'
-                    ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
-                    : 'hover:bg-indigo-600'
-                  }`}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="p-4 border-t border-indigo-600">
-            <SignOutButton />
-          </div>
-        </aside>
+            <nav className="flex-1 px-2 py-4 space-y-1">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
+                    ${item.href === '/admin/clients'
+                      ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
+                      : 'hover:bg-indigo-600'
+                    }`}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="p-4 border-t border-indigo-600">
+              <SignOutButton />
+            </div>
+          </aside>
+        )}
 
-        {/* Topbar for mobile */}
-        <div className="md:hidden bg-indigo-700 text-white h-16 w-full fixed top-0 z-30 flex items-center justify-between px-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-              <span className="text-indigo-700 text-lg font-bold">IS</span>
+        {/* Topbar for mobile - hide on form edit/view pages */}
+        {!isFormEditOrViewPage && (
+          <div className="lg:hidden bg-indigo-700 text-white h-16 w-full fixed top-0 z-30 flex items-center justify-between px-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                <span className="text-indigo-700 text-lg font-bold">IS</span>
+              </div>
+              <span className="text-xl font-semibold">Infinity Support</span>
             </div>
-            <span className="text-xl font-semibold">Infinity Support</span>
-          </div>
-          <button
-            className="text-white focus:outline-none"
-            aria-label="Open menu"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <button
+              className="text-white focus:outline-none"
+              aria-label="Open menu"
+              onClick={() => setMobileMenuOpen(true)}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        )}
 
-        {/* Mobile menu drawer */}
-        {mobileMenuOpen && (
+        {/* Mobile menu drawer - hide on form edit/view pages */}
+        {!isFormEditOrViewPage && mobileMenuOpen && (
           <div className="fixed inset-0 z-40 flex">
             {/* Overlay */}
             <div
@@ -191,8 +200,14 @@ export default function AdminDashboardLayout({
           </div>
         )}
 
-        {/* Main content */}
-        <main className="flex-1 p-6 pt-20 md:pt-6 md:ml-64 transition-all duration-300">{children}</main>
+        {/* Main content - adjust margin based on sidebar visibility */}
+        <main className={`flex-1 transition-all duration-300 ${
+          isFormEditOrViewPage 
+            ? 'p-0' // Full width for form pages
+            : 'p-6 pt-20 lg:pt-6 lg:ml-64' // Normal layout with sidebar
+        }`}>
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </main>
       </div>
       {/* Animations */}
       <style jsx global>{`

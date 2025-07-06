@@ -22,7 +22,7 @@ export async function GET(
       include: {
         form: {
           select: {
-            id: true,
+            id: true, // Include form ID for PDF generation
             formKey: true,
             title: true,
             version: true,
@@ -56,7 +56,7 @@ export async function GET(
         },
       },
       select: {
-        id: true,
+        id: true, // Include submission ID for PDF generation
         data: true,
         filledByAdmin: true,
         adminFilledAt: true,
@@ -74,6 +74,7 @@ export async function GET(
       assignment: {
         ...assignment,
         submissionData: existingSubmission?.data,
+        submissionId: existingSubmission?.id, // Add submission ID for PDF generation
         clientSignature: existingSubmission?.clientSignature,
         clientSignedAt: existingSubmission?.clientSignedAt,
       },

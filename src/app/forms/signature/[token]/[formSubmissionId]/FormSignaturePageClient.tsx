@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaSignature, FaCheck, FaSpinner } from 'react-icons/fa';
+import { FaArrowLeft, FaSignature, FaCheck, FaSpinner, FaEye, FaDownload } from 'react-icons/fa';
 import { getFormComponent } from '@/app/forms/registry';
 import SignatureCanvas from 'react-signature-canvas';
 
@@ -15,9 +15,11 @@ interface FormSignatureData {
     clientSignature?: string;
     clientSignedAt?: string;
     form: {
+      id: number; // Add form ID
       formKey: string;
       title: string;
       schema: any;
+      requiresSignature?: boolean;
     };
   };
   client: {
@@ -78,7 +80,7 @@ export default function FormSignaturePageClient() {
   };
 
   const handleReviewComplete = () => {
-    if (!formData?.formSubmission.clientSignature) {
+    if (!formData?.formSubmission.clientSignature && formData?.formSubmission.form.requiresSignature) {
       setShowSignaturePad(true);
     }
   };
@@ -122,6 +124,30 @@ export default function FormSignaturePageClient() {
       alert('Failed to submit signature. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDownloadForm = async () => {
+    if (!formData) return;
+    
+    try {
+      const response = await fetch(`/api/generate-pdf/${formSubmissionId}/${formData.formSubmission.form.id}`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${formData.formSubmission.form.title}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error downloading form:', error);
+      alert('Failed to download form. Please try again.');
     }
   };
 
@@ -189,6 +215,7 @@ export default function FormSignaturePageClient() {
     );
   }
 
+  const requiresSignature = formData.formSubmission.form.requiresSignature;
   const isAlreadySigned = !!formData.formSubmission.clientSignature;
 
   return (
@@ -214,18 +241,50 @@ export default function FormSignaturePageClient() {
               </div>
             </div>
 
-            {isAlreadySigned && (
-              <div className="flex items-center text-green-600">
-                <FaCheck className="h-5 w-5 mr-2" />
-                <span className="font-medium">Signed</span>
-              </div>
-            )}
+            <div className="flex items-center space-x-3">
+              {/* Download Button */}
+              <button
+                onClick={handleDownloadForm}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <FaDownload className="mr-2 h-4 w-4" />
+                Download PDF
+              </button>
+
+              {/* Status Badge */}
+              {requiresSignature ? (
+                isAlreadySigned ? (
+                  <div className="flex items-center text-green-600">
+                    <FaCheck className="h-5 w-5 mr-2" />
+                    <span className="font-medium">Signed</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center text-amber-600">
+                    <FaSignature className="h-5 w-5 mr-2" />
+                    <span className="font-medium">Signature Required</span>
+                  </div>
+                )
+              ) : (
+                <div className="flex items-center text-blue-600">
+                  <FaEye className="h-5 w-5 mr-2" />
+                  <span className="font-medium">View Only</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {isAlreadySigned && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-800 text-sm">
                 You signed this form on {new Date(formData.formSubmission.clientSignedAt!).toLocaleDateString()}
+              </p>
+            </div>
+          )}
+
+          {!requiresSignature && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-800 text-sm">
+                This form is for review only and does not require a signature.
               </p>
             </div>
           )}
@@ -242,8 +301,8 @@ export default function FormSignaturePageClient() {
           />
         </div>
 
-        {/* Action Section */}
-        {!showSignaturePad && !isAlreadySigned && (
+        {/* Action Section - Only show for forms requiring signature */}
+        {requiresSignature && !showSignaturePad && !isAlreadySigned && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Review Complete
@@ -261,8 +320,8 @@ export default function FormSignaturePageClient() {
           </div>
         )}
 
-        {/* Signature Pad */}
-        {showSignaturePad && !isAlreadySigned && (
+        {/* Signature Pad - Only show for forms requiring signature */}
+        {requiresSignature && showSignaturePad && !isAlreadySigned && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Your Signature
@@ -309,6 +368,25 @@ export default function FormSignaturePageClient() {
                 )}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* View Only Message - For forms that don't require signature */}
+        {!requiresSignature && (
+          <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Review Complete
+            </h3>
+            <p className="text-gray-600 mb-6">
+              This form has been provided for your review. No signature is required.
+            </p>
+            <Link
+              href={`/forms/signature/${token}`}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <FaArrowLeft className="mr-2" />
+              Back to Forms List
+            </Link>
           </div>
         )}
       </div>

@@ -6,6 +6,7 @@ import React from "react";
 import fs from "fs";
 import path from 'path';
 import { prisma } from "@/lib/prisma";
+import { getPDFComponent, getPDFComponentById } from "@/components-server/PrintableForms/pdfRegistry";
 
 // Move helper functions inside the route handler scope or to a separate utility file
 async function encodeImageToBase64(imagePath: string): Promise<string> {
@@ -34,7 +35,7 @@ async function encodeImageToBase64(imagePath: string): Promise<string> {
   }
 }
 
-async function generateHTML(formData: any, formSchemas: any) {
+async function generateHTML(formData: any, formSchemas: any, formKey: string, formId: number) {
   const processedSchemas = JSON.parse(JSON.stringify(formSchemas)); // Deep clone
 
   // Process all images to base64
@@ -50,14 +51,25 @@ async function generateHTML(formData: any, formSchemas: any) {
 
   // Dynamically import react-dom/server to avoid Next.js App Router restrictions
   const ReactDOMServer = await import('react-dom/server');
-  const { default: CombinedForms } = await import('@/components-server/PrintableForms/ClientIntakev2');
+  
+  // DYNAMIC COMPONENT SELECTION - This is the key change!
+  let PDFComponent;
+  try {
+    // Try to get component by form key first (preferred method)
+    PDFComponent = getPDFComponent(formKey);
+    console.log(`Using PDF component for form key: ${formKey}`);
+  } catch (error) {
+    // Fallback to form ID-based selection
+    console.log(`Form key ${formKey} not found, trying form ID: ${formId}`);
+    PDFComponent = getPDFComponentById(formId);
+  }
 
   // Read the CSS file for styling
   const cssPath = path.resolve(process.cwd(), 'public/tailwind-pdf.css');
   const css = fs.readFileSync(cssPath, 'utf8');
 
-  // Create the React element
-  const element = React.createElement(CombinedForms, { formData, formSchemas: processedSchemas });
+  // Create the React element with the dynamically selected component
+  const element = React.createElement(PDFComponent, { formData, formSchemas: processedSchemas });
 
   // Generate the HTML
   return `<!DOCTYPE html>
@@ -170,7 +182,9 @@ export async function GET(
     }
 
     const formData = formSubmission.data as any;
-    const html = await generateHTML(formData, form.schema);
+    
+    // Pass both formKey and formId for dynamic component selection
+    const html = await generateHTML(formData, form.schema, form.formKey, formIdInt);
 
     if (process.env.NODE_ENV === 'development') {
       fs.writeFileSync('playwright-debug.html', html);
@@ -189,7 +203,7 @@ export async function GET(
 
     await browser.close();
 
-    const filename = `form_${formIdInt}_submission_${submissionId}.pdf`;
+    const filename = `${form.title.replace(/[^a-zA-Z0-9]/g, '_')}_${submissionId}.pdf`;
 
     return new NextResponse(pdfBuffer, {
       headers: {

@@ -57,12 +57,6 @@ export async function GET(
                   },
                 },
               },
-              select: {
-                id: true,
-                clientSignature: true,
-                clientSignedAt: true,
-                form: true,
-              },
             },
           },
           orderBy: {

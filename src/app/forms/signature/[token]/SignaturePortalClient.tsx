@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaFileAlt, FaSignature, FaCheck, FaClock, FaUser, FaCalendarAlt } from 'react-icons/fa';
+import { FaFileAlt, FaSignature, FaCheck, FaClock, FaUser, FaCalendarAlt, FaEye, FaDownload } from 'react-icons/fa';
 
 // Types
 interface SignatureForm {
@@ -13,22 +13,38 @@ interface SignatureForm {
     id: number;
     clientSignature?: string;
     clientSignedAt?: string;
+    data: any;
     form: {
+      id: number; // Add form ID
       title: string;
       formKey: string;
+      requiresSignature?: boolean;
     };
   };
+}
+
+interface CompletionStatus {
+  totalForms: number;
+  formsRequiringSignature: number;
+  formsNotRequiringSignature: number;
+  signedForms: number;
+  isComplete: boolean;
 }
 
 interface SignatureBatchData {
   id: number;
   batchToken: string;
   expiresAt: string;
+  isCompleted: boolean;
+  completedAt?: string;
   client: {
     name: string;
     email: string;
   };
   signatureForms: SignatureForm[];
+  formsRequiringSignature: SignatureForm[];
+  formsNotRequiringSignature: SignatureForm[];
+  completionStatus: CompletionStatus;
 }
 
 export default function SignaturePortalClient() {
@@ -70,6 +86,17 @@ export default function SignaturePortalClient() {
   };
 
   const getFormStatus = (form: SignatureForm) => {
+    const requiresSignature = form.formSubmission.form.requiresSignature;
+    
+    if (!requiresSignature) {
+      return {
+        status: 'View Only',
+        color: 'text-blue-600 bg-blue-100',
+        icon: FaEye,
+        date: null,
+      };
+    }
+    
     if (form.formSubmission.clientSignature) {
       return {
         status: 'Signed',
@@ -79,7 +106,7 @@ export default function SignaturePortalClient() {
       };
     } else {
       return {
-        status: 'Pending Signature',
+        status: 'Signature Required',
         color: 'text-amber-600 bg-amber-100',
         icon: FaClock,
         date: null,
@@ -87,12 +114,27 @@ export default function SignaturePortalClient() {
     }
   };
 
-  const completedForms = batchData?.signatureForms.filter(
-    form => form.formSubmission.clientSignature
-  ).length || 0;
-  
-  const totalForms = batchData?.signatureForms.length || 0;
-  const allCompleted = completedForms === totalForms && totalForms > 0;
+  const handleDownloadForm = async (formSubmissionId: number, formId: number, formTitle: string) => {
+    try {
+      const response = await fetch(`/api/generate-pdf/${formSubmissionId}/${formId}`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `${formTitle}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error downloading form:', error);
+      alert('Failed to download form. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -132,6 +174,8 @@ export default function SignaturePortalClient() {
     );
   }
 
+  const { completionStatus } = batchData;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -144,7 +188,7 @@ export default function SignaturePortalClient() {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Document Signature Required
+              Document Review & Signature Portal
             </h1>
             <div className="flex items-center justify-center text-gray-600 mb-4">
               <FaUser className="h-4 w-4 mr-2" />
@@ -160,30 +204,54 @@ export default function SignaturePortalClient() {
             </div>
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Section */}
           <div className="mt-6">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Progress</span>
-              <span>{completedForms} of {totalForms} forms signed</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{completionStatus.totalForms}</div>
+                <div className="text-sm text-gray-500">Total Forms</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-amber-600">{completionStatus.formsRequiringSignature}</div>
+                <div className="text-sm text-gray-500">Require Signature</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{completionStatus.signedForms}</div>
+                <div className="text-sm text-gray-500">Signed</div>
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  allCompleted ? 'bg-green-500' : 'bg-indigo-600'
-                }`}
-                style={{ width: `${totalForms > 0 ? (completedForms / totalForms) * 100 : 0}%` }}
-              ></div>
-            </div>
+
+            {/* Progress Bar for Signature Forms Only */}
+            {completionStatus.formsRequiringSignature > 0 && (
+              <div>
+                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <span>Signature Progress</span>
+                  <span>{completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      completionStatus.isComplete ? 'bg-green-500' : 'bg-indigo-600'
+                    }`}
+                    style={{ 
+                      width: `${completionStatus.formsRequiringSignature > 0 ? 
+                        (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {allCompleted && (
+          {/* Completion Status */}
+          {completionStatus.isComplete && (
             <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center">
                 <FaCheck className="h-5 w-5 text-green-600 mr-2" />
                 <div>
-                  <p className="text-green-800 font-medium">All Forms Completed!</p>
+                  <p className="text-green-800 font-medium">All Required Signatures Completed!</p>
                   <p className="text-green-600 text-sm">
-                    Thank you for signing all the required documents.
+                    Thank you for signing all the required documents. The admin has been notified.
                   </p>
                 </div>
               </div>
@@ -195,10 +263,10 @@ export default function SignaturePortalClient() {
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
-              Forms Requiring Your Signature
+              Forms for Review
             </h2>
             <p className="text-sm text-gray-600 mt-1">
-              Please review and sign each form below
+              Please review each form below. Some forms require your signature.
             </p>
           </div>
 
@@ -206,6 +274,7 @@ export default function SignaturePortalClient() {
             {batchData.signatureForms.map((form, index) => {
               const statusInfo = getFormStatus(form);
               const StatusIcon = statusInfo.icon;
+              const requiresSignature = form.formSubmission.form.requiresSignature;
               
               return (
                 <div key={form.id} className="p-6 hover:bg-gray-50 transition-colors">
@@ -235,24 +304,47 @@ export default function SignaturePortalClient() {
                       </div>
                     </div>
 
-                    <div className="flex-shrink-0 ml-4">
+                    <div className="flex-shrink-0 ml-4 flex space-x-2">
+                      {/* Download Button */}
+                      <button
+                        onClick={() => handleDownloadForm(
+                          form.formSubmissionId, 
+                          form.formSubmission.form.id, 
+                          form.formSubmission.form.title
+                        )}
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                        title="Download PDF"
+                      >
+                        <FaDownload className="h-4 w-4" />
+                      </button>
+
+                      {/* View/Sign Button */}
                       <Link
                         href={`/forms/signature/${token}/${form.formSubmissionId}`}
                         className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors ${
-                          form.formSubmission.clientSignature
-                            ? 'text-green-700 bg-green-100 hover:bg-green-200'
-                            : 'text-white bg-indigo-600 hover:bg-indigo-700'
+                          requiresSignature
+                            ? form.formSubmission.clientSignature
+                              ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                              : 'text-white bg-indigo-600 hover:bg-indigo-700'
+                            : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
                         }`}
                       >
-                        {form.formSubmission.clientSignature ? (
-                          <>
-                            <FaCheck className="mr-2 h-4 w-4" />
-                            View Signed
-                          </>
+                        {requiresSignature ? (
+                          form.formSubmission.clientSignature ? (
+                            <>
+                              <FaCheck className="mr-2 h-4 w-4" />
+                              View Signed
+                            </>
+                          ) : (
+                            <>
+                              <FaSignature className="mr-2 h-4 w-4" />
+                              Sign Now
+                            </>
+                          )
                         ) : (
                           <>
-                            <FaSignature className="mr-2 h-4 w-4" />
-                            Start
+                            <FaEye className="mr-2 h-4 w-4" />
+                            View Form
                           </>
                         )}
                       </Link>

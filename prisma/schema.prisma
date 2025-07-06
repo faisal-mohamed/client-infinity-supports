@@ -48,6 +48,7 @@ model MasterForm {
   title     String
   version   Int      // Form version (e.g., 1, 2, 3)
   schema    Json     // JSON schema for the form structure
+  requiresSignature Boolean? // NEW: Optional field to track if form requires signature
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -72,6 +73,13 @@ model FormBatch {
   
   // NEW FIELD for signature-only access
   isSignatureOnly Boolean @default(false) // True when this batch is for signature collection only
+  
+  // NEW FIELDS for completion tracking
+  isCompleted     Boolean @default(false) // True when all required signatures are collected
+  completedAt     DateTime? // When the batch was completed
+  
+  // NEW FIELD for admin notification
+  adminNotified   Boolean @default(false) // Track if admin has been notified of completion
 
   client        Client    @relation(fields: [clientId], references: [id])
   assignments   FormAssignment[]

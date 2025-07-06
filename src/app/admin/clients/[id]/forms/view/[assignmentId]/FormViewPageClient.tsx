@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaEdit, FaSignature } from 'react-icons/fa';
+import { FaArrowLeft, FaEdit, FaSignature, FaDownload, FaUser, FaCalendarAlt, FaSpinner } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
 
@@ -14,6 +14,7 @@ interface FormAssignmentData {
   formId: number;
   formVersion: number;
   form: {
+    id: number; // Add form ID for PDF generation
     formKey: string;
     title: string;
     schema: any;
@@ -23,6 +24,7 @@ interface FormAssignmentData {
     email: string;
   };
   submissionData?: any; // FormSubmission data
+  submissionId?: number; // Add submission ID for PDF generation
   clientSignature?: string;
   clientSignedAt?: string;
 }
@@ -36,6 +38,7 @@ export default function FormViewPageClient() {
   
   const [assignment, setAssignment] = useState<FormAssignmentData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   // Load assignment and submission data
   useEffect(() => {
@@ -66,42 +69,104 @@ export default function FormViewPageClient() {
     }
   };
 
+  // Download PDF function
+  const handleDownloadPDF = async () => {
+    if (!assignment || !assignment.submissionId) {
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Cannot download PDF: Form submission not found',
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      setDownloadingPDF(true);
+      
+      const response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${assignment.form.title.replace(/[^a-zA-Z0-9]/g, '_')}_${assignment.client.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      showToast({
+        type: 'success',
+        title: 'Success',
+        message: 'PDF downloaded successfully',
+        duration: 3000,
+      });
+      
+    } catch (error: any) {
+      console.error('Error downloading PDF:', error);
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: error.message || 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloadingPDF(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading form data...</p>
+        </div>
       </div>
     );
   }
 
   if (!assignment || !assignment.submissionData) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {!assignment ? 'Form Not Found' : 'Form Not Filled Yet'}
-          </h1>
-          <p className="text-gray-600 mb-4">
-            {!assignment 
-              ? 'The requested form assignment could not be found.'
-              : 'This form has not been filled by admin yet.'
-            }
-          </p>
-          <div className="space-x-4">
-            <Link 
-              href={`/admin/clients/${clientId}/forms`}
-              className="text-indigo-600 hover:text-indigo-800"
-            >
-              Back to Forms List
-            </Link>
-            {assignment && (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center bg-white rounded-xl shadow-sm p-12">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaUser className="h-8 w-8 text-gray-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              {!assignment ? 'Form Not Found' : 'Form Not Filled Yet'}
+            </h1>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              {!assignment 
+                ? 'The requested form assignment could not be found.'
+                : 'This form has not been filled by admin yet.'
+              }
+            </p>
+            <div className="flex items-center justify-center space-x-4">
               <Link 
-                href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-                className="text-green-600 hover:text-green-800"
+                href={`/admin/clients/${clientId}/forms`}
+                className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Fill This Form
+                <FaArrowLeft className="mr-2 h-4 w-4" />
+                Back to Forms List
               </Link>
-            )}
+              {assignment && (
+                <Link 
+                  href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
+                  className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  <FaEdit className="mr-2 h-4 w-4" />
+                  Fill This Form
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -114,69 +179,123 @@ export default function FormViewPageClient() {
     FormViewComponent = getFormComponent(assignment.form.formKey, 'view');
   } catch (error) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Component Not Found</h1>
-          <p className="text-gray-600 mb-4">
-            No view component found for form: {assignment.form.formKey}
-          </p>
-          <Link 
-            href={`/admin/clients/${clientId}/forms`}
-            className="text-indigo-600 hover:text-indigo-800"
-          >
-            Back to Forms List
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center bg-white rounded-xl shadow-sm p-12">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaUser className="h-8 w-8 text-red-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Component Not Found</h1>
+            <p className="text-gray-600 mb-8">
+              No view component found for form: {assignment.form.formKey}
+            </p>
+            <Link 
+              href={`/admin/clients/${clientId}/forms`}
+              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <FaArrowLeft className="mr-2 h-4 w-4" />
+              Back to Forms List
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      {/* Minimal Header Bar */}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Enhanced Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Top Row - Back Button */}
+          <div className="flex items-center mb-4">
+            <Link 
+              href={`/admin/clients/${clientId}/forms`}
+              className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group"
+            >
+              <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+              Back to Forms
+            </Link>
+          </div>
+          
+          {/* Main Header Row */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link 
-                href={`/admin/clients/${clientId}/forms`}
-                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
-              >
-                <FaArrowLeft className="h-4 w-4 mr-2" />
-                Back to Forms
-              </Link>
-              <div className="border-l border-gray-300 pl-4">
-                <h1 className="text-xl font-semibold text-gray-900">
+            {/* Left Side - Form Title and Client Info */}
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <FaUser className="h-6 w-6 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl font-bold text-gray-900 truncate">
                   {assignment.form.title}
                 </h1>
-                <p className="text-sm text-gray-600">
-                  {assignment.client.name} • {assignment.client.email}
-                </p>
+                <div className="flex items-center text-sm text-gray-600 space-x-4 mt-1">
+                  <span className="font-medium">{assignment.client.name}</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="truncate">{assignment.client.email}</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="flex items-center whitespace-nowrap">
+                    <FaCalendarAlt className="h-3 w-3 mr-1" />
+                    Version {assignment.formVersion}
+                  </span>
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3">
+            {/* Right Side - Status and Action Buttons */}
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              {/* Signature Status */}
               {assignment.clientSignature && (
-                <div className="flex items-center text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                <div className="flex items-center text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
                   <FaSignature className="h-4 w-4 mr-2" />
-                  <span className="text-sm font-medium">Client Signed</span>
+                  <div className="text-sm">
+                    <div className="font-medium">Signed</div>
+                    <div className="text-green-500 text-xs">
+                      {new Date(assignment.clientSignedAt!).toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
               )}
-              <Link
-                href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-                className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <FaEdit className="mr-2 h-4 w-4" />
-                Edit Form
-              </Link>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2">
+                {/* Download PDF Button */}
+                <button
+                  onClick={handleDownloadPDF}
+                  disabled={downloadingPDF}
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+                  title="Download PDF"
+                >
+                  {downloadingPDF ? (
+                    <>
+                      <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+                      <span className="hidden sm:inline">Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaDownload className="mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Download</span>
+                    </>
+                  )}
+                </button>
+                
+                {/* Edit Button */}
+                <Link
+                  href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  <FaEdit className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Edit</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Full Width Form Content */}
-      <div className="max-w-full px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white shadow-sm rounded-lg">
+      {/* Form Content with Enhanced Styling */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
           <FormViewComponent
             formSchemas={assignment.form.schema}
             formData={assignment.submissionData}
@@ -186,6 +305,6 @@ export default function FormViewPageClient() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

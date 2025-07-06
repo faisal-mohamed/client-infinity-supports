@@ -569,7 +569,7 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     surname: { label: "Surname", type: "text", placeholder: "Enter your last name" },
     preferredName: { label: "Preferred Name", type: "text", placeholder: "How would you like to be called?" },
     dateOfBirth: { label: "Date of Birth", type: "date", placeholder: "Enter your date of birth" },
-    sex: { label: "Sex", type: "dropdown", options: ["Male", "Female", "Other"] },
+    sex: { label: "Sex", type: "dropdown", options: ["Male", "Female", "Other", "Prefer Not to Say"] },
     pronoun: { label: "Pronoun", type: "text", placeholder: "e.g., he/him, she/her, they/them" },
     aboriginalTorres: { label: "Aboriginal or Torres Strait Islander?", type: "dropdown", options: yesNoOptions },
     addressNumberStreet: { label: "Address (Number/Street)", type: "text", placeholder: "Enter your street address" },
@@ -636,7 +636,42 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     personalGoals: { label: "Does this Participant have any personal preferences & personal goals?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
   };
 
+  // Validation function to check if all required fields are filled
+  const validateRequiredFields = () => {
+    const missingFields: string[] = [];
+    
+    FORM_SECTIONS.forEach(section => {
+      section.requiredFields.forEach(fieldName => {
+        const value = localValues[fieldName];
+        
+        // Check if field is empty, null, undefined, or empty string
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          missingFields.push(`${section.title}: ${fieldName}`);
+        }
+      });
+    });
+    
+    return {
+      isValid: missingFields.length === 0,
+      missingFields
+    };
+  };
+
   const handleSaveWithConfirm = async (submit: boolean) => {
+    // If trying to submit (not just save draft), validate required fields
+    if (submit) {
+      const validation = validateRequiredFields();
+      if (!validation.isValid) {
+        showToast({
+          type: "error",
+          title: "Required Fields Missing",
+          message: `Please fill in all required fields before submitting. Missing: ${validation.missingFields.slice(0, 3).join(', ')}${validation.missingFields.length > 3 ? '...' : ''}`,
+          duration: 5000,
+        });
+        return;
+      }
+    }
+
     // If there are pending common field changes, update them via admin API
     if (Object.keys(pendingCommonFieldChanges).length > 0) {
       try {
@@ -856,7 +891,7 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
   >
     <FaSave className="w-4 h-4" />
-    Save
+    Save Draft
   </button>
 </div>
 
@@ -865,11 +900,11 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
     onClick={(e) => {
       e.preventDefault();
-      if (onSubmit) onSubmit(localValues);
+      handleSaveWithConfirm(true); // Submit with validation
     }}
   >
     <FaCheck className="w-4 h-4" />
-    Submit
+    Submit Form
   </button>
 )}
 

@@ -43,6 +43,7 @@ export async function GET(
             formKey: true,
             title: true,
             version: true,
+            requiresSignature: true, // Include signature requirement from database
           },
         },
       },
@@ -80,6 +81,8 @@ export async function GET(
           adminFilledAt: submission?.adminFilledAt,
           clientSignature: submission?.clientSignature,
           clientSignedAt: submission?.clientSignedAt,
+          // Include isCompleted from FormAssignment
+          isCompleted: assignment.isCompleted,
         };
       })
     );

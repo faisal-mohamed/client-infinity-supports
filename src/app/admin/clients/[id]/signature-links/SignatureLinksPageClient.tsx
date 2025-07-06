@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaLink, FaCopy, FaEye, FaCalendarAlt, FaCheck, FaClock, FaExclamationTriangle, FaPlus, FaTrash } from 'react-icons/fa';
+import { 
+  FaArrowLeft, FaLink, FaCopy, FaEye, FaCalendarAlt, FaCheck, 
+  FaClock, FaExclamationTriangle, FaPlus, FaTrash, FaEdit, 
+  FaSave, FaTimes 
+} from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/Confirm';
 
@@ -47,6 +51,8 @@ export default function SignatureLinksPageClient() {
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [signatureBatches, setSignatureBatches] = useState<SignatureBatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingExpiry, setEditingExpiry] = useState<number | null>(null);
+  const [newExpiryDate, setNewExpiryDate] = useState<string>('');
 
   useEffect(() => {
     loadSignatureLinks();
@@ -87,19 +93,11 @@ export default function SignatureLinksPageClient() {
         duration: 2000,
       });
     } catch (error) {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = link;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
       showToast({
-        type: 'success',
-        title: 'Link Copied',
-        message: 'Signature link copied to clipboard',
-        duration: 2000,
+        type: 'error',
+        title: 'Copy Failed',
+        message: 'Failed to copy link to clipboard',
+        duration: 3000,
       });
     }
   };
@@ -135,6 +133,64 @@ export default function SignatureLinksPageClient() {
         type: 'error',
         title: 'Error',
         message: 'Failed to delete signature link',
+        duration: 3000,
+      });
+    }
+  };
+
+  const startEditingExpiry = (batchId: number, currentExpiry: string) => {
+    setEditingExpiry(batchId);
+    const date = new Date(currentExpiry);
+    const formattedDate = date.toISOString().slice(0, 16);
+    setNewExpiryDate(formattedDate);
+  };
+
+  const cancelEditingExpiry = () => {
+    setEditingExpiry(null);
+    setNewExpiryDate('');
+  };
+
+  const updateExpiry = async (batchId: number) => {
+    if (!newExpiryDate) {
+      showToast({
+        type: 'error',
+        title: 'Invalid Date',
+        message: 'Please select a valid expiry date',
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/signature-batches/${batchId}/update-expiry`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          expiresAt: new Date(newExpiryDate).toISOString()
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update expiry');
+      }
+
+      showToast({
+        type: 'success',
+        title: 'Expiry Updated',
+        message: 'Link expiry date has been updated successfully',
+        duration: 3000,
+      });
+
+      setEditingExpiry(null);
+      setNewExpiryDate('');
+      loadSignatureLinks();
+    } catch (error: any) {
+      console.error('Error updating expiry:', error);
+      showToast({
+        type: 'error',
+        title: 'Update Failed',
+        message: error.message || 'Failed to update expiry date',
         duration: 3000,
       });
     }
@@ -277,7 +333,43 @@ export default function SignatureLinksPageClient() {
                         </div>
                         <div className="flex items-center">
                           <FaCalendarAlt className="h-4 w-4 mr-1" />
-                          Expires: {new Date(batch.expiresAt).toLocaleDateString()}
+                          {editingExpiry === batch.id ? (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm">Expires:</span>
+                              <input
+                                type="datetime-local"
+                                value={newExpiryDate}
+                                onChange={(e) => setNewExpiryDate(e.target.value)}
+                                className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                min={new Date().toISOString().slice(0, 16)}
+                              />
+                              <button
+                                onClick={() => updateExpiry(batch.id)}
+                                className="text-green-600 hover:text-green-800 p-1"
+                                title="Save"
+                              >
+                                <FaSave className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={cancelEditingExpiry}
+                                className="text-gray-600 hover:text-gray-800 p-1"
+                                title="Cancel"
+                              >
+                                <FaTimes className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <span>Expires: {new Date(batch.expiresAt).toLocaleDateString()}</span>
+                              <button
+                                onClick={() => startEditingExpiry(batch.id, batch.expiresAt)}
+                                className="text-blue-600 hover:text-blue-800 p-1"
+                                title="Edit expiry date"
+                              >
+                                <FaEdit className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

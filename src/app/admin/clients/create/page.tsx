@@ -55,11 +55,37 @@ export default function CreateClientPage() {
   // Additional client fields
   const [ndisNumber, setNdisNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [age, setAge] = useState<number | null>(null); // Add age state
   const [address, setAddress] = useState('');
   const [state, setState] = useState('');
   const [postCode, setPostCode] = useState('');
   const [disability, setDisability] = useState('');
   const [sex, setSex] = useState('');
+  
+  // Function to calculate age from date of birth
+  const calculateAge = (dob: string): number | null => {
+    if (!dob) return null;
+    
+    const birthDate = new Date(dob);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age >= 0 ? age : null;
+  };
+  
+  // Update age whenever date of birth changes
+  const handleDateOfBirthChange = (dob: string) => {
+    setDateOfBirth(dob);
+    const calculatedAge = calculateAge(dob);
+    setAge(calculatedAge);
+  };
   
   // New state to control navigation behavior
   const [navigateToAssignForms, setNavigateToAssignForms] = useState(true);
@@ -89,6 +115,7 @@ export default function CreateClientPage() {
           
           if (ndisNumber) cleanCommonFields.ndis = ndisNumber;
           if (dateOfBirth) cleanCommonFields.dob = dateOfBirth;
+          if (age !== null) cleanCommonFields.age = age; // Add age to commonFields
           if (address) {
             cleanCommonFields.address = address;
             cleanCommonFields.street = address;
@@ -324,7 +351,7 @@ export default function CreateClientPage() {
                       <input
                         type="date"
                         value={dateOfBirth}
-                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        onChange={(e) => handleDateOfBirthChange(e.target.value)}
                           max={new Date().toISOString().split("T")[0]} // 🛑 disables future dates
 
                         className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -334,6 +361,28 @@ export default function CreateClientPage() {
     <p className="text-red-600 text-sm mt-1">{errors.dateOfBirth}</p>
   )}
                     </div>
+                  </div>
+
+                  {/* Age Field - Auto-calculated */}
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Age
+                    </label>
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaCalendarAlt className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="number"
+                        value={age !== null ? age.toString() : ''}
+                        readOnly
+                        placeholder="Auto-calculated from DOB"
+                        className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Age is automatically calculated from the date of birth
+                    </p>
                   </div>
 
                   <div className="space-y-1">

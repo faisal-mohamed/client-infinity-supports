@@ -105,7 +105,7 @@ export async function POST(
     // Generate unique token for signature batch
     const batchToken = randomBytes(32).toString('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // Expires in 30 days
+    expiresAt.setDate(expiresAt.getDate() + 1); // Expires in 1 day (default)
 
     // Create FormBatch for signature collection
     const signatureBatch = await prisma.formBatch.create({
@@ -148,6 +148,11 @@ export async function POST(
       },
     });
 
+    // Get the correct base URL from the request
+    const protocol = req.headers.get('x-forwarded-proto') || 'http';
+    const host = req.headers.get('host') || 'localhost:3001';
+    const baseUrl = `${protocol}://${host}`;
+
     return NextResponse.json({
       success: true,
       token: batchToken,
@@ -159,7 +164,7 @@ export async function POST(
         formTitle: sub.formTitle,
         formKey: sub.formKey,
       })),
-      signatureUrl: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/forms/signature/${batchToken}`,
+      signatureUrl: `${baseUrl}/forms/signature/${batchToken}`,
     });
 
   } catch (error: any) {

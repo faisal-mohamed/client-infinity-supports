@@ -7,7 +7,7 @@ interface FormRegistryItem {
   name: string;
   editComponent: React.ComponentType<any>;
   viewComponent: React.ComponentType<any>;
-  requiresSignature?: boolean;
+  // Removed requiresSignature from here - now stored in database
 }
 
 const formRegistry: Record<string, FormRegistryItem> = {
@@ -16,7 +16,6 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: 'Client Intake Form',
     editComponent: ClientIntakeFormEnhanced,
     viewComponent: CombinedForms,
-    requiresSignature: true
   },
   // Future forms will be added here like:
   // 'medical_assessment': {
@@ -24,7 +23,6 @@ const formRegistry: Record<string, FormRegistryItem> = {
   //   name: 'Medical Assessment Form',
   //   editComponent: MedicalAssessmentFormEnhanced,
   //   viewComponent: MedicalAssessmentView,
-  //   requiresSignature: true
   // },
 };
 
