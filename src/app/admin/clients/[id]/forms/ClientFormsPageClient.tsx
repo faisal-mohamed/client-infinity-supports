@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getAllForms } from '@/app/forms/registry';
+import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 
 // Types
 interface FormAssignmentWithDetails {
@@ -34,6 +35,8 @@ interface FormAssignmentWithDetails {
   adminFilledAt?: string;
   clientSignature?: string;
   clientSignedAt?: string;
+  // NEW: Include form data for signature validation
+  formData?: any;
 }
 
 interface ClientInfo {
@@ -345,27 +348,53 @@ export default function ClientFormsPageClient() {
   };
 
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
-    const requiresSignature = assignment.form.requiresSignature === true;
+    const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     
-    if (assignment.clientSignature) {
+    // If form has been filled by admin and requires signatures, validate them
+    if (assignment.filledByAdmin && requiresSignature && assignment.formData) {
+      const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
+      
+      if (signatureValidation.isComplete) {
+        return {
+          status: getSignatureStatusText(signatureValidation),
+          color: 'bg-green-100 text-green-800 border-green-200',
+          icon: FaCheckCircle,
+          bgColor: 'bg-green-50',
+          iconColor: 'text-green-500'
+        };
+      } else if (signatureValidation.completedCount > 0) {
+        return {
+          status: getSignatureStatusText(signatureValidation),
+          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+          icon: FaSignature,
+          bgColor: 'bg-yellow-50',
+          iconColor: 'text-yellow-500'
+        };
+      } else {
+        return {
+          status: 'Ready for Signatures',
+          color: 'bg-blue-100 text-blue-800 border-blue-200',
+          icon: FaSignature,
+          bgColor: 'bg-blue-50',
+          iconColor: 'text-blue-500'
+        };
+      }
+    }
+    
+    // Fallback to legacy logic for backward compatibility
+    if (assignment.clientSignature === "true") {
       return {
-        status: 'Client Signed',
+        status: 'All Signatures Complete',
         color: 'bg-green-100 text-green-800 border-green-200',
         icon: FaCheckCircle,
         bgColor: 'bg-green-50',
         iconColor: 'text-green-500'
       };
-    } else if (assignment.isCompleted && requiresSignature) {
+    }
+    
+    if (assignment.filledByAdmin && !requiresSignature) {
       return {
-        status: 'Ready for Signature',
-        color: 'bg-blue-100 text-blue-800 border-blue-200',
-        icon: FaSignature,
-        bgColor: 'bg-blue-50',
-        iconColor: 'text-blue-500'
-      };
-    } else if (assignment.isCompleted && !requiresSignature) {
-      return {
-        status: 'Completed',
+        status: 'Admin Completed',
         color: 'bg-green-100 text-green-800 border-green-200',
         icon: FaCheckCircle,
         bgColor: 'bg-green-50',
@@ -394,17 +423,33 @@ export default function ClientFormsPageClient() {
   const stats = {
     total: assignments.length,
     completed: assignments.filter(a => {
-      // Form is completed if:
-      // 1. It has client signature (for forms requiring signature)
-      // 2. It's completed and doesn't require signature
-      return a.clientSignature || (a.isCompleted && a.form.requiresSignature !== true);
+      const requiresSignature = formRequiresSignatures(a.form.formKey);
+      
+      if (requiresSignature && a.filledByAdmin && a.formData) {
+        // Use signature validation for forms requiring signatures
+        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
+        return signatureValidation.isComplete;
+      }
+      
+      // Fallback to legacy logic
+      if (a.clientSignature === "true") {
+        return true; // Completion flag indicates all signatures complete
+      }
+      
+      // Form is completed if admin-filled and doesn't require signature
+      return a.filledByAdmin && !requiresSignature;
     }).length,
     inProgress: assignments.filter(a => {
-      // Form is in progress if:
-      // 1. It's completed and requires signature but not signed yet
-      // 2. It has submission but not completed yet
-      return (a.isCompleted && a.form.requiresSignature === true && !a.clientSignature) || 
-             (a.hasSubmission && !a.isCompleted);
+      const requiresSignature = formRequiresSignatures(a.form.formKey);
+      
+      if (requiresSignature && a.filledByAdmin && a.formData) {
+        // Use signature validation for forms requiring signatures
+        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
+        return signatureValidation.completedCount > 0 && !signatureValidation.isComplete;
+      }
+      
+      // Form is in progress if it has submission but not admin-filled yet
+      return a.hasSubmission && !a.filledByAdmin;
     }).length,
     notStarted: assignments.filter(a => !a.hasSubmission).length,
   };
@@ -451,7 +496,7 @@ export default function ClientFormsPageClient() {
             
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-900">
-                {assignments.filter(a => a.clientSignature || (a.isCompleted && a.form.requiresSignature !== true)).length}/{assignments.length}
+                {stats.completed}/{stats.total}
               </div>
               <div className="text-sm text-gray-600">Forms Completed</div>
             </div>
@@ -605,8 +650,8 @@ export default function ClientFormsPageClient() {
                   <div key={assignment.id} className="p-6 hover:bg-gray-50 transition-colors duration-150">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 flex-1">
-                        {/* Checkbox for signature link generation - show for completed forms */}
-                        {assignment.isCompleted && (
+                        {/* Checkbox for signature link generation - show for admin-filled forms */}
+                        {assignment.filledByAdmin && (
                           <input
                             type="checkbox"
                             checked={selectedForms.includes(assignment.id)}
@@ -697,7 +742,7 @@ export default function ClientFormsPageClient() {
                                 Edit Form
                               </Link>
                               
-                              {assignment.isCompleted && (
+                              {assignment.clientSignature && (
                                 <>
                                   <Link
                                     href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}

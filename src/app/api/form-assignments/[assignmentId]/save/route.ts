@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateFormSignatures } from "@/lib/signatureValidation";
 
 export async function POST(
   req: NextRequest,
@@ -18,9 +19,19 @@ export async function POST(
       );
     }
 
-    // Get form assignment
+    // Get form assignment with form details
     const assignment = await prisma.formAssignment.findUnique({
       where: { id: assignmentIdNum },
+      include: {
+        form: {
+          select: {
+            id: true,
+            formKey: true,
+            title: true,
+            version: true,
+          },
+        },
+      },
     });
 
     if (!assignment) {
@@ -28,6 +39,25 @@ export async function POST(
         { error: "Form assignment not found" },
         { status: 404 }
       );
+    }
+
+    // NEW: Validate signature completion using registry-based system
+    const signatureValidation = validateFormSignatures(
+      assignment.form.formKey,
+      formData
+    );
+
+    // Determine if form has all required signatures
+    const hasAllSignatures = signatureValidation.isComplete;
+
+    // Prepare signature completion flag for FormSubmission
+    let clientSignature = null;
+    let clientSignedAt = null;
+
+    if (hasAllSignatures) {
+      // Store completion status as string flag, not base64 data
+      clientSignature = "true"; // Simple completion flag
+      clientSignedAt = new Date();
     }
 
     // Update or create FormSubmission
@@ -48,6 +78,8 @@ export async function POST(
         adminFilledAt: new Date(),
         isSubmitted: submit,
         submittedAt: submit ? new Date() : null,
+        clientSignature: clientSignature,
+        clientSignedAt: clientSignedAt,
       },
       update: {
         data: formData,
@@ -56,6 +88,11 @@ export async function POST(
         isSubmitted: submit,
         submittedAt: submit ? new Date() : null,
         updatedAt: new Date(),
+        // Update signature fields if signatures are complete
+        ...(hasAllSignatures && {
+          clientSignature: clientSignature,
+          clientSignedAt: clientSignedAt,
+        }),
       },
     });
 
@@ -102,7 +139,18 @@ export async function POST(
     return NextResponse.json({
       success: true,
       submissionId: formSubmission.id,
-      message: submit ? 'Form saved successfully' : 'Progress saved',
+      signatureStatus: {
+        isComplete: signatureValidation.isComplete,
+        completedCount: signatureValidation.completedCount,
+        totalRequired: signatureValidation.totalRequired,
+        completedSignatures: signatureValidation.completedSignatures,
+        missingSignatures: signatureValidation.missingSignatures,
+      },
+      message: hasAllSignatures 
+        ? `Form completed with all ${signatureValidation.totalRequired} signature(s)` 
+        : signatureValidation.totalRequired > 0
+          ? `Form saved - ${signatureValidation.missingSignatures.length} signature(s) remaining`
+          : 'Form saved successfully',
     });
 
   } catch (error: any) {

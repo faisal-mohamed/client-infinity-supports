@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getFormConfig } from "@/app/forms/registry";
 
 // GET - Fetch specific form for signature
 export async function GET(
@@ -164,11 +165,40 @@ export async function POST(
     }
 
     // Update the form submission with signature
+    const currentSubmission = await prisma.formSubmission.findUnique({
+      where: { id: formSubmissionIdInt },
+      select: { data: true }
+    });
+
+    if (!currentSubmission) {
+      return NextResponse.json(
+        { error: "Form submission not found" },
+        { status: 404 }
+      );
+    }
+
+    // Get the signature field key from form registry
+    const formConfig = getFormConfig(signatureForm.formSubmission.form.formKey);
+    const signatures = formConfig?.signatures || [];
+    
+    // For signature portal, we typically handle the first required signature
+    // In the future, you might want to pass which specific signature this is
+    const primarySignature = signatures.find(sig => sig.required) || signatures[0];
+    const signatureDataKey = primarySignature?.dataKey || 'signature';
+
+    // Update form-specific data to include the signature
+    const updatedFormData = {
+      ...currentSubmission.data,
+      [signatureDataKey]: signature // Store signature in form-specific data
+    };
+
+    // Update the form submission with both completion flag and form data
     await prisma.formSubmission.update({
       where: { id: formSubmissionIdInt },
       data: {
-        clientSignature: signature,
+        clientSignature: "true", // Simple completion flag instead of base64 data
         clientSignedAt: new Date(),
+        data: updatedFormData, // Actual signature stored in form-specific data
       },
     });
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowLeft, FaSignature, FaCheck, FaSpinner, FaEye, FaDownload } from 'react-icons/fa';
 import { getFormComponent } from '@/app/forms/registry';
-import SignatureCanvas from 'react-signature-canvas';
+import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
 // Types
 interface FormSignatureData {
@@ -41,7 +41,7 @@ export default function FormSignaturePageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
-  const [signatureRef, setSignatureRef] = useState<SignatureCanvas | null>(null);
+  const signatureRef = useRef<SignatureCanvasRef | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function FormSignaturePageClient() {
       setFormData(data);
       
       // If already signed, show signature pad
-      if (data.formSubmission.clientSignature) {
+      if (data.formSubmission.clientSignature === "true") {
         setShowSignaturePad(true);
       }
       
@@ -80,21 +80,17 @@ export default function FormSignaturePageClient() {
   };
 
   const handleReviewComplete = () => {
-    if (!formData?.formSubmission.clientSignature && formData?.formSubmission.form.requiresSignature) {
+    if (formData?.formSubmission.clientSignature !== "true" && formData?.formSubmission.form.requiresSignature) {
       setShowSignaturePad(true);
     }
   };
 
-  const clearSignature = () => {
-    if (signatureRef) {
-      signatureRef.clear();
-    }
-  };
+
 
   const submitSignature = async () => {
-    if (!signatureRef || !formData) return;
+    if (!signatureRef.current || !formData) return;
 
-    if (signatureRef.isEmpty()) {
+    if (signatureRef.current.isEmpty()) {
       alert('Please provide your signature before submitting.');
       return;
     }
@@ -102,7 +98,7 @@ export default function FormSignaturePageClient() {
     try {
       setSubmitting(true);
       
-      const signatureDataURL = signatureRef.toDataURL();
+      const signatureDataURL = signatureRef.current.toDataURL();
       
       const response = await fetch(`/api/signature/${token}/${formSubmissionId}`, {
         method: 'POST',
@@ -216,7 +212,7 @@ export default function FormSignaturePageClient() {
   }
 
   const requiresSignature = formData.formSubmission.form.requiresSignature;
-  const isAlreadySigned = !!formData.formSubmission.clientSignature;
+  const isAlreadySigned = formData.formSubmission.clientSignature === "true";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -296,7 +292,7 @@ export default function FormSignaturePageClient() {
             formSchemas={formData.formSubmission.form.schema}
             formData={formData.formSubmission.data}
             showSignature={isAlreadySigned}
-            existingSignature={formData.formSubmission.clientSignature}
+            existingSignature={formData.formSubmission.data?.signature} // Get signature from form data
             isClientView={true}
           />
         </div>
@@ -332,23 +328,17 @@ export default function FormSignaturePageClient() {
             
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
               <SignatureCanvas
-                ref={(ref) => setSignatureRef(ref)}
-                canvasProps={{
-                  width: 600,
-                  height: 200,
-                  className: 'signature-canvas w-full',
-                  style: { border: '1px solid #e5e7eb', borderRadius: '0.5rem' }
-                }}
+                ref={signatureRef}
+                width={600}
+                height={200}
+                className="w-full"
+                placeholder="Please sign in the box above"
+                clearButtonText="Clear Signature"
               />
             </div>
 
             <div className="flex justify-between items-center">
-              <button
-                onClick={clearSignature}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Clear Signature
-              </button>
+              <div></div> {/* Empty div for spacing */}
               
               <button
                 onClick={submitSignature}

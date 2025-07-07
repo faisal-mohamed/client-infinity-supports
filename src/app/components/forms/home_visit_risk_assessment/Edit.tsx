@@ -15,8 +15,7 @@ import {
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
-// Import SignatureCanvas directly
-const SignatureCanvas = require('react-signature-canvas').default;
+import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
 interface FormProps {
   formData: any;
@@ -129,7 +128,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const [maxStep, setMaxStep] = useState(0);
   
   // Signature canvas ref
-  const sigCanvasRef = useRef<any | null>(null);
+  const sigCanvasRef = useRef<SignatureCanvasRef | null>(null);
 
   const initialValues = {
     // Metadata fields
@@ -486,29 +485,16 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <div className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col items-center space-y-2">
-          <div className="border-2 border-gray-300 rounded-lg bg-white">
-            <SignatureCanvas
-              ref={sigCanvasRef}
-              penColor="black"
-              backgroundColor="white"
-              canvasProps={{ width: 400, height: 150, className: "rounded-lg" }}
-              onEnd={handleSignatureEnd}
-            />
-          </div>
-          {!readOnly && (
-            <button
-              type="button"
-              onClick={handleSignatureClear}
-              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-            >
-              Clear Signature
-            </button>
-          )}
-          <p className="text-xs text-gray-500 text-center">
-            {placeholder || "Draw your signature in the box above"}
-          </p>
-        </div>
+        <SignatureCanvas
+          ref={sigCanvasRef}
+          onSignatureEnd={handleSignatureEnd}
+          onSignatureClear={handleSignatureClear}
+          existingSignature={localValues[name]}
+          width={400}
+          height={150}
+          disabled={readOnly}
+          placeholder={placeholder || "Draw your signature in the box above"}
+        />
       </div>
       {fieldErrors[name] && (
         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
@@ -640,44 +626,21 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   };
 
   // Handle signature end (when user finishes drawing)
-  const handleSignatureEnd = () => {
-    if (sigCanvasRef.current) {
-      try {
-        const canvas = sigCanvasRef.current.getTrimmedCanvas?.() ?? sigCanvasRef.current.getCanvas();
-        const dataUrl = canvas.toDataURL("image/png");
-        
-        // Update local values with signature
-        const newValues = { ...localValues, signature: dataUrl };
-        setLocalValues(newValues);
-        onChange(newValues, "signature", false);
-      } catch (err) {
-        console.error("Signature capture error:", err);
-      }
-    }
+  const handleSignatureEnd = (dataUrl: string) => {
+    // Update local values with signature
+    const newValues = { ...localValues, signature: dataUrl };
+    setLocalValues(newValues);
+    onChange(newValues, "signature", false);
   };
 
   // Handle signature clear
   const handleSignatureClear = () => {
-    sigCanvasRef.current?.clear();
     const newValues = { ...localValues, signature: "" };
     setLocalValues(newValues);
     onChange(newValues, "signature", false);
   };
 
-  // Load existing signature when component mounts or signature value changes
-  useEffect(() => {
-    if (localValues.signature && sigCanvasRef.current && sigCanvasRef.current.isEmpty()) {
-      const img = new window.Image();
-      img.src = localValues.signature;
-      img.onload = () => {
-        const ctx = sigCanvasRef.current?.getCanvas().getContext("2d");
-        if (ctx) {
-          ctx.clearRect(0, 0, 400, 150);
-          ctx.drawImage(img, 0, 0, 400, 150);
-        }
-      };
-    }
-  }, [localValues.signature]);
+
 
   return (
     <div className="">

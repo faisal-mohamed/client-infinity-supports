@@ -97,7 +97,7 @@ export default function SignaturePortalClient() {
       };
     }
     
-    if (form.formSubmission.clientSignature) {
+    if (form.formSubmission.clientSignature === "true") {
       return {
         status: 'Signed',
         color: 'text-green-600 bg-green-100',
@@ -323,14 +323,14 @@ export default function SignaturePortalClient() {
                         href={`/forms/signature/${token}/${form.formSubmissionId}`}
                         className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors ${
                           requiresSignature
-                            ? form.formSubmission.clientSignature
+                            ? form.formSubmission.clientSignature === "true"
                               ? 'text-green-700 bg-green-100 hover:bg-green-200'
                               : 'text-white bg-indigo-600 hover:bg-indigo-700'
                             : 'text-blue-700 bg-blue-100 hover:bg-blue-200'
                         }`}
                       >
                         {requiresSignature ? (
-                          form.formSubmission.clientSignature ? (
+                          form.formSubmission.clientSignature === "true" ? (
                             <>
                               <FaCheck className="mr-2 h-4 w-4" />
                               View Signed

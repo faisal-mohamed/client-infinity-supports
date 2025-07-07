@@ -66,6 +66,7 @@ export async function GET(
           },
           select: {
             id: true,
+            data: true, // Include form data for signature validation
             filledByAdmin: true,
             adminFilledAt: true,
             clientSignature: true,
@@ -81,6 +82,7 @@ export async function GET(
           adminFilledAt: submission?.adminFilledAt,
           clientSignature: submission?.clientSignature,
           clientSignedAt: submission?.clientSignedAt,
+          formData: submission?.data, // Include form data for signature validation
           // Include isCompleted from FormAssignment
           isCompleted: assignment.isCompleted,
         };

@@ -10,7 +10,8 @@ interface SignatureRequirement {
   label: string;
   description?: string;
   required: boolean;
-  dataKey?: string; // Maps to form data for pre-population (e.g., 'name', 'designation')
+  dataKey?: string; // Maps to form data for pre-population (e.g., 'name', 'designation') or signature field (e.g., 'signature', 'witnessSignature')
+  condition?: (formData: any) => boolean; // Dynamic requirement based on form data
 }
 
 // Enhanced registry structure
@@ -37,11 +38,11 @@ const formRegistry: Record<string, FormRegistryItem> = {
     editComponent: HomeVisitRiskAssessmentEdit,
     signatures: [
       {
-        id: 'signature',
-        label: 'Signature',
+        id: 'client_signature',
+        label: 'Client Signature',
         description: 'I acknowledge that this risk assessment has been completed and I understand the safety considerations outlined above.',
         required: true,
-        dataKey: 'name' // Pre-populate signature field with client name from form data
+        dataKey: 'signature' // Maps to formData.signature field where the actual signature is stored
       }
     ]
   }
