@@ -1,6 +1,8 @@
 import ClientIntakeFormEnhanced from '../components/forms/ClientIntakeFormEnhanced';
 import CombinedForms from '../ClientIntakeFormView/page'; // Your view component
 
+import HomeVisitRiskAssessment from '@/app/test/home_visit/page'
+
 // Enhanced registry structure
 interface FormRegistryItem {
   key: string;
@@ -17,13 +19,12 @@ const formRegistry: Record<string, FormRegistryItem> = {
     editComponent: ClientIntakeFormEnhanced,
     viewComponent: CombinedForms,
   },
-  // Future forms will be added here like:
-  // 'medical_assessment': {
-  //   key: 'medical_assessment', 
-  //   name: 'Medical Assessment Form',
-  //   editComponent: MedicalAssessmentFormEnhanced,
-  //   viewComponent: MedicalAssessmentView,
-  // },
+ 'home_visit_risk_assessment': {
+    key: 'home_visit_risk_assessment',
+    name: 'Home & Visit Risk Assessment',
+    viewComponent: HomeVisitRiskAssessment,
+    editComponent: HomeVisitRiskAssessment, // Assuming the same component is used for both edit
+  }
 };
 
 // Helper functions

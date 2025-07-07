@@ -3,7 +3,7 @@
 
 //------------This component is responsible for rendering when form viewed in List forms Page ----------------------------
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ClientIntakeForm from "./ClientIntakeForm";
 import GpMedicalSupportForm from "./GpMedicalSupportForm";
 import AllAboutMeForm from "./AllAboutMeForm";
@@ -11,8 +11,19 @@ import ContactsLivingTravelForm from "./ContactsLivingTravelForm";
 import MedicationInfoForm from "./MedicationInfoForm";
 import SafetyConsiderationForm from "./SafetyConsiderationForm";
 
+
+
+//Form Specific Imports
+import HomeVisitRiskAssessment from '@/app/test/home_visit/page'
+
+
+
 const FormRenderer = ({ formKey, formSchema, formData = {}, onChange } : any) => {
   const [localFormData, setLocalFormData] = useState(formData);
+
+  useEffect(() => { 
+    console.log("FormRenderer mounted with formKey:", formKey); 
+  }, [formKey]);
   
   const handleFormChange = (newData : any) => {
     setLocalFormData(newData);
@@ -51,8 +62,16 @@ const FormRenderer = ({ formKey, formSchema, formData = {}, onChange } : any) =>
         />
       </div>
     );
+  } else if (formKey === "home_visit_risk_assessment") {
+    return (
+      <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
+        <HomeVisitRiskAssessment
+          formData={localFormData}
+        />
+      </div>
+    );
   }
-  
+
   // Fallback for unknown form types
   return (
     <div className="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">

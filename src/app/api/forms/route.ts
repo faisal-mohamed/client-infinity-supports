@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
     const { formKey, title, schema } = body;
 
     // Validate required fields
-    if (!formKey || !title || !schema) {
+    if (!formKey || !title) {
       return NextResponse.json(
-        { error: "Missing required fields: formKey, title, or schema" },
+        { error: "Missing required fields: formKey or title" },
         { status: 400 }
       );
     }
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
         title,
         version,
         schema,
+        requiresSignature: body.requiresSignature || false,
       }
     });
 

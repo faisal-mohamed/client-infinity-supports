@@ -47,7 +47,7 @@ model MasterForm {
   formKey   String   @unique
   title     String
   version   Int      // Form version (e.g., 1, 2, 3)
-  schema    Json     // JSON schema for the form structure
+  schema    Json?    // JSON schema for the form structure (now optional)
   requiresSignature Boolean? // NEW: Optional field to track if form requires signature
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

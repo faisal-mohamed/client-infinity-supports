@@ -490,7 +490,6 @@ const Page3 = () => {
     </A4Page>
   );
 };
-
 const Page4 = () => {
   const page = homeVisitSchema.pages[3];
 
@@ -518,45 +517,48 @@ const Page4 = () => {
         </p>
       </div>
 
-      {/* Risk Assessment Table - Flexible Height */}
-      <div className="flex-1 px-6 pb-4 flex flex-col">
-        <table className="w-full border-collapse border border-black text-xs flex-1">
-          <thead>
-            <tr className="bg-gray-400">
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[40%]">
-                Issue/Task
-              </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[15%]">
-                Risk Score
-              </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[30%]">
-                Control Measure
-              </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[15%]">
-                Person Responsible
-              </th>
-            </tr>
-          </thead>
-          <tbody className="h-full">
-            {[1, 2, 3].map((row) => (
-              <tr key={row} className="h-[calc((100vh-350px)/3)] align-top">
-                <td className="border border-black p-2 align-top">
-                  {homeVisitResponse[`issue${row}`] || ""}
-                </td>
-                <td className="border border-black p-2 align-top">
-                  {homeVisitResponse[`riskScore${row}`] || ""}
-                </td>
-                <td className="border border-black p-2 align-top">
-                  {homeVisitResponse[`control${row}`] || ""}
-                </td>
-                <td className="border border-black p-2 align-top">
-                  {homeVisitResponse[`responsible${row}`] || ""}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Risk Assessment Table - with overflow containment */}
+      <div className="px-6 pb-4 overflow-hidden">
+  <div className="overflow-auto">
+    <table className="w-full border-collapse border border-black text-sm">
+      <thead>
+        <tr className="bg-gray-400">
+          <th className="border border-black px-4 py-3 text-left font-bold text-black">
+            Issue/Task
+          </th>
+          <th className="border border-black px-4 py-3 text-left font-bold text-black">
+            Risk Score
+          </th>
+          <th className="border border-black px-4 py-3 text-left font-bold text-black">
+            Control Measure
+          </th>
+          <th className="border border-black px-4 py-3 text-left font-bold text-black">
+            Person Responsible
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {[1, 2, 3].map((row) => (
+          <tr key={row} className="min-h-[80px]">
+            <td className="border border-black px-4 py-6 align-top">
+              {homeVisitResponse[`issue${row}`] || ""}
+            </td>
+            <td className="border border-black px-4 py-6 align-top">
+              {homeVisitResponse[`riskScore${row}`] || ""}
+            </td>
+            <td className="border border-black px-4 py-6 align-top">
+              {homeVisitResponse[`control${row}`] || ""}
+            </td>
+            <td className="border border-black px-4 py-6 align-top">
+              {homeVisitResponse[`responsible${row}`] || ""}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
       <Footer />
     </A4Page>
@@ -606,7 +608,7 @@ const Page5 = () => (
 );
 
 // --- Main Component ---
-const HomeVisitRiskAssessment = () => (
+const HomeVisitRiskAssessment = (formData : any) => (
   <div className="bg-gray-100 min-h-screen py-8">
     <Page1 />
     <Page2 />
