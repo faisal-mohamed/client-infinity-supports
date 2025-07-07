@@ -3,7 +3,7 @@
 import React from "react";
 
 // --- Schema & Response Data ---
-const homeVisitSchema : any = {
+const homeVisitSchema = {
   logo: {
     page1: {
       src: "/infinity_logo.png",
@@ -54,18 +54,12 @@ const homeVisitSchema : any = {
       title: "Page 2",
       sections: [
         {
- 
+          title: "SAFETY & ACCESS",
           fields: [
             { label: "If there are any smokers, have they agreed to refrain from smoking during the visit?", key: "smokingAgreement" },
             { label: "Are there smoke detectors present and in working condition?", key: "smokeDetectors" },
             { label: "Any apparent fire hazards?", key: "fireHazards" },
-          
-          ]
-        },
-          {
-          title: "GEOGRAPHICAL LOCATION",
-          fields: [
-        { label: "Are there any difficulties locating the address/access to the building?", key: "accessDifficulties" },
+            { label: "Are there any difficulties locating the address/access to the building?", key: "accessDifficulties" },
             { label: "Is there parking available?", key: "parking" },
             {
               label: "Is entry via the front door? If no, which door is used for entry?",
@@ -137,53 +131,26 @@ const homeVisitSchema : any = {
   }
 };
 
-const homeVisitResponse : any = {
+const homeVisitResponse = {
   name: "John Doe",
   ndisNumber: "123456789",
   dob: "01/01/1990",
   address: "123 Main St, Perth, WA",
   completionDate: "2025-07-01",
 
-   visitCompany: "Yes",
-  visitCompany_comments: "Client's sister will be present.",
-  
+  visitCompany: "Yes",
   aggressionHistory: "No",
-  aggressionHistory_comments: "No incidents reported in the past.",
-  
   drugUseHistory: "No",
-  drugUseHistory_comments: "No substance abuse history disclosed.",
-  
   careDirective: "Yes",
-  careDirective_comments: "Uploaded to client records on 30/06/2025.",
-
-  // --- Page 1: ENVIRONMENT ---
   petsRestrained: "Yes",
-  petsRestrained_comments: "Small dog will be kept in the backyard.",
-  
   weaponsInHome: "No",
-  weaponsInHome_comments: "None disclosed by client or family.",
-  // --- Page 2: SAFETY & ACCESS ---
-smokingAgreement: "Yes",
-smokingAgreement_comments: "Client and family agreed to refrain from smoking.",
-
-smokeDetectors: "Yes",
-smokeDetectors_comments: "Smoke detectors in kitchen and hallway functional.",
-
-fireHazards: "No",
-fireHazards_comments: "No visible hazards noted during prior visit.",
-
-accessDifficulties: "No",
-accessDifficulties_comments: "Address is clearly marked and accessible.",
-
-parking: "Street parking available",
-parking_comments: "Parking usually available near front gate.",
-
-entryPoint: ["Left side", "Rear"],
-entryPoint_comments: "Use rear entrance via left side path.",
-
-mobileReception: "Weak signal inside",
-mobileReception_comments: "Signal improves near front windows.",
-
+  smokingAgreement: "Yes",
+  smokeDetectors: "Yes",
+  fireHazards: "No",
+  accessDifficulties: "No",
+  parking: "Street parking available",
+  entryPoint: ["Left side", "Rear"],
+  mobileReception: "Weak signal inside",
   
   issue1: "",
   riskScore1: "",
@@ -205,7 +172,7 @@ mobileReception_comments: "Signal improves near front windows.",
 };
 
 // --- A4 Page Wrapper Component ---
-const A4Page = ({ children, className = "" } : any) => (
+const A4Page = ({ children, className = "" }) => (
   <div className={`
     a4-page
     w-[210mm] h-[297mm] 
@@ -253,68 +220,35 @@ const Page1 = () => (
     </div>
 
     {/* Metadata Section */}
-   <h2 className="text-lg font-semibold px-6 py-4 text-center">Home & Visit Risk Assessment</h2>
-   <div className="px-6">
-     <table className="w-full border border-black text-sm table-fixed">
-       <tbody>
-         <tr>
-           <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">Name:</span> {homeVisitResponse.name}
-        </td>
-        <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">NDIS Number:</span> {homeVisitResponse.ndisNumber}
-        </td>
-        <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">DOB:</span> {homeVisitResponse.dob}
-        </td>
-      </tr>
-      <tr>
-        <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Address:</span> {homeVisitResponse.address}
-        </td>
-      </tr>
-      <tr>
-        <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Date of completion of risk assessment:</span> {homeVisitResponse.completionDate}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+        {homeVisitSchema.metadataFields.map((field) => (
+          <div key={field.key} className="flex">
+            <span className="font-semibold min-w-[120px]">{field.label}:</span>
+            <span className="ml-2">{homeVisitResponse[field.key]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
 
-
-    {/* Table (Fill remaining height) */}
-    <div className="flex-1 px-6 py-4 flex flex-col">
-      <table className="w-full border-collapse border border-black text-sm flex-1">
-        <thead>
-          <tr>
-            <th className="border border-black w-[40%] p-2"></th>
-            <th className="border border-black w-[7%] text-center p-2">YES</th>
-            <th className="border border-black w-[7%] text-center p-2">NO</th>
-            <th className="border border-black w-[46%] p-2">COMMENTS</th>
-          </tr>
-        </thead>
-        <tbody className="h-full">
-          {homeVisitSchema.pages[0].sections.map((section: any) => (
+    {/* Content Table */}
+    <div className="flex-1 px-6 py-4">
+      <table className="w-full border-collapse border border-black text-sm">
+        <tbody>
+          {homeVisitSchema.pages[0].sections.map((section) => (
             <React.Fragment key={section.title}>
               <tr className="bg-gray-300">
-                <td className="border border-black p-3 font-bold text-left" colSpan={4}>
+                <td className="border border-black p-3 font-bold text-center" colSpan={2}>
                   {section.title}
                 </td>
               </tr>
-              {section.fields.map((field: any) => (
-                <tr key={field.key} className="align-top">
-                  <td className="border border-black p-3 w-[40%] font-medium">
+              {section.fields.map((field) => (
+                <tr key={field.key}>
+                  <td className="border border-black p-3 align-top w-3/5 font-medium">
                     {field.label}
                   </td>
-                  <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
-                  </td>
-                  <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
-                  </td>
-                  <td className="border border-black p-3 w-[46%]">
-                    {homeVisitResponse[field.key + "_comments"] || ""}
+                  <td className="border border-black p-3 align-top w-2/5">
+                    {homeVisitResponse[field.key] || ""}
                   </td>
                 </tr>
               ))}
@@ -328,10 +262,8 @@ const Page1 = () => (
   </A4Page>
 );
 
-
-
 const Page2 = () => {
-  const page = homeVisitSchema.pages[1];
+  const section = homeVisitSchema.pages[1].sections[0];
 
   return (
     <A4Page>
@@ -346,78 +278,60 @@ const Page2 = () => {
         />
       </div>
 
-      {/* Table (Fill remaining height) */}
-      <div className="flex-1 px-6 py-4 flex flex-col">
-        <table className="w-full border-collapse border border-black text-sm flex-1">
+      {/* Content Table */}
+      <div className="flex-1 px-6 py-4">
+        <table className="w-full border-collapse border border-black text-sm">
           <thead>
-            <tr>
-              <th className="border border-black w-[40%] p-2">Question</th>
-              <th className="border border-black w-[7%] text-center p-2">YES</th>
-              <th className="border border-black w-[7%] text-center p-2">NO</th>
-              <th className="border border-black w-[46%] p-2">COMMENTS</th>
+            <tr className="bg-gray-300">
+              <th className="border border-black p-3 font-bold text-center" colSpan={4}>
+                {section.title}
+              </th>
             </tr>
           </thead>
-          <tbody className="h-full">
-            {page.sections.map((section: any, sectionIndex: number) => (
-              <React.Fragment key={sectionIndex}>
-                {section.title && (
-                  <tr className="bg-gray-300">
-                    <td colSpan={4} className="border border-black p-3 font-bold">
-                      {section.title}
+          <tbody>
+            {section.fields.map((field) => {
+              const value = homeVisitResponse[field.key];
+
+              if (field.type === "checkboxGroup") {
+                return (
+                  <tr key={field.key}>
+                    <td className="border border-black p-3 align-top font-medium" style={{ width: "50%" }}>
+                      {field.label}
+                    </td>
+                    <td className="border border-black p-1" style={{ width: "15%" }}></td>
+                    <td className="border border-black p-1" style={{ width: "15%" }}></td>
+                    <td className="border border-black p-3 align-top" style={{ width: "20%" }}>
+                      <div className="space-y-1">
+                        {field.options.map((opt) => (
+                          <label key={opt} className="flex items-center text-xs">
+                            <input
+                              type="checkbox"
+                              checked={Array.isArray(value) && value.includes(opt)}
+                              readOnly
+                              className="mr-2 h-3 w-3"
+                            />
+                            <span>{opt}</span>
+                          </label>
+                        ))}
+                      </div>
                     </td>
                   </tr>
-                )}
-                {section.fields.map((field: any) => {
-                  const value = homeVisitResponse[field.key];
-                  const comments = homeVisitResponse[field.key + "_comments"] || "";
+                );
+              }
 
-                  if (field.type === "checkboxGroup") {
-                    return (
-                      <tr key={field.key}>
-                        <td className="border border-black p-3 align-top font-medium">
-                          {field.label}
-                        </td>
-                        <td className="border border-black text-center align-top"></td>
-                        <td className="border border-black text-center align-top"></td>
-                        <td className="border border-black p-3 align-top">
-                          <div className="space-y-1">
-                            {field.options.map((opt: any) => (
-                              <label key={opt} className="flex items-center text-xs">
-                                <input
-                                  type="checkbox"
-                                  checked={Array.isArray(value) && value.includes(opt)}
-                                  readOnly
-                                  className="mr-2 h-3 w-3"
-                                />
-                                <span>{opt}</span>
-                              </label>
-                            ))}
-                            {comments && <div className="text-xs mt-1 italic">{comments}</div>}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  }
-
-                  return (
-                    <tr key={field.key}>
-                      <td className="border border-black p-3 align-top font-medium">
-                        {field.label}
-                      </td>
-                      <td className="border border-black text-center align-top">
-                        {value?.toLowerCase() === "yes" ? "✔️" : ""}
-                      </td>
-                      <td className="border border-black text-center align-top">
-                        {value?.toLowerCase() === "no" ? "✔️" : ""}
-                      </td>
-                      <td className="border border-black p-3 align-top">
-                        {comments}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </React.Fragment>
-            ))}
+              return (
+                <tr key={field.key}>
+                  <td className="border border-black p-3 align-top font-medium" style={{ width: "50%" }}>
+                    {field.label}
+                  </td>
+                  <td className="border border-black p-1" style={{ width: "15%" }}></td>
+                  <td className="border border-black p-1" style={{ width: "15%" }}></td>
+                  <td className="border border-black p-3 align-top" style={{ width: "20%" }}>
+                    {value || ""}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -426,9 +340,6 @@ const Page2 = () => {
     </A4Page>
   );
 };
-
-
-
 
 const Page3 = () => {
   const page = homeVisitSchema.pages[2];
@@ -458,13 +369,13 @@ const Page3 = () => {
         </div>
 
         {/* Risk Level Descriptions */}
-        {page.content.map((section : any, idx : number) => (
+        {page.content.map((section, idx) => (
           <div key={idx} className="space-y-4">
             <h3 className="text-base font-semibold underline text-center mb-4">
               {section.heading}
             </h3>
             <div className="space-y-3">
-              {section.blocks.map((block : any, i : number) => (
+              {section.blocks.map((block, i) => (
                 <div key={i} className="border-l-4 border-gray-300 pl-4">
                   <h4 className="font-bold text-sm mb-2">
                     <span>{block.title.split(" ")[0]} </span>
@@ -493,7 +404,7 @@ const Page3 = () => {
 
 const Page4 = () => {
   const page = homeVisitSchema.pages[3];
-
+  
   return (
     <A4Page>
       {/* Header with Logo */}
@@ -518,28 +429,28 @@ const Page4 = () => {
         </p>
       </div>
 
-      {/* Risk Assessment Table - Flexible Height */}
-      <div className="flex-1 px-6 pb-4 flex flex-col">
-        <table className="w-full border-collapse border border-black text-xs flex-1">
+      {/* Risk Assessment Table */}
+      <div className="flex-1 px-6 py-4">
+        <table className="w-full border-collapse border border-black text-xs">
           <thead>
             <tr className="bg-gray-400">
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[40%]">
+              <th className="border border-black px-3 py-2 text-left font-bold text-black" style={{ width: "40%" }}>
                 Issue/Task
               </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[15%]">
+              <th className="border border-black px-3 py-2 text-left font-bold text-black" style={{ width: "15%" }}>
                 Risk Score
               </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[30%]">
+              <th className="border border-black px-3 py-2 text-left font-bold text-black" style={{ width: "30%" }}>
                 Control Measure
               </th>
-              <th className="border border-black px-3 py-2 text-left font-bold text-black w-[15%]">
+              <th className="border border-black px-3 py-2 text-left font-bold text-black" style={{ width: "15%" }}>
                 Person Responsible
               </th>
             </tr>
           </thead>
-          <tbody className="h-full">
+          <tbody>
             {[1, 2, 3].map((row) => (
-              <tr key={row} className="h-[calc((100vh-350px)/3)] align-top">
+              <tr key={row} className="h-20">
                 <td className="border border-black p-2 align-top">
                   {homeVisitResponse[`issue${row}`] || ""}
                 </td>
@@ -562,7 +473,6 @@ const Page4 = () => {
     </A4Page>
   );
 };
-
 
 const Page5 = () => (
   <A4Page>

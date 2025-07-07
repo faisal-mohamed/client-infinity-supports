@@ -102,7 +102,7 @@ export default function AdminClientsLayout({
                   key={item.href}
                   href={item.href}
                   className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
-                    ${item.href === '/admin/clients'
+                    ${item.href === '/admin/dashboard'
                       ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
                       : 'hover:bg-indigo-600'
                     }`}
