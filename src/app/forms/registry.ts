@@ -2,6 +2,16 @@ import ClientIntakeFormEnhanced from '../components/forms/ClientIntakeFormEnhanc
 import CombinedForms from '../ClientIntakeFormView/page'; // Your view component
 
 import HomeVisitRiskAssessment from '@/app/test/home_visit/page'
+import HomeVisitRiskAssessmentEdit from '../components/forms/home_visit_risk_assessment/Edit';
+
+// Signature requirement interface
+interface SignatureRequirement {
+  id: string;
+  label: string;
+  description?: string;
+  required: boolean;
+  dataKey?: string; // Maps to form data for pre-population (e.g., 'name', 'designation')
+}
 
 // Enhanced registry structure
 interface FormRegistryItem {
@@ -9,7 +19,7 @@ interface FormRegistryItem {
   name: string;
   editComponent: React.ComponentType<any>;
   viewComponent: React.ComponentType<any>;
-  // Removed requiresSignature from here - now stored in database
+  signatures?: SignatureRequirement[]; // NEW: Signature configuration
 }
 
 const formRegistry: Record<string, FormRegistryItem> = {
@@ -18,12 +28,22 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: 'Client Intake Form',
     editComponent: ClientIntakeFormEnhanced,
     viewComponent: CombinedForms,
+    // No signatures required for client intake form
   },
- 'home_visit_risk_assessment': {
+  'home_visit_risk_assessment': {
     key: 'home_visit_risk_assessment',
     name: 'Home & Visit Risk Assessment',
     viewComponent: HomeVisitRiskAssessment,
-    editComponent: HomeVisitRiskAssessment, // Assuming the same component is used for both edit
+    editComponent: HomeVisitRiskAssessmentEdit,
+    signatures: [
+      {
+        id: 'signature',
+        label: 'Signature',
+        description: 'I acknowledge that this risk assessment has been completed and I understand the safety considerations outlined above.',
+        required: true,
+        dataKey: 'name' // Pre-populate signature field with client name from form data
+      }
+    ]
   }
 };
 
@@ -41,8 +61,21 @@ export const getFormConfig = (formKey: string) => {
   return formRegistry[formKey];
 };
 
+export const getFormSignatures = (formKey: string): SignatureRequirement[] => {
+  const formConfig = formRegistry[formKey];
+  return formConfig?.signatures || [];
+};
+
+export const hasSignatureRequirement = (formKey: string): boolean => {
+  const signatures = getFormSignatures(formKey);
+  return signatures.length > 0;
+};
+
 export const getAllForms = () => {
   return Object.values(formRegistry);
 };
+
+// Export types for use in other components
+export type { SignatureRequirement, FormRegistryItem };
 
 export default formRegistry;

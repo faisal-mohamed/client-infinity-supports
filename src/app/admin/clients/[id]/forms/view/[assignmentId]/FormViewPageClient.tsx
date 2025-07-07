@@ -54,6 +54,7 @@ export default function FormViewPageClient() {
       if (!response.ok) throw new Error('Failed to load assignment data');
       
       const data = await response.json();
+      console.log('Loaded assignment data:', data.assignment?.submissionData);
       setAssignment(data.assignment);
       
     } catch (error) {

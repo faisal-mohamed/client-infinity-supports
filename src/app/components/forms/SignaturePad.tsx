@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef, useEffect } from "react";
 // In a client component with "use client";
 const SignatureCanvas = require('react-signature-canvas').default;

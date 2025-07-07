@@ -137,72 +137,6 @@ const homeVisitSchema : any = {
   }
 };
 
-const homeVisitResponse : any = {
-  name: "John Doe",
-  ndisNumber: "123456789",
-  dob: "01/01/1990",
-  address: "123 Main St, Perth, WA",
-  completionDate: "2025-07-01",
-
-   visitCompany: "Yes",
-  visitCompany_comments: "Client's sister will be present.",
-  
-  aggressionHistory: "No",
-  aggressionHistory_comments: "No incidents reported in the past.",
-  
-  drugUseHistory: "No",
-  drugUseHistory_comments: "No substance abuse history disclosed.",
-  
-  careDirective: "Yes",
-  careDirective_comments: "Uploaded to client records on 30/06/2025.",
-
-  // --- Page 1: ENVIRONMENT ---
-  petsRestrained: "Yes",
-  petsRestrained_comments: "Small dog will be kept in the backyard.",
-  
-  weaponsInHome: "No",
-  weaponsInHome_comments: "None disclosed by client or family.",
-  // --- Page 2: SAFETY & ACCESS ---
-smokingAgreement: "Yes",
-smokingAgreement_comments: "Client and family agreed to refrain from smoking.",
-
-smokeDetectors: "Yes",
-smokeDetectors_comments: "Smoke detectors in kitchen and hallway functional.",
-
-fireHazards: "No",
-fireHazards_comments: "No visible hazards noted during prior visit.",
-
-accessDifficulties: "No",
-accessDifficulties_comments: "Address is clearly marked and accessible.",
-
-parking: "Street parking available",
-parking_comments: "Parking usually available near front gate.",
-
-entryPoint: ["Left side", "Rear"],
-entryPoint_comments: "Use rear entrance via left side path.",
-
-mobileReception: "Weak signal inside",
-mobileReception_comments: "Signal improves near front windows.",
-
-  
-  issue1: "",
-  riskScore1: "",
-  control1: "",
-  responsible1: "",
-
-  issue2: "",
-  riskScore2: "",
-  control2: "",
-  responsible2: "",
-
-  issue3: "",
-  riskScore3: "",
-  control3: "",
-  responsible3: "",
-
-  designation: "Support Worker",
-  signature: "John Smith",
-};
 
 // --- A4 Page Wrapper Component ---
 const A4Page = ({ children, className = "" } : any) => (
@@ -239,7 +173,7 @@ const Footer = () => (
 );
 
 // --- Page Components ---
-const Page1 = () => (
+const Page1 = ({homeVisitResponse} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-6 pb-4">
@@ -330,7 +264,7 @@ const Page1 = () => (
 
 
 
-const Page2 = () => {
+const Page2 = ({homeVisitResponse} : any) => {
   const page = homeVisitSchema.pages[1];
 
   return (
@@ -430,7 +364,7 @@ const Page2 = () => {
 
 
 
-const Page3 = () => {
+const Page3 = ({homeVisitResponse} : any) => {
   const page = homeVisitSchema.pages[2];
 
   return (
@@ -490,7 +424,7 @@ const Page3 = () => {
     </A4Page>
   );
 };
-const Page4 = () => {
+const Page4 = ({homeVisitResponse} : any) => {
   const page = homeVisitSchema.pages[3];
 
   return (
@@ -566,7 +500,7 @@ const Page4 = () => {
 };
 
 
-const Page5 = () => (
+const Page5 = ({homeVisitResponse} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-8 pb-6">
@@ -581,40 +515,49 @@ const Page5 = () => (
 
     {/* Signature Section */}
     <div className="flex-1 px-6 py-8">
-      <div className="grid grid-cols-3 gap-8 text-sm">
-        <div className="text-center">
-          <div className="font-semibold mb-2">Name:</div>
-          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-            {homeVisitResponse.name}
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="font-semibold mb-2">Signature:</div>
-          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-            {homeVisitResponse.signature}
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="font-semibold mb-2">Designation:</div>
-          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-            {homeVisitResponse.designation}
-          </div>
-        </div>
+  <div className="grid grid-cols-3 gap-8 text-sm">
+    <div className="text-center">
+      <div className="font-semibold mb-2">Name:</div>
+      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+        {homeVisitResponse.name}
       </div>
     </div>
+    <div className="text-center">
+      <div className="font-semibold mb-2">Signature:</div>
+      <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
+        {homeVisitResponse.signature ? (
+          <img
+            src={`${homeVisitResponse.signature}`}
+            alt="Signature"
+            className="max-h-[50px] object-contain"
+          />
+        ) : (
+          <span className="text-gray-400 italic">No signature</span>
+        )}
+      </div>
+    </div>
+    <div className="text-center">
+      <div className="font-semibold mb-2">Designation:</div>
+      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+        {homeVisitResponse.designation}
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <Footer />
   </A4Page>
 );
 
 // --- Main Component ---
-const HomeVisitRiskAssessment = (formData : any) => (
+const HomeVisitRiskAssessment = ({formData} : any) => (
   <div className="bg-gray-100 min-h-screen py-8">
-    <Page1 />
-    <Page2 />
-    <Page3 />
-    <Page4 />
-    <Page5 />
+    <Page1  homeVisitResponse={formData} />
+    <Page2  homeVisitResponse={formData} />
+    <Page3  homeVisitResponse={formData} />
+    <Page4  homeVisitResponse={formData} />
+    <Page5  homeVisitResponse={formData} />
   </div>
 );
 
