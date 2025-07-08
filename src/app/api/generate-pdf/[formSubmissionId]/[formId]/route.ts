@@ -6,7 +6,7 @@ import React from "react";
 import fs from "fs";
 import path from 'path';
 import { prisma } from "@/lib/prisma";
-import { getPDFComponent, getPDFComponentById } from "@/components-server/PrintableForms/pdfRegistry";
+import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 
 // Move helper functions inside the route handler scope or to a separate utility file
 async function encodeImageToBase64(imagePath: string): Promise<string> {
@@ -36,32 +36,54 @@ async function encodeImageToBase64(imagePath: string): Promise<string> {
 }
 
 async function generateHTML(formData: any, formSchemas: any, formKey: string, formId: number) {
-  const processedSchemas = JSON.parse(JSON.stringify(formSchemas)); // Deep clone
-
-  // Process all images to base64
-  if (processedSchemas.clientIntakeSchema?.logo?.src) {
-    const src = processedSchemas.clientIntakeSchema.logo.src;
-    processedSchemas.clientIntakeSchema.logo.src = await encodeImageToBase64(src);
-    processedSchemas.gpMedicalSupportSchema.logo.src = await encodeImageToBase64(src);
-    processedSchemas.allAboutMeSchema.logo.src = await encodeImageToBase64(src);
-    processedSchemas.contactsLivingTravelSchema.logo.src = await encodeImageToBase64(src);
-    processedSchemas.medicationInfoSchema.logo.src = await encodeImageToBase64(src);
-    processedSchemas.safetyConsiderationSchema.logo.src = await encodeImageToBase64(src);
-  }
-
   // Dynamically import react-dom/server to avoid Next.js App Router restrictions
   const ReactDOMServer = await import('react-dom/server');
   
-  // DYNAMIC COMPONENT SELECTION - This is the key change!
-  let PDFComponent;
+  // DYNAMIC COMPONENT SELECTION AND SCHEMA HANDLING
+  let PDFComponent: any;
+  let processedSchemas = null;
+  
   try {
-    // Try to get component by form key first (preferred method)
+    // Get PDF component by form key
     PDFComponent = getPDFComponent(formKey);
     console.log(`Using PDF component for form key: ${formKey}`);
+    
+    // Handle schema processing based on form type
+    if (formKey === 'client_intake_form') {
+      // Client intake form uses database schema
+      processedSchemas = JSON.parse(JSON.stringify(formSchemas)); // Deep clone
+      
+      // Process all images to base64 for client intake form
+      if (processedSchemas?.clientIntakeSchema?.logo?.src) {
+        const src = processedSchemas.clientIntakeSchema.logo.src;
+        processedSchemas.clientIntakeSchema.logo.src = await encodeImageToBase64(src);
+        processedSchemas.gpMedicalSupportSchema.logo.src = await encodeImageToBase64(src);
+        processedSchemas.allAboutMeSchema.logo.src = await encodeImageToBase64(src);
+        processedSchemas.contactsLivingTravelSchema.logo.src = await encodeImageToBase64(src);
+        processedSchemas.medicationInfoSchema.logo.src = await encodeImageToBase64(src);
+        processedSchemas.safetyConsiderationSchema.logo.src = await encodeImageToBase64(src);
+      }
+    } else if (formKey === 'home_visit_risk_assessment') {
+      // Home visit form has hardcoded schema in component
+      // Process images to base64 for PDF generation
+      const processedImages = {
+        infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+        riskMatrix: await encodeImageToBase64('/home_risk_assessment.png')
+      };
+      
+      processedSchemas = null;
+      console.log('Home visit form: processed images for PDF generation');
+    } else {
+      // For other forms, try to use database schema if available
+      processedSchemas = formSchemas ? JSON.parse(JSON.stringify(formSchemas)) : null;
+      console.log(`Form ${formKey} using database schema:`, !!processedSchemas);
+    }
+    
   } catch (error) {
-    // Fallback to form ID-based selection
-    console.log(`Form key ${formKey} not found, trying form ID: ${formId}`);
-    PDFComponent = getPDFComponentById(formId);
+    console.error(`Error getting PDF component for form key ${formKey}:`, error);
+    // Fallback to client intake component
+    PDFComponent = getPDFComponent('client_intake_form');
+    processedSchemas = formSchemas ? JSON.parse(JSON.stringify(formSchemas)) : null;
   }
 
   // Read the CSS file for styling
@@ -69,7 +91,23 @@ async function generateHTML(formData: any, formSchemas: any, formKey: string, fo
   const css = fs.readFileSync(cssPath, 'utf8');
 
   // Create the React element with the dynamically selected component
-  const element = React.createElement(PDFComponent, { formData, formSchemas: processedSchemas });
+  // Pass different props based on form type
+  let componentProps: any;
+  if (formKey === 'home_visit_risk_assessment') {
+    // Home visit component needs formData and processed images for PDF
+    componentProps = { 
+      formData,
+      images: {
+        infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+        riskMatrix: await encodeImageToBase64('/home_risk_assessment.png')
+      }
+    };
+  } else {
+    // Client intake and other forms need both formData and formSchemas
+    componentProps = { formData, formSchemas: processedSchemas };
+  }
+  
+  const element = React.createElement(PDFComponent, componentProps);
 
   // Generate the HTML
   return `<!DOCTYPE html>
@@ -81,16 +119,10 @@ async function generateHTML(formData: any, formSchemas: any, formKey: string, fo
           /* Add external CSS */
           ${css}
 
-          /* Add page break styling for each form container */
-          .form {
-            page-break-before: always;
-            margin-bottom: 20px;
-          }
-
-          /* Page settings */
+          /* PDF-specific page settings */
           @page {
             size: A4;
-            margin: 20mm;
+            margin: 15mm 10mm 15mm 10mm;
           }
 
           /* Global font settings */
@@ -98,49 +130,138 @@ async function generateHTML(formData: any, formSchemas: any, formKey: string, fo
             font-family: 'Lexend', sans-serif;
             margin: 0;
             padding: 0;
+            font-size: 12px;
+            line-height: 1.4;
           }
 
-          /* Table styles */
+          /* PDF Page Break Control */
+          .a4-page {
+            page-break-before: always;
+            page-break-after: always;
+            page-break-inside: avoid;
+            width: 100%;
+            min-height: 100vh;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            background: white;
+          }
+
+          /* First page shouldn't have page break before */
+          .a4-page:first-child {
+            page-break-before: auto;
+          }
+
+          /* Table styles optimized for PDF */
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            font-size: 11px;
           }
 
           th, td {
-            padding: 8px;
-            border: 1px solid #ccc;
+            padding: 6px 8px;
+            border: 1px solid #000;
             text-align: left;
-            font-size: 12px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
           }
 
           th {
             background-color: #f0f0f0;
+            font-weight: bold;
+          }
+
+          /* Prevent table rows from breaking across pages */
+          tr {
+            page-break-inside: avoid;
           }
 
           /* Footer Styling */
           .footer {
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #666;
-            margin-top: 20px;
+            margin-top: auto;
+            padding: 8px 0;
+            border-top: 1px solid #ddd;
+            flex-shrink: 0;
+          }
+
+          /* Header styling */
+          .header-logo {
+            text-align: center;
+            padding: 10px 0;
+            flex-shrink: 0;
+          }
+
+          /* Content area that can flex */
+          .page-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
           }
 
           /* Yes/No checkbox styling */
           .yes-no-container {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
           }
 
           .yes-no-container label {
             display: inline-block;
-            margin-right: 10px;
-            font-size: 12px;
+            margin-right: 8px;
+            font-size: 11px;
           }
 
           .yes-no-container input[type="checkbox"] {
-            margin-right: 5px;
+            margin-right: 4px;
+          }
+
+          /* Image sizing for PDF */
+          img {
+            max-width: 100%;
+            height: auto;
+          }
+
+          /* Signature styling */
+          .signature-container img {
+            max-height: 40px;
+            max-width: 150px;
+          }
+
+          /* Risk assessment blocks */
+          .risk-block {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-left: 3px solid #ccc;
+          }
+
+          /* Prevent orphaned content */
+          h1, h2, h3, h4, h5, h6 {
+            page-break-after: avoid;
+          }
+
+          /* Ensure content doesn't overflow page */
+          * {
+            box-sizing: border-box;
+          }
+
+          /* Hide web-specific styling that might interfere */
+          .shadow-lg,
+          .border-gray-300,
+          .mx-auto,
+          .mb-8 {
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
           }
         </style>
       </head>
@@ -181,7 +302,12 @@ export async function GET(
       return new NextResponse('Form schema not found', { status: 404 });
     }
 
+   
     const formData = formSubmission.data as any;
+
+
+    console.log("formData:", formData);
+    console.log("form", form);
     
     // Pass both formKey and formId for dynamic component selection
     const html = await generateHTML(formData, form.schema, form.formKey, formIdInt);
@@ -198,7 +324,9 @@ export async function GET(
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: '20mm', bottom: '20mm', left: '10mm', right: '10mm' },
+      margin: { top: '15mm', bottom: '15mm', left: '10mm', right: '10mm' },
+      preferCSSPageSize: true,
+      displayHeaderFooter: false,
     });
 
     await browser.close();

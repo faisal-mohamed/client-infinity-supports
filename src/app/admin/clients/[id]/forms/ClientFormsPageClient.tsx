@@ -742,7 +742,7 @@ export default function ClientFormsPageClient() {
                                 Edit Form
                               </Link>
                               
-                              {assignment.clientSignature && (
+                              {assignment.hasSubmission && (
                                 <>
                                   <Link
                                     href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}

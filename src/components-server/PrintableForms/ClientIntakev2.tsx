@@ -14,6 +14,25 @@ function getTodayDateFormatted() {
 
   return `${day}/${month}/${year}`;
 }
+
+
+const A4Page = ({ children, className = "" } : any) => (
+  <div className={`
+    a4-page
+    w-[210mm] h-[297mm] 
+    mx-auto mb-8 
+    bg-white 
+    shadow-lg 
+    border border-gray-300
+    flex flex-col
+    ${className}
+  `}>
+    {children}
+  </div>
+);
+
+
+
 const ClientIntakeForm = ({ formSchema, formData } : any) => {
   const displayCheckboxGroup = (options : any, selected : any[] = [], otherValue : any= "") => (
     <div className="space-y-1 text-xs">
@@ -35,6 +54,7 @@ const ClientIntakeForm = ({ formSchema, formData } : any) => {
   );
 
   return (
+    <A4Page>
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
@@ -135,6 +155,7 @@ const ClientIntakeForm = ({ formSchema, formData } : any) => {
         )}
       </div>
     </div>
+    </A4Page>
   );
 };
 
@@ -159,6 +180,8 @@ const GpMedicalSupportForm = ({ formSchema, formData } : any) => {
   );
 
   return (
+        <A4Page>
+
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
@@ -271,6 +294,8 @@ const GpMedicalSupportForm = ({ formSchema, formData } : any) => {
         )}
       </div>
     </div>
+        </A4Page>
+
   );
 };
 
@@ -312,6 +337,8 @@ const AllAboutMeForm = ({ formSchema, formData }: any) => {
 
 
   return (
+        <A4Page>
+
     <div
   className="bg-white mx-auto shadow-md flex flex-col"
   style={{
@@ -413,6 +440,8 @@ const AllAboutMeForm = ({ formSchema, formData }: any) => {
         </div>
       </div>
     </div>
+        </A4Page>
+
   );
 };
 const ContactsLivingTravelForm = ({ formSchema, formData }: any) => {
@@ -437,6 +466,8 @@ const ContactsLivingTravelForm = ({ formSchema, formData }: any) => {
   );
 
   return (
+        <A4Page>
+
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
@@ -509,11 +540,15 @@ const ContactsLivingTravelForm = ({ formSchema, formData }: any) => {
         )}
       </div>
     </div>
+        </A4Page>
+
   );
 };
 
 const MedicationInfoForm = ({ formSchema, formData }: any) => {
   return (
+        <A4Page>
+
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
@@ -582,11 +617,15 @@ const MedicationInfoForm = ({ formSchema, formData }: any) => {
         </div>
       </div>
     </div>
+        </A4Page>
+
   );
 };
 
 const SafetyConsiderationForm = ({ formSchema, formData } : any) => {
   return (
+        <A4Page>
+
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
@@ -655,6 +694,8 @@ const SafetyConsiderationForm = ({ formSchema, formData } : any) => {
         </div>
       </div>
     </div>
+        </A4Page>
+
   );
 };
 
