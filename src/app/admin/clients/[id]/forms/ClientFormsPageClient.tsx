@@ -563,93 +563,95 @@ export default function ClientFormsPageClient() {
       {/* Clean Header Section */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Back Button & Client Info Row */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-6">
+          {/* Back Button & Client Info Row - Responsive Layout */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
               <Link 
                 href="/admin/clients"
-                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group"
+                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group self-start"
               >
                 <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
                 <span className="font-medium">Back to Clients</span>
               </Link>
               
-              <div className="h-8 w-px bg-gray-300"></div>
+              <div className="hidden sm:block h-8 w-px bg-gray-300"></div>
               
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <FaUser className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{client?.name}</h1>
-                  <p className="text-gray-600">{client?.email}</p>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{client?.name}</h1>
+                  <p className="text-gray-600 text-sm sm:text-base truncate">{client?.email}</p>
                 </div>
               </div>
             </div>
             
-            <div className="text-right">
-              <div className="text-2xl font-bold text-gray-900">
+            <div className="text-center sm:text-right flex-shrink-0">
+              <div className="text-xl sm:text-2xl font-bold text-gray-900">
                 {stats.completed}/{stats.total}
               </div>
-              <div className="text-sm text-gray-600">Forms Completed</div>
+              <div className="text-xs sm:text-sm text-gray-600">Forms Completed</div>
             </div>
           </div>
           
-          {/* Action Buttons Row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+          {/* Action Buttons Row - Responsive Layout */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Action Buttons - Stack on mobile, horizontal on larger screens */}
+            <div className="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap items-stretch sm:items-center gap-3">
               <button
                 onClick={() => setShowAssignModal(true)}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
-                <FaPlus className="mr-2 h-4 w-4" />
-                Assign Forms
+                <FaPlus className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">Assign Forms</span>
               </button>
 
               <button
                 onClick={() => setShowCommonFieldsWarning(true)}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
-                <FaUserEdit className="mr-2 h-4 w-4" />
-                Update Common Details
+                <FaUserEdit className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">Update Common Details</span>
               </button>
               
               <Link
                 href={`/admin/clients/${clientId}/signature-links`}
-                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
-                <FaLink className="mr-2 h-4 w-4" />
-                Manage Links
+                <FaLink className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="whitespace-nowrap">Manage Links</span>
               </Link>
               
               {selectedForms.length > 0 && (
                 <button
                   onClick={generateSignatureLink}
                   disabled={generatingLink}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 >
                   {generatingLink ? (
                     <>
-                      <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
+                      <FaSpinner className="mr-2 h-4 w-4 animate-spin flex-shrink-0" />
+                      <span className="whitespace-nowrap">Generating...</span>
                     </>
                   ) : (
                     <>
-                      <FaLink className="mr-2 h-4 w-4" />
-                      Generate Link ({selectedForms.length})
+                      <FaLink className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">Generate Link ({selectedForms.length})</span>
                     </>
                   )}
                 </button>
               )}
             </div>
             
-            <div className="text-sm text-gray-500">
+            {/* Status Text - Stack below buttons on mobile */}
+            <div className="text-sm text-gray-500 text-center lg:text-right">
               {selectedForms.length > 0 ? (
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
+                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium inline-block">
                   {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
                 </span>
               ) : (
-                <span>Select forms below to generate signature links</span>
+                <span className="hidden sm:inline">Select forms below to generate signature links</span>
               )}
             </div>
           </div>
@@ -658,69 +660,69 @@ export default function ClientFormsPageClient() {
 
       {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-indigo-100">
-                <FaFileAlt className="h-6 w-6 text-indigo-600" />
+              <div className="p-2 sm:p-3 rounded-lg bg-indigo-100 flex-shrink-0">
+                <FaFileAlt className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Forms</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Forms</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-green-100">
-                <FaCheckCircle className="h-6 w-6 text-green-600" />
+              <div className="p-2 sm:p-3 rounded-lg bg-green-100 flex-shrink-0">
+                <FaCheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
+              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Completed</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.completed}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-blue-100">
-                <FaClock className="h-6 w-6 text-blue-600" />
+              <div className="p-2 sm:p-3 rounded-lg bg-blue-100 flex-shrink-0">
+                <FaClock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">In Progress</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
+              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">In Progress</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.inProgress}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-gray-100">
-                <FaExclamationTriangle className="h-6 w-6 text-gray-600" />
+              <div className="p-2 sm:p-3 rounded-lg bg-gray-100 flex-shrink-0">
+                <FaExclamationTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Not Started</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.notStarted}</p>
+              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Not Started</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.notStarted}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Forms List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-visible">{/* Changed from overflow-hidden to overflow-visible */}
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <div className="flex items-center justify-between">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-visible">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h2 className="text-lg font-semibold text-gray-900">Assigned Forms</h2>
               {assignments.length > 0 && (
                 <div className="text-sm text-gray-600">
                   {selectedForms.length > 0 ? (
                     <p className="font-medium text-indigo-600">{selectedForms.length} selected for link generation</p>
                   ) : (
-                    <div>
+                    <div className="text-center sm:text-right">
                       <p>{assignments.length} total forms</p>
-                      <p className="text-xs text-gray-500 mt-1">Select admin-filled forms to generate client links</p>
+                      <p className="text-xs text-gray-500 mt-1 hidden sm:block">Select admin-filled forms to generate client links</p>
                     </div>
                   )}
                 </div>
@@ -729,10 +731,10 @@ export default function ClientFormsPageClient() {
           </div>
 
           {assignments.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 px-4">
               <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Forms Assigned</h3>
-              <p className="text-gray-600 mb-6">Get started by assigning some forms to this client.</p>
+              <p className="text-gray-600 mb-6 text-sm sm:text-base">Get started by assigning some forms to this client.</p>
               <button
                 onClick={() => setShowAssignModal(true)}
                 className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
@@ -748,9 +750,9 @@ export default function ClientFormsPageClient() {
                 const StatusIcon = statusInfo.icon;
                 
                 return (
-                  <div key={assignment.id} className="p-6 hover:bg-gray-50 transition-colors duration-150">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4 flex-1">
+                  <div key={assignment.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-150">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                         {/* Checkbox for signature link generation - show for admin-filled forms */}
                         {assignment.filledByAdmin && (
                           <input
@@ -763,114 +765,120 @@ export default function ClientFormsPageClient() {
                                 setSelectedForms(prev => prev.filter(id => id !== assignment.id));
                               }
                             }}
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded flex-shrink-0"
                           />
                         )}
                         
                         {/* Placeholder space for forms that are not completed */}
                         {!assignment.isCompleted && (
-                          <div className="w-4 h-4"></div>
+                          <div className="w-4 h-4 flex-shrink-0"></div>
                         )}
 
                         {/* Form Icon */}
-                        <div className={`p-3 rounded-lg ${statusInfo.bgColor}`}>
-                          <StatusIcon className={`h-6 w-6 ${statusInfo.iconColor}`} />
+                        <div className={`p-2 sm:p-3 rounded-lg ${statusInfo.bgColor} flex-shrink-0`}>
+                          <StatusIcon className={`h-5 w-5 sm:h-6 sm:w-6 ${statusInfo.iconColor}`} />
                         </div>
 
                         {/* Form Details */}
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="text-lg font-medium text-gray-900">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
                               {assignment.form.title}
                             </h3>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusInfo.color}`}>
-                              {statusInfo.status}
-                            </span>
-                            {/* Signature requirement indicator */}
-                            {assignment.form.requiresSignature === true && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
-                                <FaSignature className="mr-1 h-2 w-2" />
-                                Signature Required
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusInfo.color}`}>
+                                {statusInfo.status}
                               </span>
-                            )}
+                              {/* Signature requirement indicator */}
+                              {assignment.form.requiresSignature === true && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                                  <FaSignature className="mr-1 h-2 w-2" />
+                                  <span className="hidden sm:inline">Signature Required</span>
+                                  <span className="sm:hidden">Sig Req</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
                           
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                             <span>Version {assignment.form.version}</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span className="flex items-center">
-                              <FaCalendarAlt className="h-3 w-3 mr-1" />
-                              Assigned {new Date(assignment.assignedAt).toLocaleDateString()}
+                              <FaCalendarAlt className="h-3 w-3 mr-1 flex-shrink-0" />
+                              <span className="hidden sm:inline">Assigned </span>
+                              {new Date(assignment.assignedAt).toLocaleDateString()}
                             </span>
                             {assignment.adminFilledAt && (
                               <>
-                                <span>•</span>
-                                <span>Filled {new Date(assignment.adminFilledAt).toLocaleDateString()}</span>
+                                <span className="hidden sm:inline">•</span>
+                                <span className="hidden sm:inline">Filled {new Date(assignment.adminFilledAt).toLocaleDateString()}</span>
+                                <span className="sm:hidden text-green-600">Admin Filled</span>
                               </>
                             )}
                             {assignment.clientSignedAt && (
                               <>
-                                <span>•</span>
+                                <span className="hidden sm:inline">•</span>
                                 <span className="text-green-600 font-medium">
-                                  Signed {new Date(assignment.clientSignedAt).toLocaleDateString()}
+                                  <span className="hidden sm:inline">Signed {new Date(assignment.clientSignedAt).toLocaleDateString()}</span>
+                                  <span className="sm:hidden">Client Signed</span>
                                 </span>
                               </>
                             )}
                           </div>
                         </div>
+                      </div>
 
-                        {/* Action Menu */}
-                        <div className="relative action-menu-container">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveActionMenu(activeActionMenu === assignment.id ? null : assignment.id);
-                            }}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150"
-                          >
-                            <FaEllipsisV className="h-4 w-4" />
-                          </button>
+                      {/* Action Menu */}
+                      <div className="relative action-menu-container flex-shrink-0 self-start sm:self-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveActionMenu(activeActionMenu === assignment.id ? null : assignment.id);
+                          }}
+                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150"
+                        >
+                          <FaEllipsisV className="h-4 w-4" />
+                        </button>
 
-                          {/* Action Menu Dropdown */}
-                          {activeActionMenu === assignment.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">{/* Increased z-index from z-10 to z-50 and shadow-lg to shadow-xl */}
-                              <Link
-                                href={`/admin/clients/${clientId}/forms/edit/${assignment.id}`}
-                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                onClick={() => setActiveActionMenu(null)}
-                              >
-                                <FaEdit className="mr-3 h-4 w-4 text-indigo-500" />
-                                Edit Form
-                              </Link>
-                              
-                              {assignment.hasSubmission && (
-                                <>
-                                  <Link
-                                    href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}
-                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                    onClick={() => setActiveActionMenu(null)}
-                                  >
-                                    <FaEye className="mr-3 h-4 w-4 text-green-500" />
-                                    View Form
-                                  </Link>
-                                  
-                                  <button
-                                    onClick={() => handleDownloadPDF(assignment)}
-                                    disabled={downloadingPDF === assignment.id}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                                  >
-                                    {downloadingPDF === assignment.id ? (
-                                      <FaSpinner className="mr-3 h-4 w-4 text-orange-500 animate-spin" />
-                                    ) : (
-                                      <FaDownload className="mr-3 h-4 w-4 text-orange-500" />
-                                    )}
-                                    {downloadingPDF === assignment.id ? 'Generating PDF...' : 'Download PDF'}
-                                  </button>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        {/* Action Menu Dropdown */}
+                        {activeActionMenu === assignment.id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+                            <Link
+                              href={`/admin/clients/${clientId}/forms/edit/${assignment.id}`}
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setActiveActionMenu(null)}
+                            >
+                              <FaEdit className="mr-3 h-4 w-4 text-indigo-500 flex-shrink-0" />
+                              Edit Form
+                            </Link>
+                            
+                            {assignment.hasSubmission && (
+                              <>
+                                <Link
+                                  href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}
+                                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                  onClick={() => setActiveActionMenu(null)}
+                                >
+                                  <FaEye className="mr-3 h-4 w-4 text-green-500 flex-shrink-0" />
+                                  View Form
+                                </Link>
+                                
+                                <button
+                                  onClick={() => handleDownloadPDF(assignment)}
+                                  disabled={downloadingPDF === assignment.id}
+                                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                >
+                                  {downloadingPDF === assignment.id ? (
+                                    <FaSpinner className="mr-3 h-4 w-4 text-orange-500 animate-spin flex-shrink-0" />
+                                  ) : (
+                                    <FaDownload className="mr-3 h-4 w-4 text-orange-500 flex-shrink-0" />
+                                  )}
+                                  {downloadingPDF === assignment.id ? 'Generating PDF...' : 'Download PDF'}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -883,10 +891,10 @@ export default function ClientFormsPageClient() {
       {/* Form Assignment Modal */}
       {showAssignModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+              <div className="min-w-0 flex-1 mr-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                   Assign Forms to {client?.name}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -895,13 +903,13 @@ export default function ClientFormsPageClient() {
               </div>
               <button
                 onClick={() => setShowAssignModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <FaTimes className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto max-h-96">
+            <div className="p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
               {availableForms.length === 0 ? (
                 <div className="text-center py-8">
                   <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
@@ -918,7 +926,7 @@ export default function ClientFormsPageClient() {
                     return (
                       <div
                         key={`${form.id}-${form.version}`}
-                        className={`flex items-center p-4 border rounded-xl transition-all duration-200 ${
+                        className={`flex items-start sm:items-center p-3 sm:p-4 border rounded-xl transition-all duration-200 ${
                           isAlreadyAssigned 
                             ? 'bg-gray-50 border-gray-200 opacity-50' 
                             : selectedFormsToAssign.includes(form.id)
@@ -931,20 +939,20 @@ export default function ClientFormsPageClient() {
                           checked={selectedFormsToAssign.includes(form.id)}
                           onChange={() => handleFormAssignmentSelection(form.id)}
                           disabled={isAlreadyAssigned}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50"
+                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50 mt-0.5 sm:mt-0 flex-shrink-0"
                         />
-                        <div className="ml-4 flex-1">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-900">
+                        <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-sm font-medium text-gray-900 truncate">
                                 {form.title}
                               </h4>
-                              <p className="text-sm text-gray-500">
+                              <p className="text-sm text-gray-500 truncate">
                                 Version {form.version} • Key: {form.formKey}
                               </p>
                             </div>
                             {isAlreadyAssigned && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0">
                                 Already Assigned
                               </span>
                             )}
@@ -957,21 +965,21 @@ export default function ClientFormsPageClient() {
               )}
             </div>
 
-            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-              <p className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50 gap-3">
+              <p className="text-sm text-gray-600 text-center sm:text-left">
                 {selectedFormsToAssign.length} form(s) selected
               </p>
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3">
                 <button
                   onClick={() => setShowAssignModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors order-2 sm:order-1"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={assignFormsToClient}
                   disabled={selectedFormsToAssign.length === 0 || assigning}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors order-1 sm:order-2"
                 >
                   {assigning ? (
                     <>
@@ -991,28 +999,28 @@ export default function ClientFormsPageClient() {
       {/* Signature Link Modal */}
       {showLinkModal && generatedLink && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <div className="min-w-0 flex-1 mr-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                   Signature Link Generated
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 mt-1 truncate">
                   Share this link with {client?.name} to collect signatures
                 </p>
               </div>
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
               >
                 <FaTimes className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 mr-4">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-700 mb-2">Signature Link:</p>
                     <p className="text-sm text-gray-600 bg-white p-3 rounded border break-all">
                       {generatedLink.url}
@@ -1020,7 +1028,7 @@ export default function ClientFormsPageClient() {
                   </div>
                   <button
                     onClick={() => copyLinkToClipboard(generatedLink.url)}
-                    className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    className="flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex-shrink-0 w-full sm:w-auto"
                   >
                     <FaCopy className="mr-2 h-4 w-4" />
                     Copy
@@ -1028,7 +1036,7 @@ export default function ClientFormsPageClient() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div className="bg-blue-50 rounded-lg p-4">
                   <p className="text-sm font-medium text-blue-900">Forms Included</p>
                   <p className="text-2xl font-bold text-blue-600">{generatedLink.formsCount}</p>
@@ -1046,18 +1054,18 @@ export default function ClientFormsPageClient() {
                 <div className="space-y-2">
                   {generatedLink.forms.map((form, index) => (
                     <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                      <FaFileAlt className="h-4 w-4 text-gray-400 mr-3" />
-                      <span className="text-sm text-gray-700">{form.formTitle}</span>
+                      <FaFileAlt className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 truncate">{form.formTitle}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50 gap-3">
               <Link
                 href={`/admin/clients/${clientId}/signature-links`}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors order-2 sm:order-1"
                 onClick={() => setShowLinkModal(false)}
               >
                 <FaLink className="mr-2 h-4 w-4" />
@@ -1066,7 +1074,7 @@ export default function ClientFormsPageClient() {
               
               <button
                 onClick={() => setShowLinkModal(false)}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors order-1 sm:order-2"
               >
                 Done
               </button>
