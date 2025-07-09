@@ -25,6 +25,7 @@ interface FormSignatureData {
   client: {
     name: string;
     email: string;
+    commonFields: any;
   };
   batchToken: string;
   isExpired: boolean;
@@ -65,6 +66,7 @@ export default function FormSignaturePageClient() {
       
       const data = await response.json();
       setFormData(data);
+      console.log('Form data loaded:', data);
       
       // If already signed, show signature pad
       if (data.formSubmission.clientSignature === "true") {
@@ -294,6 +296,7 @@ export default function FormSignaturePageClient() {
             showSignature={isAlreadySigned}
             existingSignature={formData.formSubmission.data?.signature} // Get signature from form data
             isClientView={true}
+            commonFieldsData={formData.client.commonFields[0] || {}}
           />
         </div>
 

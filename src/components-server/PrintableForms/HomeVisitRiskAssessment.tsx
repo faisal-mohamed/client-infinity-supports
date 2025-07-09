@@ -173,7 +173,7 @@ const Footer = () => (
 );
 
 // --- Page Components ---
-const Page1 = ({homeVisitResponse, images} : any) => (
+const Page1 = ({homeVisitResponse, images, commonFields} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-6 pb-4">
@@ -193,18 +193,18 @@ const Page1 = ({homeVisitResponse, images} : any) => (
        <tbody>
          <tr>
            <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">Name:</span> {homeVisitResponse.name}
+          <span className="font-semibold">Name:</span> {commonFields?.name ||homeVisitResponse.name ||  ''}
         </td>
         <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">NDIS Number:</span> {homeVisitResponse.ndisNumber}
+          <span className="font-semibold">NDIS Number:</span> {commonFields?.ndis || homeVisitResponse.ndisNumber ||  ''}
         </td>
         <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">DOB:</span> {homeVisitResponse.dob}
+          <span className="font-semibold">DOB:</span> {commonFields?.dob || homeVisitResponse.dob || ''}
         </td>
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Address:</span> {homeVisitResponse.address}
+          <span className="font-semibold">Address:</span> {commonFields?.address || homeVisitResponse.address || ''}
         </td>
       </tr>
       <tr>
@@ -264,7 +264,7 @@ const Page1 = ({homeVisitResponse, images} : any) => (
 
 
 
-const Page2 = ({homeVisitResponse, images} : any) => {
+const Page2 = ({homeVisitResponse, images, commonFields} : any) => {
   const page = homeVisitSchema.pages[1];
 
   return (
@@ -364,7 +364,7 @@ const Page2 = ({homeVisitResponse, images} : any) => {
 
 
 
-const Page3 = ({homeVisitResponse, images} : any) => {
+const Page3 = ({homeVisitResponse, images, commonFields} : any) => {
   const page = homeVisitSchema.pages[2];
 
   return (
@@ -424,7 +424,7 @@ const Page3 = ({homeVisitResponse, images} : any) => {
     </A4Page>
   );
 };
-const Page4 = ({ homeVisitResponse, images }: any) => {
+const Page4 = ({ homeVisitResponse, images, commonFields }: any) => {
   const page = homeVisitSchema.pages[3];
 
   return (
@@ -503,7 +503,7 @@ const Page4 = ({ homeVisitResponse, images }: any) => {
 };
 
 
-const Page5 = ({homeVisitResponse, images} : any) => (
+const Page5 = ({homeVisitResponse, images, commonFields} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-8 pb-6">
@@ -522,7 +522,7 @@ const Page5 = ({homeVisitResponse, images} : any) => (
     <div className="text-center">
       <div className="font-semibold mb-2">Name:</div>
       <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        {homeVisitResponse.name}
+        { commonFields?.name || homeVisitResponse.name || ''}
       </div>
     </div>
     <div className="text-center">
@@ -554,13 +554,13 @@ const Page5 = ({homeVisitResponse, images} : any) => (
 );
 
 // --- Main Component ---
-const HomeVisitRiskAssessment = ({formData, images} : any) => (
+const HomeVisitRiskAssessment = ({formData, images, commonFields} : any) => (
   <div className="bg-gray-100 min-h-screen py-8">
-    <Page1  homeVisitResponse={formData} images={images} />
-    <Page2  homeVisitResponse={formData} images={images} />
-    <Page3  homeVisitResponse={formData} images={images} />
-    <Page4  homeVisitResponse={formData} images={images} />
-    <Page5  homeVisitResponse={formData} images={images} />
+    <Page1  homeVisitResponse={formData} images={images} commonFields={commonFields} />
+    <Page2  homeVisitResponse={formData} images={images} commonFields={commonFields} />
+    <Page3  homeVisitResponse={formData} images={images} commonFields={commonFields} />
+    <Page4  homeVisitResponse={formData} images={images} commonFields={commonFields} />
+    <Page5  homeVisitResponse={formData} images={images} commonFields={commonFields} />
   </div>
 );
 

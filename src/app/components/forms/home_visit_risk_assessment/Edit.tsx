@@ -106,9 +106,16 @@ const FORM_SECTIONS = [
 const commonFieldsMapping: Record<string, string> = {
   name: "name",
   ndisNumber: "ndis",
-  dob: "dob",
+  dob: "dob", 
   address: "address",
 };
+
+// Helper function to check if a field is a common field
+const isCommonField = (fieldName: string): boolean => {
+  return Object.keys(commonFieldsMapping).includes(fieldName);
+};
+
+
 
 const yesNoOptions = ["Yes", "No"];
 const entryPointOptions = ["Left side", "Right Side", "Rear", "Other"];
@@ -123,6 +130,15 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   handleSave,
   onCommonFieldsUpdated,
 }) => {
+
+// Helper function to get common field value
+const getCommonFieldValue = (fieldName: string): string => {
+  const commonKey = commonFieldsMapping[fieldName];
+  return commonFieldsData?.[commonKey] || '';
+};
+  useEffect(() => {
+    console.log("Common fields data updated:", commonFieldsData);
+  }, [commonFieldsData]);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
@@ -131,11 +147,11 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const sigCanvasRef = useRef<SignatureCanvasRef | null>(null);
 
   const initialValues = {
-    // Metadata fields
-    name: "",
-    ndisNumber: "",
-    dob: "",
-    address: "",
+    // Metadata fields - these will be overridden by common fields if available
+    name: commonFieldsData?.name || "",
+    ndisNumber: commonFieldsData?.ndis || "",
+    dob: commonFieldsData?.dob || "",
+    address: commonFieldsData?.address || "",
     completionDate: new Date().toISOString().split("T")[0],
     
     // Client and Family
@@ -193,50 +209,26 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     ...formData,
   };
 
-  // Pre-populate with common fields
-  for (const [formKey, commonKey] of Object.entries(commonFieldsMapping)) {
-    if (commonFieldsData?.[commonKey] && !initialValues[formKey]) {
-      initialValues[formKey] = commonFieldsData[commonKey];
-    }
-  }
-
+  // Initialize local values with form data, but common fields will be displayed from commonFieldsData
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
 
-  // Track pending changes to common fields
+  // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
 
-  // Track changes to common fields
+  // Track changes to common fields (no longer needed since fields are read-only, but kept for compatibility)
   const trackCommonFieldChange = (name: string, value: any) => {
-    const commonKey = commonFieldsMapping[name];
-    if (!commonKey) return;
-    if (commonFieldsData?.[commonKey] !== value) {
-      setPendingCommonFieldChanges((prev) => ({ ...prev, [commonKey]: value }));
-    } else {
-      setPendingCommonFieldChanges((prev) => {
-        const updated = { ...prev };
-        delete updated[commonKey];
-        return updated;
-      });
-    }
+    // Common fields are now read-only, so this function does nothing
+    // Kept for compatibility with existing code structure
+    return;
   };
 
-  // Sync common fields into localValues when commonFieldsData changes
+  // Update display when commonFieldsData changes (but don't modify localValues for common fields)
   useEffect(() => {
     if (!commonFieldsData) return;
-    setLocalValues((prev: any) => {
-      const updated = { ...prev };
-      for (const [formKey, commonKey] of Object.entries(commonFieldsMapping)) {
-        if (
-          commonFieldsData[commonKey] &&
-          (!updated[formKey] || updated[formKey] === "")
-        ) {
-          updated[formKey] = commonFieldsData[commonKey];
-        }
-      }
-      return updated;
-    });
+    // We don't need to update localValues for common fields since we display them directly from commonFieldsData
+    // This effect is kept for any future logic that might depend on commonFieldsData changes
   }, [commonFieldsData]);
 
   useEffect(() => {
@@ -255,6 +247,18 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
+    
+    // Prevent changes to common fields
+    if (isCommonField(name)) {
+      showToast({
+        type: "info",
+        title: "Common Field",
+        message: "This field can only be updated from the client's common details section.",
+        duration: 3000,
+      });
+      return;
+    }
+    
     const newValues = { ...localValues, [name]: value };
     setLocalValues(newValues);
 
@@ -294,7 +298,15 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
     return required.every((key) => {
-      const value = localValues[key];
+      let value;
+      
+      // For common fields, get value from commonFieldsData
+      if (isCommonField(key)) {
+        value = getCommonFieldValue(key);
+      } else {
+        value = localValues[key];
+      }
+      
       return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
     });
   };
@@ -317,30 +329,40 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     type: string = "text",
     placeholder?: string,
     required?: boolean
-  ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={localValues[name] || ""}
-        onChange={handleChange}
-        placeholder={placeholder}
-        disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-          fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-      />
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-    </div>
-  );
+  ) => {
+    const isCommon = isCommonField(name);
+    const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
+    const isFieldReadOnly = readOnly || isCommon;
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+          
+        </label>
+        <input
+          type={type}
+          name={name}
+          value={displayValue}
+          onChange={isCommon ? undefined : handleChange}
+          placeholder={isCommon ? "Value from common fields" : placeholder}
+          disabled={isFieldReadOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
+            fieldErrors[name]
+              ? "border-red-300 bg-red-50"
+              : isCommon 
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+        />
+       
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+      </div>
+    );
+  };
 
   const renderTextArea = (
     label: string,
@@ -348,30 +370,40 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     rows: number = 3,
     placeholder?: string,
     required?: boolean
-  ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <textarea
-        name={name}
-        value={localValues[name] || ""}
-        onChange={handleChange}
-        placeholder={placeholder}
-        rows={rows}
-        disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
-          fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-      />
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-    </div>
-  );
+  ) => {
+    const isCommon = isCommonField(name);
+    const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
+    const isFieldReadOnly = readOnly || isCommon;
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+         
+        </label>
+        <textarea
+          name={name}
+          value={displayValue}
+          onChange={isCommon ? undefined : handleChange}
+          placeholder={isCommon ? "Value from common fields" : placeholder}
+          rows={rows}
+          disabled={isFieldReadOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
+            fieldErrors[name]
+              ? "border-red-300 bg-red-50"
+              : isCommon 
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+        />
+        
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+      </div>
+    );
+  };
 
   const renderDropdown = (
     label: string,
@@ -564,7 +596,14 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     
     FORM_SECTIONS.forEach(section => {
       section.requiredFields.forEach(fieldName => {
-        const value = localValues[fieldName];
+        let value;
+        
+        // For common fields, get value from commonFieldsData
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
         
         // Check if field is empty, null, undefined, or empty string
         if (!value || (typeof value === 'string' && value.trim() === '')) {
@@ -594,35 +633,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       }
     }
 
-    // If there are pending common field changes, update them via admin API
-    if (Object.keys(pendingCommonFieldChanges).length > 0) {
-      try {
-        if (typeof handleSave === 'function') {
-          await handleSave(false);
-          
-          showToast({
-            type: "success",
-            title: "Common Fields Updated",
-            message: "The values for these fields have been updated across all forms.",
-            duration: 4000,
-          });
-          setPendingCommonFieldChanges({});
-          if (typeof onCommonFieldsUpdated === 'function') onCommonFieldsUpdated();
-        } else {
-          throw new Error("Save function not available");
-        }
-      } catch (err: any) {
-        showToast({
-          type: "error",
-          title: "Update Failed",
-          message: err.message || "Failed to update common fields.",
-          duration: 4000,
-        });
-        return;
-      }
-    } else {
-      handleSave(submit);
-    }
+    // Since common fields are read-only, we just save the form data
+    handleSave(submit);
   };
 
   // Handle signature end (when user finishes drawing)

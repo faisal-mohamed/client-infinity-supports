@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 // --- Schema & Response Data ---
 const homeVisitSchema : any = {
@@ -173,7 +173,7 @@ const Footer = () => (
 );
 
 // --- Page Components ---
-const Page1 = ({homeVisitResponse} : any) => (
+const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-6 pb-4">
@@ -193,18 +193,18 @@ const Page1 = ({homeVisitResponse} : any) => (
        <tbody>
          <tr>
            <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">Name:</span> {homeVisitResponse.name}
+          <span className="font-semibold">Name:</span> {commonFieldsData?.name}
         </td>
         <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">NDIS Number:</span> {homeVisitResponse.ndisNumber}
+          <span className="font-semibold">NDIS Number:</span> {commonFieldsData?.ndis}
         </td>
         <td className="border border-black p-2 w-1/3">
-          <span className="font-semibold">DOB:</span> {homeVisitResponse.dob}
+          <span className="font-semibold">DOB:</span> {commonFieldsData?.dob}
         </td>
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Address:</span> {homeVisitResponse.address}
+          <span className="font-semibold">Address:</span> {commonFieldsData?.address}
         </td>
       </tr>
       <tr>
@@ -500,7 +500,7 @@ const Page4 = ({homeVisitResponse} : any) => {
 };
 
 
-const Page5 = ({homeVisitResponse} : any) => (
+const Page5 = ({homeVisitResponse, commonFieldsData} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-8 pb-6">
@@ -519,7 +519,7 @@ const Page5 = ({homeVisitResponse} : any) => (
     <div className="text-center">
       <div className="font-semibold mb-2">Name:</div>
       <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        {homeVisitResponse.name}
+        {commonFieldsData?.name}
       </div>
     </div>
     <div className="text-center">
@@ -551,13 +551,17 @@ const Page5 = ({homeVisitResponse} : any) => (
 );
 
 // --- Main Component ---
-const HomeVisitRiskAssessment = ({formData} : any) => (
+const HomeVisitRiskAssessment = ({formData, commonFieldsData} : any) => (
+  useEffect(() => {
+    console.log("Form Data:", formData);
+    console.log("Common Fields Data:", commonFieldsData);
+  }, [formData, commonFieldsData]),
   <div className="bg-gray-100 min-h-screen py-8">
-    <Page1  homeVisitResponse={formData} />
-    <Page2  homeVisitResponse={formData} />
-    <Page3  homeVisitResponse={formData} />
-    <Page4  homeVisitResponse={formData} />
-    <Page5  homeVisitResponse={formData} />
+    <Page1  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
+    <Page2  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
+    <Page3  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
+    <Page4  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
+    <Page5  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
   </div>
 );
 

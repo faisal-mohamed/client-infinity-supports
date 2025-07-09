@@ -18,43 +18,56 @@ export async function GET(
       );
     }
 
-    // Find the signature batch and verify access
-    const batch = await prisma.formBatch.findUnique({
-      where: { 
-        batchToken: token,
-        isSignatureOnly: true,
-      },
-      include: {
-        client: {
+  const batch = await prisma.formBatch.findUnique({
+  where: { 
+    batchToken: token,
+    isSignatureOnly: true,
+  },
+  include: {
+    client: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        commonFields: {
           select: {
-            id: true,
             name: true,
+            age: true,
             email: true,
+            sex: true,
+            street: true,
+            state: true,
+            postCode: true,
+            dob: true,
+            ndis: true,
+            disability: true,
+            address: true,
+            phone: true,
           },
         },
-        signatureForms: {
-          where: {
-            formSubmissionId: formSubmissionIdInt,
-          },
+      },
+    },
+    signatureForms: {
+      include: {
+        formSubmission: {
           include: {
-            formSubmission: {
-              include: {
-                form: {
-                  select: {
-                    id: true, // Include form ID for PDF generation
-                    formKey: true,
-                    title: true,
-                    version: true,
-                    schema: true,
-                    requiresSignature: true,
-                  },
-                },
+            form: {
+              select: {
+                id: true,
+                formKey: true,
+                title: true,
+                version: true,
+                schema: true,
+                requiresSignature: true,
               },
             },
           },
         },
       },
-    });
+    },
+  },
+});
+
 
     if (!batch) {
       return NextResponse.json(
@@ -153,7 +166,7 @@ export async function POST(
     }
 
     // Verify the form exists in this batch
-    const signatureForm = batch.signatureForms.find(
+    const signatureForm : any  = batch.signatureForms.find(
       sf => sf.formSubmissionId === formSubmissionIdInt
     );
 
@@ -165,7 +178,7 @@ export async function POST(
     }
 
     // Update the form submission with signature
-    const currentSubmission = await prisma.formSubmission.findUnique({
+    const currentSubmission: any = await prisma.formSubmission.findUnique({
       where: { id: formSubmissionIdInt },
       select: { data: true }
     });

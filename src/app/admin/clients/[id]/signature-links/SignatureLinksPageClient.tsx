@@ -44,7 +44,7 @@ interface ClientInfo {
 export default function SignatureLinksPageClient() {
   const params = useParams();
   const { showToast } = useToast();
-  const confirm = useConfirm();
+  const confirm  : any = useConfirm();
   
   const clientId = parseInt(params.id as string);
   
@@ -103,6 +103,7 @@ export default function SignatureLinksPageClient() {
   };
 
   const deleteBatch = async (batchId: number) => {
+
     const confirmed = await confirm({
       title: 'Delete Signature Link',
       message: 'Are you sure you want to delete this signature link? This action cannot be undone.',
@@ -226,10 +227,13 @@ export default function SignatureLinksPageClient() {
     }
   };
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading Links...</p>
+        </div>
       </div>
     );
   }

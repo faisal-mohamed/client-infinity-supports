@@ -37,6 +37,7 @@ export default function FormViewPageClient() {
   const assignmentId = parseInt(params.assignmentId as string);
   
   const [assignment, setAssignment] = useState<FormAssignmentData | null>(null);
+  const [commonFields, setCommonFields] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
@@ -54,8 +55,9 @@ export default function FormViewPageClient() {
       if (!response.ok) throw new Error('Failed to load assignment data');
       
       const data = await response.json();
-      console.log('Loaded assignment data:', data.assignment?.submissionData);
+      console.log('Loaded assignment data:', data.commonFields);
       setAssignment(data.assignment);
+      setCommonFields(data.commonFields || {});
       
     } catch (error) {
       console.error('Error loading assignment data:', error);
@@ -298,11 +300,12 @@ export default function FormViewPageClient() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
           <FormViewComponent
-            formSchemas={assignment.form.schema}
-            formData={assignment.submissionData}
-            showSignature={!!assignment.clientSignature}
-            existingSignature={assignment.clientSignature}
+            formSchemas={assignment?.form?.schema}
+            formData={assignment?.submissionData}
+            showSignature={!!assignment?.clientSignature}
+            existingSignature={assignment?.clientSignature}
             isAdminView={true}
+            commonFieldsData={commonFields}
           />
         </div>
       </div>

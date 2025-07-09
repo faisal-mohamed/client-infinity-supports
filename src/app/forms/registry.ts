@@ -1,5 +1,5 @@
 import ClientIntakeFormEnhanced from '../components/forms/ClientIntakeFormEnhanced';
-import CombinedForms from '../ClientIntakeFormView/page'; // Your view component
+import FormRenderer from '@/components/clients-intake-form/FormRenderer'; // Assuming this is the form renderer component
 
 import HomeVisitRiskAssessment from '@/app/test/home_visit/page'
 import HomeVisitRiskAssessmentEdit from '../components/forms/home_visit_risk_assessment/Edit';
@@ -28,8 +28,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     key: 'client_intake_form',
     name: 'Client Intake Form',
     editComponent: ClientIntakeFormEnhanced,
-    viewComponent: CombinedForms,
-    // No signatures required for client intake form
+    viewComponent: FormRenderer,
   },
   'home_visit_risk_assessment': {
     key: 'home_visit_risk_assessment',

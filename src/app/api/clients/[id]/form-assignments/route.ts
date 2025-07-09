@@ -16,13 +16,31 @@ export async function GET(
       );
     }
 
-    // Get client info
+    // Get client info with common fields
     const client = await prisma.client.findUnique({
       where: { id: clientId },
       select: {
         id: true,
         name: true,
         email: true,
+        phone: true,
+        commonFields: {
+          select: {
+            id: true,
+            name: true,
+            age: true,
+            email: true,
+            sex: true,
+            street: true,
+            state: true,
+            postCode: true,
+            dob: true,
+            ndis: true,
+            disability: true,
+            address: true,
+            phone: true,
+          }
+        }
       },
     });
 
