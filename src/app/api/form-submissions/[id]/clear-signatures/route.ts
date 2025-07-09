@@ -6,10 +6,11 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const submissionId = parseInt(params.id);
+    const { id } = await params;
+    const submissionId = parseInt(id);
     const { formKey } = await request.json();
 
     if (!submissionId || !formKey) {
@@ -19,16 +20,10 @@ export async function POST(
       );
     }
 
-    // Get the form submission
+    // 1. Get the form submission first
     const formSubmission = await prisma.formSubmission.findUnique({
       where: { id: submissionId },
-      include: {
-        formAssignment: {
-          include: {
-            form: true
-          }
-        }
-      }
+      // NO formAssignment include here, as it doesn't exist
     });
 
     if (!formSubmission) {
@@ -36,6 +31,28 @@ export async function POST(
         { error: 'Form submission not found' },
         { status: 404 }
       );
+    }
+
+    // 2. Then, find the related FormAssignment using the submission's details
+    // Assuming there's a unique assignment for this client, form, and version
+    const formAssignment = await prisma.formAssignment.findUnique({
+      where: {
+        clientId_formId_formVersion: { // Using the unique composite key
+          clientId: formSubmission.clientId,
+          formId: formSubmission.formId,
+          formVersion: formSubmission.formVersion,
+        }
+      },
+      include: {
+        form: true // Include the MasterForm details
+      }
+    });
+
+    if (!formAssignment) {
+        return NextResponse.json(
+            { error: 'Related form assignment not found' },
+            { status: 404 }
+        );
     }
 
     // Get form configuration to identify signature fields
@@ -47,10 +64,10 @@ export async function POST(
       );
     }
 
-    // Parse existing form data
-    let formData;
+    // Parse existing form data (assuming 'data' field is used for form data)
+    let formData : any;
     try {
-      formData = JSON.parse(formSubmission.formData);
+      formData = formSubmission.data; // Use 'data' field, not 'formData'
     } catch (error) {
       return NextResponse.json(
         { error: 'Invalid form data format' },
@@ -64,7 +81,7 @@ export async function POST(
 
     formConfig.signatures.forEach(signature => {
       const fieldKey = signature.dataKey || signature.id;
-      if (formData[fieldKey]) {
+      if (formData && typeof formData === 'object' && formData[fieldKey]) { // Added safety checks
         delete formData[fieldKey];
         signaturesCleared++;
         clearedSignatures.push(signature.id);
@@ -75,7 +92,7 @@ export async function POST(
     const updatedSubmission = await prisma.formSubmission.update({
       where: { id: submissionId },
       data: {
-        formData: JSON.stringify(formData),
+        data: formData, // Update the 'data' field
         clientSignature: "false", // Reset signature status
         clientSignedAt: null,     // Clear signature timestamp
       }
@@ -83,10 +100,11 @@ export async function POST(
 
     // Also update the form assignment status
     await prisma.formAssignment.update({
-      where: { id: formSubmission.formAssignmentId },
+      where: { id: formAssignment.id }, // Use the ID of the found assignment
       data: {
-        clientSignature: "false",
-        clientSignedAt: null,
+        isCompleted: false, // Assuming clearing signatures means it's no longer completed
+        // clientSignature: "false", // These fields don't exist on FormAssignment model based on your schema
+        // clientSignedAt: null,     // These fields don't exist on FormAssignment model based on your schema
       }
     });
 
@@ -95,7 +113,7 @@ export async function POST(
       message: `Cleared ${signaturesCleared} signature(s) from form`,
       signaturesCleared,
       clearedSignatures,
-      formTitle: formSubmission.formAssignment.form.title
+      formTitle: formAssignment.form.title // Use formAssignment.form.title
     });
 
   } catch (error) {

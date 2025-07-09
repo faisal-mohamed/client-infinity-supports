@@ -13,47 +13,9 @@ import { useToast } from '@/components/ui/Toast';
 import { getAllForms } from '@/app/forms/registry';
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 import CommonFieldsModal, { CommonField } from '@/components/CommonFieldsModal';
+import CommonFieldsWarningModal from '@/components/CommonFieldsWarningModal';
 
-// Types
-interface FormAssignmentWithDetails {
-  id: number;
-  formId: number;
-  formVersion: number;
-  assignedAt: string;
-  displayOrder: number;
-  isCompleted: boolean; // Add this field
-  form: {
-    id: number;
-    formKey: string;
-    title: string;
-    version: number;
-    requiresSignature?: boolean; // Add signature requirement field
-  };
-  // Check if FormSubmission exists
-  hasSubmission: boolean;
-  submissionId?: number;
-  filledByAdmin: boolean;
-  adminFilledAt?: string;
-  clientSignature?: string;
-  clientSignedAt?: string;
-  // NEW: Include form data for signature validation
-  formData?: any;
-}
-
-interface ClientInfo {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string;
-  commonFields?: any
-}
-
-interface AvailableForm {
-  id: number;
-  formKey: string;
-  title: string;
-  version: number;
-}
+import {FormAssignmentWithDetails, ClientInfo, AvailableForm} from './types'
 
 export default function ClientFormsPageClient() {
   const params = useParams();
@@ -63,7 +25,7 @@ export default function ClientFormsPageClient() {
   const clientId = parseInt(params.id as string);
   
   const [client, setClient] = useState<ClientInfo | null>(null);
-  const [assignments, setAssignments] = useState<FormAssignmentWithDetails[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedForms, setSelectedForms] = useState<number[]>([]);
   const [generatingLink, setGeneratingLink] = useState(false);
@@ -92,6 +54,7 @@ export default function ClientFormsPageClient() {
 
   // Common fields modal state
   const [showCommonFieldsModal, setShowCommonFieldsModal] = useState(false);
+  const [showCommonFieldsWarning, setShowCommonFieldsWarning] = useState(false);
   const [commonFields, setCommonFields] = useState<CommonField | null>(null);
   const [updatingCommonFields, setUpdatingCommonFields] = useState(false);
 
@@ -356,14 +319,31 @@ export default function ClientFormsPageClient() {
     }
   };
 
+  // Wrapper function for warning modal downloads
+  const downloadFormForWarningModal = async (assignmentId: number, formTitle: string) => {
+    console.log("Downloading form from warning modal:", assignmentId, formTitle);
+    const assignment = assignments.find(a => a.id === assignmentId);
+    if (assignment) {
+      console.log("Found assignment:", assignment);
+      await handleDownloadPDF(assignment);
+    } else {
+      console.error("Assignment not found for ID:", assignmentId);
+    }
+  };
+
   // Common Fields Functions
+  const handleProceedToEditCommonFields = () => {
+    setShowCommonFieldsWarning(false);
+    openCommonFieldsModal();
+  };
+
   const openCommonFieldsModal = () => {
     console.log("Opening common fields modal, client:", client);
     console.log("Client common fields:", client?.commonFields);
     
     if (client) {
       // Use commonFields if available, otherwise initialize with basic client info
-      const commonFieldsData : any = client.commonFields[0] || {};
+      const commonFieldsData = client.commonFields[0] || {};
       
       setCommonFields({
         clientId: clientId,
@@ -390,12 +370,6 @@ export default function ClientFormsPageClient() {
         age: null,
         sex: '',
         street: '',
-        state: '',
-        postCode: '',
-        dob: '',
-        ndis: '',
-        disability: '',
-        address: '',
       });
     }
     setShowCommonFieldsModal(true);
@@ -406,7 +380,6 @@ export default function ClientFormsPageClient() {
     
     setCommonFields(prev => ({
       ...prev!,
-      [field]: value
     }));
   };
 
@@ -634,7 +607,7 @@ export default function ClientFormsPageClient() {
               </button>
 
               <button
-                onClick={openCommonFieldsModal}
+                onClick={() => setShowCommonFieldsWarning(true)}
                 className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <FaUserEdit className="mr-2 h-4 w-4" />
@@ -1101,6 +1074,16 @@ export default function ClientFormsPageClient() {
           </div>
         </div>
       )}
+
+      {/* Common Fields Warning Modal */}
+      <CommonFieldsWarningModal
+        isOpen={showCommonFieldsWarning}
+        onClose={() => setShowCommonFieldsWarning(false)}
+        onProceed={handleProceedToEditCommonFields}
+        clientName={client?.name}
+        assignments={assignments}
+        onDownloadForm={downloadFormForWarningModal}
+      />
 
       {/* Common Fields Modal */}
       <CommonFieldsModal

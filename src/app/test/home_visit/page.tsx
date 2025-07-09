@@ -209,7 +209,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Date of completion of risk assessment:</span> {homeVisitResponse.completionDate}
+          <span className="font-semibold">Date of completion of risk assessment:</span> {homeVisitResponse?.completionDate}
         </td>
       </tr>
     </tbody>
@@ -229,7 +229,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
           </tr>
         </thead>
         <tbody className="h-full">
-          {homeVisitSchema.pages[0].sections.map((section: any) => (
+          {homeVisitSchema?.pages[0]?.sections.map((section: any) => (
             <React.Fragment key={section.title}>
               <tr className="bg-gray-300">
                 <td className="border border-black p-3 font-bold text-left" colSpan={4}>
@@ -242,13 +242,13 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
                     {field.label}
                   </td>
                   <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
+                    {homeVisitResponse?.[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
                   </td>
                   <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
+                    {homeVisitResponse?.[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
                   </td>
                   <td className="border border-black p-3 w-[46%]">
-                    {homeVisitResponse[field.key + "_comments"] || ""}
+                    {homeVisitResponse?.[field.key + "_comments"] || ""}
                   </td>
                 </tr>
               ))}
@@ -264,18 +264,116 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
 
 
 
-const Page2 = ({homeVisitResponse} : any) => {
-  const page = homeVisitSchema.pages[1];
+// const Page2 = ({homeVisitResponse} : any) => {
+//   const page = homeVisitSchema.pages[1];
+
+//   return (
+//     <A4Page>
+//       {/* Header with Logo */}
+//       <div className="flex justify-center pt-6 pb-4">
+//         <img
+//           src={homeVisitSchema.logo.page2.src}
+//           alt="Logo"
+//           width={homeVisitSchema.logo.page2.width}
+//           height={homeVisitSchema.logo.page2.height}
+//           className="object-contain"
+//         />
+//       </div>
+
+//       {/* Table (Fill remaining height) */}
+//       <div className="flex-1 px-6 py-4 flex flex-col">
+//         <table className="w-full border-collapse border border-black text-sm flex-1">
+//           <thead>
+//             <tr>
+//               <th className="border border-black w-[40%] p-2">Question</th>
+//               <th className="border border-black w-[7%] text-center p-2">YES</th>
+//               <th className="border border-black w-[7%] text-center p-2">NO</th>
+//               <th className="border border-black w-[46%] p-2">COMMENTS</th>
+//             </tr>
+//           </thead>
+//           <tbody className="h-full">
+//             {page.sections.map((section: any, sectionIndex: number) => (
+//               <React.Fragment key={sectionIndex}>
+//                 {section.title && (
+//                   <tr className="bg-gray-300">
+//                     <td colSpan={4} className="border border-black p-3 font-bold">
+//                       {section.title}
+//                     </td>
+//                   </tr>
+//                 )}
+//                 {section.fields.map((field: any) => {
+//                   const value = homeVisitResponse[field.key];
+//                   const comments = homeVisitResponse[field.key + "_comments"] || "";
+
+//                   if (field.type === "checkboxGroup") {
+//                     return (
+//                       <tr key={field.key}>
+//                         <td className="border border-black p-3 align-top font-medium">
+//                           {field.label}
+//                         </td>
+//                         <td className="border border-black text-center align-top"></td>
+//                         <td className="border border-black text-center align-top"></td>
+//                         <td className="border border-black p-3 align-top">
+//                           <div className="space-y-1">
+//                             {field.options.map((opt: any) => (
+//                               <label key={opt} className="flex items-center text-xs">
+//                                 <input
+//                                   type="checkbox"
+//                                   checked={Array.isArray(value) && value.includes(opt)}
+//                                   readOnly
+//                                   className="mr-2 h-3 w-3"
+//                                 />
+//                                 <span>{opt}</span>
+//                               </label>
+//                             ))}
+//                             {comments && <div className="text-xs mt-1 italic">{comments}</div>}
+//                           </div>
+//                         </td>
+//                       </tr>
+//                     );
+//                   }
+
+//                   return (
+//                     <tr key={field.key}>
+//                       <td className="border border-black p-3 align-top font-medium">
+//                         {field.label}
+//                       </td>
+//                       <td className="border border-black text-center align-top">
+//                         {value?.toLowerCase() === "yes" ? "✔️" : ""}
+//                       </td>
+//                       <td className="border border-black text-center align-top">
+//                         {value?.toLowerCase() === "no" ? "✔️" : ""}
+//                       </td>
+//                       <td className="border border-black p-3 align-top">
+//                         {comments}
+//                       </td>
+//                     </tr>
+//                   );
+//                 })}
+//               </React.Fragment>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+
+//       <Footer />
+//     </A4Page>
+//   );
+// };
+
+
+const Page2 = ({ homeVisitResponse }: any) => {
+  const page = homeVisitSchema?.pages?.[1];
 
   return (
     <A4Page>
       {/* Header with Logo */}
       <div className="flex justify-center pt-6 pb-4">
         <img
-          src={homeVisitSchema.logo.page2.src}
+          src={homeVisitSchema?.logo?.page2?.src}
           alt="Logo"
-          width={homeVisitSchema.logo.page2.width}
-          height={homeVisitSchema.logo.page2.height}
+          width={homeVisitSchema?.logo?.page2?.width}
+          height={homeVisitSchema?.logo?.page2?.height}
           className="object-contain"
         />
       </div>
@@ -292,20 +390,20 @@ const Page2 = ({homeVisitResponse} : any) => {
             </tr>
           </thead>
           <tbody className="h-full">
-            {page.sections.map((section: any, sectionIndex: number) => (
+            {page?.sections?.map((section: any, sectionIndex: number) => (
               <React.Fragment key={sectionIndex}>
-                {section.title && (
+                {section?.title && (
                   <tr className="bg-gray-300">
                     <td colSpan={4} className="border border-black p-3 font-bold">
                       {section.title}
                     </td>
                   </tr>
                 )}
-                {section.fields.map((field: any) => {
-                  const value = homeVisitResponse[field.key];
-                  const comments = homeVisitResponse[field.key + "_comments"] || "";
+                {section?.fields?.map((field: any) => {
+                  const value = homeVisitResponse?.[field.key];
+                  const comments = homeVisitResponse?.[field.key + "_comments"] || "";
 
-                  if (field.type === "checkboxGroup") {
+                  if (field?.type === "checkboxGroup") {
                     return (
                       <tr key={field.key}>
                         <td className="border border-black p-3 align-top font-medium">
@@ -315,7 +413,7 @@ const Page2 = ({homeVisitResponse} : any) => {
                         <td className="border border-black text-center align-top"></td>
                         <td className="border border-black p-3 align-top">
                           <div className="space-y-1">
-                            {field.options.map((opt: any) => (
+                            {field?.options?.map((opt: any) => (
                               <label key={opt} className="flex items-center text-xs">
                                 <input
                                   type="checkbox"
@@ -362,20 +460,79 @@ const Page2 = ({homeVisitResponse} : any) => {
 };
 
 
+// const Page3 = ({homeVisitResponse} : any) => {
+//   const page = homeVisitSchema.pages[2];
 
+//   return (
+//     <A4Page>
+//       {/* Header with Logo */}
+//       <div className="flex justify-center pt-6 pb-4">
+//         <img
+//           src={homeVisitSchema.logo.page3.src}
+//           alt="Logo"
+//           width={homeVisitSchema.logo.page3.width}
+//           height={homeVisitSchema.logo.page3.height}
+//           className="object-contain"
+//         />
+//       </div>
 
-const Page3 = ({homeVisitResponse} : any) => {
-  const page = homeVisitSchema.pages[2];
+//       {/* Content */}
+//       <div className="flex-1 px-6 py-4">
+//         {/* Risk Assessment Image */}
+//         <div className="mb-6 flex justify-center">
+//           <img 
+//             src={page.image} 
+//             alt="Risk Matrix" 
+//             className="max-w-full h-auto border border-gray-300 rounded"
+//           />
+//         </div>
+
+//         {/* Risk Level Descriptions */}
+//         {page.content.map((section : any, idx : number) => (
+//           <div key={idx} className="space-y-4">
+//             <h3 className="text-base font-semibold underline text-center mb-4">
+//               {section.heading}
+//             </h3>
+//             <div className="space-y-3">
+//               {section.blocks.map((block : any, i : number) => (
+//                 <div key={i} className="border-l-4 border-gray-300 pl-4">
+//                   <h4 className="font-bold text-sm mb-2">
+//                     <span>{block.title.split(" ")[0]} </span>
+//                     <span className={`
+//                       ${block.color === 'green' ? 'text-green-600' : ''}
+//                       ${block.color === 'yellow' ? 'text-yellow-600' : ''}
+//                       ${block.color === 'orange' ? 'text-orange-600' : ''}
+//                     `}>
+//                       {block.title.split(" ")[1]}
+//                     </span>
+//                   </h4>
+//                   <p className="text-sm leading-relaxed text-gray-700">
+//                     {block.text}
+//                   </p>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       <Footer />
+//     </A4Page>
+//   );
+// };
+
+const Page3 = ({ homeVisitResponse }: any) => {
+  const page = homeVisitSchema?.pages?.[2];
 
   return (
     <A4Page>
       {/* Header with Logo */}
       <div className="flex justify-center pt-6 pb-4">
         <img
-          src={homeVisitSchema.logo.page3.src}
+          src={homeVisitSchema?.logo?.page3?.src}
           alt="Logo"
-          width={homeVisitSchema.logo.page3.width}
-          height={homeVisitSchema.logo.page3.height}
+          width={homeVisitSchema?.logo?.page3?.width}
+          height={homeVisitSchema?.logo?.page3?.height}
           className="object-contain"
         />
       </div>
@@ -384,34 +541,36 @@ const Page3 = ({homeVisitResponse} : any) => {
       <div className="flex-1 px-6 py-4">
         {/* Risk Assessment Image */}
         <div className="mb-6 flex justify-center">
-          <img 
-            src={page.image} 
-            alt="Risk Matrix" 
+          <img
+            src={page?.image}
+            alt="Risk Matrix"
             className="max-w-full h-auto border border-gray-300 rounded"
           />
         </div>
 
         {/* Risk Level Descriptions */}
-        {page.content.map((section : any, idx : number) => (
+        {page?.content?.map((section: any, idx: number) => (
           <div key={idx} className="space-y-4">
             <h3 className="text-base font-semibold underline text-center mb-4">
-              {section.heading}
+              {section?.heading}
             </h3>
             <div className="space-y-3">
-              {section.blocks.map((block : any, i : number) => (
+              {section?.blocks?.map((block: any, i: number) => (
                 <div key={i} className="border-l-4 border-gray-300 pl-4">
                   <h4 className="font-bold text-sm mb-2">
-                    <span>{block.title.split(" ")[0]} </span>
-                    <span className={`
-                      ${block.color === 'green' ? 'text-green-600' : ''}
-                      ${block.color === 'yellow' ? 'text-yellow-600' : ''}
-                      ${block.color === 'orange' ? 'text-orange-600' : ''}
-                    `}>
-                      {block.title.split(" ")[1]}
+                    <span>{block?.title?.split(" ")[0]} </span>
+                    <span
+                      className={`
+                        ${block?.color === "green" ? "text-green-600" : ""}
+                        ${block?.color === "yellow" ? "text-yellow-600" : ""}
+                        ${block?.color === "orange" ? "text-orange-600" : ""}
+                      `}
+                    >
+                      {block?.title?.split(" ")[1]}
                     </span>
                   </h4>
                   <p className="text-sm leading-relaxed text-gray-700">
-                    {block.text}
+                    {block?.text}
                   </p>
                 </div>
               ))}
@@ -424,8 +583,140 @@ const Page3 = ({homeVisitResponse} : any) => {
     </A4Page>
   );
 };
-const Page4 = ({homeVisitResponse} : any) => {
-  const page = homeVisitSchema.pages[3];
+
+
+
+// const Page4 = ({homeVisitResponse} : any) => {
+//   const page = homeVisitSchema.pages[3];
+
+//   return (
+//     <A4Page>
+//       {/* Header with Logo */}
+//       <div className="flex justify-center pt-6 pb-4">
+//         <img
+//           src="/infinity_logo.png"
+//           alt="Infinity Supports WA logo"
+//           width={250}
+//           height={100}
+//           className="object-contain"
+//         />
+//       </div>
+
+//       {/* Risk Level Header */}
+//       <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+//         <div className="text-lg font-bold mb-2">
+//           <span>{page.riskLevel.label.split(" ")[0]} </span>
+//           <span className="text-red-600">{page.riskLevel.label.split(" ")[1]}</span>
+//         </div>
+//         <p className="text-sm text-gray-700 leading-relaxed">
+//           {page.riskLevel.description}
+//         </p>
+//       </div>
+
+//       {/* Risk Assessment Table - with overflow containment */}
+//       <div className="px-6 pb-4 overflow-hidden">
+//   <div className="overflow-auto">
+//     <table className="w-full border-collapse border border-black text-sm">
+//       <thead>
+//         <tr className="bg-gray-400">
+//           <th className="border border-black px-4 py-3 text-left font-bold text-black">
+//             Issue/Task
+//           </th>
+//           <th className="border border-black px-4 py-3 text-left font-bold text-black">
+//             Risk Score
+//           </th>
+//           <th className="border border-black px-4 py-3 text-left font-bold text-black">
+//             Control Measure
+//           </th>
+//           <th className="border border-black px-4 py-3 text-left font-bold text-black">
+//             Person Responsible
+//           </th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         {[1, 2, 3].map((row) => (
+//           <tr key={row} className="min-h-[80px]">
+//             <td className="border border-black px-4 py-6 align-top">
+//               {homeVisitResponse[`issue${row}`] || ""}
+//             </td>
+//             <td className="border border-black px-4 py-6 align-top">
+//               {homeVisitResponse[`riskScore${row}`] || ""}
+//             </td>
+//             <td className="border border-black px-4 py-6 align-top">
+//               {homeVisitResponse[`control${row}`] || ""}
+//             </td>
+//             <td className="border border-black px-4 py-6 align-top">
+//               {homeVisitResponse[`responsible${row}`] || ""}
+//             </td>
+//           </tr>
+//         ))}
+//       </tbody>
+//     </table>
+//   </div>
+// </div>
+
+
+//       <Footer />
+//     </A4Page>
+//   );
+// };
+
+
+// const Page5 = ({homeVisitResponse, commonFieldsData} : any) => (
+//   <A4Page>
+//     {/* Header with Logo */}
+//     <div className="flex justify-center pt-8 pb-6">
+//       <img
+//         alt="Infinity Supports WA logo"
+//         src="/infinity_logo.png"
+//         width={200}
+//         height={100}
+//         className="object-contain"
+//       />
+//     </div>
+
+//     {/* Signature Section */}
+//     <div className="flex-1 px-6 py-8">
+//   <div className="grid grid-cols-3 gap-8 text-sm">
+//     <div className="text-center">
+//       <div className="font-semibold mb-2">Name:</div>
+//       <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+//         {commonFieldsData?.name}
+//       </div>
+//     </div>
+//     <div className="text-center">
+//       <div className="font-semibold mb-2">Signature:</div>
+//       <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
+//         {homeVisitResponse.signature ? (
+//           <img
+//             src={`${homeVisitResponse.signature}`}
+//             alt="Signature"
+//             className="max-h-[50px] object-contain"
+//           />
+//         ) : (
+//           <span className="text-gray-400 italic">No signature</span>
+//         )}
+//       </div>
+//     </div>
+//     <div className="text-center">
+//       <div className="font-semibold mb-2">Designation:</div>
+//       <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+//         {homeVisitResponse.designation}
+//       </div>
+//     </div>
+//   </div>
+// </div>
+
+
+//     <Footer />
+//   </A4Page>
+// );
+
+// --- Main Component ---
+
+
+const Page4 = ({ homeVisitResponse }: any) => {
+  const page = homeVisitSchema?.pages?.[3];
 
   return (
     <A4Page>
@@ -443,64 +734,62 @@ const Page4 = ({homeVisitResponse} : any) => {
       {/* Risk Level Header */}
       <div className="px-6 py-4 bg-red-50 border-b border-red-200">
         <div className="text-lg font-bold mb-2">
-          <span>{page.riskLevel.label.split(" ")[0]} </span>
-          <span className="text-red-600">{page.riskLevel.label.split(" ")[1]}</span>
+          <span>{page?.riskLevel?.label?.split(" ")[0]} </span>
+          <span className="text-red-600">{page?.riskLevel?.label?.split(" ")[1]}</span>
         </div>
         <p className="text-sm text-gray-700 leading-relaxed">
-          {page.riskLevel.description}
+          {page?.riskLevel?.description}
         </p>
       </div>
 
       {/* Risk Assessment Table - with overflow containment */}
       <div className="px-6 pb-4 overflow-hidden">
-  <div className="overflow-auto">
-    <table className="w-full border-collapse border border-black text-sm">
-      <thead>
-        <tr className="bg-gray-400">
-          <th className="border border-black px-4 py-3 text-left font-bold text-black">
-            Issue/Task
-          </th>
-          <th className="border border-black px-4 py-3 text-left font-bold text-black">
-            Risk Score
-          </th>
-          <th className="border border-black px-4 py-3 text-left font-bold text-black">
-            Control Measure
-          </th>
-          <th className="border border-black px-4 py-3 text-left font-bold text-black">
-            Person Responsible
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {[1, 2, 3].map((row) => (
-          <tr key={row} className="min-h-[80px]">
-            <td className="border border-black px-4 py-6 align-top">
-              {homeVisitResponse[`issue${row}`] || ""}
-            </td>
-            <td className="border border-black px-4 py-6 align-top">
-              {homeVisitResponse[`riskScore${row}`] || ""}
-            </td>
-            <td className="border border-black px-4 py-6 align-top">
-              {homeVisitResponse[`control${row}`] || ""}
-            </td>
-            <td className="border border-black px-4 py-6 align-top">
-              {homeVisitResponse[`responsible${row}`] || ""}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
-
+        <div className="overflow-auto">
+          <table className="w-full border-collapse border border-black text-sm">
+            <thead>
+              <tr className="bg-gray-400">
+                <th className="border border-black px-4 py-3 text-left font-bold text-black">
+                  Issue/Task
+                </th>
+                <th className="border border-black px-4 py-3 text-left font-bold text-black">
+                  Risk Score
+                </th>
+                <th className="border border-black px-4 py-3 text-left font-bold text-black">
+                  Control Measure
+                </th>
+                <th className="border border-black px-4 py-3 text-left font-bold text-black">
+                  Person Responsible
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3].map((row) => (
+                <tr key={row} className="min-h-[80px]">
+                  <td className="border border-black px-4 py-6 align-top">
+                    {homeVisitResponse?.[`issue${row}`] ?? ""}
+                  </td>
+                  <td className="border border-black px-4 py-6 align-top">
+                    {homeVisitResponse?.[`riskScore${row}`] ?? ""}
+                  </td>
+                  <td className="border border-black px-4 py-6 align-top">
+                    {homeVisitResponse?.[`control${row}`] ?? ""}
+                  </td>
+                  <td className="border border-black px-4 py-6 align-top">
+                    {homeVisitResponse?.[`responsible${row}`] ?? ""}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <Footer />
     </A4Page>
   );
 };
 
-
-const Page5 = ({homeVisitResponse, commonFieldsData} : any) => (
+const Page5 = ({ homeVisitResponse, commonFieldsData }: any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-8 pb-6">
@@ -515,42 +804,41 @@ const Page5 = ({homeVisitResponse, commonFieldsData} : any) => (
 
     {/* Signature Section */}
     <div className="flex-1 px-6 py-8">
-  <div className="grid grid-cols-3 gap-8 text-sm">
-    <div className="text-center">
-      <div className="font-semibold mb-2">Name:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        {commonFieldsData?.name}
+      <div className="grid grid-cols-3 gap-8 text-sm">
+        <div className="text-center">
+          <div className="font-semibold mb-2">Name:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+            {commonFieldsData?.name ?? ""}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="font-semibold mb-2">Signature:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
+            {homeVisitResponse?.signature ? (
+              <img
+                src={`${homeVisitResponse.signature}`}
+                alt="Signature"
+                className="max-h-[50px] object-contain"
+              />
+            ) : (
+              <span className="text-gray-400 italic">No signature</span>
+            )}
+          </div>
+        </div>
+        <div className="text-center">
+          <div className="font-semibold mb-2">Designation:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+            {homeVisitResponse?.designation ?? ""}
+          </div>
+        </div>
       </div>
     </div>
-    <div className="text-center">
-      <div className="font-semibold mb-2">Signature:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
-        {homeVisitResponse.signature ? (
-          <img
-            src={`${homeVisitResponse.signature}`}
-            alt="Signature"
-            className="max-h-[50px] object-contain"
-          />
-        ) : (
-          <span className="text-gray-400 italic">No signature</span>
-        )}
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="font-semibold mb-2">Designation:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        {homeVisitResponse.designation}
-      </div>
-    </div>
-  </div>
-</div>
-
 
     <Footer />
   </A4Page>
 );
 
-// --- Main Component ---
+
 const HomeVisitRiskAssessment = ({formData, commonFieldsData} : any) => (
   useEffect(() => {
     console.log("Form Data:", formData);

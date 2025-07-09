@@ -329,9 +329,9 @@ const formSchema : any = {
       "yesDetail": "If yes, refer to form Support Plan"
     }
   ]
-},
-    }
-  }
+}
+}
+}
 // ✅ Shared for all pages
 const commonFieldMapping: Record<string, string> = {
   givenName: "name",
@@ -397,15 +397,14 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
   return (
     <A4Page>
       <div
-        className="w-full h-full flex flex-col"
+        className="w-full h-full flex flex-col justify-between px-6 py-4"
         style={{
-          height: "100%",
+          height: "1123px", // exact A4 height @ 96dpi
           boxSizing: "border-box",
-          padding: "24px 16px", // px-6 py-4 in px
         }}
       >
         {/* Header */}
-        <div className="flex justify-center mb-4 shrink-0">
+        <div className="flex justify-center mb-4">
           <img
             alt={pageSchema.logo.alt}
             src={images.infinityLogo}
@@ -415,15 +414,22 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
           />
         </div>
         {/* Main content */}
-        <div className="flex-1 flex flex-col justify-stretch">
-          <table className="w-full h-full border-collapse border border-black text-xs" style={{ tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
+        <div className="flex-1">
+          <table className="w-full border-collapse border border-black text-xs">
+            <thead>
+              <tr>
+                <th className="border border-black font-bold text-center py-1" colSpan={3}>
+                  {pageSchema.pageTitle}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
               {pageSchema.fields.map((field: any, idx: any) => {
                 const value = getFieldValue(field.key, formData, commonFields);
                 if (field.type === "sectionHeader") {
                   return (
                     <tr key={idx} className="bg-gray-300 font-semibold text-xs">
-                      <td className="border border-black px-1 py-0.5" colSpan={2}>
+                      <td className="border border-black px-1 py-0.5" colSpan={field.colSpan || 3}>
                         {field.label}
                       </td>
                     </tr>
@@ -434,7 +440,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
                     <tr key={idx}>
                       <td
                         className="border border-black px-1 py-0.5 align-top"
-                        colSpan={2}
+                        colSpan={field.colSpan || 3}
                         style={{ height: field.height || 100 }}
                       >
                         {value}
@@ -448,10 +454,11 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
                       <td
                         className="border border-black px-1 py-0.5 font-semibold align-top"
                         style={{ width: field.width || "auto" }}
+                        colSpan={field.colSpan || 1}
                       >
                         {field.label}
                       </td>
-                      <td className="border border-black px-1 py-0.5">
+                      <td className="border border-black px-1 py-0.5" colSpan={field.colSpan ? field.colSpan - 1 : 2}>
                         {displayCheckboxGroup(
                           field.options,
                           value,
@@ -466,7 +473,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
                     <td className="border border-black px-1 py-0.5 font-semibold" style={{ width: field.width || "auto" }}>
                       {field.label}
                     </td>
-                    <td className="border border-black px-1 py-0.5">
+                    <td className="border border-black px-1 py-0.5" colSpan={field.colSpan || 2}>
                       {value}
                     </td>
                   </tr>
@@ -477,7 +484,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
         </div>
         {/* Footer pinned at bottom */}
         {pageSchema.footer && (
-          <div className="flex justify-between text-[10px] text-gray-600 mt-2 shrink-0">
+          <div className="flex justify-between text-[10px] text-gray-600 mt-2">
             <div>Website: infinitysupportswa.org</div>
             <div>CF001</div>
             <div>Review Date: 14/03/2026</div>
@@ -509,74 +516,69 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
   );
   return (
     <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
-        </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full flex-1 border-collapse border border-black text-[13px]">
-            <tbody>
-              {pageSchema.fields.map((field: any, idx: any) => {
-                const value = getFieldValue(field.key, formData, commonFields);
-                if (field.type === "sectionHeader") {
-                  return (
-                    <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
-                      <td className="border border-black px-2 py-1" colSpan={field.colSpan || 2}>
-                        {field.label}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "textarea") {
-                  return (
-                    <tr key={idx}>
-                      <td className="border border-black align-top p-2" colSpan={field.colSpan || 2} style={{ height: field.height || 256 }}>
-                        {value}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "checkboxGroup") {
-                  return (
-                    <tr key={idx}>
-                      <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }} colSpan={field.colSpan || 1}>
-                        {field.label}
-                      </td>
-                      <td className="border border-black px-2 py-1">
-                        {displayCheckboxGroup(field.options, value, field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : "")}
-                      </td>
-                    </tr>
-                  );
-                }
+    <div className="
+    " style={{ height: "1123px", boxSizing: "border-box" }}>
+      <div className="flex justify-center py-4">
+        <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
+      </div>
+      <div className="px-6 flex-1 flex flex-col
+    ">
+        <table className="w-full flex-1 border-collapse border border-black text-[13px]">
+          <tbody>
+            {pageSchema.fields.map((field: any, idx: any) => {
+              const value = getFieldValue(field.key, formData, commonFields);
+              if (field.type === "sectionHeader") {
                 return (
-                  <tr key={idx}>
-                    <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }}>
+                  <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
+                    <td className="border border-black px-2 py-1" colSpan={field.colSpan || 2}>
                       {field.label}
                     </td>
-                    <td className="border border-black px-2 py-1">
+                  </tr>
+                );
+              }
+              if (field.type === "textarea") {
+                return (
+                  <tr key={idx}>
+                    <td className="border border-black align-top p-2" colSpan={field.colSpan || 2} style={{ height: field.height || 256 }}>
                       {value}
                     </td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
-          {pageSchema.footer && (
-            <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1 shrink-0">
-              <div>Website: infinitysupportswa.org</div>
-              <div>CF001</div>
-              <div>Review Date: 14/03/2026</div>
-            </div>
-          )}
-        </div>
+              }
+              if (field.type === "checkboxGroup") {
+                return (
+                  <tr key={idx}>
+                    <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }} colSpan={field.colSpan || 1}>
+                      {field.label}
+                    </td>
+                    <td className="border border-black px-2 py-1">
+                      {displayCheckboxGroup(field.options, value, field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : "")}
+                    </td>
+                  </tr>
+                );
+              }
+              return (
+                <tr key={idx}>
+                  <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }}>
+                    {field.label}
+                  </td>
+                  <td className="border border-black px-2 py-1">
+                    {value}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {pageSchema.footer && (
+          <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
+            <div>Website: infinitysupportswa.org</div>
+            <div>CF001</div>
+            <div>Review Date: 14/03/2026</div>
+          </div>
+        )}
       </div>
+    </div>
     </A4Page>
   );
 };
@@ -616,89 +618,81 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
   );
   return (
     <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        {/* Header */}
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
-        </div>
-        {/* Main content */}
-        <div className="flex-1 min-h-0 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[11px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.allAboutMe.title}
-                </th>
-              </tr>
-              <tr style={{ height: "18%" }}>
-                <td className="border border-black align-top px-1 py-0.5" colSpan={2}>
-                  {getFieldValue("allAboutMe", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.title}
-                </th>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.name} {getFieldValue("advocateName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.relationship} {getFieldValue("advocateRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.phone} {getFieldValue("advocatePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.mobile} {getFieldValue("advocateMobile", formData, commonFields)}<br />
-                  {pageSchema.sections.advocateDetails.fields.email} {getFieldValue("advocateEmail", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.address} {getFieldValue("advocateAddress", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.postalAddress} {getFieldValue("advocatePostalAddress", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.otherInfo} {getFieldValue("advocateOtherInfo", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.personalSituation.title}
-                </th>
-              </tr>
-              <tr style={{ height: "26%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {renderPersonalSituation(pageSchema.sections.personalSituation.fields, getFieldValue("personalSituation", formData, commonFields) || {})}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        {/* Footer pinned at bottom */}
-        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2 shrink-0">
+    <div className="
+    " style={{ height: "1123px", boxSizing: "border-box" }}>
+      <div className="flex justify-center py-4">
+        <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
+      </div>
+      <div className="px-6 flex-1 flex flex-col
+    ">
+        <table className="w-full border border-black border-collapse text-[11px]" style={{ width: "210mm", tableLayout: "fixed" }}>
+          <tbody>
+            <tr>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+                {pageSchema.sections.allAboutMe.title}
+              </th>
+            </tr>
+            <tr>
+              <td className="border border-black h-[150px] align-top px-1 py-0.5" colSpan={2}>
+                {getFieldValue("allAboutMe", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+                {pageSchema.sections.advocateDetails.title}
+              </th>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5">
+                {pageSchema.sections.advocateDetails.fields.name} {getFieldValue("advocateName", formData, commonFields)}
+              </td>
+              <td className="border border-black px-1 py-0.5">
+                {pageSchema.sections.advocateDetails.fields.relationship} {getFieldValue("advocateRelationship", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5">
+                {pageSchema.sections.advocateDetails.fields.phone} {getFieldValue("advocatePhone", formData, commonFields)}
+              </td>
+              <td className="border border-black px-1 py-0.5">
+                {pageSchema.sections.advocateDetails.fields.mobile} {getFieldValue("advocateMobile", formData, commonFields)}<br />
+                {pageSchema.sections.advocateDetails.fields.email} {getFieldValue("advocateEmail", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5" colSpan={2}>
+                {pageSchema.sections.advocateDetails.fields.address} {getFieldValue("advocateAddress", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5" colSpan={2}>
+                {pageSchema.sections.advocateDetails.fields.postalAddress} {getFieldValue("advocatePostalAddress", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5" colSpan={2}>
+                {pageSchema.sections.advocateDetails.fields.otherInfo} {getFieldValue("advocateOtherInfo", formData, commonFields)}
+              </td>
+            </tr>
+            <tr>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+                {pageSchema.sections.personalSituation.title}
+              </th>
+            </tr>
+            <tr>
+              <td className="border border-black px-1 py-0.5" colSpan={2}>
+                {renderPersonalSituation(pageSchema.sections.personalSituation.fields, getFieldValue("personalSituation", formData, commonFields) || {})}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
           <div>Website: infinitysupportswa.org</div>
           <div>CF001</div>
           <div>Review Date: 14/03/2026</div>
         </div>
       </div>
+    </div>
     </A4Page>
   );
 };
@@ -726,14 +720,11 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
   return (
     <A4Page>
       <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
+        className="
+    "
+        style={{ height: "1123px", boxSizing: "border-box" }}
       >
-        <div className="flex justify-center py-4 shrink-0">
+        <div className="flex justify-center py-4">
           <img
             alt={pageSchema.logo?.alt || "Logo"}
             height={pageSchema.logo?.height || 80}
@@ -742,79 +733,54 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
             className="object-contain"
           />
         </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[13px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
-              {/* Primary Contact Header */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1 bg-gray-300 font-bold text-[13px]" colSpan={2}>Primary Contact</td>
-              </tr>
-              {/* Primary Contact Rows */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Contact Name: {getFieldValue("primaryContactName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Relationship: {getFieldValue("primaryContactRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Home Phone No: {getFieldValue("primaryContactHomePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Mobile No: {getFieldValue("primaryContactMobile", formData, commonFields)}
-                </td>
-              </tr>
-              {/* Secondary Contact Header */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1 bg-gray-300 font-bold text-[13px]" colSpan={2}>Secondary Contact</td>
-              </tr>
-              {/* Secondary Contact Rows */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Contact Name: {getFieldValue("secondaryContactName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Relationship: {getFieldValue("secondaryContactRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Home Phone No: {getFieldValue("secondaryContactHomePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Mobile No: {getFieldValue("secondaryContactMobile", formData, commonFields)}
-                </td>
-              </tr>
-              {/* Living and support arrangements */}
-              <tr style={{ height: "25%" }}>
-                <td className="border border-black mt-6 p-3 text-[13px]" colSpan={2}>
-                  <p className="font-bold mb-2">Living and support arrangements</p>
-                  <p className="mb-2">What is your current living arrangement? (Please tick the appropriate box)</p>
-                  {renderCheckboxList(
-                    pageSchema.fields.find((f: any) => f.key === "livingArrangements").options,
-                    getFieldValue("livingArrangements", formData, commonFields) || [],
-                    getFieldValue("livingArrangementsOther", formData, commonFields) || ""
-                  )}
-                </td>
-              </tr>
-              {/* Travel */}
-              <tr style={{ height: "25%" }}>
-                <td className="border border-black mt-6 p-3 text-[13px]" colSpan={2}>
-                  <p className="font-bold mb-2">Travel</p>
-                  <p className="mb-2">How do you travel to work or to your day service? (Please tick the appropriate box)</p>
-                  {renderCheckboxList(
-                    pageSchema.fields.find((f: any) => f.key === "travelArrangements").options,
-                    getFieldValue("travelArrangements", formData, commonFields) || [],
-                    getFieldValue("travelArrangementsOther", formData, commonFields) || ""
-                  )}
-                </td>
-              </tr>
+        <div className="px-6 flex-1 flex flex-col
+    ">
+          <table className="w-full border border-black border-collapse text-[13px]" style={{ width: "210mm", tableLayout: "fixed" }}>
+            <tbody>
+              {pageSchema.fields?.map((field: any, idx: number) => {
+                if (field.type === "contactHeader") {
+                  return (
+                    <tr key={idx} className="bg-gray-300 font-bold text-[13px]">
+                      <td className="border border-black px-2 py-1" style={{ width: "33.33%" }}>{field.label}</td>
+                      <td className="border border-black px-2 py-1"></td>
+                      <td className="border border-black px-2 py-1"></td>
+                    </tr>
+                  );
+                }
+                if (field.type === "contactRow") {
+                  return (
+                    <tr key={idx}>
+                      <td className="border border-black px-2 py-1">
+                        {field.columns[0].label} {getFieldValue(field.columns[0].key, formData, commonFields)}
+                      </td>
+                      <td className="border border-black px-2 py-1"></td>
+                      <td className="border border-black px-2 py-1">
+                        {field.columns[1].label} {getFieldValue(field.columns[1].key, formData, commonFields)}
+                      </td>
+                    </tr>
+                  );
+                }
+                if (field.type === "boxSection") {
+                  return (
+                    <tr key={idx}>
+                      <td className="border border-black mt-6 p-3 text-[13px]" colSpan={3}>
+                        <p className="font-bold mb-2">{field.heading}</p>
+                        <p className="mb-2">{field.question}</p>
+                        {renderCheckboxList(
+                          field.options,
+                          getFieldValue(field.key, formData, commonFields) || [],
+                          getFieldValue(field.otherKey, formData, commonFields) || ""
+                        )}
+                      </td>
+                    </tr>
+                  );
+                }
+                return null;
+              })}
             </tbody>
           </table>
           {pageSchema.footer && (
-            <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2 shrink-0">
+            <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
               <div>Website: infinitysupportswa.org</div>
               <div>CF001</div>
               <div>Review Date: 14/03/2026</div>
@@ -829,55 +795,54 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
   const pageSchema = formSchema.schema.medicationInfoSchema;
   return (
     <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
-        </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[12px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <thead>
-              <tr className="bg-gray-300">
-                <th className="border border-black p-1 text-left font-semibold" colSpan={3}>{pageSchema.title}</th>
-              </tr>
-            </thead>
-            <tbody style={{ height: "100%" }}>
-              {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key, formData, commonFields);
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
-                    <td className="border border-black p-1 align-top text-[11px] w-[180px]">
-                      <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">{value === "Yes" ? "✔" : ""}</span>
-                        <span>Yes</span>
-                      </div>
-                      {field.yesDetail && (
-                        <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                      )}
-                    </td>
-                    <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">{value === "No" ? "✔" : ""}</span>
-                      <span className="m-1">No</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: infinitysupportswa.org</div>
-            <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
-          </div>
+    <div className="
+    " style={{ width: "210mm", height: "1123px",   }}>
+      <div className="flex justify-center py-4">
+        <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
+      </div>
+      <div className="px-6 flex-1 flex flex-col
+    ">
+        <table className="w-full border border-black border-collapse text-[12px]" style={{ width: "210mm", tableLayout: "fixed" }}>
+          <thead>
+            <tr className="bg-gray-300">
+              <th className="border border-black p-1 text-left font-semibold">{pageSchema.title}</th>
+              <th className="border border-black p-1 w-[180px] text-left font-semibold"></th>
+              <th className="border border-black p-1 w-[60px] text-center font-semibold"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageSchema.fields.map((field: any, idx: number) => {
+              const value = getFieldValue(field.key, formData, commonFields);
+              return (
+                <tr key={idx}>
+                  <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
+                  <td className="border border-black p-1 align-top text-[11px]">
+                    <div className="inline-flex items-start space-x-1">
+                      <span className="w-4 h-4 border border-black flex  justify-center mt-1">
+                        {value === "Yes" ? "✔" : ""}
+                      </span>
+                      <span>Yes</span>
+                    </div>
+                    {field.yesDetail && <div className="mt-1 leading-tight">{field.yesDetail}</div>}
+                  </td>
+                  <td className="border border-black p-1 text-center align-top">
+                    <span className="w-4 h-4 border border-black flex  justify-center">
+                      {value === "No" ? "✔" : ""}
+                    </span>
+                    <span className="m-1">No</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
+          <div>Website: infinitysupportswa.org</div>
+          <div>CF001</div>
+          <div>Review Date: 14/03/2026</div>
         </div>
       </div>
+    </div>
     </A4Page>
   );
 };
@@ -885,55 +850,54 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {} , images}: any) =>
   const pageSchema = formSchema.schema.safetyConsiderationSchema;
   return (
     <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
-        </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[12px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <thead>
-              <tr className="bg-gray-300">
-                <th className="border border-black p-1 text-left font-semibold" colSpan={3}>{pageSchema.title}</th>
-              </tr>
-            </thead>
-            <tbody style={{ height: "100%" }}>
-              {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key, formData, commonFields);
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
-                    <td className="border border-black p-1 align-top text-[11px] w-[180px]">
-                      <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">{value === "Yes" ? "✔" : ""}</span>
-                        <span>Yes</span>
-                      </div>
-                      {field.yesDetail && (
-                        <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                      )}
-                    </td>
-                    <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">{value === "No" ? "✔" : ""}</span>
-                      <span>No</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: infinitysupportswa.org</div>
-            <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
-          </div>
+    <div className="
+    " style={{ width: "210mm", height: "1123px",   }}>
+      <div className="flex justify-center py-4">
+        <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
+      </div>
+      <div className="px-6 flex-1 flex flex-col
+    ">
+        <table className="w-full flex-1 border border-black border-collapse text-[12px]">
+          <thead>
+            <tr className="bg-gray-300">
+              <th className="border border-black p-1 text-left font-semibold">{pageSchema.title}</th>
+              <th className="border border-black p-1 w-[180px] text-left font-semibold"></th>
+              <th className="border border-black p-1 w-[60px] text-center font-semibold"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageSchema.fields.map((field: any, idx: number) => {
+              const value = getFieldValue(field.key, formData, commonFields);
+              return (
+                <tr key={idx}>
+                  <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
+                  <td className="border border-black p-1 align-top text-[11px]">
+                    <div className="inline-flex items-start space-x-1">
+                      <span className="w-4 h-4 border border-black flex  justify-center mt-1">
+                        {value === "Yes" ? "✔" : ""}
+                      </span>
+                      <span>Yes</span>
+                    </div>
+                    {field.yesDetail && <div className="mt-1 leading-tight">{field.yesDetail}</div>}
+                  </td>
+                  <td className="border border-black p-1 text-center align-top">
+                    <span className="w-4 h-4 border border-black flex  justify-center">
+                      {value === "No" ? "✔" : ""}
+                    </span>
+                    <span>No</span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
+          <div>Website: infinitysupportswa.org</div>
+          <div>CF001</div>
+          <div>Review Date: 14/03/2026</div>
         </div>
       </div>
+    </div>
     </A4Page>
   );
 };

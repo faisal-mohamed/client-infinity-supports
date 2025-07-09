@@ -368,17 +368,4 @@ export async function getFormSchemaById(formId: number) {
   return response.json();
 }
 
-export async function submitBatchSignature(batchToken: string, signature: string) {
-  const response = await fetch('/api/batch/signature', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ batchToken, signature }),
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to submit batch signature');
-  }
-  return response.json();
-}
+

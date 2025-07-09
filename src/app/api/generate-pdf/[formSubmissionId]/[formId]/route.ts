@@ -385,7 +385,6 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any) 
   const css = fs.readFileSync(cssPath, "utf8");
 
   let PDFComponent = getPDFComponent(formKey);
-  let processedSchemas = null;
   let componentProps: any = {};
   let images = {};
 
