@@ -2,18 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { 
-  FaEdit, FaEye, FaArrowLeft, FaPlus, FaSignature, FaCheck, FaClock, 
-  FaFileAlt, FaTimes, FaLink, FaCopy, FaDownload, FaEllipsisV, 
-  FaUser, FaCalendarAlt, FaChartLine, FaExclamationTriangle,
-  FaCheckCircle, FaTimesCircle, FaSpinner, FaUserEdit
-} from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getAllForms } from '@/app/forms/registry';
-import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 import CommonFieldsModal, { CommonField } from '@/components/CommonFieldsModal';
 import CommonFieldsWarningModal from '@/components/CommonFieldsWarningModal';
+import SignatureInvalidationModal, { FormInfo } from '@/components/SignatureInvalidationModal';
+
+import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
+import { 
+  detectCommonFieldChanges, 
+  getChangedCommonFields
+} from '@/lib/signatureInvalidation';
+
+// Import new sub-components
+import ClientHeader from '@/app/components/components/client-forms/ClientHeader';
+import ActionButtons from '@/app/components/components/client-forms/ActionButtons';
+import StatsCards from '@/app/components/components/client-forms/StatsCards';
+import FormsList from '@/app/components/components/client-forms/FormsList';
+import FormAssignmentModal from '@/app/components/components/client-forms/FormAssignmentModal';
+import SignatureLinkModal from '@/app/components/components/client-forms/SignatureLinkModal';
 
 import {FormAssignmentWithDetails, ClientInfo, AvailableForm} from './types'
 
@@ -39,9 +46,6 @@ export default function ClientFormsPageClient() {
   // Download state
   const [downloadingPDF, setDownloadingPDF] = useState<number | null>(null);
 
-  // Action menu state
-  const [activeActionMenu, setActiveActionMenu] = useState<number | null>(null);
-
   // Signature link modal state
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<{
@@ -58,32 +62,57 @@ export default function ClientFormsPageClient() {
   const [commonFields, setCommonFields] = useState<CommonField | null>(null);
   const [updatingCommonFields, setUpdatingCommonFields] = useState(false);
 
+  // Signature invalidation state
+  const [showSignatureInvalidationModal, setShowSignatureInvalidationModal] = useState(false);
+  const [signatureInvalidationData, setSignatureInvalidationData] = useState<{
+    type: 'common-fields' | 'form-edit';
+    affectedForms: FormInfo[];
+    changes: string[];
+    pendingUpdate: CommonField;
+  } | null>(null);
+  const [originalCommonFields, setOriginalCommonFields] = useState<CommonField | null>(null);
+
+  // Calculate statistics
+  const stats = {
+    total: assignments.length,
+    completed: assignments.filter(a => {
+      const requiresSignature = formRequiresSignatures(a.form.formKey);
+      
+      if (requiresSignature && a.filledByAdmin && a.formData) {
+        // Use signature validation for forms requiring signatures
+        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
+        return signatureValidation.isComplete;
+      }
+      
+      // Fallback to legacy logic
+      if (a.clientSignature === "true") {
+        return true; // Completion flag indicates all signatures complete
+      }
+      
+      // Form is completed if admin-filled and doesn't require signature
+      return a.filledByAdmin && !requiresSignature;
+    }).length,
+    inProgress: assignments.filter(a => {
+      const requiresSignature = formRequiresSignatures(a.form.formKey);
+      
+      if (requiresSignature && a.filledByAdmin && a.formData) {
+        // Use signature validation for forms requiring signatures
+        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
+        console.log("SIGN: ", signatureValidation)
+        return signatureValidation.completedCount > 0 && !signatureValidation.isComplete;
+      }
+      
+      // Form is in progress if it has submission but not admin-filled yet
+      return a.hasSubmission && !a.filledByAdmin;
+    }).length,
+    notStarted: assignments.filter(a => !a.hasSubmission).length,
+  };
+
   // Load client and form assignments
   useEffect(() => {
     loadClientForms();
     loadAvailableForms();
   }, [clientId]);
-
-  // Close action menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      // Don't close if clicking on the dropdown button or dropdown content
-      if (!target.closest('.action-menu-container')) {
-        setActiveActionMenu(null);
-      }
-    };
-    
-    // Use setTimeout to avoid immediate closure when button is clicked
-    const timeoutId = setTimeout(() => {
-      document.addEventListener('click', handleClickOutside);
-    }, 0);
-    
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [activeActionMenu]);
 
   const loadClientForms = async () => {
     try {
@@ -125,12 +154,21 @@ export default function ClientFormsPageClient() {
     }
   };
 
+  // Handler functions
   const handleFormAssignmentSelection = (formId: number) => {
     setSelectedFormsToAssign(prev => 
       prev.includes(formId) 
         ? prev.filter(id => id !== formId)
         : [...prev, formId]
     );
+  };
+
+  const handleFormSelect = (assignmentId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedForms(prev => [...prev, assignmentId]);
+    } else {
+      setSelectedForms(prev => prev.filter(id => id !== assignmentId));
+    }
   };
 
   const assignFormsToClient = async () => {
@@ -223,7 +261,6 @@ export default function ClientFormsPageClient() {
 
     try {
       setDownloadingPDF(assignment.id);
-      setActiveActionMenu(null); // Close action menu
       
       const response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
       
@@ -345,7 +382,7 @@ export default function ClientFormsPageClient() {
       // Use commonFields if available, otherwise initialize with basic client info
       const commonFieldsData = client.commonFields[0] || {};
       
-      setCommonFields({
+      const fieldsData = {
         clientId: clientId,
         name: commonFieldsData.name || client.name || '',
         age: commonFieldsData.age || null,
@@ -359,10 +396,13 @@ export default function ClientFormsPageClient() {
         disability: commonFieldsData.disability || '',
         address: commonFieldsData.address || '',
         phone: commonFieldsData.phone || client.phone || '',
-      });
+      };
+      
+      setCommonFields(fieldsData);
+      setOriginalCommonFields({ ...fieldsData }); // Store original for comparison
     } else {
       // Fallback if no client data
-      setCommonFields({
+      const fallbackFields = {
         clientId: clientId,
         name: '',
         email: '',
@@ -370,7 +410,9 @@ export default function ClientFormsPageClient() {
         age: null,
         sex: '',
         street: '',
-      });
+      };
+      setCommonFields(fallbackFields);
+      setOriginalCommonFields({ ...fallbackFields });
     }
     setShowCommonFieldsModal(true);
   };
@@ -380,7 +422,112 @@ export default function ClientFormsPageClient() {
     
     setCommonFields(prev => ({
       ...prev!,
+      [field]: value
     }));
+  };
+
+  const handleCommonFieldsSubmitWithSignatureCheck = async (updatedFields: CommonField) => {
+    if (!originalCommonFields) {
+      // No original data, proceed normally
+      await updateCommonFields();
+      return;
+    }
+
+    // Check if any fields actually changed
+    const hasChanges = detectCommonFieldChanges(originalCommonFields, updatedFields);
+    
+    if (!hasChanges) {
+      // No changes, just close modal
+      setShowCommonFieldsModal(false);
+      showToast({
+        type: 'info',
+        title: 'No Changes',
+        message: 'No changes were made to common fields',
+        duration: 2000,
+      });
+      return;
+    }
+
+    try {
+      // Check if client has any signed forms via API
+      const response = await fetch(`/api/clients/${clientId}/signed-forms`);
+      if (!response.ok) throw new Error('Failed to check signed forms');
+      
+      const { hasSignedForms, signedForms } = await response.json();
+      
+      if (hasSignedForms) {
+        // Get changed fields
+        const changedFields = getChangedCommonFields(originalCommonFields, updatedFields);
+        
+        // Show signature invalidation warning
+        setSignatureInvalidationData({
+          type: 'common-fields',
+          affectedForms: signedForms,
+          changes: changedFields,
+          pendingUpdate: updatedFields
+        });
+        setShowSignatureInvalidationModal(true);
+        return;
+      }
+
+      // No signed forms, proceed normally
+      await updateCommonFields();
+      
+    } catch (error) {
+      console.error('Error checking signed forms:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to check signature status. Please try again.',
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleSignatureInvalidationConfirm = async () => {
+    if (!signatureInvalidationData) return;
+
+    try {
+      setUpdatingCommonFields(true);
+      
+      if (signatureInvalidationData.type === 'common-fields') {
+        // Clear all client signatures first via API
+        const clearResponse = await fetch(`/api/clients/${clientId}/clear-signatures`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'common-fields' })
+        });
+        
+        if (!clearResponse.ok) throw new Error('Failed to clear signatures');
+        
+        // Then update common fields
+        await updateCommonFields();
+        
+        const { clearedForms } = await clearResponse.json();
+        
+        showToast({
+          type: 'warning',
+          title: 'Signatures Cleared',
+          message: `Updated common fields and cleared signatures from ${signatureInvalidationData.affectedForms.length} form(s)`,
+          duration: 5000,
+        });
+      }
+      
+      // Close modals
+      setShowSignatureInvalidationModal(false);
+      setSignatureInvalidationData(null);
+      
+    } catch (error) {
+      console.error('Error handling signature invalidation:', error);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Failed to update fields and clear signatures',
+        duration: 5000,
+      });
+    } finally {
+      setUpdatingCommonFields(false);
+    }
   };
 
   const updateCommonFields = async () => {
@@ -440,113 +587,6 @@ export default function ClientFormsPageClient() {
     }
   };
 
-  const getFormStatus = (assignment: FormAssignmentWithDetails) => {
-    const requiresSignature = formRequiresSignatures(assignment.form.formKey);
-    
-    // If form has been filled by admin and requires signatures, validate them
-    if (assignment.filledByAdmin && requiresSignature && assignment.formData) {
-      const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
-      
-      if (signatureValidation.isComplete) {
-        return {
-          status: getSignatureStatusText(signatureValidation),
-          color: 'bg-green-100 text-green-800 border-green-200',
-          icon: FaCheckCircle,
-          bgColor: 'bg-green-50',
-          iconColor: 'text-green-500'
-        };
-      } else if (signatureValidation.completedCount > 0) {
-        return {
-          status: getSignatureStatusText(signatureValidation),
-          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          icon: FaSignature,
-          bgColor: 'bg-yellow-50',
-          iconColor: 'text-yellow-500'
-        };
-      } else {
-        return {
-          status: 'Ready for Signatures',
-          color: 'bg-blue-100 text-blue-800 border-blue-200',
-          icon: FaSignature,
-          bgColor: 'bg-blue-50',
-          iconColor: 'text-blue-500'
-        };
-      }
-    }
-    
-    // Fallback to legacy logic for backward compatibility
-    if (assignment.clientSignature === "true") {
-      return {
-        status: 'All Signatures Complete',
-        color: 'bg-green-100 text-green-800 border-green-200',
-        icon: FaCheckCircle,
-        bgColor: 'bg-green-50',
-        iconColor: 'text-green-500'
-      };
-    }
-    
-    if (assignment.filledByAdmin && !requiresSignature) {
-      return {
-        status: 'Admin Completed',
-        color: 'bg-green-100 text-green-800 border-green-200',
-        icon: FaCheckCircle,
-        bgColor: 'bg-green-50',
-        iconColor: 'text-green-500'
-      };
-    } else if (assignment.hasSubmission) {
-      return {
-        status: 'In Progress',
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        icon: FaClock,
-        bgColor: 'bg-yellow-50',
-        iconColor: 'text-yellow-500'
-      };
-    } else {
-      return {
-        status: 'Not Started',
-        color: 'bg-gray-100 text-gray-800 border-gray-200',
-        icon: FaTimesCircle,
-        bgColor: 'bg-gray-50',
-        iconColor: 'text-gray-400'
-      };
-    }
-  };
-
-  // Calculate statistics
-  const stats = {
-    total: assignments.length,
-    completed: assignments.filter(a => {
-      const requiresSignature = formRequiresSignatures(a.form.formKey);
-      
-      if (requiresSignature && a.filledByAdmin && a.formData) {
-        // Use signature validation for forms requiring signatures
-        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
-        return signatureValidation.isComplete;
-      }
-      
-      // Fallback to legacy logic
-      if (a.clientSignature === "true") {
-        return true; // Completion flag indicates all signatures complete
-      }
-      
-      // Form is completed if admin-filled and doesn't require signature
-      return a.filledByAdmin && !requiresSignature;
-    }).length,
-    inProgress: assignments.filter(a => {
-      const requiresSignature = formRequiresSignatures(a.form.formKey);
-      
-      if (requiresSignature && a.filledByAdmin && a.formData) {
-        // Use signature validation for forms requiring signatures
-        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
-        return signatureValidation.completedCount > 0 && !signatureValidation.isComplete;
-      }
-      
-      // Form is in progress if it has submission but not admin-filled yet
-      return a.hasSubmission && !a.filledByAdmin;
-    }).length,
-    notStarted: assignments.filter(a => !a.hasSubmission).length,
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 flex items-center justify-center">
@@ -560,529 +600,59 @@ export default function ClientFormsPageClient() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
-      {/* Clean Header Section */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Back Button & Client Info Row - Responsive Layout */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-              <Link 
-                href="/admin/clients"
-                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group self-start"
-              >
-                <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="font-medium">Back to Clients</span>
-              </Link>
-              
-              <div className="hidden sm:block h-8 w-px bg-gray-300"></div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaUser className="h-6 w-6 text-white" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{client?.name}</h1>
-                  <p className="text-gray-600 text-sm sm:text-base truncate">{client?.email}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-center sm:text-right flex-shrink-0">
-              <div className="text-xl sm:text-2xl font-bold text-gray-900">
-                {stats.completed}/{stats.total}
-              </div>
-              <div className="text-xs sm:text-sm text-gray-600">Forms Completed</div>
-            </div>
-          </div>
-          
-          {/* Action Buttons Row - Responsive Layout */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Action Buttons - Stack on mobile, horizontal on larger screens */}
-            <div className="flex flex-col sm:flex-row sm:flex-wrap lg:flex-nowrap items-stretch sm:items-center gap-3">
-              <button
-                onClick={() => setShowAssignModal(true)}
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
-              >
-                <FaPlus className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">Assign Forms</span>
-              </button>
+      {/* Client Header */}
+      <ClientHeader 
+        clientId={clientId}
+        client={client}
+        stats={stats}
+      />
 
-              <button
-                onClick={() => setShowCommonFieldsWarning(true)}
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white font-medium rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
-              >
-                <FaUserEdit className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">Update Common Details</span>
-              </button>
-              
-              <Link
-                href={`/admin/clients/${clientId}/signature-links`}
-                className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
-              >
-                <FaLink className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">Manage Links</span>
-              </Link>
-              
-              {selectedForms.length > 0 && (
-                <button
-                  onClick={generateSignatureLink}
-                  disabled={generatingLink}
-                  className="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                >
-                  {generatingLink ? (
-                    <>
-                      <FaSpinner className="mr-2 h-4 w-4 animate-spin flex-shrink-0" />
-                      <span className="whitespace-nowrap">Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaLink className="mr-2 h-4 w-4 flex-shrink-0" />
-                      <span className="whitespace-nowrap">Generate Link ({selectedForms.length})</span>
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-            
-            {/* Status Text - Stack below buttons on mobile */}
-            <div className="text-sm text-gray-500 text-center lg:text-right">
-              {selectedForms.length > 0 ? (
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium inline-block">
-                  {selectedForms.length} form{selectedForms.length > 1 ? 's' : ''} selected
-                </span>
-              ) : (
-                <span className="hidden sm:inline">Select forms below to generate signature links</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Action Buttons */}
+      <ActionButtons
+        clientId={clientId}
+        selectedForms={selectedForms}
+        generatingLink={generatingLink}
+        onShowAssignModal={() => setShowAssignModal(true)}
+        onShowCommonFieldsWarning={() => setShowCommonFieldsWarning(true)}
+        onGenerateSignatureLink={generateSignatureLink}
+      />
 
       {/* Stats Cards */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 rounded-lg bg-indigo-100 flex-shrink-0">
-                <FaFileAlt className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-600" />
-              </div>
-              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Forms</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-            </div>
-          </div>
+      <StatsCards stats={stats} />
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 rounded-lg bg-green-100 flex-shrink-0">
-                <FaCheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
-              </div>
-              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Completed</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.completed}</p>
-              </div>
-            </div>
-          </div>
+      {/* Forms List */}
+      <FormsList
+        assignments={assignments}
+        selectedForms={selectedForms}
+        downloadingPDF={downloadingPDF}
+        clientId={clientId}
+        onFormSelect={handleFormSelect}
+        onDownloadPDF={handleDownloadPDF}
+        onShowAssignModal={() => setShowAssignModal(true)}
+      />
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 rounded-lg bg-blue-100 flex-shrink-0">
-                <FaClock className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
-              </div>
-              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">In Progress</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.inProgress}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center">
-              <div className="p-2 sm:p-3 rounded-lg bg-gray-100 flex-shrink-0">
-                <FaExclamationTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-gray-600" />
-              </div>
-              <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Not Started</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.notStarted}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Forms List */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-visible">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h2 className="text-lg font-semibold text-gray-900">Assigned Forms</h2>
-              {assignments.length > 0 && (
-                <div className="text-sm text-gray-600">
-                  {selectedForms.length > 0 ? (
-                    <p className="font-medium text-indigo-600">{selectedForms.length} selected for link generation</p>
-                  ) : (
-                    <div className="text-center sm:text-right">
-                      <p>{assignments.length} total forms</p>
-                      <p className="text-xs text-gray-500 mt-1 hidden sm:block">Select admin-filled forms to generate client links</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {assignments.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Forms Assigned</h3>
-              <p className="text-gray-600 mb-6 text-sm sm:text-base">Get started by assigning some forms to this client.</p>
-              <button
-                onClick={() => setShowAssignModal(true)}
-                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <FaPlus className="mr-2 h-4 w-4" />
-                Assign Forms
-              </button>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {assignments.map((assignment) => {
-                const statusInfo = getFormStatus(assignment);
-                const StatusIcon = statusInfo.icon;
-                
-                return (
-                  <div key={assignment.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-150">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                        {/* Checkbox for signature link generation - show for admin-filled forms */}
-                        {assignment.filledByAdmin && (
-                          <input
-                            type="checkbox"
-                            checked={selectedForms.includes(assignment.id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedForms(prev => [...prev, assignment.id]);
-                              } else {
-                                setSelectedForms(prev => prev.filter(id => id !== assignment.id));
-                              }
-                            }}
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded flex-shrink-0"
-                          />
-                        )}
-                        
-                        {/* Placeholder space for forms that are not completed */}
-                        {!assignment.isCompleted && (
-                          <div className="w-4 h-4 flex-shrink-0"></div>
-                        )}
-
-                        {/* Form Icon */}
-                        <div className={`p-2 sm:p-3 rounded-lg ${statusInfo.bgColor} flex-shrink-0`}>
-                          <StatusIcon className={`h-5 w-5 sm:h-6 sm:w-6 ${statusInfo.iconColor}`} />
-                        </div>
-
-                        {/* Form Details */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
-                              {assignment.form.title}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusInfo.color}`}>
-                                {statusInfo.status}
-                              </span>
-                              {/* Signature requirement indicator */}
-                              {assignment.form.requiresSignature === true && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
-                                  <FaSignature className="mr-1 h-2 w-2" />
-                                  <span className="hidden sm:inline">Signature Required</span>
-                                  <span className="sm:hidden">Sig Req</span>
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
-                            <span>Version {assignment.form.version}</span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="flex items-center">
-                              <FaCalendarAlt className="h-3 w-3 mr-1 flex-shrink-0" />
-                              <span className="hidden sm:inline">Assigned </span>
-                              {new Date(assignment.assignedAt).toLocaleDateString()}
-                            </span>
-                            {assignment.adminFilledAt && (
-                              <>
-                                <span className="hidden sm:inline">•</span>
-                                <span className="hidden sm:inline">Filled {new Date(assignment.adminFilledAt).toLocaleDateString()}</span>
-                                <span className="sm:hidden text-green-600">Admin Filled</span>
-                              </>
-                            )}
-                            {assignment.clientSignedAt && (
-                              <>
-                                <span className="hidden sm:inline">•</span>
-                                <span className="text-green-600 font-medium">
-                                  <span className="hidden sm:inline">Signed {new Date(assignment.clientSignedAt).toLocaleDateString()}</span>
-                                  <span className="sm:hidden">Client Signed</span>
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Menu */}
-                      <div className="relative action-menu-container flex-shrink-0 self-start sm:self-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveActionMenu(activeActionMenu === assignment.id ? null : assignment.id);
-                          }}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-150"
-                        >
-                          <FaEllipsisV className="h-4 w-4" />
-                        </button>
-
-                        {/* Action Menu Dropdown */}
-                        {activeActionMenu === assignment.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
-                            <Link
-                              href={`/admin/clients/${clientId}/forms/edit/${assignment.id}`}
-                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                              onClick={() => setActiveActionMenu(null)}
-                            >
-                              <FaEdit className="mr-3 h-4 w-4 text-indigo-500 flex-shrink-0" />
-                              Edit Form
-                            </Link>
-                            
-                            {assignment.hasSubmission && (
-                              <>
-                                <Link
-                                  href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}
-                                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                  onClick={() => setActiveActionMenu(null)}
-                                >
-                                  <FaEye className="mr-3 h-4 w-4 text-green-500 flex-shrink-0" />
-                                  View Form
-                                </Link>
-                                
-                                <button
-                                  onClick={() => handleDownloadPDF(assignment)}
-                                  disabled={downloadingPDF === assignment.id}
-                                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                                >
-                                  {downloadingPDF === assignment.id ? (
-                                    <FaSpinner className="mr-3 h-4 w-4 text-orange-500 animate-spin flex-shrink-0" />
-                                  ) : (
-                                    <FaDownload className="mr-3 h-4 w-4 text-orange-500 flex-shrink-0" />
-                                  )}
-                                  {downloadingPDF === assignment.id ? 'Generating PDF...' : 'Download PDF'}
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
       {/* Form Assignment Modal */}
-      {showAssignModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
-              <div className="min-w-0 flex-1 mr-4">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  Assign Forms to {client?.name}
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Select forms to assign to this client
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAssignModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-              >
-                <FaTimes className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-              {availableForms.length === 0 ? (
-                <div className="text-center py-8">
-                  <FaFileAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-600">No forms available to assign</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {availableForms.map((form) => {
-                    // Check if this form is already assigned
-                    const isAlreadyAssigned = assignments.some(
-                      assignment => assignment.formId === form.id && assignment.formVersion === form.version
-                    );
-                    
-                    return (
-                      <div
-                        key={`${form.id}-${form.version}`}
-                        className={`flex items-start sm:items-center p-3 sm:p-4 border rounded-xl transition-all duration-200 ${
-                          isAlreadyAssigned 
-                            ? 'bg-gray-50 border-gray-200 opacity-50' 
-                            : selectedFormsToAssign.includes(form.id)
-                            ? 'bg-indigo-50 border-indigo-200 shadow-sm'
-                            : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedFormsToAssign.includes(form.id)}
-                          onChange={() => handleFormAssignmentSelection(form.id)}
-                          disabled={isAlreadyAssigned}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded disabled:opacity-50 mt-0.5 sm:mt-0 flex-shrink-0"
-                        />
-                        <div className="ml-3 sm:ml-4 flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">
-                                {form.title}
-                              </h4>
-                              <p className="text-sm text-gray-500 truncate">
-                                Version {form.version} • Key: {form.formKey}
-                              </p>
-                            </div>
-                            {isAlreadyAssigned && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0">
-                                Already Assigned
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50 gap-3">
-              <p className="text-sm text-gray-600 text-center sm:text-left">
-                {selectedFormsToAssign.length} form(s) selected
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3">
-                <button
-                  onClick={() => setShowAssignModal(false)}
-                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors order-2 sm:order-1"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={assignFormsToClient}
-                  disabled={selectedFormsToAssign.length === 0 || assigning}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors order-1 sm:order-2"
-                >
-                  {assigning ? (
-                    <>
-                      <FaSpinner className="inline mr-2 h-4 w-4 animate-spin" />
-                      Assigning...
-                    </>
-                  ) : (
-                    `Assign ${selectedFormsToAssign.length} Form(s)`
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <FormAssignmentModal
+        isOpen={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+        clientName={client?.name}
+        availableForms={availableForms}
+        assignments={assignments}
+        selectedFormsToAssign={selectedFormsToAssign}
+        assigning={assigning}
+        onFormSelection={handleFormAssignmentSelection}
+        onAssignForms={assignFormsToClient}
+      />
 
       {/* Signature Link Modal */}
-      {showLinkModal && generatedLink && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
-              <div className="min-w-0 flex-1 mr-4">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-                  Signature Link Generated
-                </h3>
-                <p className="text-sm text-gray-600 mt-1 truncate">
-                  Share this link with {client?.name} to collect signatures
-                </p>
-              </div>
-              <button
-                onClick={() => setShowLinkModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
-              >
-                <FaTimes className="h-5 w-5 text-gray-500" />
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Signature Link:</p>
-                    <p className="text-sm text-gray-600 bg-white p-3 rounded border break-all">
-                      {generatedLink.url}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => copyLinkToClipboard(generatedLink.url)}
-                    className="flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex-shrink-0 w-full sm:w-auto"
-                  >
-                    <FaCopy className="mr-2 h-4 w-4" />
-                    Copy
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <p className="text-sm font-medium text-blue-900">Forms Included</p>
-                  <p className="text-2xl font-bold text-blue-600">{generatedLink.formsCount}</p>
-                </div>
-                <div className="bg-orange-50 rounded-lg p-4">
-                  <p className="text-sm font-medium text-orange-900">Expires</p>
-                  <p className="text-sm font-semibold text-orange-600">
-                    {new Date(generatedLink.expiresAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <p className="text-sm font-medium text-gray-700 mb-3">Forms in this link:</p>
-                <div className="space-y-2">
-                  {generatedLink.forms.map((form, index) => (
-                    <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                      <FaFileAlt className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 truncate">{form.formTitle}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50 gap-3">
-              <Link
-                href={`/admin/clients/${clientId}/signature-links`}
-                className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors order-2 sm:order-1"
-                onClick={() => setShowLinkModal(false)}
-              >
-                <FaLink className="mr-2 h-4 w-4" />
-                Manage All Links
-              </Link>
-              
-              <button
-                onClick={() => setShowLinkModal(false)}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors order-1 sm:order-2"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      <SignatureLinkModal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        clientName={client?.name}
+        clientId={clientId}
+        generatedLink={generatedLink}
+        onCopyLink={copyLinkToClipboard}
+      />
       {/* Common Fields Warning Modal */}
       <CommonFieldsWarningModal
         isOpen={showCommonFieldsWarning}
@@ -1100,8 +670,23 @@ export default function ClientFormsPageClient() {
         commonFields={commonFields}
         onFieldChange={handleCommonFieldsChange}
         onSave={updateCommonFields}
+        onSubmitWithSignatureCheck={handleCommonFieldsSubmitWithSignatureCheck}
         isUpdating={updatingCommonFields}
         clientName={client?.name}
+      />
+
+      {/* Signature Invalidation Modal */}
+      <SignatureInvalidationModal
+        isOpen={showSignatureInvalidationModal}
+        onClose={() => {
+          setShowSignatureInvalidationModal(false);
+          setSignatureInvalidationData(null);
+        }}
+        onConfirm={handleSignatureInvalidationConfirm}
+        type={signatureInvalidationData?.type || 'common-fields'}
+        affectedForms={signatureInvalidationData?.affectedForms || []}
+        changes={signatureInvalidationData?.changes || []}
+        isProcessing={updatingCommonFields}
       />
     </div>
   );

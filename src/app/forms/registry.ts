@@ -1,4 +1,4 @@
-import ClientIntakeFormEnhanced from '../components/forms/ClientIntakeFormEnhanced';
+import ClientIntakeFormEnhanced from '../components/forms/client_intake_form/ClientIntakeFormEnhanced';
 import FormRenderer from '@/components/clients-intake-form/FormRenderer'; // Assuming this is the form renderer component
 
 import HomeVisitRiskAssessment from '@/app/test/home_visit/page'

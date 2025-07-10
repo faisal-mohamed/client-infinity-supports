@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FaTimes, FaSave, FaSpinner } from 'react-icons/fa';
 
-interface CommonField {
+export interface CommonField {
   id?: number;
   clientId: number;
   name?: string;
@@ -26,6 +26,7 @@ interface CommonFieldsModalProps {
   commonFields: CommonField | null;
   onFieldChange: (field: keyof CommonField, value: string | number | null) => void;
   onSave: () => void;
+  onSubmitWithSignatureCheck: (updatedFields: CommonField) => void; // New prop for signature checking
   isUpdating: boolean;
   clientName?: string;
 }
@@ -36,6 +37,7 @@ export default function CommonFieldsModal({
   commonFields,
   onFieldChange,
   onSave,
+  onSubmitWithSignatureCheck,
   isUpdating,
   clientName
 }: CommonFieldsModalProps) {
@@ -112,7 +114,7 @@ export default function CommonFieldsModal({
                 <input
                   type="text"
                   value={commonFields.name || ''}
-                  onChange={(e) => onFieldChange('name', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('name', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter full name"
                 />
@@ -151,7 +153,7 @@ export default function CommonFieldsModal({
                 </label>
                 <select
                   value={commonFields.sex || ''}
-                  onChange={(e) => onFieldChange('sex', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('sex', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                 >
                   <option value="">Select gender</option>
@@ -169,7 +171,7 @@ export default function CommonFieldsModal({
                 <input
                   type="text"
                   value={commonFields.ndis || ''}
-                  onChange={(e) => onFieldChange('ndis', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('ndis', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter NDIS number"
                 />
@@ -181,7 +183,7 @@ export default function CommonFieldsModal({
                 </label>
                 <textarea
                   value={commonFields.disability || ''}
-                  onChange={(e) => onFieldChange('disability', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('disability', e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter disability information"
@@ -202,7 +204,7 @@ export default function CommonFieldsModal({
                 <input
                   type="email"
                   value={commonFields.email || ''}
-                  onChange={(e) => onFieldChange('email', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('email', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter email address"
                 />
@@ -215,7 +217,7 @@ export default function CommonFieldsModal({
                 <input
                   type="tel"
                   value={commonFields.phone || ''}
-                  onChange={(e) => onFieldChange('phone', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('phone', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter phone number"
                 />
@@ -228,7 +230,7 @@ export default function CommonFieldsModal({
                 <input
                   type="text"
                   value={commonFields.street || ''}
-                  onChange={(e) => onFieldChange('street', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('street', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter street address"
                 />
@@ -240,7 +242,7 @@ export default function CommonFieldsModal({
                 </label>
                 <textarea
                   value={commonFields.address || ''}
-                  onChange={(e) => onFieldChange('address', e.target.value)}
+                  onChange={(e) => handleFieldChangeWithAge('address', e.target.value)}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   placeholder="Enter complete address"
@@ -254,7 +256,7 @@ export default function CommonFieldsModal({
                   </label>
                   <select
                     value={commonFields.state || ''}
-                    onChange={(e) => onFieldChange('state', e.target.value)}
+                    onChange={(e) => handleFieldChangeWithAge('state', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                   >
                     <option value="">Select state</option>
@@ -276,7 +278,7 @@ export default function CommonFieldsModal({
                   <input
                     type="text"
                     value={commonFields.postCode || ''}
-                    onChange={(e) => onFieldChange('postCode', e.target.value)}
+                    onChange={(e) => handleFieldChangeWithAge('postCode', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                     placeholder="Enter post code"
                     maxLength={4}
@@ -300,7 +302,13 @@ export default function CommonFieldsModal({
               Cancel
             </button>
             <button
-              onClick={onSave}
+              onClick={() => {
+                if (commonFields && onSubmitWithSignatureCheck) {
+                  onSubmitWithSignatureCheck(commonFields);
+                } else {
+                  onSave();
+                }
+              }}
               disabled={isUpdating}
               className="px-6 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
@@ -323,4 +331,3 @@ export default function CommonFieldsModal({
   );
 }
 
-export type { CommonField };

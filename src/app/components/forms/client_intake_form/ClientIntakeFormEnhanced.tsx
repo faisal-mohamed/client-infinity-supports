@@ -713,20 +713,10 @@ const getCommonFieldValue = (fieldName: string): string => {
       }
     }
 
-    // Since common fields are read-only, we just save the form data
     handleSave(submit);
   };
 
-  // const handleSaveAndExit = async () => {
-  //   const canProceed = await confirmAndUpdateCommonFields();
-  //   if (canProceed) {
-  //     if (onSubmit) {
-  //       onSubmit(localValues);
-  //     }
-  //   }
-  // };
 
-  // Helper to get nested properties from formValues
   const getFieldValue = (name: string) => {
     const parts = name.split('.');
     let value = localValues;
