@@ -695,7 +695,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         
         // Check if field is empty, null, undefined, or empty string
         if (!value || (typeof value === 'string' && value.trim() === '')) {
-          missingFields.push(`${section.title}: ${fieldName}`);
+          missingFields.push(`${fieldName}`);
         }
       });
     });
@@ -749,6 +749,30 @@ const getCommonFieldValue = (fieldName: string): string => {
   //     handleSave(true);
   //   }
   // };
+
+
+  const handleFormSubmitCheckValidation = async () => {
+    try {
+    const validationResult = validateRequiredFields();
+
+    if (validationResult.isValid) {
+      await handleSaveProgress(); // Awaiting if handleSaveProgress is async
+    } else {
+      showToast({
+        type: 'error',
+        title: "Missing Required Fields",
+        message: validationResult.missingFields.join(', ') // Formats the missing fields as a readable list
+      });
+    }
+  } catch (error) {
+    console.error("Validation or save failed:", error);
+    showToast({
+      type: 'error',
+      title: "Error",
+      message: "Something went wrong during validation or saving."
+    });
+  }
+  }
 
   // 🎯 LEGACY WRAPPER FUNCTION (for backward compatibility)
   const handleSaveWithConfirm = async (submit: boolean) => {
