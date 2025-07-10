@@ -25,7 +25,9 @@ interface FormProps {
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
-  handleSave: (submit: boolean) => void;
+  handleSave: (submit: boolean) => void; // Keep for backward compatibility
+  handleSaveProgress?: () => Promise<void>; // New: separate save function
+  handleSubmitForm?: () => Promise<void>; // New: separate submit function
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -169,9 +171,11 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
   onSubmit,
   readOnly = false,
   fieldErrors = {},
-  handleSave,
+  handleSave, // Legacy function
+  handleSaveProgress, // New: separate save function
+  handleSubmitForm, // New: separate submit function
   onCommonFieldsUpdated,
-}) => {
+} : any) => {
 
   // Helper function to get common field value
 const getCommonFieldValue = (fieldName: string): string => {
@@ -264,6 +268,10 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
+
+  // 🎯 SEPARATE LOADING STATES
+  const [saving, setSaving] = useState(false); // For save progress
+  const [submitting, setSubmitting] = useState(false); // For form submission
 
   // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -372,7 +380,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   // Update Next handler to always save progress before moving to the next section
   const handleNextSequential = async () => {
     // Save current section's data before proceeding
-    if (typeof handleSave === 'function') await handleSave(false);
+    await handleSaveProgress();
     // No confirmation modal logic here
     handleNext();
   };
@@ -698,22 +706,57 @@ const getCommonFieldValue = (fieldName: string): string => {
     };
   };
 
-  const handleSaveWithConfirm = async (submit: boolean) => {
-    // If trying to submit (not just save draft), validate required fields
-    if (submit) {
-      const validation = validateRequiredFields();
-      if (!validation.isValid) {
-        showToast({
-          type: "error",
-          title: "Required Fields Missing",
-          message: `Please fill in all required fields before submitting. Missing: ${validation.missingFields.slice(0, 3).join(', ')}${validation.missingFields.length > 3 ? '...' : ''}`,
-          duration: 5000,
-        });
-        return;
-      }
-    }
+  // // 🎯 SAVE PROGRESS FUNCTION
+  // const handleSaveProgress = async () => {
+  //   if (handleSaveProgress && typeof handleSaveProgress === 'function') {
+  //     // Use new separate save function if provided
+  //     setSaving(true);
+  //     try {
+  //       await handleSaveProgress();
+  //     } finally {
+  //       setSaving(false);
+  //     }
+  //   } else {
+  //     // Fallback to legacy function
+  //     handleSave(false);
+  //   }
+  // };
 
-    handleSave(submit);
+  // // 🎯 SUBMIT FORM FUNCTION
+  // const handleSubmitForm = async () => {
+  //   // Validate required fields before submission
+  //   const validation = validateRequiredFields();
+  //   if (!validation.isValid) {
+  //     showToast({
+  //       type: "error",
+  //       title: "Required Fields Missing",
+  //       message: `Please fill in all required fields before submitting. Missing: ${validation.missingFields.slice(0, 3).join(', ')}${validation.missingFields.length > 3 ? '...' : ''}`,
+  //       duration: 5000,
+  //     });
+  //     return;
+  //   }
+
+  //   if (handleSubmitForm && typeof handleSubmitForm === 'function') {
+  //     // Use new separate submit function if provided
+  //     setSubmitting(true);
+  //     try {
+  //       await handleSubmitForm();
+  //     } finally {
+  //       setSubmitting(false);
+  //     }
+  //   } else {
+  //     // Fallback to legacy function
+  //     handleSave(true);
+  //   }
+  // };
+
+  // 🎯 LEGACY WRAPPER FUNCTION (for backward compatibility)
+  const handleSaveWithConfirm = async (submit: boolean) => {
+    if (submit) {
+      await handleSubmitForm();
+    } else {
+      await handleSaveProgress();
+    }
   };
 
 
@@ -890,11 +933,12 @@ const getCommonFieldValue = (fieldName: string): string => {
   </button>
 
   <button
-    onClick={() => handleSaveWithConfirm(false)}
+    onClick={() => handleSaveProgress()}
+    disabled={saving || submitting}
     className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
   >
     <FaSave className="w-4 h-4" />
-    Save Draft
+    {saving ? 'Saving...' : 'Save Progress'}
   </button>
 </div>
 
@@ -903,11 +947,12 @@ const getCommonFieldValue = (fieldName: string): string => {
     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
     onClick={(e) => {
       e.preventDefault();
-      handleSaveWithConfirm(true); // Submit with validation
+      handleSubmitForm(); // Submit with validation
     }}
+    disabled={saving || submitting}
   >
     <FaCheck className="w-4 h-4" />
-    Submit Form
+    {submitting ? 'Submitting...' : 'Submit Form'}
   </button>
 )}
 

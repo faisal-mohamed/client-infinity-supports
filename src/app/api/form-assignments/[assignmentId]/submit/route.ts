@@ -41,7 +41,7 @@ export async function POST(
       );
     }
 
-    // NEW: Validate signature completion using registry-based system
+    // Validate signature completion using registry-based system
     const signatureValidation = validateFormSignatures(
       assignment.form.formKey,
       formData
@@ -55,14 +55,25 @@ export async function POST(
     let clientSignedAt = null;
 
     if (hasAllSignatures) {
-      // Store completion status as string flag, not base64 data
-      clientSignature = "true"; // Simple completion flag
+      // Store completion status as string flag
+      clientSignature = "true";
       clientSignedAt = new Date();
     }
 
-    // 🎯 SAVE STATUS LOGIC (Always in_progress for saves)
-    const newStatus = "in_progress"; // Save operations always set to in_progress
-    
+    // 🎯 SUBMIT STATUS LOGIC
+    let newStatus = "completed"; // Default for submission
+    let canSubmit = true;
+    let submitMessage = "Form submitted successfully!";
+
+    // Check if submission requirements are met
+    if (signatureValidation.totalRequired > 0 && !hasAllSignatures) {
+      // Has signature requirements but not all complete
+      newStatus = "in_progress"; // Keep as in_progress
+      canSubmit = false;
+      submitMessage = `Cannot submit: ${signatureValidation.missingSignatures.length} signature(s) still required`;
+    }
+
+    console.log(`🎯 Submit Status: assignmentId=${assignmentIdNum}, hasAllSignatures=${hasAllSignatures}, totalRequired=${signatureValidation.totalRequired}, newStatus=${newStatus}, canSubmit=${canSubmit}`);
 
     // Update or create FormSubmission
     const formSubmission = await prisma.formSubmission.upsert({
@@ -80,8 +91,8 @@ export async function POST(
         data: formData,
         filledByAdmin: true,
         adminFilledAt: new Date(),
-        isSubmitted: false, // Save operations are not submissions
-        submittedAt: null, // No submission date for saves
+        isSubmitted: canSubmit, // Only mark as submitted if requirements met
+        submittedAt: canSubmit ? new Date() : null,
         clientSignature: clientSignature,
         clientSignedAt: clientSignedAt,
       },
@@ -89,8 +100,8 @@ export async function POST(
         data: formData,
         filledByAdmin: true,
         adminFilledAt: new Date(),
-        isSubmitted: false, // Save operations are not submissions
-        submittedAt: null, // No submission date for saves
+        isSubmitted: canSubmit, // Only mark as submitted if requirements met
+        submittedAt: canSubmit ? new Date() : null,
         updatedAt: new Date(),
         // Update signature fields if signatures are complete
         ...(hasAllSignatures && {
@@ -100,15 +111,13 @@ export async function POST(
       },
     });
 
-    // Update common fields if provided - FILTER to only valid CommonField columns
+    // Update common fields if provided
     if (commonFieldsData && Object.keys(commonFieldsData).length > 0) {
-      // Define allowed CommonField columns based on your Prisma schema
       const allowedCommonFields = [
         'name', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
         'dob', 'ndis', 'disability', 'address', 'phone'
       ];
       
-      // Filter commonFieldsData to only include allowed fields
       const filteredCommonFields = Object.keys(commonFieldsData)
         .filter(key => allowedCommonFields.includes(key))
         .reduce((obj, key) => {
@@ -116,7 +125,6 @@ export async function POST(
           return obj;
         }, {} as any);
 
-      // Only update if there are valid common fields
       if (Object.keys(filteredCommonFields).length > 0) {
         await prisma.commonField.upsert({
           where: { clientId: assignment.clientId },
@@ -129,26 +137,27 @@ export async function POST(
             updatedAt: new Date(),
           },
         });
-    console.log(`🎯 Updating FormAssignment ${assignmentIdNum} to status: ${newStatus}`);
       }
     }
 
-    // Update FormAssignment completion status
-    // 🎯 UPDATE FORM ASSIGNMENT WITH NEW STATUS
-    {
-      await prisma.formAssignment.update({
-        where: { id: assignmentIdNum },
-        data: { 
+    // 🎯 UPDATE FORM ASSIGNMENT STATUS
+    console.log(`🎯 Updating FormAssignment ${assignmentIdNum} to status: ${newStatus}`);
+    
+    await prisma.formAssignment.update({
+      where: { id: assignmentIdNum },
+      data: {
         currentStatus: newStatus,
-        isCompleted: false,
+        isCompleted: newStatus === "completed" // Keep legacy field in sync
       },
-      });
-    }
+    });
+
+    console.log(`✅ FormAssignment ${assignmentIdNum} submitted with status: ${newStatus}`);
 
     return NextResponse.json({
-      success: true,
+      success: canSubmit,
       submissionId: formSubmission.id,
-      currentStatus: newStatus, // Return new status
+      currentStatus: newStatus,
+      canSubmit: canSubmit,
       signatureStatus: {
         isComplete: signatureValidation.isComplete,
         completedCount: signatureValidation.completedCount,
@@ -156,17 +165,13 @@ export async function POST(
         completedSignatures: signatureValidation.completedSignatures,
         missingSignatures: signatureValidation.missingSignatures,
       },
-      message: hasAllSignatures 
-        ? `Form completed with all ${signatureValidation.totalRequired} signature(s)` 
-        : signatureValidation.totalRequired > 0
-          ? `Form saved - ${signatureValidation.missingSignatures.length} signature(s) remaining`
-          : 'Form saved successfully',
+      message: submitMessage,
     });
 
   } catch (error: any) {
-    console.error("Error saving form data:", error);
+    console.error("Error submitting form:", error);
     return NextResponse.json(
-      { error: "Failed to save form data", details: error.message },
+      { error: "Failed to submit form", details: error.message },
       { status: 500 }
     );
   }

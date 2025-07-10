@@ -215,6 +215,43 @@ export async function POST(
       },
     });
 
+    // 🎯 UPDATE FORM ASSIGNMENT STATUS AFTER SIGNATURE
+    // Find the corresponding form assignment and update its status
+    const formAssignment = await prisma.formAssignment.findFirst({
+      where: {
+        clientId: signatureForm.formSubmission.clientId,
+        formId: signatureForm.formSubmission.formId,
+        formVersion: signatureForm.formSubmission.formVersion
+      }
+    });
+    
+    if (formAssignment) {
+      // Check if this form now has all required signatures
+      const formConfig = getFormConfig(signatureForm.formSubmission.form.formKey);
+      const allSignatures = formConfig?.signatures || [];
+      const requiredSignatures = allSignatures.filter(sig => sig.required);
+      
+      // Count completed signatures in the updated form data
+      let completedSignatureCount = 0;
+      requiredSignatures.forEach(sig => {
+        const dataKey = sig.dataKey || sig.id;
+        if (updatedFormData[dataKey]) {
+          completedSignatureCount++;
+        }
+      });
+      
+      // Update assignment status based on signature completion
+      const newStatus = completedSignatureCount === requiredSignatures.length ? "completed" : "in_progress";
+      
+      await prisma.formAssignment.update({
+        where: { id: formAssignment.id },
+        data: {
+          currentStatus: newStatus,
+          isCompleted: newStatus === "completed"
+        }
+      });
+    }
+
     // Check if all required signatures in this batch are now complete
     const updatedBatch = await prisma.formBatch.findUnique({
       where: { id: batch.id },

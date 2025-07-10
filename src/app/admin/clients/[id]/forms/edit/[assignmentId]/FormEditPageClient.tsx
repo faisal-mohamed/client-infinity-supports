@@ -79,48 +79,108 @@ export default function FormEditPageClient() {
     }
   };
 
-  const handleSave = async (submit: boolean = true) => {
+  // 🎯 SEPARATE SAVE PROGRESS FUNCTION
+  const handleSaveProgress = async () => {
     if (!assignment) return;
     try {
       setSaving(true);
 
-      // Save form data
       const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formData,
           commonFieldsData,
-          submit,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to save form data');
+      
+      const result = await response.json();
+      console.log('Save progress result:', result);
 
       showToast({
         type: 'success',
-        title: 'Success',
-        message: submit ? 'Form completed successfully!' : 'Progress saved',
+        title: 'Progress Saved',
+        message: 'Your progress has been saved',
         duration: 3000,
       });
-
-      if (submit) {
-        // Navigate back to forms list after successful submission
-        setTimeout(() => {
-          router.push(`/admin/clients/${clientId}/forms`);
-        }, 1000); // Small delay to show the success message
-      }
 
     } catch (error) {
       console.error('Error saving form:', error);
       showToast({
         type: 'error',
-        title: 'Error',
-        message: 'Failed to save form data',
+        title: 'Save Failed',
+        message: 'Failed to save progress',
         duration: 3000,
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 🎯 SEPARATE SUBMIT FORM FUNCTION
+  const handleSubmitForm = async () => {
+    if (!assignment) return;
+    try {
+      setSaving(true); // Using same loading state for now
+
+      const response = await fetch(`/api/form-assignments/${assignmentId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to submit form');
+      
+      const result = await response.json();
+      console.log('Submit form result:', result);
+
+      if (result.success) {
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: result.message,
+          duration: 3000,
+        });
+        
+        // Navigate back to forms list after successful submission
+        setTimeout(() => {
+          router.push(`/admin/clients/${clientId}/forms`);
+        }, 1000);
+        
+      } else {
+        // Submission failed due to missing requirements
+        showToast({
+          type: 'warning',
+          title: 'Submission Failed',
+          message: result.message,
+          duration: 5000,
+        });
+      }
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      showToast({
+        type: 'error',
+        title: 'Submit Failed',
+        message: 'Failed to submit form',
+        duration: 3000,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🎯 LEGACY FUNCTION (keep for backward compatibility)
+  const handleSave = async (submit: boolean = false) => {
+    if (submit) {
+      await handleSubmitForm();
+    } else {
+      await handleSaveProgress();
     }
   };
 
@@ -224,7 +284,9 @@ export default function FormEditPageClient() {
             commonFieldsData={commonFieldsData}
             onChange={handleFormChange}
             onSubmit={handleFormSubmit}
-            handleSave={handleSave}
+            handleSave={handleSave} // Legacy function for backward compatibility
+            handleSaveProgress={handleSaveProgress} // New: separate save function
+            handleSubmitForm={handleSubmitForm} // New: separate submit function
             readOnly={false}
             fieldErrors={{}}
             onCommonFieldsUpdated={() => {
