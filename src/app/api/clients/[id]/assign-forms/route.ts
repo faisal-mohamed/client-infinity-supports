@@ -111,7 +111,6 @@ export async function POST(
             formId: form.id,
             formVersion: form.version,
             batchId: formBatch.id,
-            expiresAt: expiresAt,
             displayOrder: index + 1,
           },
         });

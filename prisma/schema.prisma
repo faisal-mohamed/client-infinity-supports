@@ -92,7 +92,6 @@ model FormAssignment {
   formId                Int       // Reference to MasterForm
   formVersion           Int       // Version of the form being assigned
   assignedAt            DateTime  @default(now())
-  expiresAt             DateTime  // When the assignment/link expires
   isCompleted           Boolean   @default(false)
   isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
   displayOrder          Int       @default(0) // Order in which forms should be displayed
