@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { 
   FaEdit, FaEye, FaDownload, FaEllipsisV, FaCalendarAlt, 
@@ -26,7 +27,9 @@ export default function FormItem({
   onFormSelect,
   onDownloadPDF
 }: FormItemProps) {
+  const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
+  const [showEditWarningModal, setShowEditWarningModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside to close dropdown
@@ -45,6 +48,33 @@ export default function FormItem({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [activeActionMenu]);
+
+  // 🎯 HANDLE FORM EDIT WITH SIGNATURE WARNING
+  const handleEditClick = () => {
+    setActiveActionMenu(false); // Close dropdown first
+    
+    // Check if form requires client signatures
+    const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
+    
+    if (requiresSignatures && assignment.currentStatus === 'completed') {
+      // Show warning modal for completed forms with signatures
+      setShowEditWarningModal(true);
+    } else {
+      // Navigate directly for forms without signatures or not completed
+      router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+    }
+  };
+
+  // Handle edit confirmation from modal
+  const handleEditConfirm = () => {
+    setShowEditWarningModal(false);
+    router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+  };
+
+  // Handle edit cancellation
+  const handleEditCancel = () => {
+    setShowEditWarningModal(false);
+  };
 
   // const getFormStatus = (assignment: FormAssignmentWithDetails) => {
   //   const requiresSignature = formRequiresSignatures(assignment.form.formKey);
@@ -265,14 +295,13 @@ export default function FormItem({
           {/* Action Menu Dropdown */}
           {activeActionMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
-              <Link
-                href={`/admin/clients/${clientId}/forms/edit/${assignment.id}`}
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                onClick={() => setActiveActionMenu(false)}
+              <button
+                onClick={handleEditClick}
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
               >
                 <FaEdit className="mr-3 h-4 w-4 text-indigo-500 flex-shrink-0" />
                 Edit Form
-              </Link>
+              </button>
               
               {assignment.hasSubmission && (
                 <>
@@ -306,6 +335,50 @@ export default function FormItem({
           )}
         </div>
       </div>
+      {showEditWarningModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="flex items-center mb-4">
+            <FaSignature className="h-6 w-6 text-orange-500 mr-3" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Edit Form Warning
+            </h3>
+          </div>
+          
+          <div className="mb-6">
+            <p className="text-gray-600 mb-3">
+              This form has been completed and contains client signatures. 
+            </p>
+            <p className="text-gray-600 mb-3">
+              <strong>Proceeding with editing may invalidate the signature(s)</strong> and the form will need to be re-signed.
+              <br />
+              ⚠️ Please make sure to download a copy of this form before making any edits to preserve the original version
+            </p>
+            <p className="text-sm text-gray-500">
+              Form: <span className="font-medium">{assignment.form.title}</span>
+            </p>
+          </div>
+          
+          <div className="flex justify-end space-x-3">
+            <button
+              onClick={handleEditCancel}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditConfirm}
+              className="px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-md transition-colors"
+            >
+              Proceed to Edit
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
+
+    {/* 🎯 EDIT WARNING MODAL */}
+    
 }
