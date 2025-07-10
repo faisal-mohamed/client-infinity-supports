@@ -221,3 +221,23 @@ enum LogType {
   CLIENT
   ADMIN
 }
+
+// Application Settings Model for managing app-wide configurations
+model AppSettings {
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  value         String?
+  type          String   // 'string', 'number', 'boolean', 'date', 'url', 'json'
+  category      String   // 'form_metadata', 'company', 'system', 'email', 'pdf', 'security'
+  label         String   // Human-readable label
+  description   String?  // Help text for the setting
+  isRequired    Boolean  @default(false)
+  defaultValue  String?  // Default value for the setting
+  validation    String?  // Validation rules (JSON string)
+  sortOrder     Int      @default(0) // For ordering within categories
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("app_settings")
+}

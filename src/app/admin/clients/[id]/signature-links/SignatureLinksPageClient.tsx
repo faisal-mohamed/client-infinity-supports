@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   FaArrowLeft, FaLink, FaCopy, FaEye, FaCalendarAlt, FaCheck, 
   FaClock, FaExclamationTriangle, FaPlus, FaTrash, FaEdit, 
-  FaSave, FaTimes 
+  FaSave, FaTimes, FaUser, FaFileAlt, FaCheckCircle 
 } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/Confirm';
@@ -142,7 +142,20 @@ export default function SignatureLinksPageClient() {
   const startEditingExpiry = (batchId: number, currentExpiry: string) => {
     setEditingExpiry(batchId);
     const date = new Date(currentExpiry);
-    const formattedDate = date.toISOString().slice(0, 16);
+    
+    // 🎯 FIX: Convert to local timezone for datetime-local input
+    // Subtract timezone offset to get local time
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    const formattedDate = localDate.toISOString().slice(0, 16);
+    
+    console.log('🎯 Expiry Edit Debug:', {
+      originalExpiry: currentExpiry,
+      parsedDate: date.toISOString(),
+      localDate: localDate.toISOString(),
+      formattedForInput: formattedDate,
+      timezoneOffset: date.getTimezoneOffset()
+    });
+    
     setNewExpiryDate(formattedDate);
   };
 
@@ -163,11 +176,22 @@ export default function SignatureLinksPageClient() {
     }
 
     try {
+      // 🎯 FIX: Handle datetime-local input properly
+      // The input gives us local time, we need to convert it properly
+      const localDateTime = new Date(newExpiryDate);
+      
+      console.log('🎯 Update Expiry Debug:', {
+        inputValue: newExpiryDate,
+        localDateTime: localDateTime.toISOString(),
+        localDateTimeString: localDateTime.toString(),
+        timezoneOffset: localDateTime.getTimezoneOffset()
+      });
+
       const response = await fetch(`/api/signature-batches/${batchId}/update-expiry`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          expiresAt: new Date(newExpiryDate).toISOString()
+          expiresAt: localDateTime.toISOString() // This should now be correct
         }),
       });
 
@@ -175,6 +199,9 @@ export default function SignatureLinksPageClient() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update expiry');
       }
+
+      const result = await response.json();
+      console.log('🎯 Update result:', result);
 
       showToast({
         type: 'success',
@@ -239,172 +266,228 @@ export default function SignatureLinksPageClient() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <Link 
-            href={`/admin/clients/${clientId}/forms`}
-            className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <FaArrowLeft className="h-5 w-5 text-gray-600" />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Signature Links for {client?.name}
-            </h1>
-            <p className="text-gray-600 mt-1">{client?.email}</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Header */}
+        <div className="mb-8">
+          <div className="flex items-center mb-6">
+            <Link 
+              href={`/admin/clients/${clientId}/forms`}
+              className="mr-4 p-2 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 border border-gray-200"
+            >
+              <FaArrowLeft className="h-5 w-5 text-gray-600" />
+            </Link>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                Signature Links
+              </h1>
+              <div className="flex items-center text-gray-600">
+                <FaUser className="h-4 w-4 mr-2" />
+                <span className="font-medium">{client?.name}</span>
+                <span className="mx-2">•</span>
+                <span>{client?.email}</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="flex gap-4">
-          <Link
-            href={`/admin/clients/${clientId}/forms`}
-            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors"
-          >
-            <FaPlus className="mr-2" />
-            Generate New Link
-          </Link>
-        </div>
-      </div>
-
-      {/* Signature Links List */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Generated Signature Links</h2>
-        </div>
-
-        {signatureBatches.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <FaLink className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Signature Links</h3>
-            <p className="text-gray-600 mb-4">No signature links have been generated for this client yet.</p>
+          {/* Action Bar */}
+          <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center text-sm text-gray-600">
+                <FaLink className="h-4 w-4 mr-2" />
+                <span>{signatureBatches.length} signature link{signatureBatches.length !== 1 ? 's' : ''} generated</span>
+              </div>
+            </div>
             <Link
               href={`/admin/clients/${clientId}/forms`}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 font-medium transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <FaPlus className="mr-2" />
-              Generate First Link
+              <FaPlus className="mr-2 h-4 w-4" />
+              Generate New Link
             </Link>
           </div>
+        </div>
+
+        {/* Enhanced Signature Links List */}
+        {signatureBatches.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-8 py-16 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaLink className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Signature Links</h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                No signature links have been generated for this client yet. Create your first link to get started.
+              </p>
+              <Link
+                href={`/admin/clients/${clientId}/forms`}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+              >
+                <FaPlus className="mr-2 h-4 w-4" />
+                Generate First Link
+              </Link>
+            </div>
+          </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-6">
             {signatureBatches.map((batch) => {
               const statusInfo = getBatchStatus(batch);
               const StatusIcon = statusInfo.icon;
               const signedCount = batch.signatureForms.filter(sf => sf.formSubmission.clientSignature).length;
               const totalCount = batch.signatureForms.length;
+              const progressPercentage = totalCount > 0 ? (signedCount / totalCount) * 100 : 0;
               
               return (
-                <div key={batch.id} className="p-6 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-2">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color} mr-3`}>
-                          <StatusIcon className="mr-1 h-3 w-3" />
+                <div key={batch.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200">
+                  {/* Card Header */}
+                  <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${statusInfo.color}`}>
+                          <StatusIcon className="mr-1.5 h-4 w-4" />
                           {statusInfo.status}
                         </span>
-                        <span className="text-sm text-gray-500">
-                          {signedCount} of {totalCount} forms signed
-                        </span>
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">{signedCount}</span> of <span className="font-medium">{totalCount}</span> forms signed
+                        </div>
                       </div>
                       
-                      <div className="mb-2">
-                        <h3 className="text-sm font-medium text-gray-900 mb-1">
-                          Forms in this link:
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {batch.signatureForms.map((sf) => (
-                            <span
-                              key={sf.id}
-                              className={`inline-flex items-center px-2 py-1 rounded text-xs ${
-                                sf.formSubmission.clientSignature
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {sf.formSubmission.clientSignature && <FaCheck className="mr-1 h-3 w-3" />}
-                              {sf.formSubmission.form.title}
-                            </span>
-                          ))}
+                      {/* Progress Bar */}
+                      <div className="flex items-center space-x-3">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${progressPercentage}%` }}
+                          ></div>
                         </div>
+                        <span className="text-sm font-medium text-gray-700">{Math.round(progressPercentage)}%</span>
                       </div>
+                    </div>
+                  </div>
 
-                      <div className="flex items-center text-sm text-gray-500 space-x-4">
-                        <div className="flex items-center">
-                          <FaCalendarAlt className="h-4 w-4 mr-1" />
-                          Created: {new Date(batch.createdAt).toLocaleDateString()}
-                        </div>
-                        <div className="flex items-center">
-                          <FaCalendarAlt className="h-4 w-4 mr-1" />
-                          {editingExpiry === batch.id ? (
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm">Expires:</span>
-                              <input
-                                type="datetime-local"
-                                value={newExpiryDate}
-                                onChange={(e) => setNewExpiryDate(e.target.value)}
-                                className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                min={new Date().toISOString().slice(0, 16)}
-                              />
-                              <button
-                                onClick={() => updateExpiry(batch.id)}
-                                className="text-green-600 hover:text-green-800 p-1"
-                                title="Save"
-                              >
-                                <FaSave className="h-3 w-3" />
-                              </button>
-                              <button
-                                onClick={cancelEditingExpiry}
-                                className="text-gray-600 hover:text-gray-800 p-1"
-                                title="Cancel"
-                              >
-                                <FaTimes className="h-3 w-3" />
-                              </button>
+                  {/* Card Body */}
+                  <div className="p-6">
+                    {/* Forms Section */}
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                        <FaFileAlt className="h-4 w-4 mr-2" />
+                        Forms in this link ({totalCount})
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {batch.signatureForms.map((sf) => (
+                          <div
+                            key={sf.id}
+                            className={`p-3 rounded-lg border-2 transition-all duration-200 ${
+                              sf.formSubmission.clientSignature
+                                ? 'bg-green-50 border-green-200 text-green-800'
+                                : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            <div className="flex items-center">
+                              {sf.formSubmission.clientSignature ? (
+                                <FaCheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                              ) : (
+                                <FaClock className="h-4 w-4 mr-2 text-gray-400" />
+                              )}
+                              <span className="text-sm font-medium truncate">
+                                {sf.formSubmission.form.title}
+                              </span>
                             </div>
-                          ) : (
-                            <div className="flex items-center space-x-2">
-                              <span>Expires: {new Date(batch.expiresAt).toLocaleDateString()}</span>
-                              <button
-                                onClick={() => startEditingExpiry(batch.id, batch.expiresAt)}
-                                className="text-blue-600 hover:text-blue-800 p-1"
-                                title="Edit expiry date"
-                              >
-                                <FaEdit className="h-3 w-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                            {sf.formSubmission.clientSignedAt && (
+                              <div className="text-xs text-green-600 mt-1">
+                                Signed: {new Date(sf.formSubmission.clientSignedAt).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 ml-4">
-                      <button
-                        onClick={() => copyLinkToClipboard(batch.batchToken)}
-                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        title="Copy link to clipboard"
-                      >
-                        <FaCopy className="mr-1 h-3 w-3" />
-                        Copy Link
-                      </button>
+                    {/* Metadata Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FaCalendarAlt className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="font-medium mr-2">Created:</span>
+                        <span>{new Date(batch.createdAt).toLocaleDateString()}</span>
+                      </div>
                       
-                      <Link
-                        href={`/forms/signature/${batch.batchToken}`}
-                        target="_blank"
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                      >
-                        <FaEye className="mr-1 h-3 w-3" />
-                        Preview
-                      </Link>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FaClock className="h-4 w-4 mr-2 text-gray-400" />
+                        {editingExpiry === batch.id ? (
+                          <div className="flex items-center space-x-2 flex-1">
+                            <span className="font-medium">Expires:</span>
+                            <input
+                              type="datetime-local"
+                              value={newExpiryDate}
+                              onChange={(e) => setNewExpiryDate(e.target.value)}
+                              className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                              min={new Date().toISOString().slice(0, 16)}
+                            />
+                            <button
+                              onClick={() => updateExpiry(batch.id)}
+                              className="p-1.5 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                              title="Save"
+                            >
+                              <FaSave className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={cancelEditingExpiry}
+                              className="p-1.5 text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                              title="Cancel"
+                            >
+                              <FaTimes className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium">Expires:</span>
+                            <span>{new Date(batch.expiresAt).toLocaleString()}</span>
+                            <button
+                              onClick={() => startEditingExpiry(batch.id, batch.expiresAt)}
+                              className="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Edit expiry date"
+                            >
+                              <FaEdit className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                      <button
-                        onClick={() => deleteBatch(batch.id)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        title="Delete signature link"
-                      >
-                        <FaTrash className="mr-1 h-3 w-3" />
-                        Delete
-                      </button>
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                      <div className="text-xs text-gray-500">
+                        Link ID: {batch.batchToken.slice(0, 8)}...
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => copyLinkToClipboard(batch.batchToken)}
+                          className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                          title="Copy link to clipboard"
+                        >
+                          <FaCopy className="mr-2 h-4 w-4" />
+                          Copy Link
+                        </button>
+                        
+                        <Link
+                          href={`/forms/signature/${batch.batchToken}`}
+                          target="_blank"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                        >
+                          <FaEye className="mr-2 h-4 w-4" />
+                          Preview
+                        </Link>
+
+                        <button
+                          onClick={() => deleteBatch(batch.id)}
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                          title="Delete signature link"
+                        >
+                          <FaTrash className="mr-2 h-4 w-4" />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
