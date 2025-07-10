@@ -22,6 +22,7 @@ export interface FormAssignmentWithDetails {
   clientSignedAt?: string;
   // NEW: Include form data for signature validation
   formData?: any;
+  currentStatus: string;
 }
 
 export interface ClientInfo {

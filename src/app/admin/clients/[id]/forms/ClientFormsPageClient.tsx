@@ -76,36 +76,18 @@ export default function ClientFormsPageClient() {
   const stats = {
     total: assignments.length,
     completed: assignments.filter(a => {
-      const requiresSignature = formRequiresSignatures(a.form.formKey);
       
-      if (requiresSignature && a.filledByAdmin && a.formData) {
-        // Use signature validation for forms requiring signatures
-        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
-        return signatureValidation.isComplete;
-      }
-      
-      // Fallback to legacy logic
-      if (a.clientSignature === "true") {
-        return true; // Completion flag indicates all signatures complete
-      }
-      
-      // Form is completed if admin-filled and doesn't require signature
-      return a.filledByAdmin && !requiresSignature;
+      if(a.currentStatus === "completed") return true;
     }).length,
     inProgress: assignments.filter(a => {
-      const requiresSignature = formRequiresSignatures(a.form.formKey);
-      
-      if (requiresSignature && a.filledByAdmin && a.formData) {
-        // Use signature validation for forms requiring signatures
-        const signatureValidation = validateFormSignatures(a.form.formKey, a.formData);
-        console.log("SIGN: ", signatureValidation)
-        return signatureValidation.completedCount > 0 && !signatureValidation.isComplete;
-      }
-      
-      // Form is in progress if it has submission but not admin-filled yet
-      return a.hasSubmission && !a.filledByAdmin;
+    
+
+            if(a.currentStatus === "in_progress") return true;
+
     }).length,
-    notStarted: assignments.filter(a => !a.hasSubmission).length,
+    notStarted: assignments.filter(a => {
+      if(a.currentStatus === "not_started") return true;
+    }).length
   };
 
   // Load client and form assignments
@@ -503,13 +485,36 @@ export default function ClientFormsPageClient() {
         // Then update common fields
         await updateCommonFields();
         
-        const { clearedForms } = await clearResponse.json();
+        // 🎯 GET ENHANCED RESPONSE DATA
+        const responseData = await clearResponse.json();
+        const { 
+          clearedForms, 
+          clearedFormsWithSignatures, 
+          statusUpdatedAssignments,
+          details 
+        } = responseData;
+        
+        console.log('Clear signatures response:', responseData);
+        
+        // 🎯 CREATE ENHANCED TOAST MESSAGE
+        let toastMessage = `Updated common fields and cleared signatures from ${clearedFormsWithSignatures || clearedForms} form(s)`;
+        
+        if (statusUpdatedAssignments > 0) {
+          toastMessage += `. ${statusUpdatedAssignments} form(s) status changed to "In Progress" (require re-signing)`;
+        }
+        
+        // Show detailed info in console for debugging
+        if (details?.statusUpdates?.length > 0) {
+          console.log('🎯 Forms with status updated to "in_progress":', 
+            details.statusUpdates.map((update : any) => `${update.formTitle} (${update.requiredSignatures} signatures required)`)
+          );
+        }
         
         showToast({
           type: 'warning',
-          title: 'Signatures Cleared',
-          message: `Updated common fields and cleared signatures from ${signatureInvalidationData.affectedForms.length} form(s)`,
-          duration: 5000,
+          title: 'Signatures Cleared & Status Updated',
+          message: toastMessage,
+          duration: 6000, // Longer duration for more detailed message
         });
       }
       

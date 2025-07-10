@@ -674,10 +674,11 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   const handleFormSubmitCheckValidation = async () => {
   try {
+    console.log("form submitted")
     const validationResult = validateRequiredFields();
 
     if (validationResult.isValid) {
-      await handleSaveProgress(); // Awaiting if handleSaveProgress is async
+      await handleSubmitForm(); // Awaiting if handleSaveProgress is async
     } else {
       showToast({
         type: 'error',

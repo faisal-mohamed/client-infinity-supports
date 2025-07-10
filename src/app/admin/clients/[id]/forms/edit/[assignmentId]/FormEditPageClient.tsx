@@ -7,6 +7,7 @@ import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
 
+
 // Types
 interface FormAssignmentData {
   id: number;
@@ -105,6 +106,7 @@ export default function FormEditPageClient() {
         message: 'Your progress has been saved',
         duration: 3000,
       });
+
 
     } catch (error) {
       console.error('Error saving form:', error);

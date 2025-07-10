@@ -22,22 +22,34 @@ export async function POST(
 
     if (type === 'common-fields') {
       // Clear signatures from all forms for this client
-      const formSubmissions = await prisma.formSubmission.findMany({
+      const formSubmissions : any = await prisma.formSubmission.findMany({
         where: { clientId },
         include: { form: true }
       });
+
+      console.log("formSubmissions: ", formSubmissions);
+
+      // Track forms that had signatures cleared and require status update
+      const clearedFormsWithSignatures = [];
+      const statusUpdatedAssignments = [];
 
       for (const submission of formSubmissions) {
         const formConfig = getFormConfig(submission.form.formKey);
         const signatures = formConfig?.signatures || [];
         
         if (signatures.length > 0) {
+          // This form requires signatures
+          const requiredSignatures = signatures.filter(sig => sig.required);
+          
           // Clear signature data from form data
           const updatedData = { ...submission.data };
+          let hadSignatures = false;
+          
           signatures.forEach(sig => {
             const dataKey = sig.dataKey || sig.id;
             if (updatedData[dataKey]) {
               updatedData[dataKey] = null;
+              hadSignatures = true;
             }
           });
           
@@ -50,13 +62,58 @@ export async function POST(
               clientSignedAt: null
             }
           });
+
+          // 🎯 UPDATE FORM ASSIGNMENT STATUS TO IN_PROGRESS
+          // Find the corresponding FormAssignment
+          const formAssignment = await prisma.formAssignment.findFirst({
+            where: {
+              clientId: clientId,
+              formId: submission.formId,
+              formVersion: submission.formVersion
+            }
+          });
+
+          if (formAssignment && requiredSignatures.length > 0) {
+            // Only update status if form has required signatures
+            await prisma.formAssignment.update({
+              where: { id: formAssignment.id },
+              data: {
+                currentStatus: "in_progress", // Reset to in_progress since signatures cleared
+                isCompleted: false // Keep legacy field in sync
+              }
+            });
+
+            statusUpdatedAssignments.push({
+              assignmentId: formAssignment.id,
+              formTitle: submission.form.title,
+              formKey: submission.form.formKey,
+              requiredSignatures: requiredSignatures.length
+            });
+
+            console.log(`🎯 Updated FormAssignment ${formAssignment.id} status to "in_progress" (signatures cleared)`);
+          }
+
+          clearedFormsWithSignatures.push({
+            formId: submission.formId,
+            formKey: submission.form.formKey,
+            formTitle: submission.form.title,
+            formVersion: submission.formVersion,
+            requiredSignatures: requiredSignatures.length,
+            hadSignatures: hadSignatures
+          });
         }
       }
 
       return NextResponse.json({ 
         success: true, 
         message: "All client signatures cleared",
-        clearedForms: formSubmissions.length
+        clearedForms: formSubmissions.length,
+        clearedFormsWithSignatures: clearedFormsWithSignatures.length,
+        statusUpdatedAssignments: statusUpdatedAssignments.length,
+        details: {
+          clearedForms: clearedFormsWithSignatures,
+          statusUpdates: statusUpdatedAssignments
+        }
       });
     }
 

@@ -57,21 +57,22 @@ export function getSignatureStatusText(validation: SignatureValidationResult): s
   if (validation.totalRequired === 0) {
     return 'No Signature Required';
   }
-  
+
   if (validation.isComplete) {
     return validation.totalRequired === 1 
       ? 'Signature Complete' 
       : 'All Signatures Complete';
   }
-  
+
   if (validation.completedCount === 0) {
     return validation.totalRequired === 1 
       ? 'Signature Required' 
-      : 'Signatures Required';
+      : `${validation.totalRequired} Signatures Required`;
   }
-  
-  return `Signatures: ${validation.completedCount}/${validation.totalRequired} Complete`;
+
+  return `${validation.completedCount} of ${validation.totalRequired} Signatures Complete`;
 }
+
 
 /**
  * Check if a form requires any signatures

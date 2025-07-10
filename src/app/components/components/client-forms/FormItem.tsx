@@ -46,22 +46,98 @@ export default function FormItem({
     };
   }, [activeActionMenu]);
 
-  const getFormStatus = (assignment: FormAssignmentWithDetails) => {
-    const requiresSignature = formRequiresSignatures(assignment.form.formKey);
+  // const getFormStatus = (assignment: FormAssignmentWithDetails) => {
+  //   const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     
-    // If form has been filled by admin and requires signatures, validate them
-    if (assignment.filledByAdmin && requiresSignature && assignment.formData) {
-      const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
+  //   // If form has been filled by admin and requires signatures, validate them
+  //   if (assignment.filledByAdmin && requiresSignature && assignment.formData) {
+  //     const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
       
-      if (signatureValidation.isComplete) {
-        return {
-          status: getSignatureStatusText(signatureValidation),
-          color: 'bg-green-100 text-green-800 border-green-200',
-          icon: FaCheckCircle,
-          bgColor: 'bg-green-50',
-          iconColor: 'text-green-500'
-        };
-      } else if (signatureValidation.completedCount > 0) {
+  //     if (signatureValidation.isComplete) {
+  //       return {
+  //         status: getSignatureStatusText(signatureValidation),
+  //         color: 'bg-green-100 text-green-800 border-green-200',
+  //         icon: FaCheckCircle,
+  //         bgColor: 'bg-green-50',
+  //         iconColor: 'text-green-500'
+  //       };
+  //     } else if (signatureValidation.completedCount > 0) {
+  //       return {
+  //         status: getSignatureStatusText(signatureValidation),
+  //         color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  //         icon: FaSignature,
+  //         bgColor: 'bg-yellow-50',
+  //         iconColor: 'text-yellow-500'
+  //       };
+  //     } else {
+  //       return {
+  //         status: 'Ready for Signatures',
+  //         color: 'bg-blue-100 text-blue-800 border-blue-200',
+  //         icon: FaSignature,
+  //         bgColor: 'bg-blue-50',
+  //         iconColor: 'text-blue-500'
+  //       };
+  //     }
+  //   }
+    
+  //   // Fallback to legacy logic for backward compatibility
+  //   if (assignment.clientSignature === "true") {
+  //     return {
+  //       status: 'All Signatures Complete',
+  //       color: 'bg-green-100 text-green-800 border-green-200',
+  //       icon: FaCheckCircle,
+  //       bgColor: 'bg-green-50',
+  //       iconColor: 'text-green-500'
+  //     };
+  //   }
+    
+  //   if (assignment.filledByAdmin && !requiresSignature) {
+  //     return {
+  //       status: 'Admin Completed',
+  //       color: 'bg-green-100 text-green-800 border-green-200',
+  //       icon: FaCheckCircle,
+  //       bgColor: 'bg-green-50',
+  //       iconColor: 'text-green-500'
+  //     };
+  //   } else if (assignment.hasSubmission) {
+  //     return {
+  //       status: 'In Progress',
+  //       color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  //       icon: FaClock,
+  //       bgColor: 'bg-yellow-50',
+  //       iconColor: 'text-yellow-500'
+  //     };
+  //   } else {
+  //     return {
+  //       status: 'Not Started',
+  //       color: 'bg-gray-100 text-gray-800 border-gray-200',
+  //       icon: FaTimesCircle,
+  //       bgColor: 'bg-gray-50',
+  //       iconColor: 'text-gray-400'
+  //     };
+  //   }
+  // };
+
+  const getFormStatus = (assignment: FormAssignmentWithDetails) => {
+  const requiresSignature = formRequiresSignatures(assignment.form.formKey);
+  const status = assignment.currentStatus; // From backend API
+
+  if (status === "completed") {
+    return {
+      status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
+      color: 'bg-green-100 text-green-800 border-green-200',
+      icon: FaCheckCircle,
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-500'
+    };
+  }
+
+  if (status === "in_progress") {
+    // If it requires signatures and we have partial completion info
+    if (requiresSignature && assignment.clientSignature !== "true" && assignment.formData) {
+      const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
+
+      if (signatureValidation.completedCount > 0) {
         return {
           status: getSignatureStatusText(signatureValidation),
           color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -69,54 +145,34 @@ export default function FormItem({
           bgColor: 'bg-yellow-50',
           iconColor: 'text-yellow-500'
         };
-      } else {
-        return {
-          status: 'Ready for Signatures',
-          color: 'bg-blue-100 text-blue-800 border-blue-200',
-          icon: FaSignature,
-          bgColor: 'bg-blue-50',
-          iconColor: 'text-blue-500'
-        };
       }
-    }
-    
-    // Fallback to legacy logic for backward compatibility
-    if (assignment.clientSignature === "true") {
+
       return {
-        status: 'All Signatures Complete',
-        color: 'bg-green-100 text-green-800 border-green-200',
-        icon: FaCheckCircle,
-        bgColor: 'bg-green-50',
-        iconColor: 'text-green-500'
+        status: 'Ready for Signatures',
+        color: 'bg-blue-100 text-blue-800 border-blue-200',
+        icon: FaSignature,
+        bgColor: 'bg-blue-50',
+        iconColor: 'text-blue-500'
       };
     }
-    
-    if (assignment.filledByAdmin && !requiresSignature) {
-      return {
-        status: 'Admin Completed',
-        color: 'bg-green-100 text-green-800 border-green-200',
-        icon: FaCheckCircle,
-        bgColor: 'bg-green-50',
-        iconColor: 'text-green-500'
-      };
-    } else if (assignment.hasSubmission) {
-      return {
-        status: 'In Progress',
-        color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        icon: FaClock,
-        bgColor: 'bg-yellow-50',
-        iconColor: 'text-yellow-500'
-      };
-    } else {
-      return {
-        status: 'Not Started',
-        color: 'bg-gray-100 text-gray-800 border-gray-200',
-        icon: FaTimesCircle,
-        bgColor: 'bg-gray-50',
-        iconColor: 'text-gray-400'
-      };
-    }
+
+    return {
+      status: 'In Progress',
+      color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      icon: FaClock,
+      bgColor: 'bg-yellow-50',
+      iconColor: 'text-yellow-500'
+    };
+  }
+
+  return {
+    status: 'Not Started',
+    color: 'bg-gray-100 text-gray-800 border-gray-200',
+    icon: FaTimesCircle,
+    bgColor: 'bg-gray-50',
+    iconColor: 'text-gray-400'
   };
+};
 
   const statusInfo = getFormStatus(assignment);
   const StatusIcon = statusInfo.icon;
