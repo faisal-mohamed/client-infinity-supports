@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import FormRenderer from "@/components/clients-intake-form/FormRenderer";
 import Link from "next/link";
-import { FaArrowLeft, FaFileAlt, FaCode, FaCalendarAlt } from "react-icons/fa";
+import { FaArrowLeft, FaFileAlt, FaCode, FaCalendarAlt, FaEye } from "react-icons/fa";
 import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view";
 
 export default function ViewFormClient({ formId }: { formId: string }) {
@@ -40,15 +40,18 @@ export default function ViewFormClient({ formId }: { formId: string }) {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 min-h-screen py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center min-h-[70vh]">
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto"></div>
-              <p className="mt-6 text-gray-600 font-medium">Loading form...</p>
-              <p className="text-sm text-gray-500 mt-2">
-                This may take a moment
-              </p>
+              <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Form</h3>
+              <p className="text-gray-600 font-medium">Please wait while we fetch the form details...</p>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
             </div>
           </div>
         </div>
@@ -58,37 +61,20 @@ export default function ViewFormClient({ formId }: { formId: string }) {
 
   if (error || !form) {
     return (
-      <div className="bg-gray-50 min-h-screen py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-              <div className="flex justify-center mb-6">
-                <div className="bg-red-100 rounded-full p-3">
-                  <svg
-                    className="w-8 h-8 text-red-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center min-h-[70vh]">
+            <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md mx-4 border border-red-200">
+              <div className="p-6 rounded-full bg-red-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <FaFileAlt className="h-12 w-12 text-red-500" />
               </div>
-              <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
-                Error
-              </h1>
-              <p className="text-red-600 mb-6 text-center">
-                {error || "Form not found"}
+              <h1 className="text-2xl font-bold text-red-800 mb-3">Form Not Found</h1>
+              <p className="text-red-600 mb-6 leading-relaxed">
+                {error || "The requested form could not be found or loaded."}
               </p>
               <Link
                 href="/admin/forms"
-                className="block w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition text-center font-medium shadow-sm"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Back to Forms
               </Link>
@@ -100,93 +86,135 @@ export default function ViewFormClient({ formId }: { formId: string }) {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header with navigation */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex items-center">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Combined Header with Navigation and Metadata */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
+          {/* Navigation and Title Section */}
+          <div className="flex items-center gap-6 mb-8">
             <Link
               href="/admin/forms"
-              className="mr-4 flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200 transition"
+              className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-600 hover:from-indigo-200 hover:to-indigo-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <FaArrowLeft />
+              <FaArrowLeft className="h-5 w-5" />
             </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{form.title}</h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Form preview and details
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Form metadata card */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex items-start">
-              <div className="bg-blue-100 p-3 rounded-lg mr-3">
-                <FaCode className="text-blue-600" />
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                <FaEye className="h-8 w-8" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Form Key</p>
-                <p className="font-medium text-gray-900">{form.formKey}</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="bg-green-100 p-3 rounded-lg mr-3">
-                <FaFileAlt className="text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Version</p>
-                <p className="font-medium text-gray-900">{form.version}</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="bg-amber-100 p-3 rounded-lg mr-3">
-                <FaCalendarAlt className="text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium text-gray-900">
-                  {new Date(form.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Form preview */}
-        <div className="bg-white rounded-xl shadow-sm p-6 overflow-hidden">
-          <h2 className="text-lg font-semibold text-gray-800 mb-6 pb-4 border-b border-gray-100">
-            Form Preview
-          </h2>
-
-          <div className="form-preview-container max-w-4xl mx-auto">
-            <div className="p-6 border border-gray-200 rounded-lg bg-gray-50">
-              {form.formKey === "client_intake_form" ? (
-                <FormRenderer formKey={form.formKey} formSchema={form.schema} />
-              ) : form.formKey === "home_visit_risk_assessment" ? (
-                <HomeRiskAssesmentView
-                  formKey={form.formKey}
-                />
-              ) : (
-                <div className="text-center py-10">
-                  <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
-                    <FaFileAlt className="text-gray-400 text-2xl" />
-                  </div>
-                  <p className="text-gray-500 font-medium">
-                    Preview not available for this form type
-                  </p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Only client intake and home visit risk assessment forms can
-                    be previewed
-                  </p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{form.title}</h1>
+                <p className="text-base text-gray-600">Form preview and detailed information</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-500">Form loaded successfully</span>
                 </div>
-              )}
+              </div>
+            </div>
+          </div>
+
+          {/* Form Metadata Section */}
+          <div className="border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Form Details</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gray-50 rounded-xl p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                    <FaCode className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-500 mb-1">Form Key</p>
+                    <p className="font-bold text-gray-900 text-lg">{form.formKey}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
+                    <FaFileAlt className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-500 mb-1">Version</p>
+                    <div className="flex items-center gap-2">
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                        v{form.version}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md">
+                    <FaCalendarAlt className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-500 mb-1">Created Date</p>
+                    <p className="font-bold text-gray-900">
+                      {new Date(form.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(form.createdAt).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Form preview */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="px-8 py-6 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
+                <FaEye className="h-6 w-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Form Preview</h2>
+                <p className="text-sm text-gray-600 mt-1">Interactive preview of the form structure and fields</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-8">
+            <div className="form-preview-container max-w-5xl mx-auto">
+              <div className="p-8 border-2 border-dashed border-gray-300 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100">
+                {form.formKey === "client_intake_form" ? (
+                  <FormRenderer formKey={form.formKey} formSchema={form.schema} />
+                ) : form.formKey === "home_visit_risk_assessment" ? (
+                  <HomeRiskAssesmentView formKey={form.formKey} />
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+                      <FaFileAlt className="text-gray-400 text-4xl" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Preview Not Available</h3>
+                    <p className="text-gray-500 font-medium mb-2 max-w-md mx-auto leading-relaxed">
+                      Preview functionality is not available for this form type.
+                    </p>
+                    <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-lg mx-auto">
+                      <p className="text-sm font-medium text-blue-700">
+                        ℹ️ Currently supported: Client Intake Form and Home Visit Risk Assessment
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

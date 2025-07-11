@@ -8,13 +8,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaPlus, FaEye, FaFileAlt, FaArrowLeft, FaSearch } from "react-icons/fa";
 
-// Skeleton loader row
+// Enhanced skeleton loader row
 function SkeletonRow() {
   return (
-    <tr className="animate-pulse bg-white/60 backdrop-blur-sm">
+    <tr className="animate-pulse bg-white hover:bg-gray-50 transition-colors duration-200">
       {[...Array(5)].map((_, i) => (
-        <td key={i} className="px-6 py-4 border-b border-gray-200">
-          <div className="h-3.5 w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded" />
+        <td key={i} className="px-8 py-6 border-b border-gray-100">
+          <div className="h-4 w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-lg" />
         </td>
       ))}
     </tr>
@@ -58,181 +58,209 @@ export default function FormsManagement() {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center">
-              <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                <FaFileAlt className="text-indigo-600 text-xl" />
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Header */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0">
+            <div className="flex items-center gap-6">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                <FaFileAlt className="text-2xl sm:text-3xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Form Management</h1>
-                <p className="text-sm text-gray-500 mt-1">Overview of your available forms and templates</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Form Management</h1>
+                <p className="text-sm sm:text-base text-gray-600">Overview of your available forms and templates</p>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">{forms.length} Total Forms</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="mt-4 md:mt-0 flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
               <Link
                 href="/admin/dashboard"
-                className="flex items-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-all duration-200 px-4 py-3 border border-gray-200 rounded-xl hover:border-indigo-200 hover:bg-indigo-50 justify-center shadow-md hover:shadow-lg transform hover:scale-105"
               >
-                <FaArrowLeft className="mr-2" /> Back to Dashboard
+                <FaArrowLeft className="h-4 w-4" /> 
+                Back to Dashboard
               </Link>
-             
             </div>
           </div>
         </div>
 
-        {/* Search and filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Enhanced Search and filters */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="relative flex-grow max-w-md">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <FaSearch className="text-gray-400 h-5 w-5" />
               </div>
               <input
                 type="text"
                 placeholder="Search forms by title or key..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="pl-12 pr-4 py-4 w-full border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow duration-200"
               />
             </div>
-            <div className="text-sm text-gray-500">
-              {!loading && (
-                <span>
-                  Showing <span className="font-medium text-gray-700">{filteredForms.length}</span> of{" "}
-                  <span className="font-medium text-gray-700">{forms.length}</span> forms
-                </span>
-              )}
+            <div className="flex items-center gap-4">
+              <div className="text-sm font-medium text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200">
+                {!loading && (
+                  <span>
+                    Showing <span className="font-bold text-indigo-600">{filteredForms.length}</span> of{" "}
+                    <span className="font-bold text-indigo-600">{forms.length}</span> forms
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Error state */}
+        {/* Enhanced Error state */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-6 animate-fade-in">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">{error}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="mt-1 text-sm font-medium underline hover:text-red-800"
-                >
-                  Retry
-                </button>
+          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-6 mb-6 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-xl bg-red-500 text-white shadow-md">
+                  <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-red-800 mb-2">Error Loading Forms</h3>
+                  <p className="text-red-700 font-medium mb-4">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    Try Again
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Table layout */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {/* Enhanced Table layout */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  {["Title", "Form Key", "Version", "Created At", "Actions"].map((header) => (
+                  {["Title", "Form Key", "Signature", "Created At", "Actions"].map((header) => (
                     <th
                       key={header}
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                      className="px-8 py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
                     >
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {/* Loading rows */}
                 {loading && [...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
 
-                {/* Empty state */}
+                {/* Enhanced Empty state */}
                 {!loading && filteredForms.length === 0 && !error && (
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-6 py-16 text-center"
+                      className="px-8 py-20 text-center"
                     >
                       <div className="flex flex-col items-center">
-                        <div className="bg-gray-100 rounded-full p-4 mb-4">
-                          <FaFileAlt className="text-gray-400 text-2xl" />
+                        <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+                          <FaFileAlt className="text-gray-400 text-4xl" />
                         </div>
-                        <p className="text-gray-500 font-medium mb-1">
-                          {searchTerm ? "No forms match your search" : "No forms available"}
+                        <h3 className="text-xl font-bold text-gray-900 mb-3">
+                          {searchTerm ? "No Forms Found" : "No Forms Available"}
+                        </h3>
+                        <p className="text-gray-500 font-medium mb-2 max-w-md text-center leading-relaxed">
+                          {searchTerm ? 
+                            "No forms match your current search criteria. Try adjusting your search terms." :
+                            "You haven't created any forms yet. Start by creating your first form template."}
                         </p>
-                        <p className="text-sm text-gray-400">
-                          {searchTerm ? "Try adjusting your search terms" : "Create your first form to get started"}
-                        </p>
-                        {searchTerm && (
+                        {searchTerm ? (
                           <button
                             onClick={() => setSearchTerm("")}
-                            className="mt-4 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                            className="mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
-                            Clear search
+                            Clear Search
                           </button>
+                        ) : (
+                          <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <p className="text-sm font-medium text-blue-700">
+                              ℹ️ Forms will appear here once they are created in the system
+                            </p>
+                          </div>
                         )}
                       </div>
                     </td>
                   </tr>
                 )}
 
-                {/* Actual form rows */}
+                {/* Enhanced Actual form rows */}
                 {!loading &&
                   !error &&
                   filteredForms.map((form : any, index) => (
                     <tr
                       key={form.id}
                       onClick={() => handleViewForm(form.id)}
-                      className="hover:bg-indigo-50 transition cursor-pointer"
+                      className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 cursor-pointer"
                       style={{
                         animationDelay: `${index * 50}ms`,
-                        animation: 'fadeIn 0.5s ease-in-out forwards'
+                        animation: 'fadeInUp 0.6s ease-out forwards'
                       }}
                     >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <FaFileAlt className="text-indigo-600" />
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                            <FaFileAlt className="text-white h-5 w-5" />
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{form.title}</div>
-                            <div className="text-xs text-gray-500">ID: {form.id}</div>
+                          <div>
+                            <div className="text-sm font-bold text-gray-900">{form.title}</div>
+                            
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                      <td className="px-8 py-6">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm">
                           {form.formKey}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          v{form.version}
-                        </span>
+                      <td className="px-8 py-6">
+                       {  (form.requiresSignature) ?  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-sm">
+                          {`Requires Signature`}
+                        </span> : <></>}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {new Date(form.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                      <td className="px-8 py-6">
+                        <div className="text-sm font-medium text-gray-900">
+                          {new Date(form.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(form.createdAt).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-sm">
+                      <td className="px-8 py-6">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleViewForm(form.id);
                           }}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
                           aria-label={`View ${form.title}`}
                         >
-                          <FaEye className="mr-1" /> View
+                          <FaEye className="h-4 w-4" /> 
+                          View Form
                         </button>
                       </td>
                     </tr>
@@ -247,6 +275,17 @@ export default function FormsManagement() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
         }
       `}</style>
     </div>
