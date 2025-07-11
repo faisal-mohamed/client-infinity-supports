@@ -80,61 +80,115 @@ export default function AdminClientsLayout({
   const isFormEditOrViewPage = pathname.includes('/forms/edit/') || pathname.includes('/forms/view/');
 
   return (
-    <div className={`min-h-screen bg-gray-50 ${montserrat.className}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 ${montserrat.className}`}>
       <div className="flex min-h-screen">
-        {/* Sidebar for desktop - hide on form edit/view pages */}
+        {/* Enhanced Sidebar for desktop - hide on form edit/view pages */}
         {!isFormEditOrViewPage && (
-          <aside className="hidden lg:flex lg:w-64 flex-col fixed inset-y-0 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg z-20">
-            <div className="h-16 flex items-center justify-center border-b border-indigo-600">
-              <div className="flex flex-col items-center space-x-2">
-                <Image
-                  src={'/client_logo.png'}
-                  alt='Client Logo'
-                  width={70}
-                  height={40}
-                />
-                <span className="text-sm font-semibold">Infinity Support WA</span>
+          <aside className="hidden lg:flex lg:w-72 flex-col fixed inset-y-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl z-20 border-r border-slate-700">
+            {/* Enhanced Header */}
+            <div className="h-20 flex items-center justify-center border-b border-slate-700 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
+              <div className="flex flex-col items-center space-y-2 p-4">
+                <div className="relative">
+                  <Image
+                    src={'/client_logo.png'}
+                    alt='Client Logo'
+                    width={80}
+                    height={45}
+                    className="drop-shadow-lg"
+                  />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
+                </div>
+                <span className="text-sm font-bold text-white tracking-wide">Infinity Support WA</span>
               </div>
             </div>
-            <nav className="flex-1 px-2 py-4 space-y-1">
-              {menuItems.map((item) => (
+            
+            {/* Enhanced Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto sidebar-scroll">
+              {menuItems.map((item, index) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
+                  className={`group flex items-center px-4 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden
                     ${item.href === '/admin/forms'
-                      ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
-                      : 'hover:bg-indigo-600'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg border border-indigo-400 font-bold text-white'
+                      : 'hover:bg-gradient-to-r hover:from-slate-700 hover:to-slate-600 text-gray-300 hover:text-white hover:shadow-lg'
                     }`}
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                    animation: 'fadeInLeft 0.6s ease-out forwards'
+                  }}
                 >
-                  {item.icon}
-                  {item.label}
+                  {/* Active indicator */}
+                  {item.href === '/admin/forms' && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full shadow-lg"></div>
+                  )}
+                  
+                  {/* Icon with enhanced styling */}
+                  <div className={`p-2 rounded-lg mr-4 transition-all duration-300 ${
+                    item.href === '/admin/forms'
+                      ? 'bg-white bg-opacity-20 shadow-md'
+                      : 'group-hover:bg-white group-hover:bg-opacity-10'
+                  }`}>
+                    {React.cloneElement(item.icon, {
+                      className: `h-5 w-5 transition-all duration-300 ${
+                        item.href === '/admin/forms' 
+                          ? 'text-white' 
+                          : 'text-gray-400 group-hover:text-white group-hover:scale-110'
+                      }`
+                    })}
+                  </div>
+                  
+                  <span className="font-semibold tracking-wide">{item.label}</span>
+                  
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300 transform -skew-x-12"></div>
                 </Link>
               ))}
             </nav>
-            <div className="p-4 border-t border-indigo-600">
+            
+            {/* Enhanced Footer */}
+            <div className="p-6 border-t border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700">
+              <div className="mb-4 p-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">Admin User</p>
+                    {/* <p className="text-indigo-200 text-xs">System Administrator</p> */}
+                  </div>
+                </div>
+              </div>
               <SignOutButton />
             </div>
           </aside>
         )}
 
-        {/* Topbar for mobile - hide on form edit/view pages */}
+        {/* Enhanced Topbar for mobile - hide on form edit/view pages */}
         {!isFormEditOrViewPage && (
-          <div className="lg:hidden bg-indigo-700 text-white h-16 w-full fixed top-0 z-30 flex items-center justify-between px-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                <span className="text-indigo-700 text-lg font-bold">IS</span>
+          <div className="lg:hidden bg-gradient-to-r from-slate-900 to-slate-800 text-white h-20 w-full fixed top-0 z-30 flex items-center justify-between px-6 shadow-2xl border-b border-slate-700">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                  <span className="text-white text-lg font-bold">IS</span>
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
               </div>
-              <span className="text-xl font-semibold">Infinity Support</span>
+              <div>
+                <span className="text-xl font-bold text-white">Infinity Support</span>
+                <p className="text-xs text-gray-300">Admin Portal</p>
+              </div>
             </div>
             <button
-              className="text-white focus:outline-none"
+              className="p-3 rounded-xl bg-white bg-opacity-10 hover:bg-opacity-20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transform hover:scale-105"
               aria-label="Open menu"
               onClick={() => setMobileMenuOpen(true)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-6 w-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -145,78 +199,166 @@ export default function AdminClientsLayout({
           </div>
         )}
 
-        {/* Mobile menu drawer - hide on form edit/view pages */}
+        {/* Enhanced Mobile menu drawer - hide on form edit/view pages */}
         {!isFormEditOrViewPage && mobileMenuOpen && (
           <div className="fixed inset-0 z-40 flex">
-            {/* Overlay */}
+            {/* Enhanced Overlay */}
             <div
-              className="fixed inset-0 bg-black bg-opacity-40 transition-opacity"
+              className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden="true"
             />
-            {/* Drawer */}
-            <aside className="relative w-64 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white shadow-lg flex flex-col h-full animate-slide-in-left z-50">
-              <div className="h-16 flex items-center justify-between border-b border-indigo-600 px-4">
-                <div className="flex items-center space-x-2">
-                  <Image
-                    src={'/client_logo.png'}
-                    alt='Client Logo'
-                    width={60}
-                    height={34}
-                  />
-                  <span className="text-sm font-semibold">Infinity Support WA</span>
+            {/* Enhanced Drawer */}
+            <aside className="relative w-80 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl flex flex-col h-full animate-slide-in-left z-50 border-r border-slate-700">
+              {/* Enhanced Header */}
+              <div className="h-20 flex items-center justify-between border-b border-slate-700 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <Image
+                      src={'/client_logo.png'}
+                      alt='Client Logo'
+                      width={70}
+                      height={40}
+                      className="drop-shadow-lg"
+                    />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
+                  </div>
+                  <div>
+                    <span className="text-lg font-bold text-white">Infinity Support WA</span>
+                    <p className="text-xs text-indigo-200">Admin Portal</p>
+                  </div>
                 </div>
                 <button
-                  className="text-white focus:outline-none"
+                  className="p-2 rounded-xl bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200 focus:outline-none transform hover:scale-105"
                   aria-label="Close menu"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <nav className="flex-1 px-2 py-4 space-y-1">
-                {menuItems.map((item) => (
+              
+              {/* Enhanced Navigation */}
+              <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto sidebar-scroll">
+                {menuItems.map((item, index) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`group flex items-center px-4 py-3 rounded-lg transition duration-200
+                    className={`group flex items-center px-4 py-4 rounded-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden
                       ${item.href === '/admin/forms'
-                        ? 'bg-indigo-600 border-l-4 border-white shadow-md font-semibold'
-                        : 'hover:bg-indigo-600'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg border border-indigo-400 font-bold text-white'
+                        : 'hover:bg-gradient-to-r hover:from-slate-700 hover:to-slate-600 text-gray-300 hover:text-white hover:shadow-lg'
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                      animation: 'fadeInLeft 0.6s ease-out forwards'
+                    }}
                   >
-                    {item.icon}
-                    {item.label}
+                    {/* Active indicator */}
+                    {item.href === '/admin/forms' && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full shadow-lg"></div>
+                    )}
+                    
+                    {/* Icon with enhanced styling */}
+                    <div className={`p-2 rounded-lg mr-4 transition-all duration-300 ${
+                      item.href === '/admin/forms'
+                        ? 'bg-white bg-opacity-20 shadow-md'
+                        : 'group-hover:bg-white group-hover:bg-opacity-10'
+                    }`}>
+                      {React.cloneElement(item.icon, {
+                        className: `h-5 w-5 transition-all duration-300 ${
+                          item.href === '/admin/forms' 
+                            ? 'text-white' 
+                            : 'text-gray-400 group-hover:text-white group-hover:scale-110'
+                        }`
+                      })}
+                    </div>
+                    
+                    <span className="font-semibold tracking-wide">{item.label}</span>
+                    
+                    {/* Hover effect overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-300 transform -skew-x-12"></div>
                   </Link>
                 ))}
               </nav>
-              <div className="p-4 border-t border-indigo-600">
+              
+              {/* Enhanced Footer */}
+              <div className="p-6 border-t border-slate-700 bg-gradient-to-r from-slate-800 to-slate-700">
+                <div className="mb-4 p-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Admin User</p>
+                      <p className="text-indigo-200 text-xs">System Administrator</p>
+                    </div>
+                  </div>
+                </div>
                 <SignOutButton />
               </div>
             </aside>
           </div>
         )}
 
-        {/* Main content - adjust margin based on sidebar visibility */}
+        {/* Enhanced Main content - adjust margin based on sidebar visibility */}
         <main className={`flex-1 transition-all duration-300 ${
           isFormEditOrViewPage 
             ? 'p-0' // Full width for form pages
-            : 'p-6 pt-20 lg:pt-6 lg:ml-64' // Normal layout with sidebar
+            : 'p-8 pt-28 lg:pt-8 lg:ml-72' // Enhanced layout with wider sidebar
         }`}>
           <ConfirmProvider>{children}</ConfirmProvider>
         </main>
       </div>
-      {/* Animations */}
+      {/* Enhanced Animations */}
       <style jsx global>{`
         @keyframes slide-in-left {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(0); }
+          from { 
+            transform: translateX(-100%); 
+            opacity: 0;
+          }
+          to { 
+            transform: translateX(0); 
+            opacity: 1;
+          }
         }
+        
+        @keyframes fadeInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
         .animate-slide-in-left {
-          animation: slide-in-left 0.3s cubic-bezier(0.4,0,0.2,1) both;
+          animation: slide-in-left 0.4s cubic-bezier(0.4,0,0.2,1) both;
+        }
+        
+        /* Custom scrollbar for sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+          width: 4px;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 2px;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 2px;
+        }
+        
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.5);
         }
       `}</style>
     </div>
