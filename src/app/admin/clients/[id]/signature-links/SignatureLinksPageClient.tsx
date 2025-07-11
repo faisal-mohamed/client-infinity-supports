@@ -257,16 +257,16 @@ export default function SignatureLinksPageClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg animate-pulse">
-              <FaSpinner className="h-8 w-8 text-white animate-spin" />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
+          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Generated Links</h3>
+          <p className="text-gray-600 font-medium">Please wait...</p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Signature Links</h3>
-          <p className="text-gray-600">Please wait while we fetch the signature links...</p>
         </div>
       </div>
     );

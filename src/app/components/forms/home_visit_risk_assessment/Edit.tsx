@@ -109,7 +109,8 @@ const commonFieldsMapping: Record<string, string> = {
   name: "name",
   ndisNumber: "ndis",
   dob: "dob", 
-  address: "address",
+  address: "street",
+  
 };
 
 // Helper function to check if a field is a common field
