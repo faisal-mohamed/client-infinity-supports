@@ -129,7 +129,7 @@ export async function POST(
 
     // Find and verify the signature batch
     const batch = await prisma.formBatch.findUnique({
-      where: { 
+      where: {
         batchToken: token,
         isSignatureOnly: true,
       },
@@ -140,6 +140,7 @@ export async function POST(
               include: {
                 form: {
                   select: {
+                    formKey: true,
                     requiresSignature: true,
                   },
                 },
@@ -166,7 +167,7 @@ export async function POST(
     }
 
     // Verify the form exists in this batch
-    const signatureForm : any  = batch.signatureForms.find(
+    const signatureForm: any = batch.signatureForms.find(
       sf => sf.formSubmissionId === formSubmissionIdInt
     );
 
@@ -180,7 +181,7 @@ export async function POST(
     // Update the form submission with signature
     const currentSubmission: any = await prisma.formSubmission.findUnique({
       where: { id: formSubmissionIdInt },
-      select: { data: true }
+      select: { data: true },
     });
 
     if (!currentSubmission) {
@@ -193,62 +194,48 @@ export async function POST(
     // Get the signature field key from form registry
     const formConfig = getFormConfig(signatureForm.formSubmission.form.formKey);
     const signatures = formConfig?.signatures || [];
-    
-    // For signature portal, we typically handle the first required signature
-    // In the future, you might want to pass which specific signature this is
+
     const primarySignature = signatures.find(sig => sig.required) || signatures[0];
     const signatureDataKey = primarySignature?.dataKey || 'signature';
 
-    // Update form-specific data to include the signature
     const updatedFormData = {
       ...currentSubmission.data,
-      [signatureDataKey]: signature // Store signature in form-specific data
+      [signatureDataKey]: signature,
     };
 
-    // Update the form submission with both completion flag and form data
     await prisma.formSubmission.update({
       where: { id: formSubmissionIdInt },
       data: {
-        clientSignature: "true", // Simple completion flag instead of base64 data
+        clientSignature: "true",
         clientSignedAt: new Date(),
-        data: updatedFormData, // Actual signature stored in form-specific data
+        data: updatedFormData,
       },
     });
 
-    // 🎯 UPDATE FORM ASSIGNMENT STATUS AFTER SIGNATURE
-    // Find the corresponding form assignment and update its status
+    // Update form assignment status
     const formAssignment = await prisma.formAssignment.findFirst({
       where: {
         clientId: signatureForm.formSubmission.clientId,
         formId: signatureForm.formSubmission.formId,
-        formVersion: signatureForm.formSubmission.formVersion
-      }
+        formVersion: signatureForm.formSubmission.formVersion,
+      },
     });
-    
+
     if (formAssignment) {
-      // Check if this form now has all required signatures
-      const formConfig = getFormConfig(signatureForm.formSubmission.form.formKey);
-      const allSignatures = formConfig?.signatures || [];
-      const requiredSignatures = allSignatures.filter(sig => sig.required);
-      
-      // Count completed signatures in the updated form data
-      let completedSignatureCount = 0;
-      requiredSignatures.forEach(sig => {
+      const requiredSignatures = signatures.filter(sig => sig.required);
+      const completedCount = requiredSignatures.filter(sig => {
         const dataKey = sig.dataKey || sig.id;
-        if (updatedFormData[dataKey]) {
-          completedSignatureCount++;
-        }
-      });
-      
-      // Update assignment status based on signature completion
-      const newStatus = completedSignatureCount === requiredSignatures.length ? "completed" : "in_progress";
-      
+        return updatedFormData[dataKey];
+      }).length;
+
+      const newStatus = completedCount === requiredSignatures.length ? "completed" : "in_progress";
+
       await prisma.formAssignment.update({
         where: { id: formAssignment.id },
         data: {
           currentStatus: newStatus,
-          isCompleted: newStatus === "completed"
-        }
+          isCompleted: newStatus === "completed",
+        },
       });
     }
 
@@ -271,6 +258,7 @@ export async function POST(
         },
         client: {
           select: {
+            id: true,
             name: true,
             email: true,
           },
@@ -279,18 +267,18 @@ export async function POST(
     });
 
     if (updatedBatch) {
-      // Check completion status
       const formsRequiringSignature = updatedBatch.signatureForms.filter(
         sf => sf.formSubmission.form.requiresSignature === true
       );
-      
+
       const signedForms = formsRequiringSignature.filter(
         sf => sf.formSubmission.clientSignature !== null
       );
 
-      const isNowComplete = formsRequiringSignature.length === signedForms.length && formsRequiringSignature.length > 0;
+      const isNowComplete =
+        formsRequiringSignature.length === signedForms.length &&
+        formsRequiringSignature.length > 0;
 
-      // If batch is now complete and wasn't before, update it
       if (isNowComplete && !updatedBatch.isCompleted) {
         await prisma.formBatch.update({
           where: { id: batch.id },
@@ -300,10 +288,9 @@ export async function POST(
           },
         });
 
-        // Log the completion activity
         await prisma.formActivityLog.create({
           data: {
-            clientId: updatedBatch.clientId,
+            clientId: updatedBatch.client.id,
             logType: 'CLIENT',
             action: 'Signature Batch Completed',
             metadata: {
@@ -316,8 +303,26 @@ export async function POST(
           },
         });
 
-        // TODO: Here you can add email notification logic
-        // await sendAdminNotification(updatedBatch);
+        // ✅ Send admin notifications
+        try {
+          const allAdmins = await prisma.admin.findMany({ select: { id: true } });
+
+          const notificationPromises = allAdmins.map(admin =>
+            prisma.formSubmissionNotification.create({
+              data: {
+                adminId: admin.id,
+                clientId: updatedBatch.client.id,
+                formSubmissionId: signatureForm.formSubmissionId,
+              },
+            })
+          );
+
+          await Promise.all(notificationPromises);
+
+          console.warn(`🔔 Notifications sent to ${allAdmins.length} admins for completed batch`);
+        } catch (notifyErr) {
+          console.error("❌ Failed to create admin notifications:", notifyErr);
+        }
       }
     }
 
@@ -334,6 +339,7 @@ export async function POST(
     );
   }
 }
+
 
 // Helper function for future email notifications
 async function sendAdminNotification(batch: any) {

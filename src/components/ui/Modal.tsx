@@ -1,76 +1,63 @@
 "use client";
 
-import { Fragment, ReactNode } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  children: ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  showCloseButton?: boolean;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export default function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  size = 'md',
-  showCloseButton = true,
-}: ModalProps) {
-  if (!isOpen) return null;
+export default function Modal({ isOpen, onClose, children, className = '' }: ModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Size classes
-  const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
+  // Handle escape key press
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  // Handle click outside modal
+  const handleBackdropClick = (event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div 
-          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" 
-          onClick={onClose}
-          aria-hidden="true"
-        ></div>
+  if (!isOpen) return null;
 
-        {/* Center modal */}
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <div 
-          className={`inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${sizeClasses[size]} w-full`}
-          role="dialog" 
-          aria-modal="true" 
-          aria-labelledby="modal-headline"
-        >
-          {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-900" id="modal-headline">
-              {title}
-            </h3>
-            {showCloseButton && (
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-500 focus:outline-none"
-                aria-label="Close"
-              >
-                <FaTimes />
-              </button>
-            )}
-          </div>
-          
-          {/* Content */}
-          <div className="px-4 py-3">
-            {children}
-          </div>
-        </div>
+  // Only render on client side to avoid hydration issues
+  if (typeof window === 'undefined') return null;
+
+  return createPortal(
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-in fade-in duration-300"
+      onClick={handleBackdropClick}
+    >
+      <div 
+        ref={modalRef}
+        className={`bg-white rounded-2xl shadow-2xl border border-gray-200 animate-in zoom-in-95 duration-300 ${className}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -10,6 +10,8 @@ import {
 } from 'react-icons/fa';
 import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
+import EditWarningModal from '@/components/ui/EditWarningModal';
+import FormActionDropdown from '@/components/ui/FormActionDropdown';
 
 interface FormItemProps {
   assignment: FormAssignmentWithDetails;
@@ -31,29 +33,10 @@ export default function FormItem({
   const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
   const [showEditWarningModal, setShowEditWarningModal] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveActionMenu(false);
-      }
-    };
-
-    if (activeActionMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [activeActionMenu]);
+  const dropdownTriggerRef : any = useRef<HTMLButtonElement>(null);
 
   // Handle form edit with signature warning
   const handleEditClick = () => {
-    setActiveActionMenu(false);
-    
     const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
     
     if (requiresSignatures && assignment.currentStatus === 'completed') {
@@ -187,7 +170,7 @@ export default function FormItem({
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-green-600 font-medium">
-                        <span className="hidden sm:inline">Filled </span>
+                        <span className="hidden sm:inline">Last Edited </span>
                         {new Date(assignment.adminFilledAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -207,8 +190,9 @@ export default function FormItem({
           </div>
 
           {/* Enhanced Action Menu */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
+          <div className="relative flex-shrink-0">
             <button
+              ref={dropdownTriggerRef}
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveActionMenu(!activeActionMenu);
@@ -218,150 +202,29 @@ export default function FormItem({
               <FaCog className="h-5 w-5 hover:rotate-90 transition-transform duration-300" />
             </button>
 
-            {/* Enhanced Action Menu Dropdown */}
-            {activeActionMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 z-50 animate-dropdown-appear">
-                <button
-                  onClick={handleEditClick}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2"
-                >
-                  <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
-                    <FaEdit className="h-4 w-4" />
-                  </div>
-                  <span>Edit Form</span>
-                </button>
-                
-                {assignment.hasSubmission && (
-                  <>
-                    <Link
-                      href={`/admin/clients/${clientId}/forms/view/${assignment.id}`}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-2"
-                      onClick={() => setActiveActionMenu(false)}
-                    >
-                      <div className="p-2 rounded-lg bg-green-100 text-green-600">
-                        <FaEye className="h-4 w-4" />
-                      </div>
-                      <span>View Form</span>
-                    </Link>
-                    
-                    <button
-                      onClick={() => {
-                        onDownloadPDF(assignment);
-                        setActiveActionMenu(false);
-                      }}
-                      disabled={downloadingPDF === assignment.id}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 hover:text-orange-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2"
-                    >
-                      <div className="p-2 rounded-lg bg-orange-100 text-orange-600">
-                        {downloadingPDF === assignment.id ? (
-                          <FaSpinner className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <FaDownload className="h-4 w-4" />
-                        )}
-                      </div>
-                      <span>{downloadingPDF === assignment.id ? 'Generating PDF...' : 'Download PDF'}</span>
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+            {/* Portal-based Action Menu Dropdown */}
+            <FormActionDropdown
+              isOpen={activeActionMenu}
+              onClose={() => setActiveActionMenu(false)}
+              triggerRef={dropdownTriggerRef}
+              onEditClick={handleEditClick}
+              clientId={clientId}
+              assignmentId={assignment.id}
+              hasSubmission={assignment.hasSubmission}
+              onDownloadPDF={() => onDownloadPDF(assignment)}
+              downloadingPDF={downloadingPDF === assignment.id}
+            />
           </div>
         </div>
       </div>
 
-      {/* Enhanced Edit Warning Modal */}
-      {showEditWarningModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full border border-gray-200 animate-modal-appear">
-            {/* Modal Header */}
-            <div className="px-6 py-4 bg-gradient-to-r from-orange-50 to-red-50 border-b border-gray-200 rounded-t-2xl">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">
-                  <FaExclamationTriangle className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Edit Form Warning</h3>
-                  <p className="text-sm text-gray-600 mt-1">This action may invalidate signatures</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Modal Content */}
-            <div className="p-6">
-              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 mb-6">
-                <div className="flex items-start gap-3">
-                  <FaSignature className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-amber-800">
-                    <p className="font-semibold mb-2">Important Notice:</p>
-                    <p className="mb-3">
-                      This form has been completed and contains client signatures. 
-                      <strong> Proceeding with editing may invalidate the signature(s)</strong> and the form will need to be re-signed.
-                    </p>
-                    <p className="text-amber-700">
-                      ⚠️ Please make sure to download a copy of this form before making any edits to preserve the original version.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold">Form:</span> {assignment.form.title}
-                </p>
-              </div>
-            </div>
-            
-            {/* Modal Actions */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl flex justify-end gap-3">
-              <button
-                onClick={handleEditCancel}
-                className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEditConfirm}
-                className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 to-red-600 rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                Proceed to Edit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Enhanced Animations */}
-      <style jsx>{`
-        @keyframes dropdown-appear {
-          from {
-            opacity: 0;
-            transform: translateY(-10px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        @keyframes modal-appear {
-          from {
-            opacity: 0;
-            transform: scale(0.95) translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        
-        .animate-dropdown-appear {
-          animation: dropdown-appear 0.2s ease-out forwards;
-        }
-        
-        .animate-modal-appear {
-          animation: modal-appear 0.3s ease-out forwards;
-        }
-      `}</style>
+      {/* Portal-based Edit Warning Modal */}
+      <EditWarningModal
+        isOpen={showEditWarningModal}
+        onClose={handleEditCancel}
+        onConfirm={handleEditConfirm}
+        formTitle={assignment.form.title}
+      />
     </>
   );
 }
