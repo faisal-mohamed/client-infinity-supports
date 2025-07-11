@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaSave, FaTimes, FaChevronDown, FaChevronUp, FaUserPlus, FaArrowLeft, FaIdCard, FaCalendarAlt, FaVenusMars, FaMapMarkerAlt, FaGlobe, FaMailBulk, FaPhone } from 'react-icons/fa';
+import { FaSave, FaTimes, FaChevronDown, FaChevronUp, FaUserPlus, FaArrowLeft, FaIdCard, FaCalendarAlt, FaVenusMars, FaMapMarkerAlt, FaGlobe, FaMailBulk, FaPhone, FaFileAlt } from 'react-icons/fa';
 import { createClient } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 
@@ -209,91 +209,104 @@ export default function CreateClientPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div className="flex items-center">
-              <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                <FaUserPlus className="text-indigo-600 text-xl" />
+        {/* Enhanced Header */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex items-center gap-6">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                <FaUserPlus className="text-3xl" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Add New Client</h1>
-                <p className="text-sm text-gray-500 mt-1">Create a new client record</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Client</h1>
+                <p className="text-base text-gray-600">Create a comprehensive client profile with all necessary information</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-500">Ready to create</span>
+                </div>
               </div>
             </div>
-            <div className="mt-4 md:mt-0">
+            <div>
               <button
                 onClick={() => router.back()}
-                className="flex items-center text-sm text-gray-600 hover:text-indigo-600 transition px-4 py-2 border border-gray-200 rounded-lg hover:border-indigo-200 hover:bg-indigo-50"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-all duration-200 px-6 py-3 border border-gray-200 rounded-xl hover:border-indigo-200 hover:bg-indigo-50 shadow-md hover:shadow-lg transform hover:scale-105 font-semibold"
               >
-                <FaArrowLeft className="mr-2" /> Back to Clients
+                <FaArrowLeft className="h-4 w-4" /> 
+                Back to Clients
               </button>
             </div>
           </div>
         </div>
 
-        {/* Error message */}
+        {/* Enhanced Error message */}
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-6 animate-fade-in">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium">{error}</p>
+          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-xl bg-red-500 text-white shadow-md">
+                  <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-red-800 mb-2">Error Creating Client</h3>
+                  <p className="text-red-700 font-medium">{error}</p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Validation Errors Summary */}
+        {/* Enhanced Validation Errors Summary */}
         {Object.keys(errors).length > 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-sm mb-6 animate-fade-in">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium">Please correct the following errors:</h3>
-                <ul className="mt-2 text-sm list-disc list-inside space-y-1">
-                  {Object.entries(errors).map(([field, message]) => (
-                    <li key={field}>{message}</li>
-                  ))}
-                </ul>
+          <div className="bg-white rounded-2xl shadow-lg border border-amber-200 p-6 mb-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-xl bg-amber-500 text-white shadow-md">
+                  <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-amber-800 mb-3">Please Correct the Following Errors</h3>
+                  <ul className="space-y-2">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field} className="flex items-center gap-2 text-amber-700 font-medium">
+                        <div className="w-2 h-2 bg-amber-600 rounded-full"></div>
+                        {message}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Form */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        {/* Enhanced Form */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           <form onSubmit={handleSubmit}>
-            {/* Basic Information */}
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center mb-4">
-                <div className="bg-blue-100 p-2 rounded-md mr-3">
-                  <FaIdCard className="text-blue-600" />
+            {/* Enhanced Basic Information */}
+            <div className="p-8 border-b border-gray-100">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                  <FaIdCard className="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
-                  <p className="text-sm text-gray-500">
-                    All fields marked with <span className="text-red-500">*</span> are required.
+                  <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    All fields marked with <span className="text-red-500 font-semibold">*</span> are required.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-gray-700">
                     Full Name <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
+                  <div className="relative">
                     <input
                       type="text"
                       value={name}
@@ -301,25 +314,30 @@ export default function CreateClientPage() {
                         setName(e.target.value);
                         clearFieldError('name');
                       }}
-                      className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                        errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                        errors.name ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                       }`}
-                      placeholder="John Doe"
+                      placeholder="Enter client's full name"
                       required
                     />
                     {errors.name && (
-                      <p className="text-red-600 text-sm mt-1">{errors.name}</p>
+                      <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.name}
+                      </p>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email <span className="text-red-500">*</span>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-gray-700">
+                    Email Address <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaMailBulk className="text-gray-400 text-sm" />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FaMailBulk className="text-gray-400 h-5 w-5" />
                     </div>
                     <input
                       type="email"
@@ -328,25 +346,30 @@ export default function CreateClientPage() {
                         setEmail(e.target.value);
                         clearFieldError('email');
                       }}
-                      className={`w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                        errors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                        errors.email ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                       }`}
-                      placeholder="john.doe@example.com"
+                      placeholder="client@example.com"
                       required
                     />
                     {errors.email && (
-                      <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                      <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.email}
+                      </p>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-gray-700">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaPhone className="text-gray-400 text-sm" />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <FaPhone className="text-gray-400 h-5 w-5" />
                     </div>
                     <input
                       type="tel"
@@ -355,27 +378,31 @@ export default function CreateClientPage() {
                         setPhone(e.target.value);
                         clearFieldError('phone');
                       }}
-                      className={`w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                        errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                        errors.phone ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                       }`}
                       placeholder="0412 345 678"
                       required
                     />
                     {errors.phone && (
-                      <p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+                      <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {errors.phone}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Additional Information Toggle */}
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+            {/* Enhanced Additional Information Toggle */}
+            <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
               <button
                 type="button"
                 onClick={() => {
                   setShowAdditionalFields(!showAdditionalFields);
-                  // Clear additional field errors when collapsing
                   if (showAdditionalFields) {
                     const additionalFieldErrors = ['ndisNumber', 'dateOfBirth', 'sex', 'address', 'state', 'postCode', 'disability'];
                     setErrors(prev => {
@@ -385,174 +412,205 @@ export default function CreateClientPage() {
                     });
                   }
                 }}
-                className="flex items-center text-indigo-600 hover:text-indigo-800 font-medium transition"
+                className="flex items-center gap-3 text-indigo-600 hover:text-indigo-800 font-bold transition-all duration-200 bg-indigo-50 hover:bg-indigo-100 px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 {showAdditionalFields ? (
                   <>
-                    <FaChevronUp className="mr-2" /> Hide Additional Information
+                    <FaChevronUp className="h-5 w-5" /> 
+                    Hide Additional Information
                   </>
                 ) : (
                   <>
-                    <FaChevronDown className="mr-2" /> Show Additional Information
+                    <FaChevronDown className="h-5 w-5" /> 
+                    Show Additional Information
                   </>
                 )}
               </button>
               {!showAdditionalFields && (
-                <p className="text-xs text-gray-500 mt-2">
-                  ⚠️ When expanded, all additional fields become mandatory
-                </p>
+                <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-amber-500 text-white">
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-amber-800">
+                      When expanded, all additional fields become mandatory for a complete client profile
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Additional Information */}
+            {/* Enhanced Additional Information */}
             {showAdditionalFields && (
-              <div className="p-6 border-b border-gray-100 animate-fade-in">
-                <div className="flex items-center mb-4">
-                  <div className="bg-green-100 p-2 rounded-md mr-3">
-                    <FaGlobe className="text-green-600" />
+              <div className="p-8 border-b border-gray-100 animate-fade-in">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
+                    <FaGlobe className="h-6 w-6" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Additional Information</h2>
-                    <p className="text-sm text-gray-500">
-                      All fields marked with <span className="text-red-500">*</span> are required when this section is expanded.
+                    <h2 className="text-xl font-bold text-gray-900">Additional Information</h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      All fields marked with <span className="text-red-500 font-semibold">*</span> are required when this section is expanded.
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
                       NDIS Number <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="relative">
                       <input
                         type="text"
                         value={ndisNumber}
                         onChange={(e) => { setNdisNumber(e.target.value); clearFieldError("ndisNumber"); }}
-                        className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                          errors.ndisNumber ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.ndisNumber ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
-                        placeholder="1234567890"
+                        placeholder="Enter NDIS number"
                         required
                       />
                       {errors.ndisNumber && (
-                        <p className="text-red-600 text-sm mt-1">{errors.ndisNumber}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.ndisNumber}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
                       Date of Birth <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaCalendarAlt className="text-gray-400 text-sm" />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FaCalendarAlt className="text-gray-400 h-5 w-5" />
                       </div>
                       <input
                         type="date"
                         value={dateOfBirth}
                         onChange={(e) => { handleDateOfBirthChange(e.target.value); clearFieldError("dateOfBirth"); }}
-                        max={new Date().toISOString().split("T")[0]} // 🛑 disables future dates
-                        className={`w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                          errors.dateOfBirth ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        max={new Date().toISOString().split("T")[0]}
+                        className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.dateOfBirth ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
                         required
                       />
                       {errors.dateOfBirth && (
-                        <p className="text-red-600 text-sm mt-1">{errors.dateOfBirth}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.dateOfBirth}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  {/* Age Field - Auto-calculated */}
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Age
+                  {/* Enhanced Age Field - Auto-calculated */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
+                      Age (Auto-calculated)
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <FaCalendarAlt className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="number"
                         value={age !== null ? age.toString() : ''}
                         readOnly
-                        placeholder="Auto-calculated from DOB"
-                        className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 bg-gray-50 text-gray-600 cursor-not-allowed focus:outline-none"
+                        placeholder="Calculated from date of birth"
+                        className="w-full border border-gray-300 rounded-xl pl-12 pr-4 py-4 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-600 cursor-not-allowed focus:outline-none shadow-sm"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Age is automatically calculated from the date of birth
+                    <p className="text-xs text-gray-500 mt-2 bg-blue-50 p-2 rounded-lg border border-blue-200">
+                      <span className="font-medium text-blue-700">ℹ️ Age is automatically calculated from the date of birth</span>
                     </p>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Sex <span className="text-red-500">*</span>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
+                      Gender <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaVenusMars className="text-gray-400 text-sm" />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FaVenusMars className="text-gray-400 h-5 w-5" />
                       </div>
                       <select
                         value={sex}
                         onChange={(e) => { setSex(e.target.value); clearFieldError("sex"); }}
-                        className={`w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none ${
-                          errors.sex ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.sex ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
                         required
                       >
-                        <option value="">Select...</option>
+                        <option value="">Select gender...</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                         <option value="Prefer not to say">Prefer not to say</option>
                       </select>
                       {errors.sex && (
-                        <p className="text-red-600 text-sm mt-1">{errors.sex}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.sex}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Address <span className="text-red-500">*</span>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
+                      Street Address <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaMapMarkerAlt className="text-gray-400 text-sm" />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FaMapMarkerAlt className="text-gray-400 h-5 w-5" />
                       </div>
                       <input
                         type="text"
                         value={address}
                         onChange={(e) => { setAddress(e.target.value); clearFieldError("address"); }}
-                        className={`w-full border rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                          errors.address ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.address ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
-                        placeholder="123 Main St"
+                        placeholder="123 Main Street"
                         required
                       />
                       {errors.address && (
-                        <p className="text-red-600 text-sm mt-1">{errors.address}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.address}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
                       State <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="relative">
                       <select
                         value={state}
                         onChange={(e) => { setState(e.target.value); clearFieldError("state"); }}
-                        className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none ${
-                          errors.state ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.state ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
                         required
                       >
-                        <option value="">Select...</option>
+                        <option value="">Select state...</option>
                         <option value="ACT">Australian Capital Territory</option>
                         <option value="NSW">New South Wales</option>
                         <option value="NT">Northern Territory</option>
@@ -563,56 +621,70 @@ export default function CreateClientPage() {
                         <option value="WA">Western Australia</option>
                       </select>
                       {errors.state && (
-                        <p className="text-red-600 text-sm mt-1">{errors.state}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.state}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
                       Postcode <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="relative">
                       <input
                         type="text"
                         value={postCode}
                         onChange={(e) => { setPostCode(e.target.value); clearFieldError("postCode"); }}
-                        className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                          errors.postCode ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.postCode ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
                         placeholder="1234"
                         maxLength={4}
                         required
                         onKeyDown={(e) => {
-                          // Prevent form submission when Enter is pressed in this field
                           if (e.key === 'Enter') {
                             e.preventDefault();
                           }
                         }}
                       />
                       {errors.postCode && (
-                        <p className="text-red-600 text-sm mt-1">{errors.postCode}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.postCode}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="block text-sm font-medium text-gray-700">
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">
                       Disability/Conditions <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="relative">
                       <textarea
                         value={disability}
                         onChange={(e) => { setDisability(e.target.value); clearFieldError("disability"); }}
-                        className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-                          errors.disability ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                        className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md resize-none ${
+                          errors.disability ? 'border-red-300 bg-red-50 ring-2 ring-red-200' : 'border-gray-300 hover:border-indigo-300'
                         }`}
-                        rows={3}
-                        placeholder="Enter any disability or medical conditions..."
+                        rows={4}
+                        placeholder="Please describe any disability, medical conditions, or special requirements..."
                         required
                       />
                       {errors.disability && (
-                        <p className="text-red-600 text-sm mt-1">{errors.disability}</p>
+                        <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {errors.disability}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -620,45 +692,53 @@ export default function CreateClientPage() {
               </div>
             )}
             
-            {/* Navigation Option */}
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-              <div className="flex items-center">
+            {/* Enhanced Navigation Option */}
+            <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+              <div className="flex items-center gap-4">
                 <input
                   type="checkbox"
                   id="navigateToAssignForms"
                   checked={navigateToAssignForms}
                   onChange={() => setNavigateToAssignForms(!navigateToAssignForms)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded shadow-sm"
                 />
-                <label htmlFor="navigateToAssignForms" className="ml-2 block text-sm text-gray-700">
-                  Proceed to form assignment after creating client
+                <label htmlFor="navigateToAssignForms" className="flex items-center gap-3 text-sm font-medium text-gray-700 cursor-pointer">
+                  <div className="p-2 rounded-lg bg-blue-500 text-white">
+                    <FaFileAlt className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-gray-900">Proceed to form assignment after creating client</span>
+                    <p className="text-xs text-gray-600 mt-1">Automatically navigate to assign forms to the new client</p>
+                  </div>
                 </label>
               </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="px-6 py-4 bg-gray-50 flex justify-end">
-              <div className="flex space-x-3">
+            {/* Enhanced Form Actions */}
+            <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 flex justify-end">
+              <div className="flex gap-4">
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                  className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                 >
+                  <FaTimes className="inline mr-2 h-4 w-4" />
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm flex items-center justify-center disabled:opacity-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl shadow-lg flex items-center justify-center disabled:opacity-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold hover:shadow-xl transform hover:scale-105 disabled:transform-none"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                      Creating...
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+                      Creating Client...
                     </>
                   ) : (
                     <>
-                      <FaSave className="mr-2" /> Create Client
+                      <FaSave className="mr-3 h-4 w-4" /> 
+                      Create Client
                     </>
                   )}
                 </button>
@@ -670,11 +750,17 @@ export default function CreateClientPage() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
         }
         .animate-fade-in {
-          animation: fadeIn 0.3s ease-in-out forwards;
+          animation: fadeIn 0.4s ease-out forwards;
         }
       `}</style>
     </div>
