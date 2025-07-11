@@ -153,6 +153,40 @@ export async function POST(
 
     console.log(`✅ FormAssignment ${assignmentIdNum} submitted with status: ${newStatus}`);
 
+    // 🔔 CREATE NOTIFICATIONS for ALL ADMINS when client has signed the form
+    if (hasAllSignatures && clientSignature) {
+      try {
+        // Get client name for notification
+        const clientInfo = await prisma.client.findUnique({
+          where: { id: assignment.clientId },
+          select: { name: true }
+        });
+
+        // Get all admins in the system
+        const allAdmins = await prisma.admin.findMany({
+          select: { id: true }
+        });
+
+        // Create notifications for all admins
+        const notificationPromises = allAdmins.map(admin => 
+          prisma.formSubmissionNotification.create({
+            data: {
+              adminId: admin.id,
+              clientId: assignment.clientId,
+              formSubmissionId: formSubmission.id
+            }
+          })
+        );
+
+        await Promise.all(notificationPromises);
+        
+        console.log(`🔔 Notifications created for ${allAdmins.length} admins - Client ${clientInfo?.name} signed ${assignment.form.title}`);
+      } catch (notificationError) {
+        console.error("Error creating notifications:", notificationError);
+        // Don't fail the main request if notification fails
+      }
+    }
+
     return NextResponse.json({
       success: canSubmit,
       submissionId: formSubmission.id,

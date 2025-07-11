@@ -150,7 +150,7 @@ export default function FormItem({
 
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
   const requiresSignature = formRequiresSignatures(assignment.form.formKey);
-  const status = assignment.currentStatus; // From backend API
+  const status = assignment.currentStatus;
 
   if (status === "completed") {
     return {
@@ -163,44 +163,31 @@ export default function FormItem({
   }
 
   if (status === "in_progress") {
-    // If it requires signatures and we have partial completion info
-    if (requiresSignature && assignment.clientSignature !== "true" && assignment.formData) {
-      const signatureValidation = validateFormSignatures(assignment.form.formKey, assignment.formData);
-
-      if (signatureValidation.completedCount > 0) {
-        return {
-          status: getSignatureStatusText(signatureValidation),
-          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          icon: FaSignature,
-          bgColor: 'bg-yellow-50',
-          iconColor: 'text-yellow-500'
-        };
-      }
-
-      return {
-        status: 'Ready for Signatures',
-        color: 'bg-blue-100 text-blue-800 border-blue-200',
-        icon: FaSignature,
-        bgColor: 'bg-blue-50',
-        iconColor: 'text-blue-500'
-      };
-    }
-
     return {
       status: 'In Progress',
       color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      icon: FaClock,
+      icon: requiresSignature ? FaSignature : FaClock,
       bgColor: 'bg-yellow-50',
       iconColor: 'text-yellow-500'
     };
   }
 
+  if (status === "not_started") {
+    return {
+      status: 'Not Started',
+      color: 'bg-gray-100 text-gray-800 border-gray-200',
+      icon: FaClock,
+      bgColor: 'bg-gray-50',
+      iconColor: 'text-gray-500'
+    };
+  }
+
   return {
-    status: 'Not Started',
+    status: 'Unknown',
     color: 'bg-gray-100 text-gray-800 border-gray-200',
-    icon: FaTimesCircle,
+    icon: FaClock,
     bgColor: 'bg-gray-50',
-    iconColor: 'text-gray-400'
+    iconColor: 'text-gray-500'
   };
 };
 

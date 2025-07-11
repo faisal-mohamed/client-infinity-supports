@@ -18,6 +18,7 @@ model Admin {
   updatedAt    DateTime           @updatedAt
   logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
   clients      Client[]           // Admin's clients (who they created)
+  notifications FormSubmissionNotification[] // Notifications for this admin
 }
 
 model Client {
@@ -37,6 +38,7 @@ model Client {
 
   // Reverse relation for activities related to this client
   logs          FormActivityLog[]  // Client-related activity logs
+  notifications FormSubmissionNotification[] // Notifications related to this client
 
   @@unique([email])  // Ensuring unique email (with custom name)
   FormAssignment FormAssignment[]
@@ -128,6 +130,7 @@ model FormSubmission {
   client        Client   @relation(fields: [clientId], references: [id])
   form          MasterForm @relation(fields: [formId], references: [id])
   signatureBatches SignatureBatchForm[] // NEW: Which signature batches include this form
+  notifications FormSubmissionNotification[] // Notifications for this form submission
 
   // Ensure each submission for a client-form combination is unique
   @@unique([clientId, formId, formVersion])
@@ -240,4 +243,23 @@ model AppSettings {
   updatedAt     DateTime @updatedAt
   
   @@map("app_settings")
+}
+
+// Form Submission Notification Model for admin notifications when clients submit forms
+model FormSubmissionNotification {
+  id              Int      @id @default(autoincrement())
+  adminId         Int      // Which admin to notify
+  clientId        Int      // Which client submitted the form
+  formSubmissionId Int     // Which form submission triggered this notification
+  isRead          Boolean  @default(false) // Whether admin has read this notification
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  admin           Admin    @relation(fields: [adminId], references: [id])
+  client          Client   @relation(fields: [clientId], references: [id])
+  formSubmission  FormSubmission @relation(fields: [formSubmissionId], references: [id])
+  
+  // Index for better query performance
+  @@index([adminId, isRead])
+  @@index([createdAt])
 }
