@@ -49,10 +49,54 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading client details...</p>
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            {/* Header Skeleton */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
+                <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+                <div className="space-y-2">
+                  <div className="h-8 bg-gray-300 rounded w-48"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Cards Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Activity Skeleton */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Loading Message */}
+          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm mx-4">
+              <div className="w-16 h-16 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Client Details</h3>
+              <p className="text-gray-600">Please wait while we fetch the information...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -60,22 +104,22 @@ export default function ClientDetailPage() {
 
   if (error || !client) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-          <div className="text-center">
-            <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md mx-4 border border-red-200">
+              <div className="p-6 rounded-full bg-red-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <FaUser className="h-12 w-12 text-red-500" />
+              </div>
+              <h1 className="text-2xl font-bold text-red-800 mb-3">Client Not Found</h1>
+              <p className="text-red-600 mb-6 leading-relaxed">{error}</p>
+              <button
+                onClick={() => router.back()}
+                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Go Back
+              </button>
             </div>
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Error</h1>
-            <p className="text-red-600">{error}</p>
-            <button
-              onClick={() => router.back()}
-              className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition"
-            >
-              Go Back
-            </button>
           </div>
         </div>
       </div>
@@ -83,44 +127,56 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div className="flex items-center">
+        {/* Enhanced Header */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex items-center gap-6">
               <button
                 onClick={() => router.back()}
-                className="mr-4 flex items-center justify-center w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200 transition"
+                className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-600 hover:from-indigo-200 hover:to-indigo-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
               >
-                <FaArrowLeft />
+                <FaArrowLeft className="h-5 w-5" />
               </button>
-              <div className="flex items-center">
-                <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
-                  <span className="text-xl font-bold text-indigo-600">
-                    {client?.name?.charAt(0).toUpperCase()}
-                  </span>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="h-20 w-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <span className="text-3xl font-bold text-white">
+                      {client?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{client?.name}</h1>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Client ID: {client.id} • Created: {new Date(client?.createdAt).toLocaleDateString()}
-                  </p>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{client?.name}</h1>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="font-medium">ID: {client.id}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+                      <span>Created: {new Date(client?.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/clients/${id}/forms`}
-                className="flex items-center text-sm text-white bg-green-600 hover:bg-green-700 transition px-4 py-2 rounded-lg shadow-sm"
+                className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
               >
-                <FaFileAlt className="mr-2" /> Client Forms
+                <FaFileAlt className="h-4 w-4" /> 
+                Client Forms
               </Link>
               {/* <Link
                 href={`/admin/clients/${id}/edit`}
-                className="flex items-center text-sm text-white bg-amber-600 hover:bg-amber-700 transition px-4 py-2 rounded-lg shadow-sm"
+                className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
               >
-                <FaEdit className="mr-2" /> Edit Client
+                <FaEdit className="h-4 w-4" /> 
+                Edit Client
               </Link> */}
             </div>
           </div>
@@ -128,244 +184,292 @@ export default function ClientDetailPage() {
 
         {/* Client Information */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Basic Information */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-blue-50">
-              <div className="flex items-center">
-                <div className="bg-blue-100 p-2 rounded-md mr-3">
-                  <FaUser className="text-blue-600" />
+          {/* Enhanced Basic Information */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                  <FaUser className="h-6 w-6" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+                <h2 className="text-xl font-bold text-gray-900">Basic Information</h2>
               </div>
             </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 text-gray-400">
-                    <FaUser />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-500">Name</p>
-                    <p className="font-medium text-gray-900">{client?.name}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 text-gray-400">
-                    <FaEnvelope />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium text-gray-900">{client?.email || 'Not provided'}</p>
+            <div className="p-8">
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                      <FaUser className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-500 mb-1">Full Name</p>
+                      <p className="font-bold text-gray-900 text-lg">{client?.name}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 text-gray-400">
-                    <FaPhone />
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-medium text-gray-900">{client?.phone || 'Not provided'}</p>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
+                      <FaEnvelope className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-500 mb-1">Email Address</p>
+                      <p className="font-semibold text-gray-900">{client?.email || 'Not provided'}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 w-8 text-gray-400">
-                    <FaCalendarAlt />
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-green-100 text-green-600">
+                      <FaPhone className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-500 mb-1">Phone Number</p>
+                      <p className="font-semibold text-gray-900">{client?.phone || 'Not provided'}</p>
+                    </div>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-gray-500">Created</p>
-                    <p className="font-medium text-gray-900">
-                      {new Date(client?.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                      <FaCalendarAlt className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-500 mb-1">Account Created</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date(client?.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Additional Information */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-green-50">
-              <div className="flex items-center">
-                <div className="bg-green-100 p-2 rounded-md mr-3">
-                  <FaIdCard className="text-green-600" />
+          {/* Enhanced Personal Details */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
+                  <FaIdCard className="h-6 w-6" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Personal Details</h2>
+                <h2 className="text-xl font-bold text-gray-900">Personal Details</h2>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-8">
               {client.commonFields ? (
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaIdCard />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">NDIS Number</p>
-                      <p className="font-medium text-gray-900">{client?.commonFields[0].ndis || 'Not provided'}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaCalendarAlt />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">Date of Birth</p>
-                      <p className="font-medium text-gray-900">{client?.commonFields[0].dob || 'Not provided'}</p>
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-green-100 text-green-600">
+                        <FaIdCard className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">NDIS Number</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields[0].ndis || 'Not provided'}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaVenusMars />
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                        <FaCalendarAlt className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Date of Birth</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields[0].dob || 'Not provided'}</p>
+                      </div>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">Sex</p>
-                      <p className="font-medium text-gray-900">{client?.commonFields[0].sex || 'Not provided'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                        <FaVenusMars className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Gender</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields[0].sex || 'Not provided'}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <FaIdCard className="mx-auto text-gray-300 text-3xl mb-2" />
-                  <p>No personal details available</p>
+                <div className="text-center py-12">
+                  <div className="p-6 rounded-full bg-gray-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                    <FaIdCard className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Personal Details</h3>
+                  <p className="text-gray-500">Personal information has not been provided yet.</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Address Information */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 bg-amber-50">
-              <div className="flex items-center">
-                <div className="bg-amber-100 p-2 rounded-md mr-3">
-                  <FaMapMarkerAlt className="text-amber-600" />
+          {/* Enhanced Address Information */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div className="px-8 py-6 bg-gradient-to-r from-amber-50 to-amber-100 border-b border-amber-200">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md">
+                  <FaMapMarkerAlt className="h-6 w-6" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Address Information</h2>
+                <h2 className="text-xl font-bold text-gray-900">Address Information</h2>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-8">
               {client?.commonFields ? (
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaMapMarkerAlt />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">Street Address</p>
-                      <p className="font-medium text-gray-900">
-                        {client.commonFields[0].address || client.commonFields[0].street || 'Not provided'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaGlobe />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">State</p>
-                      <p className="font-medium text-gray-900">{client.commonFields[0].state || 'Not provided'}</p>
+                <div className="space-y-6">
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-amber-100 text-amber-600">
+                        <FaMapMarkerAlt className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Street Address</p>
+                        <p className="font-bold text-gray-900">
+                          {client.commonFields[0].address || client.commonFields[0].street || 'Not provided'}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 text-gray-400">
-                      <FaMapMarkerAlt />
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                        <FaGlobe className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">State</p>
+                        <p className="font-bold text-gray-900">{client.commonFields[0].state || 'Not provided'}</p>
+                      </div>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm text-gray-500">Postcode</p>
-                      <p className="font-medium text-gray-900">{client.commonFields[0].postCode || 'Not provided'}</p>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 rounded-lg bg-green-100 text-green-600">
+                        <FaMapMarkerAlt className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-500 mb-1">Postcode</p>
+                        <p className="font-bold text-gray-900">{client.commonFields[0].postCode || 'Not provided'}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <FaMapMarkerAlt className="mx-auto text-gray-300 text-3xl mb-2" />
-                  <p>No address information available</p>
+                <div className="text-center py-12">
+                  <div className="p-6 rounded-full bg-gray-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                    <FaMapMarkerAlt className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Address Information</h3>
+                  <p className="text-gray-500">Address details have not been provided yet.</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Disability/Conditions */}
-        {client.commonFields && client.commonFields.disability && (
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center">
-                <div className="bg-purple-100 p-2 rounded-md mr-3">
-                  <FaClipboardList className="text-purple-600" />
+        {/* Enhanced Disability/Conditions */}
+        {client.commonFields && client.commonFields[0]?.disability && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="px-8 py-6 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
+                  <FaClipboardList className="h-6 w-6" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Disability/Conditions</h2>
+                <h2 className="text-xl font-bold text-gray-900">Disability & Conditions</h2>
               </div>
             </div>
-            <div className="p-6">
-              <p className="text-gray-700 whitespace-pre-line">{client.commonFields[0].disability}</p>
+            <div className="p-8">
+              <div className="bg-gray-50 rounded-xl p-6">
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-base">
+                  {client.commonFields[0].disability}
+                </p>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Recent Activity Section */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center">
-              <div className="bg-indigo-100 p-2 rounded-md mr-3">
-                <FaHistory className="text-indigo-600" />
+        {/* Enhanced Recent Activity Section */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="px-8 py-6 bg-gradient-to-r from-indigo-50 to-indigo-100 border-b border-indigo-200">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md">
+                <FaHistory className="h-6 w-6" />
               </div>
-              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+                <p className="text-sm text-gray-600 mt-1">Track all client interactions and form activities</p>
+              </div>
             </div>
           </div>
 
           {client.logs && client.logs.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full">
+                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                      Date & Time
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                       Action
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
                       Details
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {client.logs.map((log : any, index : any) => (
+                <tbody className="divide-y divide-gray-100">
+                  {client.logs.map((log: any, index: any) => (
                     <tr
                       key={log.id}
-                      className="hover:bg-indigo-50 transition"
+                      className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200"
                       style={{
-                        animationDelay: `${index * 30}ms`,
-                        animation: 'fadeIn 0.5s ease-in-out forwards'
+                        animationDelay: `${index * 50}ms`,
+                        animation: 'fadeInUp 0.6s ease-out forwards'
                       }}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(log.createdAt).toLocaleString()}
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {new Date(log.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(log.createdAt).toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                      <td className="px-8 py-6 whitespace-nowrap">
+                        <span className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm">
                           {log.action}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {log.metadata && typeof log.metadata === 'object' ?
-                          Object.entries(log.metadata).map(([key, value]) => (
-                            <div key={key} className="mb-1">
-                              <span className="font-medium text-gray-700">{key}:</span> {String(value)}
-                            </div>
-                          ))
-                          : log.metadata || '-'}
+                      <td className="px-8 py-6">
+                        <div className="text-sm text-gray-700">
+                          {log.metadata && typeof log.metadata === 'object' ?
+                            Object.entries(log.metadata).map(([key, value]) => (
+                              <div key={key} className="mb-2 last:mb-0">
+                                <span className="font-semibold text-gray-900 capitalize">{key.replace('_', ' ')}:</span>{' '}
+                                <span className="text-gray-700">{String(value)}</span>
+                              </div>
+                            ))
+                            : log.metadata || (
+                              <span className="text-gray-400 italic">No additional details</span>
+                            )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -373,12 +477,15 @@ export default function ClientDetailPage() {
               </table>
             </div>
           ) : (
-            <div className="p-6 text-center">
-              <div className="bg-gray-100 rounded-full p-4 inline-block mb-4">
-                <FaHistory className="text-gray-400 text-2xl" />
+            <div className="p-12 text-center">
+              <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+                <FaHistory className="text-gray-400 text-4xl" />
               </div>
-              <p className="text-gray-500 font-medium">No recent activity found for this client.</p>
-              <p className="text-sm text-gray-400 mt-2">Activity will appear here when the client interacts with forms.</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">No Activity Yet</h3>
+              <p className="text-gray-500 font-medium mb-2">This client hasn't interacted with any forms yet.</p>
+              <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+                Activity will appear here when the client fills out forms, signs documents, or when admins make changes to their account.
+              </p>
             </div>
           )}
         </div>
@@ -388,6 +495,17 @@ export default function ClientDetailPage() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
         }
       `}</style>
     </div>
