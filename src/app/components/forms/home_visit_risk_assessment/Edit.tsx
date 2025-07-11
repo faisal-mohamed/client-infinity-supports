@@ -209,9 +209,8 @@ const getCommonFieldValue = (fieldName: string): string => {
     
     // Signature
     designation: "",
-    signature: "",
-    
     ...formData,
+    signature: "",
   };
 
   // Initialize local values with form data, but common fields will be displayed from commonFieldsData

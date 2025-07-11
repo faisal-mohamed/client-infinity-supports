@@ -353,3 +353,19 @@ body {
     color-adjust: exact !important;
   }
 }
+
+/* Toast animations */
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-shrink {
+  animation-name: shrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
