@@ -1,24 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET - Fetch all settings or settings by category
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const category = searchParams.get('category');
+    const category = searchParams.get("category");
+    const flat = searchParams.get("forms") === "true";
 
     const whereClause = category ? { category, isActive: true } : { isActive: true };
 
     const settings = await prisma.appSettings.findMany({
       where: whereClause,
       orderBy: [
-        { category: 'asc' },
-        { sortOrder: 'asc' },
-        { label: 'asc' }
-      ]
+        { category: "asc" },
+        { sortOrder: "asc" },
+        { label: "asc" },
+      ],
     });
 
-    // Group settings by category
+    if (flat) {
+      const flatSettings: Record<string, any> = {};
+      settings.forEach((s) => {
+        flatSettings[s.key] = s.value;
+      });
+
+      return NextResponse.json({
+        success: true,
+        settings: flatSettings,
+        total: settings.length,
+      });
+    }
+
+    // Default grouped response
     const groupedSettings = settings.reduce((acc, setting) => {
       if (!acc[setting.category]) {
         acc[setting.category] = [];
@@ -30,9 +43,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       settings: groupedSettings,
-      total: settings.length
+      total: settings.length,
     });
-
   } catch (error) {
     console.error("Error fetching settings:", error);
     return NextResponse.json(
@@ -41,6 +53,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
 
 // POST - Create new setting
 export async function POST(req: NextRequest) {

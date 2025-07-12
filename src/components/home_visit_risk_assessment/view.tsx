@@ -1,11 +1,15 @@
 
 import HomeVisitRiskAssessment from "@/app/test/home_visit/page"
+import { useEffect } from "react"
 
 
-const HomeRiskAssesmentView = ({ formKey, formData = {}, commonFieldsData } : any) => {
+const HomeRiskAssesmentView = ({ formKey, formData = {}, commonFieldsData , settings} : any) => {
+  useEffect(() => {
+    console.log("settings", settings);
+  }, [settings])
   return (
     <div>
-        <HomeVisitRiskAssessment formKey={formKey} formData={formData} commonFieldsData={commonFieldsData} />
+        <HomeVisitRiskAssessment formKey={formKey} formData={formData} commonFieldsData={commonFieldsData} settings={settings}/>
     </div>
   )
 }

@@ -55,6 +55,32 @@ export async function fetchSettings(forceRefresh = false): Promise<GroupedSettin
   }
 }
 
+
+export async function fetchFormSpecificSettings(forceRefresh = false): Promise<GroupedSettings> {
+  const now = Date.now();
+  
+  // Return cached settings if still valid and not forcing refresh
+  if (!forceRefresh && settingsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+    return settingsCache;
+  }
+
+  try {
+    const response = await fetch('/api/settings?forms=true');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch settings');
+    }
+
+    const data = await response.json();
+    settingsCache = data.settings || {};
+    cacheTimestamp = now;
+    
+    return settingsCache;
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    return settingsCache || {};
+  }
+}
 /**
  * Get a specific setting value by key
  */

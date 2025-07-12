@@ -374,7 +374,7 @@ const A4Page = ({ children, className = "" }: any) => (
   </div>
 );
   
-const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) => {
+const Page1 = ({ formSchema, formData = {}, commonFields = {}, images,  settings}: any) => {
   const pageSchema = formSchema.schema.clientIntakeSchema;
   const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: any = "") => (
     <div className="space-y-1 text-xs">
@@ -478,16 +478,16 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
         {/* Footer pinned at bottom */}
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-2 shrink-0">
-            <div>Website: infinitysupportswa.org</div>
+              <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {settings?.review_date}</div>
           </div>
         )}
       </div>
     </A4Page>
   );
 };
-const Page2 = ({ formSchema, formData = {}, commonFields = {}, images }: any) => {
+const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.gpMedicalSupportSchema;
   const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: any = "") => (
     <div className="space-y-1 text-xs">
@@ -570,9 +570,9 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
           </table>
           {pageSchema.footer && (
             <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1 shrink-0">
-              <div>Website: infinitysupportswa.org</div>
-              <div>CF001</div>
-              <div>Review Date: 14/03/2026</div>
+                <div>Website: {settings?.company_website}</div>
+            <div>CF001</div>
+            <div>Review Date: {settings?.review_date}</div>
             </div>
           )}
         </div>
@@ -580,7 +580,7 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
     </A4Page>
   );
 };
-const Page3 = ({ formSchema, formData = {}, commonFields = {}, images }: any) => {
+const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.allAboutMeSchema;
   const renderPersonalSituation = (psSchema: any, psData: any = {}) => (
     <div className="space-y-1 text-[11px]">
@@ -639,7 +639,7 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
               </tr>
               <tr style={{ height: "18%" }}>
                 <td className="border border-black align-top px-1 py-0.5" colSpan={2}>
-                  {getFieldValue("allAboutMe", formData, commonFields)}
+                  {getFieldValue("aboutMe", formData, commonFields)}
                 </td>
               </tr>
               <tr style={{ height: "7%" }}>
@@ -694,15 +694,15 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
         </div>
         {/* Footer pinned at bottom */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2 shrink-0">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF001</div>
-          <div>Review Date: 14/03/2026</div>
+            <div>Website: {settings?.company_website}</div>
+            <div>CF001</div>
+            <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4Page>
   );
 };
-const Page4 = ({ formSchema, formData = {}, commonFields = {}, images }: any) => {
+const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.contactsLivingTravelSchema;
   const renderCheckboxList = (options: any, selected: any[] = [], otherValue = "") => (
     <ul className="list-none ml-4 space-y-0.5">
@@ -815,9 +815,9 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
           </table>
           {pageSchema.footer && (
             <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2 shrink-0">
-              <div>Website: infinitysupportswa.org</div>
-              <div>CF001</div>
-              <div>Review Date: 14/03/2026</div>
+                <div>Website: {settings?.company_website}</div>
+            <div>CF001</div>
+            <div>Review Date: {settings?.review_date}</div>
             </div>
           )}
         </div>
@@ -825,7 +825,7 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
     </A4Page>
   );
 };
-const Page5 = ({ formSchema, formData = {}, commonFields = {}, images }: any) => {
+const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.medicationInfoSchema;
   return (
     <A4Page>
@@ -872,16 +872,16 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images }: any) =>
             </tbody>
           </table>
           <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: infinitysupportswa.org</div>
+              <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {settings?.review_date}</div>
           </div>
         </div>
       </div>
     </A4Page>
   );
 };
-const Page6 = ({ formSchema, formData = {}, commonFields = {} , images}: any) => {
+const Page6 = ({ formSchema, formData = {}, commonFields = {} , images, settings}: any) => {
   const pageSchema = formSchema.schema.safetyConsiderationSchema;
   return (
     <A4Page>
@@ -928,16 +928,16 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {} , images}: any) =>
             </tbody>
           </table>
           <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: infinitysupportswa.org</div>
+              <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
-            <div>Review Date: 14/03/2026</div>
+            <div>Review Date: {settings?.review_date}</div>
           </div>
         </div>
       </div>
     </A4Page>
   );
 };
-const FormRenderer = ({  formData = {}, formKey,  commonFields, images } : any) => {
+const FormRenderer = ({  formData = {}, formKey,  commonFields, images, settings } : any) => {
     return (
       <div className="print:p-0 
      ">
@@ -946,36 +946,47 @@ const FormRenderer = ({  formData = {}, formKey,  commonFields, images } : any) 
           formData={formData}
           commonFields={commonFields}
           images={images}
+          settings={settings}
         />
         <Page2
           formSchema={formSchema}
           formData={formData}
           commonFields={commonFields}
           images={images}
+                    settings={settings}
+
         />
         <Page3
           formSchema={formSchema}
           formData={formData}
           commonFields={commonFields}
           images={images}
+                    settings={settings}
+
         />
         <Page4
           formSchema={formSchema}
           formData={formData}
           commonFields={commonFields}
           images={images}
+                    settings={settings}
+
         />
         <Page5
           formSchema={formSchema}
           formData={formData}
           commonFields={commonFields}
           images={images}
+                    settings={settings}
+
         />
         <Page6
           formSchema={formSchema}
           formData={formData}
           commonFields={commonFields}
           images={images}
+                    settings={settings}
+
         />
       </div>
     );

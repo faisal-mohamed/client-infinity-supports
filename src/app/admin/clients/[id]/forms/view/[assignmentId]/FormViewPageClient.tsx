@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaEdit, FaSignature, FaDownload, FaUser, FaCalendarAlt, FaSpinner } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
+import { fetchFormSpecificSettings } from '@/lib/settings';
 
 // Types
 interface FormAssignmentData {
@@ -41,36 +42,46 @@ export default function FormViewPageClient() {
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
+  const [settings, setSettings] = useState({});
+
+
   // Load assignment and submission data
   useEffect(() => {
     loadAssignmentData();
   }, [assignmentId]);
 
   const loadAssignmentData = async () => {
-    try {
-      setLoading(true);
-      
-      // Get assignment details and submission data
-      const response = await fetch(`/api/form-assignments/${assignmentId}`);
-      if (!response.ok) throw new Error('Failed to load assignment data');
-      
-      const data = await response.json();
-      console.log('Loaded assignment data:', data.commonFields);
-      setAssignment(data.assignment);
-      setCommonFields(data.commonFields || {});
-      
-    } catch (error) {
-      console.error('Error loading assignment data:', error);
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message: 'Failed to load form data',
-        duration: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+    // 📦 Fetch both assignment and settings in parallel
+    const [assignmentRes, fetchedSettings] = await Promise.all([
+      fetch(`/api/form-assignments/${assignmentId}`),
+      fetchFormSpecificSettings()
+    ]);
+
+    if (!assignmentRes.ok) throw new Error('Failed to load assignment data');
+    
+    const data = await assignmentRes.json();
+    console.log('Loaded assignment data:', data.commonFields);
+
+    setAssignment(data.assignment);
+    setCommonFields(data.commonFields || {});
+    setSettings(fetchedSettings); // ✅ store settings
+
+  } catch (error) {
+    console.error('Error loading assignment or settings:', error);
+    showToast({
+      type: 'error',
+      title: 'Error',
+      message: 'Failed to load form data or settings',
+      duration: 3000,
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Download PDF function
   const handleDownloadPDF = async () => {
@@ -306,6 +317,7 @@ export default function FormViewPageClient() {
             existingSignature={assignment?.clientSignature}
             isAdminView={true}
             commonFieldsData={commonFields}
+            settings={settings}
           />
         </div>
       </div>

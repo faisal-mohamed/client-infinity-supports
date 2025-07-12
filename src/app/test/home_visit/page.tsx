@@ -155,12 +155,14 @@ const A4Page = ({ children, className = "" } : any) => (
 );
 
 // --- Footer Component ---
-const Footer = () => (
+const Footer = ({settings} : {
+  settings: any
+}) => (
   <div className="flex justify-between items-center text-[10px] px-6 py-3 mt-auto border-t border-gray-200">
     <div className="font-medium">{homeVisitSchema.footer.left}</div>
     <div>
       <a
-        href={`https://${homeVisitSchema.footer.center}`}
+        href={`https://${settings?.company_website}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 underline hover:text-blue-800"
@@ -168,12 +170,12 @@ const Footer = () => (
         {homeVisitSchema.footer.center}
       </a>
     </div>
-    <div className="font-medium">{homeVisitSchema.footer.right}</div>
+    <div className="font-medium">Review Date: {settings?.review_date}</div>
   </div>
 );
 
 // --- Page Components ---
-const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
+const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-6 pb-4">
@@ -258,7 +260,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
       </table>
     </div>
 
-    <Footer />
+    <Footer settings={settings}/>
   </A4Page>
 );
 
@@ -362,7 +364,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData} : any) => (
 // };
 
 
-const Page2 = ({ homeVisitResponse }: any) => {
+const Page2 = ({ homeVisitResponse, settings }: any) => {
   const page = homeVisitSchema?.pages?.[1];
 
   return (
@@ -454,7 +456,7 @@ const Page2 = ({ homeVisitResponse }: any) => {
         </table>
       </div>
 
-      <Footer />
+      <Footer settings={settings}/>
     </A4Page>
   );
 };
@@ -521,7 +523,7 @@ const Page2 = ({ homeVisitResponse }: any) => {
 //   );
 // };
 
-const Page3 = ({ homeVisitResponse }: any) => {
+const Page3 = ({ homeVisitResponse , settings}: any) => {
   const page = homeVisitSchema?.pages?.[2];
 
   return (
@@ -579,7 +581,7 @@ const Page3 = ({ homeVisitResponse }: any) => {
         ))}
       </div>
 
-      <Footer />
+      <Footer settings={settings}/>
     </A4Page>
   );
 };
@@ -715,7 +717,7 @@ const Page3 = ({ homeVisitResponse }: any) => {
 // --- Main Component ---
 
 
-const Page4 = ({ homeVisitResponse }: any) => {
+const Page4 = ({ homeVisitResponse, settings }: any) => {
   const page = homeVisitSchema?.pages?.[3];
 
   return (
@@ -784,12 +786,12 @@ const Page4 = ({ homeVisitResponse }: any) => {
         </div>
       </div>
 
-      <Footer />
+      <Footer settings={settings} />
     </A4Page>
   );
 };
 
-const Page5 = ({ homeVisitResponse, commonFieldsData }: any) => (
+const Page5 = ({ homeVisitResponse, commonFieldsData, settings }: any) => (
   <A4Page>
     {/* Header with Logo */}
     <div className="flex justify-center pt-8 pb-6">
@@ -834,22 +836,23 @@ const Page5 = ({ homeVisitResponse, commonFieldsData }: any) => (
       </div>
     </div>
 
-    <Footer />
+    <Footer settings={settings} />
   </A4Page>
 );
 
 
-const HomeVisitRiskAssessment = ({formData, commonFieldsData} : any) => (
+const HomeVisitRiskAssessment = ({formData, commonFieldsData, settings} : any) => (
   useEffect(() => {
     console.log("Form Data:", formData);
     console.log("Common Fields Data:", commonFieldsData);
-  }, [formData, commonFieldsData]),
+    console.log("settings: " , settings)
+  }, [formData, commonFieldsData, settings]),
   <div className="bg-gray-100 min-h-screen py-8">
-    <Page1  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
-    <Page2  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
-    <Page3  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
-    <Page4  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
-    <Page5  homeVisitResponse={formData} commonFieldsData={commonFieldsData} />
+    <Page1  homeVisitResponse={formData} commonFieldsData={commonFieldsData} settings={settings} />
+    <Page2  homeVisitResponse={formData} commonFieldsData={commonFieldsData}  settings={settings}/>
+    <Page3  homeVisitResponse={formData} commonFieldsData={commonFieldsData} settings={settings}/>
+    <Page4  homeVisitResponse={formData} commonFieldsData={commonFieldsData} settings={settings}/>
+    <Page5  homeVisitResponse={formData} commonFieldsData={commonFieldsData} settings={settings}/>
   </div>
 );
 
