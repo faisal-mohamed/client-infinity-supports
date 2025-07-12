@@ -94,6 +94,7 @@ export default function NotificationsPage() {
       }
 
       const data: NotificationResponse = await response.json();
+      console.log("data: ", data)
       setNotifications(data.notifications);
       setPagination(data.pagination);
       setCurrentPage(page);
@@ -157,26 +158,15 @@ export default function NotificationsPage() {
 
   if (loading && notifications.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-300 rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl shadow-lg">
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                  <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl shadow-lg">
-                  <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Notifications</h3>
+          <p className="text-gray-600 font-medium">Please wait...</p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
           </div>
         </div>
       </div>
@@ -362,7 +352,7 @@ export default function NotificationsPage() {
                               
                               {/* Action Buttons */}
                               <div className="flex items-center gap-3">
-                                <Link href={`/admin/notifications/${notification.id}`}>
+                                <Link href={`/admin/clients/${notification.client.id}/forms`}>
                                   <button 
                                     className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
                                     onClick={() => !notification.isRead && markAsRead(notification.id)}

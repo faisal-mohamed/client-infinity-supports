@@ -341,13 +341,3 @@ export async function POST(
 }
 
 
-// Helper function for future email notifications
-async function sendAdminNotification(batch: any) {
-  // This will be implemented when you add email service
-  console.log(`Batch ${batch.batchToken} completed for client ${batch.client.name}`);
-  
-  // Future implementation:
-  // - Send email to admin
-  // - Create in-app notification
-  // - Update dashboard counters
-}
