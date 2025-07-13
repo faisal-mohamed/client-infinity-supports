@@ -206,7 +206,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Address:</span> {commonFieldsData?.address}
+          <span className="font-semibold">Address:</span> {commonFieldsData?.street}
         </td>
       </tr>
       <tr>

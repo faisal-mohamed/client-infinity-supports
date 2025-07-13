@@ -118,7 +118,7 @@ export async function POST(
   try {
     const { token, formSubmissionId } = await params;
     const formSubmissionIdInt = parseInt(formSubmissionId);
-    const { signature } = await req.json();
+    const { signature, signatureId } = await req.json();
 
     if (!token || !formSubmissionIdInt || !signature) {
       return NextResponse.json(
@@ -195,8 +195,26 @@ export async function POST(
     const formConfig = getFormConfig(signatureForm.formSubmission.form.formKey);
     const signatures = formConfig?.signatures || [];
 
-    const primarySignature = signatures.find(sig => sig.required) || signatures[0];
-    const signatureDataKey = primarySignature?.dataKey || 'signature';
+    // Find the specific signature config based on signatureId
+    let signatureConfig : any;
+    let signatureDataKey : string;
+    
+    if (signatureId) {
+      // Multi-signature: find specific signature by ID
+      signatureConfig = signatures.find(sig => sig.id === signatureId);
+      if (!signatureConfig) {
+        return NextResponse.json(
+          { error: `Signature configuration not found for ID: ${signatureId}` },
+          { status: 400 }
+        );
+      }
+      signatureDataKey = signatureConfig.dataKey;
+    } else {
+      // Legacy single signature: use primary signature
+      const primarySignature = signatures.find(sig => sig.required) || signatures[0];
+      signatureDataKey = primarySignature?.dataKey || 'signature';
+      signatureConfig = primarySignature;
+    }
 
     const updatedFormData = {
       ...currentSubmission.data,
@@ -212,7 +230,7 @@ export async function POST(
       },
     });
 
-    // Update form assignment status
+    // Update form assignment status - check if ALL required signatures are now complete
     const formAssignment = await prisma.formAssignment.findFirst({
       where: {
         clientId: signatureForm.formSubmission.clientId,
@@ -329,6 +347,9 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: "Signature submitted successfully",
+      signatureId: signatureId || 'primary',
+      signatureLabel: signatureConfig?.label || 'Signature',
+      allSignaturesComplete: formAssignment ? (formAssignment.currentStatus === "completed") : false,
     });
 
   } catch (error: any) {

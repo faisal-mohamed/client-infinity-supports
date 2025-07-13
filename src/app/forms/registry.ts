@@ -42,7 +42,9 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: 'I acknowledge that this risk assessment has been completed and I understand the safety considerations outlined above.',
         required: true,
         dataKey: 'signature' // Maps to formData.signature field where the actual signature is stored
-      }
+      },
+      
+      
     ]
   }
 };
