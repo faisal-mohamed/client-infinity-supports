@@ -125,6 +125,32 @@ export async function getFormMetadata(): Promise<{
 }
 
 /**
+ * Get email configuration settings
+ */
+export async function getEmailSettings(): Promise<{
+  fromEmail: string | null;
+  appId: string | null;
+}> {
+  const [fromEmail, appId] = await Promise.all([
+    getSetting('from_email'),
+    getSetting('email_app_id')
+  ]);
+
+  return {
+    fromEmail,
+    appId
+  };
+}
+
+/**
+ * Check if email settings are configured
+ */
+export async function isEmailConfigured(): Promise<boolean> {
+  const emailSettings = await getEmailSettings();
+  return !!(emailSettings.fromEmail && emailSettings.appId);
+}
+
+/**
  * Update a single setting
  */
 export async function updateSetting(key: string, value: string): Promise<boolean> {
@@ -293,6 +319,38 @@ export function getDefaultSettings(): Array<Omit<AppSetting, 'id' | 'createdAt' 
       description: 'Default review date for forms',
       isRequired: true,
       defaultValue: new Date().toISOString().split('T')[0],
+      sortOrder: 2,
+      isActive: true
+    },
+    {
+      key: 'from_email',
+      value: '',
+      type: 'email',
+      category: 'email_settings',
+      label: 'From Email Address',
+      description: 'Email address used as sender for all outgoing emails',
+      isRequired: true,
+      defaultValue: '',
+      validation: JSON.stringify({
+        pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
+        patternError: 'Please enter a valid email address'
+      }),
+      sortOrder: 1,
+      isActive: true
+    },
+    {
+      key: 'email_app_id',
+      value: '',
+      type: 'password',
+      category: 'email_settings',
+      label: 'Email Service App ID',
+      description: 'Secret App ID or API key for email service integration (e.g., SendGrid, Mailgun, AWS SES)',
+      isRequired: true,
+      defaultValue: '',
+      validation: JSON.stringify({
+        minLength: 10,
+        maxLength: 200
+      }),
       sortOrder: 2,
       isActive: true
     },

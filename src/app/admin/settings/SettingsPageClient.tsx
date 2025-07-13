@@ -42,6 +42,13 @@ const categoryConfig = {
     color: 'from-blue-500 to-blue-600'
   },
   
+  email_settings: {
+    label: 'Email Settings',
+    icon: FaEnvelope,
+    description: 'Email configuration for notifications and communications',
+    color: 'from-green-500 to-green-600'
+  },
+  
   form_ids: {
     label: 'Form IDs',
     icon: FaCog,
@@ -58,9 +65,11 @@ export default function SettingsPageClient() {
   const [settings, setSettings] = useState<GroupedSettings>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string>('form_metadata');
+  const [initializing, setInitializing] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>('email_settings');
   const [hasChanges, setHasChanges] = useState(false);
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
   // Load settings on component mount
   useEffect(() => {
@@ -79,9 +88,10 @@ export default function SettingsPageClient() {
       const data = await response.json();
       setSettings(data.settings || {});
       
-      // Initialize default settings if none exist
+      // If no settings exist, automatically initialize them
       if (Object.keys(data.settings).length === 0) {
-        await initializeDefaultSettings();
+        console.log('No settings found, initializing default settings...');
+        await initializeAllSettings();
       }
       
     } catch (error) {
@@ -97,62 +107,52 @@ export default function SettingsPageClient() {
     }
   };
 
-  const initializeDefaultSettings = async () => {
-    const defaultSettings = [
-      {
-        key: 'company_website',
-        value: '',
-        type: 'url',
-        category: 'form_metadata',
-        label: 'Company Website',
-        description: 'Company website URL that appears on forms',
-        isRequired: true,
-        defaultValue: '',
-        sortOrder: 1
-      },
-      {
-        key: 'review_date',
-        value: new Date().toISOString().split('T')[0],
-        type: 'date',
-        category: 'form_metadata',
-        label: 'Review Date',
-        description: 'Default review date for forms',
-        isRequired: true,
-        defaultValue: new Date().toISOString().split('T')[0],
-        sortOrder: 2
-      },
-      {
-        key: 'client_intake_form_id',
-        value: 'C001',
-        type: 'text',
-        category: 'form_ids',
-        label: 'IDs assigned to each form',
-        description: 'IDs for mapping to a form',
-        isRequired: true,
-        defaultValue: 'C001',
-        sortOrder: 2
-      }
-    ];
-
+  const initializeAllSettings = async () => {
     try {
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings: defaultSettings })
+      setInitializing(true);
+      const response = await fetch('/api/settings/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
 
-      if (response.ok) {
-        await loadSettings();
-        showToast({
-          type: 'success',
-          title: 'Settings Initialized',
-          message: 'Default settings have been created',
-          duration: 3000,
-        });
+      if (!response.ok) {
+        throw new Error('Failed to initialize settings');
       }
+
+      const data = await response.json();
+      
+      showToast({
+        type: 'success',
+        title: 'Settings Initialized',
+        message: `Initialized ${data.settings?.length || 0} settings across ${data.categories?.length || 0} categories`,
+        duration: 4000,
+      });
+
+      // Reload settings after initialization
+      await loadSettings();
+      
     } catch (error) {
       console.error('Error initializing settings:', error);
+      showToast({
+        type: 'error',
+        title: 'Initialization Failed',
+        message: 'Failed to initialize default settings',
+        duration: 5000,
+      });
+    } finally {
+      setInitializing(false);
     }
+  };
+
+  const resetChanges = () => {
+    setEditedValues({});
+    setHasChanges(false);
+    showToast({
+      type: 'info',
+      title: 'Changes Reset',
+      message: 'All unsaved changes have been discarded',
+      duration: 3000,
+    });
   };
 
   const handleValueChange = (key: string, value: string) => {
@@ -161,6 +161,13 @@ export default function SettingsPageClient() {
       [key]: value
     }));
     setHasChanges(true);
+  };
+
+  const togglePasswordVisibility = (key: string) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   const saveSettings = async () => {
@@ -208,17 +215,6 @@ export default function SettingsPageClient() {
     }
   };
 
-  const resetChanges = () => {
-    setEditedValues({});
-    setHasChanges(false);
-    showToast({
-      type: 'info',
-      title: 'Changes Reset',
-      message: 'All unsaved changes have been discarded',
-      duration: 3000,
-    });
-  };
-
   const renderSettingInput = (setting: AppSetting) => {
     const currentValue = editedValues[setting.key] ?? setting.value ?? setting.defaultValue ?? '';
     
@@ -239,6 +235,52 @@ export default function SettingsPageClient() {
               className={`${baseInputClasses} pl-16`}
               required={setting.isRequired}
             />
+          </div>
+        );
+
+      case 'email':
+        return (
+          <div className="relative">
+            <div className="absolute left-4 top-4 p-2 rounded-lg bg-green-100 text-green-600">
+              <FaEnvelope className="h-4 w-4" />
+            </div>
+            <input
+              type="email"
+              value={currentValue}
+              onChange={(e) => handleValueChange(setting.key, e.target.value)}
+              placeholder={setting.defaultValue || 'admin@example.com'}
+              className={`${baseInputClasses} pl-16`}
+              required={setting.isRequired}
+            />
+          </div>
+        );
+
+      case 'password':
+        return (
+          <div className="relative">
+            <div className="absolute left-4 top-4 p-2 rounded-lg bg-red-100 text-red-600">
+              <FaShieldAlt className="h-4 w-4" />
+            </div>
+            <input
+              type={showPasswords[setting.key] ? "text" : "password"}
+              value={currentValue}
+              onChange={(e) => handleValueChange(setting.key, e.target.value)}
+              placeholder={setting.defaultValue || 'Enter your secret app ID or API key'}
+              className={`${baseInputClasses} pl-16 pr-12`}
+              required={setting.isRequired}
+            />
+            <button
+              type="button"
+              onClick={() => togglePasswordVisibility(setting.key)}
+              className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 transition-colors duration-200"
+              title={showPasswords[setting.key] ? "Hide password" : "Show password"}
+            >
+              {showPasswords[setting.key] ? (
+                <FaEyeSlash className="h-4 w-4" />
+              ) : (
+                <FaEye className="h-4 w-4" />
+              )}
+            </button>
           </div>
         );
         
@@ -327,7 +369,7 @@ export default function SettingsPageClient() {
     );
   }
 
-  const categories = Object.keys(settings).length > 0 ? Object.keys(settings) : ['form_metadata'];
+  const categories = Object.keys(settings).length > 0 ? Object.keys(settings) : ['email_settings', 'form_metadata'];
   const currentSettings = settings[activeCategory] || [];
 
   return (
@@ -483,10 +525,32 @@ export default function SettingsPageClient() {
                       <FaCog className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">No Settings Found</h3>
-                    <p className="text-gray-600 mb-4 max-w-md mx-auto leading-relaxed text-sm sm:text-base px-4">No settings are configured for this category yet.</p>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed text-sm sm:text-base px-4">
+                      No settings are configured for this category yet. Initialize default settings to get started.
+                    </p>
+                    
+                    {/* Initialize Settings Button */}
+                    <button
+                      onClick={initializeAllSettings}
+                      disabled={initializing}
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+                    >
+                      {initializing ? (
+                        <>
+                          <FaSpinner className="h-5 w-5 animate-spin" />
+                          Initializing Settings...
+                        </>
+                      ) : (
+                        <>
+                          <FaPlus className="h-5 w-5" />
+                          Initialize Default Settings
+                        </>
+                      )}
+                    </button>
+                    
                     <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-lg mx-auto">
                       <p className="text-sm font-medium text-blue-700">
-                        ℹ️ Settings will appear here once they are configured in the system
+                        ℹ️ This will create default settings for Email, Form Metadata, and Form IDs
                       </p>
                     </div>
                   </div>
