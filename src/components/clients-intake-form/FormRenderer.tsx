@@ -149,17 +149,20 @@ const formSchema : any = {
           "barriers": {
             "label": "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?",
             "options": ["Yes", "No"],
-            "followUp": "If yes, please indicate below:"
+            "followUp": "If yes, please indicate below:",
+            "key": "barriers"
+            
           },
           "interpreter": {
             "label": "Verbal communication or spoken language - Is an interpreter needed?",
-            "options": ["Yes", "No"]
+            "options": ["Yes", "No"],
+            "key": "interpreter"
           },
-          "language": { "label": "Language" },
-          "culturalValues": { "label": "Cultural values/ beliefs or assumptions" },
-          "culturalBehaviours": { "label": "Cultural behaviours" },
-          "writtenCommunication": { "label": "Written communication/literacy" },
-          "countryOfBirth": { "label": "Country of birth" }
+          "language": { "label": "Language", "key": "language" },
+          "culturalValues": { "label": "Cultural values/ beliefs or assumptions", "key": "culturalValues" },
+          "culturalBehaviours": { "label": "Cultural behaviours", "key": "culturalBehaviours"},
+          "writtenCommunication": { "label": "Written communication/literacy", "key": "writtenCommunication" },
+          "countryOfBirth": { "label": "Country of birth", "key": "countryOfBirth" }
         }
       }
     }
@@ -367,6 +370,44 @@ const formSchema : any = {
 }
 }
 }
+
+
+
+const extractPersonalSituationData = (fields: any, formData: any) => {
+  const result: Record<string, any> = {};
+  for (const key in fields) {
+    const fieldKey = fields[key].key;
+    result[fieldKey] = formData[fieldKey] ?? "";
+  }
+  return result;
+};
+
+
+const renderYesNoWithOther = (field: any, formData: any) => {
+  const value = formData?.[field.key];
+  const otherValue = formData?.[`${field.key}Others`] || "";
+
+  return (
+    <div className="mb-2 text-[13px]">
+      <div>
+        <span className="font-bold">{field.label}:</span>{" "}
+        <span>{value}</span>
+      </div>
+      {value === "Yes" && field.yesDetail && (
+        <div className="ml-4">
+          <span className="italic">{field.yesDetail}</span>
+          {otherValue && (
+            <div className="mt-1">
+              <span className="font-semibold">Details:</span> {otherValue}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 
 
 const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: any) => {
@@ -653,11 +694,22 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         </span>
         {psSchema.interpreter.options[1]}
       </div>
-      <div>{psSchema.language.label} {psData.language}</div>
-      <div>{psSchema.culturalValues.label} {psData.culturalValues}</div>
-      <div>{psSchema.culturalBehaviours.label} {psData.culturalBehaviours}</div>
-      <div>{psSchema.writtenCommunication.label} {psData.writtenCommunication}</div>
-      <div>{psSchema.countryOfBirth.label} {psData.countryOfBirth}</div>
+<div>
+  <span className="font-bold">{psSchema.language.label}:</span> {psData.language}
+</div>
+<div>
+  <span className="font-bold">{psSchema.culturalValues.label}:</span> {psData.culturalValues}
+</div>
+<div>
+  <span className="font-bold">{psSchema.culturalBehaviours.label}:</span> {psData.culturalBehaviours}
+</div>
+<div>
+  <span className="font-bold">{psSchema.writtenCommunication.label}:</span> {psData.writtenCommunication}
+</div>
+<div>
+  <span className="font-bold">{psSchema.countryOfBirth.label}:</span> {psData.countryOfBirth}
+</div>
+
     </div>
   );
 
@@ -748,9 +800,10 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             <tr>
               <td className="border border-black px-1 py-0.5" colSpan={2}>
                 {renderPersonalSituation(
-                  pageSchema.sections.personalSituation.fields,
-                  getFieldValue("personalSituation", formData, commonFieldsData) || {}
-                )}
+  pageSchema.sections.personalSituation.fields,
+  extractPersonalSituationData(pageSchema.sections.personalSituation.fields, formData)
+)
+}
               </td>
             </tr>
           </tbody>
@@ -771,25 +824,37 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: any) => {
   const pageSchema = formSchema.schema.contactsLivingTravelSchema;
 
-  const renderCheckboxList = (options: any, selected: any[] = [], otherValue = "") => (
-    <ul className="list-none ml-4 space-y-0.5">
-      {options.map((opt: any) => (
-        <li key={opt} className="flex items-center space-x-2">
-          <label className="inline-flex items-center flex-shrink-0 space-x-2">
-            <span className="w-4 h-4 border border-black flex items-center justify-center mr-2">
-              {selected?.includes(opt) ? "✔" : ""}
-            </span>
-            <span>{opt === "Other" ? "Other:" : opt}</span>
-          </label>
-          {opt === "Other" && (
-            <span className="border-b border-black flex-grow h-[1px] min-w-[60px] ml-2">
-              {otherValue ? <span>{otherValue}</span> : null}
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
+  // Extract value from formData or fallback to commonFieldsData
+  const getFieldValue = (fieldKey: string, formData: any, commonFieldsData: any): any => {
+    return formData?.[fieldKey] ?? commonFieldsData?.[fieldKey] ?? "";
+  };
+
+  // Render checkbox list with dynamic support for "Other" field + value
+  const renderCheckboxList = (field: any) => {
+    const selectedOptions: string[] = getFieldValue(field.key, formData, commonFieldsData) || [];
+    const inferredOtherKey = field.otherKey || `${field.key}Other`;
+    const otherValue: string = getFieldValue(inferredOtherKey, formData, commonFieldsData);
+
+    return (
+      <ul className="list-none ml-4 space-y-0.5">
+        {field.options.map((opt: string) => (
+          <li key={opt} className="flex items-start space-x-2">
+            <label className="inline-flex items-center flex-shrink-0 space-x-2">
+              <span className="w-4 h-4 border border-black flex items-center justify-center mr-2">
+                {selectedOptions?.includes(opt) ? "✔" : ""}
+              </span>
+              <span>{opt === "Other" || opt.startsWith("Other") ? "Other:" : opt}</span>
+            </label>
+            {opt === "Other" && otherValue && (
+              <span className="ml-2 text-[13px]">
+                <span className="font-semibold">Details:</span> {otherValue}
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <div
@@ -812,11 +877,11 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         />
       </div>
 
-      {/* Table */}
+      {/* Table Content */}
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border border-black border-collapse text-[13px]">
           <tbody>
-            {pageSchema.fields.map((field: any, idx: any) => {
+            {pageSchema.fields.map((field: any, idx: number) => {
               if (field.type === "contactHeader") {
                 return (
                   <tr key={idx} className="bg-gray-300 font-bold text-[13px]">
@@ -831,11 +896,13 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
                 return (
                   <tr key={idx}>
                     <td className="border border-black px-2 py-1">
-                      {field.columns[0].label} {getFieldValue(field.columns[0].key, formData, commonFieldsData)}
+                      <span className="font-bold">{field.columns[0].label}</span>{" "}
+                      {getFieldValue(field.columns[0].key, formData, commonFieldsData)}
                     </td>
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1">
-                      {field.columns[1].label} {getFieldValue(field.columns[1].key, formData, commonFieldsData)}
+                      <span className="font-bold">{field.columns[1].label}</span>{" "}
+                      {getFieldValue(field.columns[1].key, formData, commonFieldsData)}
                     </td>
                   </tr>
                 );
@@ -847,11 +914,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
                     <td className="border border-black mt-6 p-3 text-[13px]" colSpan={3}>
                       <p className="font-bold mb-2">{field.heading}</p>
                       <p className="mb-2">{field.question}</p>
-                      {renderCheckboxList(
-                        field.options,
-                        getFieldValue(field.key, formData, commonFieldsData) || [],
-                        getFieldValue(field.otherKey, formData, commonFieldsData)
-                      )}
+                      {renderCheckboxList(field)}
                     </td>
                   </tr>
                 );
@@ -865,7 +928,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
-                <div>Website: {settings?.company_website}</div>
+            <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
@@ -876,15 +939,23 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 };
 
 
+
+
+
+
 const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: any) => {
   const pageSchema = formSchema.schema.medicationInfoSchema;
+
+  const getFieldValue = (fieldKey: string) => {
+    return formData?.[fieldKey] ?? commonFieldsData?.[fieldKey] ?? "";
+  };
 
   return (
     <div
       className="bg-white mx-auto shadow-md flex flex-col"
       style={{
-        width: "794px",  // A4 width in px
-        height: "1123px", // A4 height in px
+        width: "794px",  // A4 width
+        height: "1123px", // A4 height
         boxShadow: "0 0 10px rgba(0,0,0,0.1)",
         pageBreakAfter: "always",
       }}
@@ -913,41 +984,57 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             </tr>
           </thead>
           <tbody>
-            {pageSchema.fields.map((field: any, idx: number) => (
-              <tr key={idx}>
-                <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
-                <td className="border border-black p-1 align-top text-[11px]">
-                  <label className="inline-flex items-start space-x-1">
+            {pageSchema.fields.map((field: any, idx: number) => {
+              const value = getFieldValue(field.key);
+              const otherValue = getFieldValue(`${field.key}Others`);
+
+              return (
+                <tr key={idx}>
+                  <td className="border border-black p-1 align-top w-[320px] font-medium">
+                    {field.label}
+                  </td>
+                  <td className="border border-black p-1 align-top text-[11px]">
+                    <label className="inline-flex items-start space-x-1">
+                      <input
+                        className="mt-1"
+                        type="checkbox"
+                        checked={value === "Yes"}
+                        readOnly
+                      />
+                      <span>Yes</span>
+                    </label>
+                    {value === "Yes" && (
+                      <>
+                        {field.yesDetail && (
+                          <div className="mt-1 leading-tight">{field.yesDetail}</div>
+                        )}
+                        {otherValue && (
+                          <div className="mt-1 text-[11px]">
+                            <span className="font-semibold">Details:</span> {otherValue}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </td>
+                  <td className="border border-black p-1 text-center align-top">
                     <input
-                      className="mt-1"
                       type="checkbox"
-                      checked={getFieldValue(field.key, formData, commonFieldsData) === "Yes"}
+                      checked={value === "No"}
                       readOnly
                     />
-                    <span>Yes</span>
-                  </label>
-                  {field.yesDetail && (
-                    <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                  )}
-                </td>
-                <td className="border border-black p-1 text-center align-top">
-                  <input
-                    type="checkbox"
-                    checked={getFieldValue(field.key, formData, commonFieldsData) === "No"}
-                    readOnly
-                  />
-                  <span className="m-1">No</span>
-                </td>
-              </tr>
-            ))}
+                    <span className="m-1">No</span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
-             <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
-            <div>Review Date: {settings?.review_date}</div>
+          <div>Website: {settings?.company_website}</div>
+          <div>CF001</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </div>
@@ -955,8 +1042,14 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 };
 
 
+
+
 const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: any) => {
   const pageSchema = formSchema.schema.safetyConsiderationSchema;
+
+  const getFieldValue = (key: string) => {
+    return formData?.[key] ?? commonFieldsData?.[key] ?? "";
+  };
 
   return (
     <div
@@ -992,33 +1085,49 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             </tr>
           </thead>
           <tbody>
-            {pageSchema.fields.map((field: any, idx: number) => (
-              <tr key={idx}>
-                <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
-                <td className="border border-black p-1 align-top text-[11px]">
-                  <label className="inline-flex items-start space-x-1">
+            {pageSchema.fields.map((field: any, idx: number) => {
+              const value = getFieldValue(field.key);
+              const otherValue = getFieldValue(`${field.key}Others`);
+
+              return (
+                <tr key={idx}>
+                  <td className="border border-black p-1 align-top w-[320px] font-medium">
+                    {field.label}
+                  </td>
+                  <td className="border border-black p-1 align-top text-[11px]">
+                    <label className="inline-flex items-start space-x-1">
+                      <input
+                        className="mt-1"
+                        type="checkbox"
+                        checked={value === "Yes"}
+                        readOnly
+                      />
+                      <span>Yes</span>
+                    </label>
+                    {value === "Yes" && (
+                      <>
+                        {field.yesDetail && (
+                          <div className="mt-1 leading-tight">{field.yesDetail}</div>
+                        )}
+                        {otherValue && (
+                          <div className="mt-1 text-[11px]">
+                            <span className="font-semibold">Details:</span> {otherValue}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </td>
+                  <td className="border border-black p-1 text-center align-top">
                     <input
-                      className="mt-1"
                       type="checkbox"
-                      checked={getFieldValue(field.key, formData, commonFieldsData) === "Yes"}
+                      checked={value === "No"}
                       readOnly
                     />
-                    <span>Yes</span>
-                  </label>
-                  {field.yesDetail && (
-                    <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                  )}
-                </td>
-                <td className="border border-black p-1 text-center align-top">
-                  <input
-                    type="checkbox"
-                    checked={getFieldValue(field.key, formData, commonFieldsData) === "No"}
-                    readOnly
-                  />
-                  <span>No</span>
-                </td>
-              </tr>
-            ))}
+                    <span className="m-1">No</span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -1032,6 +1141,8 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
     </div>
   );
 };
+
+
 
 
 

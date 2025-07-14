@@ -1,5 +1,5 @@
 
-import HomeVisitRiskAssessment from "@/app/test/home_visit/page"
+import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page"
 import { useEffect } from "react"
 
 

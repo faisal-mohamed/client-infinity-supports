@@ -177,62 +177,88 @@ export async function DELETE(
 
     // Start a transaction to delete client and related data
     await prisma.$transaction(async (tx) => {
-      // Delete form batches and related assignments
+      console.log(`🗑️ Starting client deletion for ID: ${clientId}`);
+      
+      // Step 1: Get all batches for this client
       const batches = await tx.formBatch.findMany({
         where: { clientId },
         select: { id: true }
       });
       
       const batchIds = batches.map(batch => batch.id);
+      console.log(`📦 Found ${batches.length} batches to delete:`, batchIds);
       
-      // Delete form assignments linked to batches
+      // Step 2: Delete SignatureBatchForm records first (they reference batches)
       if (batchIds.length > 0) {
+        console.log(`🗑️ Deleting SignatureBatchForm records for batches...`);
+        await tx.signatureBatchForm.deleteMany({
+          where: { batchId: { in: batchIds } },
+        });
+      }
+      
+      // Step 3: Delete form assignments linked to batches
+      if (batchIds.length > 0) {
+        console.log(`🗑️ Deleting FormAssignment records for batches...`);
         await tx.formAssignment.deleteMany({
           where: { batchId: { in: batchIds } },
         });
       }
       
-      // Delete the batches
+      // Step 4: Delete the batches (now safe to delete)
+      console.log(`🗑️ Deleting FormBatch records...`);
       await tx.formBatch.deleteMany({
         where: { clientId },
       });
       
-      // Delete remaining form assignments not linked to batches
+      // Step 5: Delete remaining form assignments not linked to batches
+      console.log(`🗑️ Deleting remaining FormAssignment records...`);
       await tx.formAssignment.deleteMany({
         where: { clientId },
       });
 
-      // Delete common fields
+      // Step 6: Delete form submission notifications
+      console.log(`🗑️ Deleting FormSubmissionNotification records...`);
+      await tx.formSubmissionNotification.deleteMany({
+        where: { clientId },
+      });
+
+      // Step 7: Delete common fields
+      console.log(`🗑️ Deleting CommonField records...`);
       await tx.commonField.deleteMany({
         where: { clientId },
       });
 
-      // Delete form submissions
+      // Step 8: Delete form submissions
+      console.log(`🗑️ Deleting FormSubmission records...`);
       await tx.formSubmission.deleteMany({
         where: { clientId },
       });
 
-      // Delete form progress
+      // Step 9: Delete form progress
+      console.log(`🗑️ Deleting FormProgress records...`);
       await tx.formProgress.deleteMany({
         where: { clientId },
       });
 
-      
-
-      // Delete insights
+      // Step 10: Delete insights
+      console.log(`🗑️ Deleting Insight records...`);
       await tx.insight.deleteMany({
         where: { clientId },
       });
 
-      // Delete activity logs
+      // Step 11: Delete activity logs
+      console.log(`🗑️ Deleting FormActivityLog records...`);
       await tx.formActivityLog.deleteMany({
         where: { clientId },
       });
 
-      // Finally, delete the client
+      // Step 12: Finally, delete the client
+      console.log(`🗑️ Deleting Client record...`);
       await tx.client.delete({
         where: { id: clientId },
       });
+      
+      console.log(`✅ Client ${clientId} and all related data deleted successfully`);
     });
 
     return NextResponse.json({ 

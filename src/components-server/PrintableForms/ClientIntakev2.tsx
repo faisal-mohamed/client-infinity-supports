@@ -116,17 +116,19 @@ const formSchema : any = {
           "barriers": {
             "label": "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?",
             "options": ["Yes", "No"],
-            "followUp": "If yes, please indicate below:"
+            "followUp": "If yes, please indicate below:",
+            "key": "barriers"
           },
           "interpreter": {
             "label": "Verbal communication or spoken language - Is an interpreter needed?",
-            "options": ["Yes", "No"]
+            "options": ["Yes", "No"],
+            "key": "interpreter"
           },
-          "language": { "label": "Language" },
-          "culturalValues": { "label": "Cultural values/ beliefs or assumptions" },
-          "culturalBehaviours": { "label": "Cultural behaviours" },
-          "writtenCommunication": { "label": "Written communication/literacy" },
-          "countryOfBirth": { "label": "Country of birth" }
+          "language": { "label": "Language", "key": "language" },
+          "culturalValues": { "label": "Cultural values/ beliefs or assumptions", "key":"culturalValues" },
+          "culturalBehaviours": { "label": "Cultural behaviours", "key": "culturalBehaviours" },
+          "writtenCommunication": { "label": "Written communication/literacy", "key": "writtenCommunication" },
+          "countryOfBirth": { "label": "Country of birth", "key": "countryOfBirth" }
         }
       }
     }
@@ -360,6 +362,18 @@ const getFieldValue = (
     ? commonFields?.[commonFieldMapping[key]] ?? ""
     : formData?.[key] ?? "";
 };
+
+
+const extractPersonalSituationData = (fields: any, formData: any) => {
+  const result: Record<string, any> = {};
+  for (const key in fields) {
+    const fieldKey = fields[key].key;
+    result[fieldKey] = formData[fieldKey] ?? "";
+  }
+  return result;
+};
+
+
 const A4Page = ({ children, className = "" }: any) => (
   <div
     className={`bg-white mx-auto shadow-md flex flex-col ${className}`}
@@ -607,11 +621,11 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
         </span>
         {psSchema.interpreter.options[1]}
       </div>
-      <div>{psSchema.language.label} {psData.language || ""}</div>
-      <div>{psSchema.culturalValues.label} {psData.culturalValues || ""}</div>
-      <div>{psSchema.culturalBehaviours.label} {psData.culturalBehaviours || ""}</div>
-      <div>{psSchema.writtenCommunication.label} {psData.writtenCommunication || ""}</div>
-      <div>{psSchema.countryOfBirth.label} {psData.countryOfBirth || ""}</div>
+      <div>  <strong>{psSchema.language.label} : </strong> {psData.language || ""}</div>
+      <div> <strong>{psSchema.culturalValues.label} : </strong> {psData.culturalValues || ""}</div>
+      <div>  <strong>{psSchema.culturalBehaviours.label} : </strong> {psData.culturalBehaviours || ""}</div>
+      <div> <strong>{psSchema.writtenCommunication.label} : </strong> {psData.writtenCommunication || ""}</div>
+      <div> <strong>{psSchema.countryOfBirth.label} : </strong> {psData.countryOfBirth || ""}</div>
     </div>
   );
   return (
@@ -686,8 +700,11 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
               </tr>
               <tr style={{ height: "26%" }}>
                 <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {renderPersonalSituation(pageSchema.sections.personalSituation.fields, getFieldValue("personalSituation", formData, commonFields) || {})}
-                </td>
+ {renderPersonalSituation(
+  pageSchema.sections.personalSituation.fields,
+  extractPersonalSituationData(pageSchema.sections.personalSituation.fields, formData)
+)
+}                </td>
               </tr>
             </tbody>
           </table>
@@ -825,8 +842,15 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
     </A4Page>
   );
 };
+
+
 const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.medicationInfoSchema;
+
+  const getFieldValue = (key: string) => {
+    return formData?.[key] ?? commonFields?.[key] ?? "";
+  };
+
   return (
     <A4Page>
       <div
@@ -837,33 +861,70 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
           padding: "24px 16px",
         }}
       >
+        {/* Logo */}
         <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
+          <img
+            alt={pageSchema.logo.alt}
+            src={images.infinityLogo}
+            width={pageSchema.logo.width}
+            height={pageSchema.logo.height}
+            className="object-contain"
+          />
         </div>
+
+        {/* Table */}
         <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[12px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
+          <table
+            className="w-full h-full border border-black border-collapse text-[12px]"
+            style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}
+          >
             <thead>
               <tr className="bg-gray-300">
-                <th className="border border-black p-1 text-left font-semibold" colSpan={3}>{pageSchema.title}</th>
+                <th
+                  className="border border-black p-1 text-left font-semibold"
+                  colSpan={3}
+                >
+                  {pageSchema.title}
+                </th>
               </tr>
             </thead>
             <tbody style={{ height: "100%" }}>
               {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key, formData, commonFields);
+                const value = getFieldValue(field.key);
+                const otherValue = getFieldValue(`${field.key}Others`);
+
                 return (
                   <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
+                    <td className="border border-black p-1 align-top w-[320px] font-medium">
+                      {field.label}
+                    </td>
+
                     <td className="border border-black p-1 align-top text-[11px] w-[180px]">
                       <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">{value === "Yes" ? "✔" : ""}</span>
+                        <span className="w-4 h-4 border border-black flex justify-center mt-1">
+                          {value === "Yes" ? "✔" : ""}
+                        </span>
                         <span>Yes</span>
                       </div>
-                      {field.yesDetail && (
-                        <div className="mt-1 leading-tight">{field.yesDetail}</div>
+
+                      {value === "Yes" && (
+                        <>
+                          {field.yesDetail && (
+                            <div className="mt-1 leading-tight">{field.yesDetail}</div>
+                          )}
+                          {otherValue && (
+                            <div className="mt-1 text-[11px]">
+                              <span className="font-semibold">Details:</span> {otherValue}
+                            </div>
+                          )}
+                        </>
                       )}
                     </td>
+
                     <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">{value === "No" ? "✔" : ""}</span>
+                      <span className="w-4 h-4 border border-black flex justify-center">
+                        {value === "No" ? "✔" : ""}
+                      </span>
                       <span className="m-1">No</span>
                     </td>
                   </tr>
@@ -871,8 +932,10 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
               })}
             </tbody>
           </table>
+
+          {/* Footer */}
           <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-              <div>Website: {settings?.company_website}</div>
+            <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
@@ -881,8 +944,15 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
     </A4Page>
   );
 };
-const Page6 = ({ formSchema, formData = {}, commonFields = {} , images, settings}: any) => {
+
+
+const Page6 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.safetyConsiderationSchema;
+
+  const getFieldValue = (key: string) => {
+    return formData?.[key] ?? commonFields?.[key] ?? "";
+  };
+
   return (
     <A4Page>
       <div
@@ -893,42 +963,78 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {} , images, settings
           padding: "24px 16px",
         }}
       >
+        {/* Logo */}
         <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} src={images.infinityLogo} width={pageSchema.logo.width} height={pageSchema.logo.height} className="object-contain" />
+          <img
+            alt={pageSchema.logo.alt}
+            src={images.infinityLogo}
+            width={pageSchema.logo.width}
+            height={pageSchema.logo.height}
+            className="object-contain"
+          />
         </div>
+
+        {/* Table */}
         <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[12px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
+          <table
+            className="w-full h-full border border-black border-collapse text-[12px]"
+            style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}
+          >
             <thead>
               <tr className="bg-gray-300">
-                <th className="border border-black p-1 text-left font-semibold" colSpan={3}>{pageSchema.title}</th>
+                <th
+                  className="border border-black p-1 text-left font-semibold"
+                  colSpan={3}
+                >
+                  {pageSchema.title}
+                </th>
               </tr>
             </thead>
             <tbody style={{ height: "100%" }}>
               {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key, formData, commonFields);
+                const value = getFieldValue(field.key);
+                const otherValue = getFieldValue(`${field.key}Others`);
+
                 return (
                   <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px]">{field.label}</td>
+                    <td className="border border-black p-1 align-top w-[320px] font-medium">
+                      {field.label}
+                    </td>
                     <td className="border border-black p-1 align-top text-[11px] w-[180px]">
                       <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">{value === "Yes" ? "✔" : ""}</span>
+                        <span className="w-4 h-4 border border-black flex justify-center mt-1">
+                          {value === "Yes" ? "✔" : ""}
+                        </span>
                         <span>Yes</span>
                       </div>
-                      {field.yesDetail && (
-                        <div className="mt-1 leading-tight">{field.yesDetail}</div>
+                      {value === "Yes" && (
+                        <>
+                          {field.yesDetail && (
+                            <div className="mt-1 leading-tight">{field.yesDetail}</div>
+                          )}
+                          {otherValue && (
+                            <div className="mt-1 text-[11px]">
+                              <span className="font-semibold">Details:</span> {otherValue}
+                            </div>
+                          )}
+                        </>
                       )}
                     </td>
                     <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">{value === "No" ? "✔" : ""}</span>
-                      <span>No</span>
+                      <span className="w-4 h-4 border border-black flex justify-center">
+                        {value === "No" ? "✔" : ""}
+                      </span>
+                      <span className="m-1">No</span>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+
+          {/* Footer */}
           <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-              <div>Website: {settings?.company_website}</div>
+            <div>Website: {settings?.company_website}</div>
             <div>CF001</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
@@ -937,6 +1043,8 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {} , images, settings
     </A4Page>
   );
 };
+
+
 const FormRenderer = ({  formData = {}, formKey,  commonFields, images, settings } : any) => {
     return (
       <div className="print:p-0 

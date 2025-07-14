@@ -156,10 +156,10 @@ export async function POST(
     // 🔔 CREATE NOTIFICATIONS for ALL ADMINS when client has signed the form
     if (hasAllSignatures && clientSignature) {
       try {
-        // Get client name for notification
+        // Get client info for notification and email
         const clientInfo = await prisma.client.findUnique({
           where: { id: assignment.clientId },
-          select: { name: true }
+          select: { name: true, email: true }
         });
 
         // Get all admins in the system
@@ -181,6 +181,135 @@ export async function POST(
         await Promise.all(notificationPromises);
         
         console.log(`🔔 Notifications created for ${allAdmins.length} admins - Client ${clientInfo?.name} signed ${assignment.form.title}`);
+
+        // 🔔 NEW: Check if this form completion triggers batch completion
+        try {
+          console.log(`🔍 Checking if batch is completed for client: ${clientInfo?.name}`);
+          
+          // Find the batch this form assignment belongs to
+          const formAssignmentWithBatch = await prisma.formAssignment.findUnique({
+            where: { id: assignmentIdNum },
+            include: {
+              batch: {
+                include: {
+                  assignments: {
+                    include: {
+                      form: {
+                        select: {
+                          id: true,
+                          title: true,
+                          requiresSignature: true
+                        }
+                      }
+                    }
+                  },
+                  client: {
+                    select: {
+                      id: true,
+                      name: true,
+                      email: true
+                    }
+                  }
+                }
+              }
+            }
+          });
+
+          if (!formAssignmentWithBatch?.batch) {
+            console.log(`⚠️ No batch found for form assignment ${assignmentIdNum}`);
+            return NextResponse.json({
+              success: canSubmit,
+              submissionId: formSubmission.id,
+              currentStatus: newStatus,
+              canSubmit: canSubmit,
+              signatureStatus: {
+                isComplete: signatureValidation.isComplete,
+                completedCount: signatureValidation.completedCount,
+                totalRequired: signatureValidation.totalRequired,
+                completedSignatures: signatureValidation.completedSignatures,
+                missingSignatures: signatureValidation.missingSignatures,
+              },
+              message: submitMessage,
+            });
+          }
+
+          const batch = formAssignmentWithBatch.batch;
+          
+          // Check if ALL forms in this batch are completed
+          const allAssignments = batch.assignments;
+          const completedAssignments = allAssignments.filter(assignment => 
+            assignment.currentStatus === "completed"
+          );
+
+          console.log(`📊 Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`);
+
+          // If all forms in batch are completed, send email
+          if (completedAssignments.length === allAssignments.length && allAssignments.length > 0) {
+            console.log(`🎉 Batch ${batch.id} is now fully completed! Sending email notification.`);
+
+            // Get all completed form submissions for this batch
+            const completedFormSubmissions = await prisma.formSubmission.findMany({
+              where: {
+                clientId: batch.clientId,
+                formId: { in: allAssignments.map(a => a.formId) },
+                formVersion: { in: allAssignments.map(a => a.formVersion) },
+                isSubmitted: true
+              },
+              include: {
+                form: {
+                  select: {
+                    id: true,
+                    title: true
+                  }
+                }
+              }
+            });
+
+            // Prepare completed forms data for email ----------------------------------------------
+          //   const completedFormsData = completedFormSubmissions.map(submission => ({
+          //     id: submission.id,
+          //     formId: submission.formId,
+          //     title: submission.form.title
+          //   }));
+
+          //   // Send dual notification email (admin + client)
+          //   const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications/send-email`, {
+          //     method: 'POST',
+          //     headers: {
+          //       'Content-Type': 'application/json',
+          //     },
+          //     body: JSON.stringify({
+          //       type: 'dual_notification', // Send to both admin and client
+          //       clientId: batch.clientId,
+          //       clientName: batch.client.name,
+          //       clientEmail: batch.client.email,
+          //       batchId: batch.id,
+          //       completedForms: completedFormsData,
+          //       completedAt: new Date().toLocaleString()
+          //     })
+          //   });
+
+          //   if (emailResponse.ok) {
+          //     const emailResult = await emailResponse.json();
+          //     console.log(`✅ Dual notification emails sent successfully:`, {
+          //       adminEmail: emailResult.adminEmail,
+          //       clientEmail: emailResult.clientEmail,
+          //       totalEmails: emailResult.totalEmails,
+          //       client: batch.client.name,
+          //       batchId: batch.id,
+          //       totalForms: completedFormsData.length
+          //     });
+          //   } else {
+          //     const emailError = await emailResponse.text();
+          //     console.error(`❌ Failed to send dual notification emails:`, emailError);
+          //   }
+          // } else {
+          //   console.log(`⏳ Batch ${batch.id} not yet complete: ${completedAssignments.length}/${allAssignments.length} forms done`);
+          }
+        } catch (emailError) {
+          console.error("❌ Batch completion check failed (non-blocking):", emailError);
+          // Don't fail the main request if email fails
+        }
       } catch (notificationError) {
         console.error("Error creating notifications:", notificationError);
         // Don't fail the main request if notification fails

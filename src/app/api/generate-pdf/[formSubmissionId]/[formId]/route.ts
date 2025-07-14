@@ -136,6 +136,11 @@ export async function GET(
     const submissionId = parseInt(formSubmissionId);
     const formIdInt = parseInt(formId);
 
+    // Check if this is a buffer request for email attachment
+    const { searchParams } = new URL(req.url);
+    const returnBuffer = searchParams.get('buffer') === 'true';
+    const attachmentName = searchParams.get('filename'); // Optional custom filename
+
     if (!submissionId || !formIdInt) {
       return new NextResponse("Missing formSubmissionId or formId", { status: 400 });
     }
@@ -168,19 +173,16 @@ export async function GET(
       console.warn(`No common fields found for client ${clientId}`);
     }
 
-
-
     // ✅ Fetch Form specific settings
-const rawSettings = await prisma.appSettings.findMany({
-  where: { isActive: true },
-  select: { key: true, value: true },
-});
+    const rawSettings = await prisma.appSettings.findMany({
+      where: { isActive: true },
+      select: { key: true, value: true },
+    });
 
-const settings: Record<string, any> = {};
-rawSettings.forEach(setting => {
-  settings[setting.key] = setting.value;
-});
-
+    const settings: Record<string, any> = {};
+    rawSettings.forEach(setting => {
+      settings[setting.key] = setting.value;
+    });
 
     const formData = formSubmission.data as any;
     const html = await generateHTML(formData, form.formKey, commonFields, settings);
@@ -204,14 +206,27 @@ rawSettings.forEach(setting => {
 
     await browser.close();
 
-    const filename = `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}_${submissionId}.pdf`;
+    const filename = attachmentName || `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}_${form.formKey}.pdf`;
 
-    return new NextResponse(pdfBuffer, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`
-      }
-    });
+    if (returnBuffer) {
+      // Return PDF buffer for email attachment (no download headers)
+      console.log(`📄 Generated PDF buffer for email: ${filename}`);
+      return new NextResponse(pdfBuffer, {
+        headers: {
+          "Content-Type": "application/pdf",
+          "X-PDF-Filename": filename // Custom header to pass filename info
+        }
+      });
+    } else {
+      // Original download behavior
+      console.log(`📄 Generated PDF for download: ${filename}`);
+      return new NextResponse(pdfBuffer, {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${filename}"`
+        }
+      });
+    }
   } catch (error: any) {
     console.error("Error generating PDF:", error);
     return new NextResponse(`Error: ${error.message}`, { status: 500 });

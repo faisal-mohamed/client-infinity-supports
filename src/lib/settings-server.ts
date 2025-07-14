@@ -1,0 +1,107 @@
+// Server-side settings utility functions that directly query the database
+// Use this for server-side operations like email sending
+
+import { prisma } from "./prisma";
+
+interface AppSetting {
+  id: number;
+  key: string;
+  value: string | null;
+  type: string;
+  category: string;
+  label: string;
+  description?: string;
+  isRequired: boolean;
+  defaultValue?: string;
+  validation?: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Cache for server-side settings
+let serverSettingsCache: AppSetting[] | null = null;
+let serverCacheTimestamp: number = 0;
+const SERVER_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Fetch all settings directly from database (server-side)
+ */
+export async function fetchSettingsFromDB(forceRefresh = false): Promise<AppSetting[]> {
+  const now = Date.now();
+  
+  // Return cached settings if still valid and not forcing refresh
+  if (!forceRefresh && serverSettingsCache && (now - serverCacheTimestamp) < SERVER_CACHE_DURATION) {
+    return serverSettingsCache;
+  }
+
+  try {
+    const settings = await prisma.appSettings.findMany({
+      where: {
+        isActive: true
+      },
+      orderBy: [
+        { category: 'asc' },
+        { sortOrder: 'asc' }
+      ]
+    });
+
+    serverSettingsCache = settings;
+    serverCacheTimestamp = now;
+    
+    return settings;
+  } catch (error) {
+    console.error('Error fetching settings from database:', error);
+    return serverSettingsCache || [];
+  }
+}
+
+/**
+ * Get a specific setting value by key (server-side)
+ */
+export async function getSettingFromDB(key: string, defaultValue?: string): Promise<string | null> {
+  try {
+    const settings = await fetchSettingsFromDB();
+    
+    const setting = settings.find(s => s.key === key);
+    if (setting) {
+      return setting.value || setting.defaultValue || defaultValue || null;
+    }
+    
+    return defaultValue || null;
+  } catch (error) {
+    console.error(`Error getting setting ${key}:`, error);
+    return defaultValue || null;
+  }
+}
+
+/**
+ * Get multiple settings at once (server-side)
+ */
+export async function getMultipleSettingsFromDB(keys: string[]): Promise<Record<string, string | null>> {
+  try {
+    const settings = await fetchSettingsFromDB();
+    const result: Record<string, string | null> = {};
+    
+    for (const key of keys) {
+      const setting = settings.find(s => s.key === key);
+      result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error getting multiple settings:', error);
+    const result: Record<string, string | null> = {};
+    keys.forEach(key => result[key] = null);
+    return result;
+  }
+}
+
+/**
+ * Clear server-side settings cache
+ */
+export function clearServerSettingsCache(): void {
+  serverSettingsCache = null;
+  serverCacheTimestamp = 0;
+}
