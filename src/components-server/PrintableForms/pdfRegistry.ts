@@ -3,6 +3,9 @@ import { ComponentType } from 'react';
 // PDF-specific form components
 import ClientIntakev2 from './ClientIntakev2';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
+import PersonCentredPlan from './Person_Centred_Plan/page'; // Assuming this is the correct import path
+
+
 // Interface for PDF form components
 interface PDFFormComponent {
   formKey: string;
@@ -23,6 +26,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     component: HomeVisitRiskAssessment, 
     name: 'Home Visit Risk Assessment Form',
   },
+  {
+    formKey: "person_centred_plan",
+    component: PersonCentredPlan,
+    name: 'Person Centred Plan',
+  }
   
 ];
 
@@ -38,27 +46,7 @@ export const getPDFComponent = (formKey: string): ComponentType<any> => {
   return formConfig.component;
 };
 
-// // Helper function to get PDF component by form ID (if you prefer ID-based matching)
-// export const getPDFComponentById = (formId: number): ComponentType<any> => {
-//   // You can implement ID-based mapping here if needed
-//   // For now, we'll use a simple mapping
-//   switch (formId) {
-//     case 1:
-//       return ClientIntakev2;
-//     case 2:
-//       return ClientIntakeForm;
-//     // Add more cases as needed:
-//     // case 3:
-//     //   return MedicalAssessmentPDF;
-//     // case 4:
-//     //   return HomeRiskAssessmentPDF;
-//     default:
-//       console.warn(`PDF component not found for form ID: ${formId}, falling back to ClientIntakev2`);
-//       return ClientIntakev2; // Fallback to default component
-//   }
-// };
 
-// Helper function to get all available PDF forms
 export const getAllPDFForms = (): PDFFormComponent[] => {
   return pdfFormRegistry;
 };

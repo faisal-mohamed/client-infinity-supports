@@ -144,14 +144,14 @@ export const formData = {
   frequency4: 'Occasionally',
 };
 
-const PersonCentredPlan = ({images} : any ) => {
+const PersonCentredPlan = () => {
   return (
     <div className="bg-gray-100 min-h-screen py-8 print:bg-white print:py-0">
-      <Page1 formSchema={formSchema.page1} images={images}/>
-      <Page2 schema={formSchema.page2} data={formData} images={images} />
-      <Page3 schema={formSchema.page3} data={formData}  images={images}/> 
-      <Page4 schema={formSchema.page4} data={formData}  images={images}/>  
-      <Page5 schema={formSchema.page5} data={formData} images={images} />
+      <Page1 formSchema={formSchema.page1} />
+      <Page2 schema={formSchema.page2} data={formData} />
+      <Page3 schema={formSchema.page3} data={formData} /> 
+      <Page4 schema={formSchema.page4} data={formData} />  
+      <Page5 schema={formSchema.page5} data={formData} />
     </div>
   )
 }

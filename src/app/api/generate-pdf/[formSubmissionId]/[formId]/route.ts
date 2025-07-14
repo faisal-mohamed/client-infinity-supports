@@ -73,6 +73,20 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         };
         break;
 
+      case "person_centred_plan":
+        images = {
+          infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+          mainImage: await encodeImageToBase64("/person_centred_plan_cover_image.png")
+        };
+
+        componentProps = {
+          formData,
+          images,
+          commonFields: commonFields || {},
+          settings: settings || {}
+        };
+        break;
+
       default:
         componentProps = { 
           formData, 
