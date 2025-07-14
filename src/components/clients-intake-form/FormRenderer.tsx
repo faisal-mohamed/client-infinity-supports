@@ -531,7 +531,7 @@ const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
             <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
         )}
@@ -656,7 +656,7 @@ const Page2 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
                 <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
         )}
@@ -812,7 +812,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
               <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
@@ -929,7 +929,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
             <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
         )}
@@ -1033,7 +1033,7 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: {settings?.company_website}</div>
-          <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
           <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
@@ -1134,7 +1134,7 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: infinitysupportswa.org</div>
-          <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
           <div>Review Date: 14/03/2026</div>
         </div>
       </div>

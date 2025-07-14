@@ -71,6 +71,8 @@ export async function fetchFormSpecificSettings(forceRefresh = false): Promise<G
       throw new Error('Failed to fetch settings');
     }
 
+    console.log('Fetched form-specific settings:', response);
+
     const data = await response.json();
     settingsCache = data.settings || {};
     cacheTimestamp = now;

@@ -167,7 +167,7 @@ const Footer = ({settings} : {
         rel="noopener noreferrer"
         className="text-blue-600 underline hover:text-blue-800"
       >
-        {homeVisitSchema.footer.center}
+        {settings?.home_visit_form_id}
       </a>
     </div>
     <div className="font-medium">Review Date: {settings?.review_date}</div>

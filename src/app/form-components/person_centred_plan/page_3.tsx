@@ -86,7 +86,7 @@ const Page3: React.FC<PageProps> = ({ formSchema: schema, data, commonFieldsData
       {/* Footer */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
          <div>Website: {settings?.company_website}</div>
-        <div>CF014</div>
+        <div>{settings?.person_centre_plan_form_id}</div>
         <div>Review Date: {settings?.review_date}</div>
       </div>
     </A4PageWrapper>

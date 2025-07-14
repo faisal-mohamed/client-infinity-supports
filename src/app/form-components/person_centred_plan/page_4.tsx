@@ -14,15 +14,14 @@ const commonFieldMapping: Record<string, string> = {
   address: 'street',
   dob: 'dob',
   disability: 'disability',
-  ndisNumber: 'ndis'
+  ndisNumber: 'ndis',
 };
 
 const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsData, settings }) => {
-  const { columns } = schema.goals;
+  const { columns, defaultRowCount = 3 } = schema.goals;
 
-  // Detect number of rows (e.g., goal1, goal2, ...)
-  const rowCount = Object.keys(data).filter((key) => /^goal\d+$/.test(key)).length;
-  const rowIndexes = Array.from({ length: rowCount }, (_, i) => i + 1);
+  // Always show at least `defaultRowCount` rows
+  const rowIndexes = Array.from({ length: defaultRowCount }, (_, i) => i + 1);
 
   return (
     <A4PageWrapper>
@@ -60,9 +59,7 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
                   const dataKey = `${col.key}${rowIndex}`;
 
                   const isFromCommon = dataKey in commonFieldMapping;
-                  const mappedKey = isFromCommon
-                    ? commonFieldMapping[dataKey]
-                    : dataKey;
+                  const mappedKey = isFromCommon ? commonFieldMapping[dataKey] : dataKey;
 
                   const value = isFromCommon
                     ? commonFieldsData?.[mappedKey] ?? ''
@@ -73,7 +70,9 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
                       key={dataKey}
                       className="border border-black px-2 py-3 align-top text-sm leading-relaxed"
                     >
-                      <div className="whitespace-pre-wrap min-h-[60px]">{value}</div>
+                      <div className="whitespace-pre-wrap min-h-[60px]">
+                        {value || '\u00A0'}
+                      </div>
                     </td>
                   );
                 })}
@@ -85,9 +84,9 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
 
       {/* Footer */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
-          <div>Website: {settings?.company_website}</div>
-        <div>CF014</div>
-        <div>Review Date: {settings?.review_date}</div>
+        <div>Website: {settings?.company_website || 'infinitysupportswa.org'}</div>
+        <div>{settings?.person_centre_plan_form_id || 'CF014'}</div>
+        <div>Review Date: {settings?.review_date || '14/03/2026'}</div>
       </div>
     </A4PageWrapper>
   );

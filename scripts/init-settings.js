@@ -116,6 +116,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'person_centre_plan_form_id',
+    value: 'CF014',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Person Centre Plan ID',
+    description: 'Unique identifier for person centre plan forms',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

@@ -493,7 +493,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images,  settings
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-2 shrink-0">
               <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
         )}
@@ -585,7 +585,7 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
           {pageSchema.footer && (
             <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1 shrink-0">
                 <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
             </div>
           )}
@@ -712,7 +712,7 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
         {/* Footer pinned at bottom */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2 shrink-0">
             <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
@@ -833,7 +833,7 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
           {pageSchema.footer && (
             <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2 shrink-0">
                 <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
             </div>
           )}
@@ -936,7 +936,7 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
           {/* Footer */}
           <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
             <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
+            <div>{settings?.client_intake_form_id}</div>
             <div>Review Date: {settings?.review_date}</div>
           </div>
         </div>
