@@ -1,13 +1,13 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page1: React.FC<any> = ({ formSchema, images }) => {
+const Page1: React.FC<any> = ({ formSchema, images, settings }) => {
   return (
     <A4PageWrapper>
       {/* Logo */}
       <div className="flex justify-center pt-8 pb-6">
         <img 
-          src={images?.infinityLogo} 
+          src={formSchema.logoPath} 
           alt="Infinity Supports WA Logo" 
           className="h-20 object-contain" 
         />
@@ -16,7 +16,7 @@ const Page1: React.FC<any> = ({ formSchema, images }) => {
       {/* Central Visual - takes up most of the space */}
       <div className="flex-1 flex justify-center items-center px-8">
         <img 
-          src={images?.mainImage} 
+          src={formSchema.mainImagePath} 
           alt="Person Centred Plan Circles" 
           className="max-w-full max-h-full object-contain" 
         />
@@ -24,9 +24,9 @@ const Page1: React.FC<any> = ({ formSchema, images }) => {
 
       {/* Footer - sticks to bottom */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-4 mt-auto border-t border-gray-200">
-        <div>Website: infinitysupportswa.org</div>
+        <div>Website: {settings?.company_website}</div>
         <div>CF014</div>
-        <div>Review Date: 14/03/2026</div>
+        <div>Review Date: {settings?.review_date}</div>
       </div>
     </A4PageWrapper>
   );

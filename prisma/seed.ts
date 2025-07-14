@@ -35,6 +35,12 @@ async function main() {
       version: 1,
       requiresSignature: true,
     },
+    {
+      formKey: 'person_centred_plan',
+      title: 'Person Centred Plan',
+      version: 1,
+      requiresSignature: false,
+    }
   ];
 
   for (const form of forms) {

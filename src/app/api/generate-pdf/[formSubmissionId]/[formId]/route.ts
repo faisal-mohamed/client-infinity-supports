@@ -82,7 +82,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         componentProps = {
           formData,
           images,
-          commonFields: commonFields || {},
+          commonFieldsData: commonFields || {},
           settings: settings || {}
         };
         break;

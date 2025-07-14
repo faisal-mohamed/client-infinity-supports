@@ -7,6 +7,7 @@ import Link from "next/link";
 import { FaArrowLeft, FaFileAlt, FaCode, FaCalendarAlt, FaEye, FaGlobe, FaSpinner, FaCog, FaBuilding } from "react-icons/fa";
 import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view";
 import { fetchFormSpecificSettings, fetchSettings } from "@/lib/settings";
+import PersonCentredPlanView from "@/components/person_centred_plan/view";
 
 // Types for settings
 interface AppSetting {
@@ -261,6 +262,8 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <FormRenderer formKey={form.formKey} formSchema={form.schema} settings={settings} />
                 ) : form.formKey === "home_visit_risk_assessment" ? (
                   <HomeRiskAssesmentView formKey={form.formKey} settings={settings}/>
+                ) : form.formKey === "person_centred_plan" ? (
+                  <PersonCentredPlanView formKey={form.formKey} settings={settings} />
                 ) : (
                   <div className="text-center py-16">
                     <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">

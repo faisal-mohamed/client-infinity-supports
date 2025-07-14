@@ -4,6 +4,10 @@ import FormRenderer from '@/components/clients-intake-form/FormRenderer'; // Ass
 import HomeVisitRiskAssessment from '@/app/form-components/home_visit/page'
 import HomeVisitRiskAssessmentEdit from '../components/forms/home_visit_risk_assessment/Edit';
 
+
+import PersonCentredPlanView from '@/components/person_centred_plan/view';
+import PersonCentredPlanEdit from '@/app/components/forms/person_centred_plan/Edit'
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -46,7 +50,13 @@ const formRegistry: Record<string, FormRegistryItem> = {
       
       
     ]
-  }
+  },
+  'person_centred_plan': {
+    key: 'person_centred_plan',
+    name: 'Person Centred Plan',
+    editComponent: PersonCentredPlanEdit,
+    viewComponent: PersonCentredPlanView,
+  },
 };
 
 // Helper functions
