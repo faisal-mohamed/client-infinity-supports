@@ -40,7 +40,12 @@ async function main() {
       title: 'Person Centred Plan',
       version: 1,
       requiresSignature: false,
-    }
+    },{
+      formKey: 'sa_delivery_of_supports',
+      title: 'SA Delivery of Supports',
+      version: 1,
+      requiresSignature: true,
+    },
   ];
 
   for (const form of forms) {

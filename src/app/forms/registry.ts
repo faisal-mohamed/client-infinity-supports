@@ -8,6 +8,9 @@ import HomeVisitRiskAssessmentEdit from '../components/forms/home_visit_risk_ass
 import PersonCentredPlanView from '@/components/person_centred_plan/view';
 import PersonCentredPlanEdit from '@/app/components/forms/person_centred_plan/Edit'
 
+import SADeliverySupports from '@/app/form-components/SA-delivery-of-supports/page';
+import SADeliverySupportsEdit from '../components/forms/sa-delivery-of-supports/Edit';
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -56,6 +59,39 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: 'Person Centred Plan',
     editComponent: PersonCentredPlanEdit,
     viewComponent: PersonCentredPlanView,
+  },
+  'sa_delivery_of_supports': {
+    key: 'sa_delivery_of_supports',
+    name: 'SA Delivery of Supports',
+    viewComponent: SADeliverySupports,
+    editComponent: SADeliverySupportsEdit,
+    signatures: [
+      {
+        id: 'participant_signature',
+        label: 'Participant Signature',
+        description: 'Signature of the Participant',
+        required: true,
+        dataKey: 'participantSignature' 
+      },
+      {
+        id: 'nominee_signature',
+        label: 'Nominee Signature',
+        description: 'Signature of the Nominee (if applicable)',
+        required: false, // Changed to false since nominee is optional
+        dataKey: 'nomineeSignature',
+        condition: (formData: any) => {
+          // Only require nominee signature if nominee name is provided
+          return formData.nomineeName && formData.nomineeName.trim() !== '';
+        }
+      },
+      {
+        id: 'provider_signature',
+        label: 'Provider Signature',
+        description: 'Signature of the Provider',
+        required: true,
+        dataKey: 'providerSignature' 
+      },
+    ]
   },
 };
 
