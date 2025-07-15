@@ -33,13 +33,13 @@ export async function GET(
         { status: 404 }
       );
     }
-    // Check if expired
-    if (new Date() > new Date(assignment.expiresAt)) {
-      return NextResponse.json(
-        { error: "Access link has expired" },
-        { status: 403 }
-      );
-    }
+    // // Check if expired
+    // if (new Date() > new Date(assignment.expiresAt)) {
+    //   return NextResponse.json(
+    //     { error: "Access link has expired" },
+    //     { status: 403 }
+    //   );
+    // }
     // Get existing form submission if any
     const formSubmission = await prisma.formSubmission.findFirst({
       where: {
@@ -125,13 +125,13 @@ export async function PUT(
         { status: 404 }
       );
     }
-    // Check if expired
-    if (new Date() > new Date(assignment.expiresAt)) {
-      return NextResponse.json(
-        { error: "Access link has expired" },
-        { status: 403 }
-      );
-    }
+    // // Check if expired
+    // if (new Date() > new Date(assignment.expiresAt)) {
+    //   return NextResponse.json(
+    //     { error: "Access link has expired" },
+    //     { status: 403 }
+    //   );
+    // }
     // Update or create form submission
     const formSubmission = await prisma.formSubmission.upsert({
       where: {

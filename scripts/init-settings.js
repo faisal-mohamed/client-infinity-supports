@@ -127,6 +127,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'sa_delivery_of_supports',
+    value: 'CF008A',
+    type: 'text',
+    category: 'form_ids',
+    label: 'SA Delivery of Supports ID',
+    description: 'Unique identifier for SA Delivery of Supports forms',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

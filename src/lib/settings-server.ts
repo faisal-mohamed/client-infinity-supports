@@ -21,7 +21,7 @@ interface AppSetting {
 }
 
 // Cache for server-side settings
-let serverSettingsCache: AppSetting[] | null = null;
+let serverSettingsCache: any | null = null;
 let serverCacheTimestamp: number = 0;
 const SERVER_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
@@ -37,7 +37,7 @@ export async function fetchSettingsFromDB(forceRefresh = false): Promise<AppSett
   }
 
   try {
-    const settings = await prisma.appSettings.findMany({
+    const settings : any = await prisma.appSettings.findMany({
       where: {
         isActive: true
       },
@@ -47,7 +47,7 @@ export async function fetchSettingsFromDB(forceRefresh = false): Promise<AppSett
       ]
     });
 
-    serverSettingsCache = settings;
+    serverSettingsCache  = settings;
     serverCacheTimestamp = now;
     
     return settings;

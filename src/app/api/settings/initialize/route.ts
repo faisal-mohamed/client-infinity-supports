@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       categories: [...new Set(results.map(s => s.category))]
     });
 
-  } catch (error) {
+  } catch (error : any ) {
     console.error("Error initializing settings:", error);
     return NextResponse.json(
       { error: "Failed to initialize settings", details: error.message },

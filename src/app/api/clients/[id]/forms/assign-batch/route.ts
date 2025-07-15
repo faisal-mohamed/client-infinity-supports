@@ -164,7 +164,6 @@ export async function POST(
             clientId,
             formId,
             formVersion: form.version,
-            expiresAt: new Date(expiresAt),
             isCompleted: false,
             displayOrder: i,
             batchId: batch.id,

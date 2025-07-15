@@ -1,12 +1,12 @@
 
 
-
 'use client';
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaPlus, FaEye, FaFileAlt, FaArrowLeft, FaSearch } from "react-icons/fa";
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 // Enhanced skeleton loader row
 function SkeletonRow() {
@@ -22,11 +22,16 @@ function SkeletonRow() {
 }
 
 export default function FormsManagement() {
+  // Call auth hook first
+  const { session, status } = useRequireAuth();
+  // Now call other hooks
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+
+
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -56,6 +61,8 @@ export default function FormsManagement() {
     form.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     form.formKey.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (status === 'loading' || !session) return null;
 
 
   if (loading) {

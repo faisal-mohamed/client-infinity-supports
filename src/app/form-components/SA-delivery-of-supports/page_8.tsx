@@ -11,9 +11,9 @@ const Page8: React.FC<Page8Props> = ({ settings }) => {
       <div className="h-full flex flex-col p-6">
         {/* Header with Logo */}
         <div className="flex justify-center mb-6">
-          <img
+        <img
             src={'/infinity_logo.png'}
-            alt="Infinity Supports WA logo"
+            alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
         </div>
@@ -52,9 +52,9 @@ const Page8: React.FC<Page8Props> = ({ settings }) => {
 
         {/* Footer - at bottom */}
         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF008A</div>
-          <div>Review Date: 14/03/2026</div>
+           <div>Website: {settings?.company_website}</div>
+          <div>{settings?.sa_delivery_of_supports}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4PageWrapper>

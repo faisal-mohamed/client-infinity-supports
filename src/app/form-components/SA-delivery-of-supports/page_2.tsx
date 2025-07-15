@@ -2,14 +2,33 @@ import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
 interface Page2Props {
-  schema  ?: any;
-  data : any;
-  settings : any
-  commonFieldsData: any
+  schema?: any;
+  data: any;
+  settings: any;
+  commonFieldsData: any;
 }
 
-const Page2: React.FC<Page2Props> = ({ schema  , data, settings, commonFieldsData } ) => {
-  const getValue = (key: string) => !!data[key];
+const Page2: React.FC<Page2Props> = ({ schema, data, settings, commonFieldsData }) => {
+  const commonFieldMapping: Record<string, string> = {
+    givenNames: 'name',
+    address: 'street',
+    dob: 'dob',
+    disability: 'disability',
+    ndisNumber: 'ndis',
+    state: 'state',
+    street: 'street',
+    postcode: 'postCode',
+    email: 'email',
+    homePhone: 'phone',
+    sex: 'sex'
+  };
+
+  const getValue = (key: string) => {
+    if (commonFieldMapping[key]) {
+      return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+    }
+    return data?.[key] ?? '';
+  };
 
   return (
     <A4PageWrapper>
@@ -23,24 +42,24 @@ const Page2: React.FC<Page2Props> = ({ schema  , data, settings, commonFieldsDat
           />
         </div>
 
-        {/* Content area - takes up remaining space */}
+        {/* Content area */}
         <div className="flex-1 flex flex-col text-justify">
           <p className="text-sm leading-loose mb-6">
-            individuals. This agreement is of ongoing nature and will remain in place unless either party's
-            choses to terminate by giving appropriate notice as mentioned in "ending this service
+            individuals. This agreement is of ongoing nature and will remain in place unless either party
+            chooses to terminate by giving appropriate notice as mentioned in the "ending this service
             agreement" section.
           </p>
 
           <div className="space-y-4 mb-6">
-            {schema.fields.map((field : any) => (
+            {schema?.fields?.map((field: any) => (
               <p key={field.key} className="flex items-start text-sm leading-loose">
-                <input 
-                  type="checkbox" 
-                  className="mt-1 mr-2 scale-75 flex-shrink-0" 
-                  readOnly 
-                  checked={getValue(field.key)} 
+                <input
+                  type="checkbox"
+                  className="mt-1 mr-2 scale-75 flex-shrink-0"
+                  readOnly
+                  checked={!!getValue(field.key)}
                 />
-                <span className="text-sm leading-loose">{field.label}</span>
+                <span>{field.label}</span>
               </p>
             ))}
           </div>
@@ -82,11 +101,11 @@ const Page2: React.FC<Page2Props> = ({ schema  , data, settings, commonFieldsDat
           </p>
         </div>
 
-        {/* Footer - at bottom */}
+        {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF008A</div>
-          <div>Review Date: 14/03/2026</div>
+        <div>Website: {settings?.company_website}</div>
+          <div>{settings?.sa_delivery_of_supports}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4PageWrapper>

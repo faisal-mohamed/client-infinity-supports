@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import UserWelcome from './user-welcome';
 import { FaUsers, FaCheckCircle, FaClock, FaShieldAlt, FaFileAlt, FaEdit, FaUserPlus, FaChartBar, FaCalendarAlt, FaClipboardList } from 'react-icons/fa';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 export default function DashboardClient() {
+  const { session, status } = useRequireAuth();
+
   const pathname = usePathname();
+
+  if (status === 'loading' || !session) return null;
+
 
   return (
     <div className="bg-gray-50 min-h-screen">

@@ -40,7 +40,6 @@ export async function GET(
         clientId: assignment.clientId,
         formId: assignment.formId,
         formVersion: assignment.formVersion,
-        expiresAt: assignment.expiresAt,
         isSubmitted: submission?.isSubmitted || false,
         createdAt: assignment.assignedAt,
         //updatedAt: assignment.updatedAt,

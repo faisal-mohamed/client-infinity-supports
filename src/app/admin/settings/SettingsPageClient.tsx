@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import Link from 'next/link';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 // Types
 interface AppSetting {
@@ -59,6 +60,8 @@ const categoryConfig = {
 };
 
 export default function SettingsPageClient() {
+  const { session, status } = useRequireAuth();
+
   const { showToast } = useToast();
   
   // State management
@@ -351,6 +354,9 @@ export default function SettingsPageClient() {
         );
     }
   };
+
+  if (status === 'loading' || !session) return null;
+
 
   if (loading) {
     return (

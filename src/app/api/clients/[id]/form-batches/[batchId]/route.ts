@@ -53,7 +53,7 @@ export async function PATCH(
     // Update all assignments in the batch to have the new expiry
     await prisma.formAssignment.updateMany({
       where: { batchId: batchIdNum },
-      data: { expiresAt: newExpiresAt }
+      data: {  }
     });
 
     // Optionally, fetch and return the updated batch

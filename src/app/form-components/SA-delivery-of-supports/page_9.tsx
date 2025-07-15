@@ -10,28 +10,58 @@ interface Field {
 }
 
 interface Page9Props {
-   schema  ?: any;
-  data : any;
-  settings : any
-  commonFieldsData: any
+  schema?: any;
+  data: any;
+  settings: any;
+  commonFieldsData: any;
 }
 
 const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData }) => {
   const fields = schema.fields;
+
+  const commonFieldMapping: Record<string, string> = {
+    givenNames: 'name',
+    address: 'street',
+    dob: 'dob',
+    disability: 'disability',
+    ndisNumber: 'ndis',
+    state: 'state',
+    street: 'street',
+    postcode: 'postCode',
+    email: 'email',
+    homePhone: 'phone',
+    sex: 'sex'
+  };
+
+  const getValue = (key: string) => {
+    if (commonFieldMapping[key]) {
+      return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+    }
+    return data?.[key] ?? '';
+  };
+
+  const renderSignature = (key: string) => {
+  const value = getValue(key);
+  if (value?.startsWith('data:image')) {
+    return <img src={value} alt="Signature" className="h-10" />;
+  }
+  return "__________________";
+};
+
 
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
         {/* Header with Logo */}
         <div className="flex justify-center mb-6">
-          <img
-            src='/infinity_logo.png'
+        <img
+            src={'/infinity_logo.png'}
             alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
         </div>
 
-        {/* Content area - takes up remaining space */}
+        {/* Content */}
         <div className="flex-1 flex flex-col">
           {/* Consent Table */}
           <div className="mb-6">
@@ -43,38 +73,35 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
                 </tr>
               </thead>
               <tbody>
-                {fields.map((field : any) => {
+                {fields.map((field: any) => {
                   if (field.type === 'radio') {
                     return (
                       <tr key={field.key}>
                         <td className="border border-black p-3 align-top leading-loose">
-                          <div className="leading-loose">
+                          <div>
                             {field.label}
                             {field.subItems && (
-  <ul className="list-disc ml-4 mt-2 text-xs leading-loose">
-    {field.subItems.map((item: any, idx: any) => {
-      if (item.startsWith("Others")) {
-        const othersValue = data.othersInfoSharingConsent;
-        return (
-          <li key={idx} className="leading-loose">
-            Others: {othersValue || "__________________________"}
-          </li>
-        );
-      }
-      return <li key={idx} className="leading-loose">{item}</li>;
-    })}
-  </ul>
-)}
-
+                              <ul className="list-disc ml-4 mt-2 text-xs leading-loose">
+                                {field.subItems.map((item: any, idx: number) => {
+                                  if (item.startsWith("Others")) {
+                                    const othersValue = getValue("othersInfoSharingConsent");
+                                    return (
+                                      <li key={idx}>Others: {othersValue || "__________________________"}</li>
+                                    );
+                                  }
+                                  return <li key={idx}>{item}</li>;
+                                })}
+                              </ul>
+                            )}
                           </div>
                         </td>
                         <td className="border border-black p-3 align-top">
                           <div className="space-y-2">
                             {field.options?.map((opt: any) => (
-                              <label key={opt} className="flex items-center text-xs leading-loose">
+                              <label key={opt} className="flex items-center text-xs">
                                 <input
                                   type="radio"
-                                  checked={data[field.key] === opt}
+                                  checked={getValue(field.key) === opt}
                                   readOnly
                                   className="mr-2 scale-75"
                                 />
@@ -92,48 +119,80 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
             </table>
           </div>
 
-          {/* Signature Tables */}
+          {/* Signatures */}
           <div className="space-y-4 flex-1">
             <table className="w-full border border-black text-xs">
               <tbody>
+              <tr>
+  <td className="border border-black p-4 leading-loose">
+    <div className="flex">
+      <div className="w-1/3">
+        <strong>Signature of participant</strong>:<br />
+        {renderSignature('participantSignature') || "__________________"}
+      </div>
+      <div className="w-1/3">
+        <strong>Date</strong>:<br />
+        {getValue('participantSignatureDate') || '___/___/____'}
+      </div>
+      <div className="w-1/3">
+        <strong>Name</strong>:<br />
+        {getValue('participantName') || '____________________'}
+      </div>
+    </div>
+  </td>
+</tr>
+
                 <tr>
-                  <td className="border border-black p-4 leading-loose">
-                    <strong>Signature of participant</strong>: { data.participantSignature || "__________________"} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Date</strong>: {data.participantSignatureDate || '___/___/____'} <br />
-                    <span className="mt-3 inline-block leading-loose"><strong>Name</strong>: {data.participantName || '____________________'}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-black p-4 leading-loose">
-                    I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this: [If signed by a Nominee:] 
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-black p-4 leading-loose">
-                    <strong>Signature of Nominee</strong>: { data.signatureOfNominee || "__________________"} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Date</strong>: {data.nomineeSignatureDate || '___/___/____'} <br />
-                    <span className="mt-3 inline-block leading-loose"><strong>Name</strong>: {data.nomineeName || '____________________'}</span>
-                  </td>
-                </tr>
+  <td className="border border-black p-4 leading-loose">
+    <div className="flex">
+      <div className="w-1/3">
+        <strong>Signature of Nominee</strong>:<br />
+        {renderSignature('nomineeSignature') || "__________________"}
+      </div>
+      <div className="w-1/3">
+        <strong>Date</strong>:<br />
+        {getValue('nomineeSignatureDate') || '___/___/____'}
+      </div>
+      <div className="w-1/3">
+        <strong>Name</strong>:<br />
+        {getValue('nomineeName') || '____________________'}
+      </div>
+    </div>
+  </td>
+</tr>
               </tbody>
             </table>
 
             <table className="w-full border border-black text-xs">
               <tbody>
                 <tr>
-                  <td className="border border-black p-4 leading-loose">
-                    <strong>Signature on behalf of Infinity Supports WA</strong>: { data.signatureOnBehalfOfInfinitySupportsWA || "__________________"}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Date</strong>: {data.providerSignatureDate || '___/___/____'} <br />
-                    <span className="mt-3 inline-block leading-loose"><strong>Name</strong>: {data.providerName || '____________________'}</span>
-                  </td>
-                </tr>
+  <td className="border border-black p-4 leading-loose">
+    <div className="flex">
+      <div className="w-1/3">
+        <strong>Signature of Provider</strong>:<br />
+        {renderSignature('providerSignatureSignature') || "__________________"}
+      </div>
+      <div className="w-1/3">
+        <strong>Date</strong>:<br />
+        {getValue('providerSignatureDate') || '___/___/____'}
+      </div>
+      <div className="w-1/3">
+        <strong>Name</strong>:<br />
+        {getValue('providerName') || '____________________'}
+      </div>
+    </div>
+  </td>
+</tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Footer - at bottom */}
+        {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF008A</div>
-          <div>Review Date: 14/03/2026</div>
+        <div>Website: {settings?.company_website}</div>
+          <div>{settings?.sa_delivery_of_supports}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4PageWrapper>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Page1 from "./page_1";
 import Page2 from "./page_2";
 import Page3 from "./page_3";
@@ -9,7 +9,7 @@ import Page7 from "./page_7";
 import Page8 from "./page_8";
 import Page9 from "./page_9";
 
-const formSchema = {
+const formSchema  : any = {
   page1: {
     fields: [
       { key: "agreementDate", label: "Date", type: "date" },
@@ -229,73 +229,26 @@ const formSchema = {
   },
 };
 
-export const formData = {
-  //page1
-  agreementDate: "2024-11-01",
-  ndisNumber: "NDIS-789456123",
-  surname: "Smith",
-  givenNames: "John Michael",
-  sex: "Male",
-  pronoun: "He/Him",
-  indigenousStatus: "No",
-  preferredName: "Johnny",
-  dob: "1995-07-20",
-  street: "123 Example Street",
-  state: "WA",
-  postcode: "6000",
-  email: "john.smith@example.com",
-  homePhone: "08 9123 4567",
-  mobilePhone: "0412 345 678",
-  //page2
-  subjectToSection73G: true,
-  isNonVerbal: false,
-  noCopyRequested: true,
-  planAttached: false,
-  planNotAttached: true,
-  //page3
-  selfManaged: true,
-  nomineeManaged: false,
-  ndiaManaged: true,
-  planManagerManaged: false,
-  planManagerName: 'ABC Plan Management',
-  fundingSource: 'XYZ Funds Pty Ltd',
-  
 
-  //page9
-  mediaConsent: "Yes",
-  infoSharingConsent: "No",
-  othersInfoSharingConsent: "Legal Guardian/Next of Kin",
-  moneyHandlingConsent: "Yes",
-  ndisAuditConsent: "Yes",
-  participantSignature: "base64-data-or-url",
-  participantSignatureDate: "2025-07-14",
-  participantName: "John Doe",
-  nomineeSignature: "test",
-  nomineeSignatureDate: "test",
-  nomineeName: "test",
-  providerSignature: "test",
-  providerSignatureDate: "test",
-  providerName: "test",
-  signatureOfParticipant: "base64-data-or-url",
-  signatureOfNominee: "base64-data-or-url",
-  signatureOnBehalfOfInfinitySupportsWA: "base64-data-or-url",
 
-};
+const SADeliverySupports = ({formData, commonFieldsData, settings, images} : any) => {
 
-const SADeliverySupports = () => {
+
+
+
   return (
     <div>
-      <Page1 schema={formSchema.page1} data={formData} />
+      <Page1 schema={formSchema.page1} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
 
-      <Page2 schema={formSchema.page2} data={formData} />
-      <Page3 schema={formSchema.page3} data={formData} />
-      <Page4 schema={formSchema.page4} data={formData} />
-      <Page5 schema={formSchema.page5} data={formData} />
+      <Page2 schema={formSchema.page2} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
+      <Page3 schema={formSchema.page3} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
+      <Page4 schema={formSchema.page4} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
+      <Page5 schema={formSchema.page5} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
 
-      <Page6 />
-      <Page7 />
-      <Page8 />
-      <Page9 schema={formSchema.page9} data={formData} />
+      <Page6 settings={settings} images={images} />
+      <Page7  settings={settings} images={images}/>
+      <Page8 settings={settings} images={images} />
+      <Page9 schema={formSchema.page9} data={formData} settings={settings} commonFieldsData={commonFieldsData} images={images} />
     </div>
   );
 };

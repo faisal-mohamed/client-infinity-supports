@@ -4,6 +4,7 @@ import { ComponentType } from 'react';
 import ClientIntakev2 from './ClientIntakev2';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page'; // Assuming this is the correct import path
+import SADeliverySupports from './SA-delivery-of-supports/page';
 
 
 // Interface for PDF form components
@@ -30,6 +31,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: "person_centred_plan",
     component: PersonCentredPlan,
     name: 'Person Centred Plan',
+  },
+  {
+    formKey: 'sa_delivery_of_supports',
+    component: SADeliverySupports,
+    name: 'SA Delivery of Supports',
   }
   
 ];

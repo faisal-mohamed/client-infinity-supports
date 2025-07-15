@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Handle different email types
-    let emailResult;
+    let emailResult : any;
     
     switch (type) {
       case 'batch_completed':

@@ -2,6 +2,8 @@ import SADeliverySupports from '@/app/form-components/SA-delivery-of-supports/pa
 import React from 'react'
 
 const SADeliveryView = ({ formData = {}, commonFieldsData , settings, } : any) => {
+
+  
   return (
     <div>
         <SADeliverySupports formData={formData} commonFieldsData={commonFieldsData} settings={settings} />

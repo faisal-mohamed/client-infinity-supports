@@ -6,16 +6,38 @@ interface Field {
   label: string;
   type: string;
   additionalFields?: { key: string; label: string; type: string }[];
+  images: any;
 }
 
 interface Page3Props {
-   schema  ?: any;
-  data : any;
-  settings : any
-  commonFieldsData: any
+  schema?: any;
+  data: any;
+  settings: any;
+  commonFieldsData: any;
 }
 
-const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings, }) => {
+  const commonFieldMapping: Record<string, string> = {
+    givenNames: 'name',
+    address: 'street',
+    dob: 'dob',
+    disability: 'disability',
+    ndisNumber: 'ndis',
+    state: 'state',
+    street: 'street',
+    postcode: 'postCode',
+    email: 'email',
+    homePhone: 'phone',
+    sex: 'sex'
+  };
+
+  const getValue = (key: string) => {
+    if (commonFieldMapping[key]) {
+      return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+    }
+    return data?.[key] ?? '';
+  };
+
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
@@ -37,13 +59,13 @@ const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings 
             </h2>
 
             <div className="space-y-5 text-sm">
-              {/* Render first 3 checkboxes dynamically */}
-              {schema.fields.slice(0, 3).map((field : any ) => (
+              {/* First 3 dynamic checkboxes */}
+              {schema.fields.slice(0, 3).map((field: Field) => (
                 <div key={field.key} className="leading-loose">
                   <label className="inline-flex items-start">
                     <input
                       type="checkbox"
-                      checked={!!data[field.key]}
+                      checked={!!getValue(field.key)}
                       readOnly
                       className="mt-1 mr-2 scale-75 flex-shrink-0"
                     />
@@ -52,27 +74,27 @@ const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings 
                 </div>
               ))}
 
-              {/* Hardcoded 4th checkbox with inputs */}
+              {/* 4th checkbox (planManagerManaged) + inputs */}
               <div className="leading-loose">
                 <label className="inline-flex items-start">
                   <input
                     type="checkbox"
-                    checked={!!data["planManagerManaged"]}
+                    checked={!!getValue("planManagerManaged")}
                     readOnly
                     className="mt-1 mr-2 scale-75 flex-shrink-0"
                   />
                   <span>
                     The Individual has nominated the Plan Management Provider{" "}
                     <span>
-                      {data["planManagerName"] || "________________________"}
-                    </span>
+                      {getValue("planManagerName") || "________________________"}
+                    </span>{" "}
                     to manage the funding for NDIS supports provided under this
                     Service Agreement. After providing those supports, Infinity
                     Supports WA will claim payment for those supports from{" "}
                     <span>
-                      {data["fundingSource"] || "________________________"}
+                      {getValue("fundingSource") || "________________________"}
                     </span>
-                    .{" "}
+                    .
                   </span>
                 </label>
               </div>
@@ -108,9 +130,9 @@ const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings 
 
         {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF008A</div>
-          <div>Review Date: 14/03/2026</div>
+        <div>Website: {settings?.company_website}</div>
+          <div>{settings?.sa_delivery_of_supports}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4PageWrapper>

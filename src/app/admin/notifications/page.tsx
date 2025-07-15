@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaSignature, FaCalendarDay } from 'react-icons/fa';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 interface Notification {
   id: number;
@@ -38,6 +39,8 @@ interface GroupedNotifications {
 }
 
 export default function NotificationsPage() {
+  const { session, status } = useRequireAuth();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,6 +158,9 @@ export default function NotificationsPage() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  if (status === 'loading' || !session) return null;
+
 
   if (loading && notifications.length === 0) {
     return (

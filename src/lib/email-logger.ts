@@ -218,7 +218,7 @@ export async function getRecentEmailFailures(limit: number = 10): Promise<any[]>
       }
     });
 
-    return failures.map(failure => ({
+    return failures.map((failure : any)  => ({
       timestamp: failure.createdAt,
       ...failure.metadata
     }));

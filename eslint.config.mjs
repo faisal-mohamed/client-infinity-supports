@@ -40,6 +40,7 @@ const eslintConfig = [
       'react-hooks/rules-of-hooks': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off'
     },
   },
 ];

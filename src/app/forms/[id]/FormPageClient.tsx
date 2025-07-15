@@ -6,8 +6,12 @@ import { getClientFormSubmission, saveClientFormSubmission } from '@/lib/api';
 import { FaCheck, FaExclamationTriangle, FaSave } from 'react-icons/fa';
 import { JsonForms } from '@jsonforms/react';
 import { materialRenderers, materialCells } from '@jsonforms/material-renderers';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 export default function FormPageClient({ params }: { params: { id: string } }) {
+  const { session, status } = useRequireAuth();
+  if (status === 'loading' || !session) return null;
+
   const router = useRouter();
   const formAssignmentId = parseInt(params.id);
 

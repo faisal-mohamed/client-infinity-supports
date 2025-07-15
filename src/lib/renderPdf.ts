@@ -4,7 +4,7 @@ import React from "react";
 
 export async function generateHTML(formData: any, uiSchema: any) {
   const ReactDOMServer = await import("react-dom/server");
-  const { default: PrintableForm } = await import("@/components-server/PrintableForms/ClientIntakeForm");
+  const { default: PrintableForm } = await import("@/components-server/PrintableForms/ClientIntakev2");
 
   const element = React.createElement(PrintableForm, { formData, uiSchema });
   const renderedForm = ReactDOMServer.renderToString(element);

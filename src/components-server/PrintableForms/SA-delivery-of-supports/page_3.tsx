@@ -1,3 +1,147 @@
+// import React from "react";
+// import A4PageWrapper from "./A4PageWrapper";
+
+// interface Field {
+//   key: string;
+//   label: string;
+//   type: string;
+//   additionalFields?: { key: string; label: string; type: string }[];
+// }
+
+// interface Page3Props {
+//   schema?: any;
+//   data: any;
+//   settings: any;
+//   commonFieldsData: any;
+//   images: any;
+// }
+
+// const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings, images }) => {
+//   const commonFieldMapping: Record<string, string> = {
+//     givenNames: 'name',
+//     address: 'street',
+//     dob: 'dob',
+//     disability: 'disability',
+//     ndisNumber: 'ndis',
+//     state: 'state',
+//     street: 'street',
+//     postcode: 'postCode',
+//     email: 'email',
+//     homePhone: 'phone',
+//     sex: 'sex'
+//   };
+
+//   const getValue = (key: string) => {
+//     if (commonFieldMapping[key]) {
+//       return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+//     }
+//     return data?.[key] ?? '';
+//   };
+
+//   return (
+//     <A4PageWrapper>
+//       <div className="h-full flex flex-col p-6">
+//         {/* Header with Logo */}
+//         <div className="flex justify-center mb-6">
+//         <img
+//             src={images?.infinityLogo}
+//             alt="Infinity Supports WA Logo"
+//             className="h-16 object-contain"
+//           />
+//         </div>
+
+//         {/* Content Area */}
+//         <div className="flex-1 flex flex-col">
+//           {/* Service Payments Section */}
+//           <div className="mb-8">
+//             <h2 className="font-bold text-sm mb-4 leading-loose">
+//               Service Payments (NDIS)
+//             </h2>
+
+//             <div className="space-y-5 text-sm">
+//               {/* First 3 dynamic checkboxes */}
+//               {schema.fields.slice(0, 3).map((field: Field) => (
+//                 <div key={field.key} className="leading-loose">
+//                   <label className="inline-flex items-start">
+//                     <input
+//                       type="checkbox"
+//                       checked={!!getValue(field.key)}
+//                       readOnly
+//                       className="mt-1 mr-2 scale-75 flex-shrink-0"
+//                     />
+//                     <span>{field.label}</span>
+//                   </label>
+//                 </div>
+//               ))}
+
+//               {/* 4th checkbox (planManagerManaged) + inputs */}
+//               <div className="leading-loose">
+//                 <label className="inline-flex items-start">
+//                   <input
+//                     type="checkbox"
+//                     checked={!!getValue("planManagerManaged")}
+//                     readOnly
+//                     className="mt-1 mr-2 scale-75 flex-shrink-0"
+//                   />
+//                   <span>
+//                     The Individual has nominated the Plan Management Provider{" "}
+//                     <span>
+//                       {getValue("planManagerName") || "________________________"}
+//                     </span>{" "}
+//                     to manage the funding for NDIS supports provided under this
+//                     Service Agreement. After providing those supports, Infinity
+//                     Supports WA will claim payment for those supports from{" "}
+//                     <span>
+//                       {getValue("fundingSource") || "________________________"}
+//                     </span>
+//                     .
+//                   </span>
+//                 </label>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* GST Section */}
+//           <div className="flex-1">
+//             <h2 className="font-bold text-sm mb-4 leading-loose">
+//               Goods and services tax (GST) / NDIS
+//             </h2>
+//             <p className="text-sm leading-loose mb-8">
+//               For the purposes of GST legislation, the Parties confirm that a
+//               supply of supports under this Service Agreement is a supply of one
+//               or more of the reasonable and necessary supports specified in the
+//               statement included, under subsection 33(2) of the National
+//               Disability Insurance Scheme Act 2013 (NDIS Act), in the
+//               Participant's NDIS plan currently in effect under section 37 of
+//               the NDIS Act.
+//             </p>
+
+//             {/* Responsibilities Heading */}
+//             <div>
+//               <p className="font-bold mb-3 text-sm leading-loose">
+//                 Responsibilities of Infinity Supports WA
+//               </p>
+//               <p className="text-sm leading-loose">
+//                 Infinity Supports WA agrees to:
+//               </p>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Footer */}
+//         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
+//         <div>Website: {settings?.company_website}</div>
+//           <div>{settings?.sa_delivery_of_supports}</div>
+//           <div>Review Date: {settings?.review_date}</div>
+//         </div>
+//       </div>
+//     </A4PageWrapper>
+//   );
+// };
+
+// export default Page3;
+
+
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 
@@ -9,39 +153,68 @@ interface Field {
 }
 
 interface Page3Props {
-  schema: { fields: Field[] };
-  data: Record<string, any>;
+  schema?: any;
+  data: any;
+  settings: any;
+  commonFieldsData: any;
+  images: any;
 }
 
-const Page3: React.FC<Page3Props> = ({ schema, data }) => {
+const Page3: React.FC<Page3Props> = ({
+  schema,
+  data,
+  commonFieldsData,
+  settings,
+  images,
+}) => {
+  const commonFieldMapping: Record<string, string> = {
+    givenNames: "name",
+    address: "street",
+    dob: "dob",
+    disability: "disability",
+    ndisNumber: "ndis",
+    state: "state",
+    street: "street",
+    postcode: "postCode",
+    email: "email",
+    homePhone: "phone",
+    sex: "sex",
+  };
+
+  const getValue = (key: string) => {
+    if (commonFieldMapping[key]) {
+      return commonFieldsData?.[commonFieldMapping[key]] ?? "";
+    }
+    return data?.[key] ?? "";
+  };
+
   return (
     <A4PageWrapper>
-      <div className="h-full flex flex-col p-6">
-        {/* Header with Logo */}
+      <div className="flex flex-col h-full flex-1 px-6 pt-6 pb-3 text-base leading-relaxed text-justify"
+              style={{ lineHeight: '2.5' }}
+>
+        {/* Header / Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/infinity_logo.png"
+            src={images?.infinityLogo || "/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
         </div>
 
-        {/* Content Area */}
+        {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Service Payments Section */}
-          <div className="mb-8">
-            <h2 className="font-bold text-sm mb-4 leading-loose">
-              Service Payments (NDIS)
-            </h2>
-
-            <div className="space-y-5 text-sm">
-              {/* Render first 3 checkboxes dynamically */}
-              {schema.fields.slice(0, 3).map((field) => (
-                <div key={field.key} className="leading-loose">
+          <div className="mb-6">
+            <h2 className="font-bold mb-4">Service Payments (NDIS)</h2>
+            <div className="space-y-5">
+              {/* First 3 checkboxes */}
+              {schema?.fields?.slice(0, 3)?.map((field: Field) => (
+                <div key={field.key}>
                   <label className="inline-flex items-start">
                     <input
                       type="checkbox"
-                      checked={!!data[field.key]}
+                      checked={!!getValue(field.key)}
                       readOnly
                       className="mt-1 mr-2 scale-75 flex-shrink-0"
                     />
@@ -50,27 +223,27 @@ const Page3: React.FC<Page3Props> = ({ schema, data }) => {
                 </div>
               ))}
 
-              {/* Hardcoded 4th checkbox with inputs */}
-              <div className="leading-loose">
+              {/* Plan Manager Managed */}
+              <div>
                 <label className="inline-flex items-start">
                   <input
                     type="checkbox"
-                    checked={!!data["planManagerManaged"]}
+                    checked={!!getValue("planManagerManaged")}
                     readOnly
                     className="mt-1 mr-2 scale-75 flex-shrink-0"
                   />
                   <span>
                     The Individual has nominated the Plan Management Provider{" "}
-                    <span>
-                      {data["planManagerName"] || "________________________"}
-                    </span>
+                    <span className="font-semibold underline">
+                      {getValue("planManagerName") || "________________________"}
+                    </span>{" "}
                     to manage the funding for NDIS supports provided under this
                     Service Agreement. After providing those supports, Infinity
                     Supports WA will claim payment for those supports from{" "}
-                    <span>
-                      {data["fundingSource"] || "________________________"}
+                    <span className="font-semibold underline">
+                      {getValue("fundingSource") || "________________________"}
                     </span>
-                    .{" "}
+                    .
                   </span>
                 </label>
               </div>
@@ -78,26 +251,25 @@ const Page3: React.FC<Page3Props> = ({ schema, data }) => {
           </div>
 
           {/* GST Section */}
-          <div className="flex-1">
-            <h2 className="font-bold text-sm mb-4 leading-loose">
-              Goods and services tax (GST) / NDIS
-            </h2>
-            <p className="text-sm leading-loose mb-8">
-              For the purposes of GST legislation, the Parties confirm that a
-              supply of supports under this Service Agreement is a supply of one
-              or more of the reasonable and necessary supports specified in the
-              statement included, under subsection 33(2) of the National
-              Disability Insurance Scheme Act 2013 (NDIS Act), in the
-              Participant's NDIS plan currently in effect under section 37 of
-              the NDIS Act.
-            </p>
+          <div>
+            <h2 className="font-bold mb-4">Goods and Services Tax (GST) / NDIS</h2>
+            <div className="mb-6">
+              <p className="mb-0 font-medium">
+                For the purposes of GST legislation, the Parties confirm that a
+                supply of supports under this Service Agreement is a supply of
+                one or more of the reasonable and necessary supports specified
+                in the statement included, under subsection 33(2) of the
+                National Disability Insurance Scheme Act 2013 (NDIS Act), in the
+                Participant's NDIS plan currently in effect under section 37 of
+                the NDIS Act.
+              </p>
+            </div>
 
-            {/* Responsibilities Heading */}
             <div>
-              <p className="font-bold mb-3 text-sm leading-loose">
+              <p className="font-bold mb-3">
                 Responsibilities of Infinity Supports WA
               </p>
-              <p className="text-sm leading-loose">
+              <p>
                 Infinity Supports WA agrees to:
               </p>
             </div>
@@ -105,10 +277,10 @@ const Page3: React.FC<Page3Props> = ({ schema, data }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF008A</div>
-          <div>Review Date: 14/03/2026</div>
+        <div className="mt-auto pt-3 border-t border-gray-200 flex justify-between items-center text-xs font-bold">
+          <div>Website: {settings?.company_website}</div>
+          <div>{settings?.sa_delivery_of_supports}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </div>
       </div>
     </A4PageWrapper>

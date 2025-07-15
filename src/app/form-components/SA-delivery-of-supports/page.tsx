@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Page1 from "./page_1";
 import Page2 from "./page_2";
 import Page3 from "./page_3";
@@ -229,60 +229,13 @@ const formSchema  : any = {
   },
 };
 
-// export const formData = {
-//   //page1
-//   agreementDate: "2024-11-01",
-//   ndisNumber: "NDIS-789456123",
-//   surname: "Smith",
-//   givenNames: "John Michael",
-//   sex: "Male",
-//   pronoun: "He/Him",
-//   indigenousStatus: "No",
-//   preferredName: "Johnny",
-//   dob: "1995-07-20",
-//   street: "123 Example Street",
-//   state: "WA",
-//   postcode: "6000",
-//   email: "john.smith@example.com",
-//   homePhone: "08 9123 4567",
-//   mobilePhone: "0412 345 678",
-//   //page2
-//   subjectToSection73G: true,
-//   isNonVerbal: false,
-//   noCopyRequested: true,
-//   planAttached: false,
-//   planNotAttached: true,
-//   //page3
-//   selfManaged: true,
-//   nomineeManaged: false,
-//   ndiaManaged: true,
-//   planManagerManaged: false,
-//   planManagerName: 'ABC Plan Management',
-//   fundingSource: 'XYZ Funds Pty Ltd',
-  
 
-//   //page9
-//   mediaConsent: "Yes",
-//   infoSharingConsent: "No",
-//   othersInfoSharingConsent: "Legal Guardian/Next of Kin",
-//   moneyHandlingConsent: "Yes",
-//   ndisAuditConsent: "Yes",
-//   participantSignature: "base64-data-or-url",
-//   participantSignatureDate: "2025-07-14",
-//   participantName: "John Doe",
-//   nomineeSignature: "test",
-//   nomineeSignatureDate: "test",
-//   nomineeName: "test",
-//   providerSignature: "test",
-//   providerSignatureDate: "test",
-//   providerName: "test",
-//   signatureOfParticipant: "base64-data-or-url",
-//   signatureOfNominee: "base64-data-or-url",
-//   signatureOnBehalfOfInfinitySupportsWA: "base64-data-or-url",
-
-// };
 
 const SADeliverySupports = ({formData, commonFieldsData, settings} : any) => {
+
+
+
+
   return (
     <div>
       <Page1 schema={formSchema.page1} data={formData} settings={settings} commonFieldsData={commonFieldsData} />

@@ -6,6 +6,7 @@ import { FaPlus, FaEdit, FaEye, FaTrash, FaFileAlt, FaFilter, FaSearch, FaSort, 
 import { getClients, deleteClient } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useConfirm } from '@/components/ui/Confirm';
+import useRequireAuth from '../../hooks/useRequireAuth';
 
 // Define client type
 type Client = {
@@ -41,6 +42,8 @@ type FilterState = {
 };
 
 export default function ClientsPageClient() {
+  const { session, status } = useRequireAuth();
+
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -306,6 +309,9 @@ export default function ClientsPageClient() {
     }
   };
   
+
+  if (status === 'loading' || !session) return null;
+
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
