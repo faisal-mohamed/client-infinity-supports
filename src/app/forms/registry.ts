@@ -11,6 +11,9 @@ import PersonCentredPlanEdit from '@/app/components/forms/person_centred_plan/Ed
 import SADeliverySupports from '@/app/form-components/SA-delivery-of-supports/page';
 import SADeliverySupportsEdit from '../components/forms/sa-delivery-of-supports/Edit';
 
+import ParticipantRiskAssessment from '@/app/form-components/participant-risk-assessment/page';
+import ParticipantRiskAssessmentEdit from '../components/forms/participant-risk-assessment/Edit_2';
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -91,6 +94,29 @@ const formRegistry: Record<string, FormRegistryItem> = {
         required: true,
         dataKey: 'providerSignature' 
       },
+    ]
+  },
+  'participant_risk_assessment': {
+    key: 'participant_risk_assessment',
+    name: 'Participant Risk Assessment',
+    viewComponent: ParticipantRiskAssessment,
+    editComponent: ParticipantRiskAssessmentEdit,
+    signatures: [
+      {
+        id: 'staff_signature',
+        label: 'Authorised by',
+        description: 'Signature of the Staff Member',
+        required: true,
+        dataKey: 'signature' 
+      },
+        {
+        id: 'participant_signature',
+        label: 'Participant Signature',
+        description: 'Signature of the Participant',
+        required: true,
+        dataKey: 'guardianSignature' 
+      },
+     
     ]
   },
 };

@@ -48,8 +48,8 @@ const Page3: React.FC<Page3Props> = ({ formData }) => {
                     </label>
                   </div>
                 </td>
-                <td className="border border-black w-[40px]"></td>
-                <td className="border border-black w-[120px]"></td>
+                <td className="border border-black w-[40px]">{formData?.noiseSensitiveRating}</td>
+                <td className="border border-black w-[120px]">{formData?.noiseSensitiveComment}</td>
               </tr>
 
               {/* Question 11 */}
@@ -70,7 +70,7 @@ const Page3: React.FC<Page3Props> = ({ formData }) => {
                     </label>
                   </div>
                 </td>
-                <td className="border border-black"></td>
+                <td className="border border-black">{formData?.familyBehavioralHistoryRating}</td>
                 <td className="border border-black px-2 py-2 align-top">
                   Is there a behaviour practitioner involved?
                   <div className="mt-2 flex flex-col gap-1">
@@ -105,8 +105,8 @@ const Page3: React.FC<Page3Props> = ({ formData }) => {
                     </label>
                   </div>
                 </td>
-                <td className="border border-black"></td>
-                <td className="border border-black"></td>
+                <td className="border border-black">{formData?.mobilityIssuesRating}</td>
+                <td className="border border-black">{formData?.mobilityIssuesComment}</td>
               </tr>
 
               {/* Question 13 */}
@@ -129,8 +129,8 @@ const Page3: React.FC<Page3Props> = ({ formData }) => {
                     </label>
                   </div>
                 </td>
-                <td className="border border-black"></td>
-                <td className="border border-black"></td>
+                <td className="border border-black">{formData?.showeringToiletingHazardsRating}</td>
+                <td className="border border-black">{formData?.showeringToiletingHazardsComment}</td>
               </tr>
 
               {/* Question 14 */}
@@ -169,7 +169,7 @@ const Page3: React.FC<Page3Props> = ({ formData }) => {
                     </p>
                   )}
                 </td>
-                <td className="border border-black"></td>
+                <td className="border border-black">{formData?.medicationRespDepressionRating}</td>
                 <td className="border border-black px-2 py-2 align-top">
                   {formData?.medicationRiskYesNo === 'yes' && formData?.medicationRiskComment}
                 </td>

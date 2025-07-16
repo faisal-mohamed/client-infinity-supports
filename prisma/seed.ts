@@ -46,6 +46,12 @@ async function main() {
       version: 1,
       requiresSignature: true,
     },
+    {
+      formKey: 'participant_risk_assessment',
+      title: 'Participant Risk Assessment',
+      version: 1,
+      requiresSignature: true,
+    }
   ];
 
   for (const form of forms) {

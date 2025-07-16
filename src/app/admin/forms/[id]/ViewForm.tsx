@@ -9,6 +9,7 @@ import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view"
 import { fetchFormSpecificSettings, fetchSettings } from "@/lib/settings";
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
+import ParticipantRiskAssessment from "@/app/form-components/participant-risk-assessment/page";
 
 // Types for settings
 interface AppSetting {
@@ -267,6 +268,8 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <PersonCentredPlanView formKey={form.formKey} settings={settings} />
                 ) : form.formKey === "sa_delivery_of_supports" ? (
                   <SADeliverySupports formKey={form.formKey} settings={settings} />
+                ) : form.formKey === "participant_risk_assessment" ? (
+                  <ParticipantRiskAssessment formKey={form.formKey} settings={settings} />
                 ) : (
                   <div className="text-center py-16">
                     <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
