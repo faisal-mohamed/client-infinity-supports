@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import Page1 from "./page_1";
 import Page2 from "./page_2";
@@ -429,9 +428,6 @@ page11: {
 const ParticipantRiskAssessment = ({formData, commonFieldsData, settings}: any) => {
   const totalPages = 13;
 
-  useEffect(() => {
-    console.log("Participant Risk Assessment Form Data:", settings);
-  }, [settings]);
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">

@@ -138,6 +138,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'participant_risk_assessment',
+    value: 'CF0080',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Participant Risk Assessment ID',
+    description: 'Unique identifier for Participant Risk Assessment forms',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

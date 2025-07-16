@@ -99,6 +99,19 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         };
         break;
 
+        case "participant_risk_assessment":
+        images = {
+          infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+        };
+
+        componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {}
+        };
+        break;
+
       default:
         componentProps = { 
           formData, 

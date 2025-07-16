@@ -5,6 +5,7 @@ import ClientIntakev2 from './ClientIntakev2';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page'; // Assuming this is the correct import path
 import SADeliverySupports from './SA-delivery-of-supports/page';
+import ParticipantRiskAssessment from './participant-risk-assessment/page'; // Assuming this is the correct import path
 
 
 // Interface for PDF form components
@@ -36,6 +37,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'sa_delivery_of_supports',
     component: SADeliverySupports,
     name: 'SA Delivery of Supports',
+  },
+  {
+    formKey: 'participant_risk_assessment',
+    component: ParticipantRiskAssessment,
+    name: 'Participant Risk Assessment',
   }
   
 ];

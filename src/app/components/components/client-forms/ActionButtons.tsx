@@ -86,19 +86,20 @@ export default function ActionButtons({
             {/* Enhanced Status Display */}
             <div className="flex-shrink-0">
               {selectedForms.length > 0 ? (
-                <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl p-4 shadow-md">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-green-500 text-white shadow-md">
-                      <FaCheckCircle className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-green-700">
-                        {selectedForms.length} Form{selectedForms.length > 1 ? 's' : ''}
-                      </div>
-                      <div className="text-sm font-medium text-green-600">Selected for Action</div>
-                    </div>
-                  </div>
-                </div>
+                // <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl p-4 shadow-md">
+                //   <div className="flex items-center gap-3">
+                //     <div className="p-2 rounded-lg bg-green-500 text-white shadow-md">
+                //       <FaCheckCircle className="h-5 w-5" />
+                //     </div>
+                //     <div>
+                //       <div className="text-lg font-bold text-green-700">
+                //         {selectedForms.length} Form{selectedForms.length > 1 ? 's' : ''}
+                //       </div>
+                //       <div className="text-sm font-medium text-green-600">Selected for Action</div>
+                //     </div>
+                //   </div>
+                // </div>
+                <></>
               ) : (
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4 shadow-md">
                   <div className="flex items-center gap-3">

@@ -46,7 +46,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-export const FORM_SECTIONS = [
+export const FORM_SECTIONS : any = [
   {
     id: "participantDetails",
     title: "Participant Details",
@@ -68,26 +68,17 @@ export const FORM_SECTIONS = [
   },
   {
     id: "knownMedicalConditions",
-    title: "Known Medical Conditions",
+    title: "Medical Conditions & Emergency Contact",
     icon: FaNotesMedical,
     description: "Medical background of the participant",
-    fields: ["medicalSpecify", "medicalEffect", "medicalTreatment"],
-    requiredFields: []
-
-  },
-  {
-    id: "emergencyContact",
-    title: "Emergency Contact",
-    icon: FaPhoneAlt,
-    description: "Emergency contact information",
-    fields: [
-      "emergencyContactName",
+    fields: ["medicalSpecify", "medicalEffect", "medicalTreatment",  "emergencyContactName",
       "emergencyContactPhone",
-      "emergencyContactEmail",
-    ],
+      "emergencyContactEmail",],
     requiredFields: []
 
   },
+  
+  
   {
     id: "personsInvolved",
     title: "Persons Involved",
@@ -260,17 +251,20 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
 
-  const [activeRiskRows, setActiveRiskRows] = useState<number[]>([1]); // start with 1 row
+    
 
 const addRiskRow = () => {
   const next = Math.max(...activeRiskRows) + 1;
-  if (next <= 10) setActiveRiskRows([...activeRiskRows, next]);
+  if (next <= 10) {
+    setActiveRiskRows((prev) => [...prev, next]);
+  }
 };
 
 
+
   // Signature canvas ref
-  const sigCanvasRef = useRef<SignatureCanvasRef | null>(null);
-    const sigCanvasRefGuardian = useRef<SignatureCanvasRef | null>(null);
+  const sigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
+    const sigCanvasRefGuardian : any = useRef<SignatureCanvasRef | null>(null);
 
 
   const initialValues = {
@@ -393,6 +387,26 @@ const addRiskRow = () => {
     ...formData,
   };
 
+
+  const getInitialRiskRows = (formValues: Record<string, any>) => {
+  const rows: number[] = [];
+  for (let i = 1; i <= 10; i++) {
+    const hasValue =
+      formValues[`issue${i}`] ||
+      formValues[`score${i}`] ||
+      formValues[`control${i}`] ||
+      formValues[`person${i}`];
+    if (hasValue) rows.push(i);
+  }
+  return rows.length > 0 ? rows : [1]; // fallback to 1 row if nothing is filled
+};
+
+const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
+  getInitialRiskRows(initialValues)
+);
+
+
+
   // Initialize local values with form data, but common fields will be displayed from commonFieldsData
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -488,7 +502,7 @@ const addRiskRow = () => {
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key) => {
+    return required.every((key : any ) => {
       let value;
 
       // For common fields, get value from commonFieldsData
@@ -717,9 +731,10 @@ const addRiskRow = () => {
   const renderSignatureField = (
     label: string,
     name: string,
+        signatureRef: any,
+
     placeholder?: string,
     required?: boolean,
-    signatureRef: any,
 
   ) => (
     <div className="flex flex-col gap-1">
@@ -859,7 +874,7 @@ const addRiskRow = () => {
       options: ratingOptions,
     },
     risk2: {
-      label: "Is there a safe evacuation point at your home?",
+      label: "Is there a safe evacuation point at your home? If yes comment the location",
       type: "dropdown",
       options: yesNoOptions,
       showComments: true,
@@ -1196,7 +1211,7 @@ const addRiskRow = () => {
 
 
   const handleSeverityChange = (value: string) => {
-  setLocalValues((prev) => ({
+  setLocalValues((prev : any) => ({
     ...prev,
     selectedRiskLevel: value,
     riskLevelLow: value === "Low",
@@ -1364,8 +1379,8 @@ const renderDropdownSeverityRisk = (
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
 
-    FORM_SECTIONS.forEach((section) => {
-      section.requiredFields.forEach((fieldName) => {
+    FORM_SECTIONS.forEach((section : any ) => {
+      section.requiredFields.forEach((fieldName : any ) => {
         let value;
 
         // For common fields, get value from commonFieldsData
@@ -1475,7 +1490,7 @@ const renderDropdownSeverityRisk = (
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section, idx) => {
+          {FORM_SECTIONS.map((section : any , idx : any ) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -1618,7 +1633,7 @@ const renderDropdownSeverityRisk = (
   ) : (
     // Default layout
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {FORM_SECTIONS[currentStep].fields.map((field) => {
+      {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
         const meta = FIELD_METADATA[field] || { label: field, type: "text" };
         const required = isFieldRequired(field);
 
@@ -1649,14 +1664,14 @@ const renderDropdownSeverityRisk = (
         if (meta.type === "signature") {
           return (
             <div key={field} className="md:col-span-2">
-              {renderSignatureField(meta.label, "signature", meta.placeholder, required, sigCanvasRef)}
+              {renderSignatureField(meta.label, "signature", sigCanvasRef, meta.placeholder, true)}
             </div>
           );
         }
         if (meta.type === "signatureGuardian") {
           return (
             <div key={field} className="md:col-span-2">
-              {renderSignatureField(meta.label, "guardianSignature", meta.placeholder, required, sigCanvasRefGuardian)}
+              {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
             </div>
           );
         }
@@ -1678,7 +1693,7 @@ const renderDropdownSeverityRisk = (
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_, index) => (
+            {FORM_SECTIONS.map((_ : any , index : any) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${

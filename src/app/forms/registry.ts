@@ -11,7 +11,7 @@ import PersonCentredPlanEdit from '@/app/components/forms/person_centred_plan/Ed
 import SADeliverySupports from '@/app/form-components/SA-delivery-of-supports/page';
 import SADeliverySupportsEdit from '../components/forms/sa-delivery-of-supports/Edit';
 
-import ParticipantRiskAssessment from '@/app/form-components/participant-risk-assessment/page';
+import ParticipantRiskAssessmentView from '@/components/participant-risk-assessment/view';
 import ParticipantRiskAssessmentEdit from '../components/forms/participant-risk-assessment/Edit_2';
 
 // Signature requirement interface
@@ -99,7 +99,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   'participant_risk_assessment': {
     key: 'participant_risk_assessment',
     name: 'Participant Risk Assessment',
-    viewComponent: ParticipantRiskAssessment,
+    viewComponent: ParticipantRiskAssessmentView,
     editComponent: ParticipantRiskAssessmentEdit,
     signatures: [
       {
