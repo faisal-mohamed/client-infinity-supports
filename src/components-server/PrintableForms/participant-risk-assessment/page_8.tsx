@@ -6,9 +6,10 @@ interface Page8Props {
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings, images }) => {
   const rows = schema?.riskRows?.slice?.(4) || []; // Rows 5 to 10
 
   return (
@@ -17,7 +18,7 @@ const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings 
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
-            src='/infinity_logo.png'
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

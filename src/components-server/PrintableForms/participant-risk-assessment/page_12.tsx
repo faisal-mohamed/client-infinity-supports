@@ -3,14 +3,14 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 
-const Page12: React.FC<any> = ({data, commonFieldsData, settings, schema} : any) => {
+const Page12: React.FC<any> = ({data, commonFieldsData, settings, schema, images} : any) => {
   return (
     <A4PageWrapper>
       <div className="flex flex-col h-full w-full px-6 pt-6 pb-4 font-sans text-[11px]">
         {/* Header */}
        <div className="flex justify-center pt-6 pb-4">
-          <img
-            src='/infinity_logo.png'
+         <img
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

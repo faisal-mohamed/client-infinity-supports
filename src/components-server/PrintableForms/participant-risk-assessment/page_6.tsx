@@ -14,9 +14,10 @@ interface Page6Props {
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings }) => {
+const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings, images }) => {
   const getCheckboxValue = (key: string) => data?.[key] === true;
 
   return (
@@ -24,8 +25,8 @@ const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings 
       <div className="flex flex-col h-full text-sm font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
-          <img
-            src='/infinity_logo.png'
+       <img
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

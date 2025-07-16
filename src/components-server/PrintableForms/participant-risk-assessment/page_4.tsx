@@ -12,6 +12,7 @@ interface Page4Props {
   data: Record<string, string>;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
 const Page4: React.FC<Page4Props> = ({
@@ -19,6 +20,7 @@ const Page4: React.FC<Page4Props> = ({
   schema,
   settings,
   commonFieldsData,
+  images
 }) => {
   const fields = schema?.fields || [];
 
@@ -36,7 +38,7 @@ const Page4: React.FC<Page4Props> = ({
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
-            src="/infinity_logo.png"
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

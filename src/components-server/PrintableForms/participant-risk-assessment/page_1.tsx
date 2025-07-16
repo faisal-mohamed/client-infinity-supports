@@ -6,9 +6,10 @@ interface Page1Props {
   formData: Record<string, string>;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any
 }
 
-const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings }) => {
+const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings, images }) => {
   const commonFieldMapping: Record<string, string> = {
     givenNames: 'name',
     address: 'street',
@@ -37,7 +38,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
-            src="/infinity_logo.png"
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

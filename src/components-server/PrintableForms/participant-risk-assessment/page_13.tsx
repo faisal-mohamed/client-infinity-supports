@@ -8,7 +8,7 @@ interface Page13Props {
   data: any;
 }
 
-const Page13: React.FC<any> = ({ data, commonFieldsData, settings, schema } : any) => {
+const Page13: React.FC<any> = ({ data, commonFieldsData, settings, schema, images } : any) => {
   const getValue = (key: string) => data?.[key] ?? '';
 
   return (
@@ -18,11 +18,11 @@ const Page13: React.FC<any> = ({ data, commonFieldsData, settings, schema } : an
         <div className="flex flex-col">
           {/* Logo */}
           <div className="flex justify-center mt-10 mb-20">
-            <img
-              src='/infinity_logo.png'
-              alt="Infinity Supports WA logo"
-              className="w-[200px] h-[70px]"
-            />
+          <img
+            src={`${images?.infinityLogo}`}
+            alt="Infinity Supports WA logo"
+            className="h-[60px] w-[150px] object-contain"
+          />
           </div>
 
           {/* Table */}

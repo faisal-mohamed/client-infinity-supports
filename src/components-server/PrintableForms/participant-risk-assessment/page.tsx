@@ -425,29 +425,29 @@ page11: {
 
 // };
 
-const ParticipantRiskAssessment = ({formData, commonFieldsData, settings}: any) => {
+const ParticipantRiskAssessment = ({formData, commonFieldsData, settings, images}: any) => {
   const totalPages = 13;
 
 
   return (
     <div className="bg-gray-100 min-h-screen py-8">
-        <Page1 schema={riskAssessmentSchema.page1} formData={formData} commonFieldsData={commonFieldsData} settings={settings} />
-        <Page2 schema={riskAssessmentSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
-        <Page3 schema={riskAssessmentSchema.page3} formData={formData} commonFieldsData={commonFieldsData} settings={settings}  />
-        <Page4 schema={riskAssessmentSchema.page4} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
-        <Page5 schema={riskAssessmentSchema.page5} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
-        <Page6 schema={riskAssessmentSchema.page6} data={formData}  commonFieldsData={commonFieldsData} settings={settings} />
-        <Page7 schema={riskAssessmentSchema.page7} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
- 
-        <Page8 schema={riskAssessmentSchema.page7} data={formData}  commonFieldsData={commonFieldsData} settings={settings} />
-      
-        <Page9 schema={riskAssessmentSchema.page9} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
-        <Page10 schema={riskAssessmentSchema.page10} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
-        <Page11 data={formData} schema={riskAssessmentSchema.page11} commonFieldsData={commonFieldsData} settings={settings} />
+        <Page1 schema={riskAssessmentSchema.page1} formData={formData} commonFieldsData={commonFieldsData} settings={settings} images={images} />
+        <Page2 schema={riskAssessmentSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
+        <Page3 schema={riskAssessmentSchema.page3} formData={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
+        <Page4 schema={riskAssessmentSchema.page4} data={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
+        <Page5 schema={riskAssessmentSchema.page5} data={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
+        <Page6 schema={riskAssessmentSchema.page6} data={formData}  commonFieldsData={commonFieldsData} settings={settings} images={images} />
+        <Page7 schema={riskAssessmentSchema.page7} data={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
 
-        <Page12 commonFieldsData={commonFieldsData} settings={settings} />
+        <Page8 schema={riskAssessmentSchema.page7} data={formData}  commonFieldsData={commonFieldsData} settings={settings} images={images} />
 
-        <Page13 schema={riskAssessmentSchema.page13} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
+        <Page9 schema={riskAssessmentSchema.page9} data={formData} commonFieldsData={commonFieldsData} settings={settings}  images={images} />
+        <Page10 schema={riskAssessmentSchema.page10} data={formData} commonFieldsData={commonFieldsData} settings={settings} images={images} />
+        <Page11 data={formData} schema={riskAssessmentSchema.page11} commonFieldsData={commonFieldsData} settings={settings} images={images} />
+
+        <Page12 commonFieldsData={commonFieldsData} settings={settings} images={images} />
+
+        <Page13 schema={riskAssessmentSchema.page13} data={formData} commonFieldsData={commonFieldsData} settings={settings} images={images} />
     </div>
   );
 };

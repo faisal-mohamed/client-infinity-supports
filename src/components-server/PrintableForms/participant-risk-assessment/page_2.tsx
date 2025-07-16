@@ -6,16 +6,17 @@ interface Page2Props {
   data: Record<string, string>;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings, images }) => {
   return (
     <A4PageWrapper>
       <div className="flex flex-col h-full text-sm font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
-          <img
-            src='/infinity_logo.png'
+        <img
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

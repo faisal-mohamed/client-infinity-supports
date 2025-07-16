@@ -14,9 +14,10 @@ interface Page5Props {
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page5: React.FC<Page5Props> = ({ data, schema, settings }) => {
+const Page5: React.FC<Page5Props> = ({ data, schema, settings, images }) => {
   const getCheckboxValue = (key: string) => data?.[key] === true;
 
   return (
@@ -25,7 +26,7 @@ const Page5: React.FC<Page5Props> = ({ data, schema, settings }) => {
         {/* Header with Logo */}
        <div className="flex justify-center pt-6 pb-4">
           <img
-            src='/infinity_logo.png'
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

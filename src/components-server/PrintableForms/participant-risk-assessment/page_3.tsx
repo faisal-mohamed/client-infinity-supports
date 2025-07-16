@@ -8,9 +8,10 @@ interface Page3Props {
   formData: Record<string, string>;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, settings }) => {
+const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, settings, images }) => {
   const isChecked = (fieldKey: string, value: string) =>
     formData?.[fieldKey]?.toLowerCase() === value.toLowerCase();
 
@@ -23,7 +24,7 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
-            src="/infinity_logo.png"
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />

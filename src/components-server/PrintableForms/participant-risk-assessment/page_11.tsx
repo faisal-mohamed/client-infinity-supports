@@ -6,9 +6,10 @@ interface Page11Props {
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
+  images?: any;
 }
 
-const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, settings, images }) => {
   const getValue = (key: string) => data?.[key] ?? "";
 
   return (
@@ -16,8 +17,8 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
       <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-[11px]">
         {/* Header */}
         <div className="flex justify-center pt-6 pb-4">
-          <img
-            src="/infinity_logo.png"
+         <img
+            src={`${images?.infinityLogo}`}
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />
