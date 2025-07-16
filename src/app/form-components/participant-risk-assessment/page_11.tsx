@@ -1,115 +1,149 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 
-const Page11: React.FC = () => {
+interface Page11Props {
+  schema: any;
+  data: Record<string, any>;
+}
+
+const Page11: React.FC<Page11Props> = ({ schema, data }) => {
+  const getValue = (key: string) => data?.[key] ?? "";
+
   return (
     <A4PageWrapper>
-      <div className="w-full px-6 pt-6 pb-12 font-sans text-[11px]">
+      <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-[11px]">
         {/* Header */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center pt-6 pb-4">
           <img
-            src="https://storage.googleapis.com/a1aa/image/d684d4de-a488-4727-5980-1b5f4e74e525.jpg"
-            alt="Infinity Supports WA Logo"
-            className="h-20 object-contain"
+            src="/infinity_logo.png"
+            alt="Infinity Supports WA logo"
+            className="h-[60px] w-[150px] object-contain"
           />
         </div>
 
-        {/* Pandemic and Communication Table */}
-        <table className="w-full border border-black border-collapse mb-12">
-          <tbody>
-            <tr>
-              <td className="border border-black p-2 align-top">Pandemic</td>
-              <td className="border border-black p-2 align-top">
-                Client will reside with family, have essential supports and
-                daily phone check ins
-              </td>
-            </tr>
-            <tr className="bg-gray-300 font-bold text-black">
-              <td className="border border-black p-2" colSpan={2}>
-                Mode of Communication assessment for non-verbal participants
-                (e.g., Sign language, pictures, body movement)
-              </td>
-            </tr>
-            <tr className="font-bold text-black">
-              <td className="border border-black p-2">
-                Possible scenarios of concern
-              </td>
-              <td className="border border-black p-2">Mode of communication</td>
-            </tr>
-            <tr>
-              <td className="border border-black p-2">&nbsp;</td>
-              <td className="border border-black p-2">&nbsp;</td>
-            </tr>
-            <tr>
-              <td className="border border-black p-2">&nbsp;</td>
-              <td className="border border-black p-2">&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
+        {/* Main content container */}
+        <div className="flex-1 flex flex-col gap-6">
+          {/* Pandemic and Communication Table */}
+          <table className="w-full border border-black border-collapse text-[10px]">
+            <tbody>
+              <tr>
+                <td className="border border-black p-2 align-top w-1/2">
+                  Pandemic
+                </td>
+                <td className="border border-black p-2 align-top">
+                  Client will reside with family, have essential supports and
+                  daily phone check-ins.
+                </td>
+              </tr>
+              <tr className="bg-gray-300 font-bold text-black">
+                <td className="border border-black p-2" colSpan={2}>
+                  Mode of Communication assessment for non-verbal participants
+                  (e.g., Sign language, pictures, body movement)
+                </td>
+              </tr>
+              <tr className="font-bold text-black">
+                <td className="border border-black p-2">
+                  Possible scenarios of concern
+                </td>
+                <td className="border border-black p-2">
+                  Mode of communication
+                </td>
+              </tr>
+              {[1, 2].map((i) => (
+                <tr key={i}>
+                  <td className="border border-black p-2 h-16 align-top">
+                    <div className="w-full h-full">
+                      {getValue(`scenario${i}`)}
+                    </div>
+                  </td>
+                  <td className="border border-black p-2 h-16 align-top">
+                    <div className="w-full h-full">{getValue(`mode${i}`)}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {/* Emergency Procedures */}
-        <div className="text-center font-bold text-sm mb-2">
-          What to do in an Emergency?
+          <br /><br /><br /><br /><br />
+
+          {/* Emergency Procedures Table */}
+          <div className="flex flex-col flex-grow">
+            <div className="text-center font-bold text-sm mb-2">
+              What to do in an Emergency?
+            </div>
+            <table className="w-full border border-black border-collapse text-[10px]">
+              <thead>
+                <tr className="bg-gray-300 font-bold text-black">
+                  <th className="border border-black p-1 text-left w-1/2">
+                    Evacuation Procedures
+                  </th>
+                  <th className="border border-black p-1 text-left w-1/2">
+                    FIRE
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black p-1 align-top">
+                    <div className="mt-1 space-y-1">
+                      <p>
+                        Upon hearing the alarm or when the situation requires
+                        the participant to leave the premises:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Prepare to evacuate.</li>
+                        <li>
+                          Get your environment ready to be left unattended. Shut
+                          down electrical/electronic devices; turn off gas if
+                          safe to do so.
+                        </li>
+                        <li>
+                          For fire, close the doors as you go – do not lock
+                          them. In the case of a bomb threat, leave doors open.
+                        </li>
+                        <li>Assist participant in immediate danger.</li>
+                      </ul>
+                    </div>
+                  </td>
+
+                  <td className="border border-black p-1 align-top">
+                    <ul className="list-disc list-inside space-y-1 mt-1">
+                      <li>
+                        Ring 000 and provide details of the fire then ring
+                        supervisor.
+                      </li>
+                      <li>
+                        Assist any person in immediate danger only if safe to do
+                        so.
+                      </li>
+                      <li>
+                        If safe to do so, close doors to minimise spread of
+                        fire.
+                      </li>
+                      <li>Attack the fire only if safe to do so.</li>
+                      <li>
+                        Contact the nearest warden and follow their instructions
+                        (if applicable).
+                      </li>
+                      <li>
+                        Assist with evacuation of participants with mobility
+                        issues.
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <table className="w-full border border-black border-collapse text-[10px] mb-12">
-          <thead>
-            <tr className="bg-gray-300 font-bold text-black">
-              <th className="border border-black p-1 text-left w-1/2">
-                Evacuation Procedures
-              </th>
-              <th className="border border-black p-1 text-left w-1/2">FIRE</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-black p-1 align-top">
-                Upon hearing the alarm or when the situation requires the
-                participant to leave the premises:
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>Prepare to evacuate.</li>
-                  <li>
-                    Get your environment ready to be left unattended. Shut down
-                    electrical/electronic devices; turn off gas if safe to do
-                    so.
-                  </li>
-                  <li>
-                    For fire, close the doors as you go – do not lock them. In
-                    the case of a bomb threat, leave doors open.
-                  </li>
-                  <li>Assist participant in immediate danger.</li>
-                </ul>
-              </td>
-              <td className="border border-black p-1 align-top">
-                <ul className="list-disc list-inside space-y-1">
-                  <li>
-                    Ring 000 and provide details of the fire then ring
-                    supervisor.
-                  </li>
-                  <li>
-                    Assist any person in immediate danger only if safe to do so.
-                  </li>
-                  <li>
-                    If safe to do so, close doors to minimise spread of fire.
-                  </li>
-                  <li>Attack the fire only if safe to do so.</li>
-                  <li>
-                    Contact the nearest warden and follow their instructions (if
-                    applicable)
-                  </li>
-                  <li>
-                    Assist with evacuation of participants with mobility issues.
-                  </li>
-                </ul>
-              </td>
-            </tr>
-          </tbody>
-        </table>
 
         {/* Footer */}
-        <div className="flex justify-between text-xs mt-8">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF013</div>
-          <div>Review Date: 13/02/2025</div>
+        <div className="pt-4 mt-4">
+          <div className="flex justify-between text-xs">
+            <span>Website: infinitysupportswa.org</span>
+            <span>CF013</span>
+            <span>Review Date: 13/02/2025</span>
+          </div>
         </div>
       </div>
     </A4PageWrapper>

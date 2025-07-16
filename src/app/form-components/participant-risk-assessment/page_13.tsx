@@ -1,3 +1,6 @@
+
+
+
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
@@ -6,72 +9,99 @@ interface Page13Props {
 }
 
 const Page13: React.FC<Page13Props> = ({ data }) => {
+  const getValue = (key: string) => data?.[key] ?? '';
+
   return (
     <A4PageWrapper>
-      <div className="flex justify-center mb-12">
-        <img
-          src="https://storage.googleapis.com/a1aa/image/95216824-fb3f-43b4-1046-cdf5ed2b2f5a.jpg"
-          alt="Infinity Supports WA Logo"
-          className="w-[200px] h-[60px] object-contain"
-        />
-      </div>
+      <div className="flex flex-col h-full justify-between bg-white font-sans text-sm">
+        {/* Top Section */}
+        <div className="flex flex-col">
+          {/* Logo */}
+          <div className="flex justify-center mt-10 mb-20">
+            <img
+              src='/infinity_logo.png'
+              alt="Infinity Supports WA logo"
+              className="w-[200px] h-[70px]"
+            />
+          </div>
 
-      <table className="w-full border border-black border-collapse text-[12px]">
-        <thead>
-          <tr className="bg-gray-300 font-bold text-center">
-            <th className="border border-black py-1" colSpan={5}>
-              Authorisation
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="border border-black px-2 py-1 w-1/3">Authorised by:</td>
-            <td className="border border-black px-2 py-1 w-1/3">{data.authorisedBy}</td>
-            <td className="border border-black px-2 py-1 w-1/3">Role:</td>
-            <td className="border border-black px-2 py-1" colSpan={2}>{data.authorisedRole}</td>
-          </tr>
-          <tr>
-            <td className="border border-black px-2 py-1">Signature:</td>
-            <td className="border border-black px-2 py-1">{data.authorisedSignature}</td>
-            <td className="border border-black px-2 py-1">Date:</td>
-            <td className="border border-black px-2 py-1" colSpan={2}>{data.authorisedDate}</td>
-          </tr>
-          <tr>
-            <td className="border border-black px-2 py-1">
-              Participant / Guardian <br /> Signature:
-            </td>
-            <td className="border border-black px-2 py-1">{data.participantSignature}</td>
-            <td className="border border-black px-2 py-1">Date:</td>
-            <td className="border border-black px-2 py-1" colSpan={2}>{data.participantDate}</td>
-          </tr>
-          <tr>
-            <td className="border border-black px-2 py-1 text-center align-middle w-1/4">
-              Is a copy supplied to the participant?
-            </td>
-            <td className="border border-black px-2 py-1 w-1/6" colSpan={1}>
-              {data.copySuppliedToParticipant}
-            </td>
-            <td className="border border-black px-2 py-1 text-center align-middle w-1/4">
-              Copy placed on file?
-            </td>
-            <td className="border border-black px-2 py-1 w-1/6">
-              {data.copyPlacedOnFile}
-            </td>
-            <td className="border border-black px-2 py-1 text-center align-middle w-1/4">
-              {data.dateForReview}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          {/* Table */}
+          <table className="w-full border border-black border-collapse text-center text-[12px]">
+            <thead>
+              <tr className="bg-gray-300 font-bold">
+                <th className="border border-black py-1">Authorisation</th>
+                <th className="border border-black"></th>
+                <th className="border border-black"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-black py-1 text-left px-2">Authorised by:</td>
+                <td className="border border-black">{getValue('authorisedBy')}</td>
+                <td className="border border-black text-left px-2">Role: {getValue('role')}</td>
+              </tr>
+              <tr>
+                <td className="border border-black py-1 text-left px-2">Signature:</td>
+                <td className="border border-black">{getValue('signature')}</td>
+                <td className="border border-black text-left px-2">Date: {getValue('signatureDate')}</td>
+              </tr>
+              <tr>
+                <td className="border border-black py-1 text-left px-2">
+                  Participant / Guardian
+                  <br />
+                  Signature:
+                </td>
+                <td className="border border-black">{getValue('guardianSignature')}</td>
+                <td className="border border-black text-left px-2">Date: {getValue('guardianDate')}</td>
+              </tr>
+              <tr>
+                <td className="border border-black py-1 text-left px-2">
+                  Is a copy supplied to the participant?
+                </td>
+                <td className="border border-black text-left px-2">
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={getValue('copySupplied') === 'yes'} readOnly />
+                    <span>YES</span>
+                  </label>
+                  <br />
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={getValue('copySupplied') === 'no'} readOnly />
+                    <span>NO</span>
+                  </label>
+                </td>
+                <td className="border border-black text-left px-2">
+                  Copy placed on file?
+                  <br />
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={getValue('copyOnFile') === 'yes'} readOnly />
+                    <span>YES</span>
+                  </label>
+                  <br />
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={getValue('copyOnFile') === 'no'} readOnly />
+                    <span>NO</span>
+                  </label>
+                </td>
+                <td className="border border-black text-left px-2">
+                  Date for Review: {getValue('reviewDate')}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <div className="flex justify-between text-[10px] mt-20 px-2">
-        <div>Website: infinitysupportswa.org</div>
-        <div>CF013</div>
-        <div>Review Date: 13/02/2025</div>
+        {/* Footer pinned to bottom */}
+        <footer className="mt-10 text-[10px] font-sans px-2">
+          <div className="max-w-3xl mx-auto flex justify-between">
+            <div>Website: infinitysupportswa.org</div>
+            <div>CF013</div>
+            <div>Review Date: 13/02/2025</div>
+          </div>
+        </footer>
       </div>
     </A4PageWrapper>
   );
 };
 
 export default Page13;
+

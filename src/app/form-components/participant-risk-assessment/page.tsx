@@ -1,5 +1,5 @@
 import React from "react";
-
+import A4PageWrapper from "./A4PageWrapper";
 import Page1 from "./page_1";
 import Page2 from "./page_2";
 import Page3 from "./page_3";
@@ -223,56 +223,43 @@ export const riskAssessmentSchema = {
   ],
 },
 page13: {
-  title: "Authorisation",
   fields: [
-    {
-      key: "authorisedBy",
-      label: "Authorised by",
-      type: "text"
-    },
-    {
-      key: "authorisedRole",
-      label: "Role",
-      type: "text"
-    },
-    {
-      key: "authorisedSignature",
-      label: "Signature",
-      type: "signature"
-    },
-    {
-      key: "authorisedDate",
-      label: "Date",
-      type: "date"
-    },
-    {
-      key: "participantSignature",
-      label: "Participant / Guardian Signature",
-      type: "signature"
-    },
-    {
-      key: "participantDate",
-      label: "Date",
-      type: "date"
-    },
-    {
-      key: "copySuppliedToParticipant",
-      label: "Is a copy supplied to the participant?",
-      type: "radio",
-      options: ["YES", "NO"]
-    },
-    {
-      key: "copyPlacedOnFile",
-      label: "Copy placed on file?",
-      type: "radio",
-      options: ["YES", "NO"]
-    },
-    {
-      key: "dateForReview",
-      label: "Date for Review",
-      type: "date"
-    }
+    { key: 'authorisedBy', label: 'Authorised by:', type: 'text' },
+    { key: 'role', label: 'Role:', type: 'text' },
+    { key: 'signature', label: 'Signature:', type: 'text' },
+    { key: 'signatureDate', label: 'Date:', type: 'date' },
+    { key: 'guardianSignature', label: 'Participant / Guardian Signature:', type: 'signature' },
+    { key: 'guardianDate', label: 'Date:', type: 'date' },
+    { key: 'copySupplied', label: 'Is a copy supplied to the participant?', type: 'checkbox' },
+    { key: 'copyOnFile', label: 'Copy placed on file?', type: 'checkbox' },
+    { key: 'reviewDate', label: 'Date for Review:', type: 'date' }
   ]
+},
+page11: {
+  communicationTable: {
+    fields: [
+      {
+        key: "scenario1",
+        label: "Possible scenarios of concern",
+        type: "text"
+      },
+      {
+        key: "mode1",
+        label: "Mode of communication",
+        type: "text"
+      },
+      {
+        key: "scenario2",
+        label: "Possible scenarios of concern",
+        type: "text"
+      },
+      {
+        key: "mode2",
+        label: "Mode of communication",
+        type: "text"
+      }
+    ]
+  }
 }
 
 };
@@ -408,34 +395,45 @@ export const formData = {
   person10: "Logistics Officer",
 
   //page 13
-  authorisedBy: "Manager",
-  authorisedRole: "Team Leader",
-  authorisedSignature: "John Smith",
-  authorisedDate: "2025-02-13",
-  participantSignature: "Jane Doe",
-  participantDate: "2025-02-13",
-  copySuppliedToParticipant: "",
-  copyPlacedOnFile: "",
-  dateForReview: ""
+  authorisedBy: 'Jane Smith',
+  role: 'Coordinator',
+  signature: 'Signed digitally',
+  signatureDate: '2025-07-15',
+  guardianSignature: 'John Doe',
+  guardianDate: '2025-07-15',
+  copySupplied: 'yes',
+  copyOnFile: 'no',
+  reviewDate: '2025-08-01',
+
+  //page 11
+  scenario1: "Client unable to speak due to anxiety",
+  mode1: "Uses picture cards",
+  scenario2: "Client disoriented in a new environment",
+  mode2: "Body movement and hand gestures"
 
 };
 
 const ParticipantRiskAssessment = () => {
+  const totalPages = 13;
   return (
-    <div>
-      <Page1 schema={riskAssessmentSchema.page1} formData={formData} />
-      <Page2 schema={riskAssessmentSchema.page2} data={formData} />
-      <Page3 schema={riskAssessmentSchema.page3} formData={formData} />
-      <Page4 schema={riskAssessmentSchema.page4} data={formData} />
-      <Page5 schema={riskAssessmentSchema.page5} data={formData} />
-      <Page6 schema={riskAssessmentSchema.page6} data={formData} />
-      <Page7 schema={riskAssessmentSchema.page7} data={formData} />
-      <Page8 schema={riskAssessmentSchema.page7} data={formData} />
-      <Page9/>
-      <Page10/>
-      <Page11/>
-      <Page12/>
-      <Page13 schema={riskAssessmentSchema.page13} data={formData} />
+    <div className="bg-gray-100 min-h-screen py-8">
+        <Page1 schema={riskAssessmentSchema.page1} formData={formData} />
+        <Page2 schema={riskAssessmentSchema.page2} data={formData} />
+        <Page3 schema={riskAssessmentSchema.page3} formData={formData} />
+        <Page4 schema={riskAssessmentSchema.page4} data={formData} />
+        <Page5 schema={riskAssessmentSchema.page5} data={formData} />
+        <Page6 schema={riskAssessmentSchema.page6} data={formData} />
+        <Page7 schema={riskAssessmentSchema.page7} data={formData} />
+ 
+        <Page8 schema={riskAssessmentSchema.page7} data={formData} />
+      
+        <Page9/>
+        <Page10/>
+        <Page11 data={formData} schema={riskAssessmentSchema.page11}/>
+      
+        <Page12/>
+      
+        <Page13 schema={riskAssessmentSchema.page13} data={formData} />
     </div>
   );
 };
