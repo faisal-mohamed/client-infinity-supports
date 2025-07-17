@@ -7,22 +7,23 @@ interface A4PageWrapperProps {
 
 const A4PageWrapper: React.FC<A4PageWrapperProps> = ({ children, className = '' }) => {
   return (
-    <div 
+    <div
       className={`
-        a4-page
-        w-[210mm] h-[297mm] 
-        mx-auto mb-8 
-        bg-white 
-        shadow-lg 
+        w-[210mm] h-[297mm]
+        mx-auto mb-8
+        bg-white
+        shadow-lg
         border border-gray-300
         flex flex-col
-        print:shadow-none 
+        print:shadow-none
         print:mb-0
         print:border-none
         ${className}
       `}
     >
-      {children}
+      <div className="p-[20mm] flex flex-col justify-between h-full">
+        {children}
+      </div>
     </div>
   );
 };

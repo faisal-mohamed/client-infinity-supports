@@ -432,8 +432,7 @@ const ParticipantRiskAssessment = ({formData, commonFieldsData, settings}: any) 
 
 
   return (
-    <div className="bg-gray-100 min-h-[297mm] flex flex-col">
-      <div className="flex-1 flex flex-col">
+    <div className="bg-gray-100 min-h-screen py-8">
         <Page1 schema={riskAssessmentSchema.page1} formData={formData} commonFieldsData={commonFieldsData} settings={settings} />
         <Page2 schema={riskAssessmentSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
         <Page3 schema={riskAssessmentSchema.page3} formData={formData} commonFieldsData={commonFieldsData} settings={settings}  />
@@ -441,13 +440,16 @@ const ParticipantRiskAssessment = ({formData, commonFieldsData, settings}: any) 
         <Page5 schema={riskAssessmentSchema.page5} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
         <Page6 schema={riskAssessmentSchema.page6} data={formData}  commonFieldsData={commonFieldsData} settings={settings} />
         <Page7 schema={riskAssessmentSchema.page7} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
+ 
         <Page8 schema={riskAssessmentSchema.page7} data={formData}  commonFieldsData={commonFieldsData} settings={settings} />
+      
         <Page9 schema={riskAssessmentSchema.page9} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
         <Page10 schema={riskAssessmentSchema.page10} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
         <Page11 data={formData} schema={riskAssessmentSchema.page11} commonFieldsData={commonFieldsData} settings={settings} />
+
         <Page12 commonFieldsData={commonFieldsData} settings={settings} />
+
         <Page13 schema={riskAssessmentSchema.page13} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
-      </div>
     </div>
   );
 };

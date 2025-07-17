@@ -1,10 +1,10 @@
 import React from 'react'
 import EmergencyDrill from '@/app/form-components/emergency-drill/page'
 
-const View = () => {
+const View = ({formData, settings, commonFieldsData} : any ) => {
   return (
     <div>
-        <EmergencyDrill />
+        <EmergencyDrill formData={formData} commonFieldsData={commonFieldsData} settings={settings} />
     </div>
   )
 }

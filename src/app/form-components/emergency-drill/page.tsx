@@ -57,48 +57,50 @@ const  formSchema = {
 };
 
 
-export const formData = {
-  drillDate: '2025-07-17',
-  drillTime: '10:30 AM',
-  clientName: 'John Doe',
-  supportWorkers: 'Alice, Bob',
-  supervisorNotified: 'Yes',
-  fire: true,
-  medical: false,
-  gas: true,
-  power: false,
-  natural: false,
-  security: true,
-  otherDrill: 'Cybersecurity lockdown drill',
-  planFollowed: 'Yes',
-  safetyProtocols: 'Yes',
-  servicesContacted: 'No',
-  clientResponse: 'Participated calmly and followed instructions.',
-  supportAction: 'Evacuated the client safely and reported to supervisor.',
+// export const formData = {
+//   drillDate: '2025-07-17',
+//   drillTime: '10:30 AM',
+//   clientName: 'John Doe',
+//   supportWorkers: 'Alice, Bob',
+//   supervisorNotified: 'Yes',
+//   fire: true,
+//   medical: false,
+//   gas: true,
+//   power: false,
+//   natural: false,
+//   security: true,
+//   otherDrill: 'Cybersecurity lockdown drill',
+//   planFollowed: 'Yes',
+//   safetyProtocols: 'Yes',
+//   servicesContacted: 'No',
+//   clientResponse: 'Participated calmly and followed instructions.',
+//   supportAction: 'Evacuated the client safely and reported to supervisor.',
 
-  //page2
-  whatWentWell: 'Evacuation process was smooth.',
-  challenges: 'Client hesitated to leave bedroom.',
-  unexpectedIssues: 'Alarm did not trigger automatically.',
-  procedureChanges: 'Install more visible exit signs.',
-  additionalTrainingRequired: 'Yes',
-  trainingDetails: 'Need refresher on fire extinguisher use.',
-  planUpdateNeeded: 'No',
-  planUpdateDetails: 'yes',
-  debriefConducted: 'Yes',
-  supervisorComments: 'Good job handling unexpected alarm issue.',
-  nextDrillDate: '2025-10-10',
-  supportWorkerSignature: 'Jane Doe',
-  supervisorSignature: 'Mark Smith',
-  signatureDate: '2025-07-18'
-};
+//   //page2
+//   whatWentWell: 'Evacuation process was smooth.',
+//   challenges: 'Client hesitated to leave bedroom.',
+//   unexpectedIssues: 'Alarm did not trigger automatically.',
+//   procedureChanges: 'Install more visible exit signs.',
+//   additionalTrainingRequired: 'Yes',
+//   trainingDetails: 'Need refresher on fire extinguisher use.',
+//   planUpdateNeeded: 'No',
+//   planUpdateDetails: 'yes',
+//   debriefConducted: 'Yes',
+//   supervisorComments: 'Good job handling unexpected alarm issue.',
+//   nextDrillDate: '2025-10-10',
+//   supportWorkerSignature: 'Jane Doe',
+//   supervisorSignature: 'Mark Smith',
+//   signatureDate: '2025-07-18'
+// };
 
 
-const EmergencyDrill = () => {
+const EmergencyDrill = ({formData, commonFieldsData, settings} : any) => {
+
+  
   return (
     <div>
-        <Page1 schema={formSchema.page1} data={formData} />
-        <Page2 schema={formSchema.page2} data={formData} />
+        <Page1 schema={formSchema.page1} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
+        <Page2 schema={formSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
     </div>
   )
 }

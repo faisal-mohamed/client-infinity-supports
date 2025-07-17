@@ -10,6 +10,7 @@ import { fetchFormSpecificSettings, fetchSettings } from "@/lib/settings";
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
 import ParticipantRiskAssessment from "@/app/form-components/participant-risk-assessment/page";
+import EmergencyDrill from "@/app/form-components/emergency-drill/page";
 
 // Types for settings
 interface AppSetting {
@@ -270,14 +271,19 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <SADeliverySupports formKey={form.formKey} settings={settings} />
                 ) : form.formKey === "participant_risk_assessment" ? (
                   <ParticipantRiskAssessment formKey={form.formKey} settings={settings} />
-                ) : (
+                ) : 
+                
+                form.formKey === "emergency_drill" ? (
+                  <EmergencyDrill formKey={form.formKey} settings={settings} />
+                ) :
+                 (
                   <div className="text-center py-16">
                     <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                       <FaFileAlt className="text-gray-400 text-4xl" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">Preview Not Available</h3>
                     <p className="text-gray-500 font-medium mb-2 max-w-md mx-auto leading-relaxed">
-                      Preview functionality is not available for this form type.
+                      This form type does not support preview functionality.
                     </p>
                     <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-lg mx-auto">
                       <p className="text-sm font-medium text-blue-700">
@@ -286,6 +292,8 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                     </div>
                   </div>
                 )}
+                
+             
               </div>
             </div>
           </div>

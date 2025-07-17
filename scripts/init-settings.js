@@ -149,6 +149,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+    {
+    key: 'emergency_drill',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Emergency Drill ID',
+    description: 'Unique identifier for Emergency Drill forms',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 
