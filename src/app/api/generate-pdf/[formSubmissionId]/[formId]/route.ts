@@ -102,6 +102,8 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         case "participant_risk_assessment":
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+          emergencyNo: await encodeImageToBase64("/participant_risk_assessment_emergency.png"),
+          riskAssessmentMatrix: await encodeImageToBase64("/participant_risk_assessment_matrix.png")
         };
 
         componentProps = {
@@ -135,11 +137,10 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 <html>
   <head>
     <meta charset="utf-8" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
       ${css}
       @page { size: A4; margin: 15mm 10mm 15mm 10mm; }
-      body { font-family: 'Lexend', sans-serif; margin: 0; padding: 0; font-size: 12px; line-height: 1.4; }
+      body { font-family: 'sans-serif', sans-serif; margin: 0; padding: 0; font-size: 12px; line-height: 1.4; }
       .a4-page { page-break-before: always; page-break-after: always; page-break-inside: avoid; width: 100%; min-height: 100vh; max-height: 100vh; display: flex; flex-direction: column; background: white; }
       .a4-page:first-child { page-break-before: auto; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
