@@ -51,6 +51,12 @@ async function main() {
       title: 'Participant Risk Assessment',
       version: 1,
       requiresSignature: true,
+    },
+    {
+      formKey: 'emergency_drill',
+      title: 'Emergency Drill',
+      version: 1, 
+      requiresSignature: true,
     }
   ];
 

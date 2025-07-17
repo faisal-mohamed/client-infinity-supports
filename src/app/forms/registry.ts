@@ -14,6 +14,9 @@ import SADeliverySupportsEdit from '../components/forms/sa-delivery-of-supports/
 import ParticipantRiskAssessmentView from '@/components/participant-risk-assessment/view';
 import ParticipantRiskAssessmentEdit from '../components/forms/participant-risk-assessment/Edit_2';
 
+import EmergencyDrillEdit from '../components/forms/emergency-drill/Edit';
+import EmergencyDrill from '@/components/emergency-drill/View'; // Assuming this is
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -115,6 +118,29 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: 'Signature of the Participant',
         required: true,
         dataKey: 'guardianSignature' 
+      },
+     
+    ]
+  },
+  'emergency_drill': {
+    key: 'emergency_drill',
+    name: 'Emergency Drill',
+    viewComponent: EmergencyDrill,
+    editComponent: EmergencyDrillEdit,
+    signatures: [
+      {
+        id: 'support_worker_signature',
+        label: 'Support Worker Signature',
+        description: 'Signature of the Support Worker',
+        required: true,
+        dataKey: 'supportWorkerSignature' 
+      },
+        {
+        id: 'supervisor_signature',
+        label: 'Supervisor/Manager Signature',
+        description: 'Signature of the Supervisor/Manager',
+        required: true,
+        dataKey: 'supervisorSignature' 
       },
      
     ]
