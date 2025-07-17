@@ -6,6 +6,7 @@ import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page'; // Assuming this is the correct import path
 import SADeliverySupports from './SA-delivery-of-supports/page';
 import ParticipantRiskAssessment from './participant-risk-assessment/page'; // Assuming this is the correct import path
+import EmergencyDrill from './emergency-drill/page'; // Assuming this is the correct import path
 
 
 // Interface for PDF form components
@@ -42,6 +43,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'participant_risk_assessment',
     component: ParticipantRiskAssessment,
     name: 'Participant Risk Assessment',
+  },
+  {
+    formKey: 'emergency_drill',
+    component: EmergencyDrill,
+    name: 'Emergency Drill Reporting Form',
   }
   
 ];

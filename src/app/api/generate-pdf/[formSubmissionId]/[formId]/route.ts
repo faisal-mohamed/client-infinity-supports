@@ -112,6 +112,18 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           commonFieldsData: commonFields || {},
           settings: settings || {}
         };
+
+        case "emergency_drill":
+        images = {
+          infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+        }
+
+        componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {}           // ✅ Also in fallback
+        }
         break;
 
       default:
