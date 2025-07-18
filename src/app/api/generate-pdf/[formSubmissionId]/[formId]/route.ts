@@ -135,7 +135,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
       default:
         componentProps = { 
           formData, 
-          commonFields: commonFields || {},
+          commonFieldsData: commonFields || {},
           settings: settings || {},
           images: images || {} // ✅ Also in fallback
         };
