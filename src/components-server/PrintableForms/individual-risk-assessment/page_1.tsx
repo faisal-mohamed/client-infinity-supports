@@ -6,10 +6,11 @@ interface Page1Props {
   data: Record<string, any>;
   commonFieldsData: Record<string, any>;
   settings: Record<string, any>;
+  images?: Record<string, string>;
 }
 
-const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings }) => {
-   const commonFieldMapping: Record<string, string> = {
+const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings, images }) => {
+  const commonFieldMapping: Record<string, string> = {
     personName: 'name',
     address: 'street',
     dob: 'dob',
@@ -33,23 +34,27 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-black font-sans text-[14px]">
-        {/* Content Area */}
-        <div className="flex-grow p-4 max-w-5xl mx-auto">
+      <div
+        className="print-page flex flex-col justify-between w-full h-[1122px] overflow-hidden text-black text-xs font-sans"
+        style={{ breakAfter: 'page', fontSize: '12px', lineHeight: '2.4' }}
+      >
+        {/* Top Section */}
+        <div className="p-6">
           {/* Logo */}
-          <div className="flex justify-center mb-2">
+          <div className="flex justify-center mb-4">
             <img
-              src="/infinity_logo.png"
+              src={`${images?.infinityLogo || '/infinity_logo.png'}`}
               alt="Infinity Supports WA logo"
-              className="w-[250px] h-[100px]"
+              className="w-[250px] h-[100px] object-contain"
             />
           </div>
 
+          {/* Title */}
           <div className="text-center font-bold text-[14px] mb-6">
             Individual Activity Risk Assessment
           </div>
 
-          {/* Person, Activity, Assessor, Date, Location */}
+          {/* Header Info Fields */}
           <div className="flex justify-between mb-6 max-w-3xl mx-auto">
             <div className="w-1/2 space-y-4">
               {schema?.headerInfo?.slice?.(0, 3)?.map?.((field: any) => (
@@ -72,35 +77,33 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
           {/* Risk Matrix Table */}
           <div className="overflow-x-auto">
             <img
-              src="/individual-risk-assessment.png"
+              src={`${images?.riskMatrix || '/individual_risk_assessment.png'}`}
               alt="Risk Matrix Table"
               className="w-full border border-black"
             />
           </div>
 
-          {/* Legend Explanation */}
-          <div className="mt-6 max-w-3xl mx-auto text-[14px]">
-            <div className="mb-1">
+          {/* Risk Legend */}
+          <div className="mt-6 max-w-3xl mx-auto text-[14px] space-y-4">
+            <div>
               <span className="underline">LOW</span>{' '}
               <span className="text-green-600 font-semibold">GREEN</span>
-            </div>
-            <div className="mb-4">
-              Visit acceptable. Ensure control options are followed.
-            </div>
-            <div className="mb-1">
-              <span className="underline">MEDIUM</span>{' '}
-              <span className="text-yellow-400 font-semibold">YELLOW</span>
+              <div>Visit acceptable. Ensure control options are followed.</div>
             </div>
             <div>
-              Visit should only proceed after consultation with manager. The risks should
-              be reviewed to consider all the hazards involved. The risks must be reduced prior
-              to the visit – if in doubt, re-classify as Moderate Risk.
+              <span className="underline">MEDIUM</span>{' '}
+              <span className="text-yellow-400 font-semibold">YELLOW</span>
+              <div>
+                Visit should only proceed after consultation with manager. The risks should
+                be reviewed to consider all the hazards involved. The risks must be reduced prior
+                to the visit – if in doubt, re-classify as Moderate Risk.
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Sticky Footer */}
-        <footer className="max-w-3xl mx-auto w-full px-4 pb-4 text-[12px] text-blue-700 flex justify-between">
+        {/* Footer */}
+        <footer className="pt-4 border-t border-gray-300 flex justify-between text-xs text-blue-700 font-normal px-6">
           <a
             className="underline"
             href={settings?.company_website || 'https://www.infinitysupportswa.org'}

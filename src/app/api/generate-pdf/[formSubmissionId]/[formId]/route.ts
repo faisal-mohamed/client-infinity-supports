@@ -126,11 +126,18 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         }
         break;
 
+        case "individual_risk_assessment":
+        images = {
+          infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+          riskMatrix: await encodeImageToBase64("/individual-risk-assessment.png")
+        };
+
       default:
         componentProps = { 
           formData, 
           commonFields: commonFields || {},
-          settings: settings
+          settings: settings || {},
+          images: images || {} // ✅ Also in fallback
         };
         break;
     }

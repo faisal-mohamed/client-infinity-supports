@@ -160,6 +160,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'individual_risk_assessment',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Individual Risk Assessment ID',
+    description: 'Unique identifier for Individual Risk Assessment forms',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

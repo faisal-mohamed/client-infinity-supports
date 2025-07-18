@@ -86,18 +86,22 @@ const IndividualRiskAssessment = ({formKey, formData, commonFieldsData, settings
           data={formData}
           commonFieldsData={commonFieldsData}
           settings={settings}
+          images={images}
           />
           <Page2
           schema={formSchema.page2}
           data={formData}
           commonFieldsData={commonFieldsData}
           settings={settings}
+                    images={images}
+
           />
           <Page3
           schema={formSchema.page3}
           data={formData}
           commonFieldsData={commonFieldsData}
           settings={settings}
+          images={images}
           />
     </div>
   )

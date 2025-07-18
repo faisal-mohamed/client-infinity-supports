@@ -17,6 +17,9 @@ import ParticipantRiskAssessmentEdit from '../components/forms/participant-risk-
 import EmergencyDrillEdit from '../components/forms/emergency-drill/Edit';
 import EmergencyDrill from '@/components/emergency-drill/View'; // Assuming this is
 
+import IndividualRiskAssessmentView from '@/components/individual-risk-assessment/View';
+import IndividualRiskAssessmentEdit from '../components/forms/individual-risk-assessment/Edit'
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -143,6 +146,23 @@ const formRegistry: Record<string, FormRegistryItem> = {
         dataKey: 'supervisorSignature' 
       },
      
+    ]
+  },
+  'individual_risk_assessment': {
+    key: 'individual_risk_assessment',
+    name: 'Individual Risk Assessment',
+    viewComponent: IndividualRiskAssessmentView,
+    editComponent: IndividualRiskAssessmentEdit,
+    signatures: [
+      {
+        id: 'assessor_signature',
+        label: 'Assessor Signature',
+        description: 'Signature of the Assessor',
+        required: true,
+        dataKey: 'assessorSignature' // Maps to formData.signature field where the actual signature is stored
+      },
+      
+      
     ]
   },
 };

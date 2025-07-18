@@ -4,16 +4,43 @@ import A4PageWrapper from './A4PageWrapper';
 interface Page2Props {
   schema: any;
   data: Record<string, any>;
+  commonFieldsData: Record<string, any>;
+  settings: Record<string, any>;
 }
 
-const Page2: React.FC<Page2Props> = ({ schema, data }) => {
-  const getValue = (key: string) => data?.[key] ?? '';
+const Page2: React.FC<Page2Props> = ({
+  schema,
+  data,
+  commonFieldsData,
+  settings,
+}) => {
+  const commonFieldMapping: Record<string, string> = {
+    personName: 'name',
+    address: 'street',
+    dob: 'dob',
+    disability: 'disability',
+    phoneNumber: 'phone',
+    ndisNumber: 'ndis',
+    state: 'state',
+    street: 'street',
+    postcode: 'postCode',
+    email: 'email',
+    homePhone: 'phone',
+    sex: 'sex'
+  };
+
+  const getValue = (key: string) => {
+    if (commonFieldMapping?.[key]) {
+      return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
+    }
+    return data?.[key] ?? '';
+  };
 
   return (
     <A4PageWrapper>
       <div className="flex flex-col h-full text-black font-sans text-sm">
         {/* Main Content */}
-        <div className="flex-grow max-w-3xl mx-auto p-4">
+        <div className="flex-grow max-w-3xl mx-auto p-4 flex flex-col">
           {/* Logo */}
           <div className="flex justify-center mb-2">
             <img
@@ -43,32 +70,24 @@ const Page2: React.FC<Page2Props> = ({ schema, data }) => {
             </p>
           </div>
 
-          {/* Risk Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full border border-black border-collapse text-xs">
+          {/* Table Wrapper fills remaining height */}
+          <div className="flex-1 overflow-y-auto">
+            <table className="w-full border border-black border-collapse text-xs h-full table-fixed">
               <thead>
                 <tr>
-                  <th className="border border-black font-bold px-1 py-0.5 text-center">Risk Identified</th>
-                  <th className="border border-black font-bold px-1 py-0.5 text-center">Likelihood</th>
-                  <th className="border border-black font-bold px-1 py-0.5 text-center">Severity</th>
-                  <th className="border border-black font-bold px-1 py-0.5 text-center">Control Measures</th>
+                  <th className="border border-black font-bold px-1 py-0.5 text-center w-1/4">Risk Identified</th>
+                  <th className="border border-black font-bold px-1 py-0.5 text-center w-1/6">Likelihood</th>
+                  <th className="border border-black font-bold px-1 py-0.5 text-center w-1/6">Severity</th>
+                  <th className="border border-black font-bold px-1 py-0.5 text-center w-1/3">Control Measures</th>
                 </tr>
               </thead>
               <tbody>
-                {schema.riskTable.map((row: any, idx: number) => (
-                  <tr className="h-12" key={idx}>
-                    <td className="border border-black px-1 py-0.5 align-top">
-                      {getValue(`riskIdentified_${idx + 1}`)}
-                    </td>
-                    <td className="border border-black px-1 py-0.5 align-top">
-                      {getValue(`likelihood_${idx + 1}`)}
-                    </td>
-                    <td className="border border-black px-1 py-0.5 align-top">
-                      {getValue(`severity_${idx + 1}`)}
-                    </td>
-                    <td className="border border-black px-1 py-0.5 align-top">
-                      {getValue(`controls_${idx + 1}`)}
-                    </td>
+                {schema?.riskTable?.map?.((row: any, idx: number) => (
+                  <tr className="align-top h-[64px]" key={idx}>
+                    <td className="border border-black px-1 py-0.5">{getValue(`riskIdentified_${idx + 1}`)}</td>
+                    <td className="border border-black px-1 py-0.5">{getValue(`likelihood_${idx + 1}`)}</td>
+                    <td className="border border-black px-1 py-0.5">{getValue(`severity_${idx + 1}`)}</td>
+                    <td className="border border-black px-1 py-0.5">{getValue(`controls_${idx + 1}`)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -76,19 +95,17 @@ const Page2: React.FC<Page2Props> = ({ schema, data }) => {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="text-xs px-4 pb-4">
-          <div className="max-w-3xl mx-auto flex justify-between">
-            <a
-              className="text-blue-600 underline"
-              href="http://www.infinitysupportswa.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              www.infinitysupportswa.org
-            </a>
-            <span>Date of Review: 13/02/2026</span>
-          </div>
+        {/* Sticky Footer */}
+          <footer className="max-w-3xl mx-auto w-full px-4 pb-4 text-[12px] text-blue-700 flex justify-between">
+          <a
+            className="underline"
+            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {settings?.company_website || 'https://www.infinitysupportswa.org'}
+          </a>
+          <div>Date of Review: {settings?.review_date || 'N/A'}</div>
         </footer>
       </div>
     </A4PageWrapper>

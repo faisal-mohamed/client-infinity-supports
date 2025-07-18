@@ -6,6 +6,7 @@ interface Page3Props {
   data: Record<string, any>;
   commonFieldsData: Record<string, any>;
   settings: Record<string, any>;
+  images?: Record<string, string>;
 }
 
 const Page3: React.FC<Page3Props> = ({
@@ -13,6 +14,7 @@ const Page3: React.FC<Page3Props> = ({
   data,
   commonFieldsData,
   settings,
+  images = {},
 }) => {
   const commonFieldMapping: Record<string, string> = {
     personName: 'name',
@@ -43,13 +45,13 @@ const Page3: React.FC<Page3Props> = ({
         <div className="flex flex-col flex-grow items-center px-6 pt-6">
           <div className="max-w-3xl w-full">
             {/* Logo */}
-            <div className="flex justify-center mb-2">
-              <img
-                src="/infinity_logo.png"
-                alt="Infinity Supports WA logo"
-                className="w-[250px] h-[100px]"
-              />
-            </div>
+             <div className="flex justify-center mb-2">
+            <img
+              src={`${images?.infinityLogo || '/infinity_logo.png'}`} // Use provided image or default
+              alt="Infinity Supports WA logo"
+              className="w-[250px] h-[100px]"
+            />
+          </div>
 
             {/* Empty Grid Placeholder */}
             <div className="w-full border border-black grid grid-cols-[1fr_1fr_4fr] mb-12">
