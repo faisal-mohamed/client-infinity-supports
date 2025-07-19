@@ -69,6 +69,12 @@ async function main() {
       title: 'Welcome Form',
       version: 1,
       requiresSignature: true
+    },
+    {
+      formKey: 'schedule_for_support',
+      title: 'Schedule for Support',
+      version: 1,
+      requiresSignature: true
     }
   ];
 

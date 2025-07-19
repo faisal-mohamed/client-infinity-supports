@@ -1,7 +1,7 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page4: React.FC<any> = ({ schema, data }) => {
+const Page4: React.FC<any> = ({ schema, data, settings }) => {
   const isChecked = (value: string, option: string) => value?.toLowerCase?.() === option.toLowerCase();
 
   return (
@@ -11,17 +11,17 @@ const Page4: React.FC<any> = ({ schema, data }) => {
         <div>
           {/* Logo */}
           <div className="flex justify-center mb-2">
-            <img
-              src="https://storage.googleapis.com/a1aa/image/5a54bdc2-2c70-4d65-a83b-9a1b6420845c.jpg"
-              alt="Infinity Supports WA logo"
-              className="h-[50px] w-[150px] object-contain"
-            />
+             <img
+            src="/infinity_logo.png"
+            alt="Infinity Supports WA Logo"
+            className="h-[50px] w-[150px] object-contain"
+          />
           </div>
 
           {/* Title */}
-          <p className="text-center text-xs font-semibold mb-4">
+          {/* <p className="text-center text-xs font-semibold mb-4">
             {schema?.title}
-          </p>
+          </p> */}
 
           {/* Table 1 - Budget Discussion & Goals */}
           <table className="w-full border border-black border-collapse text-xs mb-6">
@@ -94,11 +94,11 @@ const Page4: React.FC<any> = ({ schema, data }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between text-[10px] text-gray-600 mt-6 px-1">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF006</div>
-          <div>Review Date: 14/03/2026</div>
-        </div>
+         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+          <div>Website: {settings?.company_website}</div>
+          <div>{settings?.schedule_for_support}</div>
+          <div>Review Date: {settings?.review_date}</div>
+        </footer>
       </div>
     </A4PageWrapper>
   );

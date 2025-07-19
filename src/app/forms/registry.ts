@@ -23,6 +23,9 @@ import IndividualRiskAssessmentEdit from '../components/forms/individual-risk-as
 import WelcomeFormView from '@/components/welcome-form/View';
 import WelcomeFormEdit from '../components/forms/welcome-form/Edit'
 
+import ScheduleForSupportEdit from '../components/forms/schedule-for-support/Edit';
+import ScheduleForSupportView from '@/components/schedule-for-support/View';
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -183,6 +186,29 @@ const formRegistry: Record<string, FormRegistryItem> = {
       },
       
       
+    ]
+  },
+  'schedule_for_support': {
+    key: 'schedule_for_support',
+    name: 'Schedule for Support',
+    viewComponent: ScheduleForSupportView,
+    editComponent: ScheduleForSupportEdit,
+    signatures: [
+      {
+        id: 'author_signature',
+        label: 'Authorised by',
+        description: 'Signature of the Author',
+        required: true,
+        dataKey: 'authorSignature' 
+      },
+        {
+        id: 'participant_signature',
+        label: 'Participant Signature',
+        description: 'Signature of the Participant',
+        required: true,
+        dataKey: 'participantSignature' 
+      },
+     
     ]
   },
 };

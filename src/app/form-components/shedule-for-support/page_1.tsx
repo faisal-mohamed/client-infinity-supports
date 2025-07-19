@@ -16,9 +16,10 @@ interface Section {
 interface Props {
   schema: { title: string; sections: Section[] };
   data: Record<string, any>;
+  settings: any
 }
 
-const Page1: React.FC<Props> = ({ schema, data }) => {
+const Page1: React.FC<Props> = ({ schema, data, settings }) => {
   const renderField = (field: SchemaField) => {
     const value = data?.[field.key];
 
@@ -61,14 +62,14 @@ const Page1: React.FC<Props> = ({ schema, data }) => {
         {/* Logo and Title */}
         <div className="flex justify-center">
           <img
-            src="https://storage.googleapis.com/a1aa/image/1257675f-e80f-49a6-78b8-043202c3679c.jpg"
+            src="/infinity_logo.png"
             alt="Infinity Supports WA Logo"
             className="h-[50px] w-[150px] object-contain"
           />
         </div>
-        <div className="text-center font-semibold mt-2 mb-4">
+        {/* <div className="text-center font-semibold mt-2 mb-4">
           {schema?.title}
-        </div>
+        </div> */}
 
         {/* Main Table Section */}
         <div className="flex-1">
@@ -85,10 +86,10 @@ const Page1: React.FC<Props> = ({ schema, data }) => {
                 <tbody>
                   {section?.fields?.map((field) => (
                     <tr key={field?.key} className="border border-black">
-                      <td className="w-[180px] font-semibold px-3 py-2 border border-black bg-[#e8edf8]">
+                      <td className="w-[180px] font-semibold px-3 py-3 border border-black bg-[#e8edf8]">
                         {field?.label}
                       </td>
-                      <td className="px-3 py-2 border border-black">
+                      <td className="px-3 py-3 border border-black">
                         {renderField(field)}
                       </td>
                     </tr>
@@ -101,9 +102,9 @@ const Page1: React.FC<Props> = ({ schema, data }) => {
 
         {/* Footer */}
         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF006</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Website: {settings?.company_website}</div>
+          <div>{settings?.schedule_for_support}</div>
+          <div>Review Date: {settings?.review_date}</div>
         </footer>
       </div>
     </A4PageWrapper>

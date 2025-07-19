@@ -16,9 +16,10 @@ interface Section {
 interface Props {
   schema: { title: string; sections: Section[] };
   data: Record<string, any>;
+  settings: any;
 }
 
-const Page3: React.FC<Props> = ({ schema, data }) => {
+const Page3: React.FC<Props> = ({ schema, data, settings }) => {
   const renderField = (field: SchemaField) => {
     const value = data?.[field?.key];
 
@@ -52,15 +53,15 @@ const Page3: React.FC<Props> = ({ schema, data }) => {
       <div className="flex flex-col h-full text-[11px] text-gray-800 font-sans p-7">
         {/* Logo and Title */}
         <div className="flex justify-center mb-2">
-          <img
-            src="https://storage.googleapis.com/a1aa/image/2af8a3a8-cf34-44da-3c35-1f5f4a53c6ec.jpg"
+           <img
+            src="/infinity_logo.png"
             alt="Infinity Supports WA Logo"
             className="h-[50px] w-[150px] object-contain"
           />
         </div>
-        <p className="text-center text-gray-600 text-xs font-semibold mb-4 ">
+        {/* <p className="text-center text-gray-600 text-xs font-semibold mb-4 ">
           {schema?.title}
-        </p>
+        </p> */}
 
         {/* Main Table */}
         <form className="text-[10px] leading-[2] flex-1">
@@ -77,10 +78,10 @@ const Page3: React.FC<Props> = ({ schema, data }) => {
                   )}
                   {section?.fields?.map?.((field) => (
                     <tr key={field?.key}>
-                      <td className="border border-black font-bold p-1 align-top w-[150px] bg-[#e8edf8]">
+                      <td className="border border-black font-bold p-3 align-top w-[150px] bg-[#e8edf8]">
                         {field?.label}
                       </td>
-                      <td className="border border-black p-1">
+                      <td className="border border-black p-3">
                         {renderField(field)}
                       </td>
                     </tr>
@@ -92,11 +93,11 @@ const Page3: React.FC<Props> = ({ schema, data }) => {
         </form>
 
         {/* Footer */}
-        <div className="flex justify-between text-[9px] text-gray-600 mt-4 px-1">
-          <div>Website: infinitysupportswa.org</div>
-          <div>CF006</div>
-          <div>Review Date: 14/03/2026</div>
-        </div>
+         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+          <div>Website: {settings?.company_website}</div>
+          <div>{settings?.schedule_for_support}</div>
+          <div>Review Date: {settings?.review_date}</div>
+        </footer>
       </div>
     </A4PageWrapper>
   );

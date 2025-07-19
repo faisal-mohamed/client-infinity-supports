@@ -182,6 +182,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'schedule_for_support',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Schedule for Support ID',
+    description: 'Unique identifier for Schedule for Support form',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 
