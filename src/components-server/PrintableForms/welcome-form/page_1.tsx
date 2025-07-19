@@ -1,74 +1,31 @@
-
-
 import React from 'react';
-import A4PageWrapper from './A4PageWrapper';
+import A4PageWrapper from './A4PageWrapper'
 
-const Page1 = ({settings, images} : any ) => {
-  return (
-    <A4PageWrapper>
-      <div className="flex flex-col h-full font-sans text-black">
-        {/* Top: Logo */}
-        <div className="w-full max-w-md mx-auto px-6 pt-10 flex justify-center">
-          <img
-            src={images?.infinityLogo}
-            alt="Infinity Supports WA logo"
-            className="mb-6"
-            width={200}
-            height={80}
-          />
+const Page1 = ({ images, settings } : any ) => (
+  <A4PageWrapper>
+    <div className="a4-inner font-sans text-black">
+      {/* Content: Low spacing */}
+      <div className="flex-1 flex flex-col items-center justify-center px-2">
+        <p className="font-bold text-center text-sm mb-2 mt-4">WELCOME PACK</p>
+        <p className="text-center text-xs mb-4">HELPING YOU ACHIEVE GOALS AND BEYOND</p>
+        <img src={images?.p1_1} alt="Red infinity symbol" className="mb-4" style={{ width: 100, height: 36 }} />
+        <div className="flex justify-center space-x-2 mb-4">
+          <img src={images?.p1_2} alt="NDIS logo" style={{ width: 28, height: 28 }} />
+          <img src={images?.p1_3} alt="Rainbow pride flag" style={{ width: 28, height: 18 }} />
+          <img src={images?.p1_4} alt="Aboriginal flag" style={{ width: 28, height: 18 }} />
+          <img src={images?.p1_5} alt="Torres Strait Islander flag" style={{ width: 28, height: 18 }} />
         </div>
-
-        {/* Middle: Content fills available space */}
-        <div className="flex-grow flex flex-col items-center justify-center px-6">
-          {/* Title */}
-          <p className="font-bold text-center text-sm mb-6">WELCOME PACK</p>
-          <p className="text-center text-xs mb-12">HELPING YOU ACHIEVE GOALS AND BEYOND</p>
-
-          {/* Red Infinity Image */}
-          <img
-            src={images?.p1_1}
-            alt="Red infinity symbol"
-            className="mb-20"
-            width={200}
-            height={100}
-          />
-
-          {/* 4 Flags Row */}
-          <div className="flex justify-center space-x-4 mb-20">
-            <img
-              src={images?.p1_2}
-              alt="NDIS logo"
-              className="w-14 h-14 object-contain"
-            />
-            <img
-              src={images?.p1_3}
-              alt="Rainbow pride flag"
-              className="w-14 h-10 object-contain"
-            />
-            <img
-              src={images?.p1_4}
-              alt="Aboriginal flag"
-              className="w-14 h-10 object-contain"
-            />
-            <img
-              src={images?.p1_5}
-              alt="Torres Strait Islander flag"
-              className="w-14 h-10 object-contain"
-            />
-          </div>
-        </div>
-
-        {/* Bottom: Footer */}
-        <footer className="w-full border-t border-gray-300 py-4 text-[10px] text-gray-500 mt-auto">
-          <div className="max-w-3xl mx-auto px-6 flex justify-between">
-            <span>Website: infinitysupportswa.org</span>
-            <span>CF016</span>
-            <span>Review Date: 14/03/2026</span>
-          </div>
-        </footer>
       </div>
-    </A4PageWrapper>
-  );
-};
+      {/* Footer: No mt-auto, no margin! */}
+      <footer className="w-full border-t border-gray-300 py-2 text-[9px] text-gray-500">
+        <div className="max-w-3xl mx-auto px-4 flex justify-between">
+           <span>Website: {settings?.company_website}</span>
+          <span>{settings?.welcome_form}</span>
+          <span>Review Date: {settings?.review_date}</span>
+        </div>
+      </footer>
+    </div>
+  </A4PageWrapper>
+);
 
 export default Page1;

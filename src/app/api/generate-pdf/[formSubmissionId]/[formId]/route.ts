@@ -131,20 +131,37 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
           riskMatrix: await encodeImageToBase64("/individual-risk-assessment.png")
         };
+          componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {}           // ✅ Also in fallback
+        }
+
+        break;
 
         case "welcome_form" : 
         images = {
-          infinityLogo: await encodeImageToBase64('/welcomeimg/infinity_logo.png'),
+          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
           p1_4: await encodeImageToBase64('/welcomeimg/p1-4.png'),
-          p1_2: await encodeImageToBase64('/welcomeimg/p1_2.png'),
-          p1_3: await encodeImageToBase64('/welcomeimg/p1_3.png'),
+          p1_2: await encodeImageToBase64('/welcomeimg/p1-2.png'),
+          p1_3: await encodeImageToBase64('/welcomeimg/p1-3.png'),
           p1_1: await encodeImageToBase64('/welcomeimg/p1-1.png'),
-          p1_5: await encodeImageToBase64('/welcomeimg/p1_5.png'),
-          p3_1: await encodeImageToBase64('/welcomeimg/p3_1.png'),
-          p3_2: await encodeImageToBase64('/welcomeimg/p3_2.png'),
-          p4_1: await encodeImageToBase64('/welcomeimg/p4_1.png'),
+          p1_5: await encodeImageToBase64('/welcomeimg/p1-5.png'),
+          p3_1: await encodeImageToBase64('/welcomeimg/p3-1.png'),
+          p3_2: await encodeImageToBase64('/welcomeimg/p3-2.png'),
+          p4_1: await encodeImageToBase64('/welcomeimg/p4-1.png'),
 
         }
+
+          componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {}           // ✅ Also in fallback
+        }
+
+        break;
 
       default:
         componentProps = { 
