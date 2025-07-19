@@ -30,8 +30,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
         <div className="flex-1 min-h-0 leading-relaxed text-[10px]">
           <table className="w-full border border-black border-collapse">
             <tbody>
-              <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">Core Supports</td>
+              <tr>
+                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Core Supports</td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
@@ -69,8 +69,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                 </td>
               </tr>
 
-              <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">Capacity Building</td>
+              <tr>
+                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Capacity Building</td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
@@ -124,8 +124,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                 </td>
               </tr>
 
-              <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">Capital</td>
+              <tr >
+                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Capital</td>
               </tr>
             </tbody>
           </table>

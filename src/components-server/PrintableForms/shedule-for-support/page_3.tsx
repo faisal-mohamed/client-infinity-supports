@@ -80,14 +80,14 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData, imag
                 <React.Fragment key={sectionIdx}>
                   {section?.title && (
                     <tr className="bg-blue-300 font-bold text-[9px] ">
-                      <td colSpan={2} className="border border-black p-1 bg-[#a9c1e0]">
+                      <td colSpan={2} className="border border-black p-1" style={{backgroundColor: '#a9c1e0'}}>
                         {section?.title}
                       </td>
                     </tr>
                   )}
                   {section?.fields?.map?.((field) => (
                     <tr key={field?.key}>
-                      <td className="border border-black font-bold p-3 align-top w-[150px] bg-[#e8edf8]">
+                      <td className="border border-black font-bold p-3 align-top w-[150px] " style={{backgroundColor: '#e8edf8'}}>
                         {field?.label}
                       </td>
                       <td className="border border-black p-3">

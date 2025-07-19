@@ -14,7 +14,8 @@ const commonFieldMapping: Record<string, string> = {
 };
 
 const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images }) => {
-  const isChecked = (value: string, option: string) => value?.toLowerCase?.() === option.toLowerCase();
+  const isChecked = (value: string, option: string) =>
+    value?.toLowerCase?.() === option.toLowerCase();
 
   const getValue = (key: string) => {
     if (commonFieldMapping[key]) {
@@ -30,7 +31,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
         style={{
           height: '100%',
           minHeight: '100%',
-          padding: '24px', // p-6 fallback
+          padding: '24px',
         }}
       >
         {/* Main Content */}
@@ -69,7 +70,11 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
                 </td>
               </tr>
               <tr>
-                <td colSpan={2} className="border border-black bg-blue-200 font-bold p-1">
+                <td
+                  colSpan={2}
+                  className="border border-black font-bold p-1"
+                  style={{ backgroundColor: '#bfdbfe' /* Tailwind's blue-200 */ }}
+                >
                   {schema?.goalsSection?.title}
                 </td>
               </tr>
@@ -85,13 +90,19 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
           <table className="w-full border border-black border-collapse text-xs">
             <tbody>
               <tr>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center w-1/3">
+                <td
+                  className="border border-black font-bold p-1 text-center w-1/3"
+                  style={{ backgroundColor: '#bfdbfe' }}
+                >
                   {schema?.signatures?.participant?.label}
                 </td>
                 <td className="border border-black p-1 w-1/3">
                   <img src={`${data?.participantSignature}`} alt="Participant Signature" />
                 </td>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center w-1/6">
+                <td
+                  className="border border-black font-bold p-1 text-center w-1/6"
+                  style={{ backgroundColor: '#bfdbfe' }}
+                >
                   Date
                 </td>
                 <td className="border border-black p-1 w-1/6">
@@ -99,13 +110,21 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
                 </td>
               </tr>
               <tr>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center">
+                <td
+                  className="border border-black font-bold p-1 text-center"
+                  style={{ backgroundColor: '#bfdbfe' }}
+                >
                   {schema?.signatures?.author?.label}
                 </td>
                 <td className="border border-black p-1">
                   <img src={`${data?.authorSignature}`} alt="Author Signature" />
                 </td>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center">Date</td>
+                <td
+                  className="border border-black font-bold p-1 text-center"
+                  style={{ backgroundColor: '#bfdbfe' }}
+                >
+                  Date
+                </td>
                 <td className="border border-black p-1">
                   {data?.providerSignatureDate || ''}
                 </td>
@@ -113,7 +132,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
             </tbody>
           </table>
         </div>
-        
+
         {/* Sticky Footer */}
         <footer className="flex-shrink-0 mt-auto flex justify-between text-[10px] text-gray-500 pt-4 border-t border-gray-300">
           <div>Website: {settings?.company_website}</div>

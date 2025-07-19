@@ -117,8 +117,8 @@ const Page1: React.FC<Props> = ({
             {schema?.sections?.map((section, idx) => (
               <React.Fragment key={idx}>
                 <thead>
-                  <tr className="bg-[#a9c0e6] font-bold border border-black">
-                    <th colSpan={2} className="text-left px-3 py-1 border border-black">
+                  <tr className="font-bold border border-black" style={{backgroundColor: '#a9c0e6'}}>
+                    <th colSpan={2} className="text-left px-3 py-1 border border-black" style={{backgroundColor: '#a9c0e6'}}>
                       {section?.title}
                     </th>
                   </tr>
@@ -126,7 +126,7 @@ const Page1: React.FC<Props> = ({
                 <tbody>
                   {section?.fields?.map((field) => (
                     <tr key={field?.key} className="border border-black">
-                      <td className="w-[180px] font-semibold px-3 py-1 border border-black bg-[#e8edf8]">
+                      <td className="w-[180px] font-semibold px-3 py-1 border border-black" style={{backgroundColor: '#e8edf8'}}>
                         {field?.label}
                       </td>
                       <td className="px-3 py-1 border border-black">
