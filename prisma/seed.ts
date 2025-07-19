@@ -63,6 +63,12 @@ async function main() {
       title: 'Individual Risk Assessment',
       version: 1,
       requiresSignature: true,
+    },
+    {
+      formKey: 'welcome_form',
+      title: 'Welcome Form',
+      version: 1,
+      requiresSignature: true
     }
   ];
 

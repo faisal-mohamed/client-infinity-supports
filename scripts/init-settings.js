@@ -171,6 +171,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+  {
+    key: 'welcome_form',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Welcome Form ID',
+    description: 'Unique identifier for Welcome form',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

@@ -20,6 +20,9 @@ import EmergencyDrill from '@/components/emergency-drill/View'; // Assuming this
 import IndividualRiskAssessmentView from '@/components/individual-risk-assessment/View';
 import IndividualRiskAssessmentEdit from '../components/forms/individual-risk-assessment/Edit'
 
+import WelcomeFormView from '@/components/welcome-form/View';
+import WelcomeFormEdit from '../components/forms/welcome-form/Edit'
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -160,6 +163,23 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: 'Signature of the Assessor',
         required: true,
         dataKey: 'assessorSignature' // Maps to formData.signature field where the actual signature is stored
+      },
+      
+      
+    ]
+  },
+  'welcome_form': {
+    key: 'welcome_form',
+    name: 'Welcome Form',
+    viewComponent: WelcomeFormView,
+    editComponent: WelcomeFormEdit,
+    signatures: [
+      {
+        id: 'client_signature',
+        label: 'Client Signature',
+        description: 'I confirm I have received the Welcome Pack from Infinity Supports and have read and understood the content',
+        required: true,
+        dataKey: 'signature' // Maps to formData.signature field where the actual signature is stored
       },
       
       

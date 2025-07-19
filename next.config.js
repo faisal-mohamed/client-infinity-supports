@@ -14,6 +14,15 @@ const nextConfig = {
     // Suppress hydration warnings for attributes like fdprocessedid
     reactRemoveProperties: process.env.NODE_ENV === 'production' ? { properties: ['^data-testid$', '^fdprocessedid$'] } : false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/admin/login',
+        permanent: true, // or false if it's temporary
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

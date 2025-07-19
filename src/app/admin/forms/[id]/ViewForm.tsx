@@ -13,6 +13,7 @@ import ParticipantRiskAssessment from "@/app/form-components/participant-risk-as
 import EmergencyDrill from "@/app/form-components/emergency-drill/page";
 
 import IndividualRiskAssessment from "@/app/form-components/individual-risk-assessment/page";
+import WelcomeFormView from "@/components/welcome-form/View";
 
 // Types for settings
 interface AppSetting {
@@ -280,7 +281,12 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <IndividualRiskAssessment formKey={form.formKey} settings={settings} />
                 ) : form.formKey === "emergency_drill" ? (
                   <EmergencyDrill formKey={form.formKey} settings={settings} />
-                ) : (
+                ) :
+                
+                form.formKey === "welcome_form" ? (
+                  <WelcomeFormView formKey={form.formKey} settings={settings}/>
+                ) : 
+                (
                   <div className="text-center py-16">
                     <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                       <FaFileAlt className="text-gray-400 text-4xl" />
