@@ -163,6 +163,12 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         break;
 
+        case "schedule_for_support": 
+        images =  {
+          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+
+        }
+
       default:
         componentProps = { 
           formData, 

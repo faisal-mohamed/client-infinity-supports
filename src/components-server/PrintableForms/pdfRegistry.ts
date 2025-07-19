@@ -9,6 +9,7 @@ import ParticipantRiskAssessment from './participant-risk-assessment/page'; // A
 import EmergencyDrill from './emergency-drill/page'; // Assuming this is the correct import path
 import IndividualRiskAssessmentView from './individual-risk-assessment/page'; // Assuming this is the correct import path
 import WelcomeForm from './welcome-form/page';
+import ScheduleForSupport from './shedule-for-support/page';
 
 
 // Interface for PDF form components
@@ -60,6 +61,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: "welcome_form",
     component: WelcomeForm,
     name: "Welcome Form"
+  },
+  {
+    formKey: "schedule_for_support",
+    component: ScheduleForSupport,
+    name: "Schedule For Support"
   }
   
 ];
