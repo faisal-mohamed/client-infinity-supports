@@ -16,6 +16,8 @@ import IndividualRiskAssessment from "@/app/form-components/individual-risk-asse
 import WelcomeFormView from "@/components/welcome-form/View";
 import ScheduleForSupportView from "@/components/schedule-for-support/View";
 
+import MDTView from "@/components/mdt/View";
+
 // Types for settings
 interface AppSetting {
   id: number;
@@ -290,6 +292,11 @@ export default function ViewFormClient({ formId }: { formId: string }) {
 
                 form.formKey === "schedule_for_support" ? (
                   <ScheduleForSupportView formKey={form.formKey} settings={settings}/>
+                ) : 
+
+
+                form.formKey === "multi_disciplinary_meeting" ? (
+                  <MDTView formKey={form.formKey} settings={settings}/>
                 ) : 
 
                 (

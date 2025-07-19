@@ -193,6 +193,17 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
+  },
+   {
+    key: 'multi_disciplinary_meeting',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Multi Disciplinary Meeting ID',
+    description: 'Unique identifier for Multi Disciplinary Meeting form',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
   }
 ];
 

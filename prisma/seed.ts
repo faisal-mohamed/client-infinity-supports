@@ -75,6 +75,12 @@ async function main() {
       title: 'Schedule for Support',
       version: 1,
       requiresSignature: true
+    },
+    {
+      formKey: 'multi_disciplinary_meeting',
+      title: 'Multi Disciplinary Meeting',
+      requiresSignature: false,
+      version: 1
     }
   ];
 

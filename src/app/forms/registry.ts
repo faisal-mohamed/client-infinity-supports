@@ -26,6 +26,9 @@ import WelcomeFormEdit from '../components/forms/welcome-form/Edit'
 import ScheduleForSupportEdit from '../components/forms/schedule-for-support/Edit';
 import ScheduleForSupportView from '@/components/schedule-for-support/View';
 
+import MDTEdit from '../components/forms/mdt/Edit';
+import MDTView from '@/components/mdt/View';
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -210,6 +213,12 @@ const formRegistry: Record<string, FormRegistryItem> = {
       },
      
     ]
+  },
+  'multi_disciplinary_meeting': {
+    key: 'multi_disciplinary_meeting',
+    name: 'Multi Disciplinary Meeting',
+    editComponent: MDTEdit,
+    viewComponent: MDTView,
   },
 };
 
