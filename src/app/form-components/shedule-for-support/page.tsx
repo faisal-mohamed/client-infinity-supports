@@ -35,11 +35,17 @@ export const formSchema : any = {
       ]
     },
     {
-      title: "3. NDIS Participant’s Goals",
-      fields: [
-        { key: "goals", label: "Goals", type: "textarea" }
-      ]
-    }
+  title: "3. NDIS Participant’s Goals",
+  fields: [
+    { key: "goal1", label: "Goal 1", type: "text" },
+    { key: "goal2", label: "Goal 2", type: "text" },
+    { key: "goal3", label: "Goal 3", type: "text" },
+    { key: "goal4", label: "Goal 4", type: "text" },
+    { key: "goal5", label: "Goal 5", type: "text" },
+    { key: "goal6", label: "Goal 6", type: "text" },
+    { key: "goal7", label: "Goal 7", type: "text" }
+  ]
+}
   ]
   },
    page2: {
@@ -118,9 +124,6 @@ export const formSchema : any = {
       author: { key: 'authorSignature', label: "Author’s Signature" }
     }
   }
-
-
-  
 };
 
 
@@ -141,7 +144,13 @@ export const formSchema : any = {
 //   contactPhone: "0456 789 124",
 //   contactEmail: "sam.taylor@example.com",
 //   funding: ["Plan managed", "NDIA managed"],
-//   goals: `Goal 1. Improve communication skills\nGoal 2. Increase independence in travel\nGoal 3. Attend community workshops\nGoal 4. Build social connections\nGoal 5. Improve health and fitness\nGoal 6. Learn budgeting skills\nGoal 7. Obtain part-time employment`,
+// goal1: "Improve communication skills",
+// goal2: "Increase independence in travel",
+// goal3: "Attend community workshops",
+// goal4: "Build social connections",
+// goal5: "Improve health and fitness",
+// goal6: "Learn budgeting skills",
+// goal7: "Obtain part-time employment",
 
 //   //page2
 //   coreSupportText: "",
@@ -188,13 +197,13 @@ export const formSchema : any = {
 // };
 
 
-const ScheduleForSupport = ({formData, settings, commonFields} : any ) => {
+const ScheduleForSupport = ({ settings, commonFieldsData, formData} : any ) => {
   return (
     <div>
-        <Page1 schema={formSchema.page1} data={formData} settings={settings}/>
-        <Page2 schema={formSchema.page2} data={formData} settings={settings}/>
-        <Page3 schema={formSchema.page3} data={formData} settings={settings}/>
-        <Page4 schema={formSchema.page4} data={formData} settings={settings}/>
+        <Page1 schema={formSchema.page1} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page2 schema={formSchema.page2} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page3 schema={formSchema.page3} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page4 schema={formSchema.page4} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         
     </div>
   )

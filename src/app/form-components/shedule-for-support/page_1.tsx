@@ -16,12 +16,36 @@ interface Section {
 interface Props {
   schema: { title: string; sections: Section[] };
   data: Record<string, any>;
-  settings: any
+  settings: any;
+  commonFieldsData: any 
 }
 
-const Page1: React.FC<Props> = ({ schema, data, settings }) => {
+const commonFieldMapping: Record<string, string> = {
+  ndisNumber: "ndis",
+  gender: 'sex',
+  participantName: 'name',
+  dob: "dob",
+  address: "street",
+  state: "state",
+  postcode: "postCode",
+  email: "email",
+  phone: "phone",
+};
+
+
+const Page1: React.FC<Props> = ({ schema, data, settings , commonFieldsData }) => {
+  
+
+  const getValue = (key: string) => {
+  if (commonFieldMapping[key]) {
+    return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+  }
+  return data?.[key] ?? '';
+};
+
+
   const renderField = (field: SchemaField) => {
-    const value = data?.[field.key];
+  const value = getValue(field.key);
 
     if (field?.type === 'multi-checkbox') {
       return (
@@ -78,7 +102,7 @@ const Page1: React.FC<Props> = ({ schema, data, settings }) => {
               <React.Fragment key={idx}>
                 <thead>
                   <tr className="bg-[#a9c0e6] font-bold border border-black">
-                    <th colSpan={2} className="text-left px-3 py-2 border border-black">
+                    <th colSpan={2} className="text-left px-3 py-1 border border-black">
                       {section?.title}
                     </th>
                   </tr>
@@ -86,10 +110,10 @@ const Page1: React.FC<Props> = ({ schema, data, settings }) => {
                 <tbody>
                   {section?.fields?.map((field) => (
                     <tr key={field?.key} className="border border-black">
-                      <td className="w-[180px] font-semibold px-3 py-3 border border-black bg-[#e8edf8]">
+                      <td className="w-[180px] font-semibold px-3 py-1 border border-black bg-[#e8edf8]">
                         {field?.label}
                       </td>
-                      <td className="px-3 py-3 border border-black">
+                      <td className="px-3 py-1 border border-black">
                         {renderField(field)}
                       </td>
                     </tr>

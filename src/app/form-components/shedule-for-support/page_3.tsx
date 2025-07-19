@@ -17,9 +17,10 @@ interface Props {
   schema: { title: string; sections: Section[] };
   data: Record<string, any>;
   settings: any;
+  commonFieldsData: any;
 }
 
-const Page3: React.FC<Props> = ({ schema, data, settings }) => {
+const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) => {
   const renderField = (field: SchemaField) => {
     const value = data?.[field?.key];
 

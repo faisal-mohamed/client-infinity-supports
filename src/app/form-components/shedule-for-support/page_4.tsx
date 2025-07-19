@@ -1,8 +1,32 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page4: React.FC<any> = ({ schema, data, settings }) => {
+
+const commonFieldMapping: Record<string, string> = {
+  ndisNumber: "ndis",
+  gender: 'sex',
+  participantName: 'name',
+  dob: "dob",
+  address: "street",
+  state: "state",
+  postcode: "postCode",
+  email: "email",
+  phone: "phone",
+};
+
+
+const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
   const isChecked = (value: string, option: string) => value?.toLowerCase?.() === option.toLowerCase();
+
+
+    const getValue = (key: string) => {
+  if (commonFieldMapping[key]) {
+    return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+  }
+  return data?.[key] ?? '';
+};
+
+
 
   return (
     <A4PageWrapper>
@@ -66,13 +90,13 @@ const Page4: React.FC<any> = ({ schema, data, settings }) => {
                   {schema?.signatures?.participant?.label}
                 </td>
                 <td className="border border-black p-1 w-1/3">
-                  {data?.participantSignature || ''}
+                   <img src={`${data?.participantSignature}`} alt="Participant Signature" />
                 </td>
                 <td className="border border-black bg-blue-200 font-bold p-1 text-center w-1/6">
                   Date
                 </td>
                 <td className="border border-black p-1 w-1/6">
-                  {data?.participantDate || ''}
+                  {data?.participantSignatureDate || ''}
                 </td>
               </tr>
               <tr>
@@ -80,13 +104,15 @@ const Page4: React.FC<any> = ({ schema, data, settings }) => {
                   {schema?.signatures?.author?.label}
                 </td>
                 <td className="border border-black p-1">
-                  {data?.authorSignature || ''}
+                <img src={`${data?.authorSignature}`} alt="Author Signature" />
+
+                
                 </td>
                 <td className="border border-black bg-blue-200 font-bold p-1 text-center">
                   Date
                 </td>
                 <td className="border border-black p-1">
-                  {data?.authorDate || ''}
+                  {data?.providerSignatureDate || ''}
                 </td>
               </tr>
             </tbody>

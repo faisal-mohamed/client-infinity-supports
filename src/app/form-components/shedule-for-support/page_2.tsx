@@ -24,38 +24,38 @@ const Page2: React.FC<any> = ({ data, settings }) => {
           <table className="w-full border border-black border-collapse">
             <tbody>
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-5 uppercase">Core Supports</td>
+                <td className="border border-black font-bold p-3 uppercase">Core Supports</td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Preferred providers</span>
                   <br />
                   {data?.corePreferredProviders}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Alternative providers</span>
                   <br />
                   {data?.coreAlternativeProviders}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Service Agreement developed/signed?</span>
                   <br />
                   {data?.coreAgreementSigned}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Supports have commenced</span>
                   <br />
                   {data?.coreSupportsCommenced}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Discussion held with Plan Manager and budget approved?</span>
                   <br />
                   {data?.coreBudgetApproved}
@@ -63,38 +63,38 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
 
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-5 uppercase">Capacity Building</td>
+                <td className="border border-black font-bold p-3 uppercase">Capacity Building</td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Preferred providers</span>
                   <br />
                   {data?.capacityPreferredProviders}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Alternative providers</span>
                   <br />
                   {data?.capacityAlternativeProviders}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Service Agreement developed/signed?</span>
                   <br />
                   {data?.capacityAgreementSigned}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Supports in place at start of plan</span>
                   <br />
                   {data?.capacitySupportsInPlace}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span>Are additional assessments required?</span>
                   <br />
                   {data?.capacityAssessmentRequired}
@@ -102,7 +102,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
               {data?.capacityAssessmentRequired === 'Yes' && (
                 <tr>
-                  <td className="border border-black p-5">
+                  <td className="border border-black p-3">
                     <span className="font-bold">If Yes - Actions</span>
                     <br />
                     {data?.capacityActions}
@@ -110,7 +110,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </tr>
               )}
               <tr>
-                <td className="border border-black p-5">
+                <td className="border border-black p-3">
                   <span className="font-bold">Discussion held with Plan Manager and budget approved?</span>
                   <br />
                   {data?.capacityBudgetApproved}
@@ -118,7 +118,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
 
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-5 uppercase">Capital</td>
+                <td className="border border-black font-bold p-3 uppercase">Capital</td>
               </tr>
             </tbody>
           </table>
