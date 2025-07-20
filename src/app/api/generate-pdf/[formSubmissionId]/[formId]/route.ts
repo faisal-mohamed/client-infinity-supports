@@ -169,6 +169,31 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         }
 
+             componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {}           // ✅ Also in fallback
+        }
+
+        break;
+
+
+        case "multi_disciplinary_meeting": 
+        images  =  {
+          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+
+        }
+
+        componentProps = {
+          formData,
+          images,
+          settings: settings || {},
+          commonFieldsData: commonFields ||  {},
+        }
+        break;
+      
+
       default:
         componentProps = { 
           formData, 
@@ -177,6 +202,8 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           images
         };
         break;
+
+
     }
   } catch (error) {
     console.error(`Error preparing form ${formKey}:`, error);

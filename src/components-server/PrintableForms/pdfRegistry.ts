@@ -10,6 +10,7 @@ import EmergencyDrill from './emergency-drill/page'; // Assuming this is the cor
 import IndividualRiskAssessmentView from './individual-risk-assessment/page'; // Assuming this is the correct import path
 import WelcomeForm from './welcome-form/page';
 import ScheduleForSupport from './shedule-for-support/page';
+import MDT from './mdt/page'
 
 
 // Interface for PDF form components
@@ -66,6 +67,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: "schedule_for_support",
     component: ScheduleForSupport,
     name: "Schedule For Support"
+  },
+  {
+    formKey: 'multi_disciplinary_meeting',
+    component: MDT,
+    name: "Multi Disciplinary Meeting"
   }
   
 ];
