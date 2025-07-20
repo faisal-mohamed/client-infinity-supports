@@ -1,5 +1,5 @@
 import React from 'react'
-import ScheduleForSupport from '@/app/form-components/shedule-for-support/page'
+import ScheduleForSupport from '@/app/form-components/support-action-plan/page'
 
 const ScheduleForSupportView = ({settings, formData, commonFieldsData} : any ) => {
   return (

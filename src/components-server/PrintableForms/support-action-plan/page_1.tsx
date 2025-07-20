@@ -143,7 +143,7 @@ const Page1: React.FC<Props> = ({
         {/* Sticky Footer! (footer always stays at the bottom) */}
         <footer className="flex-shrink-0 mt-auto flex justify-between text-[10px] text-gray-500 pt-4 border-t border-gray-300">
           <div>Website: {settings?.company_website}</div>
-          <div>{settings?.schedule_for_support}</div>
+          <div>{settings?.support_action_plan}</div>
           <div>Review Date: {settings?.review_date}</div>
         </footer>
       </div>

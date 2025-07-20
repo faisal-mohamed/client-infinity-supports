@@ -1,37 +1,30 @@
-
-
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page2: React.FC<any> = ({ data, settings, images }) => {
+
+
+const Page2: React.FC<any> = ({ data, settings }) => {
   return (
     <A4PageWrapper>
-      <div
-        className="flex flex-col h-full min-h-full box-border px-10 py-6"
-        style={{
-          height: '100%',
-          minHeight: '100%',
-          paddingLeft: '40px',   // 10 * 4px (Tailwind px-10 fallback)
-          paddingRight: '40px',
-          paddingTop: '24px',    // 6 * 4px (Tailwind py-6 fallback)
-          paddingBottom: '24px',
-        }}
-      >
+      <div className="flex flex-col h-full px-10 py-6">
         {/* Header */}
         <div className="flex flex-col items-center mb-2">
-          <img
-            src={images?.infinityLogo}
+           <img
+            src="/infinity_logo.png"
             alt="Infinity Supports WA Logo"
             className="h-[50px] w-[150px] object-contain"
           />
+          {/* <p className="text-sm text-gray-600 uppercase tracking-widest text-center">
+            Support Coordination Action Plan
+          </p> */}
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 min-h-0 leading-relaxed text-[10px]">
+        <div className="flex-1 leading-relaxed text-[10px]">
           <table className="w-full border border-black border-collapse">
             <tbody>
-              <tr>
-                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Core Supports</td>
+              <tr className="bg-[#a9c1e0]">
+                <td className="border border-black font-bold p-3 uppercase">Core Supports</td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
@@ -69,8 +62,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                 </td>
               </tr>
 
-              <tr>
-                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Capacity Building</td>
+              <tr className="bg-[#a9c1e0]">
+                <td className="border border-black font-bold p-3 uppercase">Capacity Building</td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
@@ -124,17 +117,17 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                 </td>
               </tr>
 
-              <tr >
-                <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Capital</td>
+              <tr className="bg-[#a9c1e0]">
+                <td className="border border-black font-bold p-3 uppercase">Capital</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        {/* Sticky Footer */}
-        <footer className="flex-shrink-0 mt-auto flex justify-between text-[10px] text-gray-500 pt-4 border-t border-gray-300">
+        {/* Footer (always at bottom) */}
+         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
-          <div>{settings?.schedule_for_support}</div>
+          <div>{settings?.support_action_plan}</div>
           <div>Review Date: {settings?.review_date}</div>
         </footer>
       </div>

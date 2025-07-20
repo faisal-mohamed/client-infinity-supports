@@ -163,7 +163,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         break;
 
-        case "schedule_for_support": 
+        case "support_action_plan": 
         images =  {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
 

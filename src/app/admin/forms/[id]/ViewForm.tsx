@@ -14,7 +14,7 @@ import EmergencyDrill from "@/app/form-components/emergency-drill/page";
 
 import IndividualRiskAssessment from "@/app/form-components/individual-risk-assessment/page";
 import WelcomeFormView from "@/components/welcome-form/View";
-import ScheduleForSupportView from "@/components/schedule-for-support/View";
+import ScheduleForSupportView from "@/components/support-action-plan/View";
 
 import MDTView from "@/components/mdt/View";
 

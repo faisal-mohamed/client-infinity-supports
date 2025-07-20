@@ -204,7 +204,18 @@ const settings = [
     isRequired: true,
     sortOrder: 2,
     isActive: true
-  }
+  },
+   {
+    key: 'support_action_plan',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Support Co-ordination Action Plan ID',
+    description: 'Unique identifier for Support Co-ordination Action Plan form',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
+  },
 ];
 
 async function initSettings() {

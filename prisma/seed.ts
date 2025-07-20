@@ -71,8 +71,8 @@ async function main() {
       requiresSignature: true
     },
     {
-      formKey: 'schedule_for_support',
-      title: 'Schedule for Support',
+      formKey: 'support_action_plan',
+      title: 'Support Co-Ordination Action Plan',
       version: 1,
       requiresSignature: true
     },
