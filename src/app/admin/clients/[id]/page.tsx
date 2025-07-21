@@ -47,55 +47,17 @@ export default function ClientDetailPage() {
     console.log(client, id);
   }, [client])
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse space-y-6">
-            {/* Header Skeleton */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
-                <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-                <div className="space-y-2">
-                  <div className="h-8 bg-gray-300 rounded w-48"></div>
-                  <div className="h-4 bg-gray-200 rounded w-32"></div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Cards Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
-                  <div className="space-y-3">
-                    <div className="h-4 bg-gray-200 rounded"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Activity Skeleton */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-12 bg-gray-200 rounded"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Loading Message */}
-          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm mx-4">
-              <div className="w-16 h-16 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Client Details</h3>
-              <p className="text-gray-600">Please wait while we fetch the information...</p>
-            </div>
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Client Information</h3>
+          <p className="text-gray-600 font-medium">Please wait...</p>
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
           </div>
         </div>
       </div>
@@ -400,7 +362,7 @@ export default function ClientDetailPage() {
         )}
 
         {/* Enhanced Recent Activity Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        {/* <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           <div className="px-8 py-6 bg-gradient-to-r from-indigo-50 to-indigo-100 border-b border-indigo-200">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md">
@@ -488,7 +450,7 @@ export default function ClientDetailPage() {
               </p>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
 
       <style jsx>{`
