@@ -145,9 +145,9 @@ const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData 
 
         {/* Footer */}
         <footer className="flex justify-between text-[10px] mt-auto px-1 pt-6">
-          <span>Website: infinitysupportswa.org</span>
-          <span>CF008A1</span>
-          <span>Review Date: 14/03/2026</span>
+           <span>Website: {settings?.company_website}</span>
+          <span>{settings?.schedule_of_supports}</span>
+          <span>Review Date: {settings?.review_date}</span>
         </footer>
       </div>
     </A4PageWrapper>

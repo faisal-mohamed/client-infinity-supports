@@ -112,9 +112,9 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* Footer - always sticks to bottom */}
         <div className="flex justify-between text-xs mt-4 pt-4 px-2 text-gray-600">
-          <span>Website: infinitysupportwa.org</span>
-          <span>CF008A1</span>
-          <span>Review Date: 14/03/2026</span>
+          <span>Website: {settings?.company_website}</span>
+          <span>{settings?.schedule_of_supports}</span>
+          <span>Review Date: {settings?.review_date}</span>
         </div>
       </div>
     </A4PageWrapper>

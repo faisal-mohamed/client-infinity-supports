@@ -11,7 +11,7 @@ import IndividualRiskAssessmentView from './individual-risk-assessment/page'; //
 import WelcomeForm from './welcome-form/page';
 import ScheduleForSupport from './support-action-plan/page';
 import MDT from './mdt/page'
-
+import ScheduleOfSupports from './schedule-of-supports/page';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -72,6 +72,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'multi_disciplinary_meeting',
     component: MDT,
     name: "Multi Disciplinary Meeting"
+  },
+  {
+    formKey: 'schedule_of_supports',
+    component: ScheduleOfSupports,
+    name: "Schedule of Supports"
   }
   
 ];

@@ -8,7 +8,7 @@ interface Page2Props {
   settings: any;
 }
 
-const Page2: React.FC<Page2Props> = ({ schema, formData }) => {
+const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
   const isChecked = (key: string) => formData?.[key] === 'Yes';
 
   return (
@@ -82,9 +82,9 @@ const Page2: React.FC<Page2Props> = ({ schema, formData }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 text-xs flex justify-between">
-          <span>Website: infinitysupportwa.org</span>
-          <span>CF008A1</span>
-          <span>Review Date: 14/03/2026</span>
+          <span>Website: {settings?.company_website}</span>
+          <span>{settings?.schedule_of_supports}</span>
+          <span>Review Date: {settings?.review_date}</span>
         </div>
       </div>
     </A4PageWrapper>

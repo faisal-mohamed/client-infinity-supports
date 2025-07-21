@@ -192,6 +192,22 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           commonFieldsData: commonFields ||  {},
         }
         break;
+
+
+      case "schedule_of_supports" : 
+      images  =  {
+          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+
+        }
+
+      componentProps = {
+        formData,
+        images,
+        settings: settings || {},
+        commonFieldsData : commonFields || {}
+      }
+
+      break;
       
 
       default:
