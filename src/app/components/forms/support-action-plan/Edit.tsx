@@ -717,8 +717,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           {/* Section Header */}
           <div className="mb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
-              {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
-              {FORM_SECTIONS[currentStep].title}
+              {React.createElement(FORM_SECTIONS[currentStep]?.icon, { className: "w-6 h-6 text-indigo-600" })}
+              {FORM_SECTIONS[currentStep]?.title}
             </h2>
             <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep]?.description}</p>
           </div>

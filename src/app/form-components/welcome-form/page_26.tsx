@@ -1,7 +1,7 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page26: React.FC = ({ schema, data, settings, commonFieldsData }: any) => {
+const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any) => {
 
   const commonFieldMapping: Record<string, string> = {
     name: 'name',

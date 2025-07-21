@@ -2,7 +2,7 @@ import React from 'react'
 import Page1 from './page1'
 
 
-export const formSchema = {
+ const formSchema : any  = {
   title: "Multi-Disciplinary Meeting",
   fields: [
     { key: "clientName", label: "Client Name" },

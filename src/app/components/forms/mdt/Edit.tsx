@@ -30,7 +30,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-export const FORM_SECTIONS = [
+export const FORM_SECTIONS : any = [
   {
     id: "meetingDetails",
     title: "1. Meeting Details",
@@ -206,7 +206,7 @@ const MDTEdit: React.FC<FormProps> = ({
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key) => {
+    return required.every((key : any ) => {
       let value;
       
       // For common fields, get value from commonFieldsData
@@ -354,7 +354,7 @@ const MDTEdit: React.FC<FormProps> = ({
   };
 
   // Field metadata for dynamic rendering
-   const FIELD_METADATA = {
+   const FIELD_METADATA : any = {
   clientName: { label: "Client Name", type: "text" },
   date: { label: "Date", type: "date" },
   inAttendance: { label: "In Attendance", type: "textarea" },
@@ -375,8 +375,8 @@ const MDTEdit: React.FC<FormProps> = ({
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
     
-    FORM_SECTIONS.forEach(section => {
-      section.requiredFields.forEach(fieldName => {
+    FORM_SECTIONS.forEach((section : any ) => {
+      section.requiredFields.forEach((fieldName : any ) => {
         let value;
         
         // For common fields, get value from commonFieldsData
@@ -434,7 +434,7 @@ const MDTEdit: React.FC<FormProps> = ({
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section, idx) => {
+          {FORM_SECTIONS.map((section : any , idx : any ) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -476,9 +476,9 @@ const MDTEdit: React.FC<FormProps> = ({
           <div className="mb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
               {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
-              {FORM_SECTIONS[currentStep].title}
+              {FORM_SECTIONS[currentStep]?.title}
             </h2>
-            <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
+            <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep]?.description}</p>
           </div>
 
           <form
@@ -578,7 +578,7 @@ const MDTEdit: React.FC<FormProps> = ({
               ) : (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field) => {
+                  {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
                     
@@ -612,7 +612,7 @@ const MDTEdit: React.FC<FormProps> = ({
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_, index) => (
+            {FORM_SECTIONS.map((_ : any , index : any ) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}

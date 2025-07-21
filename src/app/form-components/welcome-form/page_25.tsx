@@ -2,7 +2,7 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
-const Page25: React.FC = ({settings}: any ) => {
+const Page25: React.FC<any> = ({settings}: any ) => {
   return (
     <A4PageWrapper>
       <div className="flex flex-col h-full text-[14px] text-black font-[Times_New_Roman]">
