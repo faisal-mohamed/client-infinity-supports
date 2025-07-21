@@ -1,19 +1,89 @@
 "use client";
 
-import React from 'react';
+
+type DashboardStats = {
+  totalClients: number;
+  newClientsThisMonth: number;
+  completedForms: number;
+  notStarted: number;
+  formsInProgress: number;
+  signatureRequests: number;
+  completedSignatures: number;
+};
+
+const StatCard = ({
+  title,
+  value,
+  icon,
+  iconBg,
+  link,
+  linkText,
+  color = "text-gray-700"
+}: {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
+  iconBg: string;
+  link?: string;
+  linkText?: string;
+  color?: string;
+}) => (
+  <div className="relative bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between group hover:shadow-xl transition-shadow border border-gray-100">
+    <div className="flex items-center">
+      <div className={`flex items-center justify-center rounded-xl ${iconBg} text-white shadow-lg w-12 h-12`}>
+        {icon}
+      </div>
+      <div className="ml-4">
+        <h2 className={`font-semibold ${color} text-base`}>{title}</h2>
+        <p className="text-3xl font-extrabold text-gray-900 mt-1">{value}</p>
+      </div>
+    </div>
+    {link && linkText && (
+      <div className="mt-4 pt-3 border-t border-gray-100">
+        <Link href={link} className={`text-sm font-medium flex items-center ${color} hover:underline`}>
+          {linkText}
+          <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
+    )}
+  </div>
+);
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import UserWelcome from './user-welcome';
 import { FaUsers, FaCheckCircle, FaClock, FaShieldAlt, FaFileAlt, FaEdit, FaUserPlus, FaChartBar, FaCalendarAlt, FaClipboardList } from 'react-icons/fa';
 import useRequireAuth from '../../hooks/useRequireAuth';
 
-export default function DashboardClient() {
-  const { session, status } = useRequireAuth();
 
+export const DashboardClient = () => {
+  const { session, status } = useRequireAuth();
   const pathname = usePathname();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/admin/dashboard-stats');
+        if (!res.ok) throw new Error('Failed to fetch dashboard stats');
+        const data = await res.json();
+        setStats(data);
+      } catch (err : any ) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
   if (status === 'loading' || !session) return null;
-
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -25,90 +95,74 @@ export default function DashboardClient() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-indigo-100 text-indigo-600">
-                <FaUsers className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <h2 className="font-medium text-gray-500 text-sm">Total Clients</h2>
-                <p className="text-2xl font-bold text-gray-900">24</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-100">
-              <Link href="/admin/clients" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
-                View all clients
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-green-100 text-green-600">
-                <FaCheckCircle className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <h2 className="font-medium text-gray-500 text-sm">Completed Forms</h2>
-                <p className="text-2xl font-bold text-gray-900">18</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-100">
-              <Link href="/admin/forms?status=completed" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
-                View completed forms
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-amber-100 text-amber-600">
-                <FaClock className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <h2 className="font-medium text-gray-500 text-sm">Pending Forms</h2>
-                <p className="text-2xl font-bold text-gray-900">7</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-100">
-              <Link href="/admin/forms?status=pending" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
-                View pending forms
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center">
-              <div className="p-3 rounded-lg bg-purple-100 text-purple-600">
-                <FaShieldAlt className="h-6 w-6" />
-              </div>
-              <div className="ml-4">
-                <h2 className="font-medium text-gray-500 text-sm">Active Contracts</h2>
-                <p className="text-2xl font-bold text-gray-900">15</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-gray-100">
-              <Link href="/admin/contracts" className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
-                View all contracts
-                <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </div>
-          </div>
+          {loading ? (
+            <div className="col-span-4 text-center py-8 text-gray-500">Loading stats...</div>
+          ) : error ? (
+            <div className="col-span-4 text-center py-8 text-red-500">{error}</div>
+          ) : stats && (
+            <>
+            
+              {/* Enhanced Stat Card Example */}
+              <StatCard
+                title="Total Clients"
+                value={stats.totalClients}
+                icon={<FaUsers className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-indigo-500 to-indigo-300"
+                link="/admin/clients"
+                linkText="View all clients"
+                color="text-indigo-700"
+              />
+              <StatCard
+                title="Completed Forms"
+                value={stats.completedForms}
+                icon={<FaCheckCircle className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-green-500 to-green-300"
+             
+                color="text-green-700"
+              />
+              <StatCard
+                title="Forms Not Started"
+                value={stats.notStarted}
+                icon={<FaClock className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-grey-500 to-grey-300"
+         
+                color="text-grey-700"
+              />
+              <StatCard
+                title="New Clients (This Month)"
+                value={stats.newClientsThisMonth}
+                icon={<FaUserPlus className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-blue-500 to-blue-300"
+                color="text-blue-700"
+              />
+              <StatCard
+                title="Forms In Progress"
+                value={stats.formsInProgress}
+                icon={<FaEdit className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-yellow-500 to-yellow-300"
+                color="text-yellow-700"
+              />
+              <StatCard
+                title="Pending Signatures"
+                value={stats.signatureRequests}
+                icon={<FaFileAlt className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-purple-500 to-purple-300"
+                color="text-purple-700"
+              />
+              <StatCard
+                title="Completed Signatures"
+                value={stats.completedSignatures}
+                icon={<FaCheckCircle className="h-7 w-7" />}
+                iconBg="bg-gradient-to-tr from-green-500 to-green-300"
+                color="text-green-700"
+              />
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Activity */}
-          <div className="lg:col-span-2">
+          {/* <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <div className="flex items-center">
@@ -195,11 +249,11 @@ export default function DashboardClient() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Quick Actions */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
+            {/* <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <div className="flex items-center">
                   <div className="bg-indigo-100 p-2 rounded-md mr-3">
@@ -241,10 +295,10 @@ export default function DashboardClient() {
                   </Link>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* Upcoming Deadlines */}
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            {/* <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <div className="flex items-center">
                   <div className="bg-amber-100 p-2 rounded-md mr-3">
@@ -290,7 +344,7 @@ export default function DashboardClient() {
                   </li>
                 </ul>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

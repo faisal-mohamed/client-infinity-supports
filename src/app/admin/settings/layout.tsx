@@ -38,15 +38,15 @@ const menuItems = [
       </svg>
     ),
   },
-  {
-    href: '/admin/reports',
-    label: 'Reports',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
+  // {
+  //   href: '/admin/reports',
+  //   label: 'Reports',
+  //   icon: (
+  //     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  //     </svg>
+  //   ),
+  // },
   // {
   //   href: '/admin/contracts',
   //   label: 'Contracts',
@@ -295,7 +295,7 @@ export default function AdminClientsLayout({
                     </div>
                     <div>
                       <p className="text-white font-semibold text-sm">Admin User</p>
-                      <p className="text-indigo-200 text-xs">System Administrator</p>
+                      {/* <p className="text-indigo-200 text-xs">System Administrator</p> */}
                     </div>
                   </div>
                 </div>
