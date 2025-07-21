@@ -91,98 +91,98 @@ export const formSchema = {
 };
 
 
-export const formData = {
-  supportFor: "John Doe",
-  ndisNumber: "123456789",
-  planDatesFrom: "01/07/2025",
-  planDatesTo: "21/07/2025",
+// export const formData = {
+//   supportFor: "John Doe",
+//   ndisNumber: "123456789",
+//   planDatesFrom: "01/07/2025",
+//   planDatesTo: "21/07/2025",
 
-  row0_weeks: '2',
-  row0_totalHours: '2',
+//   row0_weeks: '2',
+//   row0_totalHours: '2',
 
-  row1_weeks: '20',
-  row1_totalHours: '40',
+//   row1_weeks: '20',
+//   row1_totalHours: '40',
 
-  row2_weeks: '10',
-  row2_totalHours: '15',
+//   row2_weeks: '10',
+//   row2_totalHours: '15',
 
-  row3_weeks: '10',
-  row3_totalHours: '10',
+//   row3_weeks: '10',
+//   row3_totalHours: '10',
 
-  row4_weeks: '10',
-  row4_totalHours: '5',
+//   row4_weeks: '10',
+//   row4_totalHours: '5',
 
-  row5_weeks: '5',
-  row5_totalHours: '2',
+//   row5_weeks: '5',
+//   row5_totalHours: '2',
 
-  row6_weeks: '10',
-  row6_totalHours: '20',
+//   row6_weeks: '10',
+//   row6_totalHours: '20',
 
-  row7_weeks: '5',
-  row7_totalHours: '10',
+//   row7_weeks: '5',
+//   row7_totalHours: '10',
 
-  row8_weeks: '3',
-  row8_totalHours: '6',
+//   row8_weeks: '3',
+//   row8_totalHours: '6',
 
-  row9_weeks: '2',
-  row9_totalHours: '4',
+//   row9_weeks: '2',
+//   row9_totalHours: '4',
 
-  row10_weeks: '6',
-  row10_totalHours: '12',
+//   row10_weeks: '6',
+//   row10_totalHours: '12',
 
-  row11_weeks: '4',
-  row11_totalHours: '8',
+//   row11_weeks: '4',
+//   row11_totalHours: '8',
 
-  row12_totalKms: '150', 
+//   row12_totalKms: '150', 
 
-  row13_weeks: '1',
-  row13_totalHours: '3',
+//   row13_weeks: '1',
+//   row13_totalHours: '3',
 
-  row14_weeks: '2',
-  row14_totalHours: '4',
+//   row14_weeks: '2',
+//   row14_totalHours: '4',
 
-  row15_weeks: '2',
-  row15_totalHours: '5',
-
-
-  //page 2
-   transportOption1: 'yes',
-  transportValue1: '$100',
-  transportOver1: '$25',
-
-  transportOption2: 'no',
-  transportValue2: '',
-  transportOver2: '',
-
-  transportOption3: 'yes',
-
-  establishmentFeeAgreement: 'yes',
-
-  //page3
-  providerTravelAgreement: "yes",
-
-  participantSignature: "participant sig",  // base64-encoded image if captured
-  participantSignatureDate: "2025-07-19",
-  participantName: "John Doe",
-
-  nomineeSignature: "nominnee sig",
-  nomineeSignatureDate: "12-12-12",
-  nomineeName: "nominee name",
-
-  representativeSignature: "infintiy supports",
-  representativeSignatureDate: "12-12-12",
-};
+//   row15_weeks: '2',
+//   row15_totalHours: '5',
 
 
+//   //page 2
+//    transportOption1: 'yes',
+//   transportValue1: '$100',
+//   transportOver1: '$25',
+
+//   transportOption2: 'no',
+//   transportValue2: '',
+//   transportOver2: '',
+
+//   transportOption3: 'yes',
+
+//   establishmentFeeAgreement: 'yes',
+
+//   //page3
+//   providerTravelAgreement: "yes",
+
+//   participantSignature: "participant sig",  // base64-encoded image if captured
+//   participantSignatureDate: "2025-07-19",
+//   participantName: "John Doe",
+
+//   nomineeSignature: "nominnee sig",
+//   nomineeSignatureDate: "12-12-12",
+//   nomineeName: "nominee name",
+
+//   representativeSignature: "infintiy supports",
+//   representativeSignatureDate: "12-12-12",
+// };
 
 
 
-const ScheduleOfSupports = () => {
+
+
+const ScheduleOfSupports = ({formData, settings, commonFieldsData} : any ) => {
   return (
     <div>
-        <Page1 formData={formData} schema={formSchema.page1}/>
-        <Page2 formData={formData} schema={formSchema.page2}/>
-        <Page3 data={formData} schema = {formSchema.page3}/>
+        <Page1 formData={formData} schema={formSchema.page1} commonFieldsData={commonFieldsData} settings={settings} />
+        <Page2 formData={formData} schema={formSchema.page2} commonFieldsData={commonFieldsData} settings={settings}/>
+        <Page3 data={formData} schema = {formSchema.page3} commonFieldsData={commonFieldsData}settings={settings} />
     </div>
   )
 }

@@ -4,10 +4,12 @@ import A4PageWrapper from './A4PageWrapper';
 interface Page2Props {
   schema: any;
   formData: Record<string, any>;
+  commonFieldsData: any;
+  settings: any;
 }
 
 const Page2: React.FC<Page2Props> = ({ schema, formData }) => {
-  const isChecked = (key: string) => formData?.[key] === 'yes';
+  const isChecked = (key: string) => formData?.[key] === 'Yes';
 
   return (
     <A4PageWrapper>

@@ -29,6 +29,10 @@ import ScheduleForSupportView from '@/components/support-action-plan/View';
 import MDTEdit from '../components/forms/mdt/Edit';
 import MDTView from '@/components/mdt/View';
 
+import ScheduleForSupportView1 from '@/components/schedule-of-supports/View';
+import ScheduleForSupportEdit1 from '../components/forms/schedule-of-supports/Edit';
+
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -219,6 +223,40 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: 'Multi Disciplinary Meeting',
     editComponent: MDTEdit,
     viewComponent: MDTView,
+  },
+
+   'schedule_of_supports': {
+    key: 'schedule_of_supports',
+    name: 'Schedule of Supports',
+    viewComponent: ScheduleForSupportView1,
+    editComponent: ScheduleForSupportEdit1,
+    signatures: [
+      {
+        id: 'participant_signature',
+        label: 'Participant Signature',
+        description: 'Signature of the Participant',
+        required: true,
+        dataKey: 'participantSignature' 
+      },
+      {
+        id: 'nominee_signature',
+        label: 'Nominee Signature',
+        description: 'Signature of the Nominee (if applicable)',
+        required: true, // Changed to false since nominee is optional
+        dataKey: 'nomineeSignature',
+        condition: (formData: any) => {
+          // Only require nominee signature if nominee name is provided
+          return formData.nomineeName && formData.nomineeName.trim() !== '';
+        }
+      },
+      {
+        id: 'representative_signature',
+        label: 'Representative Signature',
+        description: 'Signature of the Representative',
+        required: true,
+        dataKey: 'representativeSignature' 
+      },
+    ]
   },
 };
 

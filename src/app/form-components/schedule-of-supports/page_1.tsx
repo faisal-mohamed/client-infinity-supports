@@ -13,9 +13,11 @@ interface Page1Props {
   schema: {
     tableRows: SupportItem[];
   };
+  commonFieldsData: any;
+  settings: any;
 }
 
-const Page1: React.FC<Page1Props> = ({ formData, schema }) => {
+const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings } : any) => {
   const getCostNumber = (cost: string) => {
     const parsed = parseFloat(cost?.replace(/[^0-9.]/g, "") || "");
     return isNaN(parsed) ? 0 : parsed;
@@ -37,12 +39,12 @@ const Page1: React.FC<Page1Props> = ({ formData, schema }) => {
 
         {/* Title */}
         <div className="text-center font-semibold text-sm mb-4">
-          Schedule of Support for: {formData?.supportFor || "________________"}
+          Schedule of Support for: {commonFieldsData?.name || "________________"}
         </div>
 
         {/* NDIS & Plan Dates */}
         <div className="flex justify-between text-xs mb-2 px-2">
-          <span>NDIS number: {formData?.ndisNumber || ""}</span>
+          <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
           <span>
             Plan dates from: {formData?.planDatesFrom || ""} -{" "}
             {formData?.planDatesTo || ""}
@@ -70,7 +72,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema }) => {
               </tr>
             </thead>
             <tbody className="align-top">
-              {schema?.tableRows?.map((item: any, index) => {
+              {schema?.tableRows?.map((item: any, index : any ) => {
                 const key = item?.key || `row${index}`;
                 const weeks = formData?.[`${key}_weeks`] || "";
                 const totalHours = formData?.[`${key}_totalHours`] || "";

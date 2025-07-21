@@ -16,6 +16,8 @@ import IndividualRiskAssessment from "@/app/form-components/individual-risk-asse
 import WelcomeFormView from "@/components/welcome-form/View";
 import ScheduleForSupportView from "@/components/support-action-plan/View";
 
+import ScheduleOfSupportsView from "@/components/schedule-of-supports/View";
+
 import MDTView from "@/components/mdt/View";
 
 // Types for settings
@@ -290,7 +292,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <WelcomeFormView formKey={form.formKey} settings={settings}/>
                 ) : 
 
-                form.formKey === "schedule_for_support" ? (
+                form.formKey === "support_action_plan" ? (
                   <ScheduleForSupportView formKey={form.formKey} settings={settings}/>
                 ) : 
 
@@ -299,6 +301,11 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <MDTView formKey={form.formKey} settings={settings}/>
                 ) : 
 
+                form.formKey === "schedule_of_supports" ? (
+                  <ScheduleOfSupportsView formKey={form.formKey} settings = {settings} />
+                )
+
+                : 
                 (
                   <div className="text-center py-16">
                     <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
