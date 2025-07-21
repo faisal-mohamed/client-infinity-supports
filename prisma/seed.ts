@@ -81,7 +81,13 @@ async function main() {
       title: 'Multi Disciplinary Meeting',
       requiresSignature: false,
       version: 1
-    }
+    },
+      {
+      formKey: 'schedule_of_supports',
+      title: 'Schedule of Supports',
+      version: 1,
+      requiresSignature: true
+    },
   ];
 
   for (const form of forms) {

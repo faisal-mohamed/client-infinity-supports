@@ -15,17 +15,6 @@ const settings = [
     isActive: true
   },
   {
-    key: 'email_app_id',
-    value: '',
-    type: 'password',
-    category: 'email_settings',
-    label: 'Email Service App ID',
-    description: 'Secret App ID or API key for email service integration',
-    isRequired: true,
-    sortOrder: 2,
-    isActive: true
-  },
-  {
     key: 'smtp_host',
     value: 'smtp.gmail.com',
     type: 'text',
@@ -212,6 +201,17 @@ const settings = [
     category: 'form_ids',
     label: 'Support Co-ordination Action Plan ID',
     description: 'Unique identifier for Support Co-ordination Action Plan form',
+    isRequired: true,
+    sortOrder: 2,
+    isActive: true
+  },
+  {
+    key: 'schedule_of_supports',
+    value: 'CF0000',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Schedule of Supports Form ID',
+    description: 'Unique identifier for Schedule of Supports form',
     isRequired: true,
     sortOrder: 2,
     isActive: true
