@@ -8,13 +8,15 @@ interface EditWarningModalProps {
   onClose: () => void;
   onConfirm: () => void;
   formTitle: string;
+  onDownload: any;
 }
 
 export default function EditWarningModal({ 
   isOpen, 
   onClose, 
   onConfirm, 
-  formTitle 
+  formTitle ,
+  onDownload
 }: EditWarningModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">
@@ -70,6 +72,12 @@ export default function EditWarningModal({
         >
           Proceed to Edit
         </button>
+        <button
+  onClick={onDownload}
+  className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+>
+  Download PDF
+</button>
       </div>
     </Modal>
   );

@@ -14,6 +14,7 @@ interface FormActionDropdownProps {
   hasSubmission: boolean;
   onDownloadPDF: () => void;
   downloadingPDF: boolean;
+  onDeleteClick:  any
 }
 
 export default function FormActionDropdown({
@@ -25,12 +26,18 @@ export default function FormActionDropdown({
   assignmentId,
   hasSubmission,
   onDownloadPDF,
-  downloadingPDF
+  downloadingPDF,
+  onDeleteClick
 }: FormActionDropdownProps) {
   const handleEditClick = () => {
     onEditClick();
     onClose();
   };
+
+  const handleDeleteClick = () =>{
+    onDeleteClick();
+    onClose();
+  }
 
   const handleDownloadClick = () => {
     onDownloadPDF();
@@ -83,6 +90,16 @@ export default function FormActionDropdown({
           </button>
         </>
       )}
+
+      <button
+        onClick={handleDeleteClick}
+        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2"
+      >
+        <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
+          <FaEdit className="h-4 w-4" />
+        </div>
+        <span>Delete Form</span>
+      </button>
     </Dropdown>
   );
 }

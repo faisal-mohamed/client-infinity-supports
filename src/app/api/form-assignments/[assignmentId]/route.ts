@@ -90,3 +90,41 @@ export async function GET(
     );
   }
 }
+
+
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ assignmentId: string }> }
+) {
+ const { assignmentId } = await params;
+    const assignmentIdNum = parseInt(assignmentId);
+  if (isNaN(assignmentIdNum)) {
+    return NextResponse.json({ error: 'Invalid assignment ID' }, { status: 400 });
+  }
+
+  try {
+    // Delete the assignment
+    await prisma.formAssignment.delete({
+      where: { id: assignmentIdNum }
+    });
+
+    // Optionally, delete the submission and progress too if cleanup is required
+    await prisma.formSubmission.deleteMany({
+      where: { formId: assignmentIdNum } // or use compound key if needed
+    });
+
+    await prisma.formProgress.deleteMany({
+      where: { formId: assignmentIdNum } // same as above
+    });
+
+    return NextResponse.json({ success: true, message: 'Form assignment deleted' });
+  } catch (error: any) {
+    console.error('Error deleting form assignment:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete form assignment', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+

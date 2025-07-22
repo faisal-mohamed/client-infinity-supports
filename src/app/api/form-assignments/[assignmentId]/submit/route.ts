@@ -266,45 +266,45 @@ export async function POST(
             });
 
             // Prepare completed forms data for email ----------------------------------------------
-          //   const completedFormsData = completedFormSubmissions.map(submission => ({
-          //     id: submission.id,
-          //     formId: submission.formId,
-          //     title: submission.form.title
-          //   }));
+            const completedFormsData = completedFormSubmissions.map(submission => ({
+              id: submission.id,
+              formId: submission.formId,
+              title: submission.form.title
+            }));
 
-          //   // Send dual notification email (admin + client)
-          //   const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications/send-email`, {
-          //     method: 'POST',
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //     },
-          //     body: JSON.stringify({
-          //       type: 'dual_notification', // Send to both admin and client
-          //       clientId: batch.clientId,
-          //       clientName: batch.client.name,
-          //       clientEmail: batch.client.email,
-          //       batchId: batch.id,
-          //       completedForms: completedFormsData,
-          //       completedAt: new Date().toLocaleString()
-          //     })
-          //   });
+            // Send dual notification email (admin + client)
+            const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || `${window.location.origin}`}/api/notifications/send-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'dual_notification', // Send to both admin and client
+                clientId: batch.clientId,
+                clientName: batch.client.name,
+                clientEmail: batch.client.email,
+                batchId: batch.id,
+                completedForms: completedFormsData,
+                completedAt: new Date().toLocaleString()
+              })
+            });
 
-          //   if (emailResponse.ok) {
-          //     const emailResult = await emailResponse.json();
-          //     console.log(`✅ Dual notification emails sent successfully:`, {
-          //       adminEmail: emailResult.adminEmail,
-          //       clientEmail: emailResult.clientEmail,
-          //       totalEmails: emailResult.totalEmails,
-          //       client: batch.client.name,
-          //       batchId: batch.id,
-          //       totalForms: completedFormsData.length
-          //     });
-          //   } else {
-          //     const emailError = await emailResponse.text();
-          //     console.error(`❌ Failed to send dual notification emails:`, emailError);
-          //   }
-          // } else {
-          //   console.log(`⏳ Batch ${batch.id} not yet complete: ${completedAssignments.length}/${allAssignments.length} forms done`);
+            if (emailResponse.ok) {
+              const emailResult = await emailResponse.json();
+              console.log(`✅ Dual notification emails sent successfully:`, {
+                adminEmail: emailResult.adminEmail,
+                clientEmail: emailResult.clientEmail,
+                totalEmails: emailResult.totalEmails,
+                client: batch.client.name,
+                batchId: batch.id,
+                totalForms: completedFormsData.length
+              });
+            } else {
+              const emailError = await emailResponse.text();
+              console.error(`❌ Failed to send dual notification emails:`, emailError);
+            }
+          } else {
+            console.log(`⏳ Batch ${batch.id} not yet complete: ${completedAssignments.length}/${allAssignments.length} forms done`);
           }
         } catch (emailError) {
           console.error("❌ Batch completion check failed (non-blocking):", emailError);

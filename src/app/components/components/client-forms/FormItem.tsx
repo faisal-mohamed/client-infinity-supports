@@ -12,6 +12,8 @@ import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types'
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 import EditWarningModal from '@/components/ui/EditWarningModal';
 import FormActionDropdown from '@/components/ui/FormActionDropdown';
+import { useConfirm } from '@/components/ui/Confirm';
+import { useToast } from '@/components/ui/Toast';
 
 interface FormItemProps {
   assignment: FormAssignmentWithDetails;
@@ -101,6 +103,63 @@ export default function FormItem({
   const statusInfo = getFormStatus(assignment);
   const StatusIcon = statusInfo.icon;
   const isSelected = selectedForms.includes(assignment.id);
+
+
+    const [isDeleting, setIsDeleting] = useState(false);
+    const confirm = useConfirm();
+    const { showToast } = useToast();
+    
+
+
+
+
+  const handleDeleteFormAssignment = async () => {
+  if (isDeleting) return;
+
+  const confirmed = await confirm.confirm({
+    title: "Delete Form Assignment",
+    message: "Are you sure you want to delete this form assignment? This will remove associated progress and submissions.",
+    confirmText: "Delete",
+    cancelText: "Cancel",
+    type: "danger",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    setIsDeleting(true);
+    
+    const response = await fetch(`/api/form-assignments/${assignment.id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete form assignment");
+    }
+
+    // showToast({
+    //   type: 'success',
+    //   title: 'Deleted',
+    //   message: 'Form assignment successfully deleted',
+    //   duration: 3000,
+    // });
+
+    window.location.reload();
+  } catch (err) {
+    showToast({
+      type: 'error',
+      title: 'Error',
+      message: 'Failed to delete form assignment',
+      duration: 3000,
+    });
+    console.error(err);
+  } finally {
+    setIsDeleting(false);
+  }
+};
+
+
+
 
   return (
     <>
@@ -213,6 +272,7 @@ export default function FormItem({
               hasSubmission={assignment.hasSubmission}
               onDownloadPDF={() => onDownloadPDF(assignment)}
               downloadingPDF={downloadingPDF === assignment.id}
+              onDeleteClick={handleDeleteFormAssignment}
             />
           </div>
         </div>
@@ -224,6 +284,7 @@ export default function FormItem({
         onClose={handleEditCancel}
         onConfirm={handleEditConfirm}
         formTitle={assignment.form.title}
+        onDownload={() => onDownloadPDF(assignment)}
       />
     </>
   );

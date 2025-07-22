@@ -87,6 +87,7 @@ export default function FormSignaturePageClient() {
         setCurrentSignatureStep(Math.max(0, firstIncomplete));
       }
     }
+    console.log("formData: ", formData)
   }, [formData]);
 
   // Effect to handle automatic step progression

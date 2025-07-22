@@ -5,19 +5,33 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+
 
 
 export default function LoginPage() {
+  const { data: session, status } = useSession(); // Session hook
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [hasMounted, setHasMounted] = useState(false);
 
-  
-    const [hasMounted, setHasMounted] = useState(false);
-useEffect(() => setHasMounted(true), []);
-if (!hasMounted) return null;
+  // Mount check to avoid hydration mismatch
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/admin/dashboard');
+    }
+  }, [status, router]);
+
+  if (!hasMounted || status === 'loading') return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +40,6 @@ if (!hasMounted) return null;
       setError('Please enter both email and password');
       return;
     }
-
 
     try {
       setIsLoading(true);
@@ -51,7 +64,6 @@ if (!hasMounted) return null;
       setIsLoading(false);
     }
   };
-
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white px-4 py-12 font-sans">
       {/* Background blobs */}
