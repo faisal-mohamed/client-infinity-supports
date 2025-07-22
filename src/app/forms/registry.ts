@@ -41,6 +41,7 @@ interface SignatureRequirement {
   required: boolean;
   dataKey?: string; // Maps to form data for pre-population (e.g., 'name', 'designation') or signature field (e.g., 'signature', 'witnessSignature')
   condition?: (formData: any) => boolean; // Dynamic requirement based on form data
+  signedAtKey?: string;
 }
 
 // Enhanced registry structure
@@ -93,7 +94,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Participant Signature',
         description: 'Signature of the Participant',
         required: true,
-        dataKey: 'participantSignature' 
+        dataKey: 'participantSignature' ,
+        signedAtKey: 'participantSignatureDate'
       },
       {
         id: 'nominee_signature',
@@ -104,14 +106,16 @@ const formRegistry: Record<string, FormRegistryItem> = {
         condition: (formData: any) => {
           // Only require nominee signature if nominee name is provided
           return formData.nomineeName && formData.nomineeName.trim() !== '';
-        }
+        },
+        signedAtKey: 'nomineeSignatureDate'
       },
       {
         id: 'provider_signature',
         label: 'Provider Signature',
         description: 'Signature of the Provider',
         required: true,
-        dataKey: 'providerSignature' 
+        dataKey: 'providerSignature' ,
+        signedAtKey: 'providerSignatureDate'
       },
     ]
   },
@@ -126,14 +130,17 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Authorised by',
         description: 'Signature of the Staff Member',
         required: true,
-        dataKey: 'signature' 
+        dataKey: 'signature' ,
+        signedAtKey: 'signatureDate'
+
       },
         {
         id: 'participant_signature',
         label: 'Participant Signature',
         description: 'Signature of the Participant',
         required: true,
-        dataKey: 'guardianSignature' 
+        dataKey: 'guardianSignature' ,
+        signedAtKey: 'guardianDate'
       },
      
     ]
@@ -149,7 +156,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Support Worker Signature',
         description: 'Signature of the Support Worker',
         required: true,
-        dataKey: 'supportWorkerSignature' 
+        dataKey: 'supportWorkerSignature',
+        signedAtKey: 'signatureDate'
       },
         {
         id: 'supervisor_signature',
@@ -189,7 +197,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Client Signature',
         description: 'I confirm I have received the Welcome Pack from Infinity Supports and have read and understood the content',
         required: true,
-        dataKey: 'signature' // Maps to formData.signature field where the actual signature is stored
+        dataKey: 'signature', // Maps to formData.signature field where the actual signature is stored
+        signedAtKey: 'date'
       },
       
       
@@ -206,14 +215,16 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Authorised by',
         description: 'Signature of the Author',
         required: true,
-        dataKey: 'authorSignature' 
+        dataKey: 'authorSignature' ,
+        signedAtKey: 'authorDate'
       },
         {
         id: 'participant_signature',
         label: 'Participant Signature',
         description: 'Signature of the Participant',
         required: true,
-        dataKey: 'participantSignature' 
+        dataKey: 'participantSignature',
+        signedAtKey: 'participantDate'
       },
      
     ]
@@ -236,7 +247,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: 'Participant Signature',
         description: 'Signature of the Participant',
         required: true,
-        dataKey: 'participantSignature' 
+        dataKey: 'participantSignature',
+        signedAtKey: 'participantSignatureDate'
       },
       {
         id: 'nominee_signature',
@@ -247,14 +259,16 @@ const formRegistry: Record<string, FormRegistryItem> = {
         condition: (formData: any) => {
           // Only require nominee signature if nominee name is provided
           return formData.nomineeName && formData.nomineeName.trim() !== '';
-        }
+        },
+        signedAtKey: 'nomineeSignatureDate'
       },
       {
         id: 'representative_signature',
         label: 'Representative Signature',
         description: 'Signature of the Representative',
         required: true,
-        dataKey: 'representativeSignature' 
+        dataKey: 'representativeSignature' ,
+        signedAtKey: 'representativeSignatureDate'
       },
     ]
   },

@@ -93,38 +93,87 @@ export async function GET(
 
 
 
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
- const { assignmentId } = await params;
-    const assignmentIdNum = parseInt(assignmentId);
+  const { assignmentId } = await params;
+  const assignmentIdNum = parseInt(assignmentId);
+
   if (isNaN(assignmentIdNum)) {
-    return NextResponse.json({ error: 'Invalid assignment ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
   }
 
   try {
-    // Delete the assignment
-    await prisma.formAssignment.delete({
-      where: { id: assignmentIdNum }
+    // Step 1: Fetch assignment details
+    const assignment = await prisma.formAssignment.findUnique({
+      where: { id: assignmentIdNum },
+      select: {
+        clientId: true,
+        formId: true,
+        formVersion: true,
+      },
     });
 
-    // Optionally, delete the submission and progress too if cleanup is required
-    await prisma.formSubmission.deleteMany({
-      where: { formId: assignmentIdNum } // or use compound key if needed
+    if (!assignment) {
+      return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
+    }
+
+    const { clientId, formId, formVersion } = assignment;
+
+    // Step 2: Fetch formSubmission ID (if exists)
+    const submission = await prisma.formSubmission.findUnique({
+      where: {
+        clientId_formId_formVersion: {
+          clientId,
+          formId,
+          formVersion,
+        },
+      },
+      select: { id: true },
     });
 
-    await prisma.formProgress.deleteMany({
-      where: { formId: assignmentIdNum } // same as above
-    });
+    // Step 3: Build transaction
+    const transactionSteps = [];
 
-    return NextResponse.json({ success: true, message: 'Form assignment deleted' });
+    if (submission) {
+      const submissionId = submission.id;
+
+      transactionSteps.push(
+        prisma.formSubmissionNotification.deleteMany({
+          where: { formSubmissionId: submissionId },
+        }),
+        prisma.signatureBatchForm.deleteMany({
+          where: { formSubmissionId: submissionId },
+        }),
+        prisma.formSubmission.delete({
+          where: { id: submissionId },
+        })
+      );
+    }
+
+    transactionSteps.push(
+      prisma.formProgress.deleteMany({
+        where: { clientId, formId, formVersion },
+      }),
+      prisma.formAssignment.delete({
+        where: { id: assignmentIdNum },
+      })
+    );
+
+    // Step 4: Execute transaction
+    await prisma.$transaction(transactionSteps);
+
+    return NextResponse.json({
+      success: true,
+      message: "Form assignment and all linked data deleted",
+    });
   } catch (error: any) {
-    console.error('Error deleting form assignment:', error);
+    console.error("Error in DELETE assignment transaction:", error);
     return NextResponse.json(
-      { error: 'Failed to delete form assignment', details: error.message },
+      { error: "Failed to delete form assignment", details: error.message },
       { status: 500 }
     );
   }
 }
-

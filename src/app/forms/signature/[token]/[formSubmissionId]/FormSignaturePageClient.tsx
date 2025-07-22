@@ -154,6 +154,9 @@ export default function FormSignaturePageClient() {
       setSubmitting(true);
       
       const signatureDataURL = signatureRef.toDataURL();
+      const now = new Date();
+      const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+
       
       const response = await fetch(`/api/signature/${token}/${formSubmissionId}`, {
         method: 'POST',
@@ -161,6 +164,8 @@ export default function FormSignaturePageClient() {
         body: JSON.stringify({
           signature: signatureDataURL,
           signatureId: signatureId,
+          signedAt: formattedDate// ✅ sending timestamp from client
+
         }),
       });
 
@@ -461,13 +466,13 @@ export default function FormSignaturePageClient() {
 
             <div className="flex items-center space-x-3">
               {/* Download Button */}
-              <button
+              {/* <button
                 onClick={handleDownloadForm}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
               >
                 <FaDownload className="mr-2 h-4 w-4" />
                 Download PDF
-              </button>
+              </button> */}
 
               {/* Status Badge */}
               {requiresSignature ? (
