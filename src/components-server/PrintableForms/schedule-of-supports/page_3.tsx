@@ -242,25 +242,26 @@ const Page3: React.FC<Page3Props> = ({
           {/* Signature Boxes */}
           <div className="border border-black p-4 space-y-4 text-[13px] leading-relaxed">
             {/* Participant */}
-            <div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex flex-col">
-                  <p className="mb-1 font-medium">Signature of participant:</p>
-                  {getValue("participantSignature") && (
-                    <img
-                      src={getValue("participantSignature")}
-                      alt="Signature of the Participant"
-                      className="h-[40px] w-auto max-w-[180px] object-contain border border-gray-300"
-                    />
-                  )}
-                </div>
-                <div>
-                  <p className="mb-1 font-medium">Date:</p>
-                  <p>{getValue("participantSignatureDate")}</p>
-                </div>
-              </div>
-              <p className="mt-1 font-medium">Name: {getValue("participantName")}</p>
-            </div>
+            <div className="flex justify-between items-start gap-4">
+  <div className="flex flex-col">
+    <p className="mb-1 font-medium">Signature of participant:</p>
+    {getValue("participantSignature") && (
+      <div className="w-[120px] h-[40px] flex items-center justify-center border border-gray-300 bg-white">
+        <img
+          src={getValue("participantSignature")}
+          alt="Signature of the Participant"
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+    )}
+  </div>
+  <div>
+    <p className="mb-1 font-medium">Date:</p>
+    <p>{getValue("participantSignatureDate")}</p>
+  </div>
+</div>
+<p className="mt-1 font-medium">Name: {getValue("participantName")}</p>
+
 
             <p>
               I confirm that this agreement has been explained to the person receiving
@@ -268,45 +269,49 @@ const Page3: React.FC<Page3Props> = ({
             </p>
 
             {/* Nominee */}
-            <div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex flex-col">
-                  <p className="mb-1 font-medium">Signature of Nominee:</p>
-                  {getValue("nomineeSignature") && (
-                    <img
-                      src={getValue("nomineeSignature")}
-                      alt="Nominee Signature"
-                      className="h-[40px] w-auto max-w-[180px] object-contain border border-gray-300"
-                    />
-                  )}
-                </div>
-                <div>
-                  <p className="mb-1 font-medium">Date:</p>
-                  <p>{getValue("nomineeSignatureDate")}</p>
-                </div>
-              </div>
-              <p className="mt-1 font-medium">Name: {getValue("nomineeName")}</p>
-            </div>
+           <div className="flex justify-between items-start gap-4">
+  <div className="flex flex-col">
+    <p className="mb-1 font-medium">Signature of Nominee:</p>
+    {getValue("nomineeSignature") && (
+      <div className="w-[120px] h-[40px] flex items-center justify-center border border-gray-300 bg-white">
+        <img
+          src={getValue("nomineeSignature")}
+          alt="Nominee Signature"
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+    )}
+  </div>
+  <div>
+    <p className="mb-1 font-medium">Date:</p>
+    <p>{getValue("nomineeSignatureDate")}</p>
+  </div>
+</div>
+<p className="mt-1 font-medium">Name: {getValue("nomineeName")}</p>
+
 
             {/* Representative */}
-            <div className="border border-black p-4 mt-4">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex flex-col">
-                  <p className="mb-1 font-medium">Signature on behalf of Infinity Support WA:</p>
-                  {getValue("representativeSignature") && (
-                    <img
-                      src={getValue("representativeSignature")}
-                      alt="Representative Signature"
-                      className="h-[40px] w-auto max-w-[180px] object-contain border border-gray-300"
-                    />
-                  )}
-                </div>
-                <div>
-                  <p className="mb-1 font-medium">Date:</p>
-                  <p>{getValue("representativeSignatureDate")}</p>
-                </div>
-              </div>
-            </div>
+           <div className="border border-black p-4 mt-4">
+  <div className="flex justify-between items-start gap-4">
+    <div className="flex flex-col">
+      <p className="mb-1 font-medium">Signature on behalf of Infinity Support WA:</p>
+      {getValue("representativeSignature") && (
+        <div className="w-[120px] h-[40px] flex items-center justify-center border border-gray-300 bg-white">
+          <img
+            src={getValue("representativeSignature")}
+            alt="Representative Signature"
+            className="max-h-full max-w-full object-contain"
+          />
+        </div>
+      )}
+    </div>
+    <div>
+      <p className="mb-1 font-medium">Date:</p>
+      <p>{getValue("representativeSignatureDate")}</p>
+    </div>
+  </div>
+</div>
+
           </div>
         </div>
 

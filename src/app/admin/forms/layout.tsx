@@ -171,13 +171,15 @@ export default function AdminClientsLayout({
           <div className="lg:hidden bg-gradient-to-r from-slate-900 to-slate-800 text-white h-20 w-full fixed top-0 z-30 flex items-center justify-between px-6 shadow-2xl border-b border-slate-700">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                {/* <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
                   <span className="text-white text-lg font-bold">IS</span>
-                </div>
+                </div> */}
+                <img src="/client_logo.png" alt="" className="w-10 h-10 object-contain" />
+
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
               </div>
               <div>
-                <span className="text-xl font-bold text-white">Infinity Support</span>
+                <span className="text-xl font-bold text-white">Infinity Supports WA</span>
                 <p className="text-xs text-gray-300">Admin Portal</p>
               </div>
             </div>

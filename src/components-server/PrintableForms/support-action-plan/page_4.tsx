@@ -106,7 +106,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData, images
                   Date
                 </td>
                 <td className="border border-black p-1 w-1/6">
-                  {data?.participantSignatureDate || ''}
+                  {data?.participantDate || ''}
                 </td>
               </tr>
               <tr>

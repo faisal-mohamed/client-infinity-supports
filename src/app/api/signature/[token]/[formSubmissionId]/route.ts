@@ -348,62 +348,62 @@ console.log(result);
 
 //           console.warn(`🔔 Notifications sent to ${allAdmins.length} admins for completed batch`);
 
-//           // 🔔 NEW: Send email notification for batch completion ------------------------------------------
-//           try {
-//             console.log(`📧 Sending batch completion email for client: ${updatedBatch.client.name}`);
+          // // 🔔 NEW: Send email notification for batch completion ------------------------------------------
+          // try {
+          //   console.log(`📧 Sending batch completion email for client: ${updatedBatch.client.name}`);
             
-//             // Prepare completed forms data for email
-//             const completedFormsData = formsRequiringSignature.map((sf : any)  => {
-//               console.log(`🔍 Form data for email:`, {
-//                 formSubmissionId: sf.formSubmissionId,
-//                 formId: sf.formSubmission.formId,
-//                 formTitle: sf.formSubmission.form?.title,
-//                 hasForm: !!sf.formSubmission.form,
-//                 formObject: sf.formSubmission.form
-//               });
+          //   // Prepare completed forms data for email
+          //   const completedFormsData = formsRequiringSignature.map((sf : any)  => {
+          //     console.log(`🔍 Form data for email:`, {
+          //       formSubmissionId: sf.formSubmissionId,
+          //       formId: sf.formSubmission.formId,
+          //       formTitle: sf.formSubmission.form?.title,
+          //       hasForm: !!sf.formSubmission.form,
+          //       formObject: sf.formSubmission.form
+          //     });
               
-//               return {
-//                 id: sf.formSubmissionId,
-//                 formId: sf.formSubmission.formId,
-//                 title: sf.formSubmission.form?.title || 'Unknown Form'
-//               };
-//             });
+          //     return {
+          //       id: sf.formSubmissionId,
+          //       formId: sf.formSubmission.formId,
+          //       title: sf.formSubmission.form?.title || 'Unknown Form'
+          //     };
+          //   });
 
-//             console.log(`📧 Final completed forms data for email:`, completedFormsData);
+          //   console.log(`📧 Final completed forms data for email:`, completedFormsData);
 
-//             // Make internal API call to send dual notification (admin + client)
-//             const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || `${window.location.origin}`}/api/notifications/send-email`, {
-//               method: 'POST',
-//               headers: {
-//                 'Content-Type': 'application/json',
-//               },
-//               body: JSON.stringify({
-//                 type: 'dual_notification', // Send to both admin and client
-//                 clientId: updatedBatch.client.id,
-//                 clientName: updatedBatch.client.name,
-//                 clientEmail: updatedBatch.client.email, // Client will receive confirmation
-//                 batchId: batch.id,
-//                 completedForms: completedFormsData,
-//                 completedAt: new Date().toLocaleString()
-//               })
-//             });
+          //   // Make internal API call to send dual notification (admin + client)
+          //   const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || `${window.location.origin}`}/api/notifications/send-email`, {
+          //     method: 'POST',
+          //     headers: {
+          //       'Content-Type': 'application/json',
+          //     },
+          //     body: JSON.stringify({
+          //       type: 'dual_notification', // Send to both admin and client
+          //       clientId: updatedBatch.client.id,
+          //       clientName: updatedBatch.client.name,
+          //       clientEmail: updatedBatch.client.email, // Client will receive confirmation
+          //       batchId: batch.id,
+          //       completedForms: completedFormsData,
+          //       completedAt: new Date().toLocaleString()
+          //     })
+          //   });
 
-//             if (emailResponse.ok) {
-//               const emailResult = await emailResponse.json();
-//               console.log(`✅ Dual notification emails sent successfully:`, {
-//                 adminEmail: emailResult.adminEmail,
-//                 clientEmail: emailResult.clientEmail,
-//                 totalEmails: emailResult.totalEmails,
-//                 client: updatedBatch.client.name
-//               });
-//             } else {
-//               const emailError = await emailResponse.text();
-//               console.error(`❌ Failed to send dual notification emails:`, emailError);
-//             }
-//           } catch (emailError) {
-//             console.error("❌ Email notification failed (non-blocking):", emailError);
-//             // Don't fail the main request if email fails
-//           }
+          //   if (emailResponse.ok) {
+          //     const emailResult = await emailResponse.json();
+          //     console.log(`✅ Dual notification emails sent successfully:`, {
+          //       adminEmail: emailResult.adminEmail,
+          //       clientEmail: emailResult.clientEmail,
+          //       totalEmails: emailResult.totalEmails,
+          //       client: updatedBatch.client.name
+          //     });
+          //   } else {
+          //     const emailError = await emailResponse.text();
+          //     console.error(`❌ Failed to send dual notification emails:`, emailError);
+          //   }
+          // } catch (emailError) {
+          //   console.error("❌ Email notification failed (non-blocking):", emailError);
+          //   // Don't fail the main request if email fails
+          // }
 
 
 
@@ -491,7 +491,7 @@ export async function POST(
       return NextResponse.json({ error: "Form not found in this signature batch" }, { status: 404 });
     }
 
-    const currentSubmission = await prisma.formSubmission.findUnique({
+    const currentSubmission : any = await prisma.formSubmission.findUnique({
       where: { id: formSubmissionIdInt },
       select: { data: true, clientId: true, formId: true, formVersion: true },
     });
@@ -512,8 +512,8 @@ export async function POST(
       );
     }
 
-    const signatureDataKey = signatureConfig.dataKey;
-    const signedAtKey = signatureConfig.signedAtKey;
+    const signatureDataKey : any  = signatureConfig.dataKey;
+    const signedAtKey  : any = signatureConfig.signedAtKey;
 
     const updatedFormData = {
       ...currentSubmission.data,
@@ -542,7 +542,7 @@ export async function POST(
     if (formAssignment) {
       const requiredSignatures = signatures.filter(sig => sig.required);
       const completedCount = requiredSignatures.filter(sig => {
-        const key = sig.dataKey;
+        const key : any  = sig.dataKey;
         return updatedFormData[key];
       }).length;
 
@@ -629,6 +629,67 @@ export async function POST(
         await Promise.all(notificationPromises);
 
         // Optional: send email notification here (as in your original version)
+
+
+                  // 🔔 NEW: Send email notification for batch completion ------------------------------------------
+          try {
+            console.log(`📧 Sending batch completion email for client: ${updatedBatch.client.name}`);
+            
+            // Prepare completed forms data for email
+            const completedFormsData = formsRequiringSignature.map((sf : any)  => {
+              console.log(`🔍 Form data for email:`, {
+                formSubmissionId: sf.formSubmissionId,
+                formId: sf.formSubmission.formId,
+                formTitle: sf.formSubmission.form?.title,
+                hasForm: !!sf.formSubmission.form,
+                formObject: sf.formSubmission.form
+              });
+              
+              return {
+                id: sf.formSubmissionId,
+                formId: sf.formSubmission.formId,
+                title: sf.formSubmission.form?.title || 'Unknown Form'
+              };
+            });
+
+            console.log(`📧 Final completed forms data for email:`, completedFormsData);
+
+            // Make internal API call to send dual notification (admin + client)
+            const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || `${window.location.origin}`}/api/notifications/send-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                type: 'dual_notification', // Send to both admin and client
+                clientId: updatedBatch.client.id,
+                clientName: updatedBatch.client.name,
+                clientEmail: updatedBatch.client.email, // Client will receive confirmation
+                batchId: batch.id,
+                completedForms: completedFormsData,
+                completedAt: new Date().toLocaleString()
+              })
+            });
+
+            if (emailResponse.ok) {
+              const emailResult = await emailResponse.json();
+              console.log(`✅ Dual notification emails sent successfully:`, {
+                adminEmail: emailResult.adminEmail,
+                clientEmail: emailResult.clientEmail,
+                totalEmails: emailResult.totalEmails,
+                client: updatedBatch.client.name
+              });
+            } else {
+              const emailError = await emailResponse.text();
+              console.error(`❌ Failed to send dual notification emails:`, emailError);
+            }
+          } catch (emailError) {
+            console.error("❌ Email notification failed (non-blocking):", emailError);
+            // Don't fail the main request if email fails
+          }
+
+
+
       }
     }
 

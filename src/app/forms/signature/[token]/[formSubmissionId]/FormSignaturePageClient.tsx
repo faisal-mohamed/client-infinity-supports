@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSignature, FaCheck, FaSpinner, FaEye, FaDownload, FaUser, FaUsers } from 'react-icons/fa';
 import { getFormComponent, getFormSignatures, type SignatureRequirement } from '@/app/forms/registry';
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
+import { fetchFormSpecificSettings } from '@/lib/settings';
 
 // Types
 interface FormSignatureData {
@@ -54,6 +55,19 @@ export default function FormSignaturePageClient() {
   useEffect(() => {
     loadFormData();
   }, [token, formSubmissionId]);
+
+
+
+    const [formSettings, setFormSettings] = useState({});
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const settings = await fetchFormSpecificSettings();
+      setFormSettings(settings);
+    };
+
+    loadSettings();
+  }, []); // Empty dependency array means this runs once on mount
 
   // Load signature requirements when form data is available
   useEffect(() => {
@@ -527,6 +541,7 @@ export default function FormSignaturePageClient() {
             existingSignature={formData.formSubmission.data?.signature} // Get signature from form data
             isClientView={true}
             commonFieldsData={formData.client.commonFields[0] || {}}
+            settings={formSettings}
           />
         </div>
 
