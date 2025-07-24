@@ -10,6 +10,8 @@ interface ActionButtonsProps {
   onShowAssignModal: () => void;
   onShowCommonFieldsWarning: () => void;
   onGenerateSignatureLink: () => void;
+  sendEmailNotification: () => any;
+  sendingEmail: boolean;
 }
 
 export default function ActionButtons({
@@ -18,7 +20,9 @@ export default function ActionButtons({
   generatingLink,
   onShowAssignModal,
   onShowCommonFieldsWarning,
-  onGenerateSignatureLink
+  onGenerateSignatureLink,
+  sendEmailNotification,
+  sendingEmail
 }: ActionButtonsProps) {
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
@@ -78,6 +82,25 @@ export default function ActionButtons({
                   </div>
                   <span className="whitespace-nowrap">
                     {generatingLink ? 'Generating...' : `Generate Link (${selectedForms.length})`}
+                  </span>
+                </button>
+              )}
+
+               {selectedForms.length > 0 && (
+                <button
+                  onClick={sendEmailNotification}
+                  disabled={sendingEmail}
+                  className="group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none text-sm sm:text-base"
+                >
+                  <div className="p-1 rounded-lg bg-white bg-opacity-20">
+                    {sendingEmail ? (
+                      <FaSpinner className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <FaLink className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+                    )}
+                  </div>
+                  <span className="whitespace-nowrap">
+                    {sendingEmail ? 'Sending...' : `Send Email (${selectedForms.length})`}
                   </span>
                 </button>
               )}

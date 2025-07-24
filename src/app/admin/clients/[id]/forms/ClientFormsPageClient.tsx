@@ -41,6 +41,7 @@ const adminId : any  = session?.user?.id;
   const [loading, setLoading] = useState(true);
   const [selectedForms, setSelectedForms] = useState<number[]>([]);
   const [generatingLink, setGeneratingLink] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState<boolean>(false);
   
   // Form assignment modal state
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -344,6 +345,55 @@ const adminId : any  = session?.user?.id;
     }
   };
 
+ const generateEmail = async () => {
+  if (selectedForms.length === 0) {
+    showToast({
+      type: 'error',
+      title: 'No Forms Selected',
+      message: 'Please select at least one admin-filled form to send email',
+      duration: 3000,
+    });
+    return;
+  }
+
+  try {
+    setSendingEmail(true);
+    const response = await fetch(`/api/clients/${clientId}/send-client-only-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formAssignmentIds: selectedForms
+      })
+    });
+
+    if (!response.ok) throw new Error('Failed to send email');
+
+    const data = await response.json();
+
+    showToast({
+      type: 'success',
+      title: 'Email Sent',
+      message: data.message || 'Client confirmation email sent successfully',
+      duration: 3000,
+    });
+
+    setSelectedForms([]);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    showToast({
+      type: 'error',
+      title: 'Error',
+      message: 'Failed to send client confirmation email',
+      duration: 3000,
+    })
+  
+  }
+    finally {
+      setSendingEmail(false)
+    }
+};
+
+
   // Wrapper function for warning modal downloads
   const downloadFormForWarningModal = async (assignmentId: number, formTitle: string) => {
     console.log("Downloading form from warning modal:", assignmentId, formTitle);
@@ -632,6 +682,8 @@ const adminId : any  = session?.user?.id;
         onShowAssignModal={() => setShowAssignModal(true)}
         onShowCommonFieldsWarning={() => setShowCommonFieldsWarning(true)}
         onGenerateSignatureLink={generateSignatureLink}
+        sendEmailNotification={generateEmail}
+        sendingEmail={sendingEmail}
       />
 
       {/* Stats Cards */}

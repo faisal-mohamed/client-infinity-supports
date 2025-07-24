@@ -265,17 +265,18 @@ export default function FormViewPageClient() {
             {/* Right Side - Status and Action Buttons */}
             <div className="flex items-center space-x-3 flex-shrink-0">
               {/* Signature Status */}
-              {assignment.clientSignature && (
-                <div className="flex items-center text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                  <FaSignature className="h-4 w-4 mr-2" />
-                  <div className="text-sm">
-                    <div className="font-medium">Signed</div>
-                    <div className="text-green-500 text-xs">
-                      {new Date(assignment.clientSignedAt!).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              )}
+         {assignment.clientSignature && (
+  <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg border border-green-200 text-green-700 min-w-[130px]">
+    <FaSignature className="h-4 w-4" />
+    <div className="flex flex-col leading-tight">
+      <span className="font-semibold text-sm">Signed</span>
+      <span className="text-xs text-green-600">
+        {new Date(assignment.clientSignedAt!).toLocaleDateString()}
+      </span>
+    </div>
+  </div>
+)}
+
               
               {/* Action Buttons */}
               <div className="flex items-center space-x-2">
@@ -300,13 +301,13 @@ export default function FormViewPageClient() {
                 </button>
                 
                 {/* Edit Button */}
-                <Link
+                {/* <Link
                   href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
                   className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   <FaEdit className="mr-2 h-4 w-4" />
                   <span className="hidden sm:inline">Edit</span>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
