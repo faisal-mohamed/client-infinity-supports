@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const recentFailures = await getRecentEmailFailures(10);
     
     // Test current email connection
-    const connectionTest = await testEmailConnection();
+    const connectionTest = await testEmailConnection(1);
 
     // Calculate health score
     const healthScore = calculateEmailHealthScore(stats, connectionTest.success);

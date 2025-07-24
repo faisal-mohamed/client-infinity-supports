@@ -86,6 +86,8 @@ export async function POST(req: NextRequest) {
  */
 async function testSingleFormCompletion() {
   const startTime = Date.now();
+
+  const adminId = 1;
   
   try {
     const result = await sendOptimizedBatchEmail({
@@ -97,7 +99,8 @@ async function testSingleFormCompletion() {
         title: "Client Intake Form"
       }],
       batchId: 1001,
-      adminEmail: "admin@test.com"
+      adminEmail: "admin@test.com",
+      adminId
     });
 
     return {
@@ -124,6 +127,8 @@ async function testSingleFormCompletion() {
  */
 async function testMultipleFormsBatch() {
   const startTime = Date.now();
+
+  const adminId = 1;
   
   try {
     const result = await sendOptimizedBatchEmail({
@@ -135,7 +140,8 @@ async function testMultipleFormsBatch() {
         { id: 203, formId: 3, title: "Support Plan" }
       ],
       batchId: 2001,
-      adminEmail: "admin@test.com"
+      adminEmail: "admin@test.com",
+      adminId
     });
 
     return {
@@ -162,6 +168,8 @@ async function testMultipleFormsBatch() {
  */
 async function testLargeBatchPerformance() {
   const startTime = Date.now();
+
+  const adminId = 1;
   
   try {
     // Create a large batch of forms for performance testing
@@ -176,7 +184,8 @@ async function testLargeBatchPerformance() {
       clientEmail: "large@test.com",
       completedForms: largeBatch,
       batchId: 3001,
-      adminEmail: "admin@test.com"
+      adminEmail: "admin@test.com",
+      adminId
     });
 
     const performanceScore = calculatePerformanceScore(result.metrics);

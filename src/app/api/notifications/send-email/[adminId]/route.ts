@@ -34,9 +34,11 @@ interface EmailNotificationData {
   sendToClient?: boolean;
 }
 
-// POST handler
+
 // export async function POST(req: NextRequest, context: { params: { adminId: string } }) {
-//   const adminIdParam : any = context.params.adminId;
+//   // Await the params before accessing properties
+//   const params = await context.params;
+//   const adminIdParam: any = params.adminId;
 //   const adminId = parseInt(adminIdParam, 10);
 
 //   if (isNaN(adminId)) {
@@ -50,7 +52,7 @@ interface EmailNotificationData {
 //     const data: EmailNotificationData = await req.json();
 //     const { type } = data;
 
-//     console.log(`\uD83D\uDCE7 Email notification request from adminId=${adminId}`, {
+//     console.log(`📧 Email notification request from adminId=${adminId}`, {
 //       type,
 //       clientName: data.clientName
 //     });
@@ -79,23 +81,23 @@ interface EmailNotificationData {
 //       );
 //     }
 
-//     let emailResult : any ;
+//     let emailResult: any;
 
 //     switch (type) {
 //       case "batch_completed":
-//         emailResult = await handleBatchCompletedEmail(data, emailConfig);
+//         emailResult = await handleBatchCompletedEmail(data, emailConfig, adminIdParam);
 //         break;
 //       case "test_email":
-//         emailResult = await handleTestEmail(emailConfig);
+//         emailResult = await handleTestEmail(emailConfig, adminIdParam);
 //         break;
 //       case "client_confirmation":
-//         emailResult = await handleClientConfirmationEmail(data, emailConfig);
+//         emailResult = await handleClientConfirmationEmail(data, emailConfig, adminIdParam);
 //         break;
 //       case "client_test":
-//         emailResult = await handleClientTestEmail(data, emailConfig);
+//         emailResult = await handleClientTestEmail(data, emailConfig, adminIdParam);
 //         break;
 //       case "dual_notification":
-//         emailResult = await handleDualNotificationEmail(data, emailConfig);
+//         emailResult = await handleDualNotificationEmail(data, emailConfig, adminIdParam);
 //         break;
 //       default:
 //         return NextResponse.json(
@@ -133,49 +135,13 @@ interface EmailNotificationData {
 //   }
 // }
 
-// // GET handler
-// export async function GET(req: NextRequest, context: { params: { adminId: string } }) {
-//   const adminIdParam = context.params.adminId;
-//   const adminId = parseInt(adminIdParam, 10);
 
-//   if (isNaN(adminId)) {
-//     return NextResponse.json(
-//       { error: "Invalid route parameter: adminId must be a number" },
-//       { status: 400 }
-//     );
-//   }
-
-//   try {
-//     const connectionTest = await testEmailConnection(adminId);
-//     if (connectionTest.success) {
-//       return NextResponse.json({
-//         success: true,
-//         message: connectionTest.message,
-//         status: "Email configuration is valid"
-//       });
-//     } else {
-//       return NextResponse.json(
-//         { error: "Email configuration test failed", details: connectionTest.message },
-//         { status: 500 }
-//       );
-//     }
-//   } catch (error) {
-//     return NextResponse.json(
-//       {
-//         error: "Failed to test email configuration",
-//         details: error instanceof Error ? error.message : "Unknown error"
-//       },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
-// POST handler
-export async function POST(req: NextRequest, context: { params: { adminId: string } }) {
-  // Await the params before accessing properties
-  const params = await context.params;
-  const adminIdParam: any = params.adminId;
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ adminId: string }> }
+) {
+  // Await params to extract adminId
+  const { adminId: adminIdParam } : any = await params;
   const adminId = parseInt(adminIdParam, 10);
 
   if (isNaN(adminId)) {
@@ -209,10 +175,9 @@ export async function POST(req: NextRequest, context: { params: { adminId: strin
       return NextResponse.json(
         {
           error: "Email not configured",
-          details:
-            configError instanceof Error
-              ? configError.message
-              : "Unknown configuration error"
+          details: configError instanceof Error
+            ? configError.message
+            : "Unknown configuration error"
         },
         { status: 500 }
       );
@@ -272,14 +237,18 @@ export async function POST(req: NextRequest, context: { params: { adminId: strin
   }
 }
 
-// GET handler
-export async function GET(req: NextRequest, context: { params: { adminId: string } }) {
-  // Await the params before accessing properties
-  const params = await context.params;
-  const adminIdParam = params.adminId;
-  const adminId = parseInt(adminIdParam, 10);
 
-  if (isNaN(adminId)) {
+
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ adminId: string }> }
+) {
+  // Await params before accessing adminId
+  const { adminId } = await params;
+  const adminIdNumber = parseInt(adminId, 10);
+
+  if (isNaN(adminIdNumber)) {
     return NextResponse.json(
       { error: "Invalid route parameter: adminId must be a number" },
       { status: 400 }
@@ -287,7 +256,8 @@ export async function GET(req: NextRequest, context: { params: { adminId: string
   }
 
   try {
-    const connectionTest = await testEmailConnection(adminId);
+    const connectionTest = await testEmailConnection(adminIdNumber);
+
     if (connectionTest.success) {
       return NextResponse.json({
         success: true,
@@ -310,6 +280,7 @@ export async function GET(req: NextRequest, context: { params: { adminId: string
     );
   }
 }
+
 
 
 

@@ -62,6 +62,9 @@ const SERVER_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export async function fetchSettingsFromDB(adminId: any | null): Promise<AppSetting[]> {
 
   const adminIdInt = parseInt(adminId);
+
+
+  console.log("ADMIN ID PASSED: ", adminId);
   try {
     const settings : any = await prisma.appSettings.findMany({
       where: {
@@ -77,7 +80,6 @@ export async function fetchSettingsFromDB(adminId: any | null): Promise<AppSetti
     });
 
 
-    console.log("SETTINGS: ", settings)
 
     return settings;
   } catch (error) {
@@ -125,7 +127,6 @@ export async function getMultipleSettingsFromDB(keys: string[], adminId: number 
       result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
     }
 
-    console.log("RESULT: ", result);
 
     return result;
   } catch (error) {

@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const { formSubmissionId, formId, testEmail } = await req.json();
 
-    let adminId = 1;
+    const adminId = 1;
 
     if (!formSubmissionId || !formId) {
       return NextResponse.json(

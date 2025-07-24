@@ -82,6 +82,8 @@ startxref
       hasContent: attachment.content.length > 0
     });
 
+    const adminId = 1;
+
     // Send email with mock attachment
     const emailResult = await sendEmail({
       to: 'stigmataclousecaws@gmail.com', // Your email
@@ -101,7 +103,8 @@ startxref
           <p><strong>If you can see and download the PDF attachment, then the email attachment system is working correctly!</strong></p>
         </div>
       `,
-      attachments: [attachment]
+      attachments: [attachment],
+      adminId
     });
 
     if (emailResult.success) {

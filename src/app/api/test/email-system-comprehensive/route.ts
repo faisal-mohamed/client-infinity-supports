@@ -205,6 +205,8 @@ async function testEmailTemplates() {
 async function testEmailWithAttachments() {
   try {
     // This test actually sends an email - use with caution
+
+    const adminId : any = 1
     const testResult = await sendEmailWithRetry({
       to: 'test@example.com', // This won't actually send due to invalid email
       subject: 'Test Email with Attachment',
@@ -214,7 +216,8 @@ async function testEmailWithAttachments() {
         content: Buffer.from('test content'),
         contentType: 'application/pdf'
       }],
-      maxRetries: 1
+      maxRetries: 1,
+      adminId
     });
 
     // We expect this to fail due to invalid email, but it tests the attachment logic
@@ -234,6 +237,8 @@ async function testEmailWithAttachments() {
 async function testRetryLogic() {
   try {
     const startTime = Date.now();
+
+    const adminId : any  = 1;
     
     // Test with invalid SMTP to trigger retries
     const result = await sendEmailWithRetry({
@@ -241,7 +246,8 @@ async function testRetryLogic() {
       subject: 'Retry Test',
       html: '<p>Test</p>',
       maxRetries: 2,
-      retryDelay: 100
+      retryDelay: 100,
+      adminId
     });
 
     const duration = Date.now() - startTime;

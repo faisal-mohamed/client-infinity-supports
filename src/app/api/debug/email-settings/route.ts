@@ -15,7 +15,7 @@ export async function GET() {
       'smtp_password',
       'admin_email',
       'app_name'
-    ]);
+    ], 1);
 
     // Mask password for security
     const debugSettings = {
