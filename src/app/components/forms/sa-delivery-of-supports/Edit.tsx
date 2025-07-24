@@ -182,6 +182,9 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     ndisAuditConsent: "",
     
     // Signatures
+    
+    
+    ...formData,
     participantSignature: "",
     participantSignatureDate: "",
     participantName: "",
@@ -191,8 +194,6 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     providerSignature: "",
     providerSignatureDate: "",
     providerName: "",
-    
-    ...formData,
   };
 
   const [localValues, setLocalValues] = useState<any>(initialValues);

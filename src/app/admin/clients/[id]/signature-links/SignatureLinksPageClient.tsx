@@ -45,7 +45,7 @@ interface ClientInfo {
 export default function SignatureLinksPageClient() {
   const params = useParams();
   const { showToast } = useToast();
-  const confirm  : any = useConfirm();
+  const confirm  = useConfirm();
   
   const clientId = parseInt(params.id as string);
   
@@ -105,11 +105,12 @@ export default function SignatureLinksPageClient() {
 
   const deleteBatch = async (batchId: number) => {
 
-    const confirmed = await confirm({
+    const confirmed = await confirm.confirm({
       title: 'Delete Signature Link',
       message: 'Are you sure you want to delete this signature link? This action cannot be undone.',
       confirmText: 'Delete',
       cancelText: 'Cancel',
+      type: 'danger'
     });
 
     if (!confirmed) return;

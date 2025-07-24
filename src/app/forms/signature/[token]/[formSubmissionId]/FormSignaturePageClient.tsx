@@ -35,16 +35,16 @@ interface FormSignatureData {
 export default function FormSignaturePageClient() {
   const params = useParams();
   const router = useRouter();
-  
+
   const token = params.token as string;
   const formSubmissionId = parseInt(params.formSubmissionId as string);
-  
+
   const [formData, setFormData] = useState<FormSignatureData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Multi-signature state
   const [requiredSignatures, setRequiredSignatures] = useState<SignatureRequirement[]>([]);
   const [currentSignatureStep, setCurrentSignatureStep] = useState(0);
@@ -55,8 +55,6 @@ export default function FormSignaturePageClient() {
   useEffect(() => {
     loadFormData();
   }, [token, formSubmissionId]);
-
-
 
     const [formSettings, setFormSettings] = useState({});
 
@@ -73,7 +71,7 @@ export default function FormSignaturePageClient() {
   useEffect(() => {
     if (formData) {
       const signatures = getFormSignatures(formData.formSubmission.form.formKey);
-      
+
       // Filter signatures based on conditions and requirements
       const required = signatures.filter(sig => {
         if (sig.condition) {
@@ -81,9 +79,11 @@ export default function FormSignaturePageClient() {
         }
         return sig.required;
       });
-      
+
+      console.log("required: ", required);
+
       setRequiredSignatures(required);
-      
+
       // Check which signatures are already completed
       const completed: Record<string, boolean> = {};
       required.forEach(sig => {
@@ -91,7 +91,9 @@ export default function FormSignaturePageClient() {
         completed[sig.id] = !!formData.formSubmission.data[dataKey];
       });
       setCompletedSignatures(completed);
-      
+
+      console.log("completed: ", completed);
+
       // If there are signatures and some are not completed, show signature pad
       const hasIncompleteSignatures = required.some(sig => !completed[sig.id]);
       if (hasIncompleteSignatures && formData.formSubmission.form.requiresSignature) {
@@ -122,7 +124,7 @@ export default function FormSignaturePageClient() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/signature/${token}/${formSubmissionId}`);
       if (!response.ok) {
         if (response.status === 404) {
@@ -132,11 +134,11 @@ export default function FormSignaturePageClient() {
         }
         throw new Error('Failed to load form data');
       }
-      
+
       const data = await response.json();
       setFormData(data);
       console.log('Form data loaded:', data);
-      
+
     } catch (error: any) {
       console.error('Error loading form data:', error);
       setError(error.message || 'Failed to load form data');
@@ -166,12 +168,11 @@ export default function FormSignaturePageClient() {
 
     try {
       setSubmitting(true);
-      
+
       const signatureDataURL = signatureRef.toDataURL();
       const now = new Date();
       const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
 
-      
       const response = await fetch(`/api/signature/${token}/${formSubmissionId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,14 +189,14 @@ export default function FormSignaturePageClient() {
       }
 
       const result = await response.json();
-      
+
       // Update completed signatures
       const updatedCompleted = { ...completedSignatures, [signatureId]: true };
       setCompletedSignatures(updatedCompleted);
 
       // Check if all signatures are complete
       const allComplete = requiredSignatures.every(sig => updatedCompleted[sig.id]);
-      
+
       if (allComplete || result.allSignaturesComplete) {
         // All signatures complete, redirect back to signature portal
         router.push(`/forms/signature/${token}`);
@@ -206,7 +207,7 @@ export default function FormSignaturePageClient() {
           setCurrentSignatureStep(nextIncompleteIndex);
         }
       }
-      
+
     } catch (error: any) {
       console.error('Error submitting signature:', error);
       alert('Failed to submit signature. Please try again.');
@@ -217,7 +218,7 @@ export default function FormSignaturePageClient() {
 
   const handleDownloadForm = async () => {
     if (!formData) return;
-    
+
     try {
       const response = await fetch(`/api/generate-pdf/${formSubmissionId}/${formData.formSubmission.form.id}`);
       if (response.ok) {
@@ -265,7 +266,7 @@ export default function FormSignaturePageClient() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Error</h1>
           <p className="text-gray-600 mb-6">{error}</p>
-          <Link 
+          <Link
             href={`/forms/signature/${token}`}
             className="text-indigo-600 hover:text-indigo-800"
           >
@@ -298,7 +299,7 @@ export default function FormSignaturePageClient() {
           <p className="text-gray-600 mb-4">
             Unable to display this form type: {formData.formSubmission.form.formKey}
           </p>
-          <Link 
+          <Link
             href={`/forms/signature/${token}`}
             className="text-indigo-600 hover:text-indigo-800"
           >
@@ -315,19 +316,19 @@ export default function FormSignaturePageClient() {
   // Render signature requirements overview
   const renderSignatureStatus = () => {
     if (requiredSignatures.length === 0) return null;
-    
+
     const completedCount = requiredSignatures.filter(sig => completedSignatures[sig.id]).length;
-    
+
     return (
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Signature Requirements ({completedCount}/{requiredSignatures.length})
         </h3>
-        
+
         <div className="space-y-3">
           {requiredSignatures.map((sig, index) => {
             const isCompleted = completedSignatures[sig.id];
-            
+
             return (
               <div key={sig.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center">
@@ -341,10 +342,10 @@ export default function FormSignaturePageClient() {
                     <p className="text-sm text-gray-600">{sig.description}</p>
                   </div>
                 </div>
-                
+
                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  isCompleted 
-                    ? 'bg-green-100 text-green-800' 
+                  isCompleted
+                    ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-600'
                 }`}>
                   {isCompleted ? 'Completed' : 'Pending'}
@@ -360,40 +361,45 @@ export default function FormSignaturePageClient() {
   // Render current signature step
   const renderSignatureStep = () => {
     if (!showSignaturePad || requiredSignatures.length === 0) return null;
-    
+
     const currentSignature = requiredSignatures[currentSignatureStep];
     if (!currentSignature) return null;
-    
+
     // If current signature is completed, don't render (let useEffect handle step change)
     if (completedSignatures[currentSignature.id]) {
       return null;
     }
-    
+
+    const completedCount = requiredSignatures.filter(sig => completedSignatures[sig.id]).length;
+
+
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="mb-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {currentSignature.label} ({currentSignatureStep + 1} of {requiredSignatures.length})
+<p className="text-gray-500 text-sm mt-1">
+  {completedCount} of {requiredSignatures.length} signatures completed
+</p>
           </h3>
           <p className="text-gray-600">
             {currentSignature.description}
           </p>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Progress</span>
-            <span>{Math.round(((currentSignatureStep + 1) / requiredSignatures.length) * 100)}%</span>
+<span>{Math.round((completedCount / requiredSignatures.length) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentSignatureStep + 1) / requiredSignatures.length) * 100}%` }}
+style={{ width: `${(completedCount / requiredSignatures.length) * 100}%` }}
             />
           </div>
         </div>
-        
+
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
           <SignatureCanvas
             key={`signature-${currentSignature.id}-${currentSignatureStep}`} // Unique key to force re-render
@@ -422,7 +428,7 @@ export default function FormSignaturePageClient() {
         </div>
 
         <div className="flex justify-between items-center">
-          <button
+          {/* <button
             onClick={() => {
               const prevStep = Math.max(0, currentSignatureStep - 1);
               setCurrentSignatureStep(prevStep);
@@ -431,12 +437,12 @@ export default function FormSignaturePageClient() {
             className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
-          </button>
-          
+          </button> */}
+
           <button
             onClick={() => submitSignature(currentSignature.id)}
             disabled={submitting}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-centre"
           >
             {submitting ? (
               <>
@@ -462,7 +468,7 @@ export default function FormSignaturePageClient() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link 
+              <Link
                 href={`/forms/signature/${token}`}
                 className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
@@ -499,7 +505,7 @@ export default function FormSignaturePageClient() {
                   <div className="flex items-center text-amber-600">
                     <FaSignature className="h-5 w-5 mr-2" />
                     <span className="font-medium">
-                      {requiredSignatures.length > 1 
+                      {requiredSignatures.length > 1
                         ? `${Object.values(completedSignatures).filter(Boolean).length}/${requiredSignatures.length} Signatures`
                         : 'Signature Required'
                       }
@@ -624,3 +630,4 @@ export default function FormSignaturePageClient() {
     </div>
   );
 }
+
