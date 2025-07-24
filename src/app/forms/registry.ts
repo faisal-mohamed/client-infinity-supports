@@ -256,10 +256,10 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: 'Signature of the Nominee (if applicable)',
         required: true, // Changed to false since nominee is optional
         dataKey: 'nomineeSignature',
-        condition: (formData: any) => {
-          // Only require nominee signature if nominee name is provided
-          return formData.nomineeName && formData.nomineeName.trim() !== '';
-        },
+        // condition: (formData: any) => {
+        //   // Only require nominee signature if nominee name is provided
+        //   return formData.nomineeName && formData.nomineeName.trim() !== '';
+        // },
         signedAtKey: 'nomineeSignatureDate'
       },
       {

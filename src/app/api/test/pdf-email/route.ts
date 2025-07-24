@@ -10,6 +10,8 @@ export async function POST(req: NextRequest) {
   try {
     const { formSubmissionId, formId, testEmail } = await req.json();
 
+    let adminId = 1;
+
     if (!formSubmissionId || !formId) {
       return NextResponse.json(
         { error: "formSubmissionId and formId are required" },
@@ -71,7 +73,8 @@ export async function POST(req: NextRequest) {
         filename: pdfResult.filename!,
         content: pdfResult.buffer,
         contentType: 'application/pdf'
-      }] : []
+      }] : [],
+      adminId: adminId
     });
 
     if (emailResult.success) {

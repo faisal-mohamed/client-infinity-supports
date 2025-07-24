@@ -128,7 +128,7 @@ export default function LoginPage() {
             </div> */}
           </div>
 
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               id="remember-me"
               type="checkbox"
@@ -137,7 +137,7 @@ export default function LoginPage() {
             <label htmlFor="remember-me" className="ml-2 text-sm text-gray-600">
               Remember me
             </label>
-          </div>
+          </div> */}
 
           <button
             type="submit"

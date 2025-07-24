@@ -22,13 +22,16 @@ export async function sendOptimizedBatchEmail({
   clientEmail,
   completedForms,
   batchId,
-  adminEmail
+  adminEmail,
+  adminId
+  
 }: {
   clientName: string;
   clientEmail?: string;
   completedForms: Array<{ id: number; formId: number; title: string }>;
   batchId: number;
   adminEmail: string;
+  adminId: any 
 }): Promise<{
   success: boolean;
   metrics: PerformanceMetrics;
@@ -85,7 +88,8 @@ export async function sendOptimizedBatchEmail({
       html: emailHtml,
       attachments,
       maxRetries: 3,
-      retryDelay: 1000
+      retryDelay: 1000,
+      adminId: adminId 
     });
     metrics.emailSendingTime = Date.now() - emailStartTime;
 

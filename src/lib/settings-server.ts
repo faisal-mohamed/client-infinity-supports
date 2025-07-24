@@ -1,7 +1,9 @@
 // Server-side settings utility functions that directly query the database
 // Use this for server-side operations like email sending
 
+import { getServerSession } from "next-auth";
 import { prisma } from "./prisma";
+import { authOptions } from "./authOptions";
 
 interface AppSetting {
   id: number;
@@ -28,67 +30,103 @@ const SERVER_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 /**
  * Fetch all settings directly from database (server-side)
  */
-export async function fetchSettingsFromDB(forceRefresh = false): Promise<AppSetting[]> {
-  const now = Date.now();
+// export async function fetchSettingsFromDB(forceRefresh = false): Promise<AppSetting[]> {
+//   const now = Date.now();
   
-  // Return cached settings if still valid and not forcing refresh
-  if (!forceRefresh && serverSettingsCache && (now - serverCacheTimestamp) < SERVER_CACHE_DURATION) {
-    return serverSettingsCache;
-  }
+//   // Return cached settings if still valid and not forcing refresh
+//   if (!forceRefresh && serverSettingsCache && (now - serverCacheTimestamp) < SERVER_CACHE_DURATION) {
+//     return serverSettingsCache;
+//   }
 
+//   try {
+//     const settings : any = await prisma.appSettings.findMany({
+//       where: {
+//         isActive: true
+//       },
+//       orderBy: [
+//         { category: 'asc' },
+//         { sortOrder: 'asc' }
+//       ]
+//     });
+
+//     serverSettingsCache  = settings;
+//     serverCacheTimestamp = now;
+    
+//     return settings;
+//   } catch (error) {
+//     console.error('Error fetching settings from database:', error);
+//     return serverSettingsCache || [];
+//   }
+// }
+
+export async function fetchSettingsFromDB(adminId: any | null): Promise<AppSetting[]> {
+
+  const adminIdInt = parseInt(adminId);
   try {
     const settings : any = await prisma.appSettings.findMany({
       where: {
-        isActive: true
+        OR: [
+          { adminId: adminIdInt },
+          { adminId: null },
+        ],
       },
       orderBy: [
         { category: 'asc' },
-        { sortOrder: 'asc' }
-      ]
+        { sortOrder: 'asc' },
+      ],
     });
 
-    serverSettingsCache  = settings;
-    serverCacheTimestamp = now;
-    
+
+    console.log("SETTINGS: ", settings)
+
     return settings;
   } catch (error) {
     console.error('Error fetching settings from database:', error);
-    return serverSettingsCache || [];
+    return [];
   }
 }
+
 
 /**
  * Get a specific setting value by key (server-side)
  */
+
+
 export async function getSettingFromDB(key: string, defaultValue?: string): Promise<string | null> {
   try {
-    const settings = await fetchSettingsFromDB();
-    
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+
+    const settings = await fetchSettingsFromDB(adminId);
     const setting = settings.find(s => s.key === key);
+
     if (setting) {
       return setting.value || setting.defaultValue || defaultValue || null;
     }
-    
+
     return defaultValue || null;
   } catch (error) {
-    console.error(`Error getting setting ${key}:`, error);
+    console.error(`Error getting setting "${key}":`, error);
     return defaultValue || null;
   }
 }
 
+
 /**
  * Get multiple settings at once (server-side)
  */
-export async function getMultipleSettingsFromDB(keys: string[]): Promise<Record<string, string | null>> {
+export async function getMultipleSettingsFromDB(keys: string[], adminId: number | null): Promise<Record<string, string | null>> {
   try {
-    const settings = await fetchSettingsFromDB();
+    const settings = await fetchSettingsFromDB(adminId);
     const result: Record<string, string | null> = {};
-    
+
     for (const key of keys) {
       const setting = settings.find(s => s.key === key);
       result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
     }
-    
+
+    console.log("RESULT: ", result);
+
     return result;
   } catch (error) {
     console.error('Error getting multiple settings:', error);
@@ -97,6 +135,7 @@ export async function getMultipleSettingsFromDB(keys: string[]): Promise<Record<
     return result;
   }
 }
+
 
 /**
  * Clear server-side settings cache

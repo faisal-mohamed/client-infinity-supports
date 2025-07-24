@@ -28,8 +28,7 @@ async function getCompanyLogoBase64(): Promise<string> {
     if (fs.existsSync(logoPath)) {
       const logoBuffer = fs.readFileSync(logoPath);
       const base64Logo = logoBuffer.toString('base64');
-      console.log("base64: ", base64Logo)
-      console.log('✅ Logo loaded successfully, size:', logoBuffer.length, 'bytes');
+
       return `${base64Logo}`;
     } else {
       console.warn('❌ Company logo not found at:', logoPath);

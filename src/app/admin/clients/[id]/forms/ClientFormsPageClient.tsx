@@ -23,6 +23,9 @@ import FormAssignmentModal from '@/app/components/components/client-forms/FormAs
 import SignatureLinkModal from '@/app/components/components/client-forms/SignatureLinkModal';
 
 import {FormAssignmentWithDetails, ClientInfo, AvailableForm} from './types'
+import { useSession } from 'next-auth/react';
+
+
 
 export default function ClientFormsPageClient() {
   const params = useParams();
@@ -30,6 +33,8 @@ export default function ClientFormsPageClient() {
   const { showToast } = useToast();
   
   const clientId = parseInt(params.id as string);
+  const { data: session } = useSession();
+const adminId : any  = session?.user?.id;
   
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -171,7 +176,8 @@ export default function ClientFormsPageClient() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          formIds: selectedFormsToAssign 
+          formIds: selectedFormsToAssign,
+          adminId: parseInt(adminId)
         }),
       });
 

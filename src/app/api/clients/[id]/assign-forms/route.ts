@@ -10,7 +10,15 @@ export async function POST(
     const { id } = await params;
     const clientId = parseInt(id);
     const body = await req.json();
-    const { formIds } = body;
+const { formIds, adminId } = body;
+
+if (!adminId || isNaN(adminId)) {
+  return NextResponse.json(
+    { error: "Missing or invalid admin ID" },
+    { status: 400 }
+  );
+}
+
 
     if (isNaN(clientId)) {
       return NextResponse.json(
@@ -112,6 +120,8 @@ export async function POST(
             formVersion: form.version,
             batchId: formBatch.id,
             displayOrder: index + 1,
+            assignedById: adminId, // ✅ NEW LINE
+
           },
         });
       })

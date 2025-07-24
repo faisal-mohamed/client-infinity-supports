@@ -20,16 +20,13 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 /**
  * Get email configuration from settings
  */
-export async function getEmailConfig(): Promise<EmailConfig> {
-  const now = Date.now();
-  
-  // Return cached config if still valid
-  if (emailConfigCache && (now - configCacheTime) < CACHE_DURATION) {
-    return emailConfigCache;
-  }
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
+export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
   try {
-    // Fetch all email settings using server-side database queries
+  
+
     const emailSettings = await getMultipleSettingsFromDB([
       'smtp_host',
       'smtp_port', 
@@ -37,7 +34,7 @@ export async function getEmailConfig(): Promise<EmailConfig> {
       'smtp_password',
       'admin_email',
       'app_name'
-    ]);
+    ], adminId);
 
     const {
       smtp_host: host,
@@ -48,42 +45,20 @@ export async function getEmailConfig(): Promise<EmailConfig> {
       app_name: appName
     } = emailSettings;
 
-    console.log('📧 Email settings check:', {
-      host: host || '❌ Missing smtp_host',
-      port: port || '❌ Missing smtp_port (using default 587)', 
-      fromEmail: fromEmail || '❌ Missing from_email',
-      password: password ? '✅ Present' : '❌ Missing smtp_password',
-      adminEmail: adminEmail || '❌ Missing admin_email',
-      appName: appName || '✅ Using default'
-    });
-
-    // Validate required settings with specific error messages
-    if (!host) {
-      throw new Error('SMTP Host (smtp_host) is not configured in settings');
-    }
-    if (!fromEmail) {
-      throw new Error('From Email (from_email) is not configured in settings');
-    }
-    if (!password) {
-      throw new Error('SMTP Password (smtp_password) is not configured in settings');
-    }
-    if (!adminEmail) {
-      throw new Error('Admin Email (admin_email) is not configured in settings');
-    }
+    if (!host) throw new Error('SMTP Host (smtp_host) is not configured');
+    if (!fromEmail) throw new Error('From Email (from_email) is not configured');
+    if (!password) throw new Error('SMTP Password (smtp_password) is not configured');
+    if (!adminEmail) throw new Error('Admin Email (admin_email) is not configured');
 
     const config: EmailConfig = {
       host,
       port: parseInt(port || '587'),
-      user: fromEmail, // Using from_email as SMTP user
+      user: fromEmail,
       password,
       fromEmail,
       adminEmail,
       appName: appName || 'Infinity Support Portal'
     };
-
-    // Cache the configuration
-    emailConfigCache = config;
-    configCacheTime = now;
 
     return config;
   } catch (error) {
@@ -92,11 +67,12 @@ export async function getEmailConfig(): Promise<EmailConfig> {
   }
 }
 
+
 /**
  * Create and configure Nodemailer transporter
  */
-export async function createEmailTransporter() {
-  const config = await getEmailConfig();
+export async function createEmailTransporter(adminId : number) {
+  const config = await getEmailConfig(adminId);
 
   const transporter = nodemailer.createTransport({
     host: config.host,
@@ -118,9 +94,9 @@ export async function createEmailTransporter() {
 /**
  * Test email configuration
  */
-export async function testEmailConnection(): Promise<{ success: boolean; message: string }> {
+export async function testEmailConnection(adminId : number): Promise<{ success: boolean; message: string }> {
   try {
-    const transporter = await createEmailTransporter();
+    const transporter = await createEmailTransporter(adminId);
     await transporter.verify();
     
     return {
@@ -143,7 +119,8 @@ export async function sendEmail({
   to,
   subject,
   html,
-  attachments = []
+  attachments = [],
+  adminId
 }: {
   to: string | string[];
   subject: string;
@@ -153,10 +130,11 @@ export async function sendEmail({
     content: Buffer;
     contentType: string;
   }>;
+  adminId: any;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    const config = await getEmailConfig();
-    const transporter = await createEmailTransporter();
+    const config = await getEmailConfig(adminId);
+    const transporter = await createEmailTransporter(adminId);
 
     const mailOptions = {
       from: `"${config.appName}" <${config.fromEmail}>`,
@@ -192,7 +170,8 @@ export async function sendEmailWithRetry({
   html,
   attachments = [],
   maxRetries = 3,
-  retryDelay = 2000
+  retryDelay = 2000,
+  adminId
 }: {
   to: string | string[];
   subject: string;
@@ -204,6 +183,7 @@ export async function sendEmailWithRetry({
   }>;
   maxRetries?: number;
   retryDelay?: number;
+ adminId: any 
 }): Promise<{ success: boolean; messageId?: string; error?: string; attempts: number }> {
   let lastError: string = '';
   
@@ -211,7 +191,7 @@ export async function sendEmailWithRetry({
     try {
       console.log(`📧 Email attempt ${attempt}/${maxRetries} to: ${Array.isArray(to) ? to.join(', ') : to}`);
       
-      const result = await sendEmail({ to, subject, html, attachments });
+      const result = await sendEmail({ to, subject, html, attachments, adminId });
       
       if (result.success) {
         console.log(`✅ Email sent successfully on attempt ${attempt}`);

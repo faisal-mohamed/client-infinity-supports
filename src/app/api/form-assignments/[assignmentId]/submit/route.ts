@@ -20,7 +20,7 @@ export async function POST(
     }
 
     // Get form assignment with form details
-    const assignment = await prisma.formAssignment.findUnique({
+    const assignment: any = await prisma.formAssignment.findUnique({
       where: { id: assignmentIdNum },
       include: {
         form: {
@@ -31,8 +31,16 @@ export async function POST(
             version: true,
           },
         },
+        assignedBy: {
+          select: {
+            id: true, // This is adminId
+            email: true, // Optional: If needed for email
+          },
+        },
       },
     });
+
+    const adminId = assignment?.assignedBy?.id;
 
     if (!assignment) {
       return NextResponse.json(
@@ -73,7 +81,9 @@ export async function POST(
       submitMessage = `Cannot submit: ${signatureValidation.missingSignatures.length} signature(s) still required`;
     }
 
-    console.log(`🎯 Submit Status: assignmentId=${assignmentIdNum}, hasAllSignatures=${hasAllSignatures}, totalRequired=${signatureValidation.totalRequired}, newStatus=${newStatus}, canSubmit=${canSubmit}`);
+    console.log(
+      `🎯 Submit Status: assignmentId=${assignmentIdNum}, hasAllSignatures=${hasAllSignatures}, totalRequired=${signatureValidation.totalRequired}, newStatus=${newStatus}, canSubmit=${canSubmit}`
+    );
 
     // Update or create FormSubmission
     const formSubmission = await prisma.formSubmission.upsert({
@@ -114,12 +124,22 @@ export async function POST(
     // Update common fields if provided
     if (commonFieldsData && Object.keys(commonFieldsData).length > 0) {
       const allowedCommonFields = [
-        'name', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
-        'dob', 'ndis', 'disability', 'address', 'phone'
+        "name",
+        "age",
+        "email",
+        "sex",
+        "street",
+        "state",
+        "postCode",
+        "dob",
+        "ndis",
+        "disability",
+        "address",
+        "phone",
       ];
-      
+
       const filteredCommonFields = Object.keys(commonFieldsData)
-        .filter(key => allowedCommonFields.includes(key))
+        .filter((key) => allowedCommonFields.includes(key))
         .reduce((obj, key) => {
           obj[key] = commonFieldsData[key];
           return obj;
@@ -141,17 +161,21 @@ export async function POST(
     }
 
     // 🎯 UPDATE FORM ASSIGNMENT STATUS
-    console.log(`🎯 Updating FormAssignment ${assignmentIdNum} to status: ${newStatus}`);
-    
+    console.log(
+      `🎯 Updating FormAssignment ${assignmentIdNum} to status: ${newStatus}`
+    );
+
     await prisma.formAssignment.update({
       where: { id: assignmentIdNum },
       data: {
         currentStatus: newStatus,
-        isCompleted: newStatus === "completed" // Keep legacy field in sync
+        isCompleted: newStatus === "completed", // Keep legacy field in sync
       },
     });
 
-    console.log(`✅ FormAssignment ${assignmentIdNum} submitted with status: ${newStatus}`);
+    console.log(
+      `✅ FormAssignment ${assignmentIdNum} submitted with status: ${newStatus}`
+    );
 
     // 🔔 CREATE NOTIFICATIONS for ALL ADMINS when client has signed the form
     if (hasAllSignatures && clientSignature) {
@@ -159,64 +183,71 @@ export async function POST(
         // Get client info for notification and email
         const clientInfo = await prisma.client.findUnique({
           where: { id: assignment.clientId },
-          select: { name: true, email: true }
+          select: { name: true, email: true },
         });
 
         // Get all admins in the system
         const allAdmins = await prisma.admin.findMany({
-          select: { id: true }
+          select: { id: true },
         });
 
         // Create notifications for all admins
-        const notificationPromises = allAdmins.map(admin => 
+        const notificationPromises = allAdmins.map((admin) =>
           prisma.formSubmissionNotification.create({
             data: {
               adminId: admin.id,
               clientId: assignment.clientId,
-              formSubmissionId: formSubmission.id
-            }
+              formSubmissionId: formSubmission.id,
+            },
           })
         );
 
         await Promise.all(notificationPromises);
-        
-        console.log(`🔔 Notifications created for ${allAdmins.length} admins - Client ${clientInfo?.name} signed ${assignment.form.title}`);
+
+        console.log(
+          `🔔 Notifications created for ${allAdmins.length} admins - Client ${clientInfo?.name} signed ${assignment.form.title}`
+        );
 
         // 🔔 NEW: Check if this form completion triggers batch completion
         try {
-          console.log(`🔍 Checking if batch is completed for client: ${clientInfo?.name}`);
-          
+          console.log(
+            `🔍 Checking if batch is completed for client: ${clientInfo?.name}`
+          );
+
           // Find the batch this form assignment belongs to
-          const formAssignmentWithBatch = await prisma.formAssignment.findUnique({
-            where: { id: assignmentIdNum },
-            include: {
-              batch: {
-                include: {
-                  assignments: {
-                    include: {
-                      form: {
-                        select: {
-                          id: true,
-                          title: true,
-                          requiresSignature: true
-                        }
-                      }
-                    }
+          const formAssignmentWithBatch =
+            await prisma.formAssignment.findUnique({
+              where: { id: assignmentIdNum },
+              include: {
+                batch: {
+                  include: {
+                    assignments: {
+                      include: {
+                        form: {
+                          select: {
+                            id: true,
+                            title: true,
+                            requiresSignature: true,
+                          },
+                        },
+                      },
+                    },
+                    client: {
+                      select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                      },
+                    },
                   },
-                  client: {
-                    select: {
-                      id: true,
-                      name: true,
-                      email: true
-                    }
-                  }
-                }
-              }
-            }
-          });
+                },
+              },
+            });
 
           if (!formAssignmentWithBatch?.batch) {
-            console.log(`⚠️ No batch found for form assignment ${assignmentIdNum}`);
+            console.log(
+              `⚠️ No batch found for form assignment ${assignmentIdNum}`
+            );
             return NextResponse.json({
               success: canSubmit,
               submissionId: formSubmission.id,
@@ -234,60 +265,81 @@ export async function POST(
           }
 
           const batch = formAssignmentWithBatch.batch;
-          
+
           // Check if ALL forms in this batch are completed
           const allAssignments = batch.assignments;
-          const completedAssignments = allAssignments.filter(assignment => 
-            assignment.currentStatus === "completed"
+          const completedAssignments = allAssignments.filter(
+            (assignment) => assignment.currentStatus === "completed"
           );
 
-          console.log(`📊 Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`);
+          console.log(
+            `📊 Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
+          );
 
           // If all forms in batch are completed, send email
-          if (completedAssignments.length === allAssignments.length && allAssignments.length > 0) {
-            console.log(`🎉 Batch ${batch.id} is now fully completed! Sending email notification.`);
+          if (
+            completedAssignments.length === allAssignments.length &&
+            allAssignments.length > 0
+          ) {
+            console.log(
+              `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
+            );
 
             // Get all completed form submissions for this batch
-            const completedFormSubmissions = await prisma.formSubmission.findMany({
-              where: {
-                clientId: batch.clientId,
-                formId: { in: allAssignments.map(a => a.formId) },
-                formVersion: { in: allAssignments.map(a => a.formVersion) },
-                isSubmitted: true
-              },
-              include: {
-                form: {
-                  select: {
-                    id: true,
-                    title: true
-                  }
-                }
-              }
-            });
+            const completedFormSubmissions =
+              await prisma.formSubmission.findMany({
+                where: {
+                  clientId: batch.clientId,
+                  formId: { in: allAssignments.map((a) => a.formId) },
+                  formVersion: { in: allAssignments.map((a) => a.formVersion) },
+                  isSubmitted: true,
+                },
+                include: {
+                  form: {
+                    select: {
+                      id: true,
+                      title: true,
+                    },
+                  },
+                },
+              });
 
             // Prepare completed forms data for email ----------------------------------------------
-            const completedFormsData = completedFormSubmissions.map(submission => ({
-              id: submission.id,
-              formId: submission.formId,
-              title: submission.form.title
-            }));
+            const completedFormsData = completedFormSubmissions.map(
+              (submission) => ({
+                id: submission.id,
+                formId: submission.formId,
+                title: submission.form.title,
+              })
+            );
+
+
+
 
             // Send dual notification email (admin + client)
-            const emailResponse = await fetch(`${process.env.NEXTAUTH_URL || `${window.location.origin}`}/api/notifications/send-email`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: 'dual_notification', // Send to both admin and client
-                clientId: batch.clientId,
-                clientName: batch.client.name,
-                clientEmail: batch.client.email,
-                batchId: batch.id,
-                completedForms: completedFormsData,
-                completedAt: new Date().toLocaleString()
-              })
-            });
+
+            
+            const emailResponse = await fetch(
+              `${
+                process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
+              }/api/notifications/send-email/${adminId}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  type: "dual_notification",
+                  adminId, // 💡 add this
+                  clientId: batch.clientId,
+                  clientName: batch.client.name,
+                  clientEmail: batch.client.email,
+                  batchId: batch.id,
+                  completedForms: completedFormsData,
+                  completedAt: new Date().toLocaleString(),
+                }),
+              }
+            );
 
             if (emailResponse.ok) {
               const emailResult = await emailResponse.json();
@@ -297,17 +349,32 @@ export async function POST(
                 totalEmails: emailResult.totalEmails,
                 client: batch.client.name,
                 batchId: batch.id,
-                totalForms: completedFormsData.length
+                totalForms: completedFormsData.length,
               });
             } else {
               const emailError = await emailResponse.text();
-              console.error(`❌ Failed to send dual notification emails:`, emailError);
+              console.error(
+                `❌ Failed to send dual notification emails:`,
+                emailError
+              );
             }
+
+
+
+
+
+
+
           } else {
-            console.log(`⏳ Batch ${batch.id} not yet complete: ${completedAssignments.length}/${allAssignments.length} forms done`);
+            console.log(
+              `⏳ Batch ${batch.id} not yet complete: ${completedAssignments.length}/${allAssignments.length} forms done`
+            );
           }
         } catch (emailError) {
-          console.error("❌ Batch completion check failed (non-blocking):", emailError);
+          console.error(
+            "❌ Batch completion check failed (non-blocking):",
+            emailError
+          );
           // Don't fail the main request if email fails
         }
       } catch (notificationError) {
@@ -330,7 +397,6 @@ export async function POST(
       },
       message: submitMessage,
     });
-
   } catch (error: any) {
     console.error("Error submitting form:", error);
     return NextResponse.json(

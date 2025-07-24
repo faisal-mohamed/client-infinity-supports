@@ -19,6 +19,10 @@ model Admin {
   logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
   clients      Client[]           // Admin's clients (who they created)
   notifications FormSubmissionNotification[] // Notifications for this admin
+  appSettings  AppSettings[]      // Admin-specific app settings (for email_settings)
+
+  assignedFormAssignments FormAssignment[] @relation("AssignedForms")
+
 }
 
 model Client {
@@ -106,6 +110,13 @@ model FormAssignment {
   client                Client    @relation(fields: [clientId], references: [id])
   form                  MasterForm @relation(fields: [formId], references: [id])
   batch                 FormBatch @relation(fields: [batchId], references: [id])
+
+
+  assignedById          Int?
+  assignedBy            Admin?    @relation("AssignedForms", fields: [assignedById], references: [id])
+
+
+  
 
   // Ensure unique assignment for client-form-version
   @@unique([clientId, formId, formVersion])
@@ -228,20 +239,25 @@ enum LogType {
 // Application Settings Model for managing app-wide configurations
 model AppSettings {
   id            Int      @id @default(autoincrement())
-  key           String   @unique
+  key           String
   value         String?
-  type          String   // 'string', 'number', 'boolean', 'date', 'url', 'json'
-  category      String   // 'form_metadata', 'company', 'system', 'email', 'pdf', 'security'
-  label         String   // Human-readable label
-  description   String?  // Help text for the setting
+  type          String
+  category      String
+  label         String
+  description   String?
   isRequired    Boolean  @default(false)
-  defaultValue  String?  // Default value for the setting
-  validation    String?  // Validation rules (JSON string)
-  sortOrder     Int      @default(0) // For ordering within categories
+  defaultValue  String?
+  validation    String?
+  sortOrder     Int      @default(0)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
+  adminId       Int?
+  admin         Admin?   @relation(fields: [adminId], references: [id])
+
+  @@index([category, adminId])
+  @@unique([key, adminId]) // 👈 THIS is crucial
   @@map("app_settings")
 }
 
