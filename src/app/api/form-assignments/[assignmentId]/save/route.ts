@@ -317,19 +317,19 @@ export async function POST(
 
       const hasSignatureFields =
         signatureFields.some((key : any ) => key in formData) ||
-        signedAtFields.some(key => key in formData);
+        signedAtFields.some((key : any ) => key in formData);
 
       if (hasSignatureFields) {
         console.log(`🔄 Resetting signature and timestamp fields for form: ${formKey}`);
 
-        signatureFields.forEach(key => {
+        signatureFields.forEach((key : any ) => {
           if (key in formData) {
             delete formData[key];
             console.log(`🧹 Removed signature field: ${key}`);
           }
         });
 
-        signedAtFields.forEach(key => {
+        signedAtFields.forEach((key : any ) => {
           if (key in formData) {
             delete formData[key];
             console.log(`🕒 Cleared signedAt timestamp field: ${key}`);
