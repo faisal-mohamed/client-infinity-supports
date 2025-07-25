@@ -46,7 +46,7 @@ export default function UserWelcome() {
                 />
               </div>
             ) : (
-              <div className="h-20 w-20 bg-gradient-to-r from-slate-500 to-slate-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+              <div className="h-20 w-20 bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                 <FaUserCircle className="h-12 w-12" />
               </div>
             )}

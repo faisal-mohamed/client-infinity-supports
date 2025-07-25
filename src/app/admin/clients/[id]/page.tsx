@@ -50,16 +50,37 @@ export default function ClientDetailPage() {
     if (loading) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Client Information</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-          </div>
-        </div>
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex justify-center items-center">
+         <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+        <div className="flex justify-center items-center h-80">
+              <div className="text-center">
+                {/* Spinner */}
+                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+                {/* Text */}
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                    Loading Client Info
+                </h3>
+                <p className="text-slate-600 font-medium">
+                  Please wait while we load the client Information...
+                </p>
+
+                {/* Bouncing dots */}
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+      </div>
+      </div>
       </div>
     );
   }
@@ -89,60 +110,55 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Enhanced Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => router.back()}
-                className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-600 hover:from-indigo-200 hover:to-indigo-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-              >
-                <FaArrowLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="h-20 w-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-3xl font-bold text-white">
-                      {client?.name?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{client?.name}</h1>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                      <span className="font-medium">ID: {client.id}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="h-3 w-3 text-gray-400" />
-                      <span>Created: {new Date(client?.createdAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    <div className="bg-gradient-to-br from-white-50 to-white-100 min-h-screen">
+         {/* Enhanced Header */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl hover:border-rose-300 transition-shadow duration-300">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="flex items-center gap-6">
+      <button
+        onClick={() => router.back()}
+        className="p-3 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 hover:from-slate-200 hover:to-slate-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+      >
+        <FaArrowLeft className="h-5 w-5" />
+      </button>
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <div className="h-20 w-20 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <span className="text-3xl font-bold text-white">
+              {client?.name?.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{client?.name}</h1>
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+              <span className="font-medium">ID: {client.id}</span>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href={`/admin/clients/${id}/forms`}
-                className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
-              >
-                <FaFileAlt className="h-4 w-4" /> 
-                Client Forms
-              </Link>
-              {/* <Link
-                href={`/admin/clients/${id}/edit`}
-                className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
-              >
-                <FaEdit className="h-4 w-4" /> 
-                Edit Client
-              </Link> */}
+            <div className="flex items-center gap-2">
+              <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+              <span>Created: {new Date(client?.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div className="flex flex-wrap gap-3">
+      <Link
+        href={`/admin/clients/${id}/forms`}
+        className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+      >
+        <FaFileAlt className="h-4 w-4" /> 
+        Client Forms
+      </Link>
+    </div>
+  </div>
+</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+     
+
 
         {/* Client Information */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -361,97 +377,8 @@ export default function ClientDetailPage() {
           </div>
         )}
 
-        {/* Enhanced Recent Activity Section */}
-        {/* <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div className="px-8 py-6 bg-gradient-to-r from-indigo-50 to-indigo-100 border-b border-indigo-200">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-md">
-                <FaHistory className="h-6 w-6" />
+       
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
-                <p className="text-sm text-gray-600 mt-1">Track all client interactions and form activities</p>
-              </div>
-            </div>
-          </div>
-
-          {client.logs && client.logs.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                  <tr>
-                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                      Date & Time
-                    </th>
-                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                      Action
-                    </th>
-                    <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
-                      Details
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {client.logs.map((log: any, index: any) => (
-                    <tr
-                      key={log.id}
-                      className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200"
-                      style={{
-                        animationDelay: `${index * 50}ms`,
-                        animation: 'fadeInUp 0.6s ease-out forwards'
-                      }}
-                    >
-                      <td className="px-8 py-6 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900">
-                              {new Date(log.createdAt).toLocaleDateString()}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(log.createdAt).toLocaleTimeString()}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 whitespace-nowrap">
-                        <span className="inline-flex items-center px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm">
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="text-sm text-gray-700">
-                          {log.metadata && typeof log.metadata === 'object' ?
-                            Object.entries(log.metadata).map(([key, value]) => (
-                              <div key={key} className="mb-2 last:mb-0">
-                                <span className="font-semibold text-gray-900 capitalize">{key.replace('_', ' ')}:</span>{' '}
-                                <span className="text-gray-700">{String(value)}</span>
-                              </div>
-                            ))
-                            : log.metadata || (
-                              <span className="text-gray-400 italic">No additional details</span>
-                            )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-12 text-center">
-              <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
-                <FaHistory className="text-gray-400 text-4xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">No Activity Yet</h3>
-              <p className="text-gray-500 font-medium mb-2">This client hasn't interacted with any forms yet.</p>
-              <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
-                Activity will appear here when the client fills out forms, signs documents, or when admins make changes to their account.
-              </p>
-            </div>
-          )}
-        </div> */}
-      </div>
 
       <style jsx>{`
         @keyframes fadeIn {
