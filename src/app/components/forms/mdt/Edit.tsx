@@ -401,7 +401,9 @@ const MDTEdit: React.FC<FormProps> = ({
 
   const handleFormSubmitCheckValidation = async () => {
     try {
-      console.log("form submitted")
+      console.log("form submitted"
+      )
+      setSubmitting(true);
       const validationResult = validateRequiredFields();
 
       if (validationResult.isValid) {
@@ -422,6 +424,8 @@ const MDTEdit: React.FC<FormProps> = ({
         title: "Error",
         message: "Something went wrong during validation or saving."
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 

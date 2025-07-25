@@ -372,13 +372,13 @@ export default function SignatureLinksPageClient() {
                   <p className="text-gray-600">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
                 </div>
               </div>
-              <Link
+              {/* <Link
                 href={`/admin/clients/${clientId}/forms`}
                 className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <FaPlus className="mr-2 h-5 w-5" />
                 Generate New Link
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

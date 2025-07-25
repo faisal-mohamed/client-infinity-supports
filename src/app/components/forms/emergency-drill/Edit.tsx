@@ -12,6 +12,7 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
+  FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -650,6 +651,8 @@ const getCommonFieldValue = (fieldName: string): string => {
   const handleFormSubmitCheckValidation = async () => {
   try {
     console.log("form submitted")
+    setSubmitting(true);
+    
     const validationResult = validateRequiredFields();
 
     if (validationResult.isValid) {
@@ -668,6 +671,9 @@ const getCommonFieldValue = (fieldName: string): string => {
       title: "Error",
       message: "Something went wrong during validation or saving."
     });
+  }
+  finally {
+    setSubmitting(false);
   }
 };
 
@@ -867,7 +873,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               disabled={saving || submitting}
             >
               <FaCheck className="w-4 h-4" />
-              {submitting ? 'Submitting...' : 'Submit Form'}
+              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
             </button>
           )}
         </footer>

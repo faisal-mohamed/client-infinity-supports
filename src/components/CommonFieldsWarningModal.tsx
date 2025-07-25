@@ -343,8 +343,17 @@ export default function CommonFieldsWarningModal({
                   Skip Downloads & Proceed
                 </button>
               )}
+
+              {completedForms.length > 0 && allDownloaded && (
+                <button
+                  onClick={onProceed}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 text-white rounded-xl hover:from-amber-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  All Downloaded. Now Proceed 
+                </button>
+              )}
               
-              <button
+              {/* <button
                 onClick={onProceed}
                 className={`px-8 py-3 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 ${
                   completedForms.length === 0 || allDownloaded
@@ -358,7 +367,7 @@ export default function CommonFieldsWarningModal({
                     ? 'Proceed to Edit Common Fields'
                     : 'Proceed Anyway (Not Recommended)'
                 }
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

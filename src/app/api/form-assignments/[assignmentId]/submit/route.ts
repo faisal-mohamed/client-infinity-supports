@@ -281,9 +281,9 @@ export async function POST(
             completedAssignments.length === allAssignments.length &&
             allAssignments.length > 0
           ) {
-            console.log(
-              `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
-            );
+            // console.log(
+            //   `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
+            // );
 
             // Get all completed form submissions for this batch
             const completedFormSubmissions =
@@ -334,7 +334,7 @@ export async function POST(
             //       clientId: batch.clientId,
             //       clientName: batch.client.name,
             //       clientEmail: batch.client.email,
-            //       batchId: batch.id,
+            //       batchId: batch.id,FS
             //       completedForms: completedFormsData,
             //       completedAt: new Date().toLocaleString(),
             //     }),

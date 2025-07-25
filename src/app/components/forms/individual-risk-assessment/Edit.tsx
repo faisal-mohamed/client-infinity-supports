@@ -575,6 +575,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   const handleFormSubmitCheckValidation = async () => {
   try {
     console.log("form submitted")
+    setSubmitting(true);
     const validationResult = validateRequiredFields();
 
     if (validationResult.isValid) {
@@ -593,6 +594,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       title: "Error",
       message: "Something went wrong during validation or saving."
     });
+  } finally {
+    setSubmitting(false);
   }
 };
 

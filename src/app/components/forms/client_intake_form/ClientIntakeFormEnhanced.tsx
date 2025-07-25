@@ -15,6 +15,7 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
+  FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -349,9 +350,10 @@ const getCommonFieldValue = (fieldName: string): string => {
     return completedSteps.has(stepIndex);
   };
 
-  const getProgressPercentage = () => {
-    return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
-  };
+ const getProgressPercentage = () => {
+  return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
+};
+
 
   // Sequential step logic
   const isCurrentSectionComplete = () => {
@@ -377,13 +379,17 @@ const getCommonFieldValue = (fieldName: string): string => {
     }
   };
 
-  // Update Next handler to always save progress before moving to the next section
   const handleNextSequential = async () => {
-    // Save current section's data before proceeding
-    await handleSaveProgress();
-    // No confirmation modal logic here
-    handleNext();
-  };
+  await handleSaveProgress(); // Save before progressing
+
+  if (currentStep < FORM_SECTIONS.length - 1) {
+    setCompletedSteps((prev) => new Set([...prev, currentStep]));
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
+    setMaxStep((prev) => Math.max(prev, nextStep)); // <- This is crucial
+  }
+};
+
 
   // On Previous
   const handlePreviousSequential = () => {
@@ -776,8 +782,11 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   // 🎯 LEGACY WRAPPER FUNCTION (for backward compatibility)
   const handleSaveWithConfirm = async (submit: boolean) => {
+
     if (submit) {
+      setSubmitting(true);
       await handleSubmitForm();
+      setSubmitting(false);
     } else {
       await handleSaveProgress();
     }
@@ -792,6 +801,9 @@ const getCommonFieldValue = (fieldName: string): string => {
     }
     return value;
   };
+
+
+  
 
   return (
     <div className="">
@@ -971,12 +983,12 @@ const getCommonFieldValue = (fieldName: string): string => {
     className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
     onClick={(e) => {
       e.preventDefault();
-      handleSubmitForm(); // Submit with validation
+      handleSaveWithConfirm(true); // Submit with validation
     }}
     disabled={saving || submitting}
   >
     <FaCheck className="w-4 h-4" />
-    {submitting ? 'Submitting...' : 'Submit Form'}
+              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
   </button>
 )}
 

@@ -24,6 +24,7 @@ import {
   FaComments,
   FaPenNib,
   FaListAlt,
+  FaSpinner
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -374,7 +375,11 @@ const addRiskRow = () => {
     mode2: "",
 
     // Page 13: Signatures and Review
-    authorisedBy: "",
+   
+
+    ...formData,
+
+     authorisedBy: "",
     role: "",
     signature: "",
     signatureDate: "",
@@ -383,8 +388,6 @@ const addRiskRow = () => {
     copySupplied: false,
     copyOnFile: false,
     reviewDate: "",
-
-    ...formData,
   };
 
 
@@ -1256,7 +1259,7 @@ const renderDropdownSeverityRisk = (
 
 
   const renderRiskQuestionBlock = (index: number) => {
-    const yesNoOptions = ["yes", "no"];
+    const yesNoOptions = ["Yes", "No"];
     const ratingOptions = ["L", "M", "H"];
     const riskField = `risk${index}`;
     const ratingField = `risk${index}Rating`;
@@ -1405,6 +1408,8 @@ const renderDropdownSeverityRisk = (
 
   const handleFormSubmitCheckValidation = async () => {
     try {
+
+      setSubmitting(true);
       console.log("form submitted");
       const validationResult = validateRequiredFields();
 
@@ -1424,7 +1429,10 @@ const renderDropdownSeverityRisk = (
         title: "Error",
         message: "Something went wrong during validation or saving.",
       });
+    } finally {
+      setSubmitting(false)
     }
+
   };
 
   // 🎯 LEGACY WRAPPER FUNCTION (for backward compatibility)
@@ -1760,7 +1768,7 @@ const renderDropdownSeverityRisk = (
               disabled={saving || submitting}
             >
               <FaCheck className="w-4 h-4" />
-              {submitting ? "Submitting..." : "Submit Form"}
+              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
             </button>
           )}
         </footer>
