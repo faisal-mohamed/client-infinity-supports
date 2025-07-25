@@ -170,129 +170,76 @@ export default function FormsManagement() {
 
         {/* Enhanced Table layout */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
-                <tr>
-                  {["Title", "Form Key", "Signature", "Created At", "Actions"].map((header) => (
-                    <th
-                      key={header}
-                      className="px-8 py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {/* Loading rows */}
+  <div className="overflow-x-auto">
+    <table className="min-w-full table-auto text-xs sm:text-sm md:text-base">
+      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+        <tr>
+          {["Title", "Signature", "Actions"].map((header) => (
+            <th
+              key={header}
+              className="px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-5 text-left font-bold text-gray-600 uppercase tracking-wider text-[10px] sm:text-xs"
+            >
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-100">
+        {!loading &&
+          !error &&
+          filteredForms.map((form: any, index) => (
+            <tr
+              key={form.id}
+              onClick={() => handleViewForm(form.id)}
+              className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 cursor-pointer"
+              style={{
+                animationDelay: `${index * 50}ms`,
+                animation: 'fadeInUp 0.6s ease-out forwards',
+              }}
+            >
+              <td className="px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                    <FaFileAlt className="text-white h-4 w-4 sm:h-5 sm:w-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-bold text-gray-900">
+                      {form.title}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6">
+                {form.requiresSignature && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full  text-green-800 text-[10px] sm:text-xs font-semibold shadow-sm">
+  <span className="block w-2 h-2 rounded-full bg-green-600"></span>
+  <span className="hidden sm:inline">Requires Signature</span>
+</span>
 
-                {/* Enhanced Empty state */}
-                {!loading && filteredForms.length === 0 && !error && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="px-8 py-20 text-center"
-                    >
-                      <div className="flex flex-col items-center">
-                        <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
-                          <FaFileAlt className="text-gray-400 text-4xl" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-3">
-                          {searchTerm ? "No Forms Found" : "No Forms Available"}
-                        </h3>
-                        <p className="text-gray-500 font-medium mb-2 max-w-md text-center leading-relaxed">
-                          {searchTerm ? 
-                            "No forms match your current search criteria. Try adjusting your search terms." :
-                            "You haven't created any forms yet. Start by creating your first form template."}
-                        </p>
-                        {searchTerm ? (
-                          <button
-                            onClick={() => setSearchTerm("")}
-                            className="mt-4 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-                          >
-                            Clear Search
-                          </button>
-                        ) : (
-                          <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                            <p className="text-sm font-medium text-blue-700">
-                              ℹ️ Forms will appear here once they are created in the system
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
                 )}
+              </td>
+             
+              <td className="px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6">
+                <button
+  onClick={(e) => {
+    e.stopPropagation();
+    handleViewForm(form.id);
+  }}
+  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 px-2 sm:px-4 py-2 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
+  aria-label={`View ${form.title}`}
+>
+  <FaEye className="h-4 w-4 sm:h-5 sm:w-5" />
+  <span className="hidden sm:inline">View</span>
+</button>
 
-                {/* Enhanced Actual form rows */}
-                {!loading &&
-                  !error &&
-                  filteredForms.map((form : any, index) => (
-                    <tr
-                      key={form.id}
-                      onClick={() => handleViewForm(form.id)}
-                      className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 cursor-pointer"
-                      style={{
-                        animationDelay: `${index * 50}ms`,
-                        animation: 'fadeInUp 0.6s ease-out forwards'
-                      }}
-                    >
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                            <FaFileAlt className="text-white h-5 w-5" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-gray-900">{form.title}</div>
-                            
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-sm">
-                          {form.formKey}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6">
-                       {  (form.requiresSignature) ?  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-sm">
-                          {`Requires Signature`}
-                        </span> : <></>}
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="text-sm font-medium text-gray-900">
-                          {new Date(form.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(form.createdAt).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewForm(form.id);
-                          }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
-                          aria-label={`View ${form.title}`}
-                        >
-                          <FaEye className="h-4 w-4" /> 
-                          View Form
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
       </div>
 
       <style jsx>{`

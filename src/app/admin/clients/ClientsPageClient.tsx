@@ -561,7 +561,7 @@ export default function ClientsPageClient() {
                           )}
                         </div>
                       </th>
-                      <th
+                      {/* <th
                         className="px-8 py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         onClick={() => handleSort('email')}
                       >
@@ -573,7 +573,7 @@ export default function ClientsPageClient() {
                             <FaSort className="text-gray-400" />
                           )}
                         </div>
-                      </th>
+                      </th> */}
                       <th
                         className="px-8 py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                         onClick={() => handleSort('phone')}
@@ -693,13 +693,13 @@ export default function ClientsPageClient() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-8 py-6 whitespace-nowrap">
+                          {/* <td className="px-8 py-6 whitespace-nowrap">
                             {client?.email ? (
                               <span className="text-sm font-medium text-gray-900">{client.email}</span>
                             ) : (
                               <span className="text-sm text-gray-400 italic">Not provided</span>
                             )}
-                          </td>
+                          </td> */}
                           <td className="px-8 py-6 whitespace-nowrap">
                             {client?.phone ? (
                               <span className="text-sm font-medium text-gray-900">{client.phone}</span>
