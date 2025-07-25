@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -31,36 +28,34 @@ const StatCard = ({
   title,
   value,
   icon,
-  iconBg,
   link,
   linkText,
-  color = "text-gray-800",
-  bgColor = "bg-white",
+  iconColor
 }: {
   title: string;
   value: number;
   icon: React.ReactNode;
-  iconBg: string;
   link?: string;
   linkText?: string;
-  color?: string;
-  bgColor?: string;
+  iconColor?: string
 }) => (
-  <div className={`relative rounded-2xl shadow-md p-6 flex flex-col justify-between group hover:shadow-lg transition-shadow border border-gray-100 ${bgColor}`}>
+  <div className="relative rounded-2xl shadow-md p-6 flex flex-col justify-between group hover:shadow-lg transition-shadow border border-slate-200 bg-white">
     <div className="flex items-center">
-      <div className={`flex items-center justify-center rounded-xl ${iconBg} text-white shadow w-12 h-12`}>
-        {icon}
-      </div>
+
+<div className={`flex items-center justify-center rounded-xl bg-slate-100 shadow w-12 h-12 text-${iconColor}`}>
+  {icon}
+</div>
+
       <div className="ml-4">
-        <h2 className={`font-semibold ${color} text-base`}>{title}</h2>
-        <p className="text-3xl font-extrabold text-gray-900 mt-1">{value}</p>
+        <h2 className="font-semibold text-slate-700 text-base">{title}</h2>
+        <p className="text-3xl font-extrabold text-rose-500 mt-1">{value}</p>
       </div>
     </div>
     {link && linkText && (
-      <div className="mt-4 pt-3 border-t border-gray-200">
+      <div className="mt-4 pt-3 border-t border-slate-100">
         <Link
           href={link}
-          className={`text-sm font-medium flex items-center ${color} hover:underline`}
+          className="text-sm font-medium flex items-center text-slate-600 hover:text-rose-500 transition-colors"
         >
           {linkText}
           <svg
@@ -82,18 +77,17 @@ const StatCard = ({
   </div>
 );
 
-
 const SkeletonCard = () => (
-  <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-100 animate-pulse">
+  <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200 animate-pulse">
     <div className="flex items-center">
-      <div className="rounded-xl bg-gray-200 w-12 h-12" />
+      <div className="rounded-xl bg-slate-200 w-12 h-12" />
       <div className="ml-4 flex-1">
-        <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-        <div className="h-6 bg-gray-300 rounded w-20"></div>
+        <div className="h-4 bg-slate-200 rounded w-24 mb-2"></div>
+        <div className="h-6 bg-slate-300 rounded w-20"></div>
       </div>
     </div>
-    <div className="mt-4 pt-3 border-t border-gray-100">
-      <div className="h-4 bg-gray-200 rounded w-32"></div>
+    <div className="mt-4 pt-3 border-t border-slate-100">
+      <div className="h-4 bg-slate-200 rounded w-32"></div>
     </div>
   </div>
 );
@@ -125,25 +119,24 @@ export const DashboardClient = () => {
   if (status === "loading" || !session) return null;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div className="bg-white-50 min-h-screen">
+       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <UserWelcome />
         </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+       
 
         {/* Stats Cards */}
         {error ? (
           <div className="text-center py-8 text-red-500">{error}</div>
         ) : loading ? (
           <>
-            {/* Skeleton Row 1 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               {[...Array(4)].map((_, i) => (
                 <SkeletonCard key={`skeleton-1-${i}`} />
               ))}
             </div>
-            {/* Skeleton Row 2 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               {[...Array(3)].map((_, i) => (
                 <SkeletonCard key={`skeleton-2-${i}`} />
@@ -152,75 +145,53 @@ export const DashboardClient = () => {
           </>
         ) : stats && (
           <>
-            {/* First row: 4 cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-             <StatCard
-  title="Total Clients"
-  value={stats.totalClients}
-  icon={<FaUsers className="h-7 w-7" />}
-  iconBg="bg-indigo-500"
-  bgColor="bg-indigo-50"
-  link="/admin/clients"
-  linkText="View all clients"
-  color="text-indigo-700"
-/>
-
-<StatCard
-  title="Completed Forms"
-  value={stats.completedForms}
-  icon={<FaCheckCircle className="h-7 w-7" />}
-  iconBg="bg-green-500"
-  bgColor="bg-green-50"
-  color="text-green-700"
-/>
-
-<StatCard
-  title="Forms Not Started"
-  value={stats.notStarted}
-  icon={<FaClock className="h-7 w-7" />}
-  iconBg="bg-gray-500"
-  bgColor="bg-gray-100"
-  color="text-gray-700"
-/>
-
-<StatCard
-  title="New Clients (This Month)"
-  value={stats.newClientsThisMonth}
-  icon={<FaUserPlus className="h-7 w-7" />}
-  iconBg="bg-blue-500"
-  bgColor="bg-blue-50"
-  color="text-blue-700"
-/>
+              <StatCard
+                title="Total Clients"
+                value={stats.totalClients}
+                icon={<FaUsers className="h-7 w-7" />}
+                link="/admin/clients"
+                linkText="View all clients"
+                iconColor="indigo-600"
+              />
+              <StatCard
+                title="Completed Forms"
+                value={stats.completedForms}
+                icon={<FaCheckCircle className="h-7 w-7" />}
+                iconColor="green-600"
+              />
+              <StatCard
+                title="Forms Not Started"
+                value={stats.notStarted}
+                icon={<FaClock className="h-7 w-7" />}
+                iconColor="grey-300"
+              />
+              <StatCard
+                title="New Clients (This Month)"
+                value={stats.newClientsThisMonth}
+                icon={<FaUserPlus className="h-7 w-7" />}
+                iconColor="blue-600"
+              />
             </div>
-
-            {/* Second row: 3 cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               <StatCard
-  title="Forms In Progress"
-  value={stats.formsInProgress}
-  icon={<FaEdit className="h-7 w-7" />}
-  iconBg="bg-yellow-500"
-  bgColor="bg-yellow-50"
-  color="text-yellow-700"
-/>
-
-<StatCard
-  title="Pending Signatures"
-  value={stats.signatureRequests}
-  icon={<FaFileAlt className="h-7 w-7" />}
-  iconBg="bg-purple-500"
-  bgColor="bg-purple-50"
-  color="text-purple-700"
-/>
-
-<StatCard
-  title="Completed Signatures"
-  value={stats.completedSignatures}
-  icon={<FaCheckCircle className="h-7 w-7" />}
-  iconBg="bg-green-500"
-  bgColor="bg-green-50"
-  color="text-green-700"
-/>
+                title="Forms In Progress"
+                value={stats.formsInProgress}
+                icon={<FaEdit className="h-7 w-7" />}
+                iconColor="yellow-600"
+              />
+              <StatCard
+                title="Pending Signatures"
+                value={stats.signatureRequests}
+                icon={<FaFileAlt className="h-7 w-7" />}
+                iconColor="amber-600"
+              />
+              <StatCard
+                title="Completed Signatures"
+                value={stats.completedSignatures}
+                icon={<FaCheckCircle className="h-7 w-7" />}
+                iconColor="orange-900"
+              />
             </div>
           </>
         )}
