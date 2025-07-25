@@ -361,16 +361,33 @@ export default function SettingsPageClient() {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Settings</h3>
-          <p className="text-gray-600 font-medium">Please wait while we fetch your configuration...</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-          </div>
-        </div>
+        <div className="flex justify-center items-center h-80">
+              <div className="text-center">
+                {/* Spinner */}
+                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+                {/* Text */}
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                  Loading Settings
+                </h3>
+                <p className="text-slate-600 font-medium">
+                  Please wait while we fetch your app settings...
+                </p>
+
+                {/* Bouncing dots */}
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
       </div>
     );
   }
@@ -380,58 +397,63 @@ export default function SettingsPageClient() {
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Enhanced Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Link
-                href="/admin/dashboard"
-                className="p-3 rounded-xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-600 hover:from-indigo-200 hover:to-indigo-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-              >
-                <FaArrowLeft className="h-5 w-5" />
-              </Link>
-              <div className="flex items-center gap-4">
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
-                  <FaCog className="h-8 w-8" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Application Settings</h1>
-                  <p className="text-base text-gray-600">Manage application settings and form metadata</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-500">Configuration panel</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Enhanced Save Actions */}
-            {hasChanges && (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={resetChanges}
-                  className="inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <FaTimes className="h-4 w-4" />
-                  Reset
-                </button>
-                <button
-                  onClick={saveSettings}
-                  disabled={saving}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
-                >
-                  {saving ? (
-                    <FaSpinner className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FaSave className="h-4 w-4" />
-                  )}
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            )}
+        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 w-full">
+    {/* Left Section with back button, icon and title */}
+    <div className="flex items-start gap-5 w-full md:w-auto">
+      
+
+      {/* Title & Description */}
+      <div className="flex gap-4 items-center">
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-400 text-white shadow-lg">
+          <FaCog className="h-7 w-7" />
+        </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-1">
+            Application Settings
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600">
+            Manage application settings and form metadata
+          </p>
+          <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="font-medium">Configuration panel</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    {/* Save/Reset Buttons */}
+    {hasChanges && (
+      <div className="flex items-center gap-3 w-full md:w-auto">
+        <button
+          onClick={resetChanges}
+          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+        >
+          <FaTimes className="h-4 w-4" />
+          Reset
+        </button>
+
+        <button
+          onClick={saveSettings}
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+        >
+          {saving ? (
+            <FaSpinner className="h-4 w-4 animate-spin" />
+          ) : (
+            <FaSave className="h-4 w-4" />
+          )}
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Enhanced Header */}
+    
+
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Sidebar Navigation - Mobile: Full width, Desktop: Fixed width */}
@@ -629,42 +651,49 @@ export default function SettingsPageClient() {
 
       {/* Enhanced Responsive Sticky Save Bar */}
       {hasChanges && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-2xl z-50 backdrop-blur-sm bg-opacity-95">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-sm sm:text-base">
-                <div className="p-2 rounded-lg bg-amber-100 text-amber-600">
-                  <FaExclamationTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
-                </div>
-                <span className="font-semibold text-gray-900">You have unsaved changes</span>
-              </div>
-              
-              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                <button
-                  onClick={resetChanges}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
-                >
-                  <FaTimes className="h-4 w-4" />
-                  <span className="hidden sm:inline">Reset Changes</span>
-                  <span className="sm:hidden">Reset</span>
-                </button>
-                <button
-                  onClick={saveSettings}
-                  disabled={saving}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
-                >
-                  {saving ? (
-                    <FaSpinner className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FaSave className="h-4 w-4" />
-                  )}
-                  <span className="hidden sm:inline">{saving ? 'Saving Changes...' : 'Save All Changes'}</span>
-                  <span className="sm:hidden">{saving ? 'Saving...' : 'Save'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
+       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      {/* Alert Message */}
+      <div className="flex items-center gap-3 text-sm sm:text-base">
+        <div className="p-2 rounded-xl bg-rose-100 text-rose-600">
+          <FaExclamationTriangle className="h-5 w-5" />
         </div>
+        <span className="font-semibold text-slate-800">
+          You have unsaved changes
+        </span>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+        <button
+          onClick={resetChanges}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+        >
+          <FaTimes className="h-4 w-4" />
+          <span className="hidden sm:inline">Reset Changes</span>
+          <span className="sm:hidden">Reset</span>
+        </button>
+
+        <button
+          onClick={saveSettings}
+          disabled={saving}
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+        >
+          {saving ? (
+            <FaSpinner className="h-4 w-4 animate-spin" />
+          ) : (
+            <FaSave className="h-4 w-4" />
+          )}
+          <span className="hidden sm:inline">{saving ? 'Saving Changes...' : 'Save All Changes'}</span>
+          <span className="sm:hidden">{saving ? 'Saving...' : 'Save'}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
       )}
 
       {/* Enhanced Animations */}

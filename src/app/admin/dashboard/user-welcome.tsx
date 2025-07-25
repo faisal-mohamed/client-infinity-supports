@@ -10,29 +10,6 @@ export default function UserWelcome() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) {
-      return {
-        text: 'Good morning',
-        icon: FaSun,
-        message: 'Ready to start a productive day?',
-      };
-    }
-    if (hour < 18) {
-      return {
-        text: 'Good afternoon',
-        icon: FaSun,
-        message: 'Hope your day is going well!',
-      };
-    }
-    return {
-      text: 'Good evening',
-      icon: FaMoon,
-      message: 'Time to wrap up the day!',
-    };
-  };
-
   const fetchNotificationCount = async () => {
     try {
       const response = await fetch('/api/admin/notifications/count');
@@ -54,9 +31,6 @@ export default function UserWelcome() {
       return () => clearInterval(interval);
     }
   }, [session]);
-
-  const greeting = getGreeting();
-  const GreetingIcon = greeting.icon;
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 mb-6 sm:mb-8">
@@ -81,18 +55,12 @@ export default function UserWelcome() {
             </div>
           </div>
           <div className="space-y-2">
-            {/* <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-slate-500 to-slate-600 rounded-xl shadow-lg">
-                <GreetingIcon className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                {greeting.text}, {session?.user?.name || 'Admin'}!
-              </h1>
-            </div> */}
             <h1 className="text-3xl font-bold text-slate-800">
-  Welcome back, {session?.user?.name || 'Admin'}! Here's your overview.
-</h1>
-
+              Welcome back, {session?.user?.name || 'Admin'}!
+            </h1>
+            <p className="text-sm text-slate-500">
+              Here’s a quick look at your latest activity and stats.
+            </p>
           </div>
         </div>
 
