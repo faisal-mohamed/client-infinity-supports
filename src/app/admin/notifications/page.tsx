@@ -164,17 +164,34 @@ export default function NotificationsPage() {
 
   if (loading && notifications.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Notifications</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-          </div>
-        </div>
+       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+        <div className="flex justify-center items-center h-80">
+              <div className="text-center">
+                {/* Spinner */}
+                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+                {/* Text */}
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                  Loading Notifications
+                </h3>
+                <p className="text-slate-600 font-medium">
+                  Please wait...
+                </p>
+
+                {/* Bouncing dots */}
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
       </div>
     );
   }
@@ -184,67 +201,71 @@ export default function NotificationsPage() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Modern Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <Link href="/admin/dashboard">
-              <button className="p-3 rounded-xl bg-white shadow-lg border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-200">
-                <FaArrowLeft className="h-4 w-4 text-gray-600" />
-              </button>
-            </Link>
-            <div className="flex items-center gap-4">
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
-                <FaBell className="h-7 w-7" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">Notifications</h1>
-                <p className="text-gray-600">Stay updated with client form submissions</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Enhanced Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Total Notifications</p>
-                  <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
-                  <FaBell className="h-5 w-5" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Unread</p>
-                  <p className="text-2xl font-bold text-red-600">{notifications.filter(n => !n.isRead).length}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-red-100 text-red-600">
-                  <FaCircle className="h-5 w-5" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Today</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {notifications.filter(n => {
-                      const today = new Date().toDateString();
-                      return new Date(n.createdAt).toDateString() === today;
-                    }).length}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl bg-green-100 text-green-600">
-                  <FaCalendarDay className="h-5 w-5" />
-                </div>
-              </div>
-            </div>
-          </div>
+  {/* Header Section */}
+  <div className="flex items-center gap-4 mb-6">
+    <Link href="/admin/dashboard">
+      <button className="p-3 rounded-xl bg-white shadow-lg border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-200">
+        <FaArrowLeft className="h-4 w-4 text-slate-600" />
+      </button>
+    </Link>
+    <div className="flex items-center gap-4">
+      <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg">
+        <FaBell className="h-7 w-7" />
+      </div>
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 mb-1">Notifications</h1>
+        <p className="text-slate-600">Stay updated with client form submissions</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Stats Cards */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500 mb-1">Total Notifications</p>
+          <p className="text-2xl font-bold text-rose-600">{pagination.total}</p>
         </div>
+        <div className="p-3 rounded-xl bg-rose-100 text-rose-600">
+          <FaBell className="h-5 w-5" />
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500 mb-1">Unread</p>
+          <p className="text-2xl font-bold text-rose-600">
+            {notifications.filter(n => !n.isRead).length}
+          </p>
+        </div>
+        <div className="p-3 rounded-xl bg-rose-100 text-rose-600">
+          <FaCircle className="h-5 w-5" />
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500 mb-1">Today</p>
+          <p className="text-2xl font-bold text-rose-600">
+            {notifications.filter(n => {
+              const today = new Date().toDateString();
+              return new Date(n.createdAt).toDateString() === today;
+            }).length}
+          </p>
+        </div>
+        <div className="p-3 rounded-xl bg-rose-100 text-rose-600">
+          <FaCalendarDay className="h-5 w-5" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {/* Error State */}
         {error && (
@@ -260,134 +281,123 @@ export default function NotificationsPage() {
         )}
 
         {/* Timeline-Style Notifications List */}
-        <div className="space-y-8">
-          {notifications.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="p-6 rounded-full bg-gray-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                <FaBell className="h-12 w-12 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">No notifications yet</h3>
-              <p className="text-gray-500 max-w-md mx-auto">
-                You'll see notifications here when clients submit and sign their forms. 
-                Stay tuned for updates!
-              </p>
-            </div>
-          ) : (
-            Object.entries(groupNotificationsByDate(notifications)).map(([dateGroup, groupNotifications]) => (
-              <div key={dateGroup} className="space-y-4">
-                {/* Date Group Header */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-gray-200">
-                    <FaCalendarDay className="h-4 w-4 text-indigo-600" />
-                    <span className="font-semibold text-gray-900">{dateGroup}</span>
-                    <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full">
-                      {groupNotifications.length}
-                    </span>
+      <div className="space-y-8">
+  {notifications.length === 0 ? (
+    <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
+      <div className="p-6 rounded-full bg-gray-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+        <FaBell className="h-12 w-12 text-gray-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-slate-900 mb-3">No notifications yet</h3>
+      <p className="text-slate-500 max-w-md mx-auto">
+        You'll see notifications here when clients submit and sign their forms.
+        Stay tuned for updates!
+      </p>
+    </div>
+  ) : (
+    Object.entries(groupNotificationsByDate(notifications)).map(([dateGroup, groupNotifications]) => (
+      <div key={dateGroup} className="space-y-4">
+        {/* Date Group Header */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-gray-200">
+            <FaCalendarDay className="h-4 w-4 text-rose-600" />
+            <span className="font-semibold text-slate-900">{dateGroup}</span>
+            <span className="bg-rose-100 text-rose-700 text-xs font-medium px-2 py-1 rounded-full">
+              {groupNotifications.length}
+            </span>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+        </div>
+
+        {/* Notifications in this group */}
+        <div className="space-y-4 ml-4">
+          {groupNotifications.map((notification, index) => (
+            <div key={notification.id} className="relative">
+              {index < groupNotifications.length - 1 && (
+                <div className="absolute left-6 top-16 w-0.5 h-8 bg-gradient-to-b from-rose-300 to-gray-200"></div>
+              )}
+
+              <div className={`relative bg-white rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
+                notification.isRead
+                  ? 'border-gray-200'
+                  : 'border-rose-200 bg-gradient-to-r from-rose-50 to-white ring-2 ring-rose-100'
+              }`}>
+                {!notification.isRead && (
+                  <div className="absolute -left-2 top-6">
+                    <div className="w-4 h-4 bg-rose-500 rounded-full animate-pulse shadow-lg"></div>
                   </div>
-                  <div className="flex-1 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
-                </div>
+                )}
 
-                {/* Notifications in this group */}
-                <div className="space-y-4 ml-4">
-                  {groupNotifications.map((notification, index) => (
-                    <div
-                      key={notification.id}
-                      className="relative"
-                    >
-                      {/* Timeline connector */}
-                      {index < groupNotifications.length - 1 && (
-                        <div className="absolute left-6 top-16 w-0.5 h-8 bg-gradient-to-b from-indigo-300 to-gray-200"></div>
-                      )}
-                      
-                      {/* Modern Notification Card */}
-                      <div
-                        className={`relative bg-white rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
-                          notification.isRead 
-                            ? 'border-gray-200' 
-                            : 'border-indigo-200 bg-gradient-to-r from-indigo-50 to-white ring-2 ring-indigo-100'
-                        }`}
-                      >
-                        {/* Unread indicator */}
+                <div className="p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Icon */}
+                    <div className={`p-3 rounded-xl shadow-md ${
+                      notification.isRead
+                        ? 'bg-gray-100 text-gray-600'
+                        : 'bg-gradient-to-br from-rose-500 to-rose-600 text-white'
+                    }`}>
+                      <FaSignature className="h-5 w-5" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="font-semibold text-lg text-slate-900">
+                          Form Signed & Submitted
+                        </h3>
                         {!notification.isRead && (
-                          <div className="absolute -left-2 top-6">
-                            <div className="w-4 h-4 bg-indigo-500 rounded-full animate-pulse shadow-lg"></div>
-                          </div>
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-sm">
+                            New
+                          </span>
                         )}
+                      </div>
 
-                        <div className="p-6">
-                          <div className="flex items-start gap-4">
-                            {/* Status Icon */}
-                            <div className={`p-3 rounded-xl shadow-md ${
-                              notification.isRead 
-                                ? 'bg-gray-100 text-gray-600' 
-                                : 'bg-gradient-to-br from-green-400 to-green-600 text-white'
-                            }`}>
-                              <FaSignature className="h-5 w-5" />
-                            </div>
-                            
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-3">
-                                <h3 className={`font-semibold text-lg ${
-                                  notification.isRead ? 'text-gray-900' : 'text-gray-900'
-                                }`}>
-                                  Form Signed & Submitted
-                                </h3>
-                                {!notification.isRead && (
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm">
-                                    New
-                                  </span>
-                                )}
-                              </div>
-                              
-                              <p className="text-gray-700 mb-4 leading-relaxed">
-                                <span className="font-semibold text-indigo-700">{notification.client.name}</span> has successfully signed and submitted{' '}
-                                <span className="font-medium text-gray-900">{notification.formSubmission.form.title}</span>
-                              </p>
-                              
-                              <div className="flex items-center gap-6 text-sm text-gray-500 mb-4">
-                                <div className="flex items-center gap-2">
-                                  <FaUser className="h-4 w-4 text-indigo-500" />
-                                  <span>{notification.client.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <FaClock className="h-4 w-4 text-gray-400" />
-                                  <span>{formatDate(notification.createdAt)}</span>
-                                </div>
-                              </div>
-                              
-                              {/* Action Buttons */}
-                              <div className="flex items-center gap-3">
-                                <Link href={`/admin/clients/${notification.client.id}/forms`}>
-                                  <button 
-                                    className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
-                                    onClick={() => !notification.isRead && markAsRead(notification.id)}
-                                  >
-                                    View Details
-                                  </button>
-                                </Link>
-                                
-                                {!notification.isRead && (
-                                  <button
-                                    onClick={() => markAsRead(notification.id)}
-                                    className="p-2 text-gray-400 hover:text-indigo-600 transition-colors rounded-lg hover:bg-indigo-50"
-                                    title="Mark as read"
-                                  >
-                                    <FaCheck className="h-4 w-4" />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
+                      <p className="text-slate-700 mb-4 leading-relaxed">
+                        <span className="font-semibold text-rose-700">{notification.client.name}</span> has successfully signed and submitted{' '}
+                        <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
+                      </p>
+
+                      <div className="flex items-center gap-6 text-sm text-slate-500 mb-4">
+                        <div className="flex items-center gap-2">
+                          <FaUser className="h-4 w-4 text-rose-500" />
+                          <span>{notification.client.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FaClock className="h-4 w-4 text-gray-400" />
+                          <span>{formatDate(notification.createdAt)}</span>
                         </div>
                       </div>
+
+                      <div className="flex items-center gap-3">
+                        <Link href={`/admin/clients/${notification.client.id}/forms`}>
+                          <button
+                            className="px-6 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                            onClick={() => !notification.isRead && markAsRead(notification.id)}
+                          >
+                            View Details
+                          </button>
+                        </Link>
+                        {!notification.isRead && (
+                          <button
+                            onClick={() => markAsRead(notification.id)}
+                            className="p-2 text-gray-400 hover:text-rose-600 transition-colors rounded-lg hover:bg-rose-50"
+                            title="Mark as read"
+                          >
+                            <FaCheck className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
+      </div>
+    ))
+  )}
+</div>
+
 
         {/* Enhanced Pagination */}
         {pagination.totalPages > 1 && (

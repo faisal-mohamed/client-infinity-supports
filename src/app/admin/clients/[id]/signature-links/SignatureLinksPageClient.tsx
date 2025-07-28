@@ -259,16 +259,33 @@ export default function SignatureLinksPageClient() {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Generated Links</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-          </div>
-        </div>
+        <div className="flex justify-center items-center h-80">
+              <div className="text-center">
+                {/* Spinner */}
+                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+                {/* Text */}
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                  Loading Signature Links
+                </h3>
+                <p className="text-slate-600 font-medium">
+                  Please wait...
+                </p>
+
+                {/* Bouncing dots */}
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
       </div>
     );
   }
@@ -278,155 +295,151 @@ export default function SignatureLinksPageClient() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
         <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <div className="flex items-center mb-6">
-              <Link 
-                href={`/admin/clients/${clientId}/forms`}
-                className="mr-6 p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-105"
-              >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
-              </Link>
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl shadow-lg">
-                    <FaLink className="h-6 w-6 text-white" />
-                  </div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    Signature Links Management
-                  </h1>
-                </div>
-                <div className="flex items-center text-gray-600 space-x-4">
-                  <div className="flex items-center">
-                    <FaUser className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span className="font-semibold">{client?.name}</span>
-                  </div>
-                  <span className="text-gray-400">•</span>
-                  <div className="flex items-center">
-                    <FaShieldAlt className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span>{client?.email}</span>
-                  </div>
-                </div>
-                <p className="text-gray-600 text-sm mt-2">
-                  Manage and monitor signature links for form completion
-                </p>
-              </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">Total Links</p>
-                    <p className="text-3xl font-bold text-gray-900">{signatureBatches.length}</p>
-                  </div>
-                  <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
-                    <FaLink className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">Active Links</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {signatureBatches.filter(batch => new Date(batch.expiresAt) > new Date()).length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-lg">
-                    <FaCheck className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">Completed</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {signatureBatches.filter(batch => {
-                        const totalForms = batch.signatureForms.length;
-                        const signedForms = batch.signatureForms.filter(sf => sf.formSubmission.clientSignature).length;
-                        return signedForms === totalForms && totalForms > 0;
-                      }).length}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-lg">
-                    <FaCheckCircle className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
+  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+    <div className="flex items-center mb-6">
+      <Link 
+        href={`/admin/clients/${clientId}/forms`}
+        className="mr-6 p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 hover:scale-105"
+      >
+        <FaArrowLeft className="h-5 w-5 text-slate-600" />
+      </Link>
+      <div className="flex-1">
+        <div className="flex items-center space-x-3 mb-3">
+          <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
+            <FaLink className="h-6 w-6 text-white" />
           </div>
-
-          {/* Action Bar */}
-          <div className="mt-6 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-            <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl shadow-lg">
-                  <FaInfoCircle className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-gray-900 text-lg">Signature Links Overview</p>
-                  <p className="text-gray-600">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
-                </div>
-              </div>
-              {/* <Link
-                href={`/admin/clients/${clientId}/forms`}
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <FaPlus className="mr-2 h-5 w-5" />
-                Generate New Link
-              </Link> */}
-            </div>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Signature Links Management
+          </h1>
+        </div>
+        <div className="flex items-center text-slate-600 space-x-4">
+          <div className="flex items-center">
+            <FaUser className="h-4 w-4 mr-2 text-rose-500" />
+            <span className="font-semibold">{client?.name}</span>
+          </div>
+          <span className="text-slate-400">•</span>
+          <div className="flex items-center">
+            <FaShieldAlt className="h-4 w-4 mr-2 text-rose-500" />
+            <span>{client?.email}</span>
           </div>
         </div>
+        <p className="text-slate-600 text-sm mt-2">
+          Manage and monitor signature links for form completion
+        </p>
+      </div>
+    </div>
+
+    {/* Stats Cards */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-gradient-to-r from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-slate-600 text-sm font-medium mb-1">Total Links</p>
+            <p className="text-3xl font-bold text-slate-900">{signatureBatches.length}</p>
+          </div>
+          <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
+            <FaLink className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-slate-600 text-sm font-medium mb-1">Active Links</p>
+            <p className="text-3xl font-bold text-slate-900">
+              {signatureBatches.filter(batch => new Date(batch.expiresAt) > new Date()).length}
+            </p>
+          </div>
+          <div className="p-3 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
+            <FaCheck className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-slate-600 text-sm font-medium mb-1">Completed</p>
+            <p className="text-3xl font-bold text-slate-900">
+              {signatureBatches.filter(batch => {
+                const totalForms = batch.signatureForms.length;
+                const signedForms = batch.signatureForms.filter(sf => sf.formSubmission.clientSignature).length;
+                return signedForms === totalForms && totalForms > 0;
+              }).length}
+            </p>
+          </div>
+          <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-lg">
+            <FaCheckCircle className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Action Bar */}
+  <div className="mt-6 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+    <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+      <div className="flex items-center space-x-4">
+        <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
+          <FaInfoCircle className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="font-bold text-slate-900 text-lg">Signature Links Overview</p>
+          <p className="text-slate-600">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {/* Enhanced Signature Links List */}
         {signatureBatches.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-            <div className="px-8 py-20 text-center">
-              <div className="mb-8">
-                <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-                  <FaLink className="h-12 w-12 text-white" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">No Signature Links Yet</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-                No signature links have been generated for this client yet. Create your first link to enable secure form signing and streamline the completion process.
-              </p>
-              <div className="space-y-6">
-                <Link
-                  href={`/admin/clients/${clientId}/forms`}
-                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105"
-                >
-                  <FaPlus className="mr-3 h-5 w-5" />
-                  Generate First Signature Link
-                </Link>
-                <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg mr-2">
-                      <FaShieldAlt className="h-3 w-3 text-white" />
-                    </div>
-                    <span>Secure Links</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg mr-2">
-                      <FaClock className="h-3 w-3 text-white" />
-                    </div>
-                    <span>Time-Limited</span>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg mr-2">
-                      <FaHistory className="h-3 w-3 text-white" />
-                    </div>
-                    <span>Progress Tracking</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+  <div className="px-8 py-20 text-center">
+    {/* Icon */}
+    <div className="mb-8">
+      <div className="w-24 h-24 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+        <FaLink className="h-12 w-12 text-white" />
+      </div>
+    </div>
+
+    {/* Heading */}
+    <h3 className="text-2xl font-bold text-slate-900 mb-3">No Signature Links Yet</h3>
+    <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
+      No signature links have been generated for this client yet. Create your first link to enable secure form signing and streamline the completion process.
+    </p>
+
+    {/* CTA + Features */}
+    <div className="space-y-6">
+     
+
+      {/* Benefits */}
+      <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+        <div className="flex items-center">
+          <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg mr-2">
+            <FaShieldAlt className="h-3 w-3 text-white" />
           </div>
+          <span>Secure Links</span>
+        </div>
+        <div className="flex items-center">
+          <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg mr-2">
+            <FaClock className="h-3 w-3 text-white" />
+          </div>
+          <span>Time-Limited</span>
+        </div>
+        <div className="flex items-center">
+          <div className="p-2 bg-gradient-to-r from-blue-500 to-slate-600 rounded-lg mr-2">
+            <FaHistory className="h-3 w-3 text-white" />
+          </div>
+          <span>Progress Tracking</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
         ) : (
           <div className="space-y-6">
             {signatureBatches.map((batch) => {
