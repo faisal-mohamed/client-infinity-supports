@@ -32,7 +32,7 @@ export default function ClientFormsPageClient() {
   const router = useRouter();
   const { showToast } = useToast();
   
-  const clientId = parseInt(params.id as string);
+  const clientId = parseInt(params?.id as string);
   const { data: session } = useSession();
 const adminId : any  = session?.user?.id;
   

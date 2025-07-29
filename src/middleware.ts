@@ -1,26 +1,40 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export function middleware(request: NextRequest) {
-  // Get the pathname
-  const path = request.nextUrl.pathname;
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  console.log('[Middleware] pathname:', pathname)
 
-  // Add debug headers to API responses
-  if (path.startsWith('/api/')) {
-    // Clone the response to add headers
-    const response = NextResponse.next();
-    
-    // Add a header to track API calls for debugging
-    response.headers.set('X-API-Timestamp', new Date().toISOString());
-    
-    return response;
+  const publicPaths = ['/admin/login', '/admin/register']
+
+  // Allow public paths
+  if (publicPaths.includes(pathname)) {
+    console.log('[Middleware] Public route, bypassing auth')
+    return NextResponse.next()
   }
 
-  // Continue with the request
-  return NextResponse.next();
+  // Check for protected routes
+  const isProtected =
+    pathname.startsWith('/admin') || pathname.startsWith('/forms')
+
+  console.log('[Middleware] isProtected:', isProtected)
+
+  if (!isProtected) return NextResponse.next()
+
+  // Auth check
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+  console.log('[Middleware] token:', token)
+
+  if (!token) {
+    const loginUrl = new URL('/admin/login', request.url)
+    loginUrl.searchParams.set('callbackUrl', request.url)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  return NextResponse.next()
 }
 
-// Configure the middleware to run only for API routes
 export const config = {
-  matcher: '/api/:path*',
-};
+  matcher: ['/admin(.*)', '/forms(.*)'],
+}
