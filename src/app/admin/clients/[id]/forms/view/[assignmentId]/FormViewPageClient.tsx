@@ -138,16 +138,33 @@ export default function FormViewPageClient() {
  if (loading) {
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Form</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
-          <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-          </div>
-        </div>
+        <div className="flex justify-center items-center h-80">
+              <div className="text-center">
+                {/* Spinner */}
+                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+                {/* Text */}
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                  Loading View Form
+                </h3>
+                <p className="text-slate-600 font-medium">
+                  Please wait...
+                </p>
+
+                {/* Bouncing dots */}
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
       </div>
     );
   }
@@ -225,94 +242,91 @@ export default function FormViewPageClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
       {/* Enhanced Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Top Row - Back Button */}
-          <div className="flex items-center mb-4">
-            <Link 
-              href={`/admin/clients/${clientId}/forms`}
-              className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200 group"
-            >
-              <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-              Back to Forms
-            </Link>
-          </div>
-          
-          {/* Main Header Row */}
-          <div className="flex items-center justify-between">
-            {/* Left Side - Form Title and Client Info */}
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <FaUser className="h-6 w-6 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-2xl font-bold text-gray-900 truncate">
-                  {assignment.form.title}
-                </h1>
-                <div className="flex items-center text-sm text-gray-600 space-x-4 mt-1">
-                  <span className="font-medium">{assignment.client.name}</span>
-                  <span className="text-gray-400">•</span>
-                  <span className="truncate">{assignment.client.email}</span>
-                  <span className="text-gray-400">•</span>
-                  <span className="flex items-center whitespace-nowrap">
-                    <FaCalendarAlt className="h-3 w-3 mr-1" />
-                    Version {assignment.formVersion}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Right Side - Status and Action Buttons */}
-            <div className="flex items-center space-x-3 flex-shrink-0">
-              {/* Signature Status */}
-         {assignment.clientSignature && (
-  <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-lg border border-green-200 text-green-700 min-w-[130px]">
-    <FaSignature className="h-4 w-4" />
-    <div className="flex flex-col leading-tight">
-      <span className="font-semibold text-sm">Signed</span>
-      <span className="text-xs text-green-600">
-        {new Date(assignment.clientSignedAt!).toLocaleDateString()}
-      </span>
+   <div className="bg-white shadow-sm border-b border-gray-200">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {/* Back Button */}
+    <div className="flex items-center mb-4">
+      <Link 
+        href={`/admin/clients/${clientId}/forms`}
+        className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 group"
+      >
+        <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+        Back to Forms
+      </Link>
     </div>
-  </div>
-)}
 
-              
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-2">
-                {/* Download PDF Button */}
-                <button
-                  onClick={handleDownloadPDF}
-                  disabled={downloadingPDF}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-                  title="Download PDF"
-                >
-                  {downloadingPDF ? (
-                    <>
-                      <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
-                      <span className="hidden sm:inline">Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FaDownload className="mr-2 h-4 w-4" />
-                      <span className="hidden sm:inline">Download</span>
-                    </>
-                  )}
-                </button>
-                
-                {/* Edit Button */}
-                {/* <Link
-                  href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md"
-                >
-                  <FaEdit className="mr-2 h-4 w-4" />
-                  <span className="hidden sm:inline">Edit</span>
-                </Link> */}
-              </div>
-            </div>
+    {/* Main Header */}
+    <div className="flex items-center justify-between">
+      {/* Left Section */}
+      <div className="flex items-center space-x-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-lg">
+          <FaUser className="h-6 w-6 text-white" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold text-slate-900 truncate">
+            {assignment.form.title}
+          </h1>
+          <div className="flex items-center text-sm text-slate-600 space-x-4 mt-1">
+            <span className="font-medium">{assignment.client.name}</span>
+            <span className="text-slate-400">•</span>
+            <span className="truncate">{assignment.client.email}</span>
+            <span className="text-slate-400">•</span>
+            <span className="flex items-center whitespace-nowrap">
+              <FaCalendarAlt className="h-3 w-3 mr-1" />
+              Version {assignment.formVersion}
+            </span>
           </div>
         </div>
       </div>
+
+      {/* Right Section */}
+      <div className="flex items-center space-x-3 flex-shrink-0">
+        {/* Signature Status */}
+        {assignment.clientSignature && (
+          <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 text-emerald-700 min-w-[130px]">
+            <FaSignature className="h-4 w-4" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-semibold text-sm">Signed</span>
+              <span className="text-xs text-emerald-600">
+                {new Date(assignment.clientSignedAt!).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Download PDF Button */}
+        <button
+          onClick={handleDownloadPDF}
+          disabled={downloadingPDF}
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white font-medium rounded-lg hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+          title="Download PDF"
+        >
+          {downloadingPDF ? (
+            <>
+              <FaSpinner className="mr-2 h-4 w-4 animate-spin" />
+              <span className="hidden sm:inline">Generating...</span>
+            </>
+          ) : (
+            <>
+              <FaDownload className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Download</span>
+            </>
+          )}
+        </button>
+
+        {/* Edit Button (Optional - currently commented) */}
+        {/* <Link
+          href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-medium rounded-lg hover:from-slate-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <FaEdit className="mr-2 h-4 w-4" />
+          <span className="hidden sm:inline">Edit</span>
+        </Link> */}
+      </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Form Content with Enhanced Styling */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
