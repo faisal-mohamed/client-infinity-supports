@@ -38,11 +38,19 @@ interface SignatureRequirement {
   id: string;
   label: string;
   description?: string;
-  required: boolean;
-  dataKey?: string; // Maps to form data for pre-population (e.g., 'name', 'designation') or signature field (e.g., 'signature', 'witnessSignature')
-  condition?: (formData: any) => boolean; // Dynamic requirement based on form data
+  required?: boolean; // Still used for single required fields
+  dataKey?: string;
+  condition?: (formData: any) => boolean;
   signedAtKey?: string;
+
+  // NEW: Grouping logic
+  groupId?: string; // Identifier to group signatures
+  groupRequirementType?: 'any' | 'all'; // Currently only 'any' is needed for your use case
+  groupRequired?: boolean; // Whether the group itself is required
+
+  signerName?: string
 }
+
 
 // Enhanced registry structure
 interface FormRegistryItem {
@@ -83,42 +91,67 @@ const formRegistry: Record<string, FormRegistryItem> = {
     editComponent: PersonCentredPlanEdit,
     viewComponent: PersonCentredPlanView,
   },
+
+
+
+
+
+
+
+
   'sa_delivery_of_supports': {
-    key: 'sa_delivery_of_supports',
-    name: 'SA Delivery of Supports',
-    viewComponent: SADeliverySupports,
-    editComponent: SADeliverySupportsEdit,
-    signatures: [
-      {
-        id: 'participant_signature',
-        label: 'Participant Signature',
-        description: 'Signature of the Participant',
-        required: true,
-        dataKey: 'participantSignature' ,
-        signedAtKey: 'participantSignatureDate'
-      },
-      {
-        id: 'nominee_signature',
-        label: 'Nominee Signature',
-        description: 'Signature of the Nominee',
-        required: true, // Changed to false since nominee is optional
-        dataKey: 'nomineeSignature',
-        // condition: (formData: any) => {
-        //   // Only require nominee signature if nominee name is provided
-        //   return formData.nomineeName && formData.nomineeName.trim() !== '';
-        // },
-        signedAtKey: 'nomineeSignatureDate'
-      },
-      {
-        id: 'provider_signature',
-        label: 'Provider Signature',
-        description: 'Signature of the Provider',
-        required: true,
-        dataKey: 'providerSignature' ,
-        signedAtKey: 'providerSignatureDate'
-      },
-    ]
-  },
+  key: 'sa_delivery_of_supports',
+  name: 'SA Delivery of Supports',
+  viewComponent: SADeliverySupports,
+  editComponent: SADeliverySupportsEdit,
+  signatures: [
+    {
+      id: 'participant_signature',
+      label: 'Participant Signature',
+      description: 'Signature of the Participant',
+      dataKey: 'participantSignature',
+      signedAtKey: 'participantSignatureDate',
+      groupId: 'participant_or_nominee',
+      groupRequirementType: 'any',
+      groupRequired: true,
+      signerName: 'participantName',
+    },
+    {
+      id: 'nominee_signature',
+      label: 'Nominee Signature',
+      description: 'Signature of the Nominee',
+      dataKey: 'nomineeSignature',
+      signedAtKey: 'nomineeSignatureDate',
+      groupId: 'participant_or_nominee',
+      groupRequirementType: 'any',
+      groupRequired: true,
+      signerName: 'nomineeName',
+    },
+    {
+      id: 'provider_signature',
+      label: 'Provider Signature',
+      description: 'Signature of the Provider',
+      required: true, // Always required
+      dataKey: 'providerSignature',
+      signedAtKey: 'providerSignatureDate',
+      signerName: 'providerName'
+    },
+  ]
+},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   'participant_risk_assessment': {
     key: 'participant_risk_assessment',
     name: 'Participant Risk Assessment',

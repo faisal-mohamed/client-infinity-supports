@@ -11,44 +11,119 @@ export interface SignatureValidationResult {
 /**
  * Validates if all required signatures are present in form data
  */
-export function validateFormSignatures(formKey: string, formData: any): SignatureValidationResult {
+export interface SignatureValidationResult {
+  isComplete: boolean;
+  completedSignatures: string[];
+  missingSignatures: string[];
+  totalRequired: number;
+  completedCount: number;
+}
+
+export function validateFormSignatures(
+  formKey: string,
+  formData: Record<string, any>
+): SignatureValidationResult {
   const formConfig = getFormConfig(formKey);
   const signatures = formConfig?.signatures || [];
-  
-  // Filter to only required signatures
-  const requiredSignatures = signatures.filter(sig => {
-    if (sig.condition && typeof sig.condition === 'function') {
-      return sig.condition(formData); // Dynamic requirement based on form data
-    }
-    return sig.required;
-  });
-  
-  // Check which signatures are completed
+
   const completedSignatures: string[] = [];
   const missingSignatures: string[] = [];
-  
-  requiredSignatures.forEach(sig => {
+
+  // Track totals
+  let totalRequired = 0;
+  let completedCount = 0;
+
+  const individualSigs = signatures.filter(
+    (sig) => !sig.groupId && sig.required
+  );
+
+  const groupMap = new Map<
+    string,
+    {
+      groupType: "any" | "all";
+      required: boolean;
+      signatures: typeof signatures;
+    }
+  >();
+
+  // Separate group logic
+  signatures.forEach((sig) => {
+    if (sig.groupId) {
+      const key = sig.groupId;
+      if (!groupMap.has(key)) {
+        groupMap.set(key, {
+          groupType: sig.groupRequirementType || "any",
+          required: sig.groupRequired || false,
+          signatures: [],
+        });
+      }
+      groupMap.get(key)!.signatures.push(sig);
+    }
+  });
+
+  // ✅ Check individual required signatures
+  for (const sig of individualSigs) {
     const signatureData = formData[sig.dataKey || sig.id];
-    const hasSignature = signatureData && 
-                        typeof signatureData === 'string' && 
-                        signatureData.trim() !== '' &&
-                        signatureData.startsWith('data:image/'); // Ensure it's a valid signature data URL
-    
+    const hasSignature =
+      signatureData &&
+      typeof signatureData === "string" &&
+      signatureData.trim() !== "" &&
+      signatureData.startsWith("data:image/");
+
+    totalRequired++;
     if (hasSignature) {
       completedSignatures.push(sig.id);
+      completedCount++;
     } else {
       missingSignatures.push(sig.id);
     }
-  });
-  
+  }
+
+  // ✅ Check grouped required signatures
+  for (const [groupId, groupData] of groupMap.entries()) {
+    if (!groupData.required) continue;
+
+    const { signatures, groupType } = groupData;
+
+    if (groupType === "any") {
+      totalRequired++;
+      const anySigned = signatures.some((sig) => {
+        const signatureData = formData[sig.dataKey || sig.id];
+        const hasSignature =
+          signatureData &&
+          typeof signatureData === "string" &&
+          signatureData.trim() !== "" &&
+          signatureData.startsWith("data:image/");
+
+        if (hasSignature) {
+          completedSignatures.push(sig.id);
+        }
+
+        return hasSignature;
+      });
+
+      if (anySigned) {
+        completedCount++;
+      } else {
+        // Push all group options into missing list for transparency
+        missingSignatures.push(
+          ...signatures.map((sig) => `${sig.id} (any group: ${groupId})`)
+        );
+      }
+    }
+
+    // Optional: support groupType === 'all' in future
+  }
+
   return {
-    isComplete: completedSignatures.length === requiredSignatures.length && requiredSignatures.length > 0,
+    isComplete: completedCount === totalRequired && totalRequired > 0,
     completedSignatures,
     missingSignatures,
-    totalRequired: requiredSignatures.length,
-    completedCount: completedSignatures.length
+    totalRequired,
+    completedCount,
   };
 }
+
 
 /**
  * Get signature completion status text for UI display

@@ -17,7 +17,7 @@ const Page1: React.FC<any> = ({
     street: 'street',
     postcode: 'postCode',
     email: 'email',
-    homePhone: 'phone',
+    phone: 'phone',
     sex: 'sex'
   };
 
@@ -161,7 +161,7 @@ const Page1: React.FC<any> = ({
                 <strong>Home Phone No</strong> : {getValue('homePhone')}
               </td>
               <td className="border border-black p-2 align-top" colSpan={2}>
-                <strong>Mobile No</strong> : {getValue('mobilePhone')}
+                <strong>Mobile No</strong> : {getValue('phone')}
               </td>
             </tr>
           </tbody>

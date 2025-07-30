@@ -51,6 +51,21 @@ export default function FormSignaturePageClient() {
   const [signatureRefs, setSignatureRefs] = useState<Record<string, SignatureCanvasRef>>({});
   const [completedSignatures, setCompletedSignatures] = useState<Record<string, boolean>>({});
 
+  const [signatureName, setSignatureName] = useState<string>('');
+
+
+  const [selectedGroupSignatureId, setSelectedGroupSignatureId] = useState<string | null>(null);
+
+  const currentSig = requiredSignatures[currentSignatureStep];
+const isGroupAny = currentSig?.groupRequirementType === 'any';
+const sameGroupSigs = isGroupAny
+  ? requiredSignatures.filter(sig => sig.groupId === currentSig.groupId)
+  : [];
+
+const activeSignatureId = isGroupAny ? selectedGroupSignatureId : currentSig?.id;
+
+
+
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL LOGIC
   useEffect(() => {
     loadFormData();
@@ -68,43 +83,59 @@ export default function FormSignaturePageClient() {
   }, []); // Empty dependency array means this runs once on mount
 
   // Load signature requirements when form data is available
-  useEffect(() => {
-    if (formData) {
-      const signatures = getFormSignatures(formData.formSubmission.form.formKey);
+ useEffect(() => {
+  if (formData) {
+    const allSignatures = getFormSignatures(formData.formSubmission.form.formKey);
+    const completed: Record<string, boolean> = {};
+    const filtered: SignatureRequirement[] = [];
+    const groupMap = new Map<string, SignatureRequirement[]>();
 
-      // Filter signatures based on conditions and requirements
-      const required = signatures.filter(sig => {
-        if (sig.condition) {
-          return sig.condition(formData.formSubmission.data);
+    for (const sig of allSignatures) {
+      const dataKey = sig.dataKey || sig.id;
+      const isSigned = !!formData.formSubmission.data[dataKey];
+
+      // Grouped logic
+      if (sig.groupId && sig.groupRequirementType === 'any') {
+        if (!groupMap.has(sig.groupId)) groupMap.set(sig.groupId, []);
+        groupMap.get(sig.groupId)!.push({ ...sig, isSigned });
+      } else {
+        // Normal signature (required or conditional)
+        if (sig.required || (sig.condition && sig.condition(formData.formSubmission.data))) {
+          filtered.push(sig);
+          completed[sig.id] = isSigned;
         }
-        return sig.required;
-      });
-
-      console.log("required: ", required);
-
-      setRequiredSignatures(required);
-
-      // Check which signatures are already completed
-      const completed: Record<string, boolean> = {};
-      required.forEach(sig => {
-        const dataKey = sig.dataKey || sig.id;
-        completed[sig.id] = !!formData.formSubmission.data[dataKey];
-      });
-      setCompletedSignatures(completed);
-
-      console.log("completed: ", completed);
-
-      // If there are signatures and some are not completed, show signature pad
-      const hasIncompleteSignatures = required.some(sig => !completed[sig.id]);
-      if (hasIncompleteSignatures && formData.formSubmission.form.requiresSignature) {
-        setShowSignaturePad(true);
-        // Find first incomplete signature
-        const firstIncomplete = required.findIndex(sig => !completed[sig.id]);
-        setCurrentSignatureStep(Math.max(0, firstIncomplete));
       }
     }
-    console.log("formData: ", formData)
-  }, [formData]);
+
+    // Evaluate "any" groups
+    for (const [groupId, groupSigs] of groupMap.entries()) {
+      const isGroupSigned = groupSigs.some(sig => sig.isSigned);
+      if (isGroupSigned) {
+        groupSigs.forEach(sig => completed[sig.id] = true);
+      } else {
+        groupSigs.forEach(sig => {
+          filtered.push(sig); // Allow user to choose one
+          completed[sig.id] = false;
+        });
+      }
+    }
+
+    setRequiredSignatures(filtered);
+    setCompletedSignatures(completed);
+
+    // Determine if any signature is pending
+    const hasIncomplete = filtered.some(sig => !completed[sig.id]);
+    if (hasIncomplete && formData.formSubmission.form.requiresSignature) {
+      setShowSignaturePad(true);
+      const firstIncomplete = filtered.findIndex(sig => !completed[sig.id]);
+      setCurrentSignatureStep(Math.max(0, firstIncomplete));
+    }
+
+    console.log("Filtered Signatures:", filtered);
+    console.log("Completed Map:", completed);
+  }
+}, [formData]);
+
 
   // Effect to handle automatic step progression
   useEffect(() => {
@@ -158,63 +189,68 @@ export default function FormSignaturePageClient() {
   };
 
   const submitSignature = async (signatureId: string) => {
-    const signatureRef = signatureRefs[signatureId];
-    if (!signatureRef || !formData) return;
+  const signatureRef = signatureRefs[signatureId];
+  if (!signatureRef || !formData) return;
 
-    if (signatureRef.isEmpty()) {
-      alert('Please provide your signature before submitting.');
-      return;
+  if (signatureRef.isEmpty()) {
+    alert('Please provide your signature before submitting.');
+    return;
+  }
+
+  if (!signatureName.trim()) {
+    alert('Please enter your name before submitting.');
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+
+    const signatureDataURL = signatureRef.toDataURL();
+    const now = new Date();
+    const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+
+    const response = await fetch(`/api/signature/${token}/${formSubmissionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        signature: signatureDataURL,
+        signatureId,
+        signerName: signatureName,
+        signedAt: formattedDate,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to submit signature');
     }
 
-    try {
-      setSubmitting(true);
+    const result = await response.json();
 
-      const signatureDataURL = signatureRef.toDataURL();
-      const now = new Date();
-      const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+    // Update completed signatures
+    const updatedCompleted = { ...completedSignatures, [signatureId]: true };
+    setCompletedSignatures(updatedCompleted);
 
-      const response = await fetch(`/api/signature/${token}/${formSubmissionId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          signature: signatureDataURL,
-          signatureId: signatureId,
-          signedAt: formattedDate// ✅ sending timestamp from client
+    setSignatureName(''); // Reset name after submission
 
-        }),
-      });
+    const allComplete = requiredSignatures.every(sig => updatedCompleted[sig.id]);
 
-      if (!response.ok) {
-        throw new Error('Failed to submit signature');
+    if (allComplete || result.allSignaturesComplete) {
+      router.push(`/forms/signature/${token}`);
+    } else {
+      const nextIncompleteIndex = requiredSignatures.findIndex(sig => !updatedCompleted[sig.id]);
+      if (nextIncompleteIndex !== -1) {
+        setCurrentSignatureStep(nextIncompleteIndex);
+        setSelectedGroupSignatureId(null); // reset for next
       }
-
-      const result = await response.json();
-
-      // Update completed signatures
-      const updatedCompleted = { ...completedSignatures, [signatureId]: true };
-      setCompletedSignatures(updatedCompleted);
-
-      // Check if all signatures are complete
-      const allComplete = requiredSignatures.every(sig => updatedCompleted[sig.id]);
-
-      if (allComplete || result.allSignaturesComplete) {
-        // All signatures complete, redirect back to signature portal
-        router.push(`/forms/signature/${token}`);
-      } else {
-        // Move to next incomplete signature
-        const nextIncompleteIndex = requiredSignatures.findIndex(sig => !updatedCompleted[sig.id]);
-        if (nextIncompleteIndex !== -1) {
-          setCurrentSignatureStep(nextIncompleteIndex);
-        }
-      }
-
-    } catch (error: any) {
-      console.error('Error submitting signature:', error);
-      alert('Failed to submit signature. Please try again.');
-    } finally {
-      setSubmitting(false);
     }
-  };
+  } catch (error: any) {
+    console.error('Error submitting signature:', error);
+    alert('Failed to submit signature. Please try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   const handleDownloadForm = async () => {
     if (!formData) return;
@@ -315,151 +351,100 @@ export default function FormSignaturePageClient() {
 
   // Render signature requirements overview
   const renderSignatureStatus = () => {
-    if (requiredSignatures.length === 0) return null;
+  if (requiredSignatures.length === 0) return null;
 
-    const completedCount = requiredSignatures.filter(sig => completedSignatures[sig.id]).length;
+  const grouped: Record<string, SignatureRequirement[]> = {};
+  const independent: SignatureRequirement[] = [];
 
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Signature Requirements ({completedCount}/{requiredSignatures.length})
-        </h3>
+  // Organize signatures by group
+  for (const sig of requiredSignatures) {
+    if (sig.groupId && sig.groupRequirementType === 'any') {
+      if (!grouped[sig.groupId]) grouped[sig.groupId] = [];
+      grouped[sig.groupId].push(sig);
+    } else {
+      independent.push(sig);
+    }
+  }
 
-        <div className="space-y-3">
-          {requiredSignatures.map((sig, index) => {
-            const isCompleted = completedSignatures[sig.id];
+  // Count total required blocks
+  const totalBlocks = independent.length + Object.keys(grouped).length;
 
-            return (
-              <div key={sig.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center">
-                  {isCompleted ? (
-                    <FaCheck className="h-5 w-5 text-green-500 mr-3" />
-                  ) : (
-                    <FaSignature className="h-5 w-5 text-gray-400 mr-3" />
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-900">{sig.label}</p>
-                    <p className="text-sm text-gray-600">{sig.description}</p>
-                  </div>
-                </div>
+  // Count how many are completed
+  const completedCount =
+    independent.filter(sig => completedSignatures[sig.id]).length +
+    Object.values(grouped).filter(group =>
+      group.some(sig => completedSignatures[sig.id])
+    ).length;
 
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  isCompleted
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {isCompleted ? 'Completed' : 'Pending'}
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">
+        Signature Requirements ({completedCount}/{totalBlocks})
+      </h3>
+
+      <div className="space-y-3">
+        {/* Independent Signatures */}
+        {independent.map((sig) => {
+          const isCompleted = completedSignatures[sig.id];
+          return (
+            <div key={sig.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center">
+                {isCompleted ? (
+                  <FaCheck className="h-5 w-5 text-green-500 mr-3" />
+                ) : (
+                  <FaSignature className="h-5 w-5 text-gray-400 mr-3" />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{sig.label}</p>
+                  <p className="text-sm text-gray-600">{sig.description}</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                isCompleted ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {isCompleted ? 'Completed' : 'Pending'}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Grouped Signatures (Any) */}
+        {Object.entries(grouped).map(([groupId, groupSigs]) => {
+          const isCompleted = groupSigs.some(sig => completedSignatures[sig.id]);
+          const label = groupSigs.map(sig => sig.label).join(' or ');
+
+          return (
+            <div key={groupId} className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center">
+                {isCompleted ? (
+                  <FaCheck className="h-5 w-5 text-green-500 mr-3" />
+                ) : (
+                  <FaSignature className="h-5 w-5 text-gray-400 mr-3" />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{label}</p>
+                  <p className="text-sm text-gray-600">
+                    One of the following signatures is required
+                  </p>
+                </div>
+              </div>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                isCompleted ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+              }`}>
+                {isCompleted ? 'Completed' : 'Pending'}
+              </div>
+            </div>
+          );
+        })}
       </div>
-    );
-  };
-
-  // Render current signature step
-  const renderSignatureStep = () => {
-    if (!showSignaturePad || requiredSignatures.length === 0) return null;
-
-    const currentSignature = requiredSignatures[currentSignatureStep];
-    if (!currentSignature) return null;
-
-    // If current signature is completed, don't render (let useEffect handle step change)
-    if (completedSignatures[currentSignature.id]) {
-      return null;
-    }
-
-    const completedCount = requiredSignatures.filter(sig => completedSignatures[sig.id]).length;
+    </div>
+  );
+};
 
 
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-<p className="text-gray-500 text-sm mt-1">
-  {completedCount} of {requiredSignatures.length} signatures completed
-</p>
-          </h3>
-          <p className="text-gray-600">
-            {currentSignature.description}
-          </p>
-        </div>
 
-        {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Progress</span>
-<span>{Math.round((completedCount / requiredSignatures.length) * 100)}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-style={{ width: `${(completedCount / requiredSignatures.length) * 100}%` }}
-            />
-          </div>
-        </div>
 
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-4">
-          <SignatureCanvas
-            key={`signature-${currentSignature.id}-${currentSignatureStep}`} // Unique key to force re-render
-            ref={(ref) => {
-              if (ref && currentSignature && !signatureRefs[currentSignature.id]) {
-                // Use setTimeout to avoid state update during render
-                setTimeout(() => {
-                  setSignatureRefs(prev => {
-                    if (!prev[currentSignature.id]) {
-                      return {
-                        ...prev,
-                        [currentSignature.id]: ref
-                      };
-                    }
-                    return prev;
-                  });
-                }, 0);
-              }
-            }}
-            width={600}
-            height={200}
-            className="w-full"
-            placeholder={`Please sign for: ${currentSignature.label}`}
-            clearButtonText="Clear Signature"
-          />
-        </div>
-
-        <div className="flex justify-between items-center">
-          {/* <button
-            onClick={() => {
-              const prevStep = Math.max(0, currentSignatureStep - 1);
-              setCurrentSignatureStep(prevStep);
-            }}
-            disabled={currentSignatureStep === 0}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button> */}
-
-          <button
-            onClick={() => submitSignature(currentSignature.id)}
-            disabled={submitting}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-centre"
-          >
-            {submitting ? (
-              <>
-                <FaSpinner className="mr-2 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <FaCheck className="mr-2" />
-                {currentSignatureStep === requiredSignatures.length - 1 ? 'Complete All Signatures' : 'Next Signature'}
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -505,9 +490,8 @@ style={{ width: `${(completedCount / requiredSignatures.length) * 100}%` }}
                   <div className="flex items-center text-amber-600">
                     <FaSignature className="h-5 w-5 mr-2" />
                     <span className="font-medium">
-                      {requiredSignatures.length > 1
-                        ? `${Object.values(completedSignatures).filter(Boolean).length}/${requiredSignatures.length} Signatures`
-                        : 'Signature Required'
+                      {requiredSignatures.length > 1 && 
+                       'Signatures Required'
                       }
                     </span>
                   </div>
@@ -552,7 +536,7 @@ style={{ width: `${(completedCount / requiredSignatures.length) * 100}%` }}
         </div>
 
         {/* Signature Requirements Overview */}
-        {renderSignatureStatus()}
+        {/* {renderSignatureStatus()} */}
 
         {/* Action Section - Only show for forms requiring signature */}
         {requiresSignature && !showSignaturePad && !allSignaturesComplete && (
@@ -578,8 +562,112 @@ style={{ width: `${(completedCount / requiredSignatures.length) * 100}%` }}
           </div>
         )}
 
-        {/* Multi-Signature Pad */}
-        {requiresSignature && showSignaturePad && !allSignaturesComplete && renderSignatureStep()}
+        
+{requiresSignature && showSignaturePad && !allSignaturesComplete && requiredSignatures.length > 0 && (
+  <div className="bg-white rounded-lg shadow-sm p-6">
+    <h3 className="text-lg font-medium text-gray-900 mb-4">
+      Provide Your Signature
+    </h3>
+
+    {/* Optional dropdown for group 'any' */}
+    {isGroupAny  && (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Select Signature Type
+        </label>
+        <select
+          className="w-full border border-gray-300 rounded px-3 py-2"
+          onChange={(e) =>  {const selectedId = e.target.value;
+    setSelectedGroupSignatureId(selectedId);
+    setSignatureName(""); // Clear name
+
+    // Clear signature pad if it already exists
+    const existingRef = signatureRefs[selectedId];
+    if (existingRef) {
+      existingRef.clear();
+    }
+  }}
+  value={selectedGroupSignatureId || ""}
+          defaultValue=""
+        >
+          <option value="" disabled>Select</option>
+          {sameGroupSigs.map(sig => (
+            <option key={sig.id} value={sig.id}>{sig.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
+
+    {/* Signature pad and submit */}
+    {activeSignatureId && (
+  <div className="mb-8">
+    <div className="max-w-md mx-auto space-y-6">
+      {/* Name Input */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Your Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Enter your full name"
+          value={signatureName}
+          onChange={(e) => setSignatureName(e.target.value)}
+        />
+      </div>
+
+      {/* Signature Pad */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Your Signature <span className="text-red-500">*</span>
+        </label>
+       <div className="border border-gray-300 rounded-md shadow-sm bg-white pb-12 relative">
+  <SignatureCanvas
+    ref={(ref) => {
+      if (ref && activeSignatureId && !signatureRefs[activeSignatureId]) {
+        setSignatureRefs((prev) => ({
+          ...prev,
+          [activeSignatureId]: ref,
+        }));
+      }
+    }}
+    width={500}
+    height={200}
+    className="w-full h-48 rounded-md"
+  />
+</div>
+
+        
+      </div>
+
+      {/* Submit Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => submitSignature(activeSignatureId)}
+          disabled={submitting}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-all disabled:opacity-50"
+        >
+          {submitting ? (
+            <span className="flex items-center">
+              <FaSpinner className="animate-spin mr-2" /> Submitting...
+            </span>
+          ) : (
+            <span className="flex items-center">
+              <FaCheck className="mr-2" /> Submit Signature
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+  </div>
+)}
+
+
+        
 
         {/* View Only Message - For forms that don't require signature */}
         {!requiresSignature && (

@@ -170,7 +170,7 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
     <div className="flex">
       <div className="w-1/3">
         <strong>Signature of Provider</strong>:<br />
-        {renderSignature('providerSignatureSignature') || "__________________"}
+        {renderSignature('providerSignature') || "__________________"}
       </div>
       <div className="w-1/3">
         <strong>Date</strong>:<br />

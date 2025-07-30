@@ -81,11 +81,12 @@ const FORM_SECTIONS = [
     icon: FaSignature,
     description: "Participant, nominee and provider signatures",
     fields: [
+      "signatureRole",
       "participantSignature", "participantSignatureDate", "participantName",
       "nomineeSignature", "nomineeSignatureDate", "nomineeName",
       "providerSignature", "providerSignatureDate", "providerName"
     ],
-    requiredFields: ["participantSignature", "participantSignatureDate", "participantName"],
+    requiredFields: [],
   },
 ];
 
@@ -181,6 +182,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     othersInfoSharingConsent: "",
     moneyHandlingConsent: "",
     ndisAuditConsent: "",
+
+    signatureRole: "",
     
     // Signatures
     
@@ -193,7 +196,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     nomineeSignatureDate: "",
     nomineeName: "",
     providerSignature: "",
-    providerSignatureDate: "",
+    providerSignatureDate: new Date().toISOString().split("T")[0],
     providerName: "",
   };
 
@@ -414,10 +417,19 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
+        {/* <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        </label> */}
+       <label className="text-xs font-medium text-gray-700 mb-1 flex flex-wrap gap-1">
+  <span
+    dangerouslySetInnerHTML={{
+      __html: label.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-800 font-semibold">$1</strong>')
+    }}
+  />
+  {required && <span className="text-red-500">*</span>}
+</label>
+
         <select
           name={name}
           value={displayValue}
@@ -483,7 +495,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   // Field metadata for dynamic rendering
   const FIELD_METADATA: Record<string, any> = {
     // Participant Details
-    agreementDate: { label: "Agreement Date", type: "date", placeholder: "Select agreement date" },
+    agreementDate: { label: "Date", type: "date", placeholder: "Select agreement date" },
     ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter NDIS number" },
     surname: { label: "Surname", type: "text", placeholder: "Enter surname" },
     givenNames: { label: "Given name(s)", type: "text", placeholder: "Enter given names" },
@@ -538,8 +550,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
       label: "The Individual has nominated the Plan Management Provider to manage the funding for NDIS supports provided under this Service Agreement.", 
       type: "checkbox" 
     },
-    planManagerName: { label: "Plan Management Provider", type: "text", placeholder: "Enter plan manager name" },
-    fundingSource: { label: "Funding Source", type: "text", placeholder: "Enter funding source" },
+    planManagerName: { label: "Provider Name", type: "text", placeholder: "Enter Name" },
+    fundingSource: { label: "Provider Email", type: "text", placeholder: "Enter Email" },
     
     // Consents
     mediaConsent: { 
@@ -547,11 +559,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
       type: "dropdown", 
       options: yesNoOptions 
     },
-    infoSharingConsent: { 
-      label: "Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to: Legal Guardian/Next of Kin, GP/health care professional, Therapy providers, Plan Managers, Others", 
-      type: "dropdown", 
-      options: yesNoOptions 
-    },
+   infoSharingConsent: { 
+  label: "Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to: **Legal Guardian/Next of Kin**, **GP/health care professional**, **Therapy providers**, **Plan Managers**, **Others**", 
+  type: "dropdown", 
+  options: yesNoOptions 
+},
+
     othersInfoSharingConsent: { label: "If Others, specify", type: "text", placeholder: "Specify others for information sharing" },
     moneyHandlingConsent: { 
       label: "I consent for staff to assist me (the participant) with handling my money (e.g. Buying Lunch) and assisting with my personal property, receipts will be provided for all purchases", 
@@ -577,32 +590,57 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   };
 
   // Validation function to check if all required fields are filled
-  const validateRequiredFields = () => {
-    const missingFields: string[] = [];
-    
-    FORM_SECTIONS.forEach(section => {
-      section.requiredFields.forEach(fieldName => {
-        let value;
-        
-        // For common fields, get value from commonFieldsData
-        if (isCommonField(fieldName)) {
-          value = getCommonFieldValue(fieldName);
-        } else {
-          value = localValues[fieldName];
-        }
-        
-        // Check if field is empty, null, undefined, or empty string
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          missingFields.push(`${fieldName}`);
-        }
-      });
+ const validateRequiredFields = () => {
+  const missingFields: string[] = [];
+
+  // Validate required fields defined per section
+  FORM_SECTIONS.forEach(section => {
+    section.requiredFields.forEach(fieldName => {
+      let value;
+
+      if (isCommonField(fieldName)) {
+        value = getCommonFieldValue(fieldName);
+      } else {
+        value = localValues[fieldName];
+      }
+
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        missingFields.push(fieldName);
+      }
     });
-    
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
+  });
+
+  // Conditional signature validation
+  if (localValues.signatureRole === "Participant") {
+    ["participantSignature", "participantSignatureDate", "participantName"].forEach(field => {
+      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+        missingFields.push(field);
+      }
+    });
+  } else if (localValues.signatureRole === "Nominee") {
+    ["nomineeSignature", "nomineeSignatureDate", "nomineeName"].forEach(field => {
+      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+        missingFields.push(field);
+      }
+    });
+  } else {
+    // signatureRole not selected
+    missingFields.push("signatureRole");
+  }
+
+  // Always required provider fields
+  ["providerSignature", "providerSignatureDate", "providerName"].forEach(field => {
+    if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+      missingFields.push(field);
+    }
+  });
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
   };
+};
+
 
   const handleFormSubmitCheckValidation = async () => {
     try {
@@ -753,29 +791,40 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
               ) : FORM_SECTIONS[currentStep].id === "signatures" ? (
                 // Special layout for signatures section
                 <div className="space-y-6">
+                  {renderDropdown(
+  "Who is signing this agreement?",
+  "signatureRole",
+  ["Participant", "Nominee"],
+  true
+)}
+
                   {/* Participant Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
-                    <div className="space-y-4">
-                      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature", isFieldRequired("participantSignature"))}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of participant signature", "participantSignatureDate", "date", "", isFieldRequired("participantSignatureDate"))}
-                        {renderInput("Name of participant", "participantName", "text", "Enter participant name", isFieldRequired("participantName"))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Nominee Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature (if applicable)</h3>
-                    <div className="space-y-4">
-                      {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
-                        {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
-                      </div>
-                    </div>
-                  </div>
+                  {localValues.signatureRole === "Participant" && (
+  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
+    <div className="space-y-4">
+      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature")}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {renderInput("Date of participant signature", "participantSignatureDate", "date")}
+        {renderInput("Name of participant", "participantName", "text", "Enter participant name")}
+      </div>
+    </div>
+  </div>
+)}
+
+{localValues.signatureRole === "Nominee" && (
+  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature</h3>
+    <div className="space-y-4">
+      {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
+        {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
+      </div>
+    </div>
+  </div>
+)}
+
                   
                   {/* Provider Signature */}
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
