@@ -62,6 +62,10 @@ export const FORM_SECTIONS : any = [
       ]).flat()
     ],
         requiredFields: [],
+        image: {
+      src: "/individual-risk-assessment.png",
+      alt: "Individual Risk Assessment Guide"
+    }
 
   },
   {
@@ -152,14 +156,15 @@ const getCommonFieldValue = (fieldName: string): string => {
   reviewDate: "",
 
   ...formData,
-  assessorSignature: ""
+  assessorSignature: "",
+  assessorSignatureDate: "",
 };
 
 
 
 const getInitialRiskRows = (formValues: Record<string, any>) => {
   const rows: number[] = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 6; i++) {
     const hasValue =
       formValues[`riskIdentified_${i}`] ||
       formValues[`likelihood_${i}`] ||
@@ -519,7 +524,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   location: { label: "Location", type: "text" },
 
  ...Object.fromEntries(
-  Array.from({ length: 10 }, (_, i) => {
+  Array.from({ length: 6 }, (_, i) => {
     const index = i + 1;
     return [
       [`riskIdentified_${index}`, { label: `Risk Identified ${index}`, type: "text" }],
@@ -694,6 +699,15 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
               {/* Dynamic Section Rendering */}
               {FORM_SECTIONS[currentStep].id === "riskAssessment" ? (
   <>
+  {FORM_SECTIONS[currentStep].image && (
+    <div className="w-full flex justify-center mb-4">
+      <img
+        src={FORM_SECTIONS[currentStep].image.src}
+        alt={FORM_SECTIONS[currentStep].image.alt || "Section Image"}
+        className="max-w-full h-auto rounded-lg border border-gray-200 shadow"
+      />
+    </div>
+  )}
     <div className="space-y-6">
       {activeRiskRows.map((num) => (
         <div
@@ -731,12 +745,12 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       ))}
     </div>
 
-    {activeRiskRows.length < 10 && (
+    {activeRiskRows.length < 6 && (
       <button
         type="button"
         onClick={() =>
           setActiveRiskRows((prev) =>
-            prev.length < 10 ? [...prev, prev.length + 1] : prev
+            prev.length < 6 ? [...prev, prev.length + 1] : prev
           )
         }
         className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
@@ -747,6 +761,17 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   </>
 ) : (
   // Standard grid layout for other sections
+  
+  <>
+  {FORM_SECTIONS[currentStep].image && (
+    <div className="w-full flex justify-center mb-4">
+      <img
+        src={FORM_SECTIONS[currentStep].image.src}
+        alt={FORM_SECTIONS[currentStep].image.alt || "Section Image"}
+        className="max-w-full h-auto rounded-lg border border-gray-200 shadow"
+      />
+    </div>
+  )}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
     {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
       const meta = FIELD_METADATA[field] || { label: field, type: "text" };
@@ -788,6 +813,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       );
     })}
   </div>
+  </>
 )}
 
             </div>

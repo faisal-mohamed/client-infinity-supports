@@ -66,19 +66,20 @@ const Page2: React.FC<Page2Props> = ({
 
         {/* Guideline Section */}
         <div className="px-6 mb-4">
-          <p className="mb-1 font-semibold underline">
-            MODERATE <span className="text-orange-500">ORANGE</span>
-          </p>
-          <p className="mb-3">
-            Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.
-          </p>
-          <p className="mb-1 font-semibold underline">
-            HIGH <span className="text-red-600">RED</span>
-          </p>
-          <p>
-            Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.
-          </p>
-        </div>
+  <p className="mb-1 font-semibold underline">
+    MODERATE <span style={{ color: '#f97316', fontWeight: 'bold' }}>ORANGE</span>
+  </p>
+  <p className="mb-3">
+    Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.
+  </p>
+  <p className="mb-1 font-semibold underline">
+    HIGH <span style={{ color: '#dc2626', fontWeight: 'bold' }}>RED</span>
+  </p>
+  <p>
+    Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.
+  </p>
+</div>
+
 
         {/* Table */}
         <div className="flex-1 flex flex-col px-6">

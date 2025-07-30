@@ -187,6 +187,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: "Signature of the Assessor",
         required: true,
         dataKey: "assessorSignature", // Maps to formData.signature field where the actual signature is stored
+        signedAtKey: "assessorSignatureDate",
+        signerName: 'assessorName'
       },
     ],
   },
