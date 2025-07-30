@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
           disability: commonFields?.disability,
           address: commonFields?.address,
           phone: commonFields?.phone || phone,
+          surname: commonFields?.surname 
         },
       });
 

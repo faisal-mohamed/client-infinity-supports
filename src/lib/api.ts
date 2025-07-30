@@ -111,6 +111,7 @@ export async function createClient(clientData: {
     ndis?: string;
     disability?: string;
     address?: string;
+    surname?: string
   };
 }) {
   const response = await fetch('/api/clients', {

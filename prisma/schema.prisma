@@ -179,6 +179,7 @@ model CommonField {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   phone     String?
+  surname   String?
 
   client    Client   @relation(fields: [clientId], references: [id])
   

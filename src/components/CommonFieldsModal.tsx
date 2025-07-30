@@ -18,6 +18,7 @@ export interface CommonField {
   disability?: string;
   address?: string;
   phone?: string;
+  surname?: string
 }
 
 interface CommonFieldsModalProps {
@@ -131,16 +132,37 @@ export default function CommonFieldsModal({
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
                       <FaUser className="h-4 w-4 text-blue-500" />
-                      <span>Full Name</span>
+                      <span>First Name</span>
                     </label>
                     <input
                       type="text"
                       value={commonFields.name || ''}
                       onChange={(e) => handleFieldChangeWithAge('name', e.target.value)}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
-                      placeholder="Enter full name"
+                      placeholder="Enter First name"
                     />
                   </div>
+
+
+
+
+                   <div>
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                      <FaUser className="h-4 w-4 text-blue-500" />
+                      <span>Surname</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={commonFields.surname || ''}
+                      onChange={(e) => handleFieldChangeWithAge('surname', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      placeholder="Enter Surname"
+                    />
+                  </div>
+
+
+
+
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
@@ -309,14 +331,16 @@ export default function CommonFieldsModal({
                         className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       >
                         <option value="">Select state</option>
-                        <option value="NSW">NSW</option>
-                        <option value="VIC">VIC</option>
-                        <option value="QLD">QLD</option>
-                        <option value="WA">WA</option>
-                        <option value="SA">SA</option>
-                        <option value="TAS">TAS</option>
-                        <option value="ACT">ACT</option>
-                        <option value="NT">NT</option>
+                        <option value="Australian Capital Territory">
+                          Australian Capital Territory
+                        </option>
+                        <option value="New South Wales">New South Wales</option>
+                        <option value="Northern Territory">Northern Territory</option>
+                        <option value="Queensland">Queensland</option>
+                        <option value="South Australia">South Australia</option>
+                        <option value="Tasmania">Tasmania</option>
+                        <option value="Victoria">Victoria</option>
+                        <option value="Western Australia">Western Australia</option>
                       </select>
                     </div>
 

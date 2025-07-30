@@ -24,6 +24,7 @@ import { useToast } from "@/components/ui/Toast";
 export default function CreateClientPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,11 @@ export default function CreateClientPage() {
 
     // Basic Information - All Required
     if (!name.trim()) {
-      newErrors.name = "Full name is required";
+      newErrors.name = "Name is required";
+    }
+
+    if (!surname.trim()) {
+      newErrors.name = "Surname is required";
     }
 
     if (!email.trim()) {
@@ -184,6 +189,8 @@ export default function CreateClientPage() {
 
         if (disability) cleanCommonFields.disability = disability;
         if (sex) cleanCommonFields.sex = sex;
+
+        if(surname) cleanCommonFields.surname = surname;
 
         // Only add commonFields if there's at least one property
         if (Object.keys(cleanCommonFields).length > 0) {
@@ -357,7 +364,7 @@ export default function CreateClientPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-gray-700">
-                    Full Name <span className="text-red-500">*</span>
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -389,6 +396,45 @@ export default function CreateClientPage() {
                           />
                         </svg>
                         {errors.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                 <div className="space-y-2">
+                  <label className="block text-sm font-bold text-gray-700">
+                    Surname <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={surname}
+                      onChange={(e) => {
+                        setSurname(e.target.value);
+                        clearFieldError("surname");
+                      }}
+                      className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                        errors.name
+                          ? "border-red-300 bg-red-50 ring-2 ring-red-200"
+                          : "border-gray-300 hover:border-indigo-300"
+                      }`}
+                      placeholder="Enter client's full name"
+                      required
+                    />
+                    {errors.name && (
+                      <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
+                        <svg
+                          className="h-4 w-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        {errors.surname}
                       </p>
                     )}
                   </div>
@@ -779,16 +825,16 @@ export default function CreateClientPage() {
                         required
                       >
                         <option value="">Select state...</option>
-                        <option value="ACT">
+                        <option value="Australian Capital Territory">
                           Australian Capital Territory
                         </option>
-                        <option value="NSW">New South Wales</option>
-                        <option value="NT">Northern Territory</option>
-                        <option value="QLD">Queensland</option>
-                        <option value="SA">South Australia</option>
-                        <option value="TAS">Tasmania</option>
-                        <option value="VIC">Victoria</option>
-                        <option value="WA">Western Australia</option>
+                        <option value="New South Wales">New South Wales</option>
+                        <option value="Northern Territory">Northern Territory</option>
+                        <option value="Queensland">Queensland</option>
+                        <option value="South Australia">South Australia</option>
+                        <option value="Tasmania">Tasmania</option>
+                        <option value="Victoria">Victoria</option>
+                        <option value="Western Australia">Western Australia</option>
                       </select>
                       {errors.state && (
                         <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">

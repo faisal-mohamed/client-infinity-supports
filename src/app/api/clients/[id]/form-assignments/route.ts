@@ -39,6 +39,7 @@ export async function GET(
             disability: true,
             address: true,
             phone: true,
+            surname: true
           }
         }
       },

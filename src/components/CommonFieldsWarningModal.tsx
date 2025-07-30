@@ -344,6 +344,7 @@ export default function CommonFieldsWarningModal({
                 </button>
               )}
 
+             
               {completedForms.length > 0 && allDownloaded && (
                 <button
                   onClick={onProceed}
@@ -352,6 +353,16 @@ export default function CommonFieldsWarningModal({
                   All Downloaded. Now Proceed 
                 </button>
               )}
+
+              {assignments.length === 0 && (
+  <button
+    onClick={onProceed}
+    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+  >
+    Proceed to Edit Common Fields
+  </button>
+)}
+
               
               {/* <button
                 onClick={onProceed}

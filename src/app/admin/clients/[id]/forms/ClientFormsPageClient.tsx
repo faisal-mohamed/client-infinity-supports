@@ -434,6 +434,7 @@ const adminId : any  = session?.user?.id;
         disability: commonFieldsData.disability || '',
         address: commonFieldsData.address || '',
         phone: commonFieldsData.phone || client.phone || '',
+        surname: commonFieldsData.surname || ''
       };
       
       setCommonFields(fieldsData);
@@ -616,7 +617,8 @@ const adminId : any  = session?.user?.id;
             ndis: commonFields.ndis,
             disability: commonFields.disability,
             address: commonFields.address,
-            phone: commonFields.phone
+            phone: commonFields.phone,
+            surname: commonFields.surname,
           }
         }),
       });
