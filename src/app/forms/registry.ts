@@ -225,8 +225,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
       },
       {
         id: "participant_signature",
-        label: "Participant Signature",
-        description: "Signature of the Participant",
+        label: "Participant’s or Participant’s Representative’s Signature",
+        description: "Participant’s or Participant’s Representative’s Signature",
         required: true,
         dataKey: "participantSignature",
         signedAtKey: "participantDate",

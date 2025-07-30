@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
+import { Label } from "@headlessui/react";
 
 interface FormProps {
   formData: any;
@@ -44,7 +45,7 @@ interface FormProps {
     id: "preferredContact",
     title: "2. Preferred Contact (Plan Nominee / Family Member)",
     fields: [
-      "contactName", "relationship", "contactAddress", "contactPhone", "contactEmail", "funding"
+      "contactName", "relationship", "contactAddress", "contactPhone", "contactEmail", "funding", "fundingOther"
     ],
     icon: FaUser,
     requiredFields: []
@@ -60,7 +61,7 @@ interface FormProps {
     id: "coreSupports",
     title: "4. Core Supports",
     fields: [
-      "coreSupportText", "corePreferredProviders", "coreAlternativeProviders",
+      "coreSupportText", "corePreferredProviders", "coreAlternativeProviders", "coreAlternativeProviders2",
       "coreAgreementSigned", "coreSupportsCommenced", "coreBudgetApproved"
     ],
     icon: FaUser,
@@ -81,7 +82,7 @@ interface FormProps {
     id: "ndisFundedSupports",
     title: "CAPITAL",
     fields: [
-      "supportRequired1", "preferredProviders1", "alternativeProviders1",
+      "supportRequired1", "preferredProviders1","preferredProvidersCapital2" ,  "alternativeProviders1", "alternativeProvidersCapital2",
       "serviceAgreement1", "additionalAssessment1", "assessmentActions1",
       "planManagerDiscussion1"
     ],
@@ -92,7 +93,7 @@ interface FormProps {
     id: "mainstreamSupports",
     title: "7. Mainstream Supports & Services",
     fields: [
-      "supportRequired2", "preferredProviders2", "alternativeProviders2",
+      "supportRequired2", "preferredProviders2","preferredProvidersMainstream2", "alternativeProviders2","alternativeProvidersMainstream2",
       "serviceAgreement2", "additionalAssessment2", "assessmentActions2","budgetApproval"
     ],
     icon: FaUser,
@@ -189,6 +190,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   contactPhone: "",
   contactEmail: "",
   funding: [],
+  fundingOther: "",
 
   // Page 3 (Updated Goals)
   goal1: "",
@@ -203,6 +205,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   coreSupportText: "",
   corePreferredProviders: "",
   coreAlternativeProviders: "",
+  coreAlternativeProviders2: "",
   coreAgreementSigned: "",
   coreSupportsCommenced: "",
   coreBudgetApproved: "",
@@ -220,7 +223,9 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   // Page 6
   supportRequired1: "",
   preferredProviders1: "",
+  preferredProvidersCapital2: "",
   alternativeProviders1: "",
+  alternativeProvidersCapital2: "",
   serviceAgreement1: "",
   additionalAssessment1: "",
   assessmentActions1: "",
@@ -229,7 +234,9 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   // Page 7
   supportRequired2: "",
   preferredProviders2: "",
+  preferredProvidersMainstream2: "",
   alternativeProviders2: "",
+  alternativeProvidersMainstream2: "",
   serviceAgreement2: "",
   additionalAssessment2: "",
   assessmentActions2: "",
@@ -553,6 +560,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     type: "dropdown",
     options: ["Plan managed", "Self-managed", "NDIA managed", "Other"]
   },
+  fundingOther: {label: "Other Fundings's: ", type: 'text'},
   goal1: { label: "Goal 1", type: "text" },
   goal2: { label: "Goal 2", type: "text" },
   goal3: { label: "Goal 3", type: "text" },
@@ -562,7 +570,9 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   goal7: { label: "Goal 7", type: "text" },
   coreSupportText: { label: "4.	Consider, what support is required to assist you to achieve your goals? Are there any barriers preventing you from achieving your goals?", type: "textarea" },
   corePreferredProviders: { label: "Preferred providers", type: "textarea" },
-  coreAlternativeProviders: { label: "Alternative providers", type: "textarea" },
+  coreAlternativeProviders: { label: "Alternative providers 1", type: "textarea" },
+    coreAlternativeProviders2: { label: "Alternative providers 2", type: "textarea" },
+
   coreAgreementSigned: { label: "Service Agreement developed/signed?", type: "dropdown", options: yesNoOptions },
   coreSupportsCommenced: { label: "Supports have commenced", type: "text" },
   coreBudgetApproved: { label: "Discussion held with Plan Manager and budget approved?", type: "dropdown", options: yesNoOptions },
@@ -577,16 +587,20 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   capacityBudgetApproved: { label: "Discussion held with Plan Manager and budget approved?", type: "dropdown", options: yesNoOptions },
 
   supportRequired1: { label: "Support Required", type: "textarea" },
-  preferredProviders1: { label: "Preferred providers", type: "textarea" },
-  alternativeProviders1: { label: "Alternative providers", type: "textarea" },
+  preferredProviders1: { label: "Preferred providers 1", type: "textarea" },
+  preferredProvidersCapital2: {label: "Prefered Providers 2", type: "textarea"},
+  alternativeProviders1: { label: "Alternative providers 1", type: "textarea" },
+  alternativeProvidersCapital2: {label: "Alternate Providers 2", type: "textarea"},
   serviceAgreement1: { label: "Service Agreement developed/signed?", type: "dropdown", options: yesNoOptions },
   additionalAssessment1: { label: "Are additional assessments required to access this support type?", type: "dropdown", options: yesNoOptions },
   assessmentActions1: { label: "If Yes - Actions", type: "text" },
   planManagerDiscussion1: { label: "Discussion held with Plan Manager and budget approved?", type: "dropdown", options: yesNoOptions },
 
   supportRequired2: { label: "Support Required", type: "textarea" },
-  preferredProviders2: { label: "Preferred providers", type: "textarea" },
-  alternativeProviders2: { label: "Alternative providers", type: "textarea" },
+  preferredProviders2: { label: "Preferred providers 1", type: "textarea" },
+  preferredProvidersMainstream2: {label: "Preferred Providers 2", type: "textarea"},
+  alternativeProviders2: { label: "Alternative providers 1", type: "textarea" },
+  alternativeProvidersMainstream2: {label: "Alternative Providers 2", type: "textarea"},
   serviceAgreement2: { label: "Service Agreement developed/signed?", type: "dropdown", options: yesNoOptions },
   additionalAssessment2: { label: "Are additional assessments required to access this support type?", type: "dropdown", options: yesNoOptions },
   assessmentActions2: { label: "If Yes - Actions", type: "text" },
@@ -671,6 +685,16 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     setLocalValues(newValues);
     onChange(newValues, fieldName, false);
   };
+
+
+  useEffect(() => {
+  if (localValues.funding !== "Other" && localValues.fundingOther) {
+    const updated = { ...localValues, fundingOther: "" };
+    setLocalValues(updated);
+    onChange(updated, "fundingOther", false);
+  }
+}, [localValues.funding]);
+
   return (
     <div className="">
       {/* Progress Bar */}
@@ -782,10 +806,9 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
                     <div className="space-y-4">
-                      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature", isFieldRequired("participantSignature"))}
+                      {renderSignatureField("Signature of participant / Representative Signature", "participantSignature", participantSigCanvasRef, "Draw participant signature", isFieldRequired("participantSignature"))}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of participant signature", "participantSignatureDate", "date", "", isFieldRequired("participantSignatureDate"))}
-                        {renderInput("Name of participant", "participantName", "text", "Enter participant name", isFieldRequired("participantName"))}
+                        {renderInput("Date of participant / Representative Signature", "participantSignatureDate", "date", "", isFieldRequired("participantSignatureDate"))}
                       </div>
                     </div>
                   </div>
@@ -799,7 +822,6 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                       {renderSignatureField("Signature on behalf of Infinity Supports WA", "authorSignature", authorSignature, "Draw provider signature")}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {renderInput("Date of provider signature", "providerSignatureDate", "date")}
-                        {renderInput("Name of provider representative", "providerName", "text", "Enter provider name")}
                       </div>
                     </div>
                   </div>
@@ -810,6 +832,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
+
+                    if (field === "fundingOther" && localValues.funding !== "Other") {
+    return null;
+  }
                     
                     if (meta.type === "checkbox") {
                       return (

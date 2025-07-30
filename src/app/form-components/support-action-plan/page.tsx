@@ -88,8 +88,13 @@ export const formSchema : any = {
       title: "NDIS FUNDED SUPPORTS",
       fields: [
         { key: "supportRequired1", label: "Support Required", type: "textarea" },
-        { key: "preferredProviders1", label: "Preferred providers", type: "textarea" },
-        { key: "alternativeProviders1", label: "Alternative providers", type: "textarea" },
+        { key: "preferredProviders1", label: "Preferred providers 1", type: "textarea" },
+
+        {key: "preferredProvidersCapital2", label: "Preferred providers 2", type: "textarea" },
+
+        { key: "alternativeProviders1", label: "Alternative providers 1", type: "textarea" },
+                { key: "alternativeProvidersCapital2", label: "Alternative providers 2", type: "textarea" },
+
         { key: "serviceAgreement1", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
         { key: "additionalAssessment1", label: "Are additional assessments required to access this support type?", type: "checkbox-dual", options: ["Yes", "No"] },
         { key: "assessmentActions1", label: "If Yes - Actions", type: "text" },
@@ -100,8 +105,12 @@ export const formSchema : any = {
       title: "MAINSTREAM SUPPORTS & SERVICES",
       fields: [
         { key: "supportRequired2", label: "Support Required", type: "textarea" },
-        { key: "preferredProviders2", label: "Preferred providers", type: "textarea" },
-        { key: "alternativeProviders2", label: "Alternative providers", type: "textarea" },
+        { key: "preferredProviders2", label: "Preferred providers 1", type: "textarea" },
+
+        { key: "preferredProvidersMainstream2", label: "Preferred providers 2", type: "textarea" },
+        { key: "alternativeProviders2", label: "Alternative providers 1", type: "textarea" },
+
+        { key: "alternativeProvidersMainstream2", label: "Alternative providers 2", type: "textarea" },
         { key: "serviceAgreement2", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
         { key: "additionalAssessment2", label: "Are additional assessments required to access this support type?", type: "checkbox-dual", options: ["Yes", "No"] },
         { key: "assessmentActions2", label: "If Yes - Actions", type: "text" }

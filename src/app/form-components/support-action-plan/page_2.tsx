@@ -4,6 +4,22 @@ import A4PageWrapper from './A4PageWrapper';
 
 
 const Page2: React.FC<any> = ({ data, settings }) => {
+
+  const renderYesNoCheckbox = (value: string) => (
+  <div className="flex gap-6 text-[10px]">
+    <label className="flex items-center gap-1">
+      <span className="font-semibold">Yes</span>
+      <input type="checkbox" checked={value === 'Yes'} readOnly />
+    </label>
+    <label className="flex items-center gap-1">
+      <span className="font-semibold">No</span>
+      <input type="checkbox" checked={value === 'No'} readOnly />
+    </label>
+  </div>
+);
+
+
+
   return (
     <A4PageWrapper>
       <div className="flex flex-col h-full px-10 py-6">
@@ -37,14 +53,15 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 <td className="border border-black p-3">
                   <span className="font-bold">Alternative providers</span>
                   <br />
-                  {data?.coreAlternativeProviders}
+                  1. {data?.coreAlternativeProviders} <br />
+                  2. {data?.coreAlternativeProviders2}
                 </td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
                   <span className="font-bold">Service Agreement developed/signed?</span>
                   <br />
-                  {data?.coreAgreementSigned}
+{renderYesNoCheckbox(data?.coreAgreementSigned)}
                 </td>
               </tr>
               <tr>
@@ -58,7 +75,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 <td className="border border-black p-3">
                   <span className="font-bold">Discussion held with Plan Manager and budget approved?</span>
                   <br />
-                  {data?.coreBudgetApproved}
+                  {renderYesNoCheckbox(data?.coreBudgetApproved)}
                 </td>
               </tr>
 
@@ -69,21 +86,21 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 <td className="border border-black p-3">
                   <span className="font-bold">Preferred providers</span>
                   <br />
-                  {data?.capacityPreferredProviders}
+                  1. {data?.capacityPreferredProviders}
                 </td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
                   <span className="font-bold">Alternative providers</span>
                   <br />
-                  {data?.capacityAlternativeProviders}
+                  1. {data?.capacityAlternativeProviders}
                 </td>
               </tr>
               <tr>
                 <td className="border border-black p-3">
                   <span className="font-bold">Service Agreement developed/signed?</span>
                   <br />
-                  {data?.capacityAgreementSigned}
+                  {renderYesNoCheckbox(data?.capacityAgreementSigned)}
                 </td>
               </tr>
               <tr>
@@ -95,9 +112,9 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
               <tr>
                 <td className="border border-black p-3">
-                  <span>Are additional assessments required?</span>
+                  <span className='font-bold'>Are additional assessments required to access this support type? </span>
                   <br />
-                  {data?.capacityAssessmentRequired}
+                  {renderYesNoCheckbox(data?.capacityAssessmentRequired)}
                 </td>
               </tr>
               {data?.capacityAssessmentRequired === 'Yes' && (
@@ -113,7 +130,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 <td className="border border-black p-3">
                   <span className="font-bold">Discussion held with Plan Manager and budget approved?</span>
                   <br />
-                  {data?.capacityBudgetApproved}
+                  {renderYesNoCheckbox(data?.capacityBudgetApproved)}
                 </td>
               </tr>
 

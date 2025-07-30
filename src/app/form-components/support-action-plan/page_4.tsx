@@ -84,39 +84,59 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
 
           {/* Table 2 - Signatures */}
           <table className="w-full border border-black border-collapse text-xs">
-            <tbody>
-              <tr>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center w-1/3">
-                  {schema?.signatures?.participant?.label}
-                </td>
-                <td className="border border-black p-1 w-1/3">
-                   <img src={`${data?.participantSignature}`} alt="Participant Signature" />
-                </td>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center w-1/6">
-                  Date
-                </td>
-                <td className="border border-black p-1 w-1/6">
-                  {data?.participantDate || ''}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center">
-                  {schema?.signatures?.author?.label}
-                </td>
-                <td className="border border-black p-1">
-                <img src={`${data?.authorSignature}`} alt="Author Signature" />
+  <tbody>
+    {/* Participant Signature */}
+    <tr>
+      <td colSpan={2} className="border border-black bg-blue-200 font-bold p-1 text-left">
+        {schema?.signatures?.participant?.label}
+      </td>
+    </tr>
+    <tr className="h-[60px]">
+      <td className="border border-black p-2 w-1/2">
+        {data?.participantSignature ? (
+          <div className="w-full h-full flex items-center justify-start overflow-hidden">
+            <img
+              src={data.participantSignature}
+              alt="Participant Signature"
+              className="h-[50px] object-contain"
+            />
+          </div>
+        ) : (
+          <span className="italic text-gray-400">No signature</span>
+        )}
+      </td>
+      <td className="border border-black p-2 w-1/2 align-top">
+        <span className="font-bold">Date:</span> {data?.participantDate || ''}
+      </td>
+    </tr>
 
-                
-                </td>
-                <td className="border border-black bg-blue-200 font-bold p-1 text-center">
-                  Date
-                </td>
-                <td className="border border-black p-1">
-                  {data?.providerSignatureDate || ''}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    {/* Author Signature */}
+    <tr>
+      <td colSpan={2} className="border border-black bg-blue-200 font-bold p-1 text-left">
+        {schema?.signatures?.author?.label}
+      </td>
+    </tr>
+    <tr className="h-[60px]">
+      <td className="border border-black p-2 w-1/2">
+        {data?.authorSignature ? (
+          <div className="w-full h-full flex items-center justify-start overflow-hidden">
+            <img
+              src={data.authorSignature}
+              alt="Author Signature"
+              className="h-[50px] object-contain"
+            />
+          </div>
+        ) : (
+          <span className="italic text-gray-400">No signature</span>
+        )}
+      </td>
+      <td className="border border-black p-2 w-1/2 align-top">
+        <span className="font-bold">Date:</span> {data?.providerSignatureDate || ''}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
         </div>
 
         {/* Footer */}

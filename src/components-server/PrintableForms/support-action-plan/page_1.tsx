@@ -53,40 +53,49 @@ const Page1: React.FC<Props> = ({
   };
 
   const renderField = (field: SchemaField) => {
-    const value = getValue(field.key);
+  const value = getValue(field.key);
 
-    if (field?.type === 'multi-checkbox') {
-      return (
-        <div className="flex gap-3 flex-wrap">
-          {field?.options?.map((option) => (
-            <div key={option} className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={value?.includes(option)}
-                readOnly
-                className="w-3 h-3 accent-red-600"
-              />
-              <span className="text-[11px]">{option}</span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    if (field?.type === 'textarea') {
-      return (
-        <pre className="whitespace-pre-wrap text-[11px] leading-relaxed">
-          {value}
-        </pre>
-      );
-    }
+  if (field?.type === 'multi-checkbox') {
+    const showOther = value?.includes('Other');
+    const otherKey = `${field.key}Other`;
+    const otherValue = getValue(otherKey);
 
     return (
-      <span className="text-[11px] leading-relaxed">
-        {value || '—'}
-      </span>
+      <div className="flex gap-3 flex-wrap">
+        {field?.options?.map((option) => (
+          <div key={option} className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={value?.includes(option)}
+              readOnly
+              className="w-3 h-3 accent-red-600"
+            />
+            <span className="text-[11px]">
+              {option}
+              {option === 'Other' && showOther && otherValue && (
+                <>: <strong>{otherValue}</strong></>
+              )}
+            </span>
+          </div>
+        ))}
+      </div>
     );
-  };
+  }
+
+  if (field?.type === 'textarea') {
+    return (
+      <pre className="whitespace-pre-wrap text-[11px] leading-relaxed">
+        {value}
+      </pre>
+    );
+  }
+
+  return (
+    <span className="text-[11px] leading-relaxed">
+      {value || '—'}
+    </span>
+  );
+};
 
   return (
     <A4PageWrapper>

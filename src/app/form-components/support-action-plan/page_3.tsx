@@ -22,32 +22,76 @@ interface Props {
 
 const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) => {
   const renderField = (field: SchemaField) => {
-    const value = data?.[field?.key];
+  const value = data?.[field?.key];
 
-    if (field?.type === 'checkbox-group') {
-      return (
-        <div className="flex items-center gap-3 flex-wrap leading-[2]">
-          {field?.options?.map?.((option) => (
-            <div key={option} className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={value === option}
-                readOnly
-                className="w-3 h-3 accent-red-600"
-              />
-              <span className="text-[11px]">{option}</span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
+  if (field?.type === 'checkbox-yes-no') {
     return (
-      <div className="whitespace-pre-wrap text-[11px] leading-[2]">
-        {value || '—'}
+      <div className="flex gap-6">
+        <label className="flex items-center gap-1">
+          <span>Yes</span>
+          <input
+            type="checkbox"
+            checked={value === 'Yes'}
+            readOnly
+            className="w-3 h-3 accent-red-600"
+          />
+        </label>
+        <label className="flex items-center gap-1">
+          <span>No</span>
+          <input
+            type="checkbox"
+            checked={value === 'No'}
+            readOnly
+            className="w-3 h-3 accent-red-600"
+          />
+        </label>
       </div>
     );
-  };
+  }
+
+  if (field?.type === 'checkbox-dual') {
+    return (
+      <div className="flex gap-6 flex-wrap">
+        {field?.options?.map((option) => (
+          <label key={option} className="flex items-center gap-1">
+            <span>{option}</span>
+            <input
+              type="checkbox"
+              checked={value === option}
+              readOnly
+              className="w-3 h-3 accent-red-600"
+            />
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  if (field?.type === 'checkbox-group') {
+    return (
+      <div className="flex items-center gap-3 flex-wrap leading-[2]">
+        {field?.options?.map?.((option) => (
+          <div key={option} className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={Array.isArray(value) ? value.includes(option) : value === option}
+              readOnly
+              className="w-3 h-3 accent-red-600"
+            />
+            <span className="text-[11px]">{option}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="whitespace-pre-wrap text-[11px] leading-[2]">
+      {value || '—'}
+    </div>
+  );
+};
+
 
   return (
     <A4PageWrapper>
@@ -79,7 +123,7 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) =>
                   )}
                   {section?.fields?.map?.((field) => (
                     <tr key={field?.key}>
-                      <td className="border border-black font-bold p-3 align-top w-[150px] bg-[#e8edf8]">
+                      <td className="border border-black font-bold p-1 align-top w-[150px] bg-[#e8edf8]">
                         {field?.label}
                       </td>
                       <td className="border border-black p-3">
