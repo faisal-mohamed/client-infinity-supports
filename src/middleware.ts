@@ -6,15 +6,20 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   console.log('[Middleware] pathname:', pathname)
 
-  const publicPaths = ['/admin/login', '/admin/register']
+  const publicPaths = [
+    '/admin/login',
+    '/admin/register',
+  ]
 
-  // Allow public paths
-  if (publicPaths.includes(pathname)) {
+  const isPublicSignaturePath = pathname.startsWith('/forms/signature/')
+
+  // ✅ Allow public paths
+  if (publicPaths.includes(pathname) || isPublicSignaturePath) {
     console.log('[Middleware] Public route, bypassing auth')
     return NextResponse.next()
   }
 
-  // Check for protected routes
+  // 🔒 Check for protected routes
   const isProtected =
     pathname.startsWith('/admin') || pathname.startsWith('/forms')
 
@@ -22,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isProtected) return NextResponse.next()
 
-  // Auth check
+  // 🔑 Auth check
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
   console.log('[Middleware] token:', token)
 
