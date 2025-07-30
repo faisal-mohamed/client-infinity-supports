@@ -137,7 +137,7 @@ export async function PUT(
         
         if (signatures.length > 0) {
           // This form requires signatures
-          const requiredSignatures = signatures.filter(sig => sig.required);
+          const requiredSignatures = signatures;
           
           // Clear signature data from form data
           const updatedData = { ...submission.data };
@@ -195,9 +195,35 @@ export async function PUT(
               // Add any other specific fields to clear for this form
               break;
 
-            case 'person_centred_plan':
-              // Clear specific fields for person centred plan
-              // Add fields specific to this form that should be cleared
+            case 'schedule_of_supports':
+               if (updatedData.participantName) {
+                console.log(`🗑️ Clearing participantName field from ${formKey}`);
+                updatedData.participantName = null;
+              }
+              if (updatedData.participantSignatureDate) {
+                console.log(`🗑️ Clearing participantSignatureDate field from ${formKey}`);
+                updatedData.participantSignatureDate = null;
+              }
+              if (updatedData.nomineeName) {
+                console.log(`🗑️ Clearing nomineeName field from ${formKey}`);
+                updatedData.nomineeName = null;
+              }
+              if (updatedData.nomineeSignatureDate) {
+                console.log(`🗑️ Clearing nomineeSignatureDate field from ${formKey}`);
+                updatedData.nomineeSignatureDate = null;
+              }
+              if (updatedData.representativeSignature) {
+                console.log(`🗑️ Clearing providerName field from ${formKey}`);
+                updatedData.representativeSignature = null;
+              }
+              if (updatedData.representativeSignatureDate) {
+                console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
+                updatedData.representativeSignatureDate = null;
+              }
+                if (updatedData.represenativeName) {
+                console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
+                updatedData.represenativeName = null;
+              }
               break;
 
             case 'client_intake_form':
@@ -211,6 +237,8 @@ export async function PUT(
           }
           
           // Update the submission
+
+          console.log("----------UPDATED DATA: ", updatedData);
           await prisma.formSubmission.update({
             where: { id: submission.id },
             data: {

@@ -82,9 +82,10 @@ export const FORM_SECTIONS : any = [
     id: "signatures",
     title: "4. Agreement Signatures",
     fields: [
+      "signatureRole",
       "participantSignature", "participantSignatureDate", "participantName",
       "nomineeSignature", "nomineeSignatureDate", "nomineeName",
-      "representativeSignature", "representativeSignatureDate"
+      "representativeSignature", "representativeSignatureDate", "representativeName"
     ],
      icon: FaUser,
     requiredFields: []
@@ -201,17 +202,22 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   providerTravelAgreement: "",
 
 
+  
+
+
   ...formData,
+  signatureRole: "",
   participantSignature: "",
-  participantSignatureDate: new Date().toISOString().split("T")[0],
+  participantSignatureDate: "",
   participantName: "",
 
   nomineeSignature: "",
-  nomineeSignatureDate: new Date().toISOString().split("T")[0],
+  nomineeSignatureDate: "",
   nomineeName: "",
 
   representativeSignature: "",
-  representativeSignatureDate: new Date().toISOString().split("T")[0]
+  representativeSignatureDate: new Date().toISOString().split("T")[0],
+  represenativeName: ""
 };
 
 
@@ -463,7 +469,19 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     );
   };
 
-  const renderSignatureField = (
+
+  useEffect(() => {
+  localValues["transportValue1"] = "";
+  localValues["transportOver1"] = "";
+}, [localValues["transportOption1"]]);
+
+ useEffect(() => {
+  localValues["transportValue2"] = "";
+  localValues["transportOver2"] = "";
+}, [localValues["transportOption2"]]);
+
+
+const renderSignatureField = (
     label: string,
     name: string,
     canvasRef: React.RefObject<SignatureCanvasRef>,
@@ -708,38 +726,96 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     label: "Representative Signature Date",
     type: "date",
   },
+  representativeName: {
+    label: "Representative Name",
+    type: 'text'
+  }
 };
 
 
 
 
   // Validation function to check if all required fields are filled
-  const validateRequiredFields = () => {
-    const missingFields: string[] = [];
+  // const validateRequiredFields = () => {
+  //   const missingFields: string[] = [];
     
-    FORM_SECTIONS.forEach((section: any ) => {
-      section.requiredFields.forEach((fieldName: any ) => {
-        let value;
+  //   FORM_SECTIONS.forEach((section: any ) => {
+  //     section.requiredFields.forEach((fieldName: any ) => {
+  //       let value;
         
-        // For common fields, get value from commonFieldsData
-        if (isCommonField(fieldName)) {
-          value = getCommonFieldValue(fieldName);
-        } else {
-          value = localValues[fieldName];
-        }
+  //       // For common fields, get value from commonFieldsData
+  //       if (isCommonField(fieldName)) {
+  //         value = getCommonFieldValue(fieldName);
+  //       } else {
+  //         value = localValues[fieldName];
+  //       }
         
-        // Check if field is empty, null, undefined, or empty string
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          missingFields.push(`${fieldName}`);
-        }
-      });
+  //       // Check if field is empty, null, undefined, or empty string
+  //       if (!value || (typeof value === 'string' && value.trim() === '')) {
+  //         missingFields.push(`${fieldName}`);
+  //       }
+  //     });
+      
+  //   });
+    
+  //   return {
+  //     isValid: missingFields.length === 0,
+  //     missingFields
+  //   };
+  // };
+
+
+   const validateRequiredFields = () => {
+  const missingFields: string[] = [];
+
+  // Validate required fields defined per section
+  FORM_SECTIONS.forEach((section : any ) => {
+    section.requiredFields.forEach((fieldName : any ) => {
+      let value;
+
+      if (isCommonField(fieldName)) {
+        value = getCommonFieldValue(fieldName);
+      } else {
+        value = localValues[fieldName];
+      }
+
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        missingFields.push(fieldName);
+      }
     });
-    
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
+  });
+
+  // Conditional signature validation
+  if (localValues.signatureRole === "Participant") {
+    ["participantSignature", "participantSignatureDate", "participantName"].forEach(field => {
+      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+        missingFields.push(field);
+      }
+    });
+  } else if (localValues.signatureRole === "Nominee") {
+    ["nomineeSignature", "nomineeSignatureDate", "nomineeName"].forEach(field => {
+      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+        missingFields.push(field);
+      }
+    });
+  } else {
+    // signatureRole not selected
+    missingFields.push("signatureRole");
+  }
+
+  // Always required provider fields
+  ["representativeSignature", "representativeSignatureDate", "represenativeName"].forEach(field => {
+    if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+      missingFields.push(field);
+    }
+  });
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
   };
+};
+
 
   const handleFormSubmitCheckValidation = async () => {
     try {
@@ -783,6 +859,29 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     setLocalValues(newValues);
     onChange(newValues, fieldName, false);
   };
+
+ const supportLineItems = [
+  { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 675.6 },
+  { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 67.56 },
+  { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 74.44 },
+  { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 95.07 },
+  { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 122.59 },
+  { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 150.1 },
+  { code: "row6", label: "04_104_0125_6_1 Access Community and Rec weekday", rate: 67.56 },
+  { code: "row7", label: "04_105_0125_6_1 Access Community and Rec Saturday", rate: 95.07 },
+  { code: "row8", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 122.59 },
+  { code: "row9", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 150.1 },
+  { code: "row10", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 57.23 },
+  { code: "row11", label: "09-009-0117-6-3 Skill Development and Training", rate: 77.0 },
+  { code: "row12", label: "04-590-0125-6-1 Activity based Transport", rate: 1.0 },
+  { code: "row13", label: "01_013_0107_1_1 Non-Face-to-Face", rate: 67.56 },
+  { code: "row14", label: "01-002-0107-1-1 Provider Travel", rate: 16.89 },
+  { code: "row15", label: "04-104-0125-6-1 Provider Travel", rate: 16.89 },
+];
+
+
+
+
   return (
     <div className="">
       {/* Progress Bar */}
@@ -889,43 +988,194 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "signatures" ? (
                 // Special layout for signatures section
-                <div className="space-y-6">
+               <div className="space-y-6">
+                  {renderDropdown(
+  "Who is signing this agreement?",
+  "signatureRole",
+  ["Participant", "Nominee"],
+  true
+)}
+
                   {/* Participant Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
-                    <div className="space-y-4">
-                      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature", isFieldRequired("participantSignature"))}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of participant signature", "participantSignatureDate", "date", "", isFieldRequired("participantSignatureDate"))}
-                        {renderInput("Name of participant", "participantName", "text", "Enter participant name", isFieldRequired("participantName"))}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Nominee Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature (if applicable)</h3>
-                    <div className="space-y-4">
-                      {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
-                        {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
-                      </div>
-                    </div>
-                  </div>
+                  {localValues.signatureRole === "Participant" && (
+  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
+    <div className="space-y-4">
+      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature")}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {renderInput("Date of participant signature", "participantSignatureDate", "date")}
+        {renderInput("Name of participant", "participantName", "text", "Enter participant name")}
+      </div>
+    </div>
+  </div>
+)}
+
+{localValues.signatureRole === "Nominee" && (
+  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+    <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature</h3>
+    <div className="space-y-4">
+      {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
+        {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
+      </div>
+    </div>
+  </div>
+)}
+
                   
                   {/* Provider Signature */}
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Representative Signature</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800">Provider Signature</h3>
                     <div className="space-y-4">
-                      {renderSignatureField("Signature on behalf of Infinity Supports WA", "representativeSignature", providerSigCanvasRef, "Draw Signature on behalf of Infinity Supports WA")}
+                      {renderSignatureField("Signature on behalf of Infinity Supports WA", "representativeSignature", providerSigCanvasRef, "Draw provider signature")}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {renderInput("Date of Representative signature", "representativeSignatureDate", "date")}
+                        {renderInput("Date of provider signature", "representativeSignatureDate", "date")}
+                        {renderInput("Name of provider representative", "represenativeName", "text", "Enter provider name")}
                       </div>
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) :
+              
+
+              FORM_SECTIONS[currentStep].id === "scheduleTable" ? (
+  <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+        <table className="w-full text-sm text-left text-gray-700">
+          <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase">
+            <tr>
+              <th className="px-4 py-2">Support Item</th>
+              <th className="px-4 py-2">Weeks / KMs</th>
+              <th className="px-4 py-2">Total Hours</th>
+              <th className="px-4 py-2">Rate</th>
+              <th className="px-4 py-2 text-right">Total Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            {supportLineItems.map((item) => {
+              const isKmBased = item.code === "row12";
+              const weeksOrKms = parseFloat(localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || "0");
+              const hours = isKmBased ? 0 : parseFloat(localValues[`${item.code}_totalHours`] || "0");
+              const total = isKmBased ? weeksOrKms * item.rate : hours * item.rate;
+
+              return (
+                <tr key={item.code} className="border-t border-gray-200">
+                  <td className="px-4 py-2">{item.label}</td>
+                  <td className="px-4 py-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      name={`${item.code}_${isKmBased ? "totalKms" : "weeks"}`}
+                      value={localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || ""}
+                      onChange={handleChange}
+                      className="w-full px-2 py-1 border rounded-md text-sm"
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    {isKmBased ? "-" : (
+                      <input
+                        type="number"
+                        step="0.1"
+                        name={`${item.code}_totalHours`}
+                        value={localValues[`${item.code}_totalHours`] || ""}
+                        onChange={handleChange}
+                        className="w-full px-2 py-1 border rounded-md text-sm"
+                      />
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-right">${item.rate.toFixed(2)}</td>
+                  <td className="px-4 py-2 text-right font-semibold">${total.toFixed(2)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+) : 
+
+(FORM_SECTIONS[currentStep].id === "transportAgreements") ? 
+<div className="space-y-6">
+      <div className="space-y-4">
+        {/* Transport Option 1 */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {renderDropdown(
+            "Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget",
+            "transportOption1",
+            yesNoOptions
+          )}
+
+          {localValues.transportOption1 === "Yes" && (
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {renderInput(
+                "Transport Services provided to the value of",
+                "transportValue1",
+                "text",
+                "$ amount"
+              )}
+              {renderInput(
+                "Anything over this amount will be",
+                "transportOver1",
+                "text",
+                "Excess policy"
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Transport Option 2 */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {renderDropdown(
+            "Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget",
+            "transportOption2",
+            yesNoOptions
+          )}
+
+          {localValues.transportOption2 === "Yes" && (
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {renderInput(
+                "For Transport Services provided to the value of",
+                "transportValue2",
+                "text",
+                "$ amount"
+              )}
+              {renderInput(
+                "Anything over this amount will be",
+                "transportOver2",
+                "text",
+                "Excess policy"
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Transport Option 3 */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {renderDropdown(
+            "Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.",
+            "transportOption3",
+            yesNoOptions
+          )}
+        </div>
+
+        {/* Establishment Fee & Travel */}
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+          {renderDropdown(
+            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $654.70 as per the NDIS Price Guide.",
+            "establishmentFeeAgreement",
+            yesNoOptions
+          )}
+          {renderDropdown(
+            "I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.",
+            "providerTravelAgreement",
+            yesNoOptions
+          )}
+        </div>
+      </div>
+    </div>
+
+              
+              
+             : (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {FORM_SECTIONS[currentStep].fields.map((field: any ) => {

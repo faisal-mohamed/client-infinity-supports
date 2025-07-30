@@ -300,6 +300,11 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     }
   };
 
+
+  useEffect(() => {
+    localValues["planManagerName"] = "";
+    localValues["fundingSource"] = "";
+  }, [localValues["planManagerManaged"]])
   // --- Input rendering utilities ---
   const renderInput = (
     label: string,

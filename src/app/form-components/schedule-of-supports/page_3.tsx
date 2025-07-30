@@ -139,6 +139,8 @@ const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData 
                   <p>{getValue("representativeSignatureDate")}</p>
                 </div>
               </div>
+              <p className="mt-2 font-medium">Name: {getValue("represenativeName")}</p>
+
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export async function GET(
     }
 
     // Get all form submissions for this client
-    const formSubmissions = await prisma.formSubmission.findMany({
+    const formSubmissions : any = await prisma.formSubmission.findMany({
       where: {
         clientId,
         OR: [

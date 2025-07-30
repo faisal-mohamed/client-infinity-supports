@@ -494,6 +494,30 @@ const renderDropdown = (
   );
 };
 
+useEffect(() => {
+  const dropdownFieldsWithComments = Object.keys(FIELD_METADATA).filter(
+    (key) => FIELD_METADATA[key].type === "dropdown" && FIELD_METADATA[key].showComments
+  );
+
+  const updatedValues: Record<string, any> = { ...localValues };
+  let hasChanges = false;
+
+  dropdownFieldsWithComments.forEach((fieldName) => {
+    const value = localValues[fieldName];
+    const commentField = `${fieldName}_comments`;
+
+    // If dropdown is not "Yes" and comment exists → clear it
+    if (value !== "Yes" && localValues[commentField]) {
+      updatedValues[commentField] = "";
+      hasChanges = true;
+    }
+  });
+
+  if (hasChanges) {
+    setLocalValues(updatedValues);
+  }
+}, [localValues]);
+
 
   const renderMultiSelectCheckbox = (
     label: string,
