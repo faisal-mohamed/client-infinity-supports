@@ -127,7 +127,7 @@ const commonFieldsMapping: Record<string, string> = {
   state: "state",
   postcode: "postCode",
   email: "email",
-  homePhone: "phone",
+  mobile: "phone",
   disabilityConditions: "disability",
   surname: "surname",
 };
@@ -200,15 +200,16 @@ const getCommonFieldValue = (fieldName: string): string => {
     state: commonFieldsData?.state || "",
     postcode: commonFieldsData?.postCode || "",
     email: commonFieldsData?.email || "",
-    homePhone: commonFieldsData?.phone || "",
+    homePhone: "",
     disabilityConditions: commonFieldsData?.disability || "",
+
     // Form-specific fields
-    surname: "",
+    surname: commonFieldsData?.surname || "",
     pronoun: "",
     aboriginalTorres: "",
     preferredName: "",
   
-    mobile: "",
+    mobile: commonFieldsData?.phone || "",
     livingArrangements: [],
     travelArrangements: [],
     livingArrangementsOther: "",

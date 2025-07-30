@@ -11,8 +11,10 @@ const commonFieldsMapping: Record<string, string> = {
   state: "state",
   postcode: "postCode",
   email: "email",
-  homePhone: "phone",
+  mobile: "phone",
   disabilityConditions: "disability",
+  surname: "surname"
+
 };
 
 // Helper function to check if a field is a common field

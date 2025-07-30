@@ -343,9 +343,10 @@ const commonFieldMapping: Record<string, string> = {
   addressNumberStreet: "street",
   state: "state",
   postcode: "postCode",
-  homePhone: "phone",
+  mobile: "phone",
   email: "email",
   disabilityConditions: "disability",
+  surname: 'surname',
 };
 // Helper function to check if a field is a common field
 const isCommonField = (fieldKey: string): boolean => {
