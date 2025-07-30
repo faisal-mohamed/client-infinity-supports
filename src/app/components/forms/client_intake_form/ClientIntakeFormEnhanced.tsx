@@ -129,6 +129,7 @@ const commonFieldsMapping: Record<string, string> = {
   email: "email",
   homePhone: "phone",
   disabilityConditions: "disability",
+  surname: "surname",
 };
 
 // Helper function to check if a field is a common field
@@ -712,50 +713,7 @@ const getCommonFieldValue = (fieldName: string): string => {
     };
   };
 
-  // // 🎯 SAVE PROGRESS FUNCTION
-  // const handleSaveProgress = async () => {
-  //   if (handleSaveProgress && typeof handleSaveProgress === 'function') {
-  //     // Use new separate save function if provided
-  //     setSaving(true);
-  //     try {
-  //       await handleSaveProgress();
-  //     } finally {
-  //       setSaving(false);
-  //     }
-  //   } else {
-  //     // Fallback to legacy function
-  //     handleSave(false);
-  //   }
-  // };
-
-  // // 🎯 SUBMIT FORM FUNCTION
-  // const handleSubmitForm = async () => {
-  //   // Validate required fields before submission
-  //   const validation = validateRequiredFields();
-  //   if (!validation.isValid) {
-  //     showToast({
-  //       type: "error",
-  //       title: "Required Fields Missing",
-  //       message: `Please fill in all required fields before submitting. Missing: ${validation.missingFields.slice(0, 3).join(', ')}${validation.missingFields.length > 3 ? '...' : ''}`,
-  //       duration: 5000,
-  //     });
-  //     return;
-  //   }
-
-  //   if (handleSubmitForm && typeof handleSubmitForm === 'function') {
-  //     // Use new separate submit function if provided
-  //     setSubmitting(true);
-  //     try {
-  //       await handleSubmitForm();
-  //     } finally {
-  //       setSubmitting(false);
-  //     }
-  //   } else {
-  //     // Fallback to legacy function
-  //     handleSave(true);
-  //   }
-  // };
-
+ 
 
   const handleFormSubmitCheckValidation = async () => {
     try {

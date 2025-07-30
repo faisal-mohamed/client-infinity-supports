@@ -31,7 +31,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-const FORM_SECTIONS = [
+const FORM_SECTIONS : any  = [
   {
     id: "metadata",
     title: "Basic Information",
@@ -90,9 +90,15 @@ const FORM_SECTIONS = [
     fields: [
       "issue1", "riskScore1", "control1", "responsible1",
       "issue2", "riskScore2", "control2", "responsible2",
-      "issue3", "riskScore3", "control3", "responsible3"
+      "issue3", "riskScore3", "control3", "responsible3",
+      "issue4", "riskScore4", "control4", "responsible4",
+      "issue5", "riskScore5", "control5", "responsible5"
     ],
     requiredFields: [],
+     image: {
+      src: "/home_risk_assessment.png",
+      alt: "Home Risk Assessment Guide"
+    }
   },
   {
     id: "signature",
@@ -100,9 +106,9 @@ const FORM_SECTIONS = [
     icon: FaSignature,
     description: "Completion and signature details",
     fields: [
-      "designation", "signature"
+      "authorName", "designation", "signature"
     ],
-    requiredFields: ["designation", "signature"],
+    requiredFields: ["designation", "signature", "authorName"],
   },
 ];
 
@@ -207,6 +213,12 @@ const getCommonFieldValue = (fieldName: string): string => {
     riskScore3: "",
     control3: "",
     responsible3: "",
+     riskScore4: "",
+    control4: "",
+    responsible4: "",
+     riskScore5: "",
+    control5: "",
+    responsible5: "",
     
     // Signature
     designation: "",
@@ -304,21 +316,33 @@ const getCommonFieldValue = (fieldName: string): string => {
     return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
   };
 
+  
+
   const isCurrentSectionComplete = () => {
-    const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key) => {
-      let value;
-      
-      // For common fields, get value from commonFieldsData
-      if (isCommonField(key)) {
-        value = getCommonFieldValue(key);
-      } else {
-        value = localValues[key];
-      }
-      
-      return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
-    });
-  };
+  const section = FORM_SECTIONS[currentStep];
+  const required = section.requiredFields || [];
+
+  return required.every((key : any ) => {
+    const meta = FIELD_METADATA[key];
+    const isCommon = isCommonField(key);
+    const value = isCommon ? getCommonFieldValue(key) : localValues[key];
+
+    // If normal required field (common or not)
+    const isValid = value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
+    if (!isValid) return false;
+
+    // If dropdown has showComments = true and value is "Yes" => require comments
+    if (meta?.showComments && value === "Yes") {
+      const commentsField = `${key}_comments`;
+      const commentsValue = localValues[commentsField];
+      const isCommentsFilled = commentsValue && commentsValue.trim() !== '';
+      if (!isCommentsFilled) return false;
+    }
+
+    return true;
+  });
+};
+
 
   const handleNextSequential = async () => {
     // Save progress before moving to next section
@@ -415,13 +439,18 @@ const getCommonFieldValue = (fieldName: string): string => {
     );
   };
 
-  const renderDropdown = (
-    label: string,
-    name: string,
-    options: string[],
-    showComments?: boolean,
-    required?: boolean
-  ) => (
+const renderDropdown = (
+  label: string,
+  name: string,
+  options: string[],
+  showComments?: boolean,
+  required?: boolean
+) => {
+  const selectedValue = localValues[name];
+  const shouldShowComment = showComments && selectedValue === "Yes";
+  const commentFieldName = `${name}_comments`;
+
+  return (
     <div className="flex flex-col gap-1">
       <label className="text-xs font-medium text-gray-700 mb-1">
         {label}
@@ -429,7 +458,7 @@ const getCommonFieldValue = (fieldName: string): string => {
       </label>
       <select
         name={name}
-        value={localValues[name] || ""}
+        value={selectedValue || ""}
         onChange={handleChange}
         disabled={readOnly}
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
@@ -445,16 +474,26 @@ const getCommonFieldValue = (fieldName: string): string => {
           </option>
         ))}
       </select>
+
       {fieldErrors[name] && (
         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
       )}
-      {showComments && (
+
+      {shouldShowComment && (
         <div className="mt-3">
-          {renderTextArea("Comments", `${name}_comments`, 2, "Add any additional comments...")}
+          {renderTextArea(
+            "Comments",
+            commentFieldName,
+            2,
+            "Please provide more details...",
+            true // Make comments required if 'Yes'
+          )}
         </div>
       )}
     </div>
   );
+};
+
 
   const renderMultiSelectCheckbox = (
     label: string,
@@ -576,7 +615,7 @@ const getCommonFieldValue = (fieldName: string): string => {
     // Location
     accessDifficulties: { label: "Are there any difficulties locating the address/access to the building?", type: "dropdown", options: yesNoOptions, showComments: true },
     parking: { label: "Is there parking available?", type: "dropdown", options: yesNoOptions, showComments: true },
-    entryPoint: { label: "Is entry via the front door? If no, which door is used for entry?", type: "checkbox", options: entryPointOptions, showComments: true },
+    entryPoint: { label: "Which door is used for entry?", type: "checkbox", options: entryPointOptions, showComments: true },
     mobileReception: { label: "Are there any issues with mobile phone reception?", type: "dropdown", options: yesNoOptions, showComments: true },
     
     // Risk Assessment Table
@@ -594,39 +633,93 @@ const getCommonFieldValue = (fieldName: string): string => {
     riskScore3: { label: "Risk Score 3", type: "text", placeholder: "Enter risk score" },
     control3: { label: "Control Measure 3", type: "textarea", placeholder: "Describe control measures", rows: 2 },
     responsible3: { label: "Person Responsible 3", type: "text", placeholder: "Enter responsible person" },
+
+    issue4: {
+  label: "Issue/Task 4",
+  type: "textarea",
+  placeholder: "Describe the issue or task",
+  rows: 2
+},
+riskScore4: {
+  label: "Risk Score 4",
+  type: "text",
+  placeholder: "Enter risk score"
+},
+control4: {
+  label: "Control Measure 4",
+  type: "textarea",
+  placeholder: "Describe control measures",
+  rows: 2
+},
+responsible4: {
+  label: "Person Responsible 4",
+  type: "text",
+  placeholder: "Enter responsible person"
+},
+
+issue5: {
+  label: "Issue/Task 5",
+  type: "textarea",
+  placeholder: "Describe the issue or task",
+  rows: 2
+},
+riskScore5: {
+  label: "Risk Score 5",
+  type: "text",
+  placeholder: "Enter risk score"
+},
+control5: {
+  label: "Control Measure 5",
+  type: "textarea",
+  placeholder: "Describe control measures",
+  rows: 2
+},
+responsible5: {
+  label: "Person Responsible 5",
+  type: "text",
+  placeholder: "Enter responsible person"
+},
+
     
     // Signature
+        authorName: { label: "Name", type: "text", placeholder: "Enter your Name" },
+
     designation: { label: "Designation", type: "text", placeholder: "Enter your designation/title" },
     signature: { label: "Signature", type: "signature", placeholder: "Draw your signature in the box above" },
   };
 
-  // Validation function to check if all required fields are filled
   const validateRequiredFields = () => {
-    const missingFields: string[] = [];
-    
-    FORM_SECTIONS.forEach(section => {
-      section.requiredFields.forEach(fieldName => {
-        let value;
-        
-        // For common fields, get value from commonFieldsData
-        if (isCommonField(fieldName)) {
-          value = getCommonFieldValue(fieldName);
-        } else {
-          value = localValues[fieldName];
+  const missingFields: string[] = [];
+
+  FORM_SECTIONS.forEach((section : any ) => {
+    section.requiredFields.forEach((fieldName : any ) => {
+      const value = isCommonField(fieldName)
+        ? getCommonFieldValue(fieldName)
+        : localValues[fieldName];
+
+      const meta = FIELD_METADATA[fieldName];
+
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
+        missingFields.push(`${fieldName}`);
+      }
+
+      // Check conditional comments field
+      if (meta?.showComments && value === "Yes") {
+        const commentsField = `${fieldName}_comments`;
+        const commentValue = localValues[commentsField];
+        if (!commentValue || commentValue.trim() === "") {
+          missingFields.push(`${commentsField}`);
         }
-        
-        // Check if field is empty, null, undefined, or empty string
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          missingFields.push(`${fieldName}`);
-        }
-      });
+      }
     });
-    
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
+  });
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
   };
+};
+
 
   
 
@@ -684,6 +777,29 @@ const getCommonFieldValue = (fieldName: string): string => {
   };
 
 
+  const getFilledRiskEntryCount = () => {
+  let count = 0;
+  for (let i = 1; i <= 5; i++) {
+    if (
+      formData?.[`issue${i}`] ||
+      formData?.[`riskScore${i}`] ||
+      formData?.[`control${i}`] ||
+      formData?.[`responsible${i}`]
+    ) {
+      count = i;
+    }
+  }
+  return count || 1; // Default to 1 if none are filled
+};
+
+const [riskEntryCount, setRiskEntryCount] = useState(getFilledRiskEntryCount);
+
+useEffect(() => {
+  const prefilled = getFilledRiskEntryCount();
+  setRiskEntryCount(prefilled);
+}, []);
+
+
 
   return (
     <div className="">
@@ -694,7 +810,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section, idx) => {
+          {FORM_SECTIONS.map((section : any , idx : any ) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -734,12 +850,25 @@ const getCommonFieldValue = (fieldName: string): string => {
         <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8">
           {/* Section Header */}
           <div className="mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
-              {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
-              {FORM_SECTIONS[currentStep].title}
-            </h2>
-            <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
-          </div>
+  <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
+    {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
+    {FORM_SECTIONS[currentStep].title}
+  </h2>
+  <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
+
+ {FORM_SECTIONS[currentStep].image && (
+  <div className="mt-4 w-full flex justify-center">
+    <img
+      src={FORM_SECTIONS[currentStep].image.src}
+      alt={FORM_SECTIONS[currentStep].image.alt || ""}
+  className="w-full max-w-4xl h-auto rounded-xl border border-gray-200 shadow-md object-contain"
+      style={{ maxHeight: "600px" }} // You can adjust this height
+    />
+  </div>
+)}
+
+</div>
+
 
           <form
             autoComplete="off"
@@ -754,7 +883,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               {FORM_SECTIONS[currentStep].id === "riskAssessment" ? (
                 // Special layout for risk assessment table
                 <div className="space-y-6">
-                  {[1, 2, 3].map((num) => (
+{Array.from({ length: riskEntryCount }, (_, i) => i + 1).map((num) => (
                     <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <h3 className="text-lg font-semibold mb-4 text-gray-800">Risk Assessment Entry {num}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -777,12 +906,23 @@ const getCommonFieldValue = (fieldName: string): string => {
                         })}
                       </div>
                     </div>
+                    
                   ))}
+                  {riskEntryCount < 5 && (
+  <button
+    type="button"
+    onClick={() => setRiskEntryCount(prev => prev + 1)}
+    className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded shadow transition"
+  >
+    + Add Another Risk Entry
+  </button>
+)}
+
                 </div>
               ) : (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field) => {
+                  {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
                     
@@ -830,7 +970,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_, index) => (
+            {FORM_SECTIONS.map((_ : any , index : any ) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}

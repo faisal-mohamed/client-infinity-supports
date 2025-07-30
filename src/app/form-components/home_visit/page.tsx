@@ -159,7 +159,6 @@ const Footer = ({settings} : {
   settings: any
 }) => (
   <div className="flex justify-between items-center text-[10px] px-6 py-3 mt-auto border-t border-gray-200">
-    <div className="font-medium">{homeVisitSchema.footer.left}</div>
     <div>
       <a
         href={`https://${settings?.company_website}`}
@@ -167,9 +166,11 @@ const Footer = ({settings} : {
         rel="noopener noreferrer"
         className="text-blue-600 underline hover:text-blue-800"
       >
-        {settings?.home_visit_form_id}
+        {settings?.company_website}
       </a>
     </div>
+    <div className="font-medium">{settings?.home_visit_form_id}</div>
+    
     <div className="font-medium">Review Date: {settings?.review_date}</div>
   </div>
 );
@@ -765,7 +766,7 @@ const Page4 = ({ homeVisitResponse, settings }: any) => {
               </tr>
             </thead>
             <tbody>
-              {[1, 2, 3].map((row) => (
+              {[1, 2, 3, 4, 5].map((row) => (
                 <tr key={row} className="min-h-[80px]">
                   <td className="border border-black px-4 py-6 align-top">
                     {homeVisitResponse?.[`issue${row}`] ?? ""}

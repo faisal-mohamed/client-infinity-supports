@@ -159,17 +159,18 @@ const Footer = ({settings}: {
   settings: any
 }) => (
   <div className="flex justify-between items-center text-[10px] px-6 py-3 mt-auto border-t border-gray-200">
-    <div className="font-medium">{homeVisitSchema.footer.left}</div>
     <div>
       <a
-        href={`https://${settings?.comapany_website}`}
+        href={`https://${settings?.company_website}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 underline hover:text-blue-800"
       >
-        {settings?.home_visit_form_id}
+        {settings?.company_website}
       </a>
     </div>
+    <div className="font-medium">{settings?.home_visit_form_id}</div>
+    
     <div className="font-medium">Review Date: {settings?.review_date}</div>
   </div>
 );
@@ -476,7 +477,7 @@ const Page4 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
                 </tr>
               </thead>
               <tbody>
-                {[1, 2, 3].map((row) => (
+                {[1, 2, 3, 4, 5].map((row) => (
                   <tr key={row} className="min-h-[80px]">
                     <td className="border border-black px-4 py-6 align-top">
                       {homeVisitResponse[`issue${row}`] || ""}
@@ -505,53 +506,59 @@ const Page4 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
 };
 
 
-const Page5 = ({homeVisitResponse, images, commonFields, settings} : any) => (
+const Page5 = ({ homeVisitResponse, images, commonFields, settings }: any) => (
   <A4Page>
     {/* Header with Logo */}
-    <div className="flex justify-center pt-8 pb-6">
+    <div className="flex justify-center pt-10 pb-4">
       <img
         alt="Infinity Supports WA logo"
         src={images?.infinityLogo || "/infinity_logo.png"}
-        width={200}
-        height={100}
+        width={160}
+        height={80}
         className="object-contain"
       />
     </div>
 
     {/* Signature Section */}
-    <div className="flex-1 px-6 py-8">
-  <div className="grid grid-cols-3 gap-8 text-sm">
-    <div className="text-center">
-      <div className="font-semibold mb-2">Name:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        { commonFields?.name || homeVisitResponse.name || ''}
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="font-semibold mb-2">Signature:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
-        {homeVisitResponse.signature ? (
-          <img
-            src={`${homeVisitResponse.signature}`}
-            alt="Signature"
-            className="max-h-[50px] object-contain"
-          />
-        ) : (
-          <span className="text-gray-400 italic">No signature</span>
-        )}
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="font-semibold mb-2">Designation:</div>
-      <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-        {homeVisitResponse.designation}
-      </div>
-    </div>
-  </div>
-</div>
+    <div className="flex-1 px-12 pt-6 pb-8">
+      <div className="grid grid-cols-3 gap-12 text-sm">
+        {/* Name */}
+        <div className="text-center">
+          <div className="font-semibold mb-2">Name:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+            {homeVisitResponse?.authorName}
+          </div>
+        </div>
 
+        {/* Signature */}
+        <div className="text-center">
+          <div className="font-semibold mb-2">Signature:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[50px] flex justify-center items-center">
+            {homeVisitResponse?.signature ? (
+              <img
+                src={homeVisitResponse?.signature}
+                alt="Signature"
+                className="max-h-[40px] object-contain"
+                style={{ maxWidth: "120px" }}
+              />
+            ) : (
+              <span className="text-gray-400 italic">No signature</span>
+            )}
+          </div>
+        </div>
 
-    <Footer settings={settings}/>
+        {/* Designation */}
+        <div className="text-center">
+          <div className="font-semibold mb-2">Designation:</div>
+          <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
+            {homeVisitResponse?.designation}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Footer pinned to bottom */}
+    <Footer settings={settings} />
   </A4Page>
 );
 
