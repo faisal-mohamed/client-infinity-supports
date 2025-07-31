@@ -1,5 +1,6 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { parseISO, isValid, format } from 'date-fns';
 
 const commonFieldMapping: Record<string, string> = {
   ndisNumber: "ndis",
@@ -23,13 +24,26 @@ const Page4: React.FC<any> = ({
   const isChecked = (value: string, option: string) =>
     value?.toLowerCase?.() === option.toLowerCase();
 
-  const getValue = (key: string) => {
-    if (commonFieldMapping[key]) {
-      return commonFieldsData?.[commonFieldMapping[key]] ?? "";
-    }
-    return data?.[key] ?? "";
-  };
-
+  
+    const formatDate = (value: string): string => {
+      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const parsed = parseISO(value);
+        if (isValid(parsed)) {
+          return format(parsed, 'dd-MM-yyyy');
+        }
+      }
+      return value;
+    };
+    
+      
+    const getValue = (key: string): string => {
+      const raw = commonFieldMapping[key]
+        ? commonFieldsData?.[commonFieldMapping[key]]
+        : data?.[key];
+    
+      return formatDate(raw ?? '');
+    };
+    
   return (
     <A4PageWrapper>
       <div
@@ -130,8 +144,8 @@ const Page4: React.FC<any> = ({
                 </td>
                 {/* Signature date */}
                 <td className="border border-black p-2 w-1/2 align-top">
-                  <span className="font-bold">Date: </span>
-                  {data?.participantDate || ""}
+                    <span className="font-bold">Date:</span> {formatDate(data?.participantSignatureDate || '')}
+
                 </td>
               </tr>
 
@@ -164,8 +178,8 @@ const Page4: React.FC<any> = ({
                 </td>
                 {/* Signature date */}
                 <td className="border border-black p-2 w-1/2 align-top">
-                  <span className="font-bold">Date: </span>
-                  {data?.providerSignatureDate || ""}
+                    <span className="font-bold">Date:</span> {formatDate(data?.providerSignatureDate || '')}
+
                 </td>
               </tr>
             </tbody>
@@ -176,7 +190,7 @@ const Page4: React.FC<any> = ({
         <footer className="flex-shrink-0 mt-auto flex justify-between text-[10px] text-gray-500 pt-4 border-t border-gray-300">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
         </footer>
       </div>
     </A4PageWrapper>

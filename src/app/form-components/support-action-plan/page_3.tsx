@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from 'date-fns';
 
 interface SchemaField {
   key: string;
@@ -23,6 +24,9 @@ interface Props {
 const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) => {
   const renderField = (field: SchemaField) => {
   const value = data?.[field?.key];
+
+  
+  
 
   if (field?.type === 'checkbox-yes-no') {
     return (
@@ -92,6 +96,16 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) =>
   );
 };
 
+const formatDate = (value: string): string => {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, 'dd-MM-yyyy');
+      }
+    }
+    return value;
+  };
+  
 
   return (
     <A4PageWrapper>
@@ -141,7 +155,7 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) =>
          <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
         </footer>
       </div>
     </A4PageWrapper>

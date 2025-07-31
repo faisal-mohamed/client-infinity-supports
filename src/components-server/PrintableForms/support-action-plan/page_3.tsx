@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from 'date-fns';
 
 interface SchemaField {
   key: string;
@@ -94,6 +95,17 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData, imag
 };
 
 
+const formatDate = (value: string): string => {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, 'dd-MM-yyyy');
+      }
+    }
+    return value;
+  };
+  
+
   return (
     <A4PageWrapper>
       <div
@@ -149,7 +161,7 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData, imag
         <footer className="flex-shrink-0 mt-auto flex justify-between text-[10px] text-gray-500 pt-4 border-t border-gray-300">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
         </footer>
       </div>
     </A4PageWrapper>

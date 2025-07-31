@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from 'date-fns';
 
 
 
@@ -17,6 +18,18 @@ const Page2: React.FC<any> = ({ data, settings }) => {
     </label>
   </div>
 );
+
+
+  const formatDate = (value: string): string => {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  }
+  return value;
+};
+
 
 
 
@@ -153,7 +166,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
          <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
         </footer>
       </div>
     </A4PageWrapper>

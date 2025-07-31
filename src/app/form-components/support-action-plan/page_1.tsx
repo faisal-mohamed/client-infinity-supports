@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from 'date-fns';
 
 interface SchemaField {
   key: string;
@@ -34,14 +35,26 @@ const commonFieldMapping: Record<string, string> = {
 
 
 const Page1: React.FC<Props> = ({ schema, data, settings , commonFieldsData }) => {
-  
 
-  const getValue = (key: string) => {
-  if (commonFieldMapping[key]) {
-    return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+  const formatDate = (value: string): string => {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
   }
-  return data?.[key] ?? '';
+  return value;
 };
+
+  
+const getValue = (key: string): string => {
+  const raw = commonFieldMapping[key]
+    ? commonFieldsData?.[commonFieldMapping[key]]
+    : data?.[key];
+
+  return formatDate(raw ?? '');
+};
+
 
 
   const renderField = (field: SchemaField) => {
@@ -138,7 +151,7 @@ const Page1: React.FC<Props> = ({ schema, data, settings , commonFieldsData }) =
         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
         </footer>
       </div>
     </A4PageWrapper>
