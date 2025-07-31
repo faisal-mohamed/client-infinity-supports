@@ -1,4 +1,5 @@
 import A4PageWrapper from "./A4PageWrapper";
+import { format, parseISO, isValid } from "date-fns";
 
 const Page1: React.FC<any> = ({
   schema,
@@ -21,13 +22,22 @@ const Page1: React.FC<any> = ({
     sex: 'sex'
   };
 
-  const getValue = (key: string) => {
-    if (commonFieldMapping[key]) {
-      return commonFieldsData?.[commonFieldMapping[key]] ?? '';
-    }
-    return data?.[key] ?? '';
-  };
-
+  
+    const getValue = (key: string): string => {
+      const rawValue = commonFieldMapping[key]
+        ? commonFieldsData?.[commonFieldMapping[key]]
+        : data?.[key];
+  
+      // ✅ Convert YYYY-MM-DD to DD-MM-YYYY if valid
+      if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+        const parsed = parseISO(rawValue);
+        if (isValid(parsed)) {
+          return format(parsed, "dd-MM-yyyy");
+        }
+      }
+  
+      return rawValue ?? "";
+    };
   return (
     <A4PageWrapper>
       {/* Header */}
@@ -186,8 +196,13 @@ const Page1: React.FC<any> = ({
       <div className="px-6 pb-3 pt-3 border-t border-gray-200 text-sm font-bold flex justify-between items-center mt-auto">
         <div>Website: {settings?.company_website}</div>
         <div>{settings?.sa_delivery_of_supports}</div>
-        <div>Review Date: {settings?.review_date}</div>
-      </div>
+ <div>
+            Review Date:{" "}
+            {settings?.review_date &&
+            /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+              ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+              : "N/A"}
+          </div>{" "}      </div>
     </A4PageWrapper>
   );
 };

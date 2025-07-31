@@ -508,7 +508,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     pronoun: { label: "Pronoun", type: "text", placeholder: "Enter preferred pronoun" },
     indigenousStatus: { label: "Aboriginal or Torres Strait Islander?", type: "dropdown", options: indigenousOptions },
     preferredName: { label: "Preferred name", type: "text", placeholder: "Enter preferred name" },
-    dob: { label: "Date of Birth", type: "date", placeholder: "Select date of birth" },
+    dob: { label: "Date of Birth", type: "text", placeholder: "Select date of birth" },
     street: { label: "Number / Street", type: "text", placeholder: "Enter street address" },
     state: { label: "State", type: "text", placeholder: "Enter state" },
     postcode: { label: "Postcode", type: "text", placeholder: "Enter postcode" },

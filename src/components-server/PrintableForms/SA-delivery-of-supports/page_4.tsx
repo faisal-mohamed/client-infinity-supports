@@ -1,74 +1,9 @@
-// import React from 'react';
-// import A4PageWrapper from './A4PageWrapper';
 
-// interface Page4Props {
-//    schema  ?: any;
-//   data : any;
-//   settings : any
-//   commonFieldsData: any
-//   images: any;
-// }
-
-// const Page4: React.FC<Page4Props> = ({ schema, data, commonFieldsData, settings, images }) => {
-//   return (
-//     <A4PageWrapper>
-//       <div className="h-full flex flex-col p-6">
-//         {/* Header with Logo */}
-//         <div className="flex justify-center mb-6">
-//           <img
-//             src={images?.infinityLogo}
-//             alt="Infinity Supports WA Logo"
-//             className="h-16 object-contain"
-//           />
-//         </div>
-
-//         {/* Content area - takes up remaining space */}
-//         <div className="flex-1 flex flex-col">
-//           {/* Provider Responsibilities */}
-//           <div className="flex-1">
-//             <ul className="list-disc pl-5 space-y-4 mb-8 text-sm leading-loose">
-//               {schema.sections.providerResponsibilities.map((item : any, index : any ) => (
-//                 <li key={index} className="leading-loose">
-//                   {item.includes("Infinity Supports WA") ? (
-//                     <>
-//                       {item.split("Infinity Supports WA")[0]}
-//                       <span className="text-red-600 font-semibold">Infinity Supports WA</span>
-//                       {item.split("Infinity Supports WA")[1]}
-//                     </>
-//                   ) : (
-//                     item
-//                   )}
-//                 </li>
-//               ))}
-//             </ul>
-
-
-//             {/* Individual Responsibilities Heading */}
-//             <div>
-//               <p className="font-bold underline text-sm leading-loose mb-3">
-//                 {schema.sections.individualResponsibilitiesHeading}
-//               </p>
-//               <p className="text-sm leading-loose">agrees to:</p>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* Footer - at bottom */}
-//         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
-//         <div>Website: {settings?.company_website}</div>
-//           <div>{settings?.sa_delivery_of_supports}</div>
-//           <div>Review Date: {settings?.review_date}</div>
-//         </div>
-//       </div>
-//     </A4PageWrapper>
-//   );
-// };
-
-// export default Page4;
 
 
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
 
 interface Page4Props {
   schema?: any;
@@ -140,8 +75,13 @@ const Page4: React.FC<Page4Props> = ({
         <div className="flex justify-between items-center text-xs font-bold mt-auto pt-3 border-t border-gray-200">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.sa_delivery_of_supports}</div>
-          <div>Review Date: {settings?.review_date}</div>
-        </div>
+ <div>
+            Review Date:{" "}
+            {settings?.review_date &&
+            /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+              ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+              : "N/A"}
+          </div>{" "}        </div>
       </div>
     </A4PageWrapper>
   );

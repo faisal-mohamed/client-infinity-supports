@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
 
 interface Field {
   key: string;
@@ -33,11 +34,20 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
     sex: 'sex'
   };
 
-  const getValue = (key: string) => {
-    if (commonFieldMapping[key]) {
-      return commonFieldsData?.[commonFieldMapping[key]] ?? '';
+   const getValue = (key: string): string => {
+    const rawValue = commonFieldMapping[key]
+      ? commonFieldsData?.[commonFieldMapping[key]]
+      : data?.[key];
+  
+    // ✅ Convert YYYY-MM-DD to DD-MM-YYYY if valid
+    if (typeof rawValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+      const parsed = parseISO(rawValue);
+      if (isValid(parsed)) {
+        return format(parsed, 'dd-MM-yyyy');
+      }
     }
-    return data?.[key] ?? '';
+  
+    return rawValue ?? '';
   };
 
   const renderSignature = (key: string) => {
@@ -192,8 +202,12 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
         <div className="flex justify-between items-center text-xs font-bold mt-6 pt-3 border-t border-gray-200">
         <div>Website: {settings?.company_website}</div>
           <div>{settings?.sa_delivery_of_supports}</div>
-          <div>Review Date: {settings?.review_date}</div>
-        </div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>          </div>
       </div>
     </A4PageWrapper>
   );
