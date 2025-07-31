@@ -239,10 +239,24 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   onCommonFieldsUpdated,
 }: any) => {
   // Helper function to get common field value
-  const getCommonFieldValue = (fieldName: string): string => {
-    const commonKey = commonFieldsMapping[fieldName];
-    return commonFieldsData?.[commonKey] || "";
-  };
+  const formatDateForInput = (ddmmyyyy: string): string => {
+  if (!ddmmyyyy || typeof ddmmyyyy !== "string") return "";
+  const [dd, mm, yyyy] = ddmmyyyy.split("-");
+  if (!dd || !mm || !yyyy) return "";
+  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+};
+
+const getCommonFieldValue = (fieldName: string): string => {
+  const commonKey = commonFieldsMapping[fieldName];
+  const rawValue = commonFieldsData?.[commonKey] || "";
+
+  // If it's a date field, convert DD-MM-YYYY to YYYY-MM-DD
+  if (["dob", "dateOfBirth", "signatureDate", "guardianDate", "reviewDate"].includes(fieldName)) {
+    return formatDateForInput(rawValue);
+  }
+
+  return rawValue;
+};
 
 
   useEffect(() => {

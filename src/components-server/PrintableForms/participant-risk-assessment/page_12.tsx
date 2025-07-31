@@ -145,14 +145,19 @@
 
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { format, parseISO, isValid } from "date-fns";
 
 const Page12: React.FC<any> = ({ data, commonFieldsData, settings, schema, images }) => {
   const footer = (
     <div className="flex justify-between text-xs px-2">
       <div>Website: {settings?.company_website}</div>
       <div>{settings?.participant_risk_assessment}</div>
-      <div>Review Date: {settings?.review_date}</div>
-    </div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>    </div>
   );
 
   return (

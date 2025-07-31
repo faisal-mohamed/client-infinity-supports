@@ -1,5 +1,7 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
+
 
 interface Page2Props {
   schema: any;
@@ -42,8 +44,8 @@ const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings 
             <tbody>
               {schema?.fields?.map?.((field: any, index: number) => {
                 const key = `risk${index + 1}`;
-                const yesChecked = data?.[key] === 'yes';
-                const noChecked = data?.[key] === 'no';
+                const yesChecked = data?.[key] === 'Yes';
+                const noChecked = data?.[key] === 'No';
 
                 return (
                   <tr key={key}>
@@ -90,7 +92,12 @@ const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings 
           <div className="flex justify-between text-xs px-2">
             <div> Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
           </div>
         </div>
       </div>

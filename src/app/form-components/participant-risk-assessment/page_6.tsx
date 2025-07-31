@@ -2,6 +2,7 @@
 
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
 
 interface Field {
   key: string;
@@ -106,7 +107,12 @@ const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings 
           <div className="flex justify-between text-xs px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
           </div>
         </div>
       </div>

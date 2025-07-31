@@ -3,13 +3,25 @@
 
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
 
 interface Page13Props {
   data: any;
 }
 
 const Page13: React.FC<any> = ({ data, commonFieldsData, settings, schema } : any) => {
-  const getValue = (key: string) => data?.[key] ?? '';
+const getValue = (key: string) => {
+  const rawValue = data?.[key] ?? '';
+
+  if (typeof rawValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = parseISO(rawValue);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  }
+
+  return rawValue;
+};
 
   return (
     <A4PageWrapper>
@@ -108,7 +120,12 @@ const Page13: React.FC<any> = ({ data, commonFieldsData, settings, schema } : an
           <div className="flex justify-between text-xs px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
           </div>
         </footer>
       </div>
