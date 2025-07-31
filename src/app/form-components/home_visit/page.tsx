@@ -2,6 +2,9 @@
 
 import React, { useEffect } from "react";
 
+import { parseISO, isValid, format } from 'date-fns';
+
+
 // --- Schema & Response Data ---
 const homeVisitSchema : any = {
   logo: {
@@ -154,6 +157,34 @@ const A4Page = ({ children, className = "" } : any) => (
   </div>
 );
 
+const formatDate = (value: string | undefined | null): string => {
+  if (!value || typeof value !== 'string') return '';
+
+  console.log("🧪 Raw review_date value:", value);
+
+  try {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  } catch (e) {}
+
+  // Handle YYYY-MM-DD manually (with or without time)
+  const matchISO = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (matchISO) {
+    const [, yyyy, mm, dd] = matchISO;
+    return `${dd}-${mm}-${yyyy}`;
+  }
+
+  // Handle DD/MM/YYYY -> just return it if valid-looking
+  const matchDMY = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (matchDMY) {
+    return value;
+  }
+
+  return value;
+};
+
 // --- Footer Component ---
 const Footer = ({settings} : {
   settings: any
@@ -171,7 +202,7 @@ const Footer = ({settings} : {
     </div>
     <div className="font-medium">{settings?.home_visit_form_id}</div>
     
-    <div className="font-medium">Review Date: {settings?.review_date}</div>
+<div className="font-medium">Review Date: {formatDate(settings?.review_date)}</div>
   </div>
 );
 

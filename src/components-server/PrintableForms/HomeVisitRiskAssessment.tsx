@@ -2,6 +2,39 @@
 
 import React from "react";
 
+
+import { parseISO, isValid, format } from 'date-fns';
+
+const formatDate = (value: string | undefined | null): string => {
+  if (!value || typeof value !== 'string') return '';
+
+  console.log("🧪 Raw review_date value:", value);
+
+  try {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  } catch (e) {}
+
+  // Handle YYYY-MM-DD manually (with or without time)
+  const matchISO = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (matchISO) {
+    const [, yyyy, mm, dd] = matchISO;
+    return `${dd}-${mm}-${yyyy}`;
+  }
+
+  // Handle DD/MM/YYYY -> just return it if valid-looking
+  const matchDMY = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (matchDMY) {
+    return value;
+  }
+
+  return value;
+};
+
+
+
 // --- Schema & Response Data ---
 const homeVisitSchema : any = {
   logo: {
@@ -171,7 +204,7 @@ const Footer = ({settings}: {
     </div>
     <div className="font-medium">{settings?.home_visit_form_id}</div>
     
-    <div className="font-medium">Review Date: {settings?.review_date}</div>
+<div className="font-medium">Review Date: {formatDate(settings?.review_date)}123</div>
   </div>
 );
 
@@ -212,7 +245,7 @@ const Page1 = ({homeVisitResponse, images, commonFields, settings} : any) => (
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Date of completion of risk assessment:</span> {homeVisitResponse.completionDate}
+<span className="font-semibold">Date of completion of risk assessment:</span> {formatDate(homeVisitResponse.completionDate)}
         </td>
       </tr>
     </tbody>
