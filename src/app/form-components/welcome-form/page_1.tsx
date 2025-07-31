@@ -2,6 +2,16 @@
 
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from 'date-fns';
+ const formatDate = (value: string): string => {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  }
+  return value;
+};
 
 const Page1: React.FC<any> = ({settings} : any ) => {
   return (
@@ -61,9 +71,9 @@ const Page1: React.FC<any> = ({settings} : any ) => {
         {/* Bottom: Footer */}
         <footer className="w-full border-t border-gray-300 py-4 text-[10px] text-gray-500 mt-auto">
           <div className="max-w-3xl mx-auto px-6 flex justify-between">
-            <span>Website: infinitysupportswa.org</span>
-            <span>CF016</span>
-            <span>Review Date: 14/03/2026</span>
+            <span>Website: {settings?.company_website}</span>
+            <span>{settings?.welcome_form}</span>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
           </div>
         </footer>
       </div>

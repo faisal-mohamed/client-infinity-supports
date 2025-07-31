@@ -1,6 +1,15 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
-
+import { parseISO, isValid, format } from 'date-fns';
+ const formatDate = (value: string): string => {
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  }
+  return value;
+};
 const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any) => {
 
   const commonFieldMapping: Record<string, string> = {
@@ -11,30 +20,39 @@ const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any
   };
 
   const getDisplayValue = (key: string): React.ReactNode => {
-    // Handle signature as image
-    if (key === 'signature') {
-      const signatureBase64 = data?.[key];
-      if (signatureBase64?.startsWith('data:image')) {
-        return (
-          <img
-            src={signatureBase64}
-            alt="Signature"
-            className="h-[80px] mt-2 border border-gray-300 rounded"
-          />
-        );
-      } else {
-        return '__________________________';
-      }
+  // Signature field rendering
+  if (key === 'signature') {
+    const signatureBase64 = data?.[key];
+    if (signatureBase64?.startsWith('data:image')) {
+      return (
+        <img
+          src={signatureBase64}
+          alt="Signature"
+          className="h-[80px] mt-2 border border-gray-300 rounded"
+        />
+      );
+    } else {
+      return '__________________________';
     }
+  }
 
-    // Handle common fields
-    if (commonFieldMapping[key]) {
-      return commonFieldsData?.[commonFieldMapping[key]] || '__________________________';
+  // Value resolution from common fields or data
+  const value = commonFieldMapping[key]
+    ? commonFieldsData?.[commonFieldMapping[key]]
+    : data?.[key];
+
+  // Format if value is a valid ISO date
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
     }
+  }
 
-    // Default fallback
-    return data?.[key] || '__________________________';
-  };
+  // Default text fallback
+  return value || '__________________________';
+};
+
 
   return (
     <A4PageWrapper>
@@ -75,7 +93,7 @@ const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any
           <div className="max-w-3xl mx-auto px-6 flex justify-between text-xs text-gray-500">
             <span>Website: {settings?.company_website}</span>
             <span>{settings?.welcome_form}</span>
-            <span>Review Date: {settings?.review_date}</span>
+<div>Review Date: {formatDate(settings?.review_date)}</div>
           </div>
         </footer>
       </div>
