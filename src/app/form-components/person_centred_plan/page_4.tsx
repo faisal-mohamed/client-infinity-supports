@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
 
 interface Page4Props {
   formKey?: string;
@@ -86,8 +87,12 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
         <div>Website: {settings?.company_website || 'infinitysupportswa.org'}</div>
         <div>{settings?.person_centre_plan_form_id || 'CF014'}</div>
-        <div>Review Date: {settings?.review_date || '14/03/2026'}</div>
-      </div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>      </div>
     </A4PageWrapper>
   );
 };

@@ -447,7 +447,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     // Personal Information
     name: { label: "Name", type: "text", placeholder: "Enter client name" },
     address: { label: "Address", type: "textarea", placeholder: "Enter full address", rows: 2 },
-    dob: { label: "Date of Birth", type: "date", placeholder: "Select date of birth" },
+    dob: { label: "Date of Birth", type: "text", placeholder: "Select date of birth" },
     guardian: { label: "Parent/Guardian", type: "text", placeholder: "Enter parent/guardian name" },
     guardianAddress: { label: "Guardian Address", type: "textarea", placeholder: "Enter guardian address", rows: 2 },
     contactNumber: { label: "Contact Number", type: "text", placeholder: "Enter contact number" },
