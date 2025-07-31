@@ -85,7 +85,7 @@ export const formSchema : any = {
   title: "Support Coordination Action Plan",
   sections: [
     {
-      title: "NDIS FUNDED SUPPORTS",
+      // title: "NDIS FUNDED SUPPORTS",
       fields: [
         { key: "supportRequired1", label: "Support Required", type: "textarea" },
         { key: "preferredProviders1", label: "Preferred providers 1", type: "textarea" },

@@ -103,7 +103,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
           emergencyNo: await encodeImageToBase64("/participant_risk_assessment_emergency.png"),
-          riskAssessmentMatrix: await encodeImageToBase64("/participant_risk_assessment_matrix.png")
+          riskAssessmentMatrix: await encodeImageToBase64("/home_risk_assessment.png")
         };
 
         componentProps = {

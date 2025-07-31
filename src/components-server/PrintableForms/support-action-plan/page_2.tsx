@@ -48,10 +48,15 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                 <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Core Supports</td>
               </tr>
               <tr>
+                <td className='border border-black p-3'>{data?.coreSupportText}</td>
+              </tr>
+              <tr>
                 <td className="border border-black p-3">
                   <span className="font-bold">Preferred providers</span>
                   <br />
-                  1. {data?.corePreferredProviders}
+                  1. {data?.corePreferredProviders} <br />
+
+                  2. {data?.corePreferredProviders2}
                 </td>
               </tr>
               <tr>
@@ -87,6 +92,9 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
 
               <tr>
                 <td className="border border-black font-bold p-3 uppercase" style={{backgroundColor: '#a9c1e0'}}>Capacity Building</td>
+              </tr>
+              <tr>
+                <td className='border border-black p-3'>{data?.capacitySupportText}</td>
               </tr>
               <tr>
                 <td className="border border-black p-3">

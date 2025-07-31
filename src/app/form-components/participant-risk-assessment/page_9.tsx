@@ -22,7 +22,7 @@ const Page9: React.FC<any> = ({data, commonFieldsData, settings, schema} : any) 
           <br />
 
         {/* Risk Matrix Placeholder */}
-        <img src="/participant_risk_assessment_matrix.png" alt="" />
+        <img src="/home_risk_assessment.png" alt="" />
 
         {/* Summary */}
         {/* <div className="mb-6 font-medium">

@@ -163,6 +163,10 @@ export async function PUT(
                 console.log(`🗑️ Clearing designation field from ${formKey}`);
                 updatedData.designation = null;
               }
+               if (updatedData.signature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.signature = null;
+              }
               // Add any other specific fields to clear for this form
               break;
 
@@ -226,10 +230,97 @@ export async function PUT(
               }
               break;
 
-            case 'client_intake_form':
-              // Clear specific fields for client intake form
-              // Add fields specific to this form that should be cleared
+            case 'participant_risk_assessment':
+              if (updatedData.signature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.signature = null;
+              }
+               if (updatedData.signatureDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.signatureDate = null;
+              }
+              if (updatedData.guardianSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.guardianSignature = null;
+              }
+               if (updatedData.guardianDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.guardianDate = null;
+              }
+
+              
               break;
+
+            case 'emergency_drill': 
+             if (updatedData?.supportWorkerSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.supportWorkerSignature = null;
+              }
+               if (updatedData.signatureDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.signatureDate = null;
+              }
+              if (updatedData.supervisorSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.supervisorSignature = null;
+              }
+               if (updatedData?.supervisorSignatureDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.supervisorSignatureDate = null;
+              }
+              break;
+
+
+            case 'individual_risk_assessment': 
+              if (updatedData?.assessorSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.assessorSignature = null;
+              }
+               if (updatedData.assessorSignatureDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.assessorSignatureDate = null;
+              }
+              if (updatedData.assessorName) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.assessorName = null;
+              }
+
+            break;
+
+
+            case 'welcome_form': 
+            if (updatedData?.signature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.signature = null;
+              }
+               if (updatedData.date) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.date = null;
+              }
+
+              break;
+
+            case 'support_action_plan': 
+            if (updatedData?.authorSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.authorSignature = null;
+              }
+               if (updatedData.authorDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.authorDate = null;
+              }
+              if (updatedData.participantSignature) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.participantSignature = null;
+              }
+              if (updatedData.participantDate) {
+                console.log(`🗑️ Clearing designation field from ${formKey}`);
+                updatedData.participantDate = null;
+              }
+
+
+              break;
+
 
             default:
               console.log(`ℹ️ No specific data clearing rules defined for form: ${formKey}`);
