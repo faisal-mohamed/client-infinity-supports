@@ -232,7 +232,7 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   supportWorkerSignature: "",
   supervisorSignature: "",
-  signatureDate: new Date().toISOString().split("T")[0]
+signatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0])
 
 
 };
@@ -274,31 +274,29 @@ const getCommonFieldValue = (fieldName: string): string => {
     };
   }, [localValues, onChange]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    
-    // Prevent changes to common fields
-    if (isCommonField(name)) {
-      showToast({
-        type: "info",
-        title: "Common Field",
-        message: "This field can only be updated from the client's common details section.",
-        duration: 3000,
-      });
-      return;
-    }
-    
-    const newValues = { ...localValues, [name]: value };
-    setLocalValues(newValues);
+ const handleChange = (
+   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+ ) => {
+   const { name, value, type } = e.target;
+ 
+   if (isCommonField(name)) {
+     showToast({
+       type: "info",
+       title: "Common Field",
+       message: "This field can only be updated from the client's common details section.",
+       duration: 3000,
+     });
+     return;
+   }
+ 
+   const formattedValue =
+  type === "date" && value ? formatDateForDisplay(value) : value;
 
-    const isCommon = !!commonFieldsMapping[name];
-    if (isCommon) trackCommonFieldChange(name, value);
-    onChange(newValues, name, isCommon);
-  };
+ 
+   const newValues = { ...localValues, [name]: formattedValue };
+   setLocalValues(newValues);
+   onChange(newValues, name, isCommonField(name));
+ };
 
   const handleNext = () => {
     if (currentStep < FORM_SECTIONS.length - 1) {
@@ -378,7 +376,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         <input
           type={type}
           name={name}
-          value={displayValue}
+value={type === "date" && displayValue ? formatDateForStorage(displayValue) : displayValue}
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
@@ -900,3 +898,13 @@ const getCommonFieldValue = (fieldName: string): string => {
 };
 
 export default HomeVisitRiskAssessmentEdit;
+export function formatDateForStorage(ddmmyyyy: string): string {
+  const [dd, mm, yyyy] = ddmmyyyy.split("-");
+  return `${yyyy}-${mm}-${dd}`; // to YYYY-MM-DD
+}
+
+export function formatDateForDisplay(yyyymmdd: string): string {
+  const [yyyy, mm, dd] = yyyymmdd.split("-");
+  return `${dd}-${mm}-${yyyy}`; // to DD-MM-YYYY
+}
+

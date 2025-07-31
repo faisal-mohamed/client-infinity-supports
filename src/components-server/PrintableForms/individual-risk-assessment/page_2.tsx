@@ -1,6 +1,9 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
+import { format, parseISO, isValid } from "date-fns";
+
+
 interface Page2Props {
   schema: any;
   data: Record<string, any>;
@@ -48,7 +51,13 @@ const Page2: React.FC<Page2Props> = ({
   const footer = (
     <div className="flex justify-between text-sm px-2">
       <div>{settings?.company_website || 'https://www.infinitysupportswa.org'}</div>
-      <div>Date of Review: {settings?.review_date || 'N/A'}</div>
+      <div>
+  Date of Review:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
+
     </div>
   );
 

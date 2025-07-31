@@ -4,6 +4,10 @@
 import React, { useEffect } from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
+import { format, parseISO, isValid } from "date-fns";
+
+
+
 interface Page1Props {
   schema: any;
   data: Record<string, any>;
@@ -44,20 +48,32 @@ console.log('Page1 component rendered with data:', data, 'commonFieldsData:', co
   //   }
   //   return data?.[key] ?? '';
   // };
-const getValue = (key: string): string => {
-  if (commonFieldMapping?.[key]) {
-    const commonVal = commonFieldsData?.[commonFieldMapping[key]];
-    if (commonVal !== undefined && commonVal !== null && commonVal !== '') {
-      return commonVal;
+const getValue = (key: string) => {
+  const rawValue = commonFieldMapping?.[key]
+    ? commonFieldsData?.[commonFieldMapping?.[key]]
+    : data?.[key];
+
+  // If value is in YYYY-MM-DD format, convert to DD-MM-YYYY
+  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = parseISO(rawValue);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
     }
   }
-  return data?.[key] ?? '';
+
+  return rawValue ?? '';
 };
 
   const footer = (
     <div className="flex justify-between text-sm px-2">
       <div>{settings?.company_website || 'https://www.infinitysupportswa.org'}</div>
-      <div>Date of Review: {settings?.review_date || 'N/A'}</div>
+      <div>
+  Date of Review:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
+
     </div>
   );
 

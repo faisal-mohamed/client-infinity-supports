@@ -1,5 +1,7 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { format, parseISO, isValid } from "date-fns";
+
 
 interface Page1Props {
   schema: any;
@@ -25,11 +27,21 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
   };
 
   const getValue = (key: string) => {
-    if (commonFieldMapping?.[key]) {
-      return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
+  const rawValue = commonFieldMapping?.[key]
+    ? commonFieldsData?.[commonFieldMapping?.[key]]
+    : data?.[key];
+
+  // If value is in YYYY-MM-DD format, convert to DD-MM-YYYY
+  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = parseISO(rawValue);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
     }
-    return data?.[key] ?? '';
-  };
+  }
+
+  return rawValue ?? '';
+};
+
 
   return (
     <A4PageWrapper>
@@ -109,7 +121,13 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
           >
             {settings?.company_website || 'https://www.infinitysupportswa.org'}
           </a>
-          <div>Date of Review: {settings?.review_date || 'N/A'}</div>
+          <div>
+  Date of Review:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
+
         </footer>
       </div>
     </A4PageWrapper>

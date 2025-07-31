@@ -18,6 +18,7 @@ import {
   FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
+import { formatDateForInput, formatDateForStorage } from "@/lib/dateFormatHelper";
 
 interface FormProps {
   formData: any;
@@ -190,7 +191,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [maxStep, setMaxStep] = useState(0); // highest unlocked step
 
   const initialValues = {
-    date: new Date().toISOString().split("T")[0],
+    date: formatDateForStorage(new Date().toISOString().split("T")[0]),
     // Common fields - these will be displayed from commonFieldsData
     ndisNumber: commonFieldsData?.ndis || "",
     givenName: commonFieldsData?.name || "",
@@ -413,8 +414,15 @@ const getCommonFieldValue = (fieldName: string): string => {
     required?: boolean
   ) => {
     const isCommon = isCommonField(name);
-    const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const isFieldReadOnly = readOnly || isCommon;
+      let displayValue = isCommon
+        ? getCommonFieldValue(name)
+        : localValues[name] || "";
+    
+      const isFieldReadOnly = readOnly || isCommon;
+    
+      if (type === 'date' && displayValue) {
+        displayValue = formatDateForInput(displayValue);
+      }
     
     return (
       <div className="flex flex-col gap-1">
