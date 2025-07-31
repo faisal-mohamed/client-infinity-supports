@@ -17,20 +17,42 @@ const commonFieldsMapping: Record<string, string> = {
 
 };
 
+import { format, parseISO, isValid } from "date-fns";
+
+
 // Helper function to check if a field is a common field
 const isCommonField = (fieldKey: string): boolean => {
   return Object.keys(commonFieldsMapping).includes(fieldKey);
 };
 
 // Helper function to get the appropriate value (from commonFieldsData or formData)
-const getFieldValue = (fieldKey: string, formData: any, commonFieldsData: any): any => {
+const getFieldValue = (
+  fieldKey: string,
+  formData: Record<string, any>,
+  commonFieldsData: Record<string, any>
+): any => {
   console.log("getFieldValue called with fieldKey:", fieldKey, "formData:", formData, "commonFieldsData:", commonFieldsData);
+
+  let value;
+
   if (isCommonField(fieldKey)) {
     const commonKey = commonFieldsMapping[fieldKey];
-    return commonFieldsData?.[commonKey];
+    value = commonFieldsData?.[commonKey];
+  } else {
+    value = formData?.[fieldKey];
   }
-  return formData[fieldKey];
+
+  // ✅ Reformat YYYY-MM-DD to DD-MM-YYYY
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
+    }
+  }
+
+  return value ?? '';
 };
+
 const formSchema : any = {
     "formKey": "client_intake_form",
     "title": "Client Intake Form",
@@ -534,7 +556,12 @@ const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.client_intake_form_id}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
           </div>
         )}
       </div>
@@ -659,7 +686,13 @@ const Page2 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
                 <div>Website: {settings?.company_website}</div>
             <div>{settings?.client_intake_form_id}</div>
-            <div>Review Date: {settings?.review_date}</div>
+            <div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
+
           </div>
         )}
       </div>
@@ -815,7 +848,12 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
               <div>Website: {settings?.company_website}</div>
             <div>{settings?.client_intake_form_id}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
         </div>
       </div>
     </div>
@@ -932,7 +970,12 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.client_intake_form_id}</div>
-            <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
           </div>
         )}
       </div>
@@ -1036,7 +1079,12 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: {settings?.company_website}</div>
             <div>{settings?.client_intake_form_id}</div>
-          <div>Review Date: {settings?.review_date}</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
         </div>
       </div>
     </div>
@@ -1137,7 +1185,12 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
           <div>Website: infinitysupportswa.org</div>
             <div>{settings?.client_intake_form_id}</div>
-          <div>Review Date: 14/03/2026</div>
+<div>
+  Review Date:{' '}
+  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings?.review_date)
+    ? format(parseISO(settings?.review_date), 'dd-MM-yyyy')
+    : 'N/A'}
+</div>
         </div>
       </div>
     </div>
