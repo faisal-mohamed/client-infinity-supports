@@ -21,6 +21,10 @@ import {
 import { createClient } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
+
+import { formatDateForStorage, formatDateForInput } from "@/lib/dateFormatHelper";
+
+
 export default function CreateClientPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -141,11 +145,13 @@ export default function CreateClientPage() {
   };
 
   // Update age whenever date of birth changes
-  const handleDateOfBirthChange = (dob: string) => {
-    setDateOfBirth(dob);
-    const calculatedAge = calculateAge(dob);
-    setAge(calculatedAge);
-  };
+  const handleDateOfBirthChange = (raw: string) => {
+  const formatted = formatDateForStorage(raw); // Store as DD-MM-YYYY
+  setDateOfBirth(formatted);
+  const calculatedAge = calculateAge(raw); // Still use raw (YYYY-MM-DD) for age
+  setAge(calculatedAge);
+};
+
 
   // New state to control navigation behavior
   const [navigateToAssignForms, setNavigateToAssignForms] = useState(true);
@@ -658,12 +664,12 @@ export default function CreateClientPage() {
                         <FaCalendarAlt className="text-gray-400 h-5 w-5" />
                       </div>
                       <input
-                        type="date"
-                        value={dateOfBirth}
-                        onChange={(e) => {
-                          handleDateOfBirthChange(e.target.value);
-                          clearFieldError("dateOfBirth");
-                        }}
+                         type="date"
+  value={formatDateForInput(dateOfBirth)} // convert DD-MM-YYYY → YYYY-MM-DD for input
+  onChange={(e) => {
+    handleDateOfBirthChange(e.target.value); // e.target.value is always YYYY-MM-DD
+    clearFieldError("dateOfBirth");
+  }}
                         max={new Date().toISOString().split("T")[0]}
                         className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
                           errors.dateOfBirth

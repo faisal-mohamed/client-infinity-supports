@@ -71,7 +71,7 @@ const homeVisitSchema : any = {
               label: "Is entry via the front door? If no, which door is used for entry?",
               key: "entryPoint",
               type: "checkboxGroup",
-              options: ["Left side", "Right Side", "Rear", "Other"]
+              options: ["Left side", "Right Side", "Rear", "Front Door", "Other"]
             },
             { label: "Are there any issues with mobile phone reception?", key: "mobileReception" }
           ]

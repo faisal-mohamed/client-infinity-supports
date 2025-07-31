@@ -18,6 +18,8 @@ import { useToast } from "@/components/ui/Toast";
 
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
+import {formatDateForStorage, formatDateForInput} from '@/lib/dateFormatHelper'
+
 interface FormProps {
   formData: any;
   commonFieldsData: any;
@@ -128,7 +130,7 @@ const isCommonField = (fieldName: string): boolean => {
 
 
 const yesNoOptions = ["Yes", "No"];
-const entryPointOptions = ["Left side", "Right Side", "Rear", "Other"];
+const entryPointOptions = ["Left side", "Right Side", "Rear", "Front Door", "Other"];
 
 const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   formData,
@@ -262,31 +264,56 @@ const getCommonFieldValue = (fieldName: string): string => {
     };
   }, [localValues, onChange]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
+  // const handleChange = (
+  //   e: React.ChangeEvent<
+  //     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  //   >
+  // ) => {
+  //   const { name, value } = e.target;
     
-    // Prevent changes to common fields
-    if (isCommonField(name)) {
-      showToast({
-        type: "info",
-        title: "Common Field",
-        message: "This field can only be updated from the client's common details section.",
-        duration: 3000,
-      });
-      return;
-    }
+  //   // Prevent changes to common fields
+  //   if (isCommonField(name)) {
+  //     showToast({
+  //       type: "info",
+  //       title: "Common Field",
+  //       message: "This field can only be updated from the client's common details section.",
+  //       duration: 3000,
+  //     });
+  //     return;
+  //   }
     
-    const newValues = { ...localValues, [name]: value };
-    setLocalValues(newValues);
+  //   const newValues = { ...localValues, [name]: value };
+  //   setLocalValues(newValues);
 
-    const isCommon = !!commonFieldsMapping[name];
-    if (isCommon) trackCommonFieldChange(name, value);
-    onChange(newValues, name, isCommon);
-  };
+  //   const isCommon = !!commonFieldsMapping[name];
+  //   if (isCommon) trackCommonFieldChange(name, value);
+  //   onChange(newValues, name, isCommon);
+  // };
+
+
+
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value, type } = e.target;
+
+  if (isCommonField(name)) {
+    showToast({
+      type: "info",
+      title: "Common Field",
+      message: "This field can only be updated from the client's common details section.",
+      duration: 3000,
+    });
+    return;
+  }
+
+  const formattedValue =
+    type === "date" && value ? formatDateForStorage(value) : value;
+
+  const newValues = { ...localValues, [name]: formattedValue };
+  setLocalValues(newValues);
+  onChange(newValues, name, isCommonField(name));
+};
 
   const handleNext = () => {
     if (currentStep < FORM_SECTIONS.length - 1) {
@@ -357,46 +384,95 @@ const getCommonFieldValue = (fieldName: string): string => {
   };
 
   // --- Input rendering utilities ---
-  const renderInput = (
-    label: string,
-    name: string,
-    type: string = "text",
-    placeholder?: string,
-    required?: boolean
-  ) => {
-    const isCommon = isCommonField(name);
-    const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const isFieldReadOnly = readOnly || isCommon;
+  // const renderInput = (
+  //   label: string,
+  //   name: string,
+  //   type: string = "text",
+  //   placeholder?: string,
+  //   required?: boolean
+  // ) => {
+  //   const isCommon = isCommonField(name);
+  //   const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
+  //   const isFieldReadOnly = readOnly || isCommon;
     
-    return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+  //   return (
+  //     <div className="flex flex-col gap-1">
+  //       <label className="text-xs font-medium text-gray-700 mb-1">
+  //         {label}
+  //         {required && <span className="text-red-500 ml-1">*</span>}
           
-        </label>
-        <input
-          type={type}
-          name={name}
-          value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
-          disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
+  //       </label>
+  //       <input
+  //         type={type}
+  //         name={name}
+  //         value={displayValue}
+  //         onChange={isCommon ? undefined : handleChange}
+  //         placeholder={isCommon ? "Value from common fields" : placeholder}
+  //         disabled={isFieldReadOnly}
+  //         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
+  //           fieldErrors[name]
+  //             ? "border-red-300 bg-red-50"
+  //             : isCommon 
+  //               ? "bg-blue-50 border-blue-200 text-blue-800"
+  //               : "hover:border-accent/40"
+  //         } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+  //       />
+       
+  //       {fieldErrors[name] && (
+  //         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+  //       )}
+  //     </div>
+  //   );
+  // };
+
+
+
+const renderInput = (
+  label: string,
+  name: string,
+  type: string = "text",
+  placeholder?: string,
+  required?: boolean
+) => {
+  const isCommon = isCommonField(name);
+  let displayValue = isCommon
+    ? getCommonFieldValue(name)
+    : localValues[name] || "";
+
+  const isFieldReadOnly = readOnly || isCommon;
+
+  if (type === 'date' && displayValue) {
+    displayValue = formatDateForInput(displayValue);
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={displayValue}
+        onChange={isCommon ? undefined : handleChange}
+        placeholder={isCommon ? "Value from common fields" : placeholder}
+        disabled={isFieldReadOnly}
+        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-        />
-       
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-        )}
-      </div>
-    );
-  };
+      />
+      {fieldErrors[name] && (
+        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      )}
+    </div>
+  );
+};
+
 
   const renderTextArea = (
     label: string,
