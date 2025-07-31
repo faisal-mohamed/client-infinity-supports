@@ -1,5 +1,6 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { parseISO, isValid, format } from "date-fns";
 
 interface SupportItem {
   description: string;
@@ -22,6 +23,17 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
     const parsed = parseFloat(cost?.replace(/[^0-9.]/g, "") || "");
     return isNaN(parsed) ? 0 : parsed;
   };
+
+  const formatDate = (value: string) => {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
+    }
+  }
+  return value;
+};
+
 
   const cellClass = "border border-black px-1 py-2 leading-relaxed text-xs";
 
@@ -46,9 +58,9 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         <div className="flex justify-between text-xs mb-2 px-2">
           <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
           <span>
-            Plan dates from: {formData?.planDatesFrom || ""} -{" "}
-            {formData?.planDatesTo || ""}
-          </span>
+  Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
+</span>
+
         </div>
 
         {/* Table container - fills remaining height */}
@@ -114,7 +126,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         <div className="flex justify-between text-xs mt-4 pt-4 px-2 text-gray-600">
           <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
-          <span>Review Date: {settings?.review_date}</span>
+<span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>

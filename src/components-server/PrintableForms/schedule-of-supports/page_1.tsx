@@ -2,6 +2,7 @@
 
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { parseISO, isValid, format } from "date-fns";
 
 interface SupportItem {
   description: string;
@@ -35,6 +36,16 @@ const Page1: React.FC<Page1Props> = ({
     return isNaN(parsed) ? 0 : parsed;
   };
 
+  const formatDate = (value: string) => {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    return value;
+  };
+
   const cellClass = "border border-black px-1 py-0.5 leading-none text-[10px]";
 
   return (
@@ -63,9 +74,8 @@ const Page1: React.FC<Page1Props> = ({
           <div className="flex justify-between text-[9px] px-1">
             <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
             <span>
-              Plan dates from: {formData?.planDatesFrom || ""} -{" "}
-              {formData?.planDatesTo || ""}
-            </span>
+  Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
+</span>
           </div>
         </div>
 
@@ -136,7 +146,7 @@ const Page1: React.FC<Page1Props> = ({
         <div className="flex justify-between text-[9px] px-1 text-gray-600">
           <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
-          <span>Review Date: {settings?.review_date}</span>
+<span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>

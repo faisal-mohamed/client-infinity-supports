@@ -1,5 +1,6 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { parseISO, isValid, format } from "date-fns";
 
 interface Field {
   key: string;
@@ -14,11 +15,34 @@ interface Page3Props {
   commonFieldsData: any;
 }
 
+
+
 const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData }) => {
-  const getValue = (key: string) => data?.[key] ?? "";
+const getValue = (key: string): string => {
+  const rawValue = data?.[key] ?? "";
+
+  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = parseISO(rawValue);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
+    }
+  }
+
+  return rawValue;
+};
 
   const isChecked = (key: string) =>
     getValue(key)?.toString().toLowerCase() === "yes";
+
+     const formatDate = (value: string) => {
+      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const parsed = parseISO(value);
+        if (isValid(parsed)) {
+          return format(parsed, "dd-MM-yyyy");
+        }
+      }
+      return value;
+    };
 
   return (
     <A4PageWrapper>
@@ -149,7 +173,7 @@ const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData 
         <footer className="flex justify-between text-[10px] mt-auto px-1 pt-6">
            <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
-          <span>Review Date: {settings?.review_date}</span>
+<span>Review Date: {formatDate(settings?.review_date)}</span>
         </footer>
       </div>
     </A4PageWrapper>

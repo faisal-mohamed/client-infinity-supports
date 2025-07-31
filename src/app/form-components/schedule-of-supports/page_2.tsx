@@ -1,5 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
+import { parseISO, isValid, format } from "date-fns";
 
 interface Page2Props {
   schema: any;
@@ -10,6 +11,17 @@ interface Page2Props {
 
 const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
   const isChecked = (key: string) => formData?.[key] === 'Yes';
+
+   const formatDate = (value: string) => {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    return value;
+  };
+  
 
   return (
     <A4PageWrapper>
@@ -84,7 +96,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
         <div className="mt-auto pt-4 text-xs flex justify-between">
           <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
-          <span>Review Date: {settings?.review_date}</span>
+<span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>
