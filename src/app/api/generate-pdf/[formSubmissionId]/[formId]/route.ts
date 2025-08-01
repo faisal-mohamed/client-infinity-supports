@@ -113,6 +113,8 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           settings: settings || {}
         };
 
+        break;
+
         case "emergency_drill":
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),

@@ -205,8 +205,8 @@ export const riskAssessmentSchema : any = {
   page7: {
   title: "Risk Assessment Table",
   householdMeetingPoint: [
-    { key: "safeMeetingAddress", label: "Address", type: "text" },
-    { key: "safeMeetingDescription", label: "Description", type: "text" },
+    { key: "householdSafeAddress", label: "Address", type: "text" },
+    { key: "householdSafeDesc", label: "Description", type: "text" },
   ],
   riskRows: [
     { issue: "issue1", score: "score1", control: "control1", person: "person1" },
@@ -428,7 +428,7 @@ page11: {
 const ParticipantRiskAssessment = ({formData, commonFieldsData, settings, images}: any) => {
   const totalPages = 13;
 
-
+console.log("imagesoutside-------------------------------: ", images);
   return (
     <div className="bg-gray-100 min-h-screen py-8">
         <Page1 schema={riskAssessmentSchema.page1} formData={formData} commonFieldsData={commonFieldsData} settings={settings} images={images} />

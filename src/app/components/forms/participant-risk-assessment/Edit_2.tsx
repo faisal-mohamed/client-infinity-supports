@@ -34,6 +34,12 @@ import SignatureCanvas, {
 import { RISK_LEVEL_DETAILS } from "./constants";
 import { showAsRequired } from "@jsonforms/core";
 
+
+
+//helper functions
+
+
+
 interface FormProps {
   formData: any;
   commonFieldsData: any;
@@ -69,10 +75,19 @@ export const FORM_SECTIONS : any = [
   },
   {
     id: "knownMedicalConditions",
-    title: "Medical Conditions & Emergency Contact",
+    title: "Medical Conditions",
     icon: FaNotesMedical,
     description: "Medical background of the participant",
-    fields: ["medicalSpecify", "medicalEffect", "medicalTreatment",  "emergencyContactName",
+    fields: ["medicalSpecify1", "medicalEffect1", "medicalTreatment1","medicalSpecify2", "medicalEffect2", "medicalTreatment2","medicalSpecify3", "medicalEffect3", "medicalTreatment3",],
+    requiredFields: []
+
+  },
+  {
+    id: "knownMedicalConditionsEmergency",
+    title: "Emergency Contact",
+    icon: FaNotesMedical,
+    description: "Emergency Contact",
+    fields: ["emergencyContactName",
       "emergencyContactPhone",
       "emergencyContactEmail",],
     requiredFields: []
@@ -133,7 +148,7 @@ export const FORM_SECTIONS : any = [
   },
   {
     id: "medicationSupport",
-    title: "Medication Support",
+    title: "Management of Medication",
     icon: FaPills,
     description: "Type of medication support needed",
     fields: [
@@ -145,6 +160,7 @@ export const FORM_SECTIONS : any = [
     requiredFields: []
 
   },
+
   {
   id: "riskLevelSummary",
   title: "Risk Level Summary",
@@ -154,6 +170,14 @@ export const FORM_SECTIONS : any = [
   requiredFields: [],
 
 },
+  {
+    id: 'participantSafe',
+    title: 'Participant Household Safe Meeting Point',
+    icon: FaPills,
+    description: '',
+    fields: ['householdSafeAddress', 'householdSafeDesc'],
+    requiredFields: []
+  },
 
   {
     id: "riskAssessmentTable",
@@ -198,7 +222,7 @@ export const FORM_SECTIONS : any = [
       "copyOnFile",
       "reviewDate",
     ],
-    requiredFields: []
+    requiredFields: ['signatureDate', 'guardianSignature', 'guardianDate', 'signature']
 
   },
 ];
@@ -216,6 +240,7 @@ const commonFieldsMapping: Record<string, string> = {
   email: "email",
   phoneNumber: "phone",
   disabilityConditions: "disability",
+  familyName: 'surname',
 };
 
 // Helper function to check if a field is a common field
@@ -274,6 +299,28 @@ const addRiskRow = () => {
     setActiveRiskRows((prev) => [...prev, next]);
   }
 };
+
+const getInitialMedicalConditionCount = () => {
+  let count = 0;
+  for (let i = 1; i <= 3; i++) {
+    if (
+      formData?.[`medicalSpecify${i}`] ||
+      formData?.[`medicalEffect${i}`] ||
+      formData?.[`medicalTreatment${i}`]
+    ) {
+      count = i;
+    }
+  }
+  return count || 1; // Show at least 1 by default
+};
+
+const [medicalConditionCount, setMedicalConditionCount] = useState(getInitialMedicalConditionCount());
+const handleAddMoreMedicalCondition = () => {
+  if (medicalConditionCount < 3) {
+    setMedicalConditionCount(medicalConditionCount + 1);
+  }
+};
+
 
 
 
@@ -823,20 +870,50 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     email: { label: "Email", type: "text", placeholder: "Enter email address" },
 
     // Known Medical Conditions
-    medicalSpecify: {
+    medicalSpecify1: {
       label: "Specify",
       type: "text",
-      placeholder: "Specify condition",
+      placeholder: "Specify condition 1",
     },
-    medicalEffect: {
+    medicalEffect1: {
       label: "Effect",
       type: "text",
-      placeholder: "Effect of condition",
+      placeholder: "Effect of condition 1",
     },
-    medicalTreatment: {
+    medicalTreatment1: {
       label: "Treatment",
       type: "text",
-      placeholder: "Treatment given",
+      placeholder: "Treatment given 1",
+    },
+     medicalSpecify2: {
+      label: "Specify",
+      type: "text",
+      placeholder: "Specify condition 2",
+    },
+    medicalEffect2: {
+      label: "Effect",
+      type: "text",
+      placeholder: "Effect of condition 2",
+    },
+    medicalTreatment2: {
+      label: "Treatment",
+      type: "text",
+      placeholder: "Treatment given 2",
+    },
+     medicalSpecify3: {
+      label: "Specify",
+      type: "text",
+      placeholder: "Specify condition 3",
+    },
+    medicalEffect3: {
+      label: "Effect",
+      type: "text",
+      placeholder: "Effect of condition 3",
+    },
+    medicalTreatment3: {
+      label: "Treatment",
+      type: "text",
+      placeholder: "Treatment given 3",
     },
 
     // Emergency Contact
@@ -863,7 +940,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       options: ["Yes", "No"],
     },
     participantInvolvedReason: {
-      label: "Reason",
+      label: "If no participant involved , Specify the reason",
       type: "text",
       placeholder: "Reason for not involving participant",
     },
@@ -1073,11 +1150,28 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         "Combination of any of the above medications",
       ],
     },
+    householdSafeAddress: {
+      label: 'Address',
+      type: 'text',
+    },
+    householdSafeDesc: {
+      label: 'Description',
+      type: 'text'
+    },
+
     medicationRespDepressionRating: {
       label: "Risk Rating for Medication If yes, please specify and capture this in the controls table",
       type: "dropdown",
       options: ratingOptions,
     },
+
+    medicationRiskYesNo: {
+      label: 'Medication Risk ?',
+      type: 'dropdown',
+      options: yesNoOptions
+    },
+
+    
 
     medicationRiskComment: {
       label: "Medication Risk Control Comment",
@@ -1213,7 +1307,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       placeholder: "Participant or Guardian Signature",
     },
     guardianDate: {
-      label: "Guardian Signature Date",
+      label: "Participant / Guardian Signature Date",
       type: "date",
       placeholder: "Select date",
     },
@@ -1367,6 +1461,15 @@ const renderDropdownSeverityRisk = (
             false
           )}
         </div>
+          <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+          {renderDropdown(
+            FIELD_METADATA.medicationRiskYesNo.label,
+            "medicationRiskYesNo",
+            yesNoOptions,
+            false
+          )}
+        </div>
+        
 
         {/* medicationRespDepressionRating dropdown */}
         <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
@@ -1652,58 +1755,99 @@ const renderDropdownSeverityRisk = (
         </button>
       )}
     </>
-  ) : (
+  ) : 
+  
+  FORM_SECTIONS[currentStep].id === "knownMedicalConditions" ? (
+  <div className="space-y-6">
+    {[...Array(medicalConditionCount)].map((_, i) => {
+      const index = i + 1;
+      return (
+        <div
+          key={index}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
+        >
+          {renderInput(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, "text", FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
+          {renderInput(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, "text", FIELD_METADATA[`medicalEffect${index}`].placeholder)}
+          {renderInput(FIELD_METADATA[`medicalTreatment${index}`].label, `medicalTreatment${index}`, "text", FIELD_METADATA[`medicalTreatment${index}`].placeholder)}
+        </div>
+      );
+    })}
+
+    {medicalConditionCount < 3 && (
+      <button
+        type="button"
+        onClick={handleAddMoreMedicalCondition}
+        className="mt-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+      >
+        + Add Another Medical Condition
+      </button>
+    )}
+  </div>
+) :
+
+  
+  (
     // Default layout
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
-        const meta = FIELD_METADATA[field] || { label: field, type: "text" };
-        const required = isFieldRequired(field);
+      {FORM_SECTIONS[currentStep].fields.map((field: any) => {
+  // 🧠 Special logic for conditional display of participantInvolvedReason
+  if (
+    field === "participantInvolvedReason" &&
+    localValues["participantInvolved"] !== "No"
+  ) {
+    return null; // Don't render unless participantInvolved === "No"
+  }
 
-        if (meta.type === "textarea") {
-          return (
-            <div key={field} className="md:col-span-2">
-              {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
-            </div>
-          );
-        }
+  const meta = FIELD_METADATA[field] || { label: field, type: "text" };
+  const required = isFieldRequired(field);
 
-        if (meta.type === "dropdown") {
-          return (
-            <div key={field} className="md:col-span-2">
-              {renderDropdown(meta.label, field, meta.options || [], meta.showComments, required)}
-            </div>
-          );
-        }
+  if (meta.type === "textarea") {
+    return (
+      <div key={field} className="md:col-span-2">
+        {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
+      </div>
+    );
+  }
 
-        if (meta.type === "checkbox") {
-          return (
-            <div key={field} className="md:col-span-2">
-              {renderMultiSelectCheckbox(meta.label, field, meta.options || [], meta.showComments, required)}
-            </div>
-          );
-        }
+  if (meta.type === "dropdown") {
+    return (
+      <div key={field} className="md:col-span-2">
+        {renderDropdown(meta.label, field, meta.options || [], meta.showComments, required)}
+      </div>
+    );
+  }
 
-        if (meta.type === "signature") {
-          return (
-            <div key={field} className="md:col-span-2">
-              {renderSignatureField(meta.label, "signature", sigCanvasRef, meta.placeholder, true)}
-            </div>
-          );
-        }
-        if (meta.type === "signatureGuardian") {
-          return (
-            <div key={field} className="md:col-span-2">
-              {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
-            </div>
-          );
-        }
+  if (meta.type === "checkbox") {
+    return (
+      <div key={field} className="md:col-span-2">
+        {renderMultiSelectCheckbox(meta.label, field, meta.options || [], meta.showComments, required)}
+      </div>
+    );
+  }
 
-        return (
-          <div key={field}>
-            {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
-          </div>
-        );
-      })}
+  if (meta.type === "signature") {
+    return (
+      <div key={field} className="md:col-span-2">
+        {renderSignatureField(meta.label, "signature", sigCanvasRef, meta.placeholder, true)}
+      </div>
+    );
+  }
+
+  if (meta.type === "signatureGuardian") {
+    return (
+      <div key={field} className="md:col-span-2">
+        {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
+      </div>
+    );
+  }
+
+  return (
+    <div key={field}>
+      {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+    </div>
+  );
+})}
+
     </div>
   )}
 </div>

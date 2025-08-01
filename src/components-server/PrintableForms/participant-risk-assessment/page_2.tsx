@@ -162,8 +162,8 @@ const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings,
             <tbody>
               {schema?.fields?.map?.((field: any, index: number) => {
                 const key = `risk${index + 1}`;
-                const yesChecked = data?.[key] === 'yes';
-                const noChecked = data?.[key] === 'no';
+                const yesChecked = data?.[key] === 'Yes';
+                const noChecked = data?.[key] === 'No';
 
                 return (
                   <tr key={key}>

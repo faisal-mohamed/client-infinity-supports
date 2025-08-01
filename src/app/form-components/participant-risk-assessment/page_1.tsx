@@ -1,7 +1,6 @@
-import React from 'react';
-import A4PageWrapper from './A4PageWrapper';
+import React from "react";
+import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
-
 
 interface Page1Props {
   schema: any;
@@ -10,27 +9,32 @@ interface Page1Props {
   settings: any;
 }
 
-const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings }) => {
+const Page1: React.FC<Page1Props> = ({
+  formData,
+  schema,
+  commonFieldsData,
+  settings,
+}) => {
   const commonFieldMapping: Record<string, string> = {
-    givenNames: 'name',
-    address: 'street',
-    dob: 'dob',
-    disability: 'disability',
-    phoneNumber: 'phone',
-    ndisNumber: 'ndis',
-    state: 'state',
-    street: 'street',
-    postcode: 'postCode',
-    email: 'email',
-    homePhone: 'phone',
-    sex: 'sex'
+    givenNames: "name",
+    address: "street",
+    dob: "dob",
+    disability: "disability",
+    phoneNumber: "phone",
+    ndisNumber: "ndis",
+    state: "state",
+    street: "street",
+    postcode: "postCode",
+    email: "email",
+    homePhone: "phone",
+    sex: "sex",
   };
 
   const getValue = (key: string) => {
     if (commonFieldMapping?.[key]) {
-      return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
+      return commonFieldsData?.[commonFieldMapping?.[key]] ?? "";
     }
-    return formData?.[key] ?? '';
+    return formData?.[key] ?? "";
   };
 
   return (
@@ -55,34 +59,50 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
           <table className="w-full border border-black border-collapse text-sm flex-1">
             <thead>
               <tr className="bg-gray-300 font-bold text-left">
-                <th className="border border-black p-2 w-[40%]">PARTICIPANT DETAILS</th>
+                <th className="border border-black p-2 w-[40%]">
+                  PARTICIPANT DETAILS
+                </th>
                 <th className="border border-black p-2" colSpan={2}>
-                  NDIS Number: {getValue('ndisNumber')}
+                  NDIS Number: {getValue("ndisNumber")}
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black p-2">Given name/s: {getValue('givenNames')}</td>
-                <td className="border border-black p-2">Family name: {getValue('familyName')}</td>
-                <td className="border border-black p-2"></td>
-              </tr>
-              <tr>
-                <td className="border border-black p-2">Preferred name: {getValue('preferredName')}</td>
-                <td className="border border-black p-2">Date of birth: {getValue('dob')}</td>
-                <td className="border border-black p-2"></td>
-              </tr>
-              <tr>
-                <td className="border border-black p-2">Address: {getValue('address')}</td>
-                <td className="border border-black p-2">Phone No: {getValue('phoneNumber')}</td>
-                <td className="border border-black p-2"></td>
-              </tr>
-              <tr>
-                <td className="border border-black p-2">
-                  Preferred contact method: {getValue('preferredContact')}
+                <td className="border border-black p-1 font-bold">
+                  Given name/s: 
                 </td>
-                <td className="border border-black p-2">Email: {getValue('email')}</td>
-                <td className="border border-black p-2"></td>
+                <td className="border border-black p-1">
+                  {getValue("givenNames")}
+                </td>
+                <td className="border border-black p-1"><strong>Family name:</strong> {getValue("familyName")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black p-1 font-bold">
+                  Preferred name: 
+                </td>
+                <td className="border border-black p-1">
+                  {getValue("preferredName")}
+                </td>
+                <td className="border border-black p-1"><strong>Date of birth:</strong> {getValue("dob")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black p-1 font-bold">
+                  Address: 
+                </td>
+                <td className="border border-black p-1">
+                  {getValue("address")}
+                </td>
+                <td className="border border-black p-1"><strong>Phone No:</strong> {getValue("phoneNumber")}</td>
+              </tr>
+              <tr>
+                <td className="border border-black p-1 font-bold">
+                  Preferred contact method: 
+                </td>
+                <td className="border border-black p-1">
+                  {getValue("preferredContact")}
+                </td>
+                <td className="border border-black p-1"><strong>Email:</strong> {getValue("email")}</td>
               </tr>
             </tbody>
 
@@ -93,13 +113,32 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                   KNOWN MEDICAL CONDITIONS OR ALLERGIES
                 </th>
               </tr>
+              <tr className="bg-gray-200 font-semibold text-left">
+                <th className="border border-black p-2 w-1/3 break-words">
+                  Specify
+                </th>
+                <th className="border border-black p-2 w-1/3 break-words">
+                  Effect
+                </th>
+                <th className="border border-black p-2 w-1/3 break-words">
+                  Treatment
+                </th>
+              </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border border-black p-2">Specify: {getValue('medicalSpecify')}</td>
-                <td className="border border-black p-2">Effect: {getValue('medicalEffect')}</td>
-                <td className="border border-black p-2">Treatment: {getValue('medicalTreatment')}</td>
-              </tr>
+              {[1, 2, 3].map((num) => (
+                <tr key={num}>
+                  <td className="border border-black p-1 w-1/3 break-words">
+                    {getValue(`medicalSpecify${num}`)}
+                  </td>
+                  <td className="border border-black p-1 w-1/3 break-words">
+                    {getValue(`medicalEffect${num}`)}
+                  </td>
+                  <td className="border border-black p-1 w-1/3 break-words">
+                    {getValue(`medicalTreatment${num}`)}
+                  </td>
+                </tr>
+              ))}
             </tbody>
 
             {/* Emergency Contact */}
@@ -112,17 +151,17 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black p-2">
-                  Name/s: {getValue('emergencyContactName')}
+                <td className="border border-black p-2 font-bold">
+                  Name/s: 
                 </td>
                 <td className="border border-black p-2">
-                  Phone: {getValue('emergencyContactPhone')}
+                  {getValue("emergencyContactName")}
                 </td>
-                <td className="border border-black p-2"></td>
+                <td className="border border-black p-2"><strong>Phone:</strong> {getValue("emergencyContactPhone")}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2" colSpan={3}>
-                  Email: {getValue('emergencyContactEmail')}
+                  <strong>Email:</strong> {getValue("emergencyContactEmail")}
                 </td>
               </tr>
             </tbody>
@@ -137,7 +176,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black p-2">
+                <td className="border border-black p-2 font-bold">
                   Was the participant involved in the assessment?
                 </td>
                 <td className="border border-black p-2">
@@ -145,7 +184,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                     <label className="inline-flex items-center space-x-1">
                       <input
                         type="checkbox"
-                        checked={formData?.participantInvolved === 'Yes'}
+                        checked={formData?.participantInvolved === "Yes"}
                         readOnly
                       />
                       <span className="text-sm">Yes</span>
@@ -153,7 +192,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                     <label className="inline-flex items-center space-x-1">
                       <input
                         type="checkbox"
-                        checked={formData?.participantInvolved === 'No'}
+                        checked={formData?.participantInvolved === "No"}
                         readOnly
                       />
                       <span className="text-sm">No</span>
@@ -161,17 +200,20 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                   </div>
                 </td>
                 <td className="border border-black p-2">
-                  Reason: {getValue('participantInvolvedReason')}
+                  <strong>Reason:</strong>{" "}
+                  {getValue("participantInvolved") === "No"
+                    ? getValue("participantInvolvedReason")
+                    : ""}
                 </td>
               </tr>
               <tr>
                 <td className="border border-black p-2" colSpan={3}>
-                  Staff Involved: {getValue('staffInvolved')}
+                  <strong>Staff Involved:</strong> {getValue("staffInvolved")}
                 </td>
               </tr>
               <tr>
                 <td className="border border-black p-2" colSpan={3}>
-                  Others Involved: {getValue('othersInvolved')}
+                  <strong>Others Involved:</strong> {getValue("othersInvolved")}
                 </td>
               </tr>
             </tbody>
@@ -183,12 +225,13 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
           <div className="flex justify-between text-xs px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
+            <div>
+              Review Date:{" "}
+              {settings?.review_date &&
+              /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                : "N/A"}
+            </div>
           </div>
         </div>
       </div>

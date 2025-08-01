@@ -206,8 +206,8 @@ export const riskAssessmentSchema : any = {
   page7: {
   title: "Risk Assessment Table",
   householdMeetingPoint: [
-    { key: "safeMeetingAddress", label: "Address", type: "text" },
-    { key: "safeMeetingDescription", label: "Description", type: "text" },
+    { key: "householdSafeAddress", label: "Address", type: "text" },
+    { key: "householdSafeDesc", label: "Description", type: "text" },
   ],
   riskRows: [
     { issue: "issue1", score: "score1", control: "control1", person: "person1" },

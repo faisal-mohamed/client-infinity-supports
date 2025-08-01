@@ -1,18 +1,20 @@
-
-
-
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
 interface Page7Props {
-     schema: any;
+  schema: any;
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
 }
 
-const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page7: React.FC<Page7Props> = ({
+  schema,
+  data,
+  commonFieldsData,
+  settings,
+}) => {
   const rows = schema?.riskRows?.slice(0, 4); // First 4 rows
 
   return (
@@ -21,7 +23,7 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings 
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
-            src='/infinity_logo.png'
+            src="/infinity_logo.png"
             alt="Infinity Supports WA logo"
             className="h-[60px] w-[150px] object-contain"
           />
@@ -41,8 +43,12 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings 
             <tbody>
               {schema?.householdMeetingPoint?.map((field: any) => (
                 <tr key={field.key}>
-                  <td className="border border-black p-2 font-medium">{field?.label}</td>
-                  <td className="border border-black p-2">{data?.[field.key] || ""}</td>
+                  <td className="border border-black p-2 font-medium">
+                    {field?.label}
+                  </td>
+                  <td className="border border-black p-2">
+                    {data?.[field.key] || ""}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -57,19 +63,35 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings 
           <table className="w-full border border-black border-collapse">
             <thead className="bg-gray-300 font-semibold">
               <tr>
-                <th className="border border-black p-2 text-left">Issue/Task</th>
-                <th className="border border-black p-2 text-left">Risk Score</th>
-                <th className="border border-black p-2 text-left">Control Measure</th>
-                <th className="border border-black p-2 text-left">Person Responsible</th>
+                <th className="border border-black p-2 text-left">
+                  Issue/Task
+                </th>
+                <th className="border border-black p-2 text-left">
+                  Risk Score
+                </th>
+                <th className="border border-black p-2 text-left">
+                  Control Measure
+                </th>
+                <th className="border border-black p-2 text-left">
+                  Person Responsible
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row: any, i: number) => (
                 <tr key={i} className="h-20 align-top">
-                  <td className="border border-black p-2 align-top">{data?.[row.issue] || ""}</td>
-                  <td className="border border-black p-2 align-top">{data?.[row.score] || ""}</td>
-                  <td className="border border-black p-2 align-top">{data?.[row.control] || ""}</td>
-                  <td className="border border-black p-2 align-top">{data?.[row.person] || ""}</td>
+                  <td className="border border-black p-2 align-top">
+                    {data?.[row.issue] || ""}
+                  </td>
+                  <td className="border border-black p-2 align-top">
+                    {data?.[row.score] || ""}
+                  </td>
+                  <td className="border border-black p-2 align-top">
+                    {data?.[row.control] || ""}
+                  </td>
+                  <td className="border border-black p-2 align-top">
+                    {data?.[row.person] || ""}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -81,12 +103,13 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings 
           <div className="flex justify-between text-xs px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
+            <div>
+              Review Date:{" "}
+              {settings?.review_date &&
+              /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                : "N/A"}
+            </div>
           </div>
         </div>
       </div>

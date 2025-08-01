@@ -48,12 +48,12 @@ const getValue = (key: string) => {
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black py-1 text-left px-2">Authorised by:</td>
+                <td className="border border-black py-1 text-left px-2"><strong>Authorised by:</strong></td>
                 <td className="border border-black">{getValue('authorisedBy')}</td>
-                <td className="border border-black text-left px-2">Role: {getValue('role')}</td>
+                <td className="border border-black text-left px-2"><strong>Role:</strong> {getValue('role')}</td>
               </tr>
               <tr>
-  <td className="border border-black py-1 text-left px-2">Signature:</td>
+  <td className="border border-black py-1 text-left px-2"><strong>Signature:</strong></td>
   <td className="border border-black">
     {getValue('signature')?.startsWith('data:image') ? (
       <img src={getValue('signature')} alt="Signature" className="h-12 object-contain" />
@@ -61,13 +61,13 @@ const getValue = (key: string) => {
       getValue('signature')
     )}
   </td>
-  <td className="border border-black text-left px-2">Date: {getValue('signatureDate')}</td>
+  <td className="border border-black text-left px-2"><strong>Date:</strong> {getValue('signatureDate')}</td>
 </tr>
 <tr>
   <td className="border border-black py-1 text-left px-2">
-    Participant / Guardian
+    <strong>Participant / Guardian
     <br />
-    Signature:
+    Signature:</strong>
   </td>
   <td className="border border-black">
     {getValue('guardianSignature')?.startsWith('data:image') ? (
@@ -76,14 +76,14 @@ const getValue = (key: string) => {
       getValue('guardianSignature')
     )}
   </td>
-  <td className="border border-black text-left px-2">Date: {getValue('guardianDate')}</td>
+  <td className="border border-black text-left px-2"><strong>Date:</strong> {getValue('guardianDate')}</td>
 </tr>
 
               <tr>
                 <td className="border border-black py-1 text-left px-2">
-                  Is a copy supplied to the participant?
-                </td>
-                <td className="border border-black text-left px-2">
+                  <strong>Is a copy supplied to the participant? </strong>   <br />
+                
+                {/* <td className="border border-black text-left px-2"> */}
                   <label className="inline-flex items-center space-x-1">
                     <input type="checkbox" checked={getValue('copySupplied') === 'Yes'} readOnly />
                     <span>YES</span>
@@ -93,9 +93,10 @@ const getValue = (key: string) => {
                     <input type="checkbox" checked={getValue('copySupplied') === 'No'} readOnly />
                     <span>NO</span>
                   </label>
+                {/* </td> */}
                 </td>
                 <td className="border border-black text-left px-2">
-                  Copy placed on file?
+                  <strong>Copy placed on file?</strong>
                   <br />
                   <label className="inline-flex items-center space-x-1">
                     <input type="checkbox" checked={getValue('copyOnFile') === 'Yes'} readOnly />
@@ -108,7 +109,7 @@ const getValue = (key: string) => {
                   </label>
                 </td>
                 <td className="border border-black text-left px-2">
-                  Date for Review: {getValue('reviewDate')}
+                  <strong>Date for Review:</strong> {getValue('reviewDate')}
                 </td>
               </tr>
             </tbody>

@@ -1,24 +1,29 @@
-
-
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
-const Page9: React.FC<any> = ({ data, commonFieldsData, settings, schema, images }) => {
+const Page9: React.FC<any> = ({
+  data,
+  commonFieldsData,
+  settings,
+  schema,
+  images,
+}) => {
   const footer = (
     <div className="flex justify-between text-[10px] px-2">
       <div>Website: {settings?.company_website}</div>
       <div>{settings?.participant_risk_assessment}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>    </div>
+      <div>
+        Review Date:{" "}
+        {settings?.review_date &&
+        /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+          ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+          : "N/A"}
+      </div>{" "}
+    </div>
   );
 
-
-  console.log("images: ", images);
+  console.log("imagesInside------------------------------------------------: ", images);
 
   return (
     <A4PageWrapper footer={footer}>
@@ -59,8 +64,13 @@ const Page9: React.FC<any> = ({ data, commonFieldsData, settings, schema, images
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black px-1 py-0.5 w-1/3">Police</td>
-                <td colSpan={2} className="border border-black px-1 py-0.5 text-center">
+                <td className="border border-black px-1 py-0.5 w-1/3">
+                  Police
+                </td>
+                <td
+                  colSpan={2}
+                  className="border border-black px-1 py-0.5 text-center"
+                >
                   <img
                     src={images?.emergencyNo}
                     alt="000 Emergency"
@@ -97,12 +107,18 @@ const Page9: React.FC<any> = ({ data, commonFieldsData, settings, schema, images
             </thead>
             <tbody>
               <tr>
-                <td className="border border-black px-1 py-0.5 w-1/3">Electricity Authority</td>
-                <td className="border border-black px-1 py-0.5">Western Power</td>
+                <td className="border border-black px-1 py-0.5 w-1/3">
+                  Electricity Authority
+                </td>
+                <td className="border border-black px-1 py-0.5">
+                  Western Power
+                </td>
                 <td className="border border-black px-1 py-0.5">13 13 51</td>
               </tr>
               <tr>
-                <td className="border border-black px-1 py-0.5">Water Authority</td>
+                <td className="border border-black px-1 py-0.5">
+                  Water Authority
+                </td>
                 <td className="border border-black px-1 py-0.5">Water Corp</td>
                 <td className="border border-black px-1 py-0.5">13 13 75</td>
               </tr>

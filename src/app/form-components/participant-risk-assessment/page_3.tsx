@@ -168,15 +168,15 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                     <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'no')} readOnly className="w-3 h-3" />
                     <span>No</span>
                   </label>
-                  {formData?.medicationRiskYesNo === 'yes' && (
+                  
                     <p className="mt-2 text-xs text-red-600 leading-tight">
                       If yes, please specify and capture this in the controls table
                     </p>
-                  )}
+                 
                 </td>
                 <td className="border border-black">{formData?.medicationRespDepressionRating}</td>
                 <td className="border border-black px-2 py-2 align-top">
-                  {formData?.medicationRiskYesNo === 'yes' && formData?.medicationRiskComment}
+                  {formData?.medicationRiskComment}
                 </td>
               </tr>
             </tbody>

@@ -67,6 +67,7 @@ const getValue = (key: string): string => {
                 className="mr-2"
                 checked={isChecked("providerTravelAgreement")}
                 readOnly
+                style={{verticalAlign: 'middle'}}
               />
               I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.
             </p>
