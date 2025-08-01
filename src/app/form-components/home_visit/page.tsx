@@ -243,7 +243,7 @@ const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
       </tr>
       <tr>
         <td className="border border-black p-2" colSpan={3}>
-          <span className="font-semibold">Date of completion of risk assessment:</span> {homeVisitResponse?.completionDate}
+          <span className="font-semibold">Date of completion of risk assessment:</span> {formatDate(homeVisitResponse?.completionDate)}
         </td>
       </tr>
     </tbody>

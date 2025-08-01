@@ -204,7 +204,7 @@ const Footer = ({settings}: {
     </div>
     <div className="font-medium">{settings?.home_visit_form_id}</div>
     
-<div className="font-medium">Review Date: {formatDate(settings?.review_date)}123</div>
+<div className="font-medium">Review Date: {formatDate(settings?.review_date)}</div>
   </div>
 );
 
