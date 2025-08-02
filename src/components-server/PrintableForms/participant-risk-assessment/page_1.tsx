@@ -56,7 +56,7 @@ const Page1: React.FC<Page1Props> = ({
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full text-sm font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6">

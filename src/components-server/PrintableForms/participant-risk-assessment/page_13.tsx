@@ -39,7 +39,7 @@ const getValue = (key: string) => {
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full w-full px-6 pt-4 pb-4 font-sans text-[11px]">
         {/* Logo */}
         <div className="flex justify-center mb-4">

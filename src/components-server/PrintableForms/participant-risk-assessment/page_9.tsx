@@ -23,10 +23,9 @@ const Page9: React.FC<any> = ({
     </div>
   );
 
-  console.log("imagesInside------------------------------------------------: ", images);
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper >
       <div className="flex flex-col h-full font-sans text-[10px] px-4 pt-2 pb-4">
         {/* Logo */}
         <div className="flex justify-center mb-2">

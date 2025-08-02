@@ -129,7 +129,7 @@ const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings,
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full text-sm font-sans">
         {/* Logo */}
        <div className="flex justify-center pt-6">

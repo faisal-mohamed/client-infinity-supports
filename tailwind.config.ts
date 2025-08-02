@@ -9,8 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-  sans: ['var(--font-lexend)', 'sans-serif'],
-},
+        sans: ['var(--font-lexend)', 'sans-serif'],
+        montserrat: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+      },
 
       colors: {
         indigo: {

@@ -103,6 +103,11 @@ const homeVisitSchema : any = {
               title: "MODERATE ORANGE",
               color: "orange",
               text: "Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk."
+            },
+            {
+              title: "HIGH RED",
+              color: 'RED',
+              text: 'Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.'
             }
           ]
         }
@@ -442,6 +447,8 @@ const Page3 = ({ homeVisitResponse , settings}: any) => {
                         ${block?.color === "green" ? "text-green-600" : ""}
                         ${block?.color === "yellow" ? "text-yellow-600" : ""}
                         ${block?.color === "orange" ? "text-orange-600" : ""}
+                        ${block?.color === "RED" ? "text-red-600" : ""}
+
                       `}
                     >
                       {block?.title?.split(" ")[1]}
@@ -482,7 +489,7 @@ const Page4 = ({ homeVisitResponse, settings }: any) => {
       </div>
 
       {/* Risk Level Header */}
-      <div className="px-6 py-4 bg-red-50 border-b border-red-200">
+      {/* <div className="px-6 py-4 bg-red-50 border-b border-red-200">
         <div className="text-lg font-bold mb-2">
           <span>{page?.riskLevel?.label?.split(" ")[0]} </span>
           <span className="text-red-600">{page?.riskLevel?.label?.split(" ")[1]}</span>
@@ -490,7 +497,7 @@ const Page4 = ({ homeVisitResponse, settings }: any) => {
         <p className="text-sm text-gray-700 leading-relaxed">
           {page?.riskLevel?.description}
         </p>
-      </div>
+      </div> */}
 
       {/* Risk Assessment Table - with overflow containment */}
       <div className="px-6 pb-4 overflow-hidden">

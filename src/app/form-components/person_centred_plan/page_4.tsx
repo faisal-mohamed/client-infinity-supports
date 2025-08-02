@@ -1,5 +1,5 @@
-import React from 'react';
-import A4PageWrapper from './A4PageWrapper';
+import React from "react";
+import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
 interface Page4Props {
@@ -11,14 +11,37 @@ interface Page4Props {
 }
 
 const commonFieldMapping: Record<string, string> = {
-  name: 'name',
-  address: 'street',
-  dob: 'dob',
-  disability: 'disability',
-  ndisNumber: 'ndis',
+  name: "name",
+  address: "street",
+  dob: "dob",
+  disability: "disability",
+  ndisNumber: "ndis",
 };
 
-const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsData, settings }) => {
+
+
+export const formatDate = (value: string): string => {
+  if (!value || typeof value !== 'string') return '';
+
+  try {
+    const parsed = parseISO(value);
+    if (isValid(parsed)) {
+      return format(parsed, 'dd-MM-yyyy');
+    }
+  } catch (e) {
+    // fallback
+  }
+
+  return value; // fallback
+};
+
+
+const Page4: React.FC<Page4Props> = ({
+  formSchema: schema,
+  data,
+  commonFieldsData,
+  settings,
+}) => {
   const { columns, defaultRowCount = 3 } = schema.goals;
 
   // Always show at least `defaultRowCount` rows
@@ -48,7 +71,27 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
                   key={col.key}
                   className="border border-black px-2 py-3 text-left align-top font-bold text-sm leading-tight"
                 >
-                  {col.label}
+                  <strong>{col.label}</strong> <br />
+                  {col?.subLabel && (
+                    <>
+                      <span style={{ fontStyle: "italic" }}>
+                        {col.subLabel}
+                      </span>{" "}
+                      <br />
+                    </>
+                  )}
+                  {col?.subRating?.length > 0 && (
+                    <>
+                      <br />
+                      <span style={{ fontStyle: "italic" }}>
+                        {col.subRating.map((r: any, index: number) => (
+                          <div key={index}>
+                            - {r} <br />
+                          </div>
+                        ))}
+                      </span>
+                    </>
+                  )}
                 </th>
               ))}
             </tr>
@@ -60,11 +103,13 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
                   const dataKey = `${col.key}${rowIndex}`;
 
                   const isFromCommon = dataKey in commonFieldMapping;
-                  const mappedKey = isFromCommon ? commonFieldMapping[dataKey] : dataKey;
+                  const mappedKey = isFromCommon
+                    ? commonFieldMapping[dataKey]
+                    : dataKey;
 
                   const value = isFromCommon
-                    ? commonFieldsData?.[mappedKey] ?? ''
-                    : data?.[mappedKey] ?? '';
+                    ? commonFieldsData?.[mappedKey] ?? ""
+                    : data?.[mappedKey] ?? "";
 
                   return (
                     <td
@@ -72,7 +117,9 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
                       className="border border-black px-2 py-3 align-top text-sm leading-relaxed"
                     >
                       <div className="whitespace-pre-wrap min-h-[60px]">
-                        {value || '\u00A0'}
+{typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+  ? formatDate(value)
+  : value || "\u00A0"}
                       </div>
                     </td>
                   );
@@ -85,14 +132,18 @@ const Page4: React.FC<Page4Props> = ({ formSchema: schema, data, commonFieldsDat
 
       {/* Footer */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
-        <div>Website: {settings?.company_website || 'infinitysupportswa.org'}</div>
-        <div>{settings?.person_centre_plan_form_id || 'CF014'}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>      </div>
+        <div>
+          Website: {settings?.company_website || "infinitysupportswa.org"}
+        </div>
+        <div>{settings?.person_centre_plan_form_id || "CF014"}</div>
+        <div>
+          Review Date:{" "}
+          {settings?.review_date &&
+          /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+            ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+            : "N/A"}
+        </div>{" "}
+      </div>
     </A4PageWrapper>
   );
 };

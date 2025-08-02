@@ -161,7 +161,7 @@ const Page12: React.FC<any> = ({ data, commonFieldsData, settings, schema, image
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full w-full px-6 pt-6 pb-4 font-sans text-[11px]">
         {/* Header */}
         <div className="flex justify-center pt-4 pb-2">

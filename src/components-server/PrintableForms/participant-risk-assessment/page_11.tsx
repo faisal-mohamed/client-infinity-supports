@@ -185,7 +185,7 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full font-sans text-[11px] px-6 pt-6 pb-4">
         {/* Logo */}
         <div className="flex justify-center pt-4 pb-2">

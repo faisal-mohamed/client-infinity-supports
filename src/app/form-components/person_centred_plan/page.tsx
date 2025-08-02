@@ -48,12 +48,18 @@ page4: {
   goals: {
     type: 'table',
     columns: [
-      { key: 'goal', label: 'Goal', type: 'textarea' },
-      { key: 'rating', label: 'Outcome Rating', type: 'text' },
-      { key: 'actions', label: 'Actions & Resources', type: 'textarea' },
-      { key: 'byWhom', label: 'By Whom', type: 'text' },
-      { key: 'byWhen', label: 'By When', type: 'date' },
-      { key: 'reviewDate', label: 'Review Date', type: 'date' },
+      { key: 'goal', 
+          label: 'GOAL',
+          type: 'textarea' ,
+          subLabel: "Be specific and concise. Include the measure and time frame."
+        },
+        { key: 'rating', label: 'Outcome Rating', type: 'text', subLabel: 'Each goal needs to be marked as one of thebelow:',
+          subRating: ['Not Achieved', 'Partly Achieved', 'Completely Achieved', 'Withdrawn', 'New Goal']
+         },
+        { key: 'actions', label: 'Actions & Resources', type: 'textarea', subLabel: 'What needs to be put in place to support the participant to achieve the goal? What resources and skills are needed?' },
+        { key: 'byWhom', label: 'By Whom', type: 'text' },
+        { key: 'byWhen', label: 'By When', type: 'date' },
+        { key: 'reviewDate', label: 'Review Date', type: 'date' },
     ],
   },
 },

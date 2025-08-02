@@ -166,7 +166,7 @@ const Page10: React.FC<any> = ({
   );
 
   return (
-    <A4PageWrapper footer={footer}>
+    <A4PageWrapper>
       <div className="flex flex-col h-full text-sm font-sans px-6 py-6">
         {/* Logo */}
         <div className="flex justify-center pt-4 pb-2">

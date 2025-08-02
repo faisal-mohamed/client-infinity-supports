@@ -154,9 +154,12 @@ const Page9: React.FC<Page9Props> = ({ data, schema, settings, commonFieldsData 
 
                 <tr>
   <td className="border border-black p-4 leading-loose">
+    I conrm that this agreement has been explained to the person receiving the services (participant) and that they agree to
+this: [If signed by a Nominee:]
     <div className="flex">
       <div className="w-1/3">
         <strong>Signature of Nominee</strong>:<br />
+        
         {renderSignature('nomineeSignature') || "__________________"}
       </div>
       <div className="w-1/3">
