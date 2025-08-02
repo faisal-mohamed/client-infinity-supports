@@ -16,7 +16,7 @@ import { parseISO, isValid, format } from 'date-fns';
 const Page16: React.FC<any> = ({settings}: any ) => {
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full font-[Times_New_Roman] text-black text-base leading-relaxed">
+      <div className="flex flex-col h-full font-[Times_New_Roman] text-black text-sm leading-relaxed">
         {/* Top: Header with Logo and Tagline */}
         <div className="w-full max-w-3xl mx-auto px-6 pt-10 flex flex-col items-center mb-6">
           <img

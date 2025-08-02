@@ -56,12 +56,12 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
           </div>
 
           {/* Title */}
-          {/* <p className="text-center text-xs font-semibold mb-4">
+          {/* <p className="text-center text-[11px] font-semibold mb-4">
             {schema?.title}
           </p> */}
 
           {/* Table 1 - Budget Discussion & Goals */}
-          <table className="w-full border border-black border-collapse text-xs mb-6">
+          <table className="w-full border border-black border-collapse text-[11px] mb-6">
             <tbody>
               <tr>
                 <td className="border border-black p-2 font-bold" colSpan={2}>
@@ -96,7 +96,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
           </table>
 
           {/* Table 2 - Signatures */}
-          <table className="w-full border border-black border-collapse text-xs">
+          <table className="w-full border border-black border-collapse text-[11px]">
   <tbody>
     {/* Participant Signature */}
     <tr>
@@ -155,7 +155,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
         </div>
 
         {/* Footer */}
-         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+         <footer className="mt-auto flex justify-between text-[11px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
 <div>Review Date: {formatDate(settings?.review_date)}</div>

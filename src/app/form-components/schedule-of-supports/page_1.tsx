@@ -50,7 +50,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         </div>
 
         {/* Title */}
-        <div className="text-center font-semibold text-sm mb-4">
+        <div className="text-center font-semibold text-xs mb-4">
           Schedule of Support for: {commonFieldsData?.name || "________________"}
         </div>
 
@@ -123,7 +123,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         </div>
 
         {/* Footer - always sticks to bottom */}
-        <div className="flex justify-between text-xs mt-4 pt-4 px-2 text-gray-600">
+        <div className="flex justify-between text-xs px-2 text-gray-600">
           <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>

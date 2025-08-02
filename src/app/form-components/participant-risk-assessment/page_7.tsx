@@ -55,7 +55,7 @@ const Page7: React.FC<Page7Props> = ({
           </table>
 
           {/* Instruction */}
-          <p className="text-xs font-bold text-center mb-4 uppercase">
+          <p className="text-sm font-bold text-center mb-4 uppercase">
             If risk is identified, please discuss with the manager
           </p>
 

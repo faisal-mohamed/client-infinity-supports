@@ -148,7 +148,7 @@ const getValue = (key: string): string => {
         </div>
 
         {/* Footer */}
-        <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+        <footer className="mt-auto flex justify-between text-[11px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
 <div>Review Date: {formatDate(settings?.review_date)}</div>

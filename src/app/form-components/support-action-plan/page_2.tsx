@@ -7,7 +7,7 @@ import { parseISO, isValid, format } from 'date-fns';
 const Page2: React.FC<any> = ({ data, settings }) => {
 
   const renderYesNoCheckbox = (value: string) => (
-  <div className="flex gap-6 text-[10px]">
+  <div className="flex gap-6 text-[11px]">
     <label className="flex items-center gap-1">
       <span className="font-semibold">Yes</span>
       <input type="checkbox" checked={value === 'Yes'} readOnly />
@@ -43,13 +43,13 @@ const Page2: React.FC<any> = ({ data, settings }) => {
             alt="Infinity Supports WA Logo"
             className="h-[50px] w-[150px] object-contain"
           />
-          {/* <p className="text-sm text-gray-600 uppercase tracking-widest text-center">
+          {/* <p className="text-[11px] text-gray-600 uppercase tracking-widest text-center">
             Support Coordination Action Plan
           </p> */}
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 leading-relaxed text-[10px]">
+        <div className="flex-1 leading-relaxed text-[11px]">
           <table className="w-full border border-black border-collapse">
             <tbody>
               <tr className="bg-[#a9c1e0]">
@@ -163,7 +163,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
         </div>
 
         {/* Footer (always at bottom) */}
-         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+         <footer className="mt-auto flex justify-between text-[11px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
 <div>Review Date: {formatDate(settings?.review_date)}</div>

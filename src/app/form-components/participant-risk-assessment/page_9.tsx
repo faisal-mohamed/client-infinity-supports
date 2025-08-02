@@ -18,7 +18,7 @@ const Page9: React.FC<any> = ({data, commonFieldsData, settings, schema} : any) 
           />
     
         </div>
-              <p className="text-xs uppercase tracking-wider text-black-700 font-semibold" style={{ textAlign: 'center' }}>
+              <p className="text-sm uppercase tracking-wider text-black-700 font-semibold" style={{ textAlign: 'center' }}>
             Risk Assessment Matrix
           </p>
           <br />
@@ -38,7 +38,7 @@ const Page9: React.FC<any> = ({data, commonFieldsData, settings, schema} : any) 
 
         {/* Emergency Contact Table */}
         <div className="border border-black mb-6">
-          <table className="w-full border-collapse text-xs">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th
@@ -76,7 +76,7 @@ const Page9: React.FC<any> = ({data, commonFieldsData, settings, schema} : any) 
 
         {/* Utilities Table */}
         <div className="border border-black">
-          <table className="w-full border-collapse text-xs">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th

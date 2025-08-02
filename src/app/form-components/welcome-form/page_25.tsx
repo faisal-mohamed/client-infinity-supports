@@ -25,7 +25,7 @@ const Page25: React.FC<any> = ({settings}: any ) => {
         </div>
 
         {/* Contact Info */}
-        <div className="w-full max-w-3xl mx-auto px-6 flex-grow text-base leading-relaxed space-y-4">
+        <div className="w-full max-w-3xl mx-auto px-6 flex-grow text-sm leading-relaxed space-y-4">
           <div>
             <p className="font-bold">Important Contacts</p>
             <p>

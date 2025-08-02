@@ -46,7 +46,7 @@ const getValue = (key: string): string => {
 
   return (
     <A4PageWrapper>
-      <div className="h-full flex flex-col px-6 py-10 text-sm font-sans">
+      <div className="h-full flex flex-col px-6 py-10 text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center mb-10">
           <img

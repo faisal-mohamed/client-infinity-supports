@@ -20,7 +20,7 @@ const Page10: React.FC<any> = ({data, commonFieldsData, settings, schema} : any)
 
         {/* Contacts Table - stretch to fill space */}
         <div className="flex-1 flex flex-col">
-          <table className="w-full h-full border-collapse border border-black text-xs flex-grow">
+          <table className="w-full h-full border-collapse border border-black text-sm flex-grow">
             <tbody>
               <tr>
                 <td className="border border-black px-2 py-1">Gas Authority</td>
@@ -89,7 +89,7 @@ const Page10: React.FC<any> = ({data, commonFieldsData, settings, schema} : any)
               </tr>
 
               {/* Section Header */}
-              <tr className="bg-gray-300 font-bold text-xs">
+              <tr className="bg-gray-300 font-bold text-sm">
                 <td className="border border-black px-2 py-1" colSpan={3}>
                   Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)
                 </td>

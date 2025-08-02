@@ -38,7 +38,7 @@ const Page4: React.FC<any> = ({settings} : any ) => {
             Our Values
           </h1>
 
-          <section className="text-base leading-relaxed max-w-2xl space-y-6 text-justify">
+          <section className="text-sm leading-relaxed max-w-2xl space-y-6 text-justify">
             <p>
               <strong>Individuals</strong> – Giving every individual a voice, choice &amp; control and the
               opportunity to live a fulfilled life.

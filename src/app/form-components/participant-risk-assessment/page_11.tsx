@@ -3,18 +3,23 @@ import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
 interface Page11Props {
-     schema: any;
+  schema: any;
   data: any;
   commonFieldsData: Record<string, string>;
   settings: any;
 }
 
-const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, settings }) => {
+const Page11: React.FC<Page11Props> = ({
+  schema,
+  data,
+  commonFieldsData,
+  settings,
+}) => {
   const getValue = (key: string) => data?.[key] ?? "";
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-[11px]">
+      <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-sm">
         {/* Header */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -27,7 +32,7 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
         {/* Main content container */}
         <div className="flex-1 flex flex-col gap-6">
           {/* Pandemic and Communication Table */}
-          <table className="w-full border border-black border-collapse text-[10px]">
+          <table className="w-full border border-black border-collapse text-sm">
             <tbody>
               <tr>
                 <td className="border border-black p-2 align-top w-1/2">
@@ -67,14 +72,18 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
             </tbody>
           </table>
 
-          <br /><br /><br /><br /><br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
 
           {/* Emergency Procedures Table */}
           <div className="flex flex-col flex-grow">
             <div className="text-center font-bold text-sm mb-2">
               What to do in an Emergency?
             </div>
-            <table className="w-full border border-black border-collapse text-[10px]">
+            <table className="w-full border border-black border-collapse text-sm">
               <thead>
                 <tr className="bg-gray-300 font-bold text-black">
                   <th className="border border-black p-1 text-left w-1/2">
@@ -142,15 +151,16 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
 
         {/* Footer */}
         <div className="pt-4 mt-4">
-         <div className="flex justify-between text-xs px-2">
+          <div className="flex justify-between text-xs px-2">
             <div>Website: {settings?.company_website}</div>
             <div>{settings?.participant_risk_assessment}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
+            <div>
+              Review Date:{" "}
+              {settings?.review_date &&
+              /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                : "N/A"}
+            </div>
           </div>
         </div>
       </div>

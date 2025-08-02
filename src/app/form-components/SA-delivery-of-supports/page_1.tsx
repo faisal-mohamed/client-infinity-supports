@@ -71,7 +71,7 @@ const Page1: React.FC<Page1Props> = ({
 
         {/* Table - takes up most of the remaining space */}
         <div className="flex-1 flex flex-col">
-          <table className="w-full border border-black border-collapse text-xs flex-1">
+          <table className="w-full border border-black border-collapse text-sm flex-1">
             <tbody className="h-full">
               <tr>
                 <td
@@ -128,7 +128,7 @@ const Page1: React.FC<Page1Props> = ({
                       (option) => (
                         <div
                           key={option}
-                          className="flex items-center text-xs mb-1"
+                          className="flex items-center text-sm mb-1"
                         >
                           <input
                             type="checkbox"
@@ -157,7 +157,7 @@ const Page1: React.FC<Page1Props> = ({
                   </strong>
                 </td>
                 <td className="border border-black p-2 align-top">
-                  <label className="inline-flex items-center mr-3 text-xs">
+                  <label className="inline-flex items-center mr-3 text-sm">
                     <input
                       type="checkbox"
                       readOnly
@@ -166,7 +166,7 @@ const Page1: React.FC<Page1Props> = ({
                     />
                     Yes
                   </label>
-                  <label className="inline-flex items-center text-xs">
+                  <label className="inline-flex items-center text-sm">
                     <input
                       type="checkbox"
                       readOnly
@@ -234,7 +234,7 @@ const Page1: React.FC<Page1Props> = ({
 
         {/* Footer Description */}
         <div className="mt-4">
-          <p className="leading-relaxed text-xs">
+          <p className="leading-relaxed text-sm">
             All figures quoted are based on NDIS price guide. This Service
             Agreement is made for the purpose of providing supports in
             accordance with the Individual's plan, it outlines key

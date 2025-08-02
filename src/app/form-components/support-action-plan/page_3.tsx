@@ -118,12 +118,12 @@ const formatDate = (value: string): string => {
             className="h-[50px] w-[150px] object-contain"
           />
         </div>
-        {/* <p className="text-center text-gray-600 text-xs font-semibold mb-4 ">
+        {/* <p className="text-center text-gray-600 text-[11px] font-semibold mb-4 ">
           {schema?.title}
         </p> */}
 
         {/* Main Table */}
-        <form className="text-[10px] leading-[2] flex-1">
+        <form className="text-[11px] leading-[2] flex-1">
           <table className="w-full border-collapse border border-black">
             <tbody>
               {schema?.sections?.map?.((section, sectionIdx) => (
@@ -152,7 +152,7 @@ const formatDate = (value: string): string => {
         </form>
 
         {/* Footer */}
-         <footer className="mt-auto flex justify-between text-[10px] text-gray-500 pt-4">
+         <footer className="mt-auto flex justify-between text-[11px] text-gray-500 pt-4">
           <div>Website: {settings?.company_website}</div>
           <div>{settings?.support_action_plan}</div>
 <div>Review Date: {formatDate(settings?.review_date)}</div>
