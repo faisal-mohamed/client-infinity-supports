@@ -1,14 +1,14 @@
 import { ComponentType } from 'react';
 
 // PDF-specific form components
-import ClientIntakev2 from './ClientIntakev2';
+import ClientIntakev2 from './ClientIntakev2_FIXED';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page_FIXED'; // Assuming this is the correct import path
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
 import ParticipantRiskAssessment from './participant-risk-assessment/page_FIXED'; // Assuming this is the correct import path
-import EmergencyDrill from './emergency-drill/page'; // Assuming this is the correct import path
-import IndividualRiskAssessmentView from './individual-risk-assessment/page'; // Assuming this is the correct import path
-import WelcomeForm from './welcome-form/page';
+import EmergencyDrill from './emergency-drill/page_FIXED'; // Assuming this is the correct import path
+import IndividualRiskAssessmentView from './individual-risk-assessment/page_FIXED'; // Assuming this is the correct import path
+import WelcomeForm from './welcome-form/page_FIXED';
 import ScheduleForSupport from './support-action-plan/page_FIXED';
 import MDT from './mdt/page'
 import ScheduleOfSupports from './schedule-of-supports/page_FIXED';

@@ -33,50 +33,50 @@ export const formSchema = {
   }
 };
 
-export const formData = {
-  personName: 'John Doe',
-  activity: 'Swimming at Local Pool',
-  assessorName: 'Jane Smith',
-  date: '2025-07-17',
-  location: 'Perth WA',
+// export const formData = {
+//   personName: 'John Doe',
+//   activity: 'Swimming at Local Pool',
+//   assessorName: 'Jane Smith',
+//   date: '2025-07-17',
+//   location: 'Perth WA',
 
-  //page 2
-  riskIdentified_1: 'Slippery floor near entry',
-  likelihood_1: 'Likely',
-  severity_1: 'Moderate',
-  controls_1: 'Place wet floor sign, clean regularly',
+//   //page 2
+//   riskIdentified_1: 'Slippery floor near entry',
+//   likelihood_1: 'Likely',
+//   severity_1: 'Moderate',
+//   controls_1: 'Place wet floor sign, clean regularly',
 
-  riskIdentified_2: 'Unsupervised swimming',
-  likelihood_2: 'Possible',
-  severity_2: 'Extreme',
-  controls_2: 'Always have lifeguard present',
+//   riskIdentified_2: 'Unsupervised swimming',
+//   likelihood_2: 'Possible',
+//   severity_2: 'Extreme',
+//   controls_2: 'Always have lifeguard present',
 
-  riskIdentified_3: '',
-  likelihood_3: '',
-  severity_3: '',
-  controls_3: '',
+//   riskIdentified_3: '',
+//   likelihood_3: '',
+//   severity_3: '',
+//   controls_3: '',
 
-  riskIdentified_4: '',
-  likelihood_4: '',
-  severity_4: '',
-  controls_4: '',
+//   riskIdentified_4: '',
+//   likelihood_4: '',
+//   severity_4: '',
+//   controls_4: '',
 
-  riskIdentified_5: '',
-  likelihood_5: '',
-  severity_5: '',
-  controls_5: '',
+//   riskIdentified_5: '',
+//   likelihood_5: '',
+//   severity_5: '',
+//   controls_5: '',
 
-  riskIdentified_6: '',
-  likelihood_6: '',
-  severity_6: '',
-  controls_6: '',
+//   riskIdentified_6: '',
+//   likelihood_6: '',
+//   severity_6: '',
+//   controls_6: '',
 
-  //page3 
+//   //page3 
   
-  additionalSupport: 'Support worker required for mobility assistance during the activity. Emergency contact details updated.',
-  reviewDate: '2025-09-30',
-  assessorSignature: 'Jane Smith'
-};
+//   additionalSupport: 'Support worker required for mobility assistance during the activity. Emergency contact details updated.',
+//   reviewDate: '2025-09-30',
+//   assessorSignature: 'Jane Smith'
+// };
 
 const IndividualRiskAssessment = ({formKey, formData, commonFieldsData, settings, images} : any ) => {
   return (

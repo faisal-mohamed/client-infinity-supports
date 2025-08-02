@@ -74,8 +74,7 @@ const Page15: React.FC<any> = ({settings}: any ) => {
               Collaborating with you, your family and/or advocate to manage and resolve the incident.
             </li>
             <li>
-              Making necessary amendments to systems and processes to reduce the risk of recurrence.
-            </li>
+	Reviewing the incident and making necessary amendments to systems and processes to reduce the risk of recurrence.            </li>
           </ul>
 
           <p className="mb-12">

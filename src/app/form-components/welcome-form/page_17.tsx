@@ -41,7 +41,7 @@ const Page17: React.FC<any> = ({settings}: any ) => {
                 <li>Serious injury of a person with disability</li>
                 <li>Abuse or neglect of a person with disability</li>
                 <li>Unlawful sexual or physical contact with, or assault of, a person with disability</li>
-                <li>Sexual misconduct, including grooming, committed against or in the presence of a person with disability</li>
+                <li>●	Sexual misconduct, committed against, or in the presence of, a person with disability, including grooming of the person with disability for sexual activity</li>
               </ul>
             </li>
 
