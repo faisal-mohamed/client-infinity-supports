@@ -593,6 +593,7 @@ const adminId : any  = session?.user?.id;
   };
 
   const updateCommonFields = async () => {
+    console.log("updating common fields..........")
     if (!commonFields) return;
 
     try {

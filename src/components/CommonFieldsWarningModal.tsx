@@ -1,7 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { FaTimes, FaExclamationTriangle, FaDownload, FaSpinner, FaCheckCircle, FaFileAlt, FaUser, FaShieldAlt } from 'react-icons/fa';
+import { useEffect, useState } from "react";
+import {
+  FaTimes,
+  FaExclamationTriangle,
+  FaDownload,
+  FaSpinner,
+  FaCheckCircle,
+  FaFileAlt,
+  FaUser,
+  FaShieldAlt,
+} from "react-icons/fa";
 
 interface FormAssignment {
   id: number;
@@ -32,21 +41,25 @@ export default function CommonFieldsWarningModal({
   onProceed,
   clientName,
   assignments,
-  onDownloadForm
+  onDownloadForm,
 }: CommonFieldsWarningModalProps) {
-  const [downloadingForms, setDownloadingForms] = useState<Set<number>>(new Set());
-  const [downloadedForms, setDownloadedForms] = useState<Set<number>>(new Set());
+  const [downloadingForms, setDownloadingForms] = useState<Set<number>>(
+    new Set()
+  );
+  const [downloadedForms, setDownloadedForms] = useState<Set<number>>(
+    new Set()
+  );
   const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
 
   const handleDownload = async (assignmentId: number, formTitle: string) => {
     try {
-      setDownloadingForms(prev => new Set(prev).add(assignmentId));
+      setDownloadingForms((prev) => new Set(prev).add(assignmentId));
       await onDownloadForm(assignmentId, formTitle);
-      setDownloadedForms(prev => new Set(prev).add(assignmentId));
+      setDownloadedForms((prev) => new Set(prev).add(assignmentId));
     } catch (error) {
-      console.error('Error downloading form:', error);
+      console.error("Error downloading form:", error);
     } finally {
-      setDownloadingForms(prev => {
+      setDownloadingForms((prev) => {
         const newSet = new Set(prev);
         newSet.delete(assignmentId);
         return newSet;
@@ -55,18 +68,23 @@ export default function CommonFieldsWarningModal({
   };
 
   const handleDownloadAll = async () => {
-    const formsToDownload = assignments.filter(assignment => 
-      assignment.hasSubmission && !downloadedForms.has(assignment.id)
+    const formsToDownload = assignments.filter(
+      (assignment) =>
+        assignment.hasSubmission && !downloadedForms.has(assignment.id)
     );
 
     for (const assignment of formsToDownload) {
       await handleDownload(assignment.id, assignment.form.title);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   };
 
-  const completedForms = assignments.filter(assignment => assignment.hasSubmission);
-  const allDownloaded = completedForms.every(assignment => downloadedForms.has(assignment.id));
+  const completedForms = assignments.filter(
+    (assignment) => assignment.hasSubmission
+  );
+  const allDownloaded = completedForms.every((assignment) =>
+    downloadedForms.has(assignment.id)
+  );
 
   if (!isOpen) return null;
 
@@ -87,7 +105,10 @@ export default function CommonFieldsWarningModal({
                 <div className="flex items-center gap-2">
                   <FaUser className="h-4 w-4 text-gray-500" />
                   <p className="text-sm sm:text-base text-gray-600 truncate">
-                    Backup current versions before updating common fields for <span className="font-semibold text-orange-600">{clientName}</span>
+                    Backup current versions before updating common fields for{" "}
+                    <span className="font-semibold text-orange-600">
+                      {clientName}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -115,14 +136,18 @@ export default function CommonFieldsWarningModal({
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-amber-700">
                   <div>
-                    <h5 className="font-semibold mb-2 text-amber-800">Data Protection:</h5>
+                    <h5 className="font-semibold mb-2 text-amber-800">
+                      Data Protection:
+                    </h5>
                     <ul className="space-y-1">
                       <li>• Common field changes affect all client forms</li>
                       <li>• Downloaded PDFs preserve original data</li>
                     </ul>
                   </div>
                   <div>
-                    <h5 className="font-semibold mb-2 text-amber-800">Compliance:</h5>
+                    <h5 className="font-semibold mb-2 text-amber-800">
+                      Compliance:
+                    </h5>
                     <ul className="space-y-1">
                       <li>• Maintains audit trail and version control</li>
                       <li>• Required for record-keeping compliance</li>
@@ -145,7 +170,9 @@ export default function CommonFieldsWarningModal({
                     <h4 className="text-xl font-bold text-gray-900">
                       Available Forms ({completedForms.length})
                     </h4>
-                    <p className="text-sm text-gray-600">Ready for download and backup</p>
+                    <p className="text-sm text-gray-600">
+                      Ready for download and backup
+                    </p>
                   </div>
                 </div>
                 <button
@@ -176,15 +203,21 @@ export default function CommonFieldsWarningModal({
               {completedForms.length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-gray-700">Download Progress</span>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Download Progress
+                    </span>
                     <span className="text-sm font-bold text-indigo-600">
                       {downloadedForms.size} / {completedForms.length} completed
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full shadow-md transition-all duration-500 ease-out"
-                      style={{ width: `${(downloadedForms.size / completedForms.length) * 100}%` }}
+                      style={{
+                        width: `${
+                          (downloadedForms.size / completedForms.length) * 100
+                        }%`,
+                      }}
                     ></div>
                   </div>
                 </div>
@@ -199,35 +232,41 @@ export default function CommonFieldsWarningModal({
                 <div className="p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                   <FaFileAlt className="h-16 w-16 text-gray-400" />
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">No Forms Available</h4>
-                <p className="text-gray-600">No forms have been assigned to this client yet.</p>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">
+                  No Forms Available
+                </h4>
+                <p className="text-gray-600">
+                  No forms have been assigned to this client yet.
+                </p>
               </div>
             ) : (
               assignments.map((assignment, index) => (
                 <div
                   key={assignment.id}
                   className={`border-2 rounded-2xl p-6 transition-all duration-300 shadow-md hover:shadow-lg ${
-                    assignment.hasSubmission 
+                    assignment.hasSubmission
                       ? downloadedForms.has(assignment.id)
-                        ? 'border-green-300 bg-gradient-to-br from-green-50 to-green-100'
-                        : 'border-gray-200 bg-white hover:border-indigo-200 hover:bg-gradient-to-br hover:from-gray-50 hover:to-indigo-50'
-                      : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100'
+                        ? "border-green-300 bg-gradient-to-br from-green-50 to-green-100"
+                        : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-gradient-to-br hover:from-gray-50 hover:to-indigo-50"
+                      : "border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100"
                   }`}
                   style={{
                     animationDelay: `${index * 50}ms`,
-                    animation: 'fadeInUp 0.6s ease-out forwards'
+                    animation: "fadeInUp 0.6s ease-out forwards",
                   }}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-4 mb-3">
-                        <div className={`p-3 rounded-xl shadow-md ${
-                          assignment.hasSubmission 
-                            ? downloadedForms.has(assignment.id)
-                              ? 'bg-gradient-to-br from-green-500 to-green-600 text-white'
-                              : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
-                            : 'bg-gradient-to-br from-gray-400 to-gray-500 text-white'
-                        }`}>
+                        <div
+                          className={`p-3 rounded-xl shadow-md ${
+                            assignment.hasSubmission
+                              ? downloadedForms.has(assignment.id)
+                                ? "bg-gradient-to-br from-green-500 to-green-600 text-white"
+                                : "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                              : "bg-gradient-to-br from-gray-400 to-gray-500 text-white"
+                          }`}
+                        >
                           <FaFileAlt className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
@@ -235,14 +274,19 @@ export default function CommonFieldsWarningModal({
                             {assignment.form.title}
                           </h5>
                           <p className="text-sm text-gray-600">
-                            Form Key: <span className="font-mono bg-gray-100 px-2 py-1 rounded">{assignment.form.formKey}</span>
+                            Form Key:{" "}
+                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+                              {assignment.form.formKey}
+                            </span>
                             {assignment.hasSubmission && (
-                              <span className="ml-2 text-green-600 font-semibold">• Ready for download</span>
+                              <span className="ml-2 text-green-600 font-semibold">
+                                • Ready for download
+                              </span>
                             )}
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-2">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border border-gray-300">
                           v{assignment.form.version}
@@ -274,7 +318,12 @@ export default function CommonFieldsWarningModal({
                           </div>
                         ) : (
                           <button
-                            onClick={() => handleDownload(assignment.id, assignment.form.title)}
+                            onClick={() =>
+                              handleDownload(
+                                assignment.id,
+                                assignment.form.title
+                              )
+                            }
                             disabled={downloadingForms.has(assignment.id)}
                             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
                           >
@@ -314,18 +363,18 @@ export default function CommonFieldsWarningModal({
               </div>
               <div>
                 <div className="text-lg font-bold text-gray-900">
-                  {completedForms.length > 0 ? (
-                    `${downloadedForms.size} of ${completedForms.length} forms downloaded`
-                  ) : (
-                    'No completed forms to download'
-                  )}
+                  {completedForms.length > 0
+                    ? `${downloadedForms.size} of ${completedForms.length} forms downloaded`
+                    : "No completed forms to download"}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {completedForms.length > 0 && !allDownloaded && 'Download remaining forms for backup'}
+                  {completedForms.length > 0 &&
+                    !allDownloaded &&
+                    "Download remaining forms for backup"}
                 </div>
               </div>
             </div>
-            
+
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
@@ -334,7 +383,7 @@ export default function CommonFieldsWarningModal({
               >
                 Cancel
               </button>
-              
+
               {completedForms.length > 0 && !allDownloaded && (
                 <button
                   onClick={onProceed}
@@ -344,26 +393,33 @@ export default function CommonFieldsWarningModal({
                 </button>
               )}
 
-             
               {completedForms.length > 0 && allDownloaded && (
                 <button
                   onClick={onProceed}
                   className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 text-white rounded-xl hover:from-amber-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                  All Downloaded. Now Proceed 
+                  All Downloaded. Now Proceed
                 </button>
               )}
 
               {assignments.length === 0 && (
-  <button
-    onClick={onProceed}
-    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
-  >
-    Proceed to Edit Common Fields
-  </button>
-)}
+                <button
+                  onClick={onProceed}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  Proceed to Edit Common Fields
+                </button>
+              )}
 
-              
+              {assignments.length > 0 && completedForms.length === 0 && (
+                <button
+                  onClick={onProceed}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  Proceed to Edit Common Fields
+                </button>
+              )}
+
               {/* <button
                 onClick={onProceed}
                 className={`px-8 py-3 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 ${
@@ -396,18 +452,18 @@ export default function CommonFieldsWarningModal({
             transform: scale(1) translateY(0);
           }
         }
-        
+
         @keyframes fadeInUp {
-          from { 
-            opacity: 0; 
-            transform: translateY(20px); 
+          from {
+            opacity: 0;
+            transform: translateY(20px);
           }
-          to { 
-            opacity: 1; 
-            transform: translateY(0); 
+          to {
+            opacity: 1;
+            transform: translateY(0);
           }
         }
-        
+
         .animate-modal-appear {
           animation: modal-appear 0.3s ease-out forwards;
         }

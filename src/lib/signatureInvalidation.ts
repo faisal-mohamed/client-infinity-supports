@@ -13,6 +13,7 @@ export interface CommonField {
   disability?: string;
   address?: string;
   phone?: string;
+  surname?: string;
 }
 
 export interface SignatureInvalidationData {
@@ -33,7 +34,7 @@ export function detectCommonFieldChanges(original: CommonField | null, updated: 
   if (!original) return true; // If no original data, consider it a change
   
   const fieldsToCheck: (keyof CommonField)[] = [
-    'name', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
+    'name', 'surname', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
     'dob', 'ndis', 'disability', 'address', 'phone'
   ];
   
@@ -51,7 +52,7 @@ export function getChangedCommonFields(original: CommonField | null, updated: Co
   if (!original) return Object.keys(updated).filter(key => key !== 'id' && key !== 'clientId');
   
   const fieldsToCheck: (keyof CommonField)[] = [
-    'name', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
+    'name', 'surname', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
     'dob', 'ndis', 'disability', 'address', 'phone'
   ];
   

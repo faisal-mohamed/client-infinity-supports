@@ -33,7 +33,6 @@ export default function CreateClientPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showAdditionalFields, setShowAdditionalFields] = useState(false);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -57,7 +56,7 @@ export default function CreateClientPage() {
     }
 
     if (!surname.trim()) {
-      newErrors.name = "Surname is required";
+      newErrors.surname = "Surname is required";
     }
 
     if (!email.trim()) {
@@ -72,8 +71,7 @@ export default function CreateClientPage() {
       newErrors.phone = "Phone must be 10 digits";
     }
 
-    // Additional Information - Required when section is shown
-    if (showAdditionalFields) {
+
       if (!ndisNumber.trim()) {
         newErrors.ndisNumber = "NDIS number is required";
       } else if (!/^\d+$/.test(ndisNumber)) {
@@ -107,7 +105,7 @@ export default function CreateClientPage() {
       if (!disability.trim()) {
         newErrors.disability = "Disability/Conditions information is required";
       }
-    }
+    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -175,7 +173,7 @@ export default function CreateClientPage() {
       };
 
       // Only add commonFields if the additional fields section is shown
-      if (showAdditionalFields) {
+      
         // Create a clean commonFields object with only defined values
         const cleanCommonFields: any = {};
 
@@ -202,7 +200,7 @@ export default function CreateClientPage() {
         if (Object.keys(cleanCommonFields).length > 0) {
           clientData.commonFields = cleanCommonFields;
         }
-      }
+      
 
       console.log("Sending client data:", JSON.stringify(clientData));
 
@@ -427,7 +425,7 @@ export default function CreateClientPage() {
                       placeholder="Enter client's full name"
                       required
                     />
-                    {errors.name && (
+                    {errors.surname && (
                       <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
                         <svg
                           className="h-4 w-4"
@@ -534,70 +532,13 @@ export default function CreateClientPage() {
 
             {/* Enhanced Additional Information Toggle */}
             <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAdditionalFields(!showAdditionalFields);
-                  if (showAdditionalFields) {
-                    const additionalFieldErrors = [
-                      "ndisNumber",
-                      "dateOfBirth",
-                      "sex",
-                      "address",
-                      "state",
-                      "postCode",
-                      "disability",
-                    ];
-                    setErrors((prev) => {
-                      const newErrors = { ...prev };
-                      additionalFieldErrors.forEach(
-                        (field) => delete newErrors[field]
-                      );
-                      return newErrors;
-                    });
-                  }
-                }}
-                className="flex items-center gap-3 text-slate-600 hover:text-slate-800 font-bold transition-all duration-200 bg-slate-50 hover:bg-slate-100 px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:scale-105"
-              >
-                {showAdditionalFields ? (
-                  <>
-                    <FaChevronUp className="h-5 w-5" />
-                    Hide Additional Information
-                  </>
-                ) : (
-                  <>
-                    <FaChevronDown className="h-5 w-5" />
-                    Show Additional Information
-                  </>
-                )}
-              </button>
-              {!showAdditionalFields && (
-                <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-amber-500 text-white">
-                      <svg
-                        className="h-4 w-4"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-sm font-medium text-amber-800">
-                      When expanded, all additional fields become mandatory for
-                      a complete client profile
-                    </p>
-                  </div>
-                </div>
-              )}
+              
+              
+              
             </div>
 
             {/* Enhanced Additional Information */}
-            {showAdditionalFields && (
+             
               <div className="p-8 border-b border-gray-100 animate-fade-in">
                 <div className="flex items-center gap-4 mb-8">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
@@ -947,7 +888,7 @@ export default function CreateClientPage() {
                   </div>
                 </div>
               </div>
-            )}
+            
 
             {/* Enhanced Navigation Option */}
             <div className="px-8 py-6 bg-gradient-to-r from-rose-50 to-rose-100 border-b border-rose-200">
