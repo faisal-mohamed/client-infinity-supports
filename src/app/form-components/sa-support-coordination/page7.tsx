@@ -3,26 +3,13 @@ import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
 interface Page7Props {
-  data?: {
-    consentMedia?: string;
-    consentInfoShare?: string;
-    consentAudit?: string;
-
-    participantSignature?: string;
-    participantDate?: string;
-    participantName?: string;
-
-    nomineeSignature?: string;
-    nomineeDate?: string;
-    nomineeName?: string;
-
-    staffSignature?: string;
-    staffDate?: string;
-    staffName?: string;
-  };
+    data?: any,
+  commonFieldsData?: any,
+  settings?: any
 }
 
-const Page7: React.FC<Page7Props> = ({ data }) => {
+const Page7: React.FC<Page7Props> = ({ data, commonFieldsData, settings }) => {
+  console.log("DATAAAA: ", data);
   const getValue = (key: string): string => {
     const rawValue = data?.[key as keyof typeof data];
 
@@ -112,7 +99,7 @@ const Page7: React.FC<Page7Props> = ({ data }) => {
                         <li>GP / Healthcare Professional</li>
                         <li>Therapy Providers</li>
                         <li>Plan Managers</li>
-                        <li>Others: ____________________________________</li>
+                        <li>Others: {getValue("consentInfoShareOthers") || '________________________'}</li>
                       </ul>
                     </div>
                   </td>
@@ -184,7 +171,7 @@ const Page7: React.FC<Page7Props> = ({ data }) => {
                       </div>
                       <div className="w-1/3">
                         <strong>Date</strong>:<br />
-                        {getValue("participantDate") || "___/___/____"}
+                        {getValue("participantSignatureDate") || "___/___/____"}
                       </div>
                       <div className="w-1/3">
                         <strong>Name</strong>:<br />
@@ -204,7 +191,7 @@ const Page7: React.FC<Page7Props> = ({ data }) => {
                       </div>
                       <div className="w-1/3">
                         <strong>Date</strong>:<br />
-                        {getValue("nomineeDate") || "___/___/____"}
+                        {getValue("nomineeSignatureDate") || "___/___/____"}
                       </div>
                       <div className="w-1/3">
                         <strong>Name</strong>:<br />
@@ -223,15 +210,15 @@ const Page7: React.FC<Page7Props> = ({ data }) => {
                     <div className="flex">
                       <div className="w-1/3">
                         <strong>Signature on behalf of Infinity Supports WA</strong>:<br />
-                        {renderSignature("staffSignature")}
+                        {renderSignature("providerSignature")}
                       </div>
                       <div className="w-1/3">
                         <strong>Date</strong>:<br />
-                        {getValue("staffDate") || "___/___/____"}
+                        {getValue("providerSignatureDate") || "___/___/____"}
                       </div>
                       <div className="w-1/3">
                         <strong>Name</strong>:<br />
-                        {getValue("staffName") || "____________________"}
+                        {getValue("providerName") || "____________________"}
                       </div>
                     </div>
                   </td>
@@ -243,9 +230,15 @@ const Page7: React.FC<Page7Props> = ({ data }) => {
 
         {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportwa.org</div>
-          <div>CF008</div>
-          <div>Review Date: 14/03/2026</div>
+           <div>Website: {settings?.company_website}</div>
+                                <div>{settings?.participant_risk_assessment}</div>
+                                <div>
+                                  Review Date:{" "}
+                                  {settings?.review_date &&
+                                  /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                                    ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                                    : "N/A"}
+                                </div>
         </div>
       </div>
     </A4PageWrapper>

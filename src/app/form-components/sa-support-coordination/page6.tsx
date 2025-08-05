@@ -1,7 +1,8 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { format, parseISO, isValid } from "date-fns";
 
-const Page6: React.FC = () => {
+const Page6 = ({data, commonFieldsData, settings} : any) => {
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
@@ -51,9 +52,15 @@ const Page6: React.FC = () => {
 
         {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportwa.org</div>
-          <div>CF008</div>
-          <div>Review Date: 14/03/2026</div>
+           <div>Website: {settings?.company_website}</div>
+                                <div>{settings?.participant_risk_assessment}</div>
+                                <div>
+                                  Review Date:{" "}
+                                  {settings?.review_date &&
+                                  /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                                    ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                                    : "N/A"}
+                                </div>
         </div>
       </div>
     </A4PageWrapper>

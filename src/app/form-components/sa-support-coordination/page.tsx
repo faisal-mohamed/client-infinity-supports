@@ -180,90 +180,90 @@ page7: {
 
 
 
-export const formData = {
-  date: "",
-  surname: "",
-  givenNames: "",
-  sex: "",
-  pronoun: "",
-  indigenousDescent: "",
-  preferredName: "",
-  dob: "",
-  address: "",
-  state: "WA",
-  postcode: "",
-  email: "",
-  homePhone: "",
-  mobile: "",
-  noCopyRequested: false,
-  planAttached: false,
-  planNotAttached: false,
-  supportCategory1: "07_001_0106_8_3 Level 1 Support Connection",
-  weeks1: "123",
-  totalHours1: "",
-  costPerHour1: "$74.63",
-  totalCost1: "",
+// export const formData = {
+//   date: "",
+//   surname: "",
+//   givenNames: "",
+//   sex: "",
+//   pronoun: "",
+//   indigenousDescent: "",
+//   preferredName: "",
+//   dob: "",
+//   address: "",
+//   state: "WA",
+//   postcode: "",
+//   email: "",
+//   homePhone: "",
+//   mobile: "",
+//   noCopyRequested: false,
+//   planAttached: false,
+//   planNotAttached: false,
+//   supportCategory1: "07_001_0106_8_3 Level 1 Support Connection",
+//   weeks1: "123",
+//   totalHours1: "",
+//   costPerHour1: "$74.63",
+//   totalCost1: "",
 
-  supportCategory2: "07_002_0106_8_3 Level 2 Support Coordination",
-  weeks2: "",
-  totalHours2: "",
-  costPerHour2: "$100.14",
-  totalCost2: "",
+//   supportCategory2: "07_002_0106_8_3 Level 2 Support Coordination",
+//   weeks2: "",
+//   totalHours2: "",
+//   costPerHour2: "$100.14",
+//   totalCost2: "",
 
-  supportCategory3: "07_101_0106_6_3 Psychosocial Recovery Coaching",
-  weeks3: "",
-  totalHours3: "",
-  costPerHour3: "$98.30",
-  totalCost3: "",
+//   supportCategory3: "07_101_0106_6_3 Psychosocial Recovery Coaching",
+//   weeks3: "",
+//   totalHours3: "",
+//   costPerHour3: "$98.30",
+//   totalCost3: "",
 
-  conflictDeclaration: "Mohamed",
-  conflictOption1: "",
-  conflictOption2: "",
-  conflictOption3: "",
-
-
-  //page 3
-  signature: "John Doe",
-  printName: "Johnathan Doe",
-  signDate: "2025-08-04",
-
-  selfManaged: true,
-  nomineeManaged: false,
-  ndiaManaged: true,
-  planManagerManaged: false,
-
-  planManagerName: "PlanPro Manager",
-  planManagerEmail: "planpro@example.com",
-
-  //page 7
-   consentMedia: "Yes",
-  consentInfoShare: "No",
-  consentAudit: "Yes",
-
-  participantSignature: "John Doe",
-  participantDate: "2025-08-04",
-  participantName: "John Doe",
-
-  nomineeSignature: "Jane Smith",
-  nomineeDate: "2025-08-04",
-  nomineeName: "Jane Smith",
-
-  staffSignature: "Michael Staff",
-  staffDate: "2025-08-04",
-  staffName: "Michael Staff",
-};
+//   conflictDeclaration: "Mohamed",
+//   conflictOption1: "",
+//   conflictOption2: "",
+//   conflictOption3: "",
 
 
-const SASupportCoordination = ({formKey, data, settings} : any ) => {
+//   //page 3
+//   signature: "John Doe",
+//   printName: "Johnathan Doe",
+//   signDate: "2025-08-04",
+
+//   selfManaged: true,
+//   nomineeManaged: false,
+//   ndiaManaged: true,
+//   planManagerManaged: false,
+
+//   planManagerName: "PlanPro Manager",
+//   planManagerEmail: "planpro@example.com",
+
+//   //page 7
+//    consentMedia: "Yes",
+//   consentInfoShare: "No",
+//   consentAudit: "Yes",
+
+//   participantSignature: "John Doe",
+//   participantDate: "2025-08-04",
+//   participantName: "John Doe",
+
+//   nomineeSignature: "Jane Smith",
+//   nomineeDate: "2025-08-04",
+//   nomineeName: "Jane Smith",
+
+//   staffSignature: "Michael Staff",
+//   staffDate: "2025-08-04",
+//   staffName: "Michael Staff",
+// };
+
+
+const SASupportCoordination = ({formKey, formData, settings, commonFieldsData} : any ) => {
   return (
     <div>
-        <Page1 data={formData}/>
-        <Page2 data={formData}/>
-        <Page3 data={formData}/>
-        <Page4/>
-        <Page5/>
-        <Page6/>
-        <Page7 data={formData}/>
+        <Page1 data={formData} settings={settings} commonFieldsData={commonFieldsData} />
+        <Page2 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page3 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page4 settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page5 settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page6 settings={settings} commonFieldsData={commonFieldsData}/>
+        <Page7 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
     </div>
   )
 }

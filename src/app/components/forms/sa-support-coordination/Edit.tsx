@@ -18,6 +18,13 @@ import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
 
+import {
+  selfManaged,
+  ndiaManaged,
+  nomineeManaged,
+  planManagerManaged,
+} from "@/app/admin/clients/[id]/forms/helper";
+
 interface FormProps {
   formData: any;
   commonFieldsData: any;
@@ -31,7 +38,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-const FORM_SECTIONS = [
+const FORM_SECTIONS : any = [
   {
     id: "page1",
     title: "Service Agreement Support Coordination - Section 1",
@@ -63,7 +70,7 @@ const FORM_SECTIONS = [
     title: "Schedule of Support",
     description: "",
     icon: "FaClipboardList",
-    fields: ["scheduleTable", "conflictDeclaration", "conflictOptions"],
+    fields: ["scheduleTable", "conflictDeclaration"],
     requiredFields: [],
   },
   {
@@ -92,7 +99,17 @@ const FORM_SECTIONS = [
     fields: [
       "consentMedia",
       "consentInfoShare",
+      "consentInfoShareOthers",
       "consentAudit",
+    ],
+    requiredFields: [],
+  },
+  {
+    id: "signatures",
+    title: "Consent Form",
+    description: "",
+    icon: "FaClipboardList",
+    fields: [
       "participantSignature",
       "participantDate",
       "participantName",
@@ -118,7 +135,7 @@ const commonFieldsMapping: Record<string, string> = {
   email: "email",
   mobilePhone: "phone",
   surname: "surname",
-  mobile: "phone"
+  mobile: "phone",
 };
 
 // Helper function to check if a field is a common field
@@ -161,137 +178,184 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
   const nomineeSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
   const providerSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
 
-const initialValues = {
-  // Page 1: Participant Details
-  date: "",
-  surname: "",
-  givenNames: "",
-  sex: "",
-  pronoun: "",
-  indigenousDescent: "",
-  preferredName: "",
-  dob: "",
-  address: "",
-  state: "WA",
-  postcode: "",
-  email: "",
-  homePhone: "",
-  mobile: "",
-  noCopyRequested: false,
-  planAttached: false,
-  planNotAttached: false,
+  const generalSignatureRef: any = useRef<SignatureCanvasRef | null>(null); //page 3 signature requirement
 
-  // Page 2: Schedule of Support (flat format)
-  supportCategory1: "07_001_0106_8_3 Level 1 Support Connection",
-  weeks1: "123",
-  totalHours1: "",
-  costPerHour1: "$74.63",
-  totalCost1: "",
+  const initialValues = {
+    // Page 1: Participant Details
+    date: "",
+    surname: "",
+    givenNames: "",
+    sex: "",
+    pronoun: "",
+    indigenousDescent: "",
+    preferredName: "",
+    dob: "",
+    address: "",
+    state: "",
+    postcode: "",
+    email: "",
+    homePhone: "",
+    mobile: "",
+    noCopyRequested: false,
+    planAttached: false,
+    planNotAttached: false,
 
-  supportCategory2: "07_002_0106_8_3 Level 2 Support Coordination",
-  weeks2: "",
-  totalHours2: "",
-  costPerHour2: "$100.14",
-  totalCost2: "",
+    // Page 2: Schedule of Support (flat format)
+    supportCategory1: "",
+    weeks1: "",
+    totalHours1: "",
+    costPerHour1: "",
+    totalCost1: "",
 
-  supportCategory3: "07_101_0106_6_3 Psychosocial Recovery Coaching",
-  weeks3: "",
-  totalHours3: "",
-  costPerHour3: "$98.30",
-  totalCost3: "",
+    supportCategory2: "",
+    weeks2: "",
+    totalHours2: "",
+    costPerHour2: "",
+    totalCost2: "",
 
-  conflictDeclaration: "Mohamed",
-  conflictOption1: "",
-  conflictOption2: "",
-  conflictOption3: "",
+    supportCategory3: "",
+    weeks3: "",
+    totalHours3: "",
+    costPerHour3: "",
+    totalCost3: "",
 
-  // Page 3: Signature & Funding
-  signature: "John Doe",
-  printName: "Johnathan Doe",
-  signDate: "2025-08-04",
+    conflictDeclaration: "",
+    conflictOption1: "",
+    conflictOption2: "",
+    conflictOption3: "",
 
-  selfManaged: true,
-  nomineeManaged: false,
-  ndiaManaged: true,
-  planManagerManaged: false,
+    // Page 3: Signature & Funding
 
-  planManagerName: "PlanPro Manager",
-  planManagerEmail: "planpro@example.com",
+    selfManaged: false,
+    nomineeManaged: false,
+    ndiaManaged: false,
+    planManagerManaged: false,
 
-  // Page 7: Consent Form
-  consentMedia: "Yes",
-  consentInfoShare: "No",
-  consentAudit: "Yes",
+    planManagerName: "",
+    planManagerEmail: "",
 
-  participantSignature: "John Doe",
-  participantDate: "2025-08-04",
-  participantName: "John Doe",
+    // Page 7: Consent Form
+    consentMedia: "",
+    consentInfoShare: "",
+    consentInfoShareOthers: "",
+    consentAudit: "",
 
-  nomineeSignature: "Jane Smith",
-  nomineeDate: "2025-08-04",
-  nomineeName: "Jane Smith",
+    signature: "",
+    printName: "",
+    signDate: "",
 
-  staffSignature: "Michael Staff",
-  staffDate: "2025-08-04",
-  staffName: "Michael Staff",
-};
-const renderFlatScheduleTable = () => {
-  const rowIndexes = [1, 2, 3]; // or dynamically derive if you expect more rows
+    ...formData,
 
-  const handleChange = (index: number, key: string, value: string) => {
-    const prefix = `${key}${index}`;
-    const newValues = { ...localValues, [prefix]: value };
+    participantSignature: "",
+    participantDate: "",
+    participantName: "",
 
-    if (key === "totalHours" || key === "costPerHour") {
-      const hours = parseFloat(newValues[`totalHours${index}`] || "0");
-      const rate = parseFloat((newValues[`costPerHour${index}`] || "").replace(/[^0-9.]/g, ""));
-      if (!isNaN(hours) && !isNaN(rate)) {
-        newValues[`totalCost${index}`] = (hours * rate).toFixed(2);
-      }
-    }
+    nomineeSignature: "",
+    nomineeDate: "",
+    nomineeName: "",
 
-    setLocalValues(newValues);
-    onChange(newValues);
+    providerSignature: "",
+    providerSignatureDate: "",
+    providerName: "",
   };
 
-  return (
-    <div className="overflow-x-auto border rounded-md">
-      <table className="min-w-full text-sm border-collapse">
-        <thead className="bg-gray-100">
-          <tr>
-            {["Support Category", "Weeks", "Total Hours", "Cost per hr", "Total Cost"].map((header) => (
-              <th key={header} className="border px-3 py-2 text-left font-semibold">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rowIndexes.map((i) => (
-            <tr key={i} className="bg-white border-t">
-              {["supportCategory", "weeks", "totalHours", "costPerHour", "totalCost"].map((key) => (
-                <td key={key} className="border px-3 py-2">
-                  {key === "totalCost" ? (
-                    <span>{localValues[`${key}${i}`] || ""}</span>
-                  ) : (
-                    <input
-                      type={key === "totalHours" || key === "costPerHour" ? "number" : "text"}
-                      value={localValues[`${key}${i}`] || ""}
-                      onChange={(e) => handleChange(i, key, e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                      step="0.1"
-                      min="0"
-                    />
-                  )}
-                </td>
-              ))}
+  const renderFlatScheduleTable = () => {
+    const supportItems = [
+      {
+        code: "07_001_0106_8_3 Level 1 Support Connection",
+        costPerHour: 74.63,
+        codeKey: "row1",
+      },
+      {
+        code: "07_002_0106_8_3 Level 2 Support Coordination",
+        costPerHour: 100.14,
+        codeKey: "row2",
+      },
+      {
+        code: "07_101_0106_6_3 Psychosocial Recovery Coaching",
+        costPerHour: 98.3,
+        codeKey: "row3",
+      },
+    ];
+
+    const handleChange = (
+      rowKey: string,
+      field: "weeks" | "totalHours",
+      value: string
+    ) => {
+      const newValues = { ...localValues };
+      newValues[`${rowKey}_${field}`] = value;
+
+      const hours = parseFloat(newValues[`${rowKey}_totalHours`] || "0");
+      const rate =
+        supportItems.find((item) => item.codeKey === rowKey)?.costPerHour || 0;
+
+      if (!isNaN(hours) && !isNaN(rate)) {
+        newValues[`${rowKey}_totalCost`] = (hours * rate).toFixed(2);
+      }
+
+      setLocalValues(newValues);
+      onChange(newValues);
+    };
+
+    return (
+      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+        <table className="w-full text-sm text-left text-gray-700">
+          <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase">
+            <tr>
+              <th className="px-4 py-2">Support Category</th>
+              <th className="px-4 py-2">Weeks</th>
+              <th className="px-4 py-2">Total Hours</th>
+              <th className="px-4 py-2">Cost per hr</th>
+              <th className="px-4 py-2 text-right">Total Cost</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+          </thead>
+          <tbody>
+            {supportItems.map((item) => {
+              const weeks = localValues[`${item.codeKey}_weeks`] || "";
+              const totalHours =
+                localValues[`${item.codeKey}_totalHours`] || "";
+              const totalCost = localValues[`${item.codeKey}_totalCost`] || "";
 
-
+              return (
+                <tr key={item.codeKey} className="border-t">
+                  <td className="px-4 py-2">{item.code}</td>
+                  <td className="px-4 py-2">
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={weeks}
+                      onChange={(e) =>
+                        handleChange(item.codeKey, "weeks", e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                    />
+                  </td>
+                  <td className="px-4 py-2">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={totalHours}
+                      onChange={(e) =>
+                        handleChange(item.codeKey, "totalHours", e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                    />
+                  </td>
+                  <td className="px-4 py-2">${item.costPerHour.toFixed(2)}</td>
+                  <td className="px-4 py-2 text-right">
+                    ${totalCost ? Number(totalCost).toFixed(2) : "0.00"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -368,7 +432,7 @@ const renderFlatScheduleTable = () => {
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key) => {
+    return required.every((key : any ) => {
       let value;
 
       if (isCommonField(key)) {
@@ -423,21 +487,41 @@ const renderFlatScheduleTable = () => {
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
-        <input
-          type={type}
-          name={name}
-          value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
-          disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
-              : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-        />
+
+        {type === "textarea" ? (
+          <textarea
+            name={name}
+            value={displayValue}
+            onChange={isCommon ? undefined : handleChange}
+            placeholder={placeholder}
+            disabled={isFieldReadOnly}
+            rows={4}
+            className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-y ${
+              fieldErrors[name]
+                ? "border-red-300 bg-red-50"
+                : isCommon
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          />
+        ) : (
+          <input
+            type={type}
+            name={name}
+            value={displayValue}
+            onChange={isCommon ? undefined : handleChange}
+            placeholder={isCommon ? "Value from common fields" : placeholder}
+            disabled={isFieldReadOnly}
+            className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
+              fieldErrors[name]
+                ? "border-red-300 bg-red-50"
+                : isCommon
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          />
+        )}
+
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
@@ -607,14 +691,12 @@ const renderFlatScheduleTable = () => {
   );
 
   // Helper to check if a field is required in the current section
-  const isFieldRequired = (fieldName: string) => {
+  const isFieldRequired = (fieldName: any) => {
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
   };
 
-  
-
   // Field metadata for dynamic rendering
-  const FIELD_METADATA = {
+  const FIELD_METADATA : any = {
     date: { label: "Date", type: "date" },
     surname: { label: "Surname", type: "text" },
     givenNames: { label: "Given name(s)", type: "text" },
@@ -652,15 +734,24 @@ const renderFlatScheduleTable = () => {
 
     scheduleTable: { label: "Schedule of Supports", type: "table" },
     conflictDeclaration: {
-      label: "Conflict of Interest Declaration",
+      label:
+        "CI ____________________ have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen.",
       type: "text",
     },
-    conflictOptions: {
-      label: "Conflict of Interest - Providers Considered",
-      type: "list",
+    conflictOption1: {
+      label: "Conflict of Interest - Providers Considered (Option 1)",
+      type: "textarea",
+    },
+    conflictOption2: {
+      label: "Conflict of Interest - Providers Considered (Option 2)",
+      type: "textarea",
+    },
+    conflictOption3: {
+      label: "Conflict of Interest - Providers Considered (Option 3)",
+      type: "textarea",
     },
 
-    signature: { label: "Signed", type: "text" },
+    signature: { label: "Signed", type: "signature" },
     printName: { label: "Print Name", type: "text" },
     signDate: { label: "Date", type: "date" },
     selfManaged: { label: "Self-managed funding", type: "checkbox" },
@@ -674,18 +765,31 @@ const renderFlatScheduleTable = () => {
     planManagerEmail: { label: "Email", type: "email" },
 
     consentMedia: {
-      label: "Consent to use images on media and promotional content",
-      type: "radio",
+      label:
+        "Hereby give consent to Infinity Supports WA to obtain and images and likeness of myself. I give permission for Infinity Supports WA to use such images on media releases including social media and branding & promotion ",
+      type: "dropdown",
       options: ["Yes", "No"],
     },
     consentInfoShare: {
-      label: "Consent to obtain and share relevant documented information",
-      type: "radio",
+      label: `Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to:<br/>
+<strong>• Legal Guardian/Next of Kin</strong><br/>
+<strong>• GP/health care professional</strong><br/>
+<strong>• Therapy providers</strong><br/>
+<strong>• Plan Managers</strong> <br/>
+<strong> If Others pls specify</strong>
+`,
+      type: "dropdown",
       options: ["Yes", "No"],
     },
+
+    consentInfoShareOthers: {
+      label: "If Others",
+      type: "text",
+    },
     consentAudit: {
-      label: "Consent to take part in an NDIS audit and document review",
-      type: "radio",
+      label:
+        "I consent to take part in a NDIS audit and my documents be reviewed as required.",
+      type: "dropdown",
       options: ["Yes", "No"],
     },
 
@@ -695,12 +799,12 @@ const renderFlatScheduleTable = () => {
     nomineeSignature: { label: "Signature of Nominee", type: "text" },
     nomineeDate: { label: "Nominee Date", type: "date" },
     nomineeName: { label: "Nominee Name", type: "text" },
-    staffSignature: {
+    providerSignature: {
       label: "Signature on behalf of Infinity Supports WA",
       type: "text",
     },
-    staffDate: { label: "Staff Date", type: "date" },
-    staffName: { label: "Staff Name", type: "text" },
+    providerSignatureDate: { label: "Staff Date", type: "date" },
+    providerName: { label: "Staff Name", type: "text" },
   };
 
   // Validation function to check if all required fields are filled
@@ -708,8 +812,8 @@ const renderFlatScheduleTable = () => {
     const missingFields: string[] = [];
 
     // Validate required fields defined per section
-    FORM_SECTIONS.forEach((section) => {
-      section.requiredFields.forEach((fieldName) => {
+    FORM_SECTIONS.forEach((section : any ) => {
+      section.requiredFields.forEach((fieldName : any ) => {
         let value;
 
         if (isCommonField(fieldName)) {
@@ -829,7 +933,7 @@ const renderFlatScheduleTable = () => {
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section, idx) => {
+          {FORM_SECTIONS.map((section : any , idx : any) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -915,7 +1019,7 @@ const renderFlatScheduleTable = () => {
           >
             <div className="space-y-4 md:space-y-8">
               {/* Dynamic Section Rendering */}
-              { FORM_SECTIONS[currentStep].id === "signatures" ? (
+              {FORM_SECTIONS[currentStep].id === "signatures" ? (
                 // Special layout for signatures section
                 <div className="space-y-6">
                   {renderDropdown(
@@ -1012,24 +1116,69 @@ const renderFlatScheduleTable = () => {
                     </div>
                   </div>
                 </div>
-              ) : 
-              
-              FORM_SECTIONS[currentStep].id === "page2" ? (
-  <div className="space-y-6">
-    {renderFlatScheduleTable()}
-    {renderInput("Conflict of Interest Declaration", "conflictDeclaration", "text")}
-    {renderInput("Providers Considered", "conflictOption1", "text")}
-    {renderInput("Providers Considered", "conflictOption2", "text")}
-    {renderInput("Providers Considered", "conflictOption3", "text")}
-  </div>
-) :
+              ) : FORM_SECTIONS[currentStep].id === "page2" ? (
+                <div className="space-y-6">
+                  {renderFlatScheduleTable()}
+                  {renderInput(
+                    "I ____________________ have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen.",
+                    "conflictDeclaration",
+                    "text"
+                  )}
+                  <p>
+                    I have been given information on the following companies.
+                  </p>
+                  {renderInput(
+                    "Providers Considered",
+                    "conflictOption1",
+                    "textarea"
+                  )}
+                  {renderInput(
+                    "Providers Considered",
+                    "conflictOption2",
+                    "textarea"
+                  )}
+                  {renderInput(
+                    "Providers Considered",
+                    "conflictOption3",
+                    "textarea"
+                  )}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "page3" ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {renderCheckbox(selfManaged, "selfManaged")}
+                    {renderCheckbox(nomineeManaged, "nomineeManaged")}
+                    {renderCheckbox(ndiaManaged, "ndiaManaged")}
+                    {renderCheckbox(planManagerManaged, "planManagerManaged")}
+                  </div>
 
-              
-              
-              (
+                  {localValues.planManagerManaged && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {renderInput(
+                        "Plan Manager Name",
+                        "planManagerName",
+                        "text"
+                      )}
+                      {renderInput("Email", "planManagerEmail", "email")}
+                    </div>
+                  )}
+
+                  {renderSignatureField(
+                    "Signed",
+                    "signature",
+                    generalSignatureRef,
+                    "Draw your signature here"
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {renderInput("Print Name", "printName", "text")}
+                    {renderInput("Date", "signDate", "date")}
+                  </div>
+                </div>
+              ) : (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field) => {
+                  {FORM_SECTIONS[currentStep].fields.map((field : any) => {
                     const meta = FIELD_METADATA[field] || {
                       label: field,
                       type: "text",
@@ -1089,7 +1238,7 @@ const renderFlatScheduleTable = () => {
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_, index) => (
+            {FORM_SECTIONS.map((_ : any , index : any) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${

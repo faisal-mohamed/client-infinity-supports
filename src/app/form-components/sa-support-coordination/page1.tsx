@@ -3,41 +3,46 @@ import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
 interface Page1Props {
-  data?: {
-    date?: string;
-    surname?: string;
-    givenNames?: string;
-    sex?: string;
-    pronoun?: string;
-    indigenousDescent?: string;
-    preferredName?: string;
-    dob?: string;
-    address?: string;
-    state?: string;
-    postcode?: string;
-    email?: string;
-    homePhone?: string;
-    mobile?: string;
-    noCopyRequested?: boolean;
-    planAttached?: boolean;
-    planNotAttached?: boolean;
-  };
+  data?: any,
+  commonFieldsData?: any,
+  settings?: any
 }
 
-const Page1: React.FC<Page1Props> = ({ data }) => {
-  const getValue = (key: string): string => {
-    const rawValue = data?.[key as keyof NonNullable<typeof data>];
-
-    // Convert YYYY-MM-DD to DD-MM-YYYY if valid
-    if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
-      const parsed = parseISO(rawValue);
-      if (isValid(parsed)) {
-        return format(parsed, "dd-MM-yyyy");
-      }
-    }
-
-    return rawValue?.toString() ?? "";
+const commonFieldMapping: Record<string, string> = {
+    givenNames: "name",
+    address: "street",
+    dob: "dob",
+    disability: "disability",
+    phoneNumber: "phone",
+    ndisNumber: "ndis",
+    state: "state",
+    street: "street",
+    postcode: "postCode",
+    email: "email",
+    mobile: "phone",
+    sex: "sex",
   };
+
+const Page1: React.FC<Page1Props> = ({ data, commonFieldsData, settings }) => {
+  const getValue = (key: string): string => {
+  // Check if the key is mapped to a common field
+  const commonKey = commonFieldMapping[key];
+  const rawValue =
+    commonKey && commonFieldsData?.[commonKey] != null
+      ? commonFieldsData[commonKey]
+      : data?.[key];
+
+  // Convert YYYY-MM-DD to DD-MM-YYYY if valid
+  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+    const parsed = parseISO(rawValue);
+    if (isValid(parsed)) {
+      return format(parsed, "dd-MM-yyyy");
+    }
+  }
+
+  return rawValue?.toString() ?? "";
+};
+
 
   return (
     <A4PageWrapper>
@@ -91,7 +96,7 @@ const Page1: React.FC<Page1Props> = ({ data }) => {
                   colSpan={2}
                 >
                   NDIS Number:{" "}
-                  <span className="font-normal"></span>
+                  <span className="font-normal">{getValue("ndisNumber")}</span>
                 </td>
               </tr>
 
@@ -261,9 +266,15 @@ const Page1: React.FC<Page1Props> = ({ data }) => {
 
         {/* Footer - at bottom */}
         <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportwa.org</div>
-          <div>CF008</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Website: {settings?.company_website}</div>
+                      <div>{settings?.participant_risk_assessment}</div>
+                      <div>
+                        Review Date:{" "}
+                        {settings?.review_date &&
+                        /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                          ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                          : "N/A"}
+                      </div>
         </div>
       </div>
     </A4PageWrapper>

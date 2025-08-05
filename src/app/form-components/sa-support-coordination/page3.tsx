@@ -2,23 +2,14 @@ import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
+
 interface Page3Props {
-  data?: {
-    signature?: string;
-    printName?: string;
-    signDate?: string;
-
-    selfManaged?: boolean;
-    nomineeManaged?: boolean;
-    ndiaManaged?: boolean;
-    planManagerManaged?: boolean;
-
-    planManagerName?: string;
-    planManagerEmail?: string;
-  };
+    data?: any,
+  commonFieldsData?: any,
+  settings?: any
 }
 
-const Page3: React.FC<Page3Props> = ({ data }) => {
+const Page3: React.FC<Page3Props> = ({ data, commonFieldsData, settings }) => {
   const getValue = (key: string): string => {
     const rawValue = data?.[key as keyof NonNullable<typeof data>];
 
@@ -56,13 +47,29 @@ const Page3: React.FC<Page3Props> = ({ data }) => {
           </p>
 
           {/* Signature */}
-          <div className="text-sm mb-6 leading-relaxed">
-            <p className="mb-2">
-              Signed <u>{getValue("signature")}</u> &nbsp;&nbsp;
-              Print Name <u>{getValue("printName")}</u> &nbsp;&nbsp;
-              Date <u>{getValue("signDate")}</u>
-            </p>
-          </div>
+         <div className="flex items-center gap-6 text-sm mb-6 leading-relaxed">
+  <div className="flex items-center gap-2">
+    <span className="font-semibold">Signed</span>
+    <u>
+      <img
+        src={getValue("signature")}
+        alt="Signature"
+        style={{ width: 200, height: 80 }}
+      />
+    </u>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="font-semibold">Print Name</span>
+    <u>{getValue("printName")}</u>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="font-semibold">Date</span>
+    <u>{getValue("signDate")}</u>
+  </div>
+</div>
+
 
           {/* Ending Agreement */}
           <div className="text-sm font-bold mb-2 underline">ENDING THIS SERVICE AGREEMENT</div>
@@ -153,9 +160,15 @@ const Page3: React.FC<Page3Props> = ({ data }) => {
 
         {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportwa.org</div>
-          <div>CF008</div>
-          <div>Review Date: 14/03/2026</div>
+           <div>Website: {settings?.company_website}</div>
+                                <div>{settings?.participant_risk_assessment}</div>
+                                <div>
+                                  Review Date:{" "}
+                                  {settings?.review_date &&
+                                  /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                                    ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                                    : "N/A"}
+                                </div>
         </div>
       </div>
     </A4PageWrapper>

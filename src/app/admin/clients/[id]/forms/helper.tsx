@@ -60,3 +60,12 @@ export const CardHeaders = ({stats} : {
               </div>
             </div>
 }
+
+
+
+export const selfManaged = `The Individual has chosen to self-manage the funding for NDIS supports provided under this Service Agreement. After providing those supports, Infinity Supports WA will send the Individual an invoice for those supports for the Individual to pay. The Individual will pay the invoice within 7 days.`
+export const nomineeManaged =  `The Individual’s Nominee manages the funding for supports provided under this Service Agreement. After providing those supports, Infinity Supports WA will send the Individual’s Nominee an invoice for those supports for the Individual’s Nominee to pay. The Individual’s Nominee will pay the invoice within 7 days.`
+export const ndiaManaged = `The Individual has nominated the NDIA to manage the funding for supports provided under this Service Agreement. After providing those supports, Infinity Supports WA will claim payment for those supports from the NDIA.`
+export const planManagerManaged = `The Individual has nominated the Plan Management Provider 
+to manage the funding for NDIS supports provided under this Service Agreement. After providing those services, Infinity Supports WA will claim payment for those services from Registered Plan Management Provider.
+`

@@ -393,6 +393,7 @@ export default function FormSignaturePageClient() {
       "view"
     );
   } catch (error) {
+    console.log("error : ", error);
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="max-w-md mx-auto text-center bg-white p-8 rounded-lg shadow-sm">

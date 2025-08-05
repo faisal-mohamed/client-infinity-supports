@@ -1,34 +1,15 @@
 import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
+import { format, parseISO, isValid } from "date-fns";
+
 
 interface Page2Props {
-  data?: {
-    supportCategory1?: string;
-    weeks1?: string;
-    totalHours1?: string;
-    costPerHour1?: string;
-    totalCost1?: string;
-
-    supportCategory2?: string;
-    weeks2?: string;
-    totalHours2?: string;
-    costPerHour2?: string;
-    totalCost2?: string;
-
-    supportCategory3?: string;
-    weeks3?: string;
-    totalHours3?: string;
-    costPerHour3?: string;
-    totalCost3?: string;
-
-    conflictDeclaration?: string;
-    conflictOption1?: string;
-    conflictOption2?: string;
-    conflictOption3?: string;
-  };
+    data?: any,
+  commonFieldsData?: any,
+  settings?: any
 }
 
-const Page2: React.FC<Page2Props> = ({ data }) => {
+const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
@@ -82,16 +63,16 @@ const Page2: React.FC<Page2Props> = ({ data }) => {
                     {data?.[`supportCategory${i}` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {data?.[`weeks${i}` as keyof typeof data] ?? ""}
+                    {data?.[`row${i}_weeks` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {data?.[`totalHours${i}` as keyof typeof data] ?? ""}
+                    {data?.[`row${i}_totalHours` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
                     {data?.[`costPerHour${i}` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {data?.[`totalCost${i}` as keyof typeof data] ?? ""}
+                    {data?.[`row${i}_totalCost` as keyof typeof data] ?? ""}
                   </td>
                 </tr>
               ))}
@@ -139,9 +120,15 @@ const Page2: React.FC<Page2Props> = ({ data }) => {
 
         {/* Footer */}
         <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
-          <div>Website: infinitysupportwa.org</div>
-          <div>CF008</div>
-          <div>Review Date: 14/03/2026</div>
+          <div>Website: {settings?.company_website}</div>
+                      <div>{settings?.participant_risk_assessment}</div>
+                      <div>
+                        Review Date:{" "}
+                        {settings?.review_date &&
+                        /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+                          ? format(parseISO(settings.review_date), "dd-MM-yyyy")
+                          : "N/A"}
+                      </div>
         </div>
       </div>
     </A4PageWrapper>
