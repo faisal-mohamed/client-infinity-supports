@@ -22,6 +22,7 @@ import WelcomeFormView from "@/components/welcome-form/View";
 import ScheduleForSupportView from "@/components/support-action-plan/View";
 import ScheduleOfSupportsView from "@/components/schedule-of-supports/View";
 import MDTView from "@/components/mdt/View";
+import SASupportCoordination from "@/app/form-components/sa-support-coordination/page";
 
 interface AppSetting {
   id: number;
@@ -205,7 +206,13 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                 <MDTView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "schedule_of_supports" ? (
                 <ScheduleOfSupportsView formKey={form.formKey} settings={settings} />
-              ) : (
+              ) : 
+              
+              form.formKey === "sa_support_coordination" ? (
+                <SASupportCoordination formKey={form.formKey} settings={settings}/>
+              ) : 
+              
+              (
                 <div className="text-center py-16">
                   <div className="p-8 rounded-full bg-slate-100 w-28 h-28 mx-auto mb-4 flex items-center justify-center">
                     <FaFileAlt className="text-slate-400 text-3xl" />

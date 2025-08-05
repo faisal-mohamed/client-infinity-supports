@@ -1,0 +1,63 @@
+import React from "react";
+import A4PageWrapper from "./A4PageWrapper";
+
+const Page6: React.FC = () => {
+  return (
+    <A4PageWrapper>
+      <div className="h-full flex flex-col p-6">
+        {/* Header with Logo */}
+        <div className="flex justify-center mb-4">
+          <img
+            src={"/infinity_logo.png"}
+            alt="Infinity Supports WA Logo"
+            className="h-16 object-contain"
+          />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col text-sm leading-relaxed">
+          {/* Intro Paragraph */}
+          <p className="mb-6">
+            Related to participants Individual Disaster Management Plan and Risk Assessment is subject to 73G requirements.
+            <br />
+            It is the provider's responsibility to document the assessment of the participant's risk factors using Intake Form, Support Plan, and Participant, Home, and Community Risk Assessment forms.
+          </p>
+
+          {/* Responsibilities List */}
+          <ul className="list-disc list-inside mb-6 space-y-3">
+            <li>
+              A copy of the Individual Disaster Management Plan and Risk Assessment will be provided to the participant and another copy should be kept in their file.
+            </li>
+            <li>
+              The Individual Disaster Management Plan and Risk Assessment will be reviewed every year or when the participant's circumstances change. If there is any update, a new copy will be provided to the client and filed.
+            </li>
+            <li>
+              It is the provider's responsibility to mention the rights and responsibilities of the participant and the provider on the service agreement.
+            </li>
+            <li>
+              Using the Human Resource Management process will assist the provider to ensure that the participant's support worker has been screened.
+            </li>
+            <li>
+              Participants who are subject to this requirement will be registered on the High-Risk Participant Register and specific support workers will be delegated accordingly.
+            </li>
+          </ul>
+
+          {/* Audit Opt-in/Out Note */}
+          <p className="text-sm mb-6 flex-1">
+            <span className="text-red-600 font-semibold">Infinity Supports WA PTY Ltd</span>{" "}
+            will be required to complete an audit with NDIS. As a participant you may be asked to provide comments and feedback regarding your service. This is an OPT IN or OUT option to be completed in the following section.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-between items-center text-xs font-bold mt-4 pt-3 border-t border-gray-200">
+          <div>Website: infinitysupportwa.org</div>
+          <div>CF008</div>
+          <div>Review Date: 14/03/2026</div>
+        </div>
+      </div>
+    </A4PageWrapper>
+  );
+};
+
+export default Page6;

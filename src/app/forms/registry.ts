@@ -31,6 +31,10 @@ import MDTView from "@/components/mdt/View";
 import ScheduleForSupportView1 from "@/components/schedule-of-supports/View";
 import ScheduleForSupportEdit1 from "../components/forms/schedule-of-supports/Edit";
 
+import SASupportCoordinationView from "@/components/sa-support-coordination/View";
+import SASupportCoordinationEdit from "../components/forms/sa-support-coordination/Edit";
+
+
 // Signature requirement interface
 interface SignatureRequirement {
   id: string;
@@ -279,6 +283,45 @@ const formRegistry: Record<string, FormRegistryItem> = {
       },
     ],
   },
+  sa_support_coordination: {
+    key: "sa_support_coordination",
+    name: "SA Support Co-Ordination",
+    viewComponent: SASupportCoordinationView,
+    editComponent: SASupportCoordinationEdit,
+    signatures: [
+      {
+        id: "participant_signature",
+        label: "Participant Signature",
+        description: "Signature of the Participant",
+        dataKey: "participantSignature",
+        signedAtKey: "participantSignatureDate",
+        groupId: "participant_or_nominee",
+        groupRequirementType: "any",
+        groupRequired: true,
+        signerName: "participantName",
+      },
+      {
+        id: "nominee_signature",
+        label: "Nominee Signature",
+        description: "Signature of the Nominee",
+        dataKey: "nomineeSignature",
+        signedAtKey: "nomineeSignatureDate",
+        groupId: "participant_or_nominee",
+        groupRequirementType: "any",
+        groupRequired: true,
+        signerName: "nomineeName",
+      },
+      {
+        id: "provider_signature",
+        label: "Provider Signature",
+        description: "Signature of the Provider",
+        required: true, // Always required
+        dataKey: "providerSignature",
+        signedAtKey: "providerSignatureDate",
+        signerName: "providerName",
+      },
+    ],
+  }
 };
 
 // Helper functions

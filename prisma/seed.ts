@@ -76,18 +76,18 @@ async function main() {
       version: 1,
       requiresSignature: true
     },
-    {
-      formKey: 'multi_disciplinary_meeting',
-      title: 'Multi Disciplinary Meeting',
-      requiresSignature: false,
-      version: 1
-    },
       {
       formKey: 'schedule_of_supports',
       title: 'Schedule of Supports',
       version: 1,
       requiresSignature: true
     },
+    {
+      formKey: 'sa_support_coordination',
+      title: 'Service Agreement Support Co-Ordination',
+      version: 1,
+      requiresSignature: true 
+    }
   ];
 
   for (const form of forms) {
