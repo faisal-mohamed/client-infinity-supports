@@ -38,12 +38,12 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-const FORM_SECTIONS : any = [
+const FORM_SECTIONS: any = [
   {
     id: "page1",
     title: "Service Agreement Support Coordination - Section 1",
     description: "",
-    icon: "FaClipboardList",
+    icon: FaClipboardList,
     fields: [
       "date",
       "surname",
@@ -66,30 +66,58 @@ const FORM_SECTIONS : any = [
     requiredFields: [],
   },
   {
-    id: "page2",
+    id: "scheduleTable",
     title: "Schedule of Support",
     description: "",
-    icon: "FaClipboardList",
-    fields: ["scheduleTable", "conflictDeclaration"],
+    icon: FaClipboardList,
+    fields: ["scheduleTable"],
     requiredFields: [],
   },
+  // {
+  //   id: "page2",
+  //   title: "Schedule of Support",
+  //   description: "",
+  //   icon: "FaClipboardList",
+  //   fields: [ "conflictDeclaration"],
+  //   requiredFields: [],
+  // },
+  // {
+  //   id: "page3",
+  //   title: "Infinity Supports WA Service Agreement - Page 3",
+  //   description: "",
+  //   icon: "FaClipboardList",
+  //   fields: [
+  //     "signature",
+  //     "printName",
+  //     "signDate",
+  //     "selfManaged",
+  //     "nomineeManaged",
+  //     "ndiaManaged",
+  //     "planManagerManaged",
+  //     "planManagerName",
+  //     "planManagerEmail",
+  //   ],
+  //   requiredFields: [],
+  // },
+
+
+     
+
   {
-    id: "page3",
-    title: "Infinity Supports WA Service Agreement - Page 3",
-    description: "",
-    icon: "FaClipboardList",
+    id: "conflictFunding",
+    title: "Conflict of Interest",
+    icon: FaClipboardList,
     fields: [
-      "signature",
-      "printName",
-      "signDate",
-      "selfManaged",
-      "nomineeManaged",
-      "ndiaManaged",
-      "planManagerManaged",
-      "planManagerName",
-      "planManagerEmail",
+      "isConflictOfInterest",
+      // rest handled in id: 'render conditionally
     ],
-    requiredFields: [],
+    requiredFields: ["isConflictOfInterest"],
+  },
+  {
+    id: 'funding',
+    title: 'Funding',
+    icon: FaClipboardList,
+    fields: ["selfManaged", "nomineeManaged", "ndiaManaged"]
   },
   {
     id: "page7",
@@ -201,6 +229,9 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     planNotAttached: false,
 
     // Page 2: Schedule of Support (flat format)
+
+    isConflictOfInterest: "",
+
     supportCategory1: "",
     weeks1: "",
     totalHours1: "",
@@ -247,11 +278,11 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     ...formData,
 
     participantSignature: "",
-    participantDate: "",
+    participantSignatureDate: "",
     participantName: "",
 
     nomineeSignature: "",
-    nomineeDate: "",
+    nomineeSignatureDate: "",
     nomineeName: "",
 
     providerSignature: "",
@@ -432,7 +463,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key : any ) => {
+    return required.every((key: any) => {
       let value;
 
       if (isCommonField(key)) {
@@ -696,7 +727,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
   };
 
   // Field metadata for dynamic rendering
-  const FIELD_METADATA : any = {
+  const FIELD_METADATA: any = {
     date: { label: "Date", type: "date" },
     surname: { label: "Surname", type: "text" },
     givenNames: { label: "Given name(s)", type: "text" },
@@ -730,6 +761,11 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     planNotAttached: {
       label: "Individual chooses not to attach their plan",
       type: "checkbox",
+    },
+    isConflictOfInterest: {
+      label: "Is there a conflict of interest in provider selection?",
+      type: "dropdown",
+      options: ["Yes", "No"],
     },
 
     scheduleTable: { label: "Schedule of Supports", type: "table" },
@@ -812,8 +848,8 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     const missingFields: string[] = [];
 
     // Validate required fields defined per section
-    FORM_SECTIONS.forEach((section : any ) => {
-      section.requiredFields.forEach((fieldName : any ) => {
+    FORM_SECTIONS.forEach((section: any) => {
+      section.requiredFields.forEach((fieldName: any) => {
         let value;
 
         if (isCommonField(fieldName)) {
@@ -933,7 +969,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section : any , idx : any) => {
+          {FORM_SECTIONS.map((section: any, idx: any) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -1118,8 +1154,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "page2" ? (
                 <div className="space-y-6">
-                  {renderFlatScheduleTable()}
-                  {renderInput(
+                  {/* {renderInput(
                     "I ____________________ have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen.",
                     "conflictDeclaration",
                     "text"
@@ -1141,11 +1176,11 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                     "Providers Considered",
                     "conflictOption3",
                     "textarea"
-                  )}
+                  )} */}
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "page3" ? (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderCheckbox(selfManaged, "selfManaged")}
                     {renderCheckbox(nomineeManaged, "nomineeManaged")}
                     {renderCheckbox(ndiaManaged, "ndiaManaged")}
@@ -1173,12 +1208,97 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderInput("Print Name", "printName", "text")}
                     {renderInput("Date", "signDate", "date")}
-                  </div>
+                  </div> */}
                 </div>
-              ) : (
+              ) : FORM_SECTIONS[currentStep].id === "scheduleTable" ? (
+                <div className="space-y-6">{renderFlatScheduleTable()}</div>
+              ) : FORM_SECTIONS[currentStep].id === "conflictFunding" ? (
+                <div className="space-y-6">
+                  {/* Dropdown to determine conflict */}
+                  {renderDropdown(
+                    "Is there a conflict of interest in provider selection?",
+                    "isConflictOfInterest",
+                    ["Yes", "No"],
+                    true
+                  )}
+
+                  {localValues.isConflictOfInterest === "Yes" && (
+                    <>
+                      {/* Conflict details (from old page2) */}
+                      {renderInput(
+                        "I ____________________ have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen.",
+                        "conflictDeclaration",
+                        "text"
+                      )}
+                      <p className="text-sm text-gray-700">
+                        I have been given information on the following
+                        companies:
+                      </p>
+                      {renderInput(
+                        "Providers Considered",
+                        "conflictOption1",
+                        "textarea"
+                      )}
+                      {renderInput(
+                        "Providers Considered",
+                        "conflictOption2",
+                        "textarea"
+                      )}
+                      {renderInput(
+                        "Providers Considered",
+                        "conflictOption3",
+                        "textarea"
+                      )}
+
+                      {/* Funding (from old page3) */}
+                   
+
+                      
+
+                      {renderSignatureField(
+                        "Signed",
+                        "signature",
+                        generalSignatureRef,
+                        "Draw your signature here"
+                      )}
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {renderInput("Print Name", "printName", "text")}
+                        {renderInput("Date", "signDate", "date")}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : 
+              
+                FORM_SECTIONS[currentStep].id === "funding" ? (
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {renderCheckbox(selfManaged, "selfManaged")}
+                        {renderCheckbox(nomineeManaged, "nomineeManaged")}
+                        {renderCheckbox(ndiaManaged, "ndiaManaged")}
+                        {renderCheckbox(
+                          planManagerManaged,
+                          "planManagerManaged"
+                        )}
+                        {localValues.planManagerManaged && (
+                        <div>
+                          {renderInput(
+                            "Plan Manager Name",
+                            "planManagerName",
+                            "text"
+                          )} <br />
+                          {renderInput("Email", "planManagerEmail", "email")}
+                        </div>
+                      )}
+                      </div>
+                  </div>
+                ) : 
+              
+              (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field : any) => {
+                  {FORM_SECTIONS[currentStep].fields.map((field: any) => {
                     const meta = FIELD_METADATA[field] || {
                       label: field,
                       type: "text",
@@ -1238,7 +1358,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_ : any , index : any) => (
+            {FORM_SECTIONS.map((_: any, index: any) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${

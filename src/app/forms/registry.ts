@@ -320,6 +320,17 @@ const formRegistry: Record<string, FormRegistryItem> = {
         signedAtKey: "providerSignatureDate",
         signerName: "providerName",
       },
+      {
+        id: "conflict_signature",
+        label: "Conflict Signature",
+        description: "Signature of the Provider/Nominee",
+        condition: (formData: any) => {
+         return formData.isConflictOfInterest === "Yes";
+   },
+        dataKey: "signature",
+        signedAtKey: "signDate",
+        signerName: "printName",
+      },
     ],
   }
 };

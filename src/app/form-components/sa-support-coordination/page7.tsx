@@ -9,7 +9,6 @@ interface Page7Props {
 }
 
 const Page7: React.FC<Page7Props> = ({ data, commonFieldsData, settings }) => {
-  console.log("DATAAAA: ", data);
   const getValue = (key: string): string => {
     const rawValue = data?.[key as keyof typeof data];
 

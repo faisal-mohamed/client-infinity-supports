@@ -416,13 +416,18 @@ export default function FormSignaturePageClient() {
   }
 
   const requiresSignature = formData.formSubmission.form.requiresSignature;
-  // const allSignaturesComplete =
-  //   requiredSignatures.length > 0 &&
-  //   requiredSignatures.every((sig) => completedSignatures[sig.id]);
-
+  
   const allSignaturesComplete = requiredSignatures.length === 0;
 
-  console.log("allSIg: ", allSignaturesComplete);
+  console.log("Debug - Signature Status:", {
+    formKey: formData.formSubmission.form.formKey,
+    isConflictOfInterest: formData.formSubmission.data.isConflictOfInterest,
+    hasConflictSignature: !!formData.formSubmission.data.signature,
+    requiredSignaturesLength: requiredSignatures.length,
+    allSignaturesComplete,
+    showSignaturePad,
+    requiredSignatures: requiredSignatures.map(sig => ({ id: sig.id, label: sig.label }))
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -545,8 +550,13 @@ export default function FormSignaturePageClient() {
           requiredSignatures.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Provide Your Signature
+                {currentSig?.label || "Provide Your Signature"}
               </h3>
+              {currentSig?.description && (
+                <p className="text-gray-600 mb-6">
+                  {currentSig.description}
+                </p>
+              )}
 
               {/* Optional dropdown for group 'any' */}
               {isGroupAny && (
@@ -603,7 +613,7 @@ export default function FormSignaturePageClient() {
                     {/* Signature Pad */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Your Signature <span className="text-red-500">*</span>
+                        {currentSig?.label || "Your Signature"} <span className="text-red-500">*</span>
                       </label>
                       <div className="border border-gray-300 rounded-md shadow-sm bg-white pb-12 relative">
                         <SignatureCanvas

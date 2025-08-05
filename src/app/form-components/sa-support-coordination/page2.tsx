@@ -9,7 +9,22 @@ interface Page2Props {
   settings?: any
 }
 
+
+
 const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
+   const getValue = (key: string): string => {
+      const rawValue = data?.[key as keyof NonNullable<typeof data>];
+  
+      // Convert YYYY-MM-DD to DD-MM-YYYY if valid
+      if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+        const parsed = parseISO(rawValue);
+        if (isValid(parsed)) {
+          return format(parsed, "dd-MM-yyyy");
+        }
+      }
+  
+      return rawValue?.toString() ?? "";
+    };
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
@@ -100,7 +115,7 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
           {/* Conflict of Interest */}
           <p className="font-bold text-sm mb-2 underline">CONFLICT OF INTEREST</p>
           <p className="text-sm mb-4 leading-relaxed">
-            I <u>{data?.conflictDeclaration || "______________________"}</u> have discussed my Support Coordination requirements
+            I <u>{getValue("isConflictOfInterest") == 'Yes' && data?.conflictDeclaration || "______________________"}</u> have discussed my Support Coordination requirements
             and have been given options and full choice and control over the provider I have
             chosen. I have been given information on the following companies.
           </p>
@@ -110,7 +125,7 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
             {[1, 2, 3].map((i) => (
               <li key={i} className="mb-4">
                 {
-                  data?.[`conflictOption${i}` as keyof typeof data] ||
+                  getValue("isConflictOfInterest") == 'Yes' && data?.[`conflictOption${i}` as keyof typeof data] ||
                   <span className="text-gray-400">_________________________________</span>
                 }
               </li>

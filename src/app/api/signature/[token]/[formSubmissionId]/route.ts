@@ -524,7 +524,19 @@ export async function POST(
     const formConfig = getFormConfig(formKey);
     const signatures = formConfig?.signatures || [];
 
-    const signatureConfig = signatures.find(sig => sig.id === signatureId);
+    let signatureConfig = signatures.find(sig => sig.id === signatureId);
+    
+    // Special handling for conflict signature (sa_support_coordination specific)
+    if (!signatureConfig && signatureId === "conflict_signature" && formKey === "sa_support_coordination") {
+      signatureConfig = {
+        id: "conflict_signature",
+        dataKey: "signature",
+        signedAtKey: "signDate", 
+        signerName: "printName",
+        label: "Conflict Signature"
+      };
+    }
+    
     if (!signatureConfig) {
       return NextResponse.json({ error: `Signature config not found for ID: ${signatureId}` }, { status: 400 });
     }
