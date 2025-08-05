@@ -23,7 +23,7 @@ const Page5: React.FC<Page5Props> = ({ data, schema, settings }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Header with Logo */}
        <div className="flex justify-center pt-6 pb-4">
           <img
@@ -57,7 +57,7 @@ const Page5: React.FC<Page5Props> = ({ data, schema, settings }) => {
 
         {/* Risk Assessment Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse text-xs flex-1">
             <thead className="bg-gray-300 font-semibold">
               <tr>
                 <th className="border border-black p-2 text-left w-24">Risk Level</th>

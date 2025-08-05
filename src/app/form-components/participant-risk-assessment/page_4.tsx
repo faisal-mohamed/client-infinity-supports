@@ -34,7 +34,7 @@ const Page4: React.FC<Page4Props> = ({
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -48,7 +48,7 @@ const Page4: React.FC<Page4Props> = ({
 
         {/* Medication Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse text-xs flex-1">
             <thead>
               <tr className="bg-[#a9b9d9]">
                 <th className="border border-black p-3 text-left font-semibold">

@@ -19,7 +19,7 @@ const Page11: React.FC<Page11Props> = ({
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-sm">
+      <div className="flex flex-col h-full font-sans px-6 pt-6 pb-4 text-xs">
         {/* Header */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -32,7 +32,7 @@ const Page11: React.FC<Page11Props> = ({
         {/* Main content container */}
         <div className="flex-1 flex flex-col gap-6">
           {/* Pandemic and Communication Table */}
-          <table className="w-full border border-black border-collapse text-sm">
+          <table className="w-full border border-black border-collapse text-xs">
             <tbody>
               <tr>
                 <td className="border border-black p-2 align-top w-1/2">
@@ -80,10 +80,10 @@ const Page11: React.FC<Page11Props> = ({
 
           {/* Emergency Procedures Table */}
           <div className="flex flex-col flex-grow">
-            <div className="text-center font-bold text-sm mb-2">
+            <div className="text-center font-bold text-xs mb-2">
               What to do in an Emergency?
             </div>
-            <table className="w-full border border-black border-collapse text-sm">
+            <table className="w-full border border-black border-collapse text-xs">
               <thead>
                 <tr className="bg-gray-300 font-bold text-black">
                   <th className="border border-black p-1 text-left w-1/2">

@@ -22,7 +22,7 @@ const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings 
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -34,7 +34,7 @@ const Page6: React.FC<Page6Props> = ({ data, schema, commonFieldsData, settings 
 
         {/* Risk Assessment Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm">
+          <table className="w-full border border-black border-collapse text-xs">
             <tbody>
               <tr>
                 <td className="border border-black w-[5%] p-3"></td>

@@ -432,7 +432,7 @@ const ParticipantRiskAssessment = ({formData, commonFieldsData, settings}: any) 
 
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8">
+    <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
         <Page1 schema={riskAssessmentSchema.page1} formData={formData} commonFieldsData={commonFieldsData} settings={settings} />
         <Page2 schema={riskAssessmentSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings}  />
         <Page3 schema={riskAssessmentSchema.page3} formData={formData} commonFieldsData={commonFieldsData} settings={settings}  />

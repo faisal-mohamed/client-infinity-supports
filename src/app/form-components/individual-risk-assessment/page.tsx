@@ -80,7 +80,7 @@ export const formData = {
 
 const IndividualRiskAssessment = ({formKey, formData, commonFieldsData, settings, images} : any ) => {
   return (
-    <div>
+    <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
         <Page1
           schema={formSchema.page1}
           data={formData}

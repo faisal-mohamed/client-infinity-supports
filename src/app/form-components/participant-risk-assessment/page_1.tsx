@@ -39,9 +39,9 @@ const Page1: React.FC<Page1Props> = ({
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
-        <div className="flex justify-center pt-6 pb-4">
+        <div className="flex justify-center pb-4">
           <img
             src="/infinity_logo.png"
             alt="Infinity Supports WA logo"
@@ -56,7 +56,7 @@ const Page1: React.FC<Page1Props> = ({
 
         {/* Participant Details */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse text-xs flex-1">
             <thead>
               <tr className="bg-gray-300 font-bold text-left">
                 <th className="border border-black p-2 w-[40%]">
@@ -187,7 +187,7 @@ const Page1: React.FC<Page1Props> = ({
                         checked={formData?.participantInvolved === "Yes"}
                         readOnly
                       />
-                      <span className="text-sm">Yes</span>
+                      <span className="text-xs">Yes</span>
                     </label>
                     <label className="inline-flex items-center space-x-1">
                       <input
@@ -195,7 +195,7 @@ const Page1: React.FC<Page1Props> = ({
                         checked={formData?.participantInvolved === "No"}
                         readOnly
                       />
-                      <span className="text-sm">No</span>
+                      <span className="text-xs">No</span>
                     </label>
                   </div>
                 </td>

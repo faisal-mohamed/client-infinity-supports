@@ -21,7 +21,7 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -33,7 +33,7 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* Risk Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse text-xs flex-1">
             <tbody>
               {/* Question 10 */}
               <tr>

@@ -1,7 +1,7 @@
 import ClientIntakeFormEnhanced from "../components/forms/client_intake_form/ClientIntakeFormEnhanced";
 import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Assuming this is the form renderer component
 
-import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
+import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page_original";
 import HomeVisitRiskAssessmentEdit from "../components/forms/home_visit_risk_assessment/Edit";
 
 import PersonCentredPlanView from "@/components/person_centred_plan/view";

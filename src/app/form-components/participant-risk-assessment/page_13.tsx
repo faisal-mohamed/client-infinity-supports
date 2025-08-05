@@ -27,7 +27,7 @@ const Page13: React.FC<any> = ({
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full justify-between bg-white font-sans text-sm">
+      <div className="flex flex-col h-full justify-between bg-white font-sans text-xs">
         {/* Top Section */}
         <div className="flex flex-col">
           {/* Logo */}

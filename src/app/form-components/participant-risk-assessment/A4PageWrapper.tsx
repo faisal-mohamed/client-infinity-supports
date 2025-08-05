@@ -8,6 +8,7 @@ interface A4PageWrapperProps {
   footer?: React.ReactNode;
 }
 
+// --- FormRenderer-style A4 Page Wrapper Component with proper content distribution ---
 const A4PageWrapper: React.FC<A4PageWrapperProps> = ({ 
   children, 
   className = '',
@@ -17,35 +18,30 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({
 }) => {
   return (
     <div 
-      className={`
-        a4-page
-        w-[210mm] min-h-[297mm] 
-        mx-auto mb-8 
-        bg-white 
-        shadow-lg 
-        border border-gray-300
-        flex flex-col
-        p-[20mm]
-        relative
-        print:shadow-none 
-        print:mb-0
-        print:border-none
-        print:p-[15mm]
-        print:break-after-page
-        print:break-inside-avoid
-        ${className}
-      `}
+      className={`bg-white mx-auto shadow-md flex flex-col relative ${className}`}
+      style={{
+        width: "794px",
+        height: "1123px", // Fixed height to ensure consistent page size
+        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        pageBreakAfter: "always",
+        padding: "20mm",
+      }}
     >
+      {/* Content area that takes all available space */}
       <div className="flex-1 flex flex-col">
         {children}
       </div>
+      
+      {/* Footer always at bottom */}
       {footer && (
-        <div className="mt-auto pt-[10mm] border-t border-gray-200">
+        <div className="mt-auto pt-4 border-t border-gray-200">
           {footer}
         </div>
       )}
+      
+      {/* Page number always at bottom right */}
       {pageNumber && totalPages && (
-        <div className="absolute bottom-[10mm] right-[10mm] text-sm text-gray-600">
+        <div className="absolute bottom-4 right-4 text-sm text-gray-600">
           Page {pageNumber} of {totalPages}
         </div>
       )}

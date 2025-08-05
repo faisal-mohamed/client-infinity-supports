@@ -19,7 +19,7 @@ const Page7: React.FC<Page7Props> = ({
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -55,7 +55,7 @@ const Page7: React.FC<Page7Props> = ({
           </table>
 
           {/* Instruction */}
-          <p className="text-sm font-bold text-center mb-4 uppercase">
+          <p className="text-xs font-bold text-center mb-4 uppercase">
             If risk is identified, please discuss with the manager
           </p>
 

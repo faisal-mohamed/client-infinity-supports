@@ -1,8 +1,6 @@
 import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
-
 import { format, parseISO, isValid } from "date-fns";
-
 
 interface Page2Props {
   schema: any;

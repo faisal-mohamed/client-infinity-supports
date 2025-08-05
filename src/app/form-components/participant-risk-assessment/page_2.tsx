@@ -13,7 +13,7 @@ interface Page2Props {
 const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings }) => {
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm font-sans">
+      <div className="flex flex-col h-full text-xs font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-6 pb-4">
           <img
@@ -25,7 +25,7 @@ const Page2: React.FC<Page2Props> = ({ schema, data, commonFieldsData, settings 
 
         {/* Risk Assessment Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse text-xs flex-1">
             <thead>
               <tr>
                 <th className="border border-black w-[20%]"></th>

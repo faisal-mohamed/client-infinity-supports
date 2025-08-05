@@ -43,7 +43,7 @@ import Page1 from './page1'
 
 const MDT = ({formData, commonFieldsData, settings} : any ) => {
   return (
-    <div>
+    <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
         <Page1  schema={formSchema} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
     </div>
   )

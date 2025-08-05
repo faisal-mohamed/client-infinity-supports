@@ -2,7 +2,6 @@ import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 import { format, parseISO, isValid } from "date-fns";
 
-
 interface Page1Props {
   schema: any;
   data: Record<string, any>;
@@ -41,7 +40,6 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
 
   return rawValue ?? '';
 };
-
 
   return (
     <A4PageWrapper>
