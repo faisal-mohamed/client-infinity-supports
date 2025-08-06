@@ -1,27 +1,27 @@
 import React from 'react'
-import Page1 from './page_1_FIXED'
+import Page1 from './page_1_COMPACT'
 import Page2 from './page_2_FIXED'
 import Page3 from './page_3_FIXED'
 
 // ===== A4 PDF TYPOGRAPHY STANDARDS WITH MONTSERRAT =====
 export const A4_PDF_TYPOGRAPHY = {
   // Main content hierarchy with improved line spacing
-  title: 'text-base font-bold font-montserrat leading-relaxed',           // 16px - Form titles
-  sectionHeader: 'text-sm font-semibold font-montserrat leading-relaxed', // 14px - Section headers
-  subHeader: 'text-xs font-semibold font-montserrat leading-relaxed',     // 12px - Subsection headers
-  body: 'text-xs font-normal font-montserrat leading-relaxed',            // 12px - Main content
-  label: 'text-xs font-medium font-montserrat leading-relaxed',           // 12px - Field labels
-  input: 'text-xs font-normal font-montserrat leading-relaxed',           // 12px - Input content
-  small: 'text-xs font-normal font-montserrat leading-relaxed',           // 10px - Fine print
-  footer: 'text-xs font-normal font-montserrat leading-normal',           // 10px - Footer content
+  title: 'text-[10px] font-bold font-montserrat leading-relaxed',           // 16px - Form titles
+  sectionHeader: 'text-[10px] font-semibold font-montserrat leading-relaxed', // 14px - Section headers
+  subHeader: 'texts font-semibold font-montserrat leading-relaxed',     // 12px - Subsection headers
+  body: 'text-[10px] font-normal font-montserrat leading-relaxed',            // 12px - Main content
+  label: 'text-[10px] font-medium font-montserrat leading-relaxed',           // 12px - Field labels
+  input: 'text-[10px] font-normal font-montserrat leading-relaxed',           // 12px - Input content
+  small: 'text-[10px] font-normal font-montserrat leading-relaxed',           // 10px - Fine print
+  footer: 'text-[10px] font-normal font-montserrat leading-normal',           // 10px - Footer content
   
-  // Table specific
-  tableHeader: 'text-xs font-bold font-montserrat leading-tight',         // 12px - Table headers
-  tableCell: 'text-xs font-normal font-montserrat leading-relaxed',       // 12px - Table content
+  // Table specific - optimized for space
+  tableHeader: 'text-[8px] font-bold font-montserrat leading-none',         // Reduced from 10px
+  tableCell: 'text-[8px] font-normal font-montserrat leading-none',       // Reduced from 10px
   
   // Signature section
-  signatureLabel: 'text-xs font-semibold font-montserrat leading-relaxed', // 12px - Signature labels
-  signatureContent: 'text-xs font-bold font-montserrat leading-relaxed',   // 12px - Signature content
+  signatureLabel: 'text-[10px] font-semibold font-montserrat leading-relaxed', // 12px - Signature labels
+  signatureContent: 'text-[10px] font-bold font-montserrat leading-relaxed',   // 12px - Signature content
 } as const;
 
 // ===== PDF-SPECIFIC FONT STYLES =====
@@ -46,36 +46,38 @@ export const PDF_FONT_STYLES = `
 
 // ===== STANDARDIZED LOGO CONFIGURATION =====
 export const STANDARD_LOGO = {
-  width: 180,
-  height: 72,
+  width: 140,
+  height: 56,
   className: "object-contain"
 } as const;
 
 export const formSchema = {
   page1: {
-     tableRows: [
-    { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$675.60' },
-    { key: "row1", description: '01_013_0107_1_1 Assistance with Self-care weekday daytime', cost: '$67.56' },
-    { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$74.44' },
-    { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$95.07' },
-    { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$122.59' },
-    { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$150.10' },
-    { key: "row6", description: '04_104_0125_6_1 Access Community and Rec weekday', cost: '$67.56' },
-    { key: "row7", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$95.07' },
-    { key: "row8", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$122.59' },
-    { key: "row9", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$150.10' },
-    { key: "row10", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$57.23' },
-    { key: "row11", description: '09-009-0117-6-3 Skill Development and Training 15_037_0117_1_3', cost: '$77.00' },
-    {
-      key: "row12",
-      description: '04-590-0125-6-1 Activity based Transport',
-      cost: '$1 Per km',
-      isPerKm: true
-    },
-    { key: "row13", description: '01_013_0107_1_1 Non-Face-to-Face', cost: '$67.56' },
-    { key: "row14", description: '01-002-0107-1-1 Provider Travel', cost: '$16.89' },
-    { key: "row15", description: '04-104-0125-6-1 Provider Travel', cost: '$16.89' }
-  ]
+     tableRows :  [
+  { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },
+  { key: "row1", description: '01_013_0107_1_1 Assistance with Self-care weekday daytime', cost: '$70.23' },
+  { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$77.38' },
+  { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$98.83' },
+  { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$127.43' },
+  { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$156.03' },
+  { key: "row6", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' },
+  { key: "row7", description: '01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime', cost: '$75.98' },
+  { key: "row8", description: '04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime', cost: '$70.23' },
+  { key: "row9", description: '04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening', cost: '$77.38' },
+  { key: "row10", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$98.83' },
+  { key: "row11", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$127.43' },
+  { key: "row12", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$156.03' },
+  { key: "row13", description: '09-009-0117-6-3 Skill Development and Training', cost: '$80.06' },
+  { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$70.23' },
+  {
+    key: "row15",
+    description: '04-590-0125-6-1 Activity based Transport',
+    cost: '$1 Per km',
+    isPerKm: true
+  },
+  { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
+  { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' }
+],
   },
   page2: {
     checkboxes: [

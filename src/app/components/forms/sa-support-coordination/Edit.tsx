@@ -117,7 +117,9 @@ const FORM_SECTIONS: any = [
     id: 'funding',
     title: 'Funding',
     icon: FaClipboardList,
-    fields: ["selfManaged", "nomineeManaged", "ndiaManaged"]
+    fields: ["selfManaged", "nomineeManaged", "ndiaManaged"],
+    requiredFields: []
+
   },
   {
     id: "page7",
@@ -232,19 +234,19 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
 
     isConflictOfInterest: "",
 
-    supportCategory1: "",
+    supportCategory1: "07_001_0106_8_3 Level 1 Support Connection",
     weeks1: "",
     totalHours1: "",
     costPerHour1: "",
     totalCost1: "",
 
-    supportCategory2: "",
+    supportCategory2: "07_002_0106_8_3 Level 2 Support Coordination",
     weeks2: "",
     totalHours2: "",
     costPerHour2: "",
     totalCost2: "",
 
-    supportCategory3: "",
+    supportCategory3: "07_101_0106_6_3 Psychosocial Recovery Coaching",
     weeks3: "",
     totalHours3: "",
     costPerHour3: "",
@@ -494,10 +496,10 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     }
   };
 
-  useEffect(() => {
-    localValues["planManagerName"] = "";
-    localValues["fundingSource"] = "";
-  }, [localValues["planManagerManaged"]]);
+  // useEffect(() => {
+  //   localValues["planManagerName"] = "";
+  //   localValues["fundingSource"] = "";
+  // }, [localValues["planManagerManaged"]]);
   // --- Input rendering utilities ---
   const renderInput = (
     label: string,

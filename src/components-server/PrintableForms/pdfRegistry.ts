@@ -12,6 +12,7 @@ import WelcomeForm from './welcome-form/page_FIXED';
 import ScheduleForSupport from './support-action-plan/page_FIXED';
 import MDT from './mdt/page'
 import ScheduleOfSupports from './schedule-of-supports/page_FIXED';
+import SASupportCoordination from './sa-support-coordination/page_FIXED';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -77,6 +78,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'schedule_of_supports',
     component: ScheduleOfSupports,
     name: "Schedule of Supports"
+  },
+  {
+    formKey: 'sa_support_coordination',
+    name: "SASupportCoordination",
+    component: SASupportCoordination
   }
   
 ];

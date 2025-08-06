@@ -71,7 +71,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
 
           <p className="mb-2">
             <input type="checkbox" className="mr-2" checked={isChecked('establishmentFeeAgreement')} readOnly />
-            If you are a new participant to NDIS or Infinity Supports WA, you will be charged $654.70 as per the NDIS Price Guide.
+            If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
           </p>
 
           <p className="font-bold mt-4 mb-1">Non-Face-to-Face Support Provision</p>

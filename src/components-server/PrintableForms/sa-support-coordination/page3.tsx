@@ -6,9 +6,10 @@ interface Page3Props {
   data?: any;
   commonFieldsData?: any;
   settings?: any;
+  images?: any;
 }
 
-const Page3: React.FC<Page3Props> = ({ data, commonFieldsData, settings }) => {
+const Page3: React.FC<Page3Props> = ({ data, commonFieldsData, settings, images }) => {
   const getValue = (key: string): string => {
     const rawValue = data?.[key as keyof NonNullable<typeof data>];
 
@@ -29,7 +30,7 @@ const Page3: React.FC<Page3Props> = ({ data, commonFieldsData, settings }) => {
         {/* Header with Logo */}
         <div className="flex justify-center mb-4">
           <img
-            src={"/infinity_logo.png"}
+            src={ images?.infinityLogo ||  "/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
@@ -178,10 +179,10 @@ const Page3: React.FC<Page3Props> = ({ data, commonFieldsData, settings }) => {
           {/* Plan Manager Details */}
           <div className="text-sm mb-6 leading-relaxed">
             <p className="mb-2">
-              Plan Manager Name: <u>{ data?.planManagerManaged == true && getValue("planManagerName")}</u>
+              Plan Manager Name: <u>{ getValue("planManagerManaged") == "Yes" && getValue("planManagerName")}</u>
             </p>
             <p>
-              Email: <u>{data?.planManagerManaged == true && getValue("planManagerEmail")}</u>
+              Email: <u>{getValue("planManagerManaged") == "Yes" && getValue("planManagerEmail")}</u>
             </p>
           </div>
 

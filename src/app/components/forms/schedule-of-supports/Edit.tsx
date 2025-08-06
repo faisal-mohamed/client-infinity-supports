@@ -860,24 +860,27 @@ const renderSignatureField = (
     onChange(newValues, fieldName, false);
   };
 
- const supportLineItems = [
-  { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 675.6 },
-  { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 67.56 },
-  { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 74.44 },
-  { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 95.07 },
-  { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 122.59 },
-  { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 150.1 },
-  { code: "row6", label: "04_104_0125_6_1 Access Community and Rec weekday", rate: 67.56 },
-  { code: "row7", label: "04_105_0125_6_1 Access Community and Rec Saturday", rate: 95.07 },
-  { code: "row8", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 122.59 },
-  { code: "row9", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 150.1 },
-  { code: "row10", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 57.23 },
-  { code: "row11", label: "09-009-0117-6-3 Skill Development and Training", rate: 77.0 },
-  { code: "row12", label: "04-590-0125-6-1 Activity based Transport", rate: 1.0 },
-  { code: "row13", label: "01_013_0107_1_1 Non-Face-to-Face", rate: 67.56 },
-  { code: "row14", label: "01-002-0107-1-1 Provider Travel", rate: 16.89 },
-  { code: "row15", label: "04-104-0125-6-1 Provider Travel", rate: 16.89 },
+const supportLineItems = [
+  { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 702.30 },
+  { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 70.23 },
+  { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 77.38 },
+  { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 98.83 },
+  { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 127.43 },
+  { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 156.03 },
+  { code: "row6", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
+  { code: "row7", label: "01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime", rate: 75.98 },
+  { code: "row8", label: "04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime", rate: 70.23 },
+  { code: "row9", label: "04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening", rate: 77.38 },
+  { code: "row10", label: "04_105_0125_6_1 Access community and Rec Saturday", rate: 98.83 },
+  { code: "row11", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 127.43 },
+  { code: "row12", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 156.03 },
+  { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 80.06 },
+  { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 70.23 },
+  { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.0 }, // Assuming this is per km
+  { code: "row16", label: "01_002_0107_1_1 Provider Travel", rate: 17.55 },
+  { code: "row17", label: "04_104_0125_6_1 Provider Travel", rate: 17.55 },
 ];
+
 
 
 
@@ -1053,7 +1056,7 @@ const renderSignatureField = (
           </thead>
           <tbody>
             {supportLineItems.map((item) => {
-              const isKmBased = item.code === "row12";
+              const isKmBased = item.code === "row15";
               const weeksOrKms = parseFloat(localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || "0");
               const hours = isKmBased ? 0 : parseFloat(localValues[`${item.code}_totalHours`] || "0");
               const total = isKmBased ? weeksOrKms * item.rate : hours * item.rate;
@@ -1160,7 +1163,7 @@ const renderSignatureField = (
         {/* Establishment Fee & Travel */}
         <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
           {renderDropdown(
-            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $654.70 as per the NDIS Price Guide.",
+            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.",
             "establishmentFeeAgreement",
             yesNoOptions
           )}

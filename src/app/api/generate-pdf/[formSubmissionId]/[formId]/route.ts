@@ -210,6 +210,21 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
       }
 
       break;
+
+      case "sa_support_coordination": 
+      images  =  {
+          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+
+        }
+
+      componentProps = {
+        formData,
+        images,
+        settings: settings || {},
+        commonFieldsData : commonFields || {}
+      }
+
+      break;
       
 
       default:

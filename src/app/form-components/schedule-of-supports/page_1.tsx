@@ -35,7 +35,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 };
 
 
-  const cellClass = "border border-black px-1 py-2 leading-relaxed text-xs";
+  const cellClass = "border border-black px-1 py-1 leading-relaxed text-xs";
 
   return (
     <A4PageWrapper>

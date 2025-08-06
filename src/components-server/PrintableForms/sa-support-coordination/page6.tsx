@@ -2,14 +2,14 @@ import React from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
-const Page6 = ({data, commonFieldsData, settings} : any) => {
+const Page6 = ({data, commonFieldsData, settings, images} : any) => {
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
         {/* Header with Logo */}
         <div className="flex justify-center mb-4">
-          <img
-            src={"/infinity_logo.png"}
+         <img
+            src={ images?.infinityLogo ||  "/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
@@ -46,7 +46,8 @@ const Page6 = ({data, commonFieldsData, settings} : any) => {
           {/* Audit Opt-in/Out Note */}
           <p className="text-sm mb-6 flex-1">
             <span className="text-red-600 font-semibold">Infinity Supports WA PTY Ltd</span>{" "}
-will be required to complete an audit with NDIS, as a participant you may be asked to provide comments and feedback regarding your service.  This is an OPT IN or OUT option to be completed in the following section.          </p>
+            will be required to complete an audit with NDIS. As a participant you may be asked to provide comments and feedback regarding your service. This is an OPT IN or OUT option to be completed in the following section.
+          </p>
         </div>
 
         {/* Footer */}

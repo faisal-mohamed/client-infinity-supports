@@ -6,19 +6,13 @@ import { format, parseISO, isValid } from "date-fns";
 interface Page2Props {
     data?: any,
   commonFieldsData?: any,
-  settings?: any
+  settings?: any;
+  images?: any;
 }
 
-const supportCategories = [
-  "07_001_0106_8_3 Level 1 Support Connection",
-  "07_002_0106_8_3 Level 2 Support Coordination",
-  "07_101_0106_6_3 Psychosocial Recovery Coaching"
-];
-
-const costPerHr = ["$74.63", "100.14", "$98.30"]
 
 
-const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
+const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings, images }) => {
    const getValue = (key: string): string => {
       const rawValue = data?.[key as keyof NonNullable<typeof data>];
   
@@ -38,7 +32,7 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
         {/* Header with Logo */}
         <div className="flex justify-center mb-4">
           <img
-            src={"/infinity_logo.png"}
+            src={ images?.infinityLogo ||  "/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
             className="h-16 object-contain"
           />
@@ -82,7 +76,8 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
               {[1, 2, 3].map((i) => (
                 <tr key={i}>
                   <td className="border border-black p-2 align-top">
-{supportCategories[i-1]}                  </td>
+                    {data?.[`supportCategory${i}` as keyof typeof data] ?? ""}
+                  </td>
                   <td className="border border-black p-2 text-center align-top">
                     {data?.[`row${i}_weeks` as keyof typeof data] ?? ""}
                   </td>
@@ -90,10 +85,10 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
                     {data?.[`row${i}_totalHours` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                  {costPerHr[i-1]}
+                    {data?.[`costPerHour${i}` as keyof typeof data] ?? ""}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    ${data?.[`row${i}_totalCost` as keyof typeof data] ?? ""}
+                    {data?.[`row${i}_totalCost` as keyof typeof data] ?? ""}
                   </td>
                 </tr>
               ))}
