@@ -43,20 +43,21 @@ const Page1: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col flex-grow text-black text-xs leading-relaxed font-sans h-full">
+      <div className="flex flex-col flex-grow text-black leading-relaxed font-sans h-full" style={{ fontSize: '12px' }}>
         {/* Header */}
         <div className="flex justify-center mb-4">
           <img
             src="/infinity_logo.png"
             alt="Infinity Supports WA logo"
-            className="object-contain h-[60px] w-[150px]"
+            className="object-contain"
+            style={{ height: '60px', width: '150px' }} // Fixed dimensions for consistency
           />
         </div>
 
-        <div className="text-center mb-1 font-semibold text-sm">
+        <div className="text-center mb-1 font-semibold" style={{ fontSize: '14px' }}>
           Emergency Drill Reporting Form
         </div>
-        <div className="text-center mb-6 italic text-xs">
+        <div className="text-center mb-6 italic" style={{ fontSize: '12px' }}>
           (For Disability Support Workers in a Client’s Home)
         </div>
 

@@ -40,14 +40,15 @@ const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {
           <img
             src={"/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
         {/* Content */}
         <div className="flex-1 flex flex-col">
           {/* Intro List */}
-          <ol className="list-decimal list-inside mb-6 text-sm leading-relaxed">
+          <ol className="list-decimal list-inside mb-6 leading-relaxed" style={{ fontSize: '14px' }}>
             <li className="mb-2">
               Support the independence and social and economic participation of people
               with disability and enable people with a disability to exercise choice

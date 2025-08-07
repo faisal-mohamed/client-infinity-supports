@@ -143,7 +143,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                   <span className={A4_PDF_TYPOGRAPHY.label}>Preferred providers</span>
                   <br />
                   <span className={A4_PDF_TYPOGRAPHY.tableCell}>
-                    1. {data?.capacityPreferredProviders}
+                    1. {data?.capacityPreferredProviders} <br />
+                    2. {data?.capacityPreferredProviders2}
                   </span>
                 </td>
               </tr>
@@ -152,7 +153,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
                   <span className={A4_PDF_TYPOGRAPHY.label}>Alternative providers</span>
                   <br />
                   <span className={A4_PDF_TYPOGRAPHY.tableCell}>
-                    1. {data?.capacityAlternativeProviders}
+                    1. {data?.capacityAlternativeProviders} <br />
+                    2. {data?.capacityAlternativeProviders2}
                   </span>
                 </td>
               </tr>

@@ -208,12 +208,15 @@ export const formSchema : any = {
 
 const ScheduleForSupport = ({ settings, commonFieldsData, formData} : any ) => {
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
         <Page1 schema={formSchema.page1} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         <Page2 schema={formSchema.page2} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         <Page3 schema={formSchema.page3} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         <Page4 schema={formSchema.page4} data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         
+      </div>
     </div>
   )
 }

@@ -98,9 +98,12 @@ const EmergencyDrill = ({formData, commonFieldsData, settings} : any) => {
 
   
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
         <Page1 schema={formSchema.page1} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
         <Page2 schema={formSchema.page2} data={formData} commonFieldsData={commonFieldsData} settings={settings} />
+      </div>
     </div>
   )
 }

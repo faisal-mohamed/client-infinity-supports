@@ -39,11 +39,12 @@ const Page7: React.FC<Page7Props> = ({ data, commonFieldsData, settings }) => {
           <img
             src={"/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
-        <div className="text-center text-gray-500 mb-6 uppercase tracking-widest text-sm">
+        <div className="text-center text-gray-500 mb-6 uppercase tracking-widest" style={{ fontSize: '14px' }}>
           ACHIEVING GOALS AND BEYOND
         </div>
 

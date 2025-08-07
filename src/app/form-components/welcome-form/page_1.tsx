@@ -69,7 +69,7 @@ const Page1: React.FC<any> = ({settings} : any ) => {
         </div>
 
         {/* Bottom: Footer */}
-        <footer className="w-full border-t border-gray-300 py-4 text-[10px] text-gray-500 mt-auto">
+        <footer className="w-full border-t border-gray-300 py-4 text-gray-500 mt-auto" style={{ fontSize: '10px' }}>
           <div className="max-w-3xl mx-auto px-6 flex justify-between">
             <span>Website: {settings?.company_website}</span>
             <span>{settings?.welcome_form}</span>

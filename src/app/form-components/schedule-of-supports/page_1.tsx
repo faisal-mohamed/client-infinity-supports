@@ -35,11 +35,11 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 };
 
 
-  const cellClass = "border border-black px-1 py-1 leading-relaxed text-xs";
+  const cellClass = "border border-black px-1 py-1 leading-relaxed";
 
   return (
     <A4PageWrapper>
-      <div className="w-full h-full flex flex-col px-6 pt-6 pb-2 text-xs font-sans">
+      <div className="w-full h-full flex flex-col px-6 pt-6 pb-2 font-sans" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-2">
           <img
@@ -50,12 +50,12 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         </div>
 
         {/* Title */}
-        <div className="text-center font-semibold text-xs mb-4">
+        <div className="text-center font-semibold mb-4" style={{ fontSize: '12px' }}>
           Schedule of Support for: {commonFieldsData?.name || "________________"}
         </div>
 
         {/* NDIS & Plan Dates */}
-        <div className="flex justify-between text-xs mb-2 px-2">
+        <div className="flex justify-between mb-2 px-2" style={{ fontSize: '12px' }}>
           <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
           <span>
   Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
@@ -65,7 +65,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* Table container - fills remaining height */}
         <div className="flex-1 flex flex-col">
-          <table className="table-fixed border border-black w-full text-xs border-collapse">
+          <table className="table-fixed border border-black w-full border-collapse" style={{ fontSize: '11px' }}>
             <thead>
               <tr>
                 <th className={`${cellClass} text-left w-[40%]`}>

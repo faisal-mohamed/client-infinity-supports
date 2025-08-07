@@ -105,7 +105,7 @@ const getValue = (key: string): string => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-[11px] text-gray-800 font-sans py-6 px-6">
+      <div className="flex flex-col h-full text-gray-800 font-sans py-6 px-6" style={{ fontSize: '11px' }}>
         {/* Logo and Title */}
         <div className="flex justify-center">
           <img
@@ -120,7 +120,7 @@ const getValue = (key: string): string => {
 
         {/* Main Table Section */}
         <div className="flex-1">
-          <table className="w-full border border-black border-collapse text-[11px] leading-relaxed">
+          <table className="w-full border border-black border-collapse leading-relaxed" style={{ fontSize: '11px' }}>
             {schema?.sections?.map((section, idx) => (
               <React.Fragment key={idx}>
                 <thead>
@@ -133,7 +133,7 @@ const getValue = (key: string): string => {
                 <tbody>
                   {section?.fields?.map((field) => (
                     <tr key={field?.key} className="border border-black">
-                      <td className="w-[180px] font-semibold px-3 py-1 border border-black bg-[#e8edf8]">
+                      <td className="font-semibold px-3 py-1 border border-black bg-[#e8edf8]" style={{ width: '180px' }}>
                         {field?.label}
                       </td>
                       <td className="px-3 py-1 border border-black">

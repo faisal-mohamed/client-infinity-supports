@@ -256,7 +256,9 @@ page7: {
 
 const SASupportCoordination = ({formKey, formData, settings, commonFieldsData} : any ) => {
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
         <Page1 data={formData} settings={settings} commonFieldsData={commonFieldsData} />
         <Page2 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
         <Page3 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
@@ -264,6 +266,7 @@ const SASupportCoordination = ({formKey, formData, settings, commonFieldsData} :
         <Page5 settings={settings} commonFieldsData={commonFieldsData}/>
         <Page6 settings={settings} commonFieldsData={commonFieldsData}/>
         <Page7 data={formData} settings={settings} commonFieldsData={commonFieldsData}/>
+      </div>
     </div>
   )
 }

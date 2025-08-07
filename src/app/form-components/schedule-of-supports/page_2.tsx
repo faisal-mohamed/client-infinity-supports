@@ -25,7 +25,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full px-6 pt-6 pb-4 text-xs font-sans text-black leading-7">
+      <div className="flex flex-col h-full px-6 pt-6 pb-4 font-sans text-black leading-7" style={{ fontSize: '12px' }}>
         {/* Logo and Tagline */}
         <div className="flex flex-col items-center mb-6">
           <img
@@ -44,7 +44,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 text-xs leading-relaxed">
+        <div className="flex-1 leading-relaxed" style={{ fontSize: '12px' }}>
           <p className="font-bold mb-2">
             Transport Payments (not applicable client has own vehicle)
           </p>

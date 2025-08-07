@@ -56,7 +56,7 @@ const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full text-sm text-black font-[Times_New_Roman]">
+      <div className="flex flex-col h-full text-black font-[Times_New_Roman]" style={{ fontSize: '14px' }}>
         {/* Content */}
         <div className="flex-grow max-w-3xl mx-auto px-6 pt-10">
           {/* Logo */}
@@ -69,7 +69,7 @@ const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any
           </div>
 
           {/* Title */}
-          <h2 className="text-center font-bold text-sm mb-6">
+          <h2 className="text-center font-bold mb-6" style={{ fontSize: '14px' }}>
             {schema?.title}
           </h2>
 
@@ -90,7 +90,7 @@ const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any
 
         {/* Footer */}
         <footer className="w-full border-t border-gray-300 py-4">
-          <div className="max-w-3xl mx-auto px-6 flex justify-between text-xs text-gray-500">
+          <div className="max-w-3xl mx-auto px-6 flex justify-between text-gray-500" style={{ fontSize: '12px' }}>
             <span>Website: {settings?.company_website}</span>
             <span>{settings?.welcome_form}</span>
 <div>Review Date: {formatDate(settings?.review_date)}</div>

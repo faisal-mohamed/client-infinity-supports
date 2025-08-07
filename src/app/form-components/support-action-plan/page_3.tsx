@@ -73,7 +73,7 @@ const Page3: React.FC<Props> = ({ schema, data, settings, commonFieldsData }) =>
 
   if (field?.type === 'checkbox-group') {
     return (
-      <div className="flex items-center gap-3 flex-wrap leading-[2]">
+      <div className="flex items-center gap-2 flex-wrap leading-[2]">
         {field?.options?.map?.((option) => (
           <div key={option} className="flex items-center gap-1">
             <input
@@ -140,7 +140,7 @@ const formatDate = (value: string): string => {
                       <td className="border border-black font-bold p-1 align-top w-[150px] bg-[#e8edf8]">
                         {field?.label}
                       </td>
-                      <td className="border border-black p-3">
+                      <td className="border border-black p-2">
                         {renderField(field)}
                       </td>
                     </tr>

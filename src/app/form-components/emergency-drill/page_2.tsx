@@ -40,13 +40,14 @@ const Page2: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col flex-grow text-black text-xs leading-relaxed font-sans h-full">
+      <div className="flex flex-col flex-grow text-black leading-relaxed font-sans h-full" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
             src="/infinity_logo.png"
             alt="Infinity Supports WA logo"
-            className="object-contain h-[60px] w-[150px]"
+            className="object-contain"
+            style={{ height: '60px', width: '150px' }} // Fixed dimensions for consistency
           />
         </div>
 

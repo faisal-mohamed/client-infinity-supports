@@ -22,6 +22,13 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({ children, className = '' 
         p-0
         ${className}
       `}
+      style={{
+        // Ensure consistent A4 dimensions across all devices
+        width: '210mm',
+        height: '297mm',
+        minWidth: '210mm',
+        minHeight: '297mm'
+      }}
     >
       {children}
     </div>

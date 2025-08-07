@@ -46,7 +46,7 @@ const getValue = (key: string): string => {
 
   return (
     <A4PageWrapper>
-      <div className="h-full flex flex-col px-6 py-10 text-xs font-sans">
+      <div className="h-full flex flex-col px-6 py-10 font-sans" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-10">
           <img

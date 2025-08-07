@@ -43,7 +43,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col justify-between h-full p-6 text-[11px] text-gray-800 font-sans leading-[1.75]">
+      <div className="flex flex-col justify-between h-full p-6 text-gray-800 font-sans" style={{ fontSize: '11px', lineHeight: '1.75' }}>
         {/* Content Block */}
         <div>
           {/* Logo */}
@@ -61,7 +61,7 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
           </p> */}
 
           {/* Table 1 - Budget Discussion & Goals */}
-          <table className="w-full border border-black border-collapse text-[11px] mb-6">
+          <table className="w-full border border-black border-collapse mb-6" style={{ fontSize: '11px' }}>
             <tbody>
               <tr>
                 <td className="border border-black p-2 font-bold" colSpan={2}>

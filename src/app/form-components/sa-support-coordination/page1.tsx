@@ -52,23 +52,24 @@ const Page1: React.FC<Page1Props> = ({ data, commonFieldsData, settings }) => {
           <img
             src={"/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
         {/* Title */}
         <div className="text-center mb-4">
-          <p className="font-bold underline text-sm">
+          <p className="font-bold underline" style={{ fontSize: '14px' }}>
             SERVICE AGREEMENT SUPPORT COORDINATION
           </p>
-          <p className="font-bold underline text-sm mt-1">
+          <p className="font-bold underline mt-1" style={{ fontSize: '14px' }}>
             SECTION 1
           </p>
         </div>
 
         {/* Table - takes up most of the remaining space */}
         <div className="flex-1 flex flex-col">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse flex-1" style={{ fontSize: '13px' }}>
             <tbody className="h-full">
               <tr>
                 <td

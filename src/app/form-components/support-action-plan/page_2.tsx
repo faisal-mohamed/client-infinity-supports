@@ -42,28 +42,28 @@ const Page2: React.FC<any> = ({ data, settings }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 leading-relaxed text-[11px]">
+        <div className="flex-1 leading-relaxed" style={{ fontSize: '11px' }}>
           <table className="w-full border border-black border-collapse">
             <tbody>
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 ">
+                <td className="border border-black font-bold p-2 ">
                   4.	Consider, what support is required to assist you to achieve your goals? Are there any barriers preventing you from achieving your goals?
                 </td>
               </tr>
                <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">
+                <td className="border border-black font-bold p-2 uppercase">
                   Core Supports
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Support Required &nbsp; </span>
 
                   {data?.coreSupportText}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Preferred providers</span>
                   <br />
                   1. {data?.corePreferredProviders} <br />
@@ -71,7 +71,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Alternative providers</span>
                   <br />
                   1. {data?.coreAlternativeProviders} <br />
@@ -79,7 +79,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Service Agreement developed/signed?
                   </span>
@@ -88,14 +88,14 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Supports have commenced</span>
                   <br />
                   {data?.coreSupportsCommenced}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Discussion held with Plan Manager and budget approved?
                   </span>
@@ -105,32 +105,34 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
 
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">
+                <td className="border border-black font-bold p-2 uppercase">
                   Capacity Building
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Support Required &nbsp; </span>
                   {data?.capacitySupportText}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Preferred providers</span>
                   <br />
-                  1. {data?.capacityPreferredProviders}
+                  1. {data?.capacityPreferredProviders} <br />
+                  2. {data?.capacityPreferredProviders2}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">Alternative providers</span>
                   <br />
-                  1. {data?.capacityAlternativeProviders}
+                  1. {data?.capacityAlternativeProviders} <br />
+                  2. {data?.capacityAlternativeProviders2}
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Service Agreement developed/signed?
                   </span>
@@ -139,7 +141,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Supports in place at start of plan
                   </span>
@@ -148,7 +150,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </td>
               </tr>
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Are additional assessments required to access this support
                     type?{" "}
@@ -159,7 +161,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
               {data?.capacityAssessmentRequired === "Yes" && (
                 <tr>
-                  <td className="border border-black p-3">
+                  <td className="border border-black p-2">
                     <span className="font-bold">If Yes - Actions</span>
                     <br />
                     {data?.capacityActions}
@@ -167,7 +169,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
                 </tr>
               )}
               <tr>
-                <td className="border border-black p-3">
+                <td className="border border-black p-2">
                   <span className="font-bold">
                     Discussion held with Plan Manager and budget approved?
                   </span>
@@ -177,7 +179,7 @@ const Page2: React.FC<any> = ({ data, settings }) => {
               </tr>
 
               <tr className="bg-[#a9c1e0]">
-                <td className="border border-black font-bold p-3 uppercase">
+                <td className="border border-black font-bold p-2 uppercase">
                   Capital
                 </td>
               </tr>

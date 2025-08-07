@@ -69,7 +69,9 @@ export const formSchema : any  = {
 
 const WelcomeForm = ({formData, commonFieldsData, settings} : any ) => {
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
         <Page1 settings={settings}/> 
         <Page2 settings={settings}/>
         <Page3 settings={settings}/>
@@ -96,6 +98,7 @@ const WelcomeForm = ({formData, commonFieldsData, settings} : any ) => {
         <Page24 settings={settings}/>
         <Page25 settings={settings}/>
         <Page26 schema={formSchema}  data={formData} settings={settings} commonFieldsData={commonFieldsData} />
+      </div>
     </div>
   )
 }
