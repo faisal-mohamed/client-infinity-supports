@@ -92,14 +92,14 @@ const Page10 = ({ settings, images }: any) => {
           <p className={`${A4_PDF_TYPOGRAPHY.sectionHeader} mt-2 mb-2`}>Other rights participants are entitled to include:</p> <br /><br />
 
           <ul className={`${A4_PDF_TYPOGRAPHY.body} list-disc list-inside space-y-1 mb-5`}>
-            <li>● The right to lodge a complaint.</li> <br />
-            <li>● The right to access outside organisations, resources, and support during their time with Infinity Supports WA.</li> <br />
-            <li>● Privileges or commitments under the Disability Act 2006 and related facilities or expenses.</li> <br />
-            <li>● The right to dismiss care or assistance without retribution or discrimination against future services.</li> <br />
-            <li>● The right to choice and flexibility in many aspects of their care services.</li> <br />
-            <li>● The opportunity to choose a person to represent and promote their experiences.</li> <br />
-            <li>● The right to receive support from sufficiently skilled workers.</li> <br />
-            <li>● The option to change providers when needed, and to be encouraged and supported in maintaining high-quality care.</li>
+             <li>● The right to lodge a complaint.</li> <br />
+            <li>● The right to access outside organisations, resources, and support throughout their time at Infinity Supports WA</li> <br />
+            <li>● Privileges or commitments under the Disability Act 2006 and the facilities as well as any related expenses to be incurred</li> <br />
+            <li>● Participants have the opportunity to dismiss care or assistance without any retribution or discrimination towards any potential future access to assistance or resources</li> <br />
+            <li>● Participants will have choice and flexibility in many aspects of their service of care.</li> <br />
+            <li>● Having the opportunity to choose a person to help and promote their experiences on behalf of Infinity Supports WA.</li> <br />
+            <li>● Have the right to receive help, support and assistance provided by sufficiently skilled workers.</li> <br />
+            <li>● Having the option to change providers where required and receive encouragement to ensure adequate, secure and exceptional quality of care is maintained</li>
           </ul>
         </div>
       </div>

@@ -90,10 +90,12 @@ const Page5: React.FC<Page5Props> = ({ data, schema, settings, images }) => {
             </ul>
 
             <p className={`mb-6 ${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
-              By considering both the participants' level of reliance on the
-              services and the potential consequences for their health and
-              safety in case of disruptions, we can create a more comprehensive
-              risk assessment framework that prioritises their well-being.
+              By considering both the participants' level of reliance on the services and the potential consequences 
+for their health and safety in case of disruptions, we can create a more comprehensive risk 
+assessment framework that prioritises their well-being. Therefore, prioritising the health and safety 
+of participants is a fundamental responsibility that promotes their well-being, respects their rights, 
+and contributes to the overall success and sustainability of various activities and endeavours, and 
+ultimately, the level of support the provider is required to provide the participant during their care.  
             </p>
           </div>
 

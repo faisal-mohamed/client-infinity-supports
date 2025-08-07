@@ -41,13 +41,13 @@ const Page10: React.FC<any> = ({settings}: any ) => {
 
           <ul className="list-disc list-inside space-y-2 mb-6">
             <li>The right to lodge a complaint.</li>
-            <li>The right to access outside organisations, resources, and support during their time with Infinity Supports WA.</li>
-            <li>Privileges or commitments under the Disability Act 2006 and related facilities or expenses.</li>
-            <li>The right to dismiss care or assistance without retribution or discrimination against future services.</li>
-            <li>The right to choice and flexibility in many aspects of their care services.</li>
-            <li>The opportunity to choose a person to represent and promote their experiences.</li>
-            <li>The right to receive support from sufficiently skilled workers.</li>
-            <li>The option to change providers when needed, and to be encouraged and supported in maintaining high-quality care.</li>
+            <li>The right to access outside organisations, resources, and support throughout their time at Infinity Supports WA</li>
+            <li>Privileges or commitments under the Disability Act 2006 and the facilities as well as any related expenses to be incurred</li>
+            <li>Participants have the opportunity to dismiss care or assistance without any retribution or discrimination towards any potential future access to assistance or resources</li>
+            <li>Participants will have choice and flexibility in many aspects of their service of care.</li>
+            <li>Having the opportunity to choose a person to help and promote their experiences on behalf of Infinity Supports WA.</li>
+            <li>Have the right to receive help, support and assistance provided by sufficiently skilled workers.</li>
+            <li>Having the option to change providers where required and receive encouragement to ensure adequate, secure and exceptional quality of care is maintained</li>
           </ul>
         </div>
 

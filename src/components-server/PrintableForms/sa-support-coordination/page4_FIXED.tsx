@@ -60,7 +60,7 @@ const Page4: React.FC<any> = ({ settings, images }) => {
             </p> <br />
 
             <ul className="list-disc list-inside text-xs font-normal font-montserrat mb-6 space-y-2 leading-relaxed">
-              <li>• Understand and use your NDIS plan to pursue your goals</li> 
+              <li>• Understand and use your NDIS plan to pursue your goals</li>  <br />
               <li>• Review the provision of supports with the Individual in line with the applicable requirements.</li> <br />
               <li>• Connect you with providers, community, mainstream and the government services</li> <br />
               <li>• Source information regarding Allied Health processionals</li> <br />

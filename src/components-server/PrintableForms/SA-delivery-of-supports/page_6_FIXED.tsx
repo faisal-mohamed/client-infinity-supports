@@ -56,7 +56,7 @@ const Page6: React.FC<Page6Props> = ({ settings, images }) => {
           <div className="mb-8">
             <ul className="pl-5">
               <li className={`${A4_PDF_TYPOGRAPHY.body} leading-loose text-justify`}>
-                The Individual's plan is expected to remain in effect during the period the supports are provided and will immediately notify the{' '}
+                ● The Individual's plan is expected to remain in effect during the period the supports are provided and will immediately notify the{' '}
                 <span className="text-red-600 font-semibold" style={{color: 'red'}}>Infinity Supports WA</span> if the Individual's plan is replaced by a new plan or the Individual's funding ceases.
               </li>
             </ul>

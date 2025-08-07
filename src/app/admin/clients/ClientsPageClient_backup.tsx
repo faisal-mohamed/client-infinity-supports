@@ -243,26 +243,57 @@ export default function ClientsPageClient() {
     }
   };
 
+  // const handleSelectAll = () => {
+  //   if (selectAll) {
+  //     setSelectedClients([]);
+  //   } else {
+  //     setSelectedClients(sortedClients.map((client) => client.id));
+  //   }
+  //   setSelectAll(!selectAll);
+  // };
+
   const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedClients([]);
-    } else {
-      setSelectedClients(sortedClients.map((client) => client.id));
-    }
-    setSelectAll(!selectAll);
-  };
+  if (selectAll) {
+    // Unselect all clients on current page
+    const currentPageClientIds = clients.map((client) => client.id);
+    setSelectedClients(selectedClients.filter(id => !currentPageClientIds.includes(id)));
+    setSelectAll(false);
+  } else {
+    // Select all clients on current page
+    const currentPageClientIds = clients.map((client) => client.id);
+    const newSelectedClients = [...new Set([...selectedClients, ...currentPageClientIds])];
+    setSelectedClients(newSelectedClients);
+    setSelectAll(true);
+  }
+};
+
+  // const handleSelectClient = (id: number) => {
+  //   if (selectedClients.includes(id)) {
+  //     setSelectedClients(selectedClients.filter((clientId) => clientId !== id));
+  //     setSelectAll(false);
+  //   } else {
+  //     setSelectedClients([...selectedClients, id]);
+  //     if (selectedClients.length + 1 === sortedClients.length) {
+  //       setSelectAll(true);
+  //     }
+  //   }
+  // };
 
   const handleSelectClient = (id: number) => {
-    if (selectedClients.includes(id)) {
-      setSelectedClients(selectedClients.filter((clientId) => clientId !== id));
-      setSelectAll(false);
-    } else {
-      setSelectedClients([...selectedClients, id]);
-      if (selectedClients.length + 1 === sortedClients.length) {
-        setSelectAll(true);
-      }
-    }
-  };
+  if (selectedClients.includes(id)) {
+    setSelectedClients(selectedClients.filter((clientId) => clientId !== id));
+  } else {
+    setSelectedClients([...selectedClients, id]);
+  }
+};
+
+useEffect(() => {
+  if (clients.length > 0) {
+    const currentPageClientIds = clients.map((client) => client.id);
+    const allCurrentPageSelected = currentPageClientIds.every(id => selectedClients.includes(id));
+    setSelectAll(allCurrentPageSelected);
+  }
+}, [selectedClients, clients]);
 
   const resetFilters = () => {
     setFilters({
@@ -383,7 +414,8 @@ export default function ClientsPageClient() {
         {/* Enhanced Header */}
 
         {/* Enhanced Actions and Search */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
+        
+        {/* <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
           <form
             onSubmit={handleSearch}
             className="flex flex-col md:flex-row gap-4 sm:gap-6 justify-between"
@@ -443,7 +475,7 @@ export default function ClientsPageClient() {
             </div>
           </form>
 
-          {/* Enhanced Filters */}
+         
           {showFilters && (
             <div className="mt-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200 shadow-inner">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
@@ -535,7 +567,173 @@ export default function ClientsPageClient() {
               </div>
             </div>
           )}
+        </div> */}
+
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
+  <form
+    onSubmit={handleSearch}
+    className="flex flex-col lg:flex-row gap-4 sm:gap-6 justify-between"
+  >
+    {/* Search Input */}
+    <div className="flex-grow relative">
+      <div className="absolute top-1/2 -translate-y-1/2 left-4 pointer-events-none">
+  <FaSearch className="text-gray-400 h-5 w-5" />
+</div>
+
+      <input
+        type="text"
+        placeholder="Search clients by name, email or phone..."
+        className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow duration-200"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    {/* Button Group */}
+    <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full lg:w-auto">
+      {/* Filters Button */}
+      <button
+        type="button"
+        onClick={() => setShowFilters(!showFilters)}
+        className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 border rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 ${
+          showFilters
+            ? "bg-gradient-to-r from-rose-50 to-rose-100 border-rose-300 text-rose-700"
+            : "border-gray-300 text-gray-700 hover:bg-gray-50"
+        }`}
+      >
+        <FaFilter className="h-4 w-4" />
+        
+        {Object.values(filters).some((v) => v !== "") && (
+          <span className="bg-gradient-to-r from-rose-500 to-rose-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md">
+            {Object.values(filters).filter((v) => v !== "").length}
+          </span>
+        )}
+      </button>
+
+      {/* Download Button */}
+      <button
+        type="button"
+        onClick={exportToExcel}
+        disabled={excelLoading}
+        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 border border-green-300 bg-gradient-to-r from-green-50 to-green-100 text-green-700 hover:from-green-100 hover:to-green-200 rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+      >
+        <FaDownload className="h-4 w-4" />
+        {!excelLoading ? "Download Excel" : "Downloading..."}
+      </button>
+
+      {/* Delete Button (Conditional) */}
+      {selectedClients.length > 0 && (
+        <button
+          type="button"
+          onClick={handleDeleteSelected}
+          disabled={isDeleting}
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-4 border border-rose-300 bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 hover:from-rose-100 hover:to-rose-200 rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+        >
+          <FaTrash className="h-4 w-4" />
+           ({selectedClients.length})
+        </button>
+      )}
+    </div>
+  </form>
+
+  {/* Enhanced Filters */}
+  {showFilters && (
+    <div className="mt-6 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200 shadow-inner">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+        <h3 className="font-bold text-gray-900 text-lg">Filter Clients</h3>
+        <button
+          onClick={resetFilters}
+          className="text-sm text-rose-600 hover:text-rose-800 font-semibold bg-rose-50 hover:bg-rose-100 px-4 py-2 rounded-lg transition-colors duration-200"
+        >
+          Reset All Filters
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            State
+          </label>
+          <select
+            value={filters.state}
+            onChange={(e) => {
+              setFilters({ ...filters, state: e.target.value });
+              setPagination({ ...pagination, page: 1 });
+            }}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <option value="">All States</option>
+            {states.map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Gender
+          </label>
+          <select
+            value={filters.sex}
+            onChange={(e) => {
+              setFilters({ ...filters, sex: e.target.value });
+              setPagination({ ...pagination, page: 1 });
+            }}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <option value="">All</option>
+            {sexOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Has NDIS Number
+          </label>
+          <select
+            value={filters.hasNdis}
+            onChange={(e) => {
+              setFilters({ ...filters, hasNdis: e.target.value });
+              setPagination({ ...pagination, page: 1 });
+            }}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Has Disability
+          </label>
+          <select
+            value={filters.hasDisability}
+            onChange={(e) => {
+              setFilters({ ...filters, hasDisability: e.target.value });
+              setPagination({ ...pagination, page: 1 });
+            }}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
+
+
         {/* Enhanced Error message */}
         {error && (
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-6 mb-6 hover:shadow-xl transition-shadow duration-300">

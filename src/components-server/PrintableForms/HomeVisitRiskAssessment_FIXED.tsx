@@ -169,10 +169,10 @@ const homeVisitSchema: any = {
     {
       title: "Page 4",
       type: "table",
-      riskLevel: {
-        label: "HIGH RED",
-        description: "Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered."
-      },
+      // riskLevel: {
+      //   label: "HIGH RED",
+      //   description: "Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered."
+      // },
       fields: [
         { label: "Issue/Task", key: "issue1" },
         { label: "Risk Score", key: "riskScore1" },
@@ -307,10 +307,36 @@ const Page1 = ({ homeVisitResponse, images, commonFields, settings }: any) => (
                     {field.label}
                   </td>
                   <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
+                    {homeVisitResponse[field.key]?.toLowerCase() === "yes" ? (<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="12"
+    height="12"
+    fill="none"
+    stroke="black"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="inline-block"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>) : ""}
                   </td>
                   <td className="border border-black text-center w-[7%]">
-                    {homeVisitResponse[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
+                    {homeVisitResponse[field.key]?.toLowerCase() === "no" ? (<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="12"
+    height="12"
+    fill="none"
+    stroke="black"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="inline-block"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>) : ""}
                   </td>
                   <td className={`border border-black p-3 w-[46%] ${A4_PDF_TYPOGRAPHY.tableCell}`}>
                     {homeVisitResponse[field.key + "_comments"] || ""}
@@ -393,10 +419,36 @@ const Page2 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
                         {field.label}
                       </td>
                       <td className="border border-black text-center align-top">
-                        {value?.toLowerCase() === "yes" ? "✔️" : ""}
+                        {value?.toLowerCase() === "yes" ? (<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="12"
+    height="12"
+    fill="none"
+    stroke="black"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="inline-block"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>) : ""}
                       </td>
                       <td className="border border-black text-center align-top">
-                        {value?.toLowerCase() === "no" ? "✔️" : ""}
+                        {value?.toLowerCase() === "no" ? (<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="12"
+    height="12"
+    fill="none"
+    stroke="black"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="inline-block"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>) : ""}
                       </td>
                       <td className={`border border-black p-3 align-top ${A4_PDF_TYPOGRAPHY.tableCell}`}>
                         {comments}
@@ -417,6 +469,8 @@ const Page2 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
 
 const Page3 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
   const page = homeVisitSchema.pages[2];
+
+  console.log("page-----------: ", page.content)
 
   return (
     <A4Page>

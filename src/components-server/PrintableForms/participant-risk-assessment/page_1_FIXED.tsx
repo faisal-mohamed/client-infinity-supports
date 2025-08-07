@@ -173,13 +173,12 @@ const Page1: React.FC<Page1Props> = ({
               {[1, 2, 3].map((num) => (
                 <tr key={num}>
                   <td className={`${cellClass} w-1/3`} style={{ minHeight: '30px', height: '30px' }}>
-                    {num === 1 ? getValue("medicalSpecify") : ""}
+{getValue(`medicalSpecify${num}`)}                  </td>
+                  <td className={`${cellClass} w-1/3`} style={{ minHeight: '30px', height: '30px' }}>
+                    {getValue(`medicalEffect${num}`)}
                   </td>
                   <td className={`${cellClass} w-1/3`} style={{ minHeight: '30px', height: '30px' }}>
-                    {num === 1 ? getValue("medicalEffect") : ""}
-                  </td>
-                  <td className={`${cellClass} w-1/3`} style={{ minHeight: '30px', height: '30px' }}>
-                    {num === 1 ? getValue("medicalTreatment") : ""}
+                    {getValue(`medicalTreatment${num}`)}
                   </td>
                 </tr>
               ))}

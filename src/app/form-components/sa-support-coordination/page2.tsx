@@ -15,7 +15,7 @@ const supportCategories = [
   "07_101_0106_6_3 Psychosocial Recovery Coaching"
 ];
 
-const costPerHr = ["$74.63", "100.14", "$98.30"]
+const costPerHr = ["$74.63", "$100.14", "$98.30"]
 
 
 const Page2: React.FC<Page2Props> = ({ data, commonFieldsData, settings }) => {

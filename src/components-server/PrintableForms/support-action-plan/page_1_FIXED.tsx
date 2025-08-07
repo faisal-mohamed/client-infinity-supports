@@ -122,7 +122,7 @@ const Page1: React.FC<Props> = ({
                 {option === 'Other' && showOther && otherValue && (
                   <>: <strong>{otherValue}</strong></>
                 )}
-              </span>
+              </span> &nbsp; &nbsp;
             </div>
           ))}
         </div>

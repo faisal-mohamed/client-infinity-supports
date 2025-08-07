@@ -66,20 +66,23 @@ const Page4: React.FC<any> = ({ schema, data, settings, commonFieldsData }) => {
               <tr>
                 <td className="border border-black p-2 font-bold" colSpan={2}>
                   {schema?.budgetApproval?.label}
+                                    <span className="ml-1 font-normal align-middle">Yes</span>
+
                   <input
                     type="checkbox"
                     checked={isChecked(data?.budgetApproval, 'Yes')}
                     readOnly
                     className="ml-2 align-middle w-4 h-4 border border-black bg-gray-300"
                   />
-                  <span className="ml-1 font-normal align-middle">Yes</span>
+
+                                    <span className="ml-1 font-normal align-middle">No</span>
+
                   <input
                     type="checkbox"
                     checked={isChecked(data?.budgetApproval, 'No')}
                     readOnly
                     className="ml-4 align-middle w-4 h-4 border border-black bg-gray-300"
                   />
-                  <span className="ml-1 font-normal align-middle">No</span>
                 </td>
               </tr>
               <tr>

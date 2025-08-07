@@ -81,14 +81,14 @@ If the Individual is not satisfied or does not want to talk to this person, the 
             <ul className="list-disc list-inside text-xs font-normal font-montserrat space-y-1 mb-6 leading-relaxed">
               <li>• Deaths</li> <br />
               <li>• Significant injuries to employees or occupants</li> <br />
-              <li>Shut down the business</li> <br />
+              <li>• Shut down the business</li> <br />
               <li>• Disruption to operations</li> <br />
               <li>• Physical or environmental damage</li> 
             </ul> <br /><br />
 
             <p className="text-xs font-normal font-montserrat mb-6 leading-relaxed">
 For your peace of mind, all our support workers are trained on how to respond in case of an emergency, and they will receive a copy of your Individual Disaster Management Plan so that they are fully aware of your health condition and the required action plans in case of an emergency. 
-Individual Disaster Management Plan and Risk Assessment will be developed and signed by Infinity Supports WA and the Individual and/or representative. Providers’ Responsibility 
+Individual Disaster Management Plan and Risk Assessment will be developed and signed by <span className="text-red-600 font-semibold" style={{color: 'red'}}>Infinity Supports WA</span> and the Individual and/or representative. Providers’ Responsibility 
             </p>
           </div>
         </div>

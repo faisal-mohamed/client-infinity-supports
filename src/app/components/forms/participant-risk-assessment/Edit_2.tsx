@@ -1409,93 +1409,189 @@ const renderDropdownSeverityRisk = (
     );
   };
 
+  // const renderBehavioralAndMobilitySection = () => {
+  //   const fields = [
+  //     "noiseSensitive",
+  //     "familyBehavioralHistory",
+  //     "behaviorPractitionerInvolved",
+  //     "mobilityIssues",
+  //     "showeringToiletingHazards",
+  //   ];
+
+  //   return (
+  //     <div className="space-y-6">
+  //       {fields.map((key) => {
+  //         const ratingKey = `${key}Rating`;
+  //         const commentKey = `${key}Comment`;
+
+  //         return (
+  //           <div
+  //             key={key}
+  //             className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
+  //           >
+  //             {renderDropdown(
+  //               FIELD_METADATA[key].label,
+  //               key,
+  //               yesNoOptions,
+  //               false
+  //             )}
+  //             {renderDropdown(
+  //               FIELD_METADATA[ratingKey].label,
+  //               ratingKey,
+  //               ratingOptions,
+  //               false
+  //             )}
+  //             {renderInput(
+  //               FIELD_METADATA[commentKey].label,
+  //               commentKey,
+  //               "text",
+  //               FIELD_METADATA[commentKey].placeholder,
+  //               false
+  //             )}
+  //           </div>
+  //         );
+  //       })}
+
+  //       {/* medicationRespDepression multi-checkbox */}
+  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //         {renderMultiSelectCheckbox(
+  //           FIELD_METADATA.medicationRespDepression.label,
+  //           "medicationRespDepression",
+  //           FIELD_METADATA.medicationRespDepression.options,
+  //           false
+  //         )}
+  //       </div>
+  //         <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //         {renderDropdown(
+  //           FIELD_METADATA.medicationRiskYesNo.label,
+  //           "medicationRiskYesNo",
+  //           yesNoOptions,
+  //           false
+  //         )}
+  //       </div>
+        
+
+  //       {/* medicationRespDepressionRating dropdown */}
+  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //         {renderDropdown(
+  //           FIELD_METADATA.medicationRespDepressionRating.label,
+  //           "medicationRespDepressionRating",
+  //           ratingOptions,
+  //           false
+  //         )}
+  //       </div>
+
+  //       {/* medicationRiskComment text input */}
+  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //         {renderInput(
+  //           FIELD_METADATA.medicationRiskComment.label,
+  //           "medicationRiskComment",
+  //           "text",
+  //           FIELD_METADATA.medicationRiskComment.placeholder,
+  //           false
+  //         )}
+  //       </div>
+  //     </div>
+  //   );
+  // };
+
+  // Validation function to check if all required fields are filled
+  
   const renderBehavioralAndMobilitySection = () => {
-    const fields = [
-      "noiseSensitive",
-      "familyBehavioralHistory",
-      "behaviorPractitionerInvolved",
-      "mobilityIssues",
-      "showeringToiletingHazards",
-    ];
+  const fields = [
+    "noiseSensitive",
+    "familyBehavioralHistory",
+    "behaviorPractitionerInvolved",
+    "mobilityIssues",
+    "showeringToiletingHazards",
+  ];
 
-    return (
-      <div className="space-y-6">
-        {fields.map((key) => {
-          const ratingKey = `${key}Rating`;
-          const commentKey = `${key}Comment`;
+  return (
+    <div className="space-y-6">
+      {fields.map((key) => {
+        const ratingKey = `${key}Rating`;
+        const commentKey = `${key}Comment`;
 
-          return (
-            <div
-              key={key}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
-            >
-              {renderDropdown(
-                FIELD_METADATA[key].label,
-                key,
-                yesNoOptions,
-                false
-              )}
-              {renderDropdown(
+        const isBehaviorOnly = key === "behaviorPractitionerInvolved";
+
+        return (
+          <div
+            key={key}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
+          >
+            {/* ✅ Always render Yes/No dropdown */}
+            {renderDropdown(
+              FIELD_METADATA[key].label,
+              key,
+              yesNoOptions,
+              false
+            )}
+
+            {/* ✅ Only render rating if not behaviorPractitionerInvolved */}
+            {!isBehaviorOnly &&
+              renderDropdown(
                 FIELD_METADATA[ratingKey].label,
                 ratingKey,
                 ratingOptions,
                 false
               )}
-              {renderInput(
+
+            {/* ✅ Only render comment if not behaviorPractitionerInvolved */}
+            {!isBehaviorOnly &&
+              renderInput(
                 FIELD_METADATA[commentKey].label,
                 commentKey,
                 "text",
                 FIELD_METADATA[commentKey].placeholder,
                 false
               )}
-            </div>
-          );
-        })}
+          </div>
+        );
+      })}
 
-        {/* medicationRespDepression multi-checkbox */}
-        <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
-          {renderMultiSelectCheckbox(
-            FIELD_METADATA.medicationRespDepression.label,
-            "medicationRespDepression",
-            FIELD_METADATA.medicationRespDepression.options,
-            false
-          )}
-        </div>
-          <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
-          {renderDropdown(
-            FIELD_METADATA.medicationRiskYesNo.label,
-            "medicationRiskYesNo",
-            yesNoOptions,
-            false
-          )}
-        </div>
-        
-
-        {/* medicationRespDepressionRating dropdown */}
-        <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
-          {renderDropdown(
-            FIELD_METADATA.medicationRespDepressionRating.label,
-            "medicationRespDepressionRating",
-            ratingOptions,
-            false
-          )}
-        </div>
-
-        {/* medicationRiskComment text input */}
-        <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
-          {renderInput(
-            FIELD_METADATA.medicationRiskComment.label,
-            "medicationRiskComment",
-            "text",
-            FIELD_METADATA.medicationRiskComment.placeholder,
-            false
-          )}
-        </div>
+      {/* medicationRespDepression multi-checkbox */}
+      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+        {renderMultiSelectCheckbox(
+          FIELD_METADATA.medicationRespDepression.label,
+          "medicationRespDepression",
+          FIELD_METADATA.medicationRespDepression.options,
+          false
+        )}
       </div>
-    );
-  };
 
-  // Validation function to check if all required fields are filled
+      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+        {renderDropdown(
+          FIELD_METADATA.medicationRiskYesNo.label,
+          "medicationRiskYesNo",
+          yesNoOptions,
+          false
+        )}
+      </div>
+
+      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+        {renderDropdown(
+          FIELD_METADATA.medicationRespDepressionRating.label,
+          "medicationRespDepressionRating",
+          ratingOptions,
+          false
+        )}
+      </div>
+
+      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+        {renderInput(
+          FIELD_METADATA.medicationRiskComment.label,
+          "medicationRiskComment",
+          "text",
+          FIELD_METADATA.medicationRiskComment.placeholder,
+          false
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+  
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
 

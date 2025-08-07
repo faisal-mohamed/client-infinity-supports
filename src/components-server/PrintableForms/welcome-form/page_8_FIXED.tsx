@@ -121,7 +121,7 @@ const Page8 = ({ settings, images }: any) => {
                 engaged.
               </li> <br />
               <li>
-                We will then complete a Service Agreement and onboarding documentation which will include: 
+                 ● We will then complete a Service Agreement and onboarding documentation which will include: 
                 <ul className={`${A4_PDF_TYPOGRAPHY.body} list-disc list-inside ml-5 mt-1 space-y-1`}>
                   <li> ● The services you have asked us to deliver</li> <br />
                   <li> ● The amount of funding you would like us to utilise</li>  <br />

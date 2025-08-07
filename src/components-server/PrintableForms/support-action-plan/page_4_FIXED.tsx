@@ -96,21 +96,23 @@ const Page4: React.FC<any> = ({
             <tbody>
               <tr>
                 <td className={`border border-black p-2 ${A4_PDF_TYPOGRAPHY.label}`} colSpan={2}>
-                  {schema?.budgetApproval?.label}
+                  {schema?.budgetApproval?.label} &nbsp;&nbsp;
+                                    <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>Yes</span>
+
                   <input
                     type="checkbox"
                     checked={isChecked(data?.budgetApproval, "Yes")}
                     readOnly
                     className="ml-2 align-middle w-4 h-4 border border-black bg-gray-300"
-                  />
-                  <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>Yes</span>
+                  /> &nbsp;&nbsp;
+                                    <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>No</span>
+
                   <input
                     type="checkbox"
                     checked={isChecked(data?.budgetApproval, "No")}
                     readOnly
                     className="ml-4 align-middle w-4 h-4 border border-black bg-gray-300"
                   />
-                  <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>No</span>
                 </td>
               </tr>
               <tr>

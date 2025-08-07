@@ -59,21 +59,21 @@ const Page6: React.FC<any> = ({ settings, images }) => {
 
             {/* Responsibilities List */}
             <ul className="list-disc list-inside text-xs font-normal font-montserrat mb-6 space-y-3 leading-relaxed">
-              <li>
-                • A copy of the Individual Disaster Management Plan and Risk Assessment will be provided to the participant and another copy should be kept in their file.
-              </li> <br /><br />
-              <li>
-                • The Individual Disaster Management Plan and Risk Assessment will be reviewed every year or when the participant's circumstances change. If there is any update, a new copy will be provided to the client and filed.
-              </li> <br /><br />
-              <li>
-                • It is the provider's responsibility to mention the rights and responsibilities of the participant and the provider on the service agreement.
-              </li> <br /><br />
-              <li>
-                • Using the Human Resource Management process will assist the provider to ensure that the participant's support worker has been screened.
-              </li> <br /><br />
-              <li>
-                • Participants who are subject to this requirement will be registered on the High-Risk Participant Register and specific support workers will be delegated accordingly.
-              </li>
+                <li>
+              • A copy of the Individual Disaster Management Plan and Risk Assessment will be provided to the participant and another copy should be kept in their file.
+            </li> <br /><br />
+            <li>
+              • The Individual Disaster Management Plan and Risk Assessment will be reviewed every year or when the participant’s circumstances change. If there is any update on the Individual Disaster Management Plan and Risk Assessment, a copy of the new Individual Disaster Management Plan and Risk Assessment will be provided to the client and a copy will be kept in their folder.
+            </li> <br /><br />
+            <li>
+              • It is the provider’s responsibility to mention the rights and responsibilities of the participant and the provider on the service agreement.
+            </li> <br /><br />
+            <li>
+              • Using the Human Resource Management process will assist the provider to ensure that the participant’s support worker has been screened.
+            </li> <br /><br />
+            <li>
+              • Participants who are subject to this requirement will be registered on the High-Risk Participant Register and some specific support workers will be delegated to those who are registered on this form
+            </li>
             </ul>
             <br /><br />
 

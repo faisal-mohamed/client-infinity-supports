@@ -23,7 +23,7 @@ const supportCategories = [
   "07_101_0106_6_3 Psychosocial Recovery Coaching"
 ];
 
-const costPerHr = ["$74.63", "100.14", "$98.30"]
+const costPerHr = ["$74.63", "$100.14", "$98.30"]
 
 // --- Standardized Footer Component ---
 const Footer = ({ settings }: { settings: any }) => {
@@ -128,7 +128,7 @@ const Page2: React.FC<any> = ({
                       {costPerHr[i-1]}
                     </td>
                     <td className={`${cellClass} text-center align-top`}>
-                      {data?.[`row${i}_totalCost` as keyof typeof data] ?? ""}
+                      ${data?.[`row${i}_totalCost` as keyof typeof data] ?? ""}
                     </td>
                   </tr>
                 ))}
@@ -140,7 +140,7 @@ const Page2: React.FC<any> = ({
             {/* Schedule paragraph */}
             <p className="text-xs font-bold font-montserrat mb-2 underline">SCHEDULE OF SUPPORTS</p>  <br />
             <p className="text-xs font-normal font-montserrat mb-6 leading-relaxed">
-              All figures quoted below! Should read all figures quoted above are based on NDIS. <span style={{color: 'red'}}>Infinity Supports</span>  WA agrees to provide the individual named in Section 1 with the following Support Coordination. The supports and their prices are set out in the Schedule of Supports below (if NDIS). All supports are as per the NDIS Price Guide and are GST inclusive (if applicable) and include the cost of providing the supports. All figures quoted below are based on NDIS pricing and the individual’s NDIS plan at the time of agreement. Prices, funding totals and hours will be adjusted periodically to reflect changes to NDIS pricing and the individual’s NDIS plan
+              All figures quoted below! Should read all figures quoted above are based on NDIS. <span style={{color: 'red'}}>Infinity Supports WA</span> agrees to provide the individual named in Section 1 with the following Support Coordination. The supports and their prices are set out in the Schedule of Supports below (if NDIS). All supports are as per the NDIS Price Guide and are GST inclusive (if applicable) and include the cost of providing the supports. All figures quoted below are based on NDIS pricing and the individual’s NDIS plan at the time of agreement. Prices, funding totals and hours will be adjusted periodically to reflect changes to NDIS pricing and the individual’s NDIS plan
             </p>
             <br /><br />
             

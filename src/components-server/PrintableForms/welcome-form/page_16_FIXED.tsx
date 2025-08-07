@@ -116,11 +116,11 @@ const Page16 = ({ settings, images }: any) => {
           </ul>
 
           <ul className={`list-disc list-inside ml-6 space-y-1 ${A4_PDF_TYPOGRAPHY.body}`}>
-            <li className="text-justify">● The name and contact details of the registered NDIS provider</li>
-            <li className="text-justify">● A description of the reportable incident and its impact on the participant</li>
+            <li className="text-justify">● The name and contact details of the registered NDIS provider</li> <br />
+            <li className="text-justify">● A description of the reportable incident and its impact on the participant</li> <br />
             <li className="text-justify">
               ● Immediate actions taken in response to the incident, including how health and safety of participants were protected, and if reported to police or other bodies
-            </li>
+            </li> <br />
             <li className="text-justify">● The name and contact details of the person making the notification</li>
           </ul>
         </div>

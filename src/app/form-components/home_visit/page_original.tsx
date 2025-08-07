@@ -40,15 +40,15 @@ const homeVisitSchema : any = {
           fields: [
             { label: "Will anyone else be present during the visit?", key: "visitCompany" },
             { label: "Any history of verbal or physical aggression from the client or family?", key: "aggressionHistory" },
-            { label: "Any history of alcohol or drug use?", key: "drugUseHistory" },
-            { label: "Is there an advanced care directive?", key: "careDirective" }
+            { label: "Any history of alcohol or drug use? (If yes, there can be no use of alcohol or use of drugs whilst the staff member is in home) ", key: "drugUseHistory" },
+            { label: "Is there an advanced care directive? (If yes, please add this information to risk assessment and care plan) ", key: "careDirective" }
           ]
         },
         {
           title: "ENVIRONMENT",
           fields: [
             { label: "If there are any pets, has the client agreed to restrain them during the visit?", key: "petsRestrained" },
-            { label: "Are there any weapons in the home?", key: "weaponsInHome" }
+            { label: "Are there any weapons in the home?  (If yes, please make sure they are stored appropriately during the visit.) ", key: "weaponsInHome" }
           ]
         }
       ]
@@ -69,7 +69,7 @@ const homeVisitSchema : any = {
           title: "GEOGRAPHICAL LOCATION",
           fields: [
         { label: "Are there any difficulties locating the address/access to the building?", key: "accessDifficulties" },
-            { label: "Is there parking available?", key: "parking" },
+            { label: "Is there parking available? Street? Paid? ", key: "parking" },
             {
               label: "Is entry via the front door? If no, which door is used for entry?",
               key: "entryPoint",

@@ -55,7 +55,7 @@ If the Individual is not satisfied or does not want to talk to this person, the 
 
           <p className="mb-6 flex-1">
 For your peace of mind, all our support workers are trained on how to respond in case of an emergency, and they will receive a copy of your Individual Disaster Management Plan so that they are fully aware of your health condition and the required action plans in case of an emergency. 
-Individual Disaster Management Plan and Risk Assessment will be developed and signed by Infinity Supports WA and the Individual and/or representative. Providers’ Responsibility 
+Individual Disaster Management Plan and Risk Assessment will be developed and signed by <span className="text-red-600 font-semibold">Infinity Supports WA</span> and the Individual and/or representative. Providers’ Responsibility 
           </p>
         </div>
 

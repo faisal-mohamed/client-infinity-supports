@@ -88,11 +88,11 @@ const getValue = (key: string): string => {
           <div>
             <p className="font-bold mb-1">Schedule of Support price structure</p>
             <p className="text-[13px] leading-relaxed">
-              The prices for Service Delivery are set in accordance with NDIS pricing
-              guide and can change in response to the Annual Price Review conducted by
-              NDIS with the new prices outlined by NDIA, effective 1 July every year.
-              NDIA increases the participant's funding supports to accommodate for this
-              price change and hence should not impact on the level of support received.
+              The prices for Service Delivery are set in accordance with NDIS pricing guide and can change 
+in response to the Annual Price Review conducted by NDIS with the new prices outlined by 
+NDIA, effective 1 July every year.  NDIA Increases the participants funding supports to 
+accommodate for this price change and hence should not impact on the level support 
+received.
             </p>
           </div>
 

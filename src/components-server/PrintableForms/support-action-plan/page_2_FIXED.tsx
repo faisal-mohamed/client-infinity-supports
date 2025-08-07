@@ -69,11 +69,18 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
             <tbody>
               <tr>
                 <td className={`border border-black ${A4_PDF_TYPOGRAPHY.sectionHeader} p-3 uppercase`} style={{backgroundColor: '#a9c1e0'}}>
+                  4.	Consider, what support is required to assist you to achieve your goals? Are there any barriers preventing you from achieving your goals?
+                </td>
+              </tr>
+              <tr>
+                <td className={`border border-black ${A4_PDF_TYPOGRAPHY.sectionHeader} p-3 uppercase`} style={{backgroundColor: '#a9c1e0'}}>
                   Core Supports
                 </td>
               </tr>
               <tr>
                 <td className={`border border-black p-3 ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+                                    <span className={A4_PDF_TYPOGRAPHY.label}>Support Required  &nbsp;</span>
+
                   {data?.coreSupportText}
                 </td>
               </tr>
@@ -126,6 +133,8 @@ const Page2: React.FC<any> = ({ data, settings, images }) => {
               </tr>
               <tr>
                 <td className={`border border-black p-3 ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+                                                      <span className={A4_PDF_TYPOGRAPHY.label}>Support Required &nbsp; </span>
+
                   {data?.capacitySupportText}
                 </td>
               </tr>
