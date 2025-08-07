@@ -201,10 +201,96 @@ const Footer = ({settings} : {
 );
 
 // --- FormRenderer-style Page Components ---
-const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
+// const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
+//   <A4Page>
+//     {/* Header with Logo */}
+//     <div className="flex justify-center py-4">
+//       <img
+//         src={homeVisitSchema.logo.page1.src}
+//         alt="Logo"
+//         width={homeVisitSchema.logo.page1.width}
+//         height={homeVisitSchema.logo.page1.height}
+//         className="object-contain"
+//       />
+//     </div>
+
+//     {/* Content - Direct table layout like FormRenderer */}
+//     <div className="px-6 flex-1 flex flex-col">
+//       {/* Title */}
+//       <h2 className="text-sm font-semibold py-2 text-center">Home & Visit Risk Assessment</h2>
+      
+//       {/* Single comprehensive table that fills the space */}
+//       <table className="w-full flex-1 border-collapse border border-black text-xs">
+//         <tbody>
+//           {/* Metadata rows */}
+//           <tr>
+//             <td className="border border-black p-1 w-1/3">
+//               <span className="font-semibold">Name:</span> {commonFieldsData?.name}
+//             </td>
+//             <td className="border border-black p-1 w-1/3">
+//               <span className="font-semibold">NDIS Number:</span> {commonFieldsData?.ndis}
+//             </td>
+//             <td className="border border-black p-1 w-1/3">
+//               <span className="font-semibold">DOB:</span> {commonFieldsData?.dob}
+//             </td>
+//           </tr>
+//           <tr>
+//             <td className="border border-black p-1" colSpan={3}>
+//               <span className="font-semibold">Address:</span> {commonFieldsData?.street}
+//             </td>
+//           </tr>
+//           <tr>
+//             <td className="border border-black p-1" colSpan={3}>
+//               <span className="font-semibold">Date of completion of risk assessment:</span> {formatDate(homeVisitResponse?.completionDate)}
+//             </td>
+//           </tr>
+          
+//           {/* Table headers */}
+//           <tr className="bg-gray-200">
+//             <th className="border border-black w-[40%] p-1 text-left font-bold">Question</th>
+//             <th className="border border-black w-[7%] text-center p-1 font-bold">YES</th>
+//             <th className="border border-black w-[7%] text-center p-1 font-bold">NO</th>
+//             <th className="border border-black w-[46%] p-1 text-left font-bold">COMMENTS</th>
+//           </tr>
+          
+//           {/* Question sections */}
+//           {homeVisitSchema?.pages[0]?.sections.map((section: any) => (
+//             <React.Fragment key={section.title}>
+//               <tr className="bg-gray-300">
+//                 <td className="border border-black p-2 font-bold text-left" colSpan={4}>
+//                   {section.title}
+//                 </td>
+//               </tr>
+//               {section.fields.map((field: any) => (
+//                 <tr key={field.key} className="align-top">
+//                   <td className="border border-black p-2 w-[40%] font-medium">
+//                     {field.label}
+//                   </td>
+//                   <td className="border border-black text-center w-[7%] p-1">
+//                     {homeVisitResponse?.[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
+//                   </td>
+//                   <td className="border border-black text-center w-[7%] p-1">
+//                     {homeVisitResponse?.[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
+//                   </td>
+//                   <td className="border border-black p-2 w-[46%]">
+//                     {homeVisitResponse?.[field.key + "_comments"] || ""}
+//                   </td>
+//                 </tr>
+//               ))}
+//             </React.Fragment>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+
+//     <Footer settings={settings}/>
+//   </A4Page>
+// );
+
+const Page1 = ({ homeVisitResponse, commonFieldsData, settings }: any) => (
   <A4Page>
     {/* Header with Logo */}
-    <div className="flex justify-center py-4">
+    <div className="flex justify-center pt-6 pb-4">
       <img
         src={homeVisitSchema.logo.page1.src}
         alt="Logo"
@@ -214,65 +300,72 @@ const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
       />
     </div>
 
-    {/* Content - Direct table layout like FormRenderer */}
-    <div className="px-6 flex-1 flex flex-col">
-      {/* Title */}
-      <h2 className="text-sm font-semibold py-2 text-center">Home & Visit Risk Assessment</h2>
-      
-      {/* Single comprehensive table that fills the space */}
-      <table className="w-full flex-1 border-collapse border border-black text-xs">
+    {/* Title */}
+    <h2 className="text-lg font-semibold px-6 py-4 text-center">
+      Home & Visit Risk Assessment
+    </h2>
+
+    {/* Metadata Table */}
+    <div className="px-6">
+      <table className="w-full border border-black text-xs sm:text-sm table-fixed">
         <tbody>
-          {/* Metadata rows */}
           <tr>
-            <td className="border border-black p-1 w-1/3">
+            <td className="border border-black p-1 sm:p-2 w-1/3">
               <span className="font-semibold">Name:</span> {commonFieldsData?.name}
             </td>
-            <td className="border border-black p-1 w-1/3">
+            <td className="border border-black p-2 w-1/3">
               <span className="font-semibold">NDIS Number:</span> {commonFieldsData?.ndis}
             </td>
-            <td className="border border-black p-1 w-1/3">
+            <td className="border border-black p-2 w-1/3">
               <span className="font-semibold">DOB:</span> {commonFieldsData?.dob}
             </td>
           </tr>
           <tr>
-            <td className="border border-black p-1" colSpan={3}>
+            <td className="border border-black p-2" colSpan={3}>
               <span className="font-semibold">Address:</span> {commonFieldsData?.street}
             </td>
           </tr>
           <tr>
-            <td className="border border-black p-1" colSpan={3}>
-              <span className="font-semibold">Date of completion of risk assessment:</span> {formatDate(homeVisitResponse?.completionDate)}
+            <td className="border border-black p-2" colSpan={3}>
+              <span className="font-semibold">Date of completion of risk assessment:</span>{" "}
+              {formatDate(homeVisitResponse?.completionDate)}
             </td>
           </tr>
-          
-          {/* Table headers */}
-          <tr className="bg-gray-200">
-            <th className="border border-black w-[40%] p-1 text-left font-bold">Question</th>
-            <th className="border border-black w-[7%] text-center p-1 font-bold">YES</th>
-            <th className="border border-black w-[7%] text-center p-1 font-bold">NO</th>
-            <th className="border border-black w-[46%] p-1 text-left font-bold">COMMENTS</th>
+        </tbody>
+      </table>
+    </div>
+
+    {/* Q&A Table */}
+    <div className="flex-1 px-6 py-4 flex flex-col">
+      <table className="w-full border-collapse border border-black text-sm flex-1">
+        <thead>
+          <tr>
+            <th className="border border-black w-[40%] p-2"></th>
+            <th className="border border-black w-[7%] text-center p-2">YES</th>
+            <th className="border border-black w-[7%] text-center p-2">NO</th>
+            <th className="border border-black w-[46%] p-2">COMMENTS</th>
           </tr>
-          
-          {/* Question sections */}
+        </thead>
+        <tbody className="h-full">
           {homeVisitSchema?.pages[0]?.sections.map((section: any) => (
             <React.Fragment key={section.title}>
               <tr className="bg-gray-300">
-                <td className="border border-black p-2 font-bold text-left" colSpan={4}>
+                <td className="border border-black p-3 font-bold text-left" colSpan={4}>
                   {section.title}
                 </td>
               </tr>
               {section.fields.map((field: any) => (
                 <tr key={field.key} className="align-top">
-                  <td className="border border-black p-2 w-[40%] font-medium">
+                  <td className="border border-black p-3 w-[40%] font-medium">
                     {field.label}
                   </td>
-                  <td className="border border-black text-center w-[7%] p-1">
+                  <td className="border border-black text-center w-[7%]">
                     {homeVisitResponse?.[field.key]?.toLowerCase() === "yes" ? "✔️" : ""}
                   </td>
-                  <td className="border border-black text-center w-[7%] p-1">
+                  <td className="border border-black text-center w-[7%]">
                     {homeVisitResponse?.[field.key]?.toLowerCase() === "no" ? "✔️" : ""}
                   </td>
-                  <td className="border border-black p-2 w-[46%]">
+                  <td className="border border-black p-3 w-[46%]">
                     {homeVisitResponse?.[field.key + "_comments"] || ""}
                   </td>
                 </tr>
@@ -283,9 +376,11 @@ const Page1 = ({homeVisitResponse, commonFieldsData, settings} : any) => (
       </table>
     </div>
 
-    <Footer settings={settings}/>
+    <Footer settings={settings} />
   </A4Page>
 );
+
+
 
 const Page2 = ({ homeVisitResponse, settings }: any) => {
   const page = homeVisitSchema?.pages?.[1];

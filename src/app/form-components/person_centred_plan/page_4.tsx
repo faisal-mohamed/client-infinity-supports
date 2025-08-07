@@ -18,8 +18,6 @@ const commonFieldMapping: Record<string, string> = {
   ndisNumber: "ndis",
 };
 
-
-
 export const formatDate = (value: string): string => {
   if (!value || typeof value !== 'string') return '';
 
@@ -35,7 +33,6 @@ export const formatDate = (value: string): string => {
   return value; // fallback
 };
 
-
 const Page4: React.FC<Page4Props> = ({
   formSchema: schema,
   data,
@@ -49,32 +46,36 @@ const Page4: React.FC<Page4Props> = ({
 
   return (
     <A4PageWrapper>
-      {/* Header with Logo */}
+      {/* Header with Logo - Fixed desktop sizing */}
       <div className="flex justify-center pt-6 pb-4">
         <img
           src="/infinity_logo.png"
           alt="Infinity Supports WA logo"
-          className="object-contain h-16"
+          className="object-contain"
+          style={{ height: '64px' }} // Fixed height for consistency
         />
       </div>
 
-      {/* Title */}
-      <h2 className="text-center font-extrabold text-lg mb-4 px-6">MY GOALS</h2>
+      {/* Title - Fixed desktop sizing */}
+      <h2 className="text-center font-extrabold mb-4 px-6" style={{ fontSize: '18px' }}>
+        MY GOALS
+      </h2>
 
-      {/* Goals Table */}
+      {/* Goals Table - Fixed desktop layout for zoom-out */}
       <div className="flex-1 px-6 py-4 flex flex-col">
-        <table className="w-full border border-black border-collapse text-sm flex-1">
+        <table className="w-full border border-black border-collapse flex-1" style={{ fontSize: '13px' }}>
           <thead>
             <tr className="bg-gray-200">
               {columns.map((col: any) => (
                 <th
                   key={col.key}
-                  className="border border-black px-2 py-3 text-left align-top font-bold text-sm leading-tight"
+                  className="border border-black px-2 py-3 text-left align-top font-bold leading-tight"
+                  style={{ fontSize: '13px', lineHeight: '1.3' }}
                 >
                   <strong>{col.label}</strong> <br />
                   {col?.subLabel && (
                     <>
-                      <span style={{ fontStyle: "italic" }}>
+                      <span style={{ fontStyle: "italic", fontSize: '12px' }}>
                         {col.subLabel}
                       </span>{" "}
                       <br />
@@ -83,7 +84,7 @@ const Page4: React.FC<Page4Props> = ({
                   {col?.subRating?.length > 0 && (
                     <>
                       <br />
-                      <span style={{ fontStyle: "italic" }}>
+                      <span style={{ fontStyle: "italic", fontSize: '11px' }}>
                         {col.subRating.map((r: any, index: number) => (
                           <div key={index}>
                             - {r} <br />
@@ -114,12 +115,13 @@ const Page4: React.FC<Page4Props> = ({
                   return (
                     <td
                       key={dataKey}
-                      className="border border-black px-2 py-3 align-top text-sm leading-relaxed"
+                      className="border border-black px-2 py-3 align-top leading-relaxed"
+                      style={{ fontSize: '13px', lineHeight: '1.4' }}
                     >
-                      <div className="whitespace-pre-wrap min-h-[60px]">
-{typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
-  ? formatDate(value)
-  : value || "\u00A0"}
+                      <div className="whitespace-pre-wrap" style={{ minHeight: '60px' }}>
+                        {typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+                          ? formatDate(value)
+                          : value || "\u00A0"}
                       </div>
                     </td>
                   );
@@ -130,7 +132,7 @@ const Page4: React.FC<Page4Props> = ({
         </table>
       </div>
 
-      {/* Footer */}
+      {/* Footer - Fixed desktop layout */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
         <div>
           Website: {settings?.company_website || "infinitysupportswa.org"}
@@ -142,7 +144,7 @@ const Page4: React.FC<Page4Props> = ({
           /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
             ? format(parseISO(settings.review_date), "dd-MM-yyyy")
             : "N/A"}
-        </div>{" "}
+        </div>
       </div>
     </A4PageWrapper>
   );

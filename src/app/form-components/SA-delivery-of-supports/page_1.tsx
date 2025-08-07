@@ -48,30 +48,31 @@ const Page1: React.FC<Page1Props> = ({
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
-        {/* Header with Logo */}
+        {/* Header with Logo - Fixed desktop sizing */}
         <div className="flex justify-center mb-4">
           <img
             src={"/infinity_logo.png"}
             alt="Infinity Supports WA Logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
-        {/* Title */}
+        {/* Title - Fixed desktop sizing */}
         <div className="text-center mb-4">
-          <p className="font-bold underline text-sm">
+          <p className="font-bold underline" style={{ fontSize: '14px' }}>
             SERVICE AGREEMENT FOR SERVICE DELIVERY
           </p>
         </div>
 
-        {/* Section 1 */}
+        {/* Section 1 - Fixed desktop sizing */}
         <div className="mb-3">
-          <p className="font-bold underline text-sm">Section 1</p>
+          <p className="font-bold underline" style={{ fontSize: '14px' }}>Section 1</p>
         </div>
 
-        {/* Table - takes up most of the remaining space */}
+        {/* Table - Fixed desktop layout for zoom-out */}
         <div className="flex-1 flex flex-col">
-          <table className="w-full border border-black border-collapse text-sm flex-1">
+          <table className="w-full border border-black border-collapse flex-1" style={{ fontSize: '13px' }}>
             <tbody className="h-full">
               <tr>
                 <td
@@ -123,18 +124,20 @@ const Page1: React.FC<Page1Props> = ({
                 </td>
                 <td className="border border-black p-2 align-top" colSpan={2}>
                   <div>
-                    <p className="font-semibold mb-1">Sex:</p>
+                    <p className="font-semibold mb-1" style={{ fontSize: '13px' }}>Sex:</p>
                     {["Male", "Female", "Prefer not to say", "Others"].map(
                       (option) => (
                         <div
                           key={option}
-                          className="flex items-center text-sm mb-1"
+                          className="flex items-center mb-1"
+                          style={{ fontSize: '12px' }}
                         >
                           <input
                             type="checkbox"
                             readOnly
                             checked={getValue("sex") === option}
-                            className="mr-2 scale-75"
+                            className="mr-2"
+                            style={{ transform: 'scale(0.8)' }}
                           />
                           {option}
                         </div>

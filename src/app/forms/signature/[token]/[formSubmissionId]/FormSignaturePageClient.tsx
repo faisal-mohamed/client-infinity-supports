@@ -431,7 +431,8 @@ export default function FormSignaturePageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[1200px] mx-auto px-8 py-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between">
@@ -453,15 +454,6 @@ export default function FormSignaturePageClient() {
             </div>
 
             <div className="flex items-center space-x-3">
-              {/* Download Button */}
-              {/* <button
-                onClick={handleDownloadForm}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-              >
-                <FaDownload className="mr-2 h-4 w-4" />
-                Download PDF
-              </button> */}
-
               {/* Status Badge */}
               {requiresSignature ? (
                 allSignaturesComplete ? (
@@ -473,7 +465,7 @@ export default function FormSignaturePageClient() {
                   <div className="flex items-center text-amber-600">
                     <FaSignature className="h-5 w-5 mr-2" />
                     <span className="font-medium">
-                      {requiredSignatures.length > 1 && "Signatures Required"}
+                      {requiredSignatures.length > 1 ? "Signatures Required" : "Signature Required"}
                     </span>
                   </div>
                 )
@@ -595,7 +587,7 @@ export default function FormSignaturePageClient() {
               {/* Signature pad and submit */}
               {activeSignatureId && (
                 <div className="mb-8">
-                  <div className="max-w-md mx-auto space-y-6">
+                  <div className="max-w-2xl mx-auto space-y-6">
                     {/* Name Input */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -629,11 +621,14 @@ export default function FormSignaturePageClient() {
                               }));
                             }
                           }}
-                          width={500}
-                          height={200}
-                          className="w-full h-48 rounded-md"
+                          width={700}
+                          height={250}
+                          className="w-full h-64 rounded-md"
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Sign above using your finger, stylus, or mouse
+                      </p>
                     </div>
 
                     {/* Submit Button */}
@@ -641,7 +636,7 @@ export default function FormSignaturePageClient() {
                       <button
                         onClick={() => submitSignature(activeSignatureId)}
                         disabled={submitting}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-all disabled:opacity-50"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50"
                       >
                         {submitting ? (
                           <span className="flex items-center">

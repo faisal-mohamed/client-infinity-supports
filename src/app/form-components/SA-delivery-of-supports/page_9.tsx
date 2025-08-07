@@ -124,13 +124,15 @@ const Page9: React.FC<Page9Props> = ({
                             {field.options?.map((opt: any) => (
                               <label
                                 key={opt}
-                                className="flex items-center text-sm"
+                                className="flex items-center"
+                                style={{ fontSize: '13px' }}
                               >
                                 <input
                                   type="radio"
                                   checked={getValue(field.key) === opt}
                                   readOnly
-                                  className="mr-2 scale-75"
+                                  className="mr-2"
+                                  style={{ transform: 'scale(0.8)' }}
                                 />
                                 {opt}
                               </label>
@@ -146,9 +148,9 @@ const Page9: React.FC<Page9Props> = ({
             </table>
           </div>
 
-          {/* Signatures */}
+          {/* Signatures - Fixed desktop layout */}
           <div className="space-y-4 flex-1">
-            <table className="w-full border border-black text-sm">
+            <table className="w-full border border-black" style={{ fontSize: '13px' }}>
               <tbody>
                 <tr>
                   <td className="border border-black p-4 leading-loose">
@@ -195,7 +197,7 @@ const Page9: React.FC<Page9Props> = ({
               </tbody>
             </table>
 
-            <table className="w-full border border-black text-sm">
+            <table className="w-full border border-black" style={{ fontSize: '13px' }}>
               <tbody>
                 <tr>
                   <td className="border border-black p-4 leading-loose">

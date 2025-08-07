@@ -42,24 +42,25 @@ const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings,
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
-        {/* Header with Logo */}
+        {/* Header with Logo - Fixed desktop sizing */}
         <div className="flex justify-center mb-6">
           <img
             src="/infinity_logo.png"
             alt="Infinity Supports WA Logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
-        {/* Content Area */}
+        {/* Content Area - Fixed desktop layout */}
         <div className="flex-1 flex flex-col">
           {/* Service Payments Section */}
           <div className="mb-8">
-            <h2 className="font-bold text-sm mb-4 leading-loose">
+            <h2 className="font-bold mb-4 leading-loose" style={{ fontSize: '14px' }}>
               Service Payments (NDIS)
             </h2>
 
-            <div className="space-y-5 text-sm">
+            <div className="space-y-5" style={{ fontSize: '14px' }}>
               {/* First 3 dynamic checkboxes */}
               {schema.fields.slice(0, 3).map((field: Field) => (
                 <div key={field.key} className="leading-loose">
@@ -68,7 +69,8 @@ const Page3: React.FC<Page3Props> = ({ schema, data, commonFieldsData, settings,
                       type="checkbox"
                       checked={!!getValue(field.key)}
                       readOnly
-                      className="mt-1 mr-2 scale-75 flex-shrink-0"
+                      className="mt-1 mr-2 flex-shrink-0"
+                      style={{ transform: 'scale(0.8)' }}
                     />
                     <span>{field.label}</span>
                   </label>

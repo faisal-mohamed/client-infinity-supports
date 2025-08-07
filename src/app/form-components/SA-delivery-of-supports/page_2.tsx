@@ -34,18 +34,19 @@ const Page2: React.FC<Page2Props> = ({ schema, data, settings, commonFieldsData 
   return (
     <A4PageWrapper>
       <div className="h-full flex flex-col p-6">
-        {/* Header with Logo */}
+        {/* Header with Logo - Fixed desktop sizing */}
         <div className="flex justify-center mb-6">
           <img
             src={'/infinity_logo.png'}
             alt="Infinity Supports WA logo"
-            className="h-16 object-contain"
+            className="object-contain"
+            style={{ height: '64px' }} // Fixed height for consistency
           />
         </div>
 
-        {/* Content area */}
+        {/* Content area - Fixed desktop layout */}
         <div className="flex-1 flex flex-col text-justify">
-          <p className="text-sm leading-loose mb-6">
+          <p className="leading-loose mb-6" style={{ fontSize: '14px', lineHeight: '1.6' }}>
             individuals. This agreement is of ongoing nature and will remain in place unless either party
             chooses to terminate by giving appropriate notice as mentioned in the "ending this service
             agreement" section.
@@ -53,10 +54,11 @@ const Page2: React.FC<Page2Props> = ({ schema, data, settings, commonFieldsData 
 
           <div className="space-y-4 mb-6">
             {schema?.fields?.map((field: any) => (
-              <p key={field.key} className="flex items-start text-sm leading-loose">
+              <p key={field.key} className="flex items-start leading-loose" style={{ fontSize: '14px', lineHeight: '1.6' }}>
                 <input
                   type="checkbox"
-                  className="mt-1 mr-2 scale-75 flex-shrink-0"
+                  className="mt-1 mr-2 flex-shrink-0"
+                  style={{ transform: 'scale(0.8)' }}
                   readOnly
                   checked={!!getValue(field.key)}
                 />
@@ -65,12 +67,12 @@ const Page2: React.FC<Page2Props> = ({ schema, data, settings, commonFieldsData 
             ))}
           </div>
 
-          <p className="text-sm leading-loose mb-6">
+          <p className="leading-loose mb-6" style={{ fontSize: '14px', lineHeight: '1.6' }}>
             The Parties agree that this Service Agreement is made in line with the funding body which
             provides the Individual's funding, which aims to:
           </p>
 
-          <ol className="list-decimal list-inside space-y-3 ml-4 text-sm leading-loose mb-6">
+          <ol className="list-decimal list-inside space-y-3 ml-4 leading-loose mb-6" style={{ fontSize: '14px', lineHeight: '1.6' }}>
             <li>
               Support the independence and social and economic participation of people with disability, and
             </li>

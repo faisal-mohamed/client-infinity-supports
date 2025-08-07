@@ -19,22 +19,21 @@ const commonFieldMapping: Record<string, string> = {
 };
 
 const Page2: React.FC<PageProps> = ({ formSchema: schema, data, commonFieldsData, settings }) => {
-
-
   return (
     <A4PageWrapper>
-      {/* Header with Logo */}
+      {/* Header with Logo - Fixed desktop sizing */}
       <div className="flex justify-center pt-6 pb-4">
         <img
           src="/infinity_logo.png"
           alt="Infinity Supports WA logo"
-          className="object-contain h-16"
+          className="object-contain"
+          style={{ height: '64px' }} // Fixed height for consistency
         />
       </div>
 
-      {/* Table - takes up remaining space */}
+      {/* Table - Fixed desktop layout for zoom-out */}
       <div className="flex-1 px-6 py-4 flex flex-col">
-        <table className="w-full border border-black border-collapse text-sm flex-1">
+        <table className="w-full border border-black border-collapse flex-1" style={{ fontSize: '14px' }}>
           <tbody className="h-full">
             {schema.fields.map((field: any, index: number) => {
               const isFromCommon = field.key in commonFieldMapping;
@@ -50,6 +49,8 @@ const Page2: React.FC<PageProps> = ({ formSchema: schema, data, commonFieldsData
                     style={{
                       width: '30%',
                       height: field.height || 'auto',
+                      fontSize: '14px',
+                      lineHeight: '1.4'
                     }}
                   >
                     {field.label}
@@ -58,14 +59,16 @@ const Page2: React.FC<PageProps> = ({ formSchema: schema, data, commonFieldsData
                     className="border border-black px-3 py-2 align-top"
                     style={{
                       height: field.height || 'auto',
+                      fontSize: '14px',
+                      lineHeight: '1.4'
                     }}
                   >
                     {field.type === 'textarea' ? (
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                      <div className="whitespace-pre-wrap leading-relaxed">
                         {value}
                       </div>
                     ) : (
-                      <div className="text-sm leading-relaxed">{value}</div>
+                      <div className="leading-relaxed">{value}</div>
                     )}
                   </td>
                 </tr>
@@ -75,16 +78,17 @@ const Page2: React.FC<PageProps> = ({ formSchema: schema, data, commonFieldsData
         </table>
       </div>
 
-      {/* Footer - sticks to bottom */}
+      {/* Footer - Fixed desktop layout */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
-          <div>Website: {settings?.company_website}</div>
+        <div>Website: {settings?.company_website}</div>
         <div>{settings?.person_centre_plan_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>      </div>
+        <div>
+          Review Date:{' '}
+          {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+            ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+            : 'N/A'}
+        </div>      
+      </div>
     </A4PageWrapper>
   );
 };

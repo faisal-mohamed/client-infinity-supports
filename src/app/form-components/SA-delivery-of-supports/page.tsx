@@ -233,11 +233,10 @@ const formSchema  : any = {
 
 const SADeliverySupports = ({formData, commonFieldsData, settings} : any) => {
 
-
-
-
   return (
-    <div>
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
       <Page1 schema={formSchema.page1} data={formData} settings={settings} commonFieldsData={commonFieldsData} />
 
       <Page2 schema={formSchema.page2} data={formData} settings={settings} commonFieldsData={commonFieldsData} />
@@ -249,6 +248,7 @@ const SADeliverySupports = ({formData, commonFieldsData, settings} : any) => {
       <Page7  settings={settings}/>
       <Page8 settings={settings} />
       <Page9 schema={formSchema.page9} data={formData} settings={settings} commonFieldsData={commonFieldsData} />
+      </div>
     </div>
   );
 };

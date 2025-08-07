@@ -152,12 +152,15 @@ page5: {
 
 const PersonCentredPlan = ({ formKey, commonFieldsData, settings, formData} : any ) => {
   return (
-    <div className="bg-gray-100 min-h-screen py-8 print:bg-white print:py-0">
-      <Page1 formSchema={formSchema.page1} commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-      <Page2 formSchema={formSchema.page2}  commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-      <Page3 formSchema={formSchema.page3}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-      <Page4 formSchema={formSchema.page4}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-      <Page5 formSchema={formSchema.page5}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+    <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
+      {/* Fixed width container that will zoom out on mobile */}
+      <div className="w-[900px] mx-auto py-8 print:py-0">
+        <Page1 formSchema={formSchema.page1} commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+        <Page2 formSchema={formSchema.page2}  commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+        <Page3 formSchema={formSchema.page3}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+        <Page4 formSchema={formSchema.page4}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+        <Page5 formSchema={formSchema.page5}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+      </div>
     </div>
   )
 }
