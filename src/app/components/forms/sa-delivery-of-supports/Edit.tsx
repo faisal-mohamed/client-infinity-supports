@@ -70,10 +70,10 @@ const FORM_SECTIONS = [
     icon: FaClipboardList,
     description: "Media, information sharing and other consents",
     fields: [
-      "mediaConsent", "infoSharingConsent", "othersInfoSharingConsent",
+      "mediaConsent", "mediaProfile","infoSharingConsent", "othersInfoSharingConsent",
       "moneyHandlingConsent", "ndisAuditConsent"
     ],
-    requiredFields: ["mediaConsent", "infoSharingConsent", "moneyHandlingConsent", "ndisAuditConsent"],
+    requiredFields: ["mediaConsent", "mediaProfile", "infoSharingConsent", "moneyHandlingConsent", "ndisAuditConsent"],
   },
   {
     id: "signatures",
@@ -178,6 +178,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     
     // Consents
     mediaConsent: "",
+    mediaProfile: "",
     infoSharingConsent: "",
     othersInfoSharingConsent: "",
     moneyHandlingConsent: "",
@@ -561,6 +562,11 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     // Consents
     mediaConsent: { 
       label: "Hereby give consent to Infinity Supports WA to obtain and images and likeness of myself. I give permission for Infinity Supports WA to use such images on media releases including social media and branding & promotion", 
+      type: "dropdown", 
+      options: yesNoOptions 
+    },
+    mediaProfile: { 
+      label: "Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).",
       type: "dropdown", 
       options: yesNoOptions 
     },

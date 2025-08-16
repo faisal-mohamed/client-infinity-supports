@@ -128,6 +128,7 @@ const FORM_SECTIONS: any = [
     icon: "FaClipboardList",
     fields: [
       "consentMedia",
+      "consentProfile",
       "consentInfoShare",
       "consentInfoShareOthers",
       "consentAudit",
@@ -269,6 +270,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
 
     // Page 7: Consent Form
     consentMedia: "",
+    consentProfile: "",
     consentInfoShare: "",
     consentInfoShareOthers: "",
     consentAudit: "",
@@ -805,6 +807,12 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     consentMedia: {
       label:
         "Hereby give consent to Infinity Supports WA to obtain and images and likeness of myself. I give permission for Infinity Supports WA to use such images on media releases including social media and branding & promotion ",
+      type: "dropdown",
+      options: ["Yes", "No"],
+    },
+    consentProfile: {
+      label:
+        "Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents). ",
       type: "dropdown",
       options: ["Yes", "No"],
     },

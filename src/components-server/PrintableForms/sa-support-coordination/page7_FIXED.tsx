@@ -118,6 +118,35 @@ const Page7: React.FC<any> = ({
                     </td>
                   </tr>
 
+
+                    <tr>
+                    <td className="border border-black p-3 align-top leading-loose">
+                      Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).
+                    </td>
+                    <td className="border border-black p-3 align-top">
+                      <div className="space-y-2">
+                        <label className="flex items-center text-xs">
+                          <input
+                            type="radio"
+                            checked={getValue("consentProfile") === "Yes"}
+                            readOnly
+                            className="mr-2 scale-75"
+                          />
+                          Yes
+                        </label>
+                        <label className="flex items-center text-xs">
+                          <input
+                            type="radio"
+                            checked={getValue("consentProfile") === "No"}
+                            readOnly
+                            className="mr-2 scale-75"
+                          />
+                          No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td className="border border-black p-3 align-top leading-loose">
                       <div>

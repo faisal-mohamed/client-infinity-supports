@@ -152,7 +152,7 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                       'Combination of any of the above medications',
                     ].map((option) => (
                       <div key={option} className="flex items-center space-x-1 mt-1">
-                        <input type="checkbox" checked={isMultiChecked('medicationRespDepression', option)} readOnly className="w-3 h-3" />
+                        <input type="checkbox" checked={false} readOnly className="w-3 h-3" />
                         <span>{option}</span>
                       </div>
                     ))}
@@ -160,12 +160,12 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                 </td>
                 <td className="border border-black px-2 py-2 align-top">
                   <label className="inline-flex items-center space-x-1">
-                    <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'yes')} readOnly className="w-3 h-3" />
+                    <input type="checkbox" checked={isChecked('medicationRiskDepression', 'yes')} readOnly className="w-3 h-3" />
                     <span>Yes</span>
                   </label>
                   <br />
                   <label className="inline-flex items-center space-x-1 mt-1">
-                    <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'no')} readOnly className="w-3 h-3" />
+                    <input type="checkbox" checked={isChecked('medicationRiskDepression', 'no')} readOnly className="w-3 h-3" />
                     <span>No</span>
                   </label>
                   
@@ -174,9 +174,9 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                     </p>
                  
                 </td>
-                <td className="border border-black">{formData?.medicationRespDepressionRating}</td>
+                <td className="border border-black">{formData?.medicationRiskDepressionRating}</td>
                 <td className="border border-black px-2 py-2 align-top">
-                  {formData?.medicationRiskComment}
+                  {formData?.medicationRiskDepressionComment}
                 </td>
               </tr>
             </tbody>

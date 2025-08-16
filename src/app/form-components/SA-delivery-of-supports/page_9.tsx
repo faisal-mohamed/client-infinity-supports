@@ -93,7 +93,7 @@ const Page9: React.FC<Page9Props> = ({
                   if (field.type === "radio") {
                     return (
                       <tr key={field.key}>
-                        <td className="border border-black p-3 align-top leading-loose">
+                        <td className="border border-black p-1 align-top leading-loose">
                           <div>
                             {field.label}
                             {field.subItems && (
@@ -119,7 +119,7 @@ const Page9: React.FC<Page9Props> = ({
                             )}
                           </div>
                         </td>
-                        <td className="border border-black p-3 align-top">
+                        <td className="border border-black p-1 align-top">
                           <div className="space-y-2">
                             {field.options?.map((opt: any) => (
                               <label

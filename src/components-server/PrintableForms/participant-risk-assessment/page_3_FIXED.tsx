@@ -218,39 +218,40 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                       <label key={option} className="inline-flex items-center space-x-1 block">
                         <input
                           type="checkbox"
-                          checked={isMultiChecked('medicationRespDepression', option)}
+                          checked={false}
                           readOnly
                           className="w-3 h-3"
                         />
                         <span className={A4_PDF_TYPOGRAPHY.small}>{option}</span>
                       </label>
                     ))}
+
                   </div>
                 </td>
                 <td className={`${cellClass} text-center`} style={{ minHeight: '120px' }}>
-                  <div className={A4_PDF_TYPOGRAPHY.body}>
-                    Do these medications pose a risk?
-                  </div>
+                  
                   <div className="mt-1 flex flex-col gap-1">
                     <label className="inline-flex items-center space-x-1">
-                      <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'yes')} readOnly className="w-3 h-3" />
+                      <input type="checkbox" checked={isChecked('medicationRiskDepression', 'yes')} readOnly className="w-3 h-3" />
                       <span className={A4_PDF_TYPOGRAPHY.small}>YES</span>
                     </label>
                     <label className="inline-flex items-center space-x-1">
-                      <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'no')} readOnly className="w-3 h-3" />
+                      <input type="checkbox" checked={isChecked('medicationRiskDepression', 'no')} readOnly className="w-3 h-3" />
                       <span className={A4_PDF_TYPOGRAPHY.small}>NO</span>
                     </label>
+                     
+                  </div>
+                  <div className={A4_PDF_TYPOGRAPHY.body} style={{color: 'red'}}>
+                    If yes, please specify and capture this in the controls table:
                   </div>
                 </td>
                 <td className={`${cellClass} text-center`} style={{ minHeight: '120px' }}>
-                  <div className={A4_PDF_TYPOGRAPHY.body}>{formData?.medicationRespDepressionRating}</div>
+                  <div className={A4_PDF_TYPOGRAPHY.body}>{formData?.medicationRiskDepressionRating}</div>
                 </td>
                 <td className={`${cellClass} text-left`} style={{ minHeight: '120px' }}>
-                  <div className={A4_PDF_TYPOGRAPHY.body}>
-                    If yes, please specify and capture this in the controls table:
-                  </div>
+                 
                   <div className={`mt-1 ${A4_PDF_TYPOGRAPHY.body}`}>
-                    {formData?.medicationRiskComment}
+                    {formData?.medicationRiskDepressionComment}
                   </div>
                 </td>
               </tr>

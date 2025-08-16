@@ -196,6 +196,12 @@ const formSchema: any = {
         options: ["Yes", "No"],
       },
       {
+        key: "mediaProfile",
+        label:"Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).",
+        type: "radio",
+        options: ["Yes", "No"],
+      },
+      {
         key: "infoSharingConsent",
         label:
           "Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to: ",

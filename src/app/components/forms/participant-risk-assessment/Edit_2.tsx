@@ -249,7 +249,7 @@ const isCommonField = (fieldName: string): boolean => {
 };
 
 const yesNoOptions = ["Yes", "No"];
-const ratingOptions = ["L", "M", "H"];
+const ratingOptions = ["1", "2", "3", "4"];
 
 const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   formData,
@@ -1139,16 +1139,10 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       options: ratingOptions,
     },
 
-    medicationRespDepression: {
-      label: "Does the participant take any of the following medications that can cause Respiratory Depression? ",
-      type: "multi-checkbox",
-      options: [
-        "Benzodiazepines",
-        "Opioids",
-        "Polypharmacy",
-        "Psychotropic polypharmacy",
-        "Combination of any of the above medications",
-      ],
+    medicationRiskDepression: {
+      label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines,Opioids, Polypharmacy,Psychotropic polypharmacy,Combination of any of the above medications) ",
+      type: "dropdown",
+      options: yesNoOptions
     },
     householdSafeAddress: {
       label: 'Address',
@@ -1159,13 +1153,13 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       type: 'text'
     },
 
-    medicationRespDepressionRating: {
+    medicationRiskDepressionRating: {
       label: "Risk Rating for Medication If yes, please specify and capture this in the controls table",
       type: "dropdown",
       options: ratingOptions,
     },
 
-    medicationRiskYesNo: {
+    medicationRiskDepressionYesNo: {
       label: 'Medication Risk ?',
       type: 'dropdown',
       options: yesNoOptions
@@ -1173,7 +1167,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
 
     
 
-    medicationRiskComment: {
+    medicationRiskDepressionComment: {
       label: "Medication Risk Control Comment",
       type: "text",
       placeholder: "Enter risk controls or notes",
@@ -1368,7 +1362,7 @@ const renderDropdownSeverityRisk = (
 
   const renderRiskQuestionBlock = (index: number) => {
     const yesNoOptions = ["Yes", "No"];
-    const ratingOptions = ["L", "M", "H"];
+    const ratingOptions = ["1", "2", "3", "4"];
     const riskField = `risk${index}`;
     const ratingField = `risk${index}Rating`;
     const commentField = `risk${index}Comment`;
@@ -1504,6 +1498,7 @@ const renderDropdownSeverityRisk = (
     "behaviorPractitionerInvolved",
     "mobilityIssues",
     "showeringToiletingHazards",
+    "medicationRiskDepression"
   ];
 
   return (
@@ -1550,7 +1545,7 @@ const renderDropdownSeverityRisk = (
       })}
 
       {/* medicationRespDepression multi-checkbox */}
-      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+      {/* <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
         {renderMultiSelectCheckbox(
           FIELD_METADATA.medicationRespDepression.label,
           "medicationRespDepression",
@@ -1585,7 +1580,7 @@ const renderDropdownSeverityRisk = (
           FIELD_METADATA.medicationRiskComment.placeholder,
           false
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

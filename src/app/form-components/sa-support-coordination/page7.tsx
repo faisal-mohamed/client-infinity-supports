@@ -44,9 +44,6 @@ const Page7: React.FC<Page7Props> = ({ data, commonFieldsData, settings }) => {
           />
         </div>
 
-        <div className="text-center text-gray-500 mb-6 uppercase tracking-widest" style={{ fontSize: '14px' }}>
-          ACHIEVING GOALS AND BEYOND
-        </div>
 
         {/* Content */}
         <div className="flex-1 flex flex-col">
@@ -81,6 +78,34 @@ const Page7: React.FC<Page7Props> = ({ data, commonFieldsData, settings }) => {
                         <input
                           type="radio"
                           checked={getValue("consentMedia") === "No"}
+                          readOnly
+                          className="mr-2 scale-75"
+                        />
+                        No
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+
+                 <tr>
+                  <td className="border border-black p-3 align-top leading-loose">
+                    Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).
+                  </td>
+                  <td className="border border-black p-3 align-top">
+                    <div className="space-y-2">
+                      <label className="flex items-center text-sm">
+                        <input
+                          type="radio"
+                          checked={getValue("consentProfile") === "Yes"}
+                          readOnly
+                          className="mr-2 scale-75"
+                        />
+                        Yes
+                      </label>
+                      <label className="flex items-center text-sm">
+                        <input
+                          type="radio"
+                          checked={getValue("consentProfile") === "No"}
                           readOnly
                           className="mr-2 scale-75"
                         />
