@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function EmployeeWelcomeView() {
+export default function EmployeeWelcomeView({ excludeLastPage = false, children }: { excludeLastPage?: boolean; children?: React.ReactNode }) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -36,7 +36,8 @@ export default function EmployeeWelcomeView() {
 
         const fragment = document.createDocumentFragment();
 
-        for (let pageIndex = 1; pageIndex <= pdf.numPages; pageIndex++) {
+        const lastPage = excludeLastPage ? (pdf.numPages - 1) : pdf.numPages;
+        for (let pageIndex = 1; pageIndex <= lastPage; pageIndex++) {
           const page = await pdf.getPage(pageIndex);
           const viewport = page.getViewport({ scale: 1 });
           const scale = displayWidth / viewport.width;
@@ -92,6 +93,7 @@ export default function EmployeeWelcomeView() {
     <div className="bg-slate-50 py-8">
       <div className="bg-white w-full max-w-[900px] mx-auto rounded-xl shadow border p-4">
         <div ref={pdfContainerRef} className="w-full" />
+        {children}
         {error && (
           <div className="text-sm text-red-600 mt-2">{error}</div>
         )}

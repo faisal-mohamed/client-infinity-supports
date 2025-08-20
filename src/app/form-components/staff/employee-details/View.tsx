@@ -96,18 +96,13 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
             <Field label="Employee Signature" value={data?.employeeSignature} />
             <Field label="Date" value={data?.employeeSignatureDate} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Manager’s Signature" value={data?.managerSignature} />
-            <Field label="Date" value={data?.managerSignatureDate} />
-          </div>
 
           <Section title="Office Use Only" />
           <Field label="Employee" value={data?.officeEmployee} />
           <div className="grid grid-cols-2 gap-4">
             <Field label="Status" value={data?.employmentStatus} />
-            <Field label="Pay rate" value={data?.payRate} />
           </div>
-          <Field label="SCHADS score" value={data?.schadsScore} />
+          <Field label="SCHADS Level" value={data?.schadsScore} />
         </div>
         <Footer meta={meta} />
       </A4Page>
@@ -143,6 +138,17 @@ function Footer({ meta }: { meta: { website?: string; version?: string; reviewDa
 }
 
 function bool(v: any) { return v === true ? 'Yes' : v === false ? 'No' : ''; }
-function formatDate(d?: string) { if (!d) return ''; try { return new Date(d).toLocaleDateString(); } catch { return d; } }
+function formatDate(d?: string) {
+  if (!d) return '';
+  try {
+    // Use deterministic client/server-safe formatting (DD/MM/YYYY)
+    const iso = d.split('T')[0];
+    const [y, m, day] = iso.split('-');
+    if (y && m && day) return `${day}/${m}/${y}`;
+    return iso;
+  } catch {
+    return d;
+  }
+}
 
 

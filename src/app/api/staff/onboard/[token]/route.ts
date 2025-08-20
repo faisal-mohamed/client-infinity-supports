@@ -10,6 +10,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
       return NextResponse.json({ error: 'This link has expired' }, { status: 410 });
     }
+    const submissions = await (prisma as any).staffFormSubmission.findMany({ where: { staffId: staff.id } });
+    const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
     return NextResponse.json({
       staff: {
         id: staff.id,
@@ -18,7 +20,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         email: staff.email,
         phone: staff.phone,
         status: staff.status,
-      }
+      },
+      submissions: dataByForm
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || 'Failed' }, { status: 500 });
