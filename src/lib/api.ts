@@ -175,6 +175,47 @@ export async function deleteClient(id: number) {
   return response.json();
 }
 
+// Staff API functions
+export async function getStaff(options?: { search?: string; page?: number; pageSize?: number }) {
+  let url = '/api/staff';
+  const params = new URLSearchParams();
+  if (options?.search) params.append('search', options.search);
+  if (options?.page !== undefined) params.append('page', String(options.page));
+  if (options?.pageSize !== undefined) params.append('pageSize', String(options.pageSize));
+  const qs = params.toString();
+  if (qs) url += `?${qs}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch staff');
+  return res.json();
+}
+
+export async function createStaff(staffData: {
+  firstName: string;
+  surname: string;
+  email: string;
+  phone?: string;
+}) {
+  const res = await fetch('/api/staff', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(staffData),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to create staff');
+  }
+  return res.json();
+}
+
+export async function generateStaffLink(staffId: number) {
+  const res = await fetch(`/api/staff/${staffId}/generate-link`, { method: 'POST' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to generate link');
+  }
+  return res.json();
+}
+
 // Client Forms API functions
 export async function getClientForms(clientId: number) {
   const response = await fetch(`/api/clients/${clientId}/forms`);
