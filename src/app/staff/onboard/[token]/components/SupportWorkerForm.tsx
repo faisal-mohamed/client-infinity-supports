@@ -2,6 +2,7 @@
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import FormPage from '@/components/ui/FormPage';
+import SignatureCanvas from '@/components/ui/SignatureCanvas';
 
 export interface SupportWorkerFormRef {
   save: (final: boolean) => Promise<boolean>;
@@ -19,6 +20,7 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState<any>({});
+  const [staffInfo, setStaffInfo] = useState<any>({});
 
   useEffect(() => {
     // Load saved data if any
@@ -27,9 +29,10 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
         const response = await fetch(`/api/staff/onboard/${token}`);
         if (response.ok) {
           const result = await response.json();
-          if (result.supportWorker) {
-            setSaved(result.supportWorker);
-            setData(result.supportWorker);
+          setStaffInfo(result.staff || {});
+          if (result.submissions?.support_worker) {
+            setSaved(result.submissions.support_worker);
+            setData(result.submissions.support_worker);
           }
         }
       } catch (e) {
@@ -48,16 +51,17 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
   }, [data, onValidityChange]);
 
   const validate = (): boolean => {
-    // Basic validation - you can add more specific validation rules
-    return true; // For now, always valid
+    // Check if name and signature are filled
+    return !!(data.name && data.signature && data.signatureDate);
   };
 
   const validateDetailed = () => {
-    // Detailed validation with specific field information
     const missing: string[] = [];
     const invalid: string[] = [];
     
-    // Add validation logic here if needed
+    if (!data.name) missing.push('Name');
+    if (!data.signature) missing.push('Signature');
+    if (!data.signatureDate) missing.push('Date');
     
     return {
       isValid: missing.length === 0 && invalid.length === 0,
@@ -73,7 +77,8 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          supportWorker: { ...data, final }
+          formKey: 'support_worker',
+          data: { ...data, final }
         })
       });
       
@@ -103,6 +108,10 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
   }));
 
   const meta = { website: 'infinitysupportswa.org', version: 'PD- Support Worker Form', reviewDate: '01/03/2025' };
+
+  const handleChange = (key: string, value: any) => {
+    setData((prev: any) => ({ ...prev, [key]: value }));
+  };
 
   return (
     <div className="bg-gray-100 py-8">
@@ -361,16 +370,31 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                        <div className="border-b-2 border-gray-400 h-8"></div>
+                        <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
+                          {staffInfo.firstName} {staffInfo.surname}
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Signature:</label>
-                          <div className="border-b-2 border-gray-400 h-8"></div>
+                          <label className="block text-sm font-medium text-gray-700 mb-3">Signature:</label>
+                          <SignatureCanvas
+                            existingSignature={data.signature}
+                            onSignatureEnd={(sig) => handleChange('signature', sig)}
+                            onSignatureClear={() => handleChange('signature', '')}
+                            width={400}
+                            height={120}
+                            className="bg-white border border-gray-400 rounded-sm"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
-                          <div className="border-b-2 border-gray-400 h-8 text-center text-gray-500">/ /</div>
+                          <label className="block text-sm font-medium text-gray-700 mb-3" htmlFor="signatureDate">Date:</label>
+                          <input
+                            id="signatureDate"
+                            type="date"
+                            value={data.signatureDate || ''}
+                            onChange={(e) => handleChange('signatureDate', e.target.value)}
+                            className="w-full border border-gray-400 h-8 rounded-sm px-2 text-gray-900 bg-white"
+                          />
                         </div>
                       </div>
                     </div>

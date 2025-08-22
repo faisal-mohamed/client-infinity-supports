@@ -65,6 +65,7 @@ model Staff {
   submissions          StaffFormSubmission[]
   employmentDetails    StaffEmploymentDetails?
   employmentWelcomeAck StaffEmploymentWelcomeAck?
+  supportWorker        StaffSupportWorker?
 }
 
 model StaffFormSubmission {
@@ -83,22 +84,42 @@ model StaffFormSubmission {
 
 // Specialized storage for Staff Employment Details
 model StaffEmploymentDetails {
-  id        Int      @id @default(autoincrement())
-  staffId   Int      @unique
-  data      Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   staff Staff @relation(fields: [staffId], references: [id])
 }
 
 // Specialized storage for Welcome/Acknowledgement (page 38)
 model StaffEmploymentWelcomeAck {
-  id        Int      @id @default(autoincrement())
-  staffId   Int      @unique
-  data      Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// Specialized storage for Support Worker form
+model StaffSupportWorker {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   staff Staff @relation(fields: [staffId], references: [id])
 }

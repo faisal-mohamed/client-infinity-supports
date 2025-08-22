@@ -5,7 +5,12 @@ import { employeeDetailsSchema as schema } from '../../[token]/schema';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import { fetchFormSpecificSettings } from '@/lib/settings';
 
-export interface EmployeeDetailsStepRef { save: (submit?: boolean) => Promise<boolean>; validate: () => boolean; getData: () => any }
+export interface EmployeeDetailsStepRef { 
+  save: (submit?: boolean) => Promise<boolean>; 
+  validate: () => boolean; 
+  validateDetailed: () => { isValid: boolean; missing?: string[]; invalid?: string[] } | null;
+  getData: () => any 
+}
 
 export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityChange?: (v: boolean)=>void }>(function EmployeeDetailsStep({ token, onValidityChange }, ref) {
   const [data, setData] = useState<any>({});
@@ -44,6 +49,9 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
           email: saved.email ?? d.email ?? s.email ?? '',
           mobile: saved.mobile ?? d.mobile ?? s.phone ?? '',
           officeEmployee: saved.officeEmployee ?? d.officeEmployee ?? `${s.firstName || ''} ${s.surname || ''}`.trim(),
+          // Handle signature data from new fields
+          employeeSignature: saved.employeeSignature || '',
+          employeeSignatureDate: saved.employeeSignatureDate || '',
         }));
       } catch (e) {
         // ignore prefill errors
@@ -81,8 +89,8 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
     for (const k of required) { if (!d[k]) return false; }
     // Email
     if (d.email && !/^\S+@\S+\.\S+$/.test(d.email)) return false;
-    // AU mobile: 10 digits starting with 0
-    if (d.mobile && !/^0\d{9}$/.test(d.mobile)) return false;
+    // AU mobile: 10 digits
+    if (d.mobile && !/^\d{10}$/.test(d.mobile)) return false;
     // Postcode 4 digits
     if (d.postcode && !/^\d{4}$/.test(d.postcode)) return false;
     // BSB 6 digits
@@ -93,6 +101,63 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
     if (!d.employeeSignature || typeof d.employeeSignature !== 'string' || !d.employeeSignature.startsWith('data:image/')) return false;
     if (!d.employeeSignatureDate) return false;
     return true;
+  };
+
+  const validateDetailed = () => {
+    const missing: string[] = [];
+    const invalid: string[] = [];
+
+    // Check required fields
+    const required = new Set<string>();
+    schema.sections.forEach((s: any) => s.fields?.forEach((f: any) => { 
+      if (f.required) required.add(f.key); 
+    }));
+
+    for (const fieldKey of required) {
+      if (!data[fieldKey]) {
+        missing.push(fieldKey);
+      }
+    }
+
+    // Check format validation
+    if (data.email && !/^\S+@\S+\.\S+$/.test(data.email)) {
+      invalid.push('Email (invalid format)');
+    }
+
+    if (data.mobile && !/^\d{10}$/.test(data.mobile)) {
+      invalid.push('Mobile (must be exactly 10 digits)');
+    }
+
+    if (data.postcode && !/^\d{4}$/.test(data.postcode)) {
+      invalid.push('Postcode (must be exactly 4 digits)');
+    }
+
+    if (data.bsb && !/^\d{6}$/.test(data.bsb)) {
+      invalid.push('BSB (must be exactly 6 digits)');
+    }
+
+    if (data.accountNumber && !/^\d{6,10}$/.test(data.accountNumber)) {
+      invalid.push('Account Number (must be 6-10 digits)');
+    }
+
+    if (data.visaExpiryDate && data.hasWorkingVisa === true && isNaN(Date.parse(data.visaExpiryDate))) {
+      invalid.push('Visa Expiry Date (invalid format)');
+    }
+
+    // Check signature and date
+    if (!data.employeeSignature || typeof data.employeeSignature !== 'string' || !data.employeeSignature.startsWith('data:image/')) {
+      missing.push('Employee Signature');
+    }
+
+    if (!data.employeeSignatureDate) {
+      missing.push('Employee Signature Date');
+    }
+
+    return {
+      isValid: missing.length === 0 && invalid.length === 0,
+      missing: missing.length > 0 ? missing : undefined,
+      invalid: invalid.length > 0 ? invalid : undefined
+    };
   };
 
   const save = async (submit: boolean = true) => {
@@ -109,7 +174,7 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
     }
   };
 
-  useImperativeHandle(ref, () => ({ save, validate: () => validate(data), getData: () => data }), [data]);
+  useImperativeHandle(ref, () => ({ save, validate: () => validate(data), validateDetailed: () => validateDetailed(), getData: () => data }), [data]);
 
   const set = (k: string, v: any) => setData((d: any)=>({ ...d, [k]: v }));
 
@@ -206,14 +271,23 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
       </div>
       <div className="grid grid-cols-2 gap-4 text-sm">
         {/* Signatures first (top of page) */}
-        <div className="col-span-2">
-          <div className="font-semibold">Signatures</div>
-          <div className="grid grid-cols-2 gap-4 mt-2">
-            <div className="col-span-2" ref={sigWrapRef}>
-              <div className="text-xs mb-1">Employee Signature</div>
-              <SignatureCanvas onSignatureEnd={(sig)=>set('employeeSignature', sig)} onSignatureClear={()=>set('employeeSignature','')} width={sigWidth} height={160} className="bg-white w-full" />
+        <div className="col-span-2 mb-8">
+          <div className="font-semibold mb-4">Signatures</div>
+          <div className="space-y-6">
+            <div>
+              <div className="text-xs font-semibold mb-3">Employee Signature:</div>
+              <SignatureCanvas 
+                existingSignature={data.employeeSignature}
+                onSignatureEnd={(sig)=>set('employeeSignature', sig)} 
+                onSignatureClear={()=>set('employeeSignature','')} 
+                width={sigWidth} 
+                height={160} 
+                className="bg-white w-full" 
+              />
             </div>
-            <Field label="Date" type="date" value={data.employeeSignatureDate} onChange={(v)=>set('employeeSignatureDate', v)} />
+            <div>
+              <Field label="Date" type="date" value={data.employeeSignatureDate} onChange={(v)=>set('employeeSignatureDate', v)} />
+            </div>
           </div>
         </div>
 
@@ -271,7 +345,7 @@ function BoxInput({ label, length, value, onChange, groups }: { label: string; l
             onChange(next);
           }} className="w-8 h-8 border border-gray-400 text-center placeholder-gray-400" placeholder="•" />
         ))}
-        {groups && groups.reduce((acc: JSX.Element[], size, idx) => {
+        {groups && groups.reduce((acc: React.ReactElement[], size, idx) => {
           const upto = groups.slice(0, idx+1).reduce((s, n) => s + n, 0);
           if (upto < length) acc.push(<div key={`sp-${idx}`} className="w-3" />);
           return acc;

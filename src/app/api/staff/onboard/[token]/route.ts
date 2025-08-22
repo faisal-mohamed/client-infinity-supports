@@ -18,9 +18,39 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     const specWelcome = p.staffEmploymentWelcomeAck
       ? await p.staffEmploymentWelcomeAck.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
       : null;
+    const specSupportWorker = p.staffSupportWorker
+      ? await p.staffSupportWorker.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
+      : null;
+    
     const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
-    if (specDetails) dataByForm['employeeDetails'] = specDetails.data;
-    if (specWelcome) dataByForm['employee_welcome'] = specWelcome.data;
+    
+    // Handle Employee Details form with signature
+    if (specDetails) {
+      dataByForm['employeeDetails'] = {
+        ...specDetails.data,
+        employeeSignature: specDetails.staffSignature || '',
+        employeeSignatureDate: specDetails.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
+    // Handle Employee Welcome form with signature
+    if (specWelcome) {
+      dataByForm['employee_welcome'] = {
+        ...specWelcome.data,
+        signature: specWelcome.staffSignature || '',
+        date: specWelcome.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
+    // Handle Support Worker form with signature
+    if (specSupportWorker) {
+      dataByForm['support_worker'] = {
+        ...specSupportWorker.data,
+        signature: specSupportWorker.staffSignature || '',
+        signatureDate: specSupportWorker.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
     return NextResponse.json({
       staff: {
         id: staff.id,
@@ -52,16 +82,64 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     }
     let saved: any;
     if (formKey === 'employeeDetails' && p.staffEmploymentDetails) {
+      // Extract signature data if present
+      const { employeeSignature, employeeSignatureDate, ...formData } = data;
+      const signatureData = employeeSignature ? {
+        staffSignature: employeeSignature,
+        staffSignedAt: employeeSignatureDate ? new Date(employeeSignatureDate) : new Date()
+      } : {};
+      
       saved = await p.staffEmploymentDetails.upsert({
         where: { staffId: staff.id },
-        update: { data },
-        create: { staffId: staff.id, data },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
       });
     } else if (formKey === 'employee_welcome' && p.staffEmploymentWelcomeAck) {
+      // Extract signature data if present
+      const { signature, date, ...formData } = data;
+      const signatureData = signature ? {
+        staffSignature: signature,
+        staffSignedAt: date ? new Date(date) : new Date()
+      } : {};
+      
       saved = await p.staffEmploymentWelcomeAck.upsert({
         where: { staffId: staff.id },
-        update: { data },
-        create: { staffId: staff.id, data },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
+      });
+    } else if (formKey === 'support_worker' && p.staffSupportWorker) {
+      // Extract signature data if present
+      const { signature, signatureDate, ...formData } = data;
+      const signatureData = signature ? {
+        staffSignature: signature,
+        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+      } : {};
+      
+      saved = await p.staffSupportWorker.upsert({
+        where: { staffId: staff.id },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
       });
     } else {
       saved = await db.staffFormSubmission.upsert({

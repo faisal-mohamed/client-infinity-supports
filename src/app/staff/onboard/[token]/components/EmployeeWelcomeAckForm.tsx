@@ -4,7 +4,11 @@ import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from 're
 import { fetchFormSpecificSettings } from '@/lib/settings';
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
-export interface EmployeeWelcomeAckFormRef { submit: () => Promise<boolean> }
+export interface EmployeeWelcomeAckFormRef { 
+  submit: () => Promise<boolean>;
+  save: (submit: boolean) => Promise<boolean>;
+  validateDetailed: () => { isValid: boolean; missing?: string[]; invalid?: string[] } | null;
+}
 
 const EmployeeWelcomeAckForm = forwardRef<EmployeeWelcomeAckFormRef, { token: string; onValidityChange?: (valid: boolean)=>void; onSubmitted?: ()=>void }>(
 function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
@@ -38,6 +42,30 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
     })();
   }, []);
 
+  useEffect(() => {
+    // Load saved data if any
+    const loadData = async () => {
+      try {
+        const response = await fetch(`/api/staff/onboard/${token}`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.submissions?.employee_welcome) {
+            const savedData = result.submissions.employee_welcome;
+            setData({
+              readAcknowledgement: savedData.readAcknowledgement || false,
+              fullName: savedData.fullName || '',
+              signature: savedData.signature || '',
+              date: savedData.date || ''
+            });
+          }
+        }
+      } catch (e) {
+        // ignore prefill errors
+      }
+    };
+    loadData();
+  }, [token]);
+
   const handleChange = (k: string, v: any) => {
     const next = { ...data, [k]: v };
     setData(next);
@@ -65,7 +93,52 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
     }
   };
 
-  useImperativeHandle(ref, () => ({ submit: handleSubmit }), [data]);
+  const handleSave = async (submit: boolean) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/staff/onboard/${token}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formKey: 'employee_welcome', data, submit }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'Failed to save');
+      if (submit) onSubmitted?.();
+      return true;
+    } catch (e: any) {
+      alert(e.message || 'Failed');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateDetailed = () => {
+    const missing: string[] = [];
+    const invalid: string[] = [];
+
+    if (!data.readAcknowledgement) missing.push('Acknowledgement');
+    if (!data.fullName) missing.push('Full Name');
+    if (!data.signature) missing.push('Signature');
+    if (!data.date) missing.push('Date');
+
+    // Check if date is valid
+    if (data.date && isNaN(Date.parse(data.date))) {
+      invalid.push('Date (invalid format)');
+    }
+
+    return {
+      isValid: missing.length === 0 && invalid.length === 0,
+      missing: missing.length > 0 ? missing : undefined,
+      invalid: invalid.length > 0 ? invalid : undefined
+    };
+  };
+
+  useImperativeHandle(ref, () => ({ 
+    submit: handleSubmit,
+    save: handleSave,
+    validateDetailed
+  }), [data]);
 
   return (
     <div className="w-full flex justify-center">
@@ -86,22 +159,39 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
         </p>
 
         <div className="space-y-6">
+          {/* Acknowledgement Checkbox */}
+          <div className="flex items-start gap-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
+            <input
+              id="readAcknowledgement"
+              type="checkbox"
+              checked={data.readAcknowledgement}
+              onChange={(e) => handleChange('readAcknowledgement', e.target.checked)}
+              className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
+            />
+            <label htmlFor="readAcknowledgement" className="text-[12pt] leading-relaxed">
+              <strong>I acknowledge that:</strong><br />
+              • I have received the Employee Handbook from Infinity Supports<br />
+              • I have read and understood the content<br />
+              • I agree to comply with all policies and procedures outlined in the handbook
+            </label>
+          </div>
+
           <div>
             <label className="block text-[12pt] mb-1" htmlFor="fullName">Name</label>
             <input id="fullName" title="Full Name" placeholder="Full Name" className="w-full border-b border-black/60 px-1 py-2" value={data.fullName} onChange={(e)=>handleChange('fullName', e.target.value)} />
           </div>
-          <div>
+          <div className="mb-8">
             <label className="block text-[12pt] mb-2" htmlFor="signature">Signature</label>
             <SignatureCanvas
-              ref={sigRef}
+              existingSignature={data.signature}
               onSignatureEnd={(sig) => handleChange('signature', sig)}
               onSignatureClear={() => handleChange('signature', '')}
-              width={600}
-              height={160}
-              className="bg-white"
+              width={400}
+              height={150}
+              className="bg-white w-full"
             />
           </div>
-          <div>
+          <div className="mb-6">
             <label className="block text-[12pt] mb-1" htmlFor="ackDate">Date</label>
             <input id="ackDate" title="Date" placeholder="YYYY-MM-DD" type="date" className="w-full border-b border-black/60 px-1 py-2" value={data.date} onChange={(e)=>handleChange('date', e.target.value)} />
           </div>
