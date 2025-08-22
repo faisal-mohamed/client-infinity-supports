@@ -3,6 +3,7 @@ import type React from 'react';
 import EmployeeDetailsView from '@/app/form-components/staff/employee-details/View';
 import EmployeeWelcomeView from '@/app/form-components/staff/employee-welcome/View';
 import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
+import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment-medical/View';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -26,6 +27,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'support_worker',
     name: 'Support Worker',
     viewComponent: SupportWorkerView,
+  },
+  pre_employment_medical: {
+    key: 'pre_employment_medical',
+    name: 'Pre-Employment Medical',
+    viewComponent: PreEmploymentMedicalView,
   },
 };
 

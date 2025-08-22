@@ -21,6 +21,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     const specSupportWorker = p.staffSupportWorker
       ? await p.staffSupportWorker.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
       : null;
+    const specPreEmploymentMedical = p.staffPreEmploymentMedical
+      ? await p.staffPreEmploymentMedical.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
+      : null;
     
     const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
     
@@ -48,6 +51,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         ...specSupportWorker.data,
         signature: specSupportWorker.staffSignature || '',
         signatureDate: specSupportWorker.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
+    // Handle Pre-Employment Medical form with signature
+    if (specPreEmploymentMedical) {
+      dataByForm['pre_employment_medical'] = {
+        ...specPreEmploymentMedical.data,
+        signature: specPreEmploymentMedical.staffSignature || '',
+        signatureDate: specPreEmploymentMedical.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
@@ -130,6 +142,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       } : {};
       
       saved = await p.staffSupportWorker.upsert({
+        where: { staffId: staff.id },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
+      });
+    } else if (formKey === 'pre_employment_medical' && p.staffPreEmploymentMedical) {
+      // Extract signature data if present
+      const { signature, signatureDate, ...formData } = data;
+      const signatureData = signature ? {
+        staffSignature: signature,
+        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+      } : {};
+      
+      saved = await p.staffPreEmploymentMedical.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,

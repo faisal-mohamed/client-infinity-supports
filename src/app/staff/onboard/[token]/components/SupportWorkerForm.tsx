@@ -29,11 +29,18 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
         const response = await fetch(`/api/staff/onboard/${token}`);
         if (response.ok) {
           const result = await response.json();
-          setStaffInfo(result.staff || {});
-          if (result.submissions?.support_worker) {
-            setSaved(result.submissions.support_worker);
-            setData(result.submissions.support_worker);
-          }
+          const s = result.staff || {};
+          const saved = (result.submissions && result.submissions['support_worker']) || {};
+          setStaffInfo(s);
+          setData((d: any) => ({
+            ...d,
+            ...saved,
+            // Handle signature data from new fields
+            signature: saved.signature || '',
+            signatureDate: saved.signatureDate || '',
+            // Set name from staff info if not already set
+            name: saved.name || `${s.firstName || ''} ${s.surname || ''}`.trim()
+          }));
         }
       } catch (e) {
         // ignore prefill errors

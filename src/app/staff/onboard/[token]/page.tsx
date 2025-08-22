@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import EmployeeWelcomeAckForm, { EmployeeWelcomeAckFormRef } from './components/EmployeeWelcomeAckForm';
 import EmployeeDetailsStep, { EmployeeDetailsStepRef } from './components/EmployeeDetailsStep';
 import SupportWorkerForm, { SupportWorkerFormRef } from './components/SupportWorkerForm';
+import PreEmploymentMedicalForm, { PreEmploymentMedicalFormRef } from './components/PreEmploymentMedicalForm';
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import './components/styles.css';
 
@@ -17,7 +18,7 @@ const FORM_NAMES = [
   'Employee Details',
   'Employee Welcome', 
   'Support Worker',
-  'Form 4', // Placeholder for future forms
+  'Pre-Employment Medical',
   'Form 5',
   'Form 6',
   'Form 7',
@@ -38,6 +39,7 @@ function InnerPage() {
   const ackRef = useRef<EmployeeWelcomeAckFormRef | null>(null);
   const detailsRef = useRef<EmployeeDetailsStepRef | null>(null);
   const supportWorkerRef = useRef<SupportWorkerFormRef | null>(null);
+  const preEmploymentMedicalRef = useRef<PreEmploymentMedicalFormRef | null>(null);
   
   const { showToast } = useToast();
 
@@ -47,6 +49,7 @@ function InnerPage() {
       case 1: return detailsRef;
       case 2: return ackRef;
       case 3: return supportWorkerRef;
+      case 4: return preEmploymentMedicalRef;
       default: return null;
     }
   };
@@ -269,9 +272,17 @@ function InnerPage() {
               onValidityChange={setCanContinue} 
             />
           )}
+
+          {step === 4 && (
+            <PreEmploymentMedicalForm 
+              ref={preEmploymentMedicalRef as any} 
+              token={token} 
+              onValidityChange={setCanContinue} 
+            />
+          )}
           
           {/* Placeholder for future forms */}
-          {step > 3 && (
+          {step > 4 && (
             <div className="p-8 text-center">
               <h2 className="text-xl font-semibold mb-4">Form {step}</h2>
               <p className="text-gray-600">This form is under development.</p>
