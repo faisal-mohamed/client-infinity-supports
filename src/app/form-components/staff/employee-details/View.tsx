@@ -1,120 +1,217 @@
 "use client";
 
-import React from 'react';
-
-function A4Page({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="bg-white w-full max-w-[794px] mx-auto min-h-[1123px] border shadow p-8 print:p-6">
-      {children}
-    </div>
-  );
-}
+import React, { useEffect, useState } from 'react';
+import { fetchFormSpecificSettings } from '@/lib/settings';
+import FormPage from '@/components/ui/FormPage';
 
 export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: any; meta?: { website?: string; version?: string; reviewDate?: string } }) {
-  const meta = metaProp || { website: 'infinitysupportswa.org', version: 'SF004', reviewDate: '2025-03-01' };
+  const [meta, setMeta] = useState<{ website: string; version: string; reviewDate: string }>({ 
+    website: 'infinitysupportswa.org', 
+    version: 'SF004', 
+    reviewDate: '2025-03-01' 
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const settings = await fetchFormSpecificSettings();
+        const getSettingValue = (key: string): string | null => {
+          const groups = Object.values(settings || {});
+          for (const group of groups) {
+            if (Array.isArray(group)) {
+              const s = group.find((it: any) => it && it.key === key);
+              if (s) return s.value || s.defaultValue || null;
+            }
+          }
+          return null;
+        };
+        setMeta({
+          website: getSettingValue('company_website') || 'infinitysupportswa.org',
+          version: getSettingValue('employee_details_form_id') || 'SF004',
+          reviewDate: getSettingValue('review_date') || new Date().toISOString().slice(0,10),
+        });
+      } catch {}
+    })();
+  }, []);
 
   return (
     <div className="bg-gray-100 py-8">
       {/* Page 1 */}
-      <A4Page>
-        <div className="text-center mb-6">
-          <img src="/infinity_logo.png" alt="Infinity Support WA" className="h-10 mx-auto" />
-          <h1 className="mt-2 font-semibold">Employee Details Form</h1>
+      <FormPage title="Employee Details Form" meta={meta}>
+        <div className="w-full">
+          <div className="border border-gray-300 rounded-lg p-6 w-full">
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="First Name" value={data?.firstName} />
+                <Field label="Last Name" value={data?.lastName} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Start Date" value={data?.startDate} />
+                <Field label="Position Title" value={data?.positionTitle} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Gender" value={data?.gender} />
+                <Field label="Date of Birth" value={data?.dateOfBirth} />
+              </div>
+              <Field label="Address" value={data?.address} />
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Suburb" value={data?.suburb} />
+                <Field label="State" value={data?.state} />
+                <Field label="Postcode" value={data?.postcode} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Home Phone" value={data?.homePhone} />
+                <Field label="Mobile" value={data?.mobile} />
+                <Field label="Work" value={data?.workPhone} />
+              </div>
+              <Field label="Email Address" value={data?.email} />
+
+              <Field label="Employee Tax File" value={data?.employeeTaxFile} />
+
+              <div className="border border-black rounded-lg p-4">
+                <div className="font-semibold text-gray-800 mb-3">Bank Details</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Bank Name" value={data?.bankName} />
+                  <Field label="Branch" value={data?.bankBranch} />
+                </div>
+                <Field label="Account Name" value={data?.accountName} />
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="BSB" value={data?.bsb} />
+                  <Field label="Account Number" value={data?.accountNumber} />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <span className="text-xs font-medium text-gray-700 mr-4">Are you an Australian citizen?</span>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" checked={data?.isAustralianCitizen === true} readOnly className="w-4 h-4 border-gray-400" />
+                      <span className="text-xs">Yes</span>
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input type="checkbox" checked={data?.isAustralianCitizen === false} readOnly className="w-4 h-4 border-gray-400" />
+                      <span className="text-xs">No</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="ml-4 space-y-2">
+                  <div className="text-xs text-gray-600">If no,</div>
+                  <div className="flex items-center">
+                    <span className="text-xs font-medium text-gray-700 mr-4">- Are you a permanent resident?</span>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.isPermanentResident === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">Yes</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.isPermanentResident === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">No</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs font-medium text-gray-700">- Do you have a Working Visa?</span>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.hasWorkingVisa === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">Yes</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.hasWorkingVisa === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">No</span>
+                      </label>
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 ml-4">Expiry date:</span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-8 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
+                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[2] : ''}
+                      </div>
+                      <span className="text-xs">/</span>
+                      <div className="w-8 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
+                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[1] : ''}
+                      </div>
+                      <span className="text-xs">/</span>
+                      <div className="w-12 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
+                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[0] : ''}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Field label="Any restrictions?" value={data?.workRestrictions} />
+
+              <Field label="Next of Kin" value={data?.nokName} />
+              <Field label="Relationship" value={data?.nokRelationship} />
+              <Field label="Address" value={data?.nokAddress} />
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Suburb" value={data?.nokSuburb} />
+                <Field label="State" value={data?.nokState} />
+                <Field label="Postcode" value={data?.nokPostcode} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Home Phone" value={data?.nokHomePhone} />
+                <Field label="Mobile" value={data?.nokMobile} />
+                <Field label="Work" value={data?.nokWorkPhone} />
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="space-y-3 text-sm">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="First Name" value={data?.firstName} />
-            <Field label="Last Name" value={data?.lastName} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Start Date" value={data?.startDate} />
-            <Field label="Position Title" value={data?.positionTitle} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Gender" value={data?.gender} />
-            <Field label="Date of Birth" value={data?.dateOfBirth} />
-          </div>
-          <Field label="Address" value={data?.address} />
-          <div className="grid grid-cols-3 gap-4">
-            <Field label="Suburb" value={data?.suburb} />
-            <Field label="State" value={data?.state} />
-            <Field label="Postcode" value={data?.postcode} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Home Phone" value={data?.homePhone} />
-            <Field label="Mobile" value={data?.mobile} />
-          </div>
-          <Field label="Email Address" value={data?.email} />
-
-          <Section title="Employee Tax File" />
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Bank Name" value={data?.bankName} />
-            <Field label="Branch" value={data?.bankBranch} />
-          </div>
-          <Field label="Account Name" value={data?.accountName} />
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="BSB" value={data?.bsb} />
-            <Field label="Account Number" value={data?.accountNumber} />
-          </div>
-
-          <Section title="Residency & Work Rights" />
-          <Field label="Are you an Australian citizen?" value={bool(data?.isAustralianCitizen)} />
-          <Field label="Are you a permanent resident?" value={bool(data?.isPermanentResident)} />
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Do you have a Working Visa?" value={bool(data?.hasWorkingVisa)} />
-            <Field label="Visa Expiry Date" value={data?.visaExpiryDate} />
-          </div>
-          <Field label="Any restrictions?" value={data?.workRestrictions} />
-
-          <Section title="Next of Kin" />
-          <Field label="Next of Kin" value={data?.nokName} />
-          <Field label="Relationship" value={data?.nokRelationship} />
-          <Field label="Address" value={data?.nokAddress} />
-          <div className="grid grid-cols-3 gap-4">
-            <Field label="Suburb" value={data?.nokSuburb} />
-            <Field label="State" value={data?.nokState} />
-            <Field label="Postcode" value={data?.nokPostcode} />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <Field label="Home Phone" value={data?.nokHomePhone} />
-            <Field label="Mobile" value={data?.nokMobile} />
-            <Field label="Work" value={data?.nokWorkPhone} />
-          </div>
-        </div>
-
-        <Footer meta={meta} />
-      </A4Page>
+      </FormPage>
 
       {/* Page 2 */}
-      <A4Page>
-        <div className="text-center mb-6">
-          <img src="/infinity_logo.png" alt="Infinity Support WA" className="h-10 mx-auto" />
-        </div>
-        <div className="space-y-3 text-sm">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Employee Signature" value={data?.employeeSignature} />
-            <Field label="Date" value={data?.employeeSignatureDate} />
-          </div>
+      <FormPage showTitle={false} meta={meta}>
+        <div className="w-full">
+          <div className="border border-gray-300 rounded-lg p-6 w-full">
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Employee Signature" value={data?.employeeSignature} />
+                <Field label="Date" value={data?.employeeSignatureDate} />
+              </div>
 
-          <Section title="Office Use Only" />
-          <Field label="Employee" value={data?.officeEmployee} />
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Status" value={data?.employmentStatus} />
+              <div className="border border-black rounded-lg p-4">
+                <div className="font-bold text-lg mb-4">Office Use Only</div>
+                <div className="font-bold text-base mb-3">Employee:</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs font-medium text-gray-700 mb-2">Status:</div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.employmentStatus === 'FullTime'} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">Full time</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.employmentStatus === 'PartTime'} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">Part time</span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" checked={data?.employmentStatus === 'Casual'} readOnly className="w-4 h-4 border-gray-400" />
+                        <span className="text-xs">Casual</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Field label="Pay rate" value={data?.payRate} />
+                    <Field label="SCHADS Level" value={data?.schadsScore} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <Field label="SCHADS Level" value={data?.schadsScore} />
         </div>
-        <Footer meta={meta} />
-      </A4Page>
+      </FormPage>
     </div>
   );
 }
 
 function Field({ label, value }: { label: string; value?: React.ReactNode }) {
   return (
-    <div>
-      <div className="text-xs font-medium text-gray-700 mb-1">{label}:</div>
-      <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
+    <div className="flex items-center">
+      <span className="text-xs font-medium text-gray-700 mr-2">{label}:</span>
+      <div className="flex-1 border-b-2 border-gray-400 h-6 ml-2">
         {value || ''}
       </div>
     </div>
@@ -129,7 +226,7 @@ function Section({ title }: { title: string }) {
 
 function Footer({ meta }: { meta: { website?: string; version?: string; reviewDate?: string } }) {
   return (
-    <div className="mt-6 pt-2 text-[10px] text-gray-600 grid grid-cols-3">
+    <div className="text-[10px] text-gray-600 grid grid-cols-3">
       <div>Website: {meta.website || 'infinitysupportswa.org'}</div>
       <div className="text-center">{meta.version || 'SF004'}</div>
       <div className="text-right">Review Date: {formatDate(meta.reviewDate) || ''}</div>

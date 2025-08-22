@@ -2,6 +2,7 @@ import type React from 'react';
 
 import EmployeeDetailsView from '@/app/form-components/staff/employee-details/View';
 import EmployeeWelcomeView from '@/app/form-components/staff/employee-welcome/View';
+import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -20,6 +21,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'employee_welcome',
     name: 'Employee Welcome',
     viewComponent: EmployeeWelcomeView,
+  },
+  support_worker: {
+    key: 'support_worker',
+    name: 'Support Worker',
+    viewComponent: SupportWorkerView,
   },
 };
 
