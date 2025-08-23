@@ -27,6 +27,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     const specNdisWorkforceCapability = p.staffNdisWorkforceCapability
       ? await p.staffNdisWorkforceCapability.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
       : null;
+    const specBullyingHarassmentTraining = p.staffBullyingHarassmentTraining
+      ? await p.staffBullyingHarassmentTraining.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
+      : null;
     
     const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
     
@@ -72,6 +75,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         ...specNdisWorkforceCapability.data,
         signature: specNdisWorkforceCapability.staffSignature || '',
         signatureDate: specNdisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
+    // Handle Bullying and Harassment Training form with signature
+    if (specBullyingHarassmentTraining) {
+      dataByForm['bullying_harassment_training'] = {
+        ...specBullyingHarassmentTraining.data,
+        signature: specBullyingHarassmentTraining.staffSignature || '',
+        signatureDate: specBullyingHarassmentTraining.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
@@ -194,6 +206,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       } : {};
       
       saved = await p.staffNdisWorkforceCapability.upsert({
+        where: { staffId: staff.id },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
+      });
+    } else if (formKey === 'bullying_harassment_training' && p.staffBullyingHarassmentTraining) {
+      // Extract signature data if present
+      const { signature, signatureDate, ...formData } = data;
+      const signatureData = signature ? {
+        staffSignature: signature,
+        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+      } : {};
+      
+      saved = await p.staffBullyingHarassmentTraining.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,

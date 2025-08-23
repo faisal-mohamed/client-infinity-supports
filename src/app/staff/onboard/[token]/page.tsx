@@ -11,6 +11,7 @@ import { ToastProvider, useToast } from '@/components/ui/Toast';
 import './components/styles.css';
 
 const NdisWorkforceCapabilityView = dynamic(async () => (await import('@/app/form-components/staff/ndis-workforce-capability/View')).default, { ssr: false });
+const BullyingHarassmentTrainingView = dynamic(async () => (await import('@/app/form-components/staff/bullying-harassment-training/View')).default, { ssr: false });
 
 const EmployeeWelcomeView = dynamic(async () => (await import('@/app/form-components/staff/employee-welcome/View')).default, { ssr: false });
 
@@ -22,7 +23,7 @@ const FORM_NAMES = [
   'Support Worker',
   'Pre-Employment Medical',
   'NDIS Workforce Capability Framework',
-  'Form 6',
+  'Bullying and Harassment Training',
   'Form 7',
   'Form 8',
   'Form 9',
@@ -43,6 +44,7 @@ function InnerPage() {
   const supportWorkerRef = useRef<SupportWorkerFormRef | null>(null);
   const preEmploymentMedicalRef = useRef<PreEmploymentMedicalFormRef | null>(null);
   const ndisWorkforceCapabilityRef = useRef<any | null>(null);
+  const bullyingHarassmentTrainingRef = useRef<any | null>(null);
   
   const { showToast } = useToast();
 
@@ -54,6 +56,7 @@ function InnerPage() {
       case 3: return supportWorkerRef;
       case 4: return preEmploymentMedicalRef;
       case 5: return ndisWorkforceCapabilityRef;
+      case 6: return bullyingHarassmentTrainingRef;
       default: return null;
     }
   };
@@ -294,8 +297,17 @@ function InnerPage() {
             </NdisWorkforceCapabilityView>
           )}
           
+          {step === 6 && (
+            <BullyingHarassmentTrainingView excludeLastPage={true}>
+              <div className="p-8 text-center">
+                <h2 className="text-xl font-semibold mb-4">Bullying and Harassment Training</h2>
+                <p className="text-gray-600">Please review the training material above and acknowledge below.</p>
+              </div>
+            </BullyingHarassmentTrainingView>
+          )}
+          
           {/* Placeholder for future forms */}
-          {step > 5 && (
+          {step > 6 && (
             <div className="p-8 text-center">
               <h2 className="text-xl font-semibold mb-4">Form {step}</h2>
               <p className="text-gray-600">This form is under development.</p>

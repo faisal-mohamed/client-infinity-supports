@@ -5,6 +5,7 @@ import EmployeeWelcomeView from '@/app/form-components/staff/employee-welcome/Vi
 import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
 import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment-medical/View';
 import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workforce-capability/View';
+import BullyingHarassmentTrainingView from '@/app/form-components/staff/bullying-harassment-training/View';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -38,6 +39,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'ndis_workforce_capability',
     name: 'NDIS Workforce Capability Framework',
     viewComponent: NdisWorkforceCapabilityView,
+  },
+  bullying_harassment_training: {
+    key: 'bullying_harassment_training',
+    name: 'Bullying and Harassment Training',
+    viewComponent: BullyingHarassmentTrainingView,
   },
 };
 
