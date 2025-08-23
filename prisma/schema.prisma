@@ -62,11 +62,12 @@ model Staff {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  submissions          StaffFormSubmission[]
-  employmentDetails    StaffEmploymentDetails?
-  employmentWelcomeAck StaffEmploymentWelcomeAck?
-  supportWorker        StaffSupportWorker?
-  preEmploymentMedical StaffPreEmploymentMedical?
+  submissions             StaffFormSubmission[]
+  employmentDetails       StaffEmploymentDetails?
+  employmentWelcomeAck    StaffEmploymentWelcomeAck?
+  supportWorker           StaffSupportWorker?
+  preEmploymentMedical    StaffPreEmploymentMedical?
+  ndisWorkforceCapability StaffNdisWorkforceCapability?
 }
 
 model StaffFormSubmission {
@@ -127,6 +128,20 @@ model StaffSupportWorker {
 
 // Specialized storage for Pre-Employment Medical form
 model StaffPreEmploymentMedical {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// Specialized storage for NDIS Workforce Capability Framework form
+model StaffNdisWorkforceCapability {
   id             Int       @id @default(autoincrement())
   staffId        Int       @unique
   data           Json

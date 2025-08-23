@@ -10,6 +10,8 @@ import PreEmploymentMedicalForm, { PreEmploymentMedicalFormRef } from './compone
 import { ToastProvider, useToast } from '@/components/ui/Toast';
 import './components/styles.css';
 
+const NdisWorkforceCapabilityView = dynamic(async () => (await import('@/app/form-components/staff/ndis-workforce-capability/View')).default, { ssr: false });
+
 const EmployeeWelcomeView = dynamic(async () => (await import('@/app/form-components/staff/employee-welcome/View')).default, { ssr: false });
 
 // Define all 10 forms for the system
@@ -19,7 +21,7 @@ const FORM_NAMES = [
   'Employee Welcome', 
   'Support Worker',
   'Pre-Employment Medical',
-  'Form 5',
+  'NDIS Workforce Capability Framework',
   'Form 6',
   'Form 7',
   'Form 8',
@@ -40,6 +42,7 @@ function InnerPage() {
   const detailsRef = useRef<EmployeeDetailsStepRef | null>(null);
   const supportWorkerRef = useRef<SupportWorkerFormRef | null>(null);
   const preEmploymentMedicalRef = useRef<PreEmploymentMedicalFormRef | null>(null);
+  const ndisWorkforceCapabilityRef = useRef<any | null>(null);
   
   const { showToast } = useToast();
 
@@ -50,6 +53,7 @@ function InnerPage() {
       case 2: return ackRef;
       case 3: return supportWorkerRef;
       case 4: return preEmploymentMedicalRef;
+      case 5: return ndisWorkforceCapabilityRef;
       default: return null;
     }
   };
@@ -280,9 +284,18 @@ function InnerPage() {
               onValidityChange={setCanContinue} 
             />
           )}
+
+          {step === 5 && (
+            <NdisWorkforceCapabilityView excludeLastPage={true}>
+              <div className="p-8 text-center">
+                <h2 className="text-xl font-semibold mb-4">NDIS Workforce Capability Framework</h2>
+                <p className="text-gray-600">Please review the framework above and acknowledge below.</p>
+              </div>
+            </NdisWorkforceCapabilityView>
+          )}
           
           {/* Placeholder for future forms */}
-          {step > 4 && (
+          {step > 5 && (
             <div className="p-8 text-center">
               <h2 className="text-xl font-semibold mb-4">Form {step}</h2>
               <p className="text-gray-600">This form is under development.</p>

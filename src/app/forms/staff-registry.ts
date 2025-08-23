@@ -4,6 +4,7 @@ import EmployeeDetailsView from '@/app/form-components/staff/employee-details/Vi
 import EmployeeWelcomeView from '@/app/form-components/staff/employee-welcome/View';
 import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
 import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment-medical/View';
+import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workforce-capability/View';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -32,6 +33,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'pre_employment_medical',
     name: 'Pre-Employment Medical',
     viewComponent: PreEmploymentMedicalView,
+  },
+  ndis_workforce_capability: {
+    key: 'ndis_workforce_capability',
+    name: 'NDIS Workforce Capability Framework',
+    viewComponent: NdisWorkforceCapabilityView,
   },
 };
 

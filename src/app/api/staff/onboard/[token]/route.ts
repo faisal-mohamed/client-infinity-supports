@@ -24,6 +24,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     const specPreEmploymentMedical = p.staffPreEmploymentMedical
       ? await p.staffPreEmploymentMedical.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
       : null;
+    const specNdisWorkforceCapability = p.staffNdisWorkforceCapability
+      ? await p.staffNdisWorkforceCapability.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
+      : null;
     
     const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
     
@@ -60,6 +63,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         ...specPreEmploymentMedical.data,
         signature: specPreEmploymentMedical.staffSignature || '',
         signatureDate: specPreEmploymentMedical.staffSignedAt?.toISOString().split('T')[0] || ''
+      };
+    }
+    
+    // Handle NDIS Workforce Capability Framework form with signature
+    if (specNdisWorkforceCapability) {
+      dataByForm['ndis_workforce_capability'] = {
+        ...specNdisWorkforceCapability.data,
+        signature: specNdisWorkforceCapability.staffSignature || '',
+        signatureDate: specNdisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
@@ -162,6 +174,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       } : {};
       
       saved = await p.staffPreEmploymentMedical.upsert({
+        where: { staffId: staff.id },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
+      });
+    } else if (formKey === 'ndis_workforce_capability' && p.staffNdisWorkforceCapability) {
+      // Extract signature data if present
+      const { signature, signatureDate, ...formData } = data;
+      const signatureData = signature ? {
+        staffSignature: signature,
+        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+      } : {};
+      
+      saved = await p.staffNdisWorkforceCapability.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
