@@ -6,6 +6,7 @@ import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
 import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment-medical/View';
 import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workforce-capability/View';
 import BullyingHarassmentTrainingView from '@/app/form-components/staff/bullying-harassment-training/View';
+import TFNDeclarationView from '@/app/form-components/staff/tfn-declaration';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -44,6 +45,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'bullying_harassment_training',
     name: 'Bullying and Harassment Training',
     viewComponent: BullyingHarassmentTrainingView,
+  },
+  tfn_declaration: {
+    key: 'tfn_declaration',
+    name: 'TFN Declaration',
+    viewComponent: TFNDeclarationView,
   },
 };
 
