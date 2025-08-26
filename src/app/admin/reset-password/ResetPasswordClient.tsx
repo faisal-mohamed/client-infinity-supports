@@ -214,7 +214,7 @@ export default function ResetPasswordClient() {
                 required
                 maxLength={6}
                 className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-center text-2xl tracking-widest"
-                placeholder="000000"
+                placeholder="xxxxxx"
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code sent to your email</p>
