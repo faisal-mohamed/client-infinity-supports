@@ -14,6 +14,8 @@ model Admin {
   name         String
   email        String             @unique(map: "Admin_email_unique")  // Custom constraint name
   passwordHash String
+  resetToken   String?            // Password reset verification code
+  resetTokenExpiry DateTime?      // When the reset token expires
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)

@@ -121,23 +121,12 @@ export default function LoginPage() {
               className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
               placeholder="••••••••"
             />
-            {/* <div className="text-right mt-2">
+             <div className="text-right mt-2">
               <Link href="/admin/forgot-password" className="text-sm text-indigo-600 hover:underline">
                 Forgot password?
               </Link>
-            </div> */}
+            </div> 
           </div>
-
-          {/* <div className="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-            <label htmlFor="remember-me" className="ml-2 text-sm text-gray-600">
-              Remember me
-            </label>
-          </div> */}
 
           <button
             type="submit"

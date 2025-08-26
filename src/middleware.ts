@@ -9,6 +9,8 @@ export async function middleware(request: NextRequest) {
   const publicPaths = [
     '/admin/login',
     '/admin/register',
+    '/admin/forgot-password',
+    '/admin/reset-password',
   ]
 
   const isPublicSignaturePath = pathname.startsWith('/forms/signature/')
