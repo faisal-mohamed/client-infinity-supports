@@ -95,7 +95,7 @@ export async function GET(
 
     const signatureForm = batch.signatureForms[0];
 
-    const result : any = batch.signatureForms.find(item => {
+    const result : any = batch.signatureForms.find((item: any) => {
   return item.formSubmission?.id === formSubmissionIdInt;
 });
 
@@ -636,7 +636,7 @@ export async function POST(
 
       const allAdmins = await prisma.admin.findMany({ select: { id: true } });
       await Promise.all(
-        allAdmins.map(admin =>
+        allAdmins.map((admin: any) =>
           prisma.formSubmissionNotification.create({
             data: {
               adminId: admin.id,

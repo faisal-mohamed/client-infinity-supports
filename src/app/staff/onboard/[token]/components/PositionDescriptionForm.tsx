@@ -359,8 +359,8 @@ export default forwardRef<PositionDescriptionFormRef, { token: string; onValidit
                    <SignatureCanvas
                      width={sigWidth}
                      height={120}
-                     onSave={(signature) => setData({...data, employeeSignature: signature})}
-                     savedSignature={data.employeeSignature}
+                     onSignatureEnd={(signature) => setData({...data, employeeSignature: signature})}
+                     existingSignature={data.employeeSignature}
                      aria-label="Employee signature canvas"
                    />
                  </div>

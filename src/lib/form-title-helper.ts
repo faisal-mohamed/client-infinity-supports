@@ -31,7 +31,7 @@ export async function getFormsWithTitles(
       }
     });
 
-    const formsWithTitles = formSubmissions.map(submission => ({
+    const formsWithTitles = formSubmissions.map((submission: any) => ({
       id: submission.id,
       formId: submission.formId,
       title: submission.form.title || `Form ${submission.formId}`

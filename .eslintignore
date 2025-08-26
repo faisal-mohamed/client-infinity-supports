@@ -1,0 +1,18 @@
+# Generated Prisma files
+src/generated/
+**/generated/
+
+# Node modules
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+
+# Generated files
+*.generated.*
+*.d.ts
+
+# Prisma generated files
+prisma/generated/

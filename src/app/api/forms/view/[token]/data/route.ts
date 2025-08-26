@@ -56,7 +56,7 @@ export async function GET(
         where: { batchId: assignment.batchId },
         orderBy: { displayOrder: 'asc' },
       });
-      const currentIndex = batchForms.findIndex(form => form.id === assignment.id);
+      const currentIndex = batchForms.findIndex((form: any) => form.id === assignment.id);
       if (currentIndex > 0) {
         previousForm = batchForms[currentIndex - 1];
       }

@@ -167,7 +167,7 @@ export async function getEmailStats(days: number = 7): Promise<{
       successRate: 0
     };
 
-    emailLogs.forEach(log => {
+    emailLogs.forEach((log: any) => {
       switch (log.action) {
         case 'Email Sent Successfully':
           stats.successfulEmails++;

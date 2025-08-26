@@ -66,7 +66,7 @@ export async function POST(
 
     // Get corresponding FormSubmissions for these assignments
     const formSubmissions = await Promise.all(
-      assignments.map(async (assignment) => {
+      assignments.map(async (assignment: any) => {
         const submission = await prisma.formSubmission.findUnique({
           where: {
             clientId_formId_formVersion: {

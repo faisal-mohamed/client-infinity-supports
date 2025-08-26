@@ -35,7 +35,7 @@ export async function DELETE(
     }
 
     // Delete the signature batch and related records in a transaction
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // First delete all SignatureBatchForm records
       await tx.signatureBatchForm.deleteMany({
         where: { batchId: batchId },

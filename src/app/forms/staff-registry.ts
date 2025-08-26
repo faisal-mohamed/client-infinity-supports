@@ -3,6 +3,7 @@ import type React from 'react';
 import EmployeeDetailsView from '@/app/form-components/staff/employee-details/View';
 import EmployeeWelcomeView from '@/app/form-components/staff/employee-welcome/View';
 import SupportWorkerView from '@/app/form-components/staff/support-worker/View';
+import SupportWorkerEdit from '@/app/form-components/staff/support-worker/Edit';
 import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment-medical/View';
 import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workforce-capability/View';
 import BullyingHarassmentTrainingView from '@/app/form-components/staff/bullying-harassment-training/View';
@@ -30,6 +31,7 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     key: 'support_worker',
     name: 'Support Worker',
     viewComponent: SupportWorkerView,
+    editComponent: SupportWorkerEdit,
   },
   pre_employment_medical: {
     key: 'pre_employment_medical',

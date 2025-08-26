@@ -1,4 +1,4 @@
-import ClientsPageClient from './ClientsPageClient_backup';
+import ClientsPageClient from './ClientsPageClient';
 
 export default function ClientsPage() {
   return <ClientsPageClient />;

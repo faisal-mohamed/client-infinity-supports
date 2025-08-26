@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       } : null,
       recentSubmissions: {
         count: recentSubmissions.length,
-        submissions: recentSubmissions.map(sub => ({
+        submissions: recentSubmissions.map((sub: any) => ({
           id: sub.id,
           formTitle: sub.form.title,
           isSubmitted: sub.isSubmitted,

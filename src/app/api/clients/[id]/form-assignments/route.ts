@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Type for the assignment with included form data
+type AssignmentWithForm = {
+  id: number;
+  clientId: number;
+  formId: number;
+  formVersion: number;
+  isCompleted: boolean;
+  displayOrder: number | null;
+  assignedAt: Date;
+  assignedById: number | null;
+  form: {
+    id: number;
+    formKey: string;
+    title: string;
+    version: number;
+    requiresSignature: boolean | null;
+  };
+};
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -74,7 +93,7 @@ export async function GET(
 
     // For each assignment, check if FormSubmission exists
     const assignmentsWithSubmissionStatus = await Promise.all(
-      assignments.map(async (assignment) => {
+      assignments.map(async (assignment: AssignmentWithForm) => {
         const submission = await prisma.formSubmission.findUnique({
           where: {
             clientId_formId_formVersion: {
@@ -113,10 +132,11 @@ export async function GET(
       assignments: assignmentsWithSubmissionStatus,
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching client form assignments:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
-      { error: "Failed to fetch client form assignments", details: error.message },
+      { error: "Failed to fetch client form assignments", details: errorMessage },
       { status: 500 }
     );
   }

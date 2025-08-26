@@ -336,7 +336,7 @@ export async function GET(
     });
 
     const settings: Record<string, any> = {};
-    rawSettings.forEach(setting => {
+    rawSettings.forEach((setting: any) => {
       settings[setting.key] = setting.value;
     });
 

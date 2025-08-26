@@ -456,22 +456,18 @@ async function initGlobalSettingKeysOnly() {
 
   for (const setting of settings) {
     try {
-      const existing = await prisma.appSettings.findUnique({
+      // Use findFirst instead of findUnique when adminId is null
+      const existing = await prisma.appSettings.findFirst({
         where: {
-          key_adminId: {
-            key: setting.key,
-            adminId: null,
-          },
+          key: setting.key,
+          adminId: null,
         },
       });
 
       if (existing) {
         await prisma.appSettings.update({
           where: {
-            key_adminId: {
-              key: setting.key,
-              adminId: null,
-            },
+            id: existing.id, // Use the record ID for update
           },
           data: {
             label: setting.label,

@@ -10,15 +10,14 @@ export async function POST(
     const { id } = await params;
     const clientId = parseInt(id);
     const body = await req.json();
-const { formIds, adminId } = body;
+    const { formIds, adminId } = body;
 
-if (!adminId || isNaN(adminId)) {
-  return NextResponse.json(
-    { error: "Missing or invalid admin ID" },
-    { status: 400 }
-  );
-}
-
+    if (!adminId || isNaN(adminId)) {
+      return NextResponse.json(
+        { error: "Missing or invalid admin ID" },
+        { status: 400 }
+      );
+    }
 
     if (isNaN(clientId)) {
       return NextResponse.json(
@@ -69,7 +68,7 @@ if (!adminId || isNaN(adminId)) {
     const existingAssignments = await prisma.formAssignment.findMany({
       where: {
         clientId: clientId,
-        OR: forms.map(form => ({
+        OR: forms.map((form: { id: number; formKey: string; title: string; version: number }) => ({
           formId: form.id,
           formVersion: form.version,
         })),
@@ -81,8 +80,8 @@ if (!adminId || isNaN(adminId)) {
     });
 
     // Filter out forms that are already assigned
-    const newFormsToAssign = forms.filter(form => 
-      !existingAssignments.some(existing => 
+    const newFormsToAssign = forms.filter((form: { id: number; formKey: string; title: string; version: number }) =>
+      !existingAssignments.some((existing: { formId: number; formVersion: number }) =>
         existing.formId === form.id && existing.formVersion === form.version
       )
     );
@@ -112,7 +111,7 @@ if (!adminId || isNaN(adminId)) {
 
     // Create FormAssignments
     const formAssignments = await Promise.all(
-      newFormsToAssign.map(async (form, index) => {
+      newFormsToAssign.map(async (form: { id: number; formKey: string; title: string; version: number }, index: number) => {
         return prisma.formAssignment.create({
           data: {
             clientId: clientId,
@@ -120,8 +119,7 @@ if (!adminId || isNaN(adminId)) {
             formVersion: form.version,
             batchId: formBatch.id,
             displayOrder: index + 1,
-            assignedById: adminId, // ✅ NEW LINE
-
+            assignedById: adminId,
           },
         });
       })
@@ -135,7 +133,7 @@ if (!adminId || isNaN(adminId)) {
         action: 'Forms Assigned',
         metadata: {
           batchId: formBatch.id,
-          formsAssigned: newFormsToAssign.map(form => ({
+          formsAssigned: newFormsToAssign.map((form: { id: number; formKey: string; title: string; version: number }) => ({
             formId: form.id,
             formKey: form.formKey,
             title: form.title,
@@ -151,7 +149,7 @@ if (!adminId || isNaN(adminId)) {
       message: `Successfully assigned ${newFormsToAssign.length} form(s) to ${client.name}`,
       batchId: formBatch.id,
       batchToken: batchToken,
-      assignedForms: newFormsToAssign.map(form => ({
+      assignedForms: newFormsToAssign.map((form: { id: number; formKey: string; title: string; version: number }) => ({
         id: form.id,
         title: form.title,
         formKey: form.formKey,

@@ -30,9 +30,9 @@ export async function GET(
     });
 
     // Combine assignments with submission status
-    const assignedForms = formAssignments.map((assignment) => {
+    const assignedForms = formAssignments.map((assignment: any) => {
       const submission = formSubmissions.find(
-        (sub) => sub.formId === assignment.formId
+        (sub: any) => sub.formId === assignment.formId
       );
 
       return {
@@ -48,10 +48,11 @@ export async function GET(
     });
 
     return NextResponse.json(assignedForms);
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error fetching client forms:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
-      { error: "Failed to fetch client forms", details: error.message },
+      { error: "Failed to fetch client forms", details: errorMessage },
       { status: 500 }
     );
   }

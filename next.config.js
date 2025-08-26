@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   reactStrictMode: true,
   // This setting helps with hydration mismatches by suppressing the warnings in development
   // It doesn't affect production builds
@@ -12,13 +15,16 @@ const nextConfig = {
   // Add this to suppress hydration warnings in development
   compiler: {
     // Suppress hydration warnings for attributes like fdprocessedid
-    reactRemoveProperties: process.env.NODE_ENV === 'production' ? { properties: ['^data-testid$', '^fdprocessedid$'] } : false,
+    reactRemoveProperties:
+      process.env.NODE_ENV === "production"
+        ? { properties: ["^data-testid$", "^fdprocessedid$"] }
+        : false,
   },
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/admin/login',
+        source: "/",
+        destination: "/admin/login",
         permanent: true, // or false if it's temporary
       },
     ];

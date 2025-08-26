@@ -69,16 +69,16 @@ export async function GET(
 
     // Separate forms by signature requirement
     const formsRequiringSignature = batch.signatureForms.filter(
-      sf => sf.formSubmission.form.requiresSignature === true
+      (sf: any) => sf.formSubmission.form.requiresSignature === true
     );
     
     const formsNotRequiringSignature = batch.signatureForms.filter(
-      sf => sf.formSubmission.form.requiresSignature !== true
+      (sf: any) => sf.formSubmission.form.requiresSignature !== true
     );
 
     // Calculate completion status
     const signedForms = formsRequiringSignature.filter(
-      sf => sf.formSubmission.clientSignature !== null
+      (sf: any) => sf.formSubmission.clientSignature !== null
     );
 
     const completionStatus = {

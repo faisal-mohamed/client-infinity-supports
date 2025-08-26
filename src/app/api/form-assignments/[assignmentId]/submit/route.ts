@@ -192,7 +192,7 @@ export async function POST(
         });
 
         // Create notifications for all admins
-        const notificationPromises = allAdmins.map((admin) =>
+        const notificationPromises = allAdmins.map((admin: any) =>
           prisma.formSubmissionNotification.create({
             data: {
               adminId: admin.id,
@@ -269,7 +269,7 @@ export async function POST(
           // Check if ALL forms in this batch are completed
           const allAssignments = batch.assignments;
           const completedAssignments = allAssignments.filter(
-            (assignment) => assignment.currentStatus === "completed"
+            (assignment: any) => assignment.currentStatus === "completed"
           );
 
           console.log(
@@ -290,8 +290,8 @@ export async function POST(
               await prisma.formSubmission.findMany({
                 where: {
                   clientId: batch.clientId,
-                  formId: { in: allAssignments.map((a) => a.formId) },
-                  formVersion: { in: allAssignments.map((a) => a.formVersion) },
+                  formId: { in: allAssignments.map((a: any) => a.formId) },
+                  formVersion: { in: allAssignments.map((a: any) => a.formVersion) },
                   isSubmitted: true,
                 },
                 include: {
@@ -306,7 +306,7 @@ export async function POST(
 
             // Prepare completed forms data for email ----------------------------------------------
             const completedFormsData = completedFormSubmissions.map(
-              (submission) => ({
+              (submission: any) => ({
                 id: submission.id,
                 formId: submission.formId,
                 title: submission.form.title,
