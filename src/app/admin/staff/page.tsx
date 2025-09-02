@@ -102,7 +102,13 @@ export default function StaffListPage() {
                           setModalName(`${s.firstName} ${s.surname}`);
                           setModalId(s.id);
                           setModalOpen(true);
-                        }} className="px-3 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600">Generate Link</button>
+                        }} className="px-3 py-2 rounded-lg bg-rose-500 text-white hover:bg-rose-600 text-sm">Generate Link</button>
+                        <Link 
+                          href={`/admin/staff/${s.id}`}
+                          className="px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 text-sm ml-2"
+                        >
+                          View More
+                        </Link>
                       </td>
                     </tr>
                   ))}

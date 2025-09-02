@@ -42,42 +42,42 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
           <div className="border border-gray-300 rounded-lg p-6 w-full">
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="First Name" value={data?.firstName} />
-                <Field label="Last Name" value={data?.lastName} />
+                <Field label="First Name" value={data?.data?.firstName} />
+                <Field label="Last Name" value={data?.data?.lastName} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Start Date" value={data?.startDate} />
-                <Field label="Position Title" value={data?.positionTitle} />
+                <Field label="Start Date" value={data?.data?.startDate} />
+                <Field label="Position Title" value={data?.data?.positionTitle} />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Gender" value={data?.gender} />
-                <Field label="Date of Birth" value={data?.dateOfBirth} />
+                <Field label="Gender" value={data?.data?.gender} />
+                <Field label="Date of Birth" value={data?.data?.dateOfBirth} />
               </div>
-              <Field label="Address" value={data?.address} />
+              <Field label="Address" value={data?.data?.address} />
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Suburb" value={data?.suburb} />
-                <Field label="State" value={data?.state} />
-                <Field label="Postcode" value={data?.postcode} />
+                <Field label="Suburb" value={data?.data?.suburb} />
+                <Field label="State" value={data?.data?.state} />
+                <Field label="Postcode" value={data?.data?.postcode} />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Home Phone" value={data?.homePhone} />
-                <Field label="Mobile" value={data?.mobile} />
-                <Field label="Work" value={data?.workPhone} />
+                <Field label="Home Phone" value={data?.data?.homePhone} />
+                <Field label="Mobile" value={data?.data?.mobile} />
+                <Field label="Work" value={data?.data?.workPhone} />
               </div>
-              <Field label="Email Address" value={data?.email} />
+              <Field label="Email Address" value={data?.data?.email} />
 
-              <Field label="Employee Tax File" value={data?.employeeTaxFile} />
+              <Field label="Employee Tax File" value={data?.data?.employeeTaxFile} />
 
               <div className="border border-black rounded-lg p-4">
                 <div className="font-semibold text-gray-800 mb-3">Bank Details</div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="Bank Name" value={data?.bankName} />
-                  <Field label="Branch" value={data?.bankBranch} />
+                  <Field label="Bank Name" value={data?.data?.bankName} />
+                  <Field label="Branch" value={data?.data?.bankBranch} />
                 </div>
-                <Field label="Account Name" value={data?.accountName} />
+                <Field label="Account Name" value={data?.data?.accountName} />
                 <div className="grid grid-cols-2 gap-4">
-                  <Field label="BSB" value={data?.bsb} />
-                  <Field label="Account Number" value={data?.accountNumber} />
+                  <Field label="BSB" value={data?.data?.bsb} />
+                  <Field label="Account Number" value={data?.data?.accountNumber} />
                 </div>
               </div>
 
@@ -86,11 +86,11 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
                   <span className="text-xs font-medium text-gray-700 mr-4">Are you an Australian citizen?</span>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={data?.isAustralianCitizen === true} readOnly className="w-4 h-4 border-gray-400" />
+                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === true} readOnly className="w-4 h-4 border-gray-400" />
                       <span className="text-xs">Yes</span>
                     </label>
                     <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={data?.isAustralianCitizen === false} readOnly className="w-4 h-4 border-gray-400" />
+                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === false} readOnly className="w-4 h-4 border-gray-400" />
                       <span className="text-xs">No</span>
                     </label>
                   </div>
@@ -102,11 +102,11 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
                     <span className="text-xs font-medium text-gray-700 mr-4">- Are you a permanent resident?</span>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.isPermanentResident === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.isPermanentResident === true} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">Yes</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.isPermanentResident === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.isPermanentResident === false} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">No</span>
                       </label>
                     </div>
@@ -116,46 +116,46 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
                     <span className="text-xs font-medium text-gray-700">- Do you have a Working Visa?</span>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.hasWorkingVisa === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === true} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">Yes</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.hasWorkingVisa === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === false} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">No</span>
                       </label>
                     </div>
                     <span className="text-xs font-medium text-gray-700 ml-4">Expiry date:</span>
                     <div className="flex items-center gap-1">
                       <div className="w-8 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
-                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[2] : ''}
+                        {data?.data?.visaExpiryDate ? data.data.visaExpiryDate.split('-')[2] : ''}
                       </div>
                       <span className="text-xs">/</span>
                       <div className="w-8 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
-                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[1] : ''}
+                        {data?.data?.visaExpiryDate ? data.data.visaExpiryDate.split('-')[1] : ''}
                       </div>
                       <span className="text-xs">/</span>
                       <div className="w-12 h-6 border-b-2 border-gray-400 flex items-center justify-center text-xs">
-                        {data?.visaExpiryDate ? data.visaExpiryDate.split('-')[0] : ''}
+                        {data?.data?.visaExpiryDate ? data.data.visaExpiryDate.split('-')[0] : ''}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <Field label="Any restrictions?" value={data?.workRestrictions} />
+              <Field label="Any restrictions?" value={data?.data?.workRestrictions} />
 
-              <Field label="Next of Kin" value={data?.nokName} />
-              <Field label="Relationship" value={data?.nokRelationship} />
-              <Field label="Address" value={data?.nokAddress} />
+              <Field label="Next of Kin" value={data?.data?.nokName} />
+              <Field label="Relationship" value={data?.data?.nokRelationship} />
+              <Field label="Address" value={data?.data?.nokAddress} />
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Suburb" value={data?.nokSuburb} />
-                <Field label="State" value={data?.nokState} />
-                <Field label="Postcode" value={data?.nokPostcode} />
+                <Field label="Suburb" value={data?.data?.nokSuburb} />
+                <Field label="State" value={data?.data?.nokState} />
+                <Field label="Postcode" value={data?.data?.nokPostcode} />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <Field label="Home Phone" value={data?.nokHomePhone} />
-                <Field label="Mobile" value={data?.nokMobile} />
-                <Field label="Work" value={data?.nokWorkPhone} />
+                <Field label="Home Phone" value={data?.data?.nokHomePhone} />
+                <Field label="Mobile" value={data?.data?.nokMobile} />
+                <Field label="Work" value={data?.data?.nokWorkPhone} />
               </div>
             </div>
           </div>
@@ -168,8 +168,8 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
           <div className="border border-gray-300 rounded-lg p-6 w-full">
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <Field label="Employee Signature" value={data?.employeeSignature} />
-                <Field label="Date" value={data?.employeeSignatureDate} />
+                <SignatureField label="Employee Signature" value={data?.staffSignature} />
+                <Field label="Date" value={formatSignatureDate(data?.staffSignedAt)} />
               </div>
 
               <div className="border border-black rounded-lg p-4">
@@ -180,22 +180,22 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
                     <div className="text-xs font-medium text-gray-700 mb-2">Status:</div>
                     <div className="space-y-2">
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.employmentStatus === 'FullTime'} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.employmentStatus === 'FullTime'} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">Full time</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.employmentStatus === 'PartTime'} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.employmentStatus === 'PartTime'} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">Part time</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.employmentStatus === 'Casual'} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.employmentStatus === 'Casual'} readOnly className="w-4 h-4 border-gray-400" />
                         <span className="text-xs">Casual</span>
                       </label>
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <Field label="Pay rate" value={data?.payRate} />
-                    <Field label="SCHADS Level" value={data?.schadsScore} />
+                    <Field label="Pay rate" value={data?.data?.payRate} />
+                    <Field label="SCHADS Level" value={data?.data?.schadsScore} />
                   </div>
                 </div>
               </div>
@@ -217,7 +217,36 @@ function Field({ label, value }: { label: string; value?: React.ReactNode }) {
     </div>
   );
 }
+function SignatureField({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="flex items-center">
+      <span className="text-xs font-medium text-gray-700 mr-2">{label}:</span>
+      <div className="flex-1 border-b-2 border-gray-400 h-16 ml-2 flex items-center justify-center">
+        {value ? (
+          <img 
+            src={value} 
+            alt="Signature" 
+            className="max-h-12 max-w-full object-contain"
+          />
+        ) : 'no signature'}
+      </div>
+    </div>
+  );
+}
 
+function formatSignatureDate(dateString?: string): string {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-AU', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric'
+    });
+  } catch {
+    return dateString;
+  }
+}
 function Section({ title }: { title: string }) {
   return (
     <div className="mt-4 mb-2 font-semibold text-gray-800 border-b border-gray-400 pb-1">{title}</div>
