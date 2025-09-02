@@ -253,9 +253,11 @@
 
 // initSettings();
 
-import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
+
 
 const settings = [
   // Email Settings
