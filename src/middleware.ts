@@ -19,9 +19,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 🔒 Check for protected routes
-  const isProtected =
-    pathname.startsWith('/admin') || pathname.startsWith('/forms')
+  // 🔒 Check for protected routes - fix double protection issue
+  const isProtected = pathname.startsWith('/admin') || 
+    (pathname.startsWith('/forms') && !pathname.includes('/admin/'))
 
   console.log('[Middleware] isProtected:', isProtected)
 

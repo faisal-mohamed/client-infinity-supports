@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 
-export default function StaffEmploymentDetailsView() {
+export default function StaffEmploymentWelcomeView() {
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ export default function StaffEmploymentDetailsView() {
   useEffect(() => {
     const loadFormData = async () => {
       try {
-        const res = await fetch(`/api/staff/${id}/forms/employment-details`);
+        const res = await fetch(`/api/staff/${id}/forms/employment-welcome`);
         const result = await res.json();
         setData(result);
       } catch (error) {
@@ -29,14 +29,21 @@ export default function StaffEmploymentDetailsView() {
   if (loading) return <div className="p-8">Loading...</div>;
   if (!data) return <div className="p-8">Form data not found</div>;
 
-  const EmployeeDetailsView = getStaffFormComponent('employee_details', 'view');
+  const EmployeeWelcomeView = getStaffFormComponent('employee_welcome', 'view');
 
   return (
     <div className="bg-white min-h-screen">
+      <style jsx>{`
+        .view-component-wrapper .text-gray-700 { color: #374151 !important; }
+        .view-component-wrapper .text-gray-600 { color: #4b5563 !important; }
+        .view-component-wrapper .text-gray-800 { color: #1f2937 !important; }
+        .view-component-wrapper .text-xs { font-size: 0.875rem !important; }
+        .view-component-wrapper { zoom: 1.1; }
+      `}</style>
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold">Employment Details</h1>
+            <h1 className="text-2xl font-semibold">Employee Welcome</h1>
             <p className="text-gray-600 mt-1">{data.staff?.firstName} {data.staff?.surname}</p>
           </div>
           <Link href={`/admin/staff/${id}`} className="text-sm text-rose-600 hover:underline">Back to Forms</Link>
@@ -60,7 +67,7 @@ export default function StaffEmploymentDetailsView() {
 
           {/* Render the actual form component with data */}
           <div className="view-component-wrapper">
-            <EmployeeDetailsView data={data.data} />
+            <EmployeeWelcomeView data={data.data} />
           </div>
 
           {/* Actions */}
@@ -69,7 +76,7 @@ export default function StaffEmploymentDetailsView() {
               Generate PDF
             </button>
             <Link 
-              href={`/admin/staff/${id}/forms/employment-details/edit`}
+              href={`/admin/staff/${id}/forms/employment-welcome/edit`}
               className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
             >
               Edit Form
