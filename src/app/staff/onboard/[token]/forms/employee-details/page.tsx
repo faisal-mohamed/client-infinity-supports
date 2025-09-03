@@ -92,11 +92,11 @@ export default function EmployeeDetailsFormPage() {
         </div>
 
         {/* View Component */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        {/* <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="view-component-wrapper">
             <EmployeeDetailsView data={formData} />
           </div>
-        </div>
+        </div> */}
 
         {/* Edit/Signature Component */}
         <div className="bg-white rounded-lg shadow-lg p-6">

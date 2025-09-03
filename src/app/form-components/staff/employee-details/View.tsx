@@ -34,6 +34,11 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
     })();
   }, []);
 
+
+  useEffect(() => {
+    console.log("data: ", data);
+  }, [data])
+
   return (
     <div className="bg-gray-100 py-8">
       {/* Page 1 */}

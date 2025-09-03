@@ -60,7 +60,7 @@ export default function StaffEmploymentDetailsView() {
 
           {/* Render the actual form component with data */}
           <div className="view-component-wrapper">
-            <EmployeeDetailsView data={data.data} />
+            <EmployeeDetailsView data={data} />
           </div>
 
           {/* Actions */}

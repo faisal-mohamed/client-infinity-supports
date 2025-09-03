@@ -32,8 +32,14 @@ export default function EmployeeWelcomeFormPage() {
       }
     };
 
+
     if (token) loadData();
   }, [token]);
+
+
+  useEffect(() => {
+    console.log("formData: ", formData);
+  }, [formData])
 
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;

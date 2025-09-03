@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
+import EmployeeWelcomeAckView from './lastPageOnlyView';
 
-export default function EmployeeWelcomeView({ excludeLastPage = false, children }: { excludeLastPage?: boolean; children?: React.ReactNode }) {
+export default function EmployeeWelcomeView({ excludeLastPage = false, children, data }: { excludeLastPage?: boolean; children?: React.ReactNode; data: any }) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -94,6 +95,7 @@ export default function EmployeeWelcomeView({ excludeLastPage = false, children 
       <div className="bg-white w-full max-w-[900px] mx-auto rounded-xl shadow border p-4">
         <div ref={pdfContainerRef} className="w-full" />
         {children}
+        <EmployeeWelcomeAckView data={data} />
         {error && (
           <div className="text-sm text-red-600 mt-2">{error}</div>
         )}

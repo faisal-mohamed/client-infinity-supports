@@ -67,7 +67,7 @@ export default function StaffEmploymentWelcomeView() {
 
           {/* Render the actual form component with data */}
           <div className="view-component-wrapper">
-            <EmployeeWelcomeView data={data.data} />
+            <EmployeeWelcomeView data={data} />
           </div>
 
           {/* Actions */}

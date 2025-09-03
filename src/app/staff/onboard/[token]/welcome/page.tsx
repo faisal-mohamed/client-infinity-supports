@@ -18,7 +18,7 @@ export default function EmployeeWelcomeWelcomePage() {
       <div className="max-w-5xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">Employee Welcome</h1>
         <p className="text-gray-600 mb-6">Please read pages 1–37 and complete the form in the next step.</p>
-        {loaded && <EmployeeWelcomeView />}
+        {loaded && <EmployeeWelcomeView data={{}} />}
       </div>
     </div>
   );
