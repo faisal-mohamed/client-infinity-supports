@@ -26,6 +26,26 @@ export default function StaffEmploymentDetailsView() {
     if (id) loadFormData();
   }, [id]);
 
+  const handleDownloadPDF = async () => {
+    try {
+      const response = await fetch(`/api/staff/${id}/forms/employee-details/pdf`);
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.staff?.firstName}_${data.staff?.surname}_employment_details.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    }
+  };
+
   if (loading) return <div className="p-8">Loading...</div>;
   if (!data) return <div className="p-8">Form data not found</div>;
 
@@ -65,8 +85,16 @@ export default function StaffEmploymentDetailsView() {
 
           {/* Actions */}
           <div className="flex gap-4 pt-6 mt-6 border-t">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-              Generate PDF
+            <button 
+              onClick={handleDownloadPDF}
+              disabled={!data.staffSignature}
+              className={`px-4 py-2 rounded-lg ${
+                data.staffSignature 
+                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              {data.staffSignature ? 'Download PDF' : 'PDF Available After Signing'}
             </button>
             <Link 
               href={`/admin/staff/${id}/forms/employment-details/edit`}
