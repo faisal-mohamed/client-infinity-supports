@@ -664,7 +664,48 @@ const [selectedOption, setSelectedOption] = useState("");
 
   alert("Form cleared ✅");
 };
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  const handleDownloadPDF = async () => {
+    setIsGeneratingPDF(true);
+    
+    try {
+      const formData = {
+        tfn, surname, firstName, otherName, anotherName, town, state, postcode,
+        check1, check2, check3, check4, check5, check6, check7, check8,
+        subscribe, dob, address, abnno, branchNo, haveAbn, legalName,
+        payerSignatureAt, payeeSignatureAt, austrailanResident, claimTaxFree,
+        seniorPensioner, overseasForces, tsldebt, financialDebt,
+        bussinessAddress, bussinessTown, bussinessState, bussinessPostcode,
+        contactPerson, bussinessPhoneNo, selectedOption,
+        payerSignature, payeeSignature
+      };
+
+      const response = await fetch('/api/generate-pdf/tax-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) throw new Error('PDF generation failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tax-form-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+    } catch (error) {
+      console.error('PDF download error:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   return (
     <div className="relative w-[800px] h-[1100px] mx-auto border shadow">
@@ -718,8 +759,8 @@ const [selectedOption, setSelectedOption] = useState("");
 
 
       <OverlayCharInput top={570} left={30} length={19} totalWidth={370} boxHeight={25} value={town} onChange={setTown} />
-      <OverlayCharInput top={605} left={30} length={3} totalWidth={70} boxHeight={25} value={state} onChange={setTown} />
-      <OverlayCharInput top={605} left={125} length={4} totalWidth={77} boxHeight={25} value={postcode} onChange={setTown} />
+      <OverlayCharInput top={605} left={30} length={3} totalWidth={70} boxHeight={25} value={state} onChange={setState} />
+      <OverlayCharInput top={605} left={125} length={4} totalWidth={77} boxHeight={25} value={postcode} onChange={setPostcode} />
 
 
             <OverlayCharInput top={708} left={320} length={3} totalWidth={70} boxHeight={25} value={branchNo} onChange={setBranchNo} />
@@ -990,6 +1031,12 @@ const [selectedOption, setSelectedOption] = useState("");
     Save
   </button>
   <button
+    onClick={handleDownloadPDF}
+    disabled={isGeneratingPDF}
+    className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:bg-gray-400"
+  >
+    {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+  </button>  <button
     onClick={handleClear}
     className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
   >
