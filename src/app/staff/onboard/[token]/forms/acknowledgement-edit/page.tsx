@@ -2,11 +2,11 @@
 import React, { useRef, useState } from "react";
 import SignatureCanvas, { SignatureCanvasRef } from "@/components/ui/SignatureCanvas";
 
-export default function NDISCodeOfConductEditPage() {
+export default function AcknowledgementEditPage() {
   const [formData, setFormData] = useState({
-    signature: "", // will store base64 PNG
+    staffName: "",
+    signature: "", // Will store base64 PNG
     date: "",
-    position: "",
   });
 
   const sigPadRef = useRef<SignatureCanvasRef | null>(null);
@@ -42,15 +42,29 @@ export default function NDISCodeOfConductEditPage() {
         {/* Input Form */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            NDIS Code of Conduct Form
+            Documentation Acknowledgement Form
           </h1>
           <p className="text-gray-600 mb-8">
             Please fill out the required information below
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Staff Name */}
+            <div className="bg-white p-4 rounded-lg border shadow-sm">
+              <label className="block mb-2 text-gray-700 font-medium">
+                Staff Name
+              </label>
+              <input
+                type="text"
+                value={formData.staffName}
+                onChange={(e) => handleInputChange("staffName", e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter staff name"
+              />
+            </div>
+
             {/* Signature */}
-            <div className="bg-white p-4 rounded-lg border shadow-sm md:col-span-2">
+            <div className="bg-white p-4 rounded-lg border shadow-sm col-span-1 md:col-span-2">
               <label className="block mb-2 text-gray-700 font-medium">
                 Signature
               </label>
@@ -68,28 +82,12 @@ export default function NDISCodeOfConductEditPage() {
 
             {/* Date */}
             <div className="bg-white p-4 rounded-lg border shadow-sm">
-              <label className="block mb-2 text-gray-700 font-medium">
-                Date
-              </label>
+              <label className="block mb-2 text-gray-700 font-medium">Date</label>
               <input
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange("date", e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Position */}
-            <div className="bg-white p-4 rounded-lg border shadow-sm md:col-span-3">
-              <label className="block mb-2 text-gray-700 font-medium">
-                Position
-              </label>
-              <input
-                type="text"
-                value={formData.position}
-                onChange={(e) => handleInputChange("position", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your position"
               />
             </div>
           </div>
@@ -104,7 +102,7 @@ export default function NDISCodeOfConductEditPage() {
           </div>
         </div>
 
-        {/* Preview Section */}
+        {/* Preview Section (optional) */}
         {formData.signature && (
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Signature Preview</h2>

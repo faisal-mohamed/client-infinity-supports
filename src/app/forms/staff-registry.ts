@@ -13,7 +13,7 @@ import NDISCodeOfConduct from '../form-components/staff/code_of_conduct/page';
 import GovtTax from '@/app/form-components/staff/tax/page'
 
 import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
-import DocumentationAcknowledgement from '../form-components/acknowledgement/page';
+import DocumentationAcknowledgement from '../form-components/staff/acknowledgement/page';
 
 export interface StaffFormRegistryItem {
   key: string;
