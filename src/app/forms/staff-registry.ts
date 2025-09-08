@@ -9,6 +9,12 @@ import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workfo
 import BullyingHarassmentTrainingView from '@/app/form-components/staff/bullying-harassment-training/View';
 import TFNDeclarationView from '@/app/form-components/staff/tfn-declaration';
 
+import NDISCodeOfConduct from '../form-components/staff/code_of_conduct/page';
+import GovtTax from '@/app/form-components/staff/tax/page'
+
+import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
+import DocumentationAcknowledgement from '../form-components/acknowledgement/page';
+
 export interface StaffFormRegistryItem {
   key: string;
   name: string;
@@ -53,6 +59,26 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     name: 'TFN Declaration',
     viewComponent: TFNDeclarationView,
   },
+  ndis_code_of_conduct : {
+    key: 'ndis_code_of_conduct',
+    name: 'NDIS Code of Conduct',
+    viewComponent: NDISCodeOfConduct,
+  },
+  govt_tax: {
+    key: 'govt_tax',
+    name: 'Government Tax',
+    viewComponent: GovtTax,
+  },
+  conflict_of_interest: {
+    key: 'conflict_of_interest',
+    name: 'Conflict of Interest Disclosure Form',
+    viewComponent: ConflictFormMain,
+  },
+  documentation_acknowledgement: {
+    key: 'documentation_acknowledgement',
+    name: 'Documentation Acknowledgement',
+    viewComponent: DocumentationAcknowledgement,
+  }
 };
 
 export const getAllStaffForms = (): StaffFormRegistryItem[] => Object.values(staffFormRegistry);

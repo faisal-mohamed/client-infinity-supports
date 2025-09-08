@@ -18,7 +18,11 @@ const FORM_SEQUENCE = [
   { key: 'support_worker', name: 'Support Worker', route: 'support-worker' },
   { key: 'pre_employment_medical', name: 'Pre-Employment Medical', route: 'pre-employment-medical' },
   { key: 'ndis_workforce_capability', name: 'NDIS Workforce Capability', route: 'ndis-workforce' },
-  { key: 'bullying_harassment_training', name: 'Bullying & Harassment Training', route: 'bullying-harassment' }
+  { key: 'bullying_harassment_training', name: 'Bullying & Harassment Training', route: 'bullying-harassment' },
+  { key: 'tfn_declaration', name: 'TFN Declaration', route: 'tfn-declaration' },
+  { key: 'ndis_code_of_conduct', name: 'NDIS Code of Conduct', route: 'ndis-code-of-conduct' },
+  { key: 'govt_tax', name: 'Government Tax', route: 'govt-tax' },
+  { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }
 ];
 
 export default function StaffOnboardingPage() {
