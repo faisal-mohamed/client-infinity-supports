@@ -255,8 +255,7 @@
 
 
 
-import { PrismaClient } from '@prisma/client';
-
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const settings = [
@@ -441,7 +440,7 @@ async function initGlobalSettingKeysOnly() {
         where: {
           key_adminId: {
             key: setting.key,
-            adminId: null,
+            adminId: 1,
           },
         },
       });

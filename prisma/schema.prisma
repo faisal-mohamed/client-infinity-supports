@@ -30,25 +30,25 @@ model Admin {
 model Client {
   id            Int               @id @default(autoincrement())
   name          String?
-  email         String?           @unique(map: "Client_email_unique") // Custom constraint name
+  email         String?           // <- removed @unique
   phone         String?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
-  forms         FormSubmission[]  // Link to submitted forms
-  progress      FormProgress[]    // Form progress tracking
-  commonFields  CommonField[]     // Client's predefined common fields
-  insights      Insight[]         // Insights related to the client
-  createdBy     Admin?            @relation(fields: [createdById], references: [id]) // Admin who created the client
+  forms         FormSubmission[]  
+  progress      FormProgress[]    
+  commonFields  CommonField[]     
+  insights      Insight[]         
+  createdBy     Admin?            @relation(fields: [createdById], references: [id])
   createdById   Int?
-  formBatches   FormBatch[]       // Batches of forms assigned to this client
+  formBatches   FormBatch[]       
 
-  // Reverse relation for activities related to this client
-  logs          FormActivityLog[]  // Client-related activity logs
-  notifications FormSubmissionNotification[] // Notifications related to this client
+  logs          FormActivityLog[]  
+  notifications FormSubmissionNotification[] 
 
-  @@unique([email])  // Ensuring unique email (with custom name)
+  // Removed @@unique([email]) as well
   FormAssignment FormAssignment[]
 }
+
 
 model MasterForm {
   id        Int      @id @default(autoincrement())
