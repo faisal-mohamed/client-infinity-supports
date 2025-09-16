@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    // Only run ESLint on these directories during production builds
+    dirs: ["src/app", "src/components", "src/lib", "src/hooks", "src/types"],
+  },
   // This setting helps with hydration mismatches by suppressing the warnings in development
   // It doesn't affect production builds
   onDemandEntries: {
@@ -12,13 +16,16 @@ const nextConfig = {
   // Add this to suppress hydration warnings in development
   compiler: {
     // Suppress hydration warnings for attributes like fdprocessedid
-    reactRemoveProperties: process.env.NODE_ENV === 'production' ? { properties: ['^data-testid$', '^fdprocessedid$'] } : false,
+    reactRemoveProperties:
+      process.env.NODE_ENV === "production"
+        ? { properties: ["^data-testid$", "^fdprocessedid$"] }
+        : false,
   },
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/admin/login',
+        source: "/",
+        destination: "/admin/login",
         permanent: true, // or false if it's temporary
       },
     ];
