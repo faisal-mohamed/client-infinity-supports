@@ -41,6 +41,20 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
   {
+    ignores: [
+      "src/generated/**/*",
+      "**/generated/**/*",
+      "node_modules/**/*",
+      ".next/**/*",
+      "out/**/*",
+      "build/**/*",
+      "dist/**/*",
+      "**/*.d.ts",
+      "**/prisma/runtime/**/*",
+    ],
+  },
+
+  {
     rules: {
       // Disable all problematic rules
       "@typescript-eslint/no-unused-vars": "off",

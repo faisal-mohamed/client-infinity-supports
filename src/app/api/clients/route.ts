@@ -13,17 +13,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🔍 Step 1: Check if email already exists
-    const existingClient = await prisma.client.findUnique({
-      where: { email },
-    });
+    // // 🔍 Step 1: Check if email already exists
+    // const existingClient = await prisma.client.findUnique({
+    //   where: { email },
+    // });
 
-    if (existingClient) {
-      return NextResponse.json(
-        { error: "Client already exists with this email." },
-        { status: 409 } // 409 Conflict
-      );
-    }
+    // if (existingClient) {
+    //   return NextResponse.json(
+    //     { error: "Client already exists with this email." },
+    //     { status: 409 } // 409 Conflict
+    //   );
+    // }
 
     // 🛠 Step 2: Proceed with creation inside a transaction
     const clientName = name?.trim();

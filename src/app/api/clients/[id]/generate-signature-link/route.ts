@@ -105,7 +105,7 @@ export async function POST(
     // Generate unique token for signature batch
     const batchToken = randomBytes(32).toString('hex');
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 1); // Expires in 1 day (default)
+    expiresAt.setDate(expiresAt.getDate() + 3); // Expires in 3 days
 
     // Create FormBatch for signature collection
     const signatureBatch = await prisma.formBatch.create({

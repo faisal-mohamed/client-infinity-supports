@@ -10,14 +10,16 @@ datasource db {
 }
 
 model Admin {
-  id            Int                          @id @default(autoincrement())
-  name          String
-  email         String                       @unique(map: "Admin_email_unique") // Custom constraint name
-  passwordHash  String
-  createdAt     DateTime                     @default(now())
-  updatedAt     DateTime                     @updatedAt
-  logs          FormActivityLog[] // Logs of all admin activities (creating clients, managing forms, etc.)
-  clients       Client[] // Admin's clients (who they created)
+  id           Int                @id @default(autoincrement())
+  name         String
+  email        String             @unique(map: "Admin_email_unique")  // Custom constraint name
+  passwordHash String
+  resetToken   String?            // Password reset verification code
+  resetTokenExpiry DateTime?      // When the reset token expires
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
+  clients      Client[]           // Admin's clients (who they created)
   notifications FormSubmissionNotification[] // Notifications for this admin
   appSettings   AppSettings[] // Admin-specific app settings (for email_settings)
 
@@ -25,23 +27,24 @@ model Admin {
 }
 
 model Client {
-  id           Int              @id @default(autoincrement())
-  name         String?
-  email        String?          @unique(map: "Client_email_unique") // Custom constraint name
-  phone        String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  forms        FormSubmission[] // Link to submitted forms
-  progress     FormProgress[] // Form progress tracking
-  commonFields CommonField[] // Client's predefined common fields
-  insights     Insight[] // Insights related to the client
-  createdBy    Admin?           @relation(fields: [createdById], references: [id]) // Admin who created the client
-  createdById  Int?
-  formBatches  FormBatch[] // Batches of forms assigned to this client
+  id            Int               @id @default(autoincrement())
+  name          String?
+  email         String?           // <- removed @unique
+  phone         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  forms         FormSubmission[]  
+  progress      FormProgress[]    
+  commonFields  CommonField[]     
+  insights      Insight[]         
+  createdBy     Admin?            @relation(fields: [createdById], references: [id])
+  createdById   Int?
+  formBatches   FormBatch[]       
 
-  // Reverse relation for activities related to this client
-  logs           FormActivityLog[] // Client-related activity logs
-  notifications  FormSubmissionNotification[] // Notifications related to this client
+  logs          FormActivityLog[]  
+  notifications FormSubmissionNotification[] 
+
+  // Removed @@unique([email]) as well
   FormAssignment FormAssignment[]
 
   @@unique([email]) // Ensuring unique email (with custom name)
@@ -168,6 +171,7 @@ model StaffBullyingHarassmentTraining {
 
   staff Staff @relation(fields: [staffId], references: [id])
 }
+
 
 model MasterForm {
   id                Int      @id @default(autoincrement())

@@ -8,6 +8,10 @@ const nextConfig = {
     ignoreBuildErrors: true, // Ignore TypeScript errors during build
   },
   reactStrictMode: true,
+  eslint: {
+    // Only run ESLint on these directories during production builds
+    dirs: ["src/app", "src/components", "src/lib", "src/hooks", "src/types"],
+  },
   // This setting helps with hydration mismatches by suppressing the warnings in development
   // It doesn't affect production builds
   onDemandEntries: {

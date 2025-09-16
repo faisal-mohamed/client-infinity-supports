@@ -26,7 +26,7 @@ import { authOptions } from "@/lib/authOptions";
 export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
   try {
   
-
+    console.log('Fetching email configuration from database...');
     const emailSettings = await getMultipleSettingsFromDB([
       'smtp_host',
       'smtp_port', 
@@ -35,6 +35,8 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
       'admin_email',
       'app_name'
     ], adminId);
+
+    
 
     const {
       smtp_host: host,

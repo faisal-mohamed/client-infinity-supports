@@ -117,25 +117,61 @@ export async function getSettingFromDB(key: string, defaultValue?: string): Prom
 /**
  * Get multiple settings at once (server-side)
  */
-export async function getMultipleSettingsFromDB(keys: string[], adminId: number | null): Promise<Record<string, string | null>> {
+// export async function getMultipleSettingsFromDB(keys: string[], adminId: number | null): Promise<Record<string, string | null>> {
+//   try {
+//     const settings = await fetchSettingsFromDB(adminId);
+//     const result: Record<string, string | null> = {};
+
+//     console.log("Settings fetched for multiple keys------------------:", settings);
+
+//     for (const key of keys) {
+//       const setting = settings.find(s => s.key === key);
+//       result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
+//     }
+
+
+//     return result;
+//   } catch (error) {
+//     console.error('Error getting multiple settings:', error);
+//     const result: Record<string, string | null> = {};
+//     keys.forEach(key => result[key] = null);
+//     return result;
+//   }
+// }
+
+export async function getMultipleSettingsFromDB(
+  keys: string[],
+  adminId: number | null
+): Promise<Record<string, string | null>> {
   try {
-    const settings = await fetchSettingsFromDB(adminId);
+    const settings : any  = await fetchSettingsFromDB(adminId);
     const result: Record<string, string | null> = {};
 
+ 
+
     for (const key of keys) {
-      const setting = settings.find(s => s.key === key);
+      // ✅ Prefer admin-specific, fallback to global
+      const setting =
+        settings.find((s: any) => s.key === key && s.adminId === Number(adminId)) ||
+        settings.find((s: any) => s.key === key && s.adminId === null);
+
+      console.log(`Setting found for key "${key}":`, setting);
+
       result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
     }
 
+    
 
     return result;
   } catch (error) {
-    console.error('Error getting multiple settings:', error);
+    console.error("Error getting multiple settings:", error);
     const result: Record<string, string | null> = {};
-    keys.forEach(key => result[key] = null);
+    keys.forEach(key => (result[key] = null));
     return result;
   }
 }
+
+
 
 
 /**

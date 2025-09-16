@@ -253,9 +253,9 @@
 
 // initSettings();
 
+
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-
 const prisma = new PrismaClient();
 
 
@@ -461,8 +461,12 @@ async function initGlobalSettingKeysOnly() {
       // Use findFirst instead of findUnique when adminId is null
       const existing = await prisma.appSettings.findFirst({
         where: {
-          key: setting.key,
-          adminId: null,
+
+          key_adminId: {
+            key: setting.key,
+            adminId: 1,
+          },
+
         },
       });
 

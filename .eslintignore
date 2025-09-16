@@ -31,3 +31,4 @@ prisma/generated/
 # Build artifacts
 .vercel/
 .turbo/
+
