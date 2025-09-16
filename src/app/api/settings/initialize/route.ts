@@ -264,7 +264,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: `Initialized ${results.length} admin-specific settings`,
       settings: results,
-      categories: [...new Set(results.map((s) => s.category))],
+      categories: [...new Set(results.map((s: any) => s.category))],
     });
   } catch (error: any) {
     console.error("Error initializing settings:", error);

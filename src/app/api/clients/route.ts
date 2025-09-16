@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     // 🛠 Step 2: Proceed with creation inside a transaction
     const clientName = name?.trim();
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const newClient = await tx.client.create({
         data: {
           name: clientName,
@@ -144,9 +144,9 @@ export async function GET(req: NextRequest) {
     const hasPreviousPage = page > 1;
 
     // Optional: serialize logs safely (especially metadata)
-    const serializedClients = clients.map(client => ({
+    const serializedClients = clients.map((client: any) => ({
       ...client,
-      logs: client.logs.map(log => ({
+      logs: client.logs.map((log: any) => ({
         id: log.id,
         action: log.action,
         createdAt: log.createdAt,

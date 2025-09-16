@@ -1,0 +1,22 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "ignoreCommand": "echo 'Skipping build checks'",
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}

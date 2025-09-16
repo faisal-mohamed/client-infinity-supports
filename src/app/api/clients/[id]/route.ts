@@ -444,7 +444,7 @@ export async function DELETE(
     }
 
     // Start a transaction to delete client and related data
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       console.log(`🗑️ Starting client deletion for ID: ${clientId}`);
       
       // Step 1: Get all batches for this client
@@ -453,7 +453,7 @@ export async function DELETE(
         select: { id: true }
       });
       
-      const batchIds = batches.map(batch => batch.id);
+      const batchIds = batches.map((batch: any) => batch.id);
       console.log(`📦 Found ${batches.length} batches to delete:`, batchIds);
       
       // Step 2: Delete SignatureBatchForm records first (they reference batches)

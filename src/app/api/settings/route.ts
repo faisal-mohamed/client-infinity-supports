@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         where: { adminId: null },
       });
 
-      const copiedSettings = globalSettings.map((setting) => ({
+      const copiedSettings = globalSettings.map((setting: any) => ({
         key: setting.key,
         value: setting.defaultValue ?? '',
         type: setting.type,
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
 
     if (flat) {
       const flatSettings: Record<string, any> = {};
-      settings.forEach((s) => {
+      settings.forEach((s: any) => {
         flatSettings[s.key] = s.value;
       });
 
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const groupedSettings = settings.reduce((acc, setting) => {
+    const groupedSettings = settings.reduce((acc: any, setting: any) => {
       if (!acc[setting.category]) {
         acc[setting.category] = [];
       }

@@ -124,7 +124,7 @@ import SignOutButton from '@/components/SignOutButton';
 import { ConfirmProvider } from '@/components/ui/Confirm';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { FaTachometerAlt, FaUsers, FaFileAlt, FaCog, FaBars, FaTimes } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaFileAlt, FaCog, FaBars, FaTimes, FaUserTie, FaClipboardList } from 'react-icons/fa';
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: '400', display: 'swap' });
 
@@ -134,7 +134,9 @@ const white = '#fff';
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: <FaTachometerAlt className="w-5 h-5 text-white" /> },
   { href: '/admin/clients', label: 'Clients', icon: <FaUsers className="w-5 h-5 text-white" /> },
-  { href: '/admin/forms', label: 'Forms', icon: <FaFileAlt className="w-5 h-5 text-white" /> },
+  { href: '/admin/forms', label: 'Client Forms', icon: <FaFileAlt className="w-5 h-5 text-white" /> },
+  { href: '/admin/staff', label: 'Staff', icon: <FaUserTie className="w-5 h-5 text-white" /> },
+  { href: '/admin/staff-forms', label: 'Staff Forms', icon: <FaClipboardList className="w-5 h-5 text-white" /> },
   { href: '/admin/settings', label: 'Settings', icon: <FaCog className="w-5 h-5 text-white" /> }
 ];
 
@@ -151,7 +153,7 @@ export default function AdminClientsLayout({ children }: { children: React.React
             <Image src="/client_logo.png" alt="Logo" width={40} height={30} />
             <span className="font-semibold text-sm" style={{ color: white }}>Infinity Support WA</span>
           </div>
-          <button onClick={() => setMobileMenuOpen(true)}>
+          <button onClick={() => setMobileMenuOpen(true)} aria-label="Open menu" title="Open menu">
             <FaBars className="w-6 h-6 text-white" />
           </button>
         </div>
@@ -163,10 +165,10 @@ export default function AdminClientsLayout({ children }: { children: React.React
           <aside className="relative w-64 bg-slate-900 text-white h-full shadow-xl z-50 flex flex-col">
             <div className="flex items-center justify-between px-4 py-4 border-b border-slate-700">
               <div className="flex items-center gap-2">
-                <Image src="/client_logo.png" alt="Client Logo" width={40} height={30} />
+                <Image src="/client_logo.png" alt="Client Logo" width={40} height={30} style={{ width: 'auto', height: 'auto' }} />
                 <span className="font-semibold text-sm" style={{ color: white }}>Infinity Support WA</span>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)}>
+              <button onClick={() => setMobileMenuOpen(false)} aria-label="Close menu" title="Close menu">
                 <FaTimes className="w-5 h-5 text-white" />
               </button>
             </div>
@@ -214,7 +216,7 @@ export default function AdminClientsLayout({ children }: { children: React.React
           <aside className="hidden lg:flex lg:w-72 flex-col fixed inset-y-0 bg-slate-900 text-white border-r border-slate-800 shadow-xl">
             <div className="h-20 flex items-center justify-center bg-slate-800 border-b border-slate-700">
               <div className="flex flex-col items-center">
-                <Image src="/client_logo.png" alt="Client Logo" width={70} height={40} />
+                <Image src="/client_logo.png" alt="Client Logo" width={70} height={40} style={{ width: 'auto', height: 'auto' }} />
                 <span className="text-sm font-semibold" style={{ color: white }}>Infinity Support WA</span>
               </div>
             </div>

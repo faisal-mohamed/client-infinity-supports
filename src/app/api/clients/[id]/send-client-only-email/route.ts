@@ -130,7 +130,7 @@ export async function POST(
 
     const submissions = await prisma.formSubmission.findMany({
       where: {
-        OR: assignments.map(a => ({
+        OR: assignments.map((a: any) => ({
           clientId: a.clientId,
           formId: a.formId,
           formVersion: a.formVersion
@@ -141,7 +141,7 @@ export async function POST(
       }
     });
 
-    const completedForms = submissions.map(s => ({
+    const completedForms = submissions.map((s: any) => ({
       id: s.id,
       formId: s.formId,
       title: s.form.title

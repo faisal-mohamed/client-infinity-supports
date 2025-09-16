@@ -198,9 +198,9 @@ export async function GET(
         commonFields: batch.client.commonFields,
         logs: batch.client.logs
       },
-      forms: batch.assignments.map((assignment) => {
+      forms: batch.assignments.map((assignment: any) => {
         // Find the submission for the current assignment
-        const submission = submissions.find(s => s.formId === assignment.formId);
+        const submission = submissions.find((s: any) => s.formId === assignment.formId);
         return {
           id: assignment.id,
           formId: assignment.formId,

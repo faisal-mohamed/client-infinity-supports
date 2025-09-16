@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
 
       // Group by formKey and take the latest version
       const latestForms = new Map();
-      allForms.forEach(form => {
+      allForms.forEach((form: any) => {
         if (!latestForms.has(form.formKey) || latestForms.get(form.formKey).version < form.version) {
           latestForms.set(form.formKey, form);
         }

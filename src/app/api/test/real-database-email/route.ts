@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 3: Prepare REAL form data (same as production code)
-    const completedFormsData = formSubmissions.map(submission => {
+    const completedFormsData = formSubmissions.map((submission: any) => {
       console.log(`🔍 Real form data:`, {
         submissionId: submission.id,
         formId: submission.formId,

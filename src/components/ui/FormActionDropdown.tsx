@@ -53,7 +53,7 @@ export default function FormActionDropdown({
     >
       <button
         onClick={handleEditClick}
-        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2"
+        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat"
       >
         <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
           <FaEdit className="h-4 w-4" />
@@ -65,7 +65,7 @@ export default function FormActionDropdown({
         <>
           <Link
             href={`/admin/clients/${clientId}/forms/view/${assignmentId}`}
-            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-2"
+            className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-2 font-montserrat"
             onClick={onClose}
           >
             <div className="p-2 rounded-lg bg-green-100 text-green-600">
@@ -77,7 +77,7 @@ export default function FormActionDropdown({
           <button
             onClick={handleDownloadClick}
             disabled={downloadingPDF}
-            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 hover:text-orange-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2"
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 hover:text-orange-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2 font-montserrat"
           >
             <div className="p-2 rounded-lg bg-orange-100 text-orange-600">
               {downloadingPDF ? (
@@ -93,7 +93,7 @@ export default function FormActionDropdown({
 
       <button
         onClick={handleDeleteClick}
-        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2"
+        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat"
       >
         <div className="p-2 rounded-lg bg-red-100 text-red-600">
           <FaTrash className="h-4 w-4" />

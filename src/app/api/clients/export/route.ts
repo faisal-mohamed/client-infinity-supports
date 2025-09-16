@@ -83,7 +83,7 @@ export async function GET(req: Request) {
     });
 
     // === Data Rows ===
-    clients.forEach((client, index) => {
+    clients.forEach((client: any, index: number) => {
       const row = worksheet.addRow([
         client.name || "",
         client.email || "",

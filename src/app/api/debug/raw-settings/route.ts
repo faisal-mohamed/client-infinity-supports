@@ -21,7 +21,7 @@ export async function GET() {
     });
 
     // Filter email-related settings
-    const emailSettings = allSettings.filter(setting => 
+    const emailSettings = allSettings.filter((setting: any) => 
       setting.key.includes('smtp') || 
       setting.key.includes('email') || 
       setting.key.includes('app_name')
@@ -31,8 +31,8 @@ export async function GET() {
       success: true,
       totalSettings: allSettings.length,
       emailSettings: emailSettings,
-      allSettingsKeys: allSettings.map(s => s.key),
-      emailSettingsKeys: emailSettings.map(s => s.key)
+      allSettingsKeys: allSettings.map((s: any) => s.key),
+      emailSettingsKeys: emailSettings.map((s: any) => s.key)
     });
 
   } catch (error) {
