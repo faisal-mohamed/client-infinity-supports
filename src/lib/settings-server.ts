@@ -147,7 +147,7 @@ export async function getMultipleSettingsFromDB(
     const settings : any  = await fetchSettingsFromDB(adminId);
     const result: Record<string, string | null> = {};
 
-    console.log("Settings fetched for multiple keys:", settings);
+ 
 
     for (const key of keys) {
       // ✅ Prefer admin-specific, fallback to global

@@ -36,7 +36,7 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
       'app_name'
     ], adminId);
 
-    console.log('Email settings retrieved:', emailSettings);
+    
 
     const {
       smtp_host: host,
