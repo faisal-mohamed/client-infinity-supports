@@ -1,0 +1,9 @@
+@echo off
+echo Resolving failed migration...
+npx prisma migrate resolve --applied 20250910123926_remove_client_email_unique
+echo Now deploying remaining migrations...
+npx prisma migrate deploy
+echo Regenerating Prisma client...
+npx prisma generate
+echo Done!
+pause

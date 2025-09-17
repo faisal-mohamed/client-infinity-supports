@@ -10,9 +10,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get admin ID from session
+    // Get admin ID from session - only select fields that exist in database
     const admin = await prisma.admin.findUnique({
-      where: { email: session.user.email }
+      where: { email: session.user.email },
+      select: { id: true, email: true, name: true }
     });
 
     if (!admin) {
