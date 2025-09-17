@@ -8,9 +8,9 @@ import PreEmploymentMedicalView from '@/app/form-components/staff/pre-employment
 import NdisWorkforceCapabilityView from '@/app/form-components/staff/ndis-workforce-capability/View';
 import BullyingHarassmentTrainingView from '@/app/form-components/staff/bullying-harassment-training/View';
 import BullyingTrainingView from '@/app/form-components/staff/bullying-training/View';
-import TFNDeclarationView from '@/app/form-components/staff/tfn-declaration';
 
-import NDISCodeOfConduct from '../form-components/staff/code_of_conduct/page';
+import NDISCodeOfConductView from '../form-components/staff/code_of_conduct/View';
+import NDISCodeOfConductEdit from '../form-components/staff/code_of_conduct/Edit';
 import GovtTax from '@/app/form-components/staff/tax/page'
 
 import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
@@ -60,15 +60,11 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     name: 'Bullying Training',
     viewComponent: BullyingTrainingView,
   },
-  tfn_declaration: {
-    key: 'tfn_declaration',
-    name: 'TFN Declaration',
-    viewComponent: TFNDeclarationView,
-  },
-  ndis_code_of_conduct : {
+  ndis_code_of_conduct: {
     key: 'ndis_code_of_conduct',
     name: 'NDIS Code of Conduct',
-    viewComponent: NDISCodeOfConduct,
+    viewComponent: NDISCodeOfConductView,
+    editComponent: NDISCodeOfConductEdit,
   },
   govt_tax: {
     key: 'govt_tax',

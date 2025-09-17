@@ -1,121 +1,128 @@
 "use client";
-import React, { useRef, useState } from "react";
-import SignatureCanvas, { SignatureCanvasRef } from "@/components/ui/SignatureCanvas";
 
-export default function NDISCodeOfConductEditPage() {
-  const [formData, setFormData] = useState({
-    signature: "", // will store base64 PNG
-    date: "",
-    position: "",
-  });
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
+import { useToast } from '@/components/ui/Toast';
+import NDISCodeOfConductEdit, { NDISCodeOfConductEditRef } from '@/app/form-components/staff/code_of_conduct/Edit';
 
-  const sigPadRef = useRef<SignatureCanvasRef | null>(null);
+export default function NDISCodeOfConductFormPage() {
+  const { token } = useParams<{ token: string }>();
+  const router = useRouter();
+  const { showToast } = useToast();
+  const formRef = useRef<NDISCodeOfConductEditRef>(null);
+  
+  const [staff, setStaff] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (key: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const res = await fetch(`/api/staff/onboard/${token}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          setError(data.message || 'Failed to load staff data');
+          showToast({
+            type: 'error',
+            title: 'Error Loading Data',
+            message: data.message || 'Failed to load staff data',
+            duration: 5000
+          });
+          return;
+        }
+        
+        setStaff(data.staff);
+        showToast({
+          type: 'success',
+          title: 'Data Loaded',
+          message: 'Staff data loaded successfully',
+          duration: 3000
+        });
+      } catch (error: any) {
+        console.error('Error loading data:', error);
+        setError('Failed to connect to server');
+        showToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: 'Failed to connect to server. Please check your internet connection.',
+          duration: 5000
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) loadData();
+  }, [token, showToast]);
+
+  const handleSave = async () => {
+    if (formRef.current) {
+      try {
+        await formRef.current.save();
+      } catch (error) {
+        console.error('Error saving form:', error);
+        showToast({
+          type: 'error',
+          title: 'Save Error',
+          message: 'Failed to save form. Please try again.',
+          duration: 5000
+        });
+      }
+    }
   };
 
-  const handleSignatureEnd = (signatureDataUrl: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      signature: signatureDataUrl,
-    }));
+  const handleSubmitted = () => {
+    showToast({
+      type: 'success',
+      title: 'Form Submitted',
+      message: 'NDIS Code of Conduct form submitted successfully',
+      duration: 3000
+    });
+    
+    setTimeout(() => {
+      router.push(`/staff/onboard/${token}`);
+    }, 1000);
   };
 
-  const handleSignatureClear = () => {
-    setFormData((prev) => ({
-      ...prev,
-      signature: "",
-    }));
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your form...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleSubmit = () => {
-    console.log("Form Data:", formData);
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Form</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Input Form */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            NDIS Code of Conduct Form
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Please fill out the required information below
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Signature */}
-            <div className="bg-white p-4 rounded-lg border shadow-sm md:col-span-2">
-              <label className="block mb-2 text-gray-700 font-medium">
-                Signature
-              </label>
-              <SignatureCanvas
-                ref={sigPadRef}
-                onSignatureEnd={handleSignatureEnd}
-                onSignatureClear={handleSignatureClear}
-                existingSignature={formData.signature}
-                width={400}
-                height={150}
-                penColor="black"
-                className="w-full"
-              />
-            </div>
-
-            {/* Date */}
-            <div className="bg-white p-4 rounded-lg border shadow-sm">
-              <label className="block mb-2 text-gray-700 font-medium">
-                Date
-              </label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange("date", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Position */}
-            <div className="bg-white p-4 rounded-lg border shadow-sm md:col-span-3">
-              <label className="block mb-2 text-gray-700 font-medium">
-                Position
-              </label>
-              <input
-                type="text"
-                value={formData.position}
-                onChange={(e) => handleInputChange("position", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your position"
-              />
-            </div>
-          </div>
-
-          <div className="mt-8 pt-6 border-t">
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Submit Form
-            </button>
-          </div>
-        </div>
-
-        {/* Preview Section */}
-        {formData.signature && (
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Signature Preview</h2>
-            <img
-              src={formData.signature}
-              alt="Signature preview"
-              className="border rounded-md max-h-40"
-            />
-          </div>
-        )}
-      </div>
-    </div>
+    <NDISCodeOfConductEdit
+      ref={formRef}
+      token={token}
+      staff={staff}
+      onSubmitted={handleSubmitted}
+    />
   );
 }

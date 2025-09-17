@@ -73,6 +73,7 @@ model Staff {
   ndisWorkforceCapability    StaffNdisWorkforceCapability?
   bullyingHarassmentTraining StaffBullyingHarassmentTraining?
   bullyingTraining           StaffBullyingTraining?
+  ndisCodeOfConduct          StaffNdisCodeOfConduct?
 }
 
 model StaffFormSubmission {
@@ -175,6 +176,20 @@ model StaffBullyingHarassmentTraining {
 
 // Specialized storage for Bullying Training form
 model StaffBullyingTraining {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// Specialized storage for NDIS Code of Conduct form
+model StaffNdisCodeOfConduct {
   id             Int       @id @default(autoincrement())
   staffId        Int       @unique
   data           Json
