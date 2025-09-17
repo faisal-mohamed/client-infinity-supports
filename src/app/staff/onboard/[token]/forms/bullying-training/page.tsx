@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { getStaffFormComponent } from '@/app/forms/staff-registry';
+import { useEffect, useRef, useState } from 'react';
+import BullyingTrainingAckForm, { BullyingTrainingAckFormRef } from '../../components/BullyingTrainingAckForm';
 
 export default function BullyingTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -11,6 +11,7 @@ export default function BullyingTrainingFormPage() {
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const formRef = useRef<BullyingTrainingAckFormRef>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,19 +39,15 @@ export default function BullyingTrainingFormPage() {
   }, [formData])
 
   const handleSave = async (isSubmit: boolean) => {
+    if (!formRef.current) return;
+    
     setSaving(true);
     try {
-      const res = await fetch(`/api/staff/onboard/${token}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formKey: 'bullying_training', data: {}, submit: isSubmit }),
-      });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error || 'Failed to save');
+      const success = await formRef.current.save(isSubmit);
       
-      if (isSubmit) {
+      if (success && isSubmit) {
         router.push(`/staff/onboard/${token}`);
-      } else {
+      } else if (success) {
         alert('Draft saved successfully!');
       }
     } catch (error: any) {
@@ -69,17 +66,9 @@ export default function BullyingTrainingFormPage() {
     );
   }
 
-  const BullyingTrainingView = getStaffFormComponent('bullying_training', 'view');
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
-      <style jsx>{`
-        .view-component-wrapper .text-gray-700 { color: #374151 !important; }
-        .view-component-wrapper .text-gray-600 { color: #4b5563 !important; }
-        .view-component-wrapper .text-gray-800 { color: #1f2937 !important; }
-        .view-component-wrapper .text-xs { font-size: 0.875rem !important; }
-        .view-component-wrapper { zoom: 1.1; }
-      `}</style>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -97,28 +86,30 @@ export default function BullyingTrainingFormPage() {
           </div>
         </div>
 
-        {/* View Component */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="view-component-wrapper">
-            <BullyingTrainingView data={formData} />
-          </div>
-          
-          <div className="flex gap-4 mt-8 pt-6 border-t">
-            <button
-              onClick={() => handleSave(false)}
-              disabled={saving}
-              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
-            >
-              {saving ? 'Saving...' : 'Save Draft'}
-            </button>
-            <button
-              onClick={() => handleSave(true)}
-              disabled={saving}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-            >
-              {saving ? 'Submitting...' : 'Submit & Continue'}
-            </button>
-          </div>
+        {/* Form Component */}
+        <BullyingTrainingAckForm 
+          ref={formRef}
+          token={token as string}
+          staff={staff}
+          onSubmitted={() => router.push(`/staff/onboard/${token}`)}
+        />
+        
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-8 justify-center">
+          <button
+            onClick={() => handleSave(false)}
+            disabled={saving}
+            className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
+          >
+            {saving ? 'Saving...' : 'Save Draft'}
+          </button>
+          <button
+            onClick={() => handleSave(true)}
+            disabled={saving}
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+          >
+            {saving ? 'Submitting...' : 'Submit & Continue'}
+          </button>
         </div>
       </div>
     </div>

@@ -10,39 +10,39 @@ datasource db {
 }
 
 model Admin {
-  id           Int                @id @default(autoincrement())
-  name         String
-  email        String             @unique(map: "Admin_email_unique")  // Custom constraint name
-  passwordHash String
-  resetToken   String?            // Password reset verification code
-  resetTokenExpiry DateTime?      // When the reset token expires
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
-  clients      Client[]           // Admin's clients (who they created)
-  notifications FormSubmissionNotification[] // Notifications for this admin
-  appSettings   AppSettings[] // Admin-specific app settings (for email_settings)
+  id               Int                          @id @default(autoincrement())
+  name             String
+  email            String                       @unique(map: "Admin_email_unique") // Custom constraint name
+  passwordHash     String
+  resetToken       String? // Password reset verification code
+  resetTokenExpiry DateTime? // When the reset token expires
+  createdAt        DateTime                     @default(now())
+  updatedAt        DateTime                     @updatedAt
+  logs             FormActivityLog[] // Logs of all admin activities (creating clients, managing forms, etc.)
+  clients          Client[] // Admin's clients (who they created)
+  notifications    FormSubmissionNotification[] // Notifications for this admin
+  appSettings      AppSettings[] // Admin-specific app settings (for email_settings)
 
   assignedFormAssignments FormAssignment[] @relation("AssignedForms")
 }
 
 model Client {
-  id            Int               @id @default(autoincrement())
-  name          String?
-  email         String?           // <- removed @unique
-  phone         String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  forms         FormSubmission[]  
-  progress      FormProgress[]    
-  commonFields  CommonField[]     
-  insights      Insight[]         
-  createdBy     Admin?            @relation(fields: [createdById], references: [id])
-  createdById   Int?
-  formBatches   FormBatch[]       
+  id           Int              @id @default(autoincrement())
+  name         String?
+  email        String? // <- removed @unique
+  phone        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  forms        FormSubmission[]
+  progress     FormProgress[]
+  commonFields CommonField[]
+  insights     Insight[]
+  createdBy    Admin?           @relation(fields: [createdById], references: [id])
+  createdById  Int?
+  formBatches  FormBatch[]
 
-  logs          FormActivityLog[]  
-  notifications FormSubmissionNotification[] 
+  logs          FormActivityLog[]
+  notifications FormSubmissionNotification[]
 
   // Removed @@unique([email]) as well
   FormAssignment FormAssignment[]
@@ -72,6 +72,7 @@ model Staff {
   preEmploymentMedical       StaffPreEmploymentMedical?
   ndisWorkforceCapability    StaffNdisWorkforceCapability?
   bullyingHarassmentTraining StaffBullyingHarassmentTraining?
+  bullyingTraining           StaffBullyingTraining?
 }
 
 model StaffFormSubmission {
@@ -172,6 +173,19 @@ model StaffBullyingHarassmentTraining {
   staff Staff @relation(fields: [staffId], references: [id])
 }
 
+// Specialized storage for Bullying Training form
+model StaffBullyingTraining {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  // Signature fields like client forms
+  staffSignature String? // Staff's signature for this form
+  staffSignedAt  DateTime? // When staff signed this form
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
 
 model MasterForm {
   id                Int      @id @default(autoincrement())

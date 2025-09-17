@@ -30,6 +30,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     const specBullyingHarassmentTraining = p.staffBullyingHarassmentTraining
       ? await p.staffBullyingHarassmentTraining.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
       : null;
+    const specBullyingTraining = p.staffBullyingTraining
+      ? await p.staffBullyingTraining.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
+      : null;
     
     const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
     
@@ -87,7 +90,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    return NextResponse.json({
+    // Handle Bullying Training form with signature
+    if (specBullyingTraining) {
+      dataByForm['bullying_training'] = {
+        ...specBullyingTraining.data,
+        staffSignature: specBullyingTraining.staffSignature || '',
+        staffSignedAt: specBullyingTraining.staffSignedAt?.toISOString() || ''
+      };
+    }
+        return NextResponse.json({
       staff: {
         id: staff.id,
         firstName: staff.firstName,
@@ -226,6 +237,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       } : {};
       
       saved = await p.staffBullyingHarassmentTraining.upsert({
+        where: { staffId: staff.id },
+        update: { 
+          data: formData,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id, 
+          data: formData,
+          ...signatureData
+        },
+      });
+    } else if (formKey === 'bullying_training' && p.staffBullyingTraining) {
+      // Extract signature data if present
+      const { staffSignature, staffSignedAt, ...formData } = data;
+      const signatureData = staffSignature ? {
+        staffSignature: staffSignature,
+        staffSignedAt: staffSignedAt ? new Date(staffSignedAt) : new Date()
+      } : {};
+      
+      saved = await p.staffBullyingTraining.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
