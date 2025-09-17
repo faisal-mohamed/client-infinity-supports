@@ -4,101 +4,143 @@ import { prisma } from '@/lib/prisma';
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params;
-    const db: any = prisma as any;
-    const staff = await db.staff.findFirst({ where: { linkToken: token } });
-    if (!staff) return NextResponse.json({ error: 'Invalid link' }, { status: 404 });
-    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
-      return NextResponse.json({ error: 'This link has expired' }, { status: 410 });
-    }
-    const p: any = prisma as any;
-    const submissions = await p.staffFormSubmission.findMany({ where: { staffId: staff.id } });
-    const specDetails = p.staffEmploymentDetails
-      ? await p.staffEmploymentDetails.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specWelcome = p.staffEmploymentWelcomeAck
-      ? await p.staffEmploymentWelcomeAck.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specSupportWorker = p.staffSupportWorker
-      ? await p.staffSupportWorker.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specPreEmploymentMedical = p.staffPreEmploymentMedical
-      ? await p.staffPreEmploymentMedical.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specNdisWorkforceCapability = p.staffNdisWorkforceCapability
-      ? await p.staffNdisWorkforceCapability.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specBullyingHarassmentTraining = p.staffBullyingHarassmentTraining
-      ? await p.staffBullyingHarassmentTraining.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
-    const specBullyingTraining = p.staffBullyingTraining
-      ? await p.staffBullyingTraining.findUnique({ where: { staffId: staff.id } }).catch(()=>null)
-      : null;
     
-    const dataByForm = Object.fromEntries(submissions.map((s: any)=>[s.formKey, s.data]));
+    // Validate token format
+    if (!token || typeof token !== 'string' || token.length < 10) {
+      return NextResponse.json({ 
+        error: 'Invalid access link',
+        message: 'The access link you provided is not valid. Please check the link and try again.',
+        code: 'INVALID_TOKEN'
+      }, { status: 400 });
+    }
+    
+    // 🚀 OPTIMIZED: Single query with all includes instead of 8+ separate queries
+    const staff = await prisma.staff.findFirst({
+      where: { linkToken: token },
+      include: {
+        // Generic form submissions
+        submissions: true,
+        // Individual form tables
+        employmentDetails: true,
+        employmentWelcomeAck: true,
+        supportWorker: true,
+        preEmploymentMedical: true,
+        ndisWorkforceCapability: true,
+        bullyingHarassmentTraining: true,
+        // Note: bullyingTraining relation will be available after Prisma client regeneration
+      }
+    }) as any;
+    
+    if (!staff) {
+      return NextResponse.json({ 
+        error: 'Access link not found',
+        message: 'This access link is not valid or has been removed. Please contact your administrator for a new link.',
+        code: 'LINK_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
+      return NextResponse.json({ 
+        error: 'Access link expired',
+        message: 'This access link has expired. Please contact your administrator for a new link.',
+        code: 'LINK_EXPIRED',
+        expiredAt: staff.linkExpiresAt
+      }, { status: 410 });
+    }
+    
+    if (staff.status === 'deleted') {
+      return NextResponse.json({ 
+        error: 'Account deactivated',
+        message: 'Your staff account has been deactivated. Please contact your administrator.',
+        code: 'ACCOUNT_DEACTIVATED'
+      }, { status: 403 });
+    }
+    
+    // 🚀 OPTIMIZED: Process data from single query result
+    const dataByForm = Object.fromEntries(staff.submissions.map((s: any) => [s.formKey, s.data]));
     
     // Handle Employee Details form with signature
-    if (specDetails) {
+    if (staff.employmentDetails) {
       dataByForm['employeeDetails'] = {
-        ...specDetails.data,
-        employeeSignature: specDetails.staffSignature || '',
-        employeeSignatureDate: specDetails.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.employmentDetails.data,
+        employeeSignature: staff.employmentDetails.staffSignature || '',
+        employeeSignatureDate: staff.employmentDetails.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Employee Welcome form with signature
-    if (specWelcome) {
+    if (staff.employmentWelcomeAck) {
       dataByForm['employee_welcome'] = {
-        ...specWelcome.data,
-        signature: specWelcome.staffSignature || '',
-        date: specWelcome.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.employmentWelcomeAck.data,
+        signature: staff.employmentWelcomeAck.staffSignature || '',
+        date: staff.employmentWelcomeAck.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Support Worker form with signature
-    if (specSupportWorker) {
+    if (staff.supportWorker) {
       dataByForm['support_worker'] = {
-        ...specSupportWorker.data,
-        signature: specSupportWorker.staffSignature || '',
-        signatureDate: specSupportWorker.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.supportWorker.data,
+        signature: staff.supportWorker.staffSignature || '',
+        signatureDate: staff.supportWorker.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Pre-Employment Medical form with signature
-    if (specPreEmploymentMedical) {
+    if (staff.preEmploymentMedical) {
       dataByForm['pre_employment_medical'] = {
-        ...specPreEmploymentMedical.data,
-        signature: specPreEmploymentMedical.staffSignature || '',
-        signatureDate: specPreEmploymentMedical.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.preEmploymentMedical.data,
+        signature: staff.preEmploymentMedical.staffSignature || '',
+        signatureDate: staff.preEmploymentMedical.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle NDIS Workforce Capability Framework form with signature
-    if (specNdisWorkforceCapability) {
+    if (staff.ndisWorkforceCapability) {
       dataByForm['ndis_workforce_capability'] = {
-        ...specNdisWorkforceCapability.data,
-        signature: specNdisWorkforceCapability.staffSignature || '',
-        signatureDate: specNdisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.ndisWorkforceCapability.data,
+        signature: staff.ndisWorkforceCapability.staffSignature || '',
+        signatureDate: staff.ndisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Bullying and Harassment Training form with signature
-    if (specBullyingHarassmentTraining) {
+    if (staff.bullyingHarassmentTraining) {
       dataByForm['bullying_harassment_training'] = {
-        ...specBullyingHarassmentTraining.data,
-        signature: specBullyingHarassmentTraining.staffSignature || '',
-        signatureDate: specBullyingHarassmentTraining.staffSignedAt?.toISOString().split('T')[0] || ''
+        ...staff.bullyingHarassmentTraining.data,
+        signature: staff.bullyingHarassmentTraining.staffSignature || '',
+        signatureDate: staff.bullyingHarassmentTraining.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Bullying Training form with signature
-    if (specBullyingTraining) {
+    if (staff.bullyingTraining) {
       dataByForm['bullying_training'] = {
-        ...specBullyingTraining.data,
-        staffSignature: specBullyingTraining.staffSignature || '',
-        staffSignedAt: specBullyingTraining.staffSignedAt?.toISOString() || ''
+        ...staff.bullyingTraining.data,
+        staffSignature: staff.bullyingTraining.staffSignature || '',
+        staffSignedAt: staff.bullyingTraining.staffSignedAt?.toISOString() || ''
       };
+    } else {
+      // Fallback: Query bullying training separately if relation not available
+      try {
+        const p: any = prisma as any;
+        const bullyingTraining = await p.staffBullyingTraining?.findUnique({ 
+          where: { staffId: staff.id } 
+        });
+        if (bullyingTraining) {
+          dataByForm['bullying_training'] = {
+            ...bullyingTraining.data,
+            staffSignature: bullyingTraining.staffSignature || '',
+            staffSignedAt: bullyingTraining.staffSignedAt?.toISOString() || ''
+          };
+        }
+      } catch (error) {
+        // Table might not exist yet, ignore
+      }
     }
-        return NextResponse.json({
+    return NextResponse.json({
+      success: true,
+      message: 'Staff data loaded successfully',
       staff: {
         id: staff.id,
         firstName: staff.firstName,
@@ -110,25 +152,119 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       submissions: dataByForm
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || 'Failed' }, { status: 500 });
+    console.error('Error loading staff data:', e);
+    
+    // Handle specific database errors
+    if (e.code === 'P2002') {
+      return NextResponse.json({ 
+        error: 'Database constraint violation',
+        message: 'There was a conflict with the data. Please try again.',
+        code: 'CONSTRAINT_VIOLATION'
+      }, { status: 409 });
+    }
+    
+    if (e.code === 'P2025') {
+      return NextResponse.json({ 
+        error: 'Record not found',
+        message: 'The requested data could not be found.',
+        code: 'RECORD_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    // Handle connection errors
+    if (e.code === 'P1001') {
+      return NextResponse.json({ 
+        error: 'Database connection failed',
+        message: 'Unable to connect to the database. Please try again later.',
+        code: 'DATABASE_CONNECTION_ERROR'
+      }, { status: 503 });
+    }
+    
+    // Generic error fallback
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      message: 'An unexpected error occurred while loading your data. Please try again.',
+      code: 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? e.message : undefined
+    }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params;
-    const payload = await req.json();
-    const { formKey, data, submit } = payload || {};
-    if (!formKey || !data) return NextResponse.json({ error: 'Missing formKey or data' }, { status: 400 });
-    const db: any = prisma as any;
-    const p: any = prisma as any;
-    const staff = await db.staff.findFirst({ where: { linkToken: token } });
-    if (!staff) return NextResponse.json({ error: 'Invalid link' }, { status: 404 });
-    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
-      return NextResponse.json({ error: 'This link has expired' }, { status: 410 });
+    
+    // Validate token format
+    if (!token || typeof token !== 'string' || token.length < 10) {
+      return NextResponse.json({ 
+        error: 'Invalid access link',
+        message: 'The access link you provided is not valid. Please check the link and try again.',
+        code: 'INVALID_TOKEN'
+      }, { status: 400 });
     }
+    
+    // Parse and validate request body
+    let payload;
+    try {
+      payload = await req.json();
+    } catch (parseError) {
+      return NextResponse.json({ 
+        error: 'Invalid request data',
+        message: 'The data you sent is not valid. Please check your form and try again.',
+        code: 'INVALID_JSON'
+      }, { status: 400 });
+    }
+    
+    const { formKey, data, submit } = payload || {};
+    
+    // Validate required fields
+    if (!formKey) {
+      return NextResponse.json({ 
+        error: 'Missing form type',
+        message: 'Please specify which form you are submitting.',
+        code: 'MISSING_FORM_KEY'
+      }, { status: 400 });
+    }
+    
+    if (!data || typeof data !== 'object') {
+      return NextResponse.json({ 
+        error: 'Missing form data',
+        message: 'Please fill out the form before submitting.',
+        code: 'MISSING_FORM_DATA'
+      }, { status: 400 });
+    }
+    
+    // 🚀 OPTIMIZED: Single staff lookup instead of separate query
+    const staff = await prisma.staff.findFirst({ where: { linkToken: token } });
+    
+    if (!staff) {
+      return NextResponse.json({ 
+        error: 'Access link not found',
+        message: 'This access link is not valid or has been removed. Please contact your administrator for a new link.',
+        code: 'LINK_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
+      return NextResponse.json({ 
+        error: 'Access link expired',
+        message: 'This access link has expired. Please contact your administrator for a new link.',
+        code: 'LINK_EXPIRED',
+        expiredAt: staff.linkExpiresAt
+      }, { status: 410 });
+    }
+    
+    if (staff.status === 'deleted') {
+      return NextResponse.json({ 
+        error: 'Account deactivated',
+        message: 'Your staff account has been deactivated. Please contact your administrator.',
+        code: 'ACCOUNT_DEACTIVATED'
+      }, { status: 403 });
+    }
+    // 🚀 OPTIMIZED: Use proper Prisma calls instead of dynamic access
     let saved: any;
-    if (formKey === 'employeeDetails' && p.staffEmploymentDetails) {
+    
+    if (formKey === 'employeeDetails') {
       // Extract signature data if present
       const { employeeSignature, employeeSignatureDate, ...formData } = data;
       const signatureData = employeeSignature ? {
@@ -136,7 +272,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: employeeSignatureDate ? new Date(employeeSignatureDate) : new Date()
       } : {};
       
-      saved = await p.staffEmploymentDetails.upsert({
+      saved = await prisma.staffEmploymentDetails.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -148,7 +284,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'employee_welcome' && p.staffEmploymentWelcomeAck) {
+    } else if (formKey === 'employee_welcome') {
       // Extract signature data if present
       const { signature, date, ...formData } = data;
       const signatureData = signature ? {
@@ -156,7 +292,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: date ? new Date(date) : new Date()
       } : {};
       
-      saved = await p.staffEmploymentWelcomeAck.upsert({
+      saved = await prisma.staffEmploymentWelcomeAck.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -168,7 +304,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'support_worker' && p.staffSupportWorker) {
+    } else if (formKey === 'support_worker') {
       // Extract signature data if present
       const { signature, signatureDate, ...formData } = data;
       const signatureData = signature ? {
@@ -176,7 +312,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
       } : {};
       
-      saved = await p.staffSupportWorker.upsert({
+      saved = await prisma.staffSupportWorker.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -188,7 +324,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'pre_employment_medical' && p.staffPreEmploymentMedical) {
+    } else if (formKey === 'pre_employment_medical') {
       // Extract signature data if present
       const { signature, signatureDate, ...formData } = data;
       const signatureData = signature ? {
@@ -196,7 +332,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
       } : {};
       
-      saved = await p.staffPreEmploymentMedical.upsert({
+      saved = await prisma.staffPreEmploymentMedical.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -208,7 +344,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'ndis_workforce_capability' && p.staffNdisWorkforceCapability) {
+    } else if (formKey === 'ndis_workforce_capability') {
       // Extract signature data if present
       const { signature, signatureDate, ...formData } = data;
       const signatureData = signature ? {
@@ -216,7 +352,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
       } : {};
       
-      saved = await p.staffNdisWorkforceCapability.upsert({
+      saved = await prisma.staffNdisWorkforceCapability.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -228,7 +364,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'bullying_harassment_training' && p.staffBullyingHarassmentTraining) {
+    } else if (formKey === 'bullying_harassment_training') {
       // Extract signature data if present
       const { signature, signatureDate, ...formData } = data;
       const signatureData = signature ? {
@@ -236,7 +372,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
       } : {};
       
-      saved = await p.staffBullyingHarassmentTraining.upsert({
+      saved = await prisma.staffBullyingHarassmentTraining.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -248,7 +384,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
-    } else if (formKey === 'bullying_training' && p.staffBullyingTraining) {
+    } else if (formKey === 'bullying_training') {
       // Extract signature data if present
       const { staffSignature, staffSignedAt, ...formData } = data;
       const signatureData = staffSignature ? {
@@ -256,7 +392,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: staffSignedAt ? new Date(staffSignedAt) : new Date()
       } : {};
       
-      saved = await p.staffBullyingTraining.upsert({
+      saved = await (prisma as any).staffBullyingTraining.upsert({
         where: { staffId: staff.id },
         update: { 
           data: formData,
@@ -269,18 +405,90 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         },
       });
     } else {
-      saved = await db.staffFormSubmission.upsert({
+      // Generic form submission
+      saved = await prisma.staffFormSubmission.upsert({
         where: { staffId_formKey: { staffId: staff.id, formKey } },
         update: { data, isSubmitted: !!submit, submittedAt: submit ? new Date() : null },
         create: { staffId: staff.id, formKey, data, isSubmitted: !!submit, submittedAt: submit ? new Date() : null },
       });
     }
+    
     if (submit) {
-      await db.staff.update({ where: { id: staff.id }, data: { status: 'success' } });
+      await prisma.staff.update({ where: { id: staff.id }, data: { status: 'success' } });
     }
-    return NextResponse.json({ id: saved.id ?? 0, isSubmitted: !!submit });
+    
+    // Return success response with appropriate message
+    const action = submit ? 'submitted' : 'saved';
+    return NextResponse.json({ 
+      success: true,
+      message: `Form ${action} successfully`,
+      id: saved.id ?? 0, 
+      isSubmitted: !!submit,
+      action: action
+    });
+    
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || 'Failed' }, { status: 500 });
+    console.error('Error saving staff form:', e);
+    
+    // Handle specific database errors
+    if (e.code === 'P2002') {
+      return NextResponse.json({ 
+        error: 'Duplicate entry',
+        message: 'This form has already been submitted. Please refresh the page to see the current status.',
+        code: 'DUPLICATE_ENTRY'
+      }, { status: 409 });
+    }
+    
+    if (e.code === 'P2025') {
+      return NextResponse.json({ 
+        error: 'Record not found',
+        message: 'The form data could not be found. Please try again.',
+        code: 'RECORD_NOT_FOUND'
+      }, { status: 404 });
+    }
+    
+    if (e.code === 'P2003') {
+      return NextResponse.json({ 
+        error: 'Invalid reference',
+        message: 'There was an issue with the form data. Please check your inputs and try again.',
+        code: 'INVALID_REFERENCE'
+      }, { status: 400 });
+    }
+    
+    // Handle connection errors
+    if (e.code === 'P1001') {
+      return NextResponse.json({ 
+        error: 'Database connection failed',
+        message: 'Unable to save your form. Please check your internet connection and try again.',
+        code: 'DATABASE_CONNECTION_ERROR'
+      }, { status: 503 });
+    }
+    
+    // Handle validation errors
+    if (e.code === 'P2000') {
+      return NextResponse.json({ 
+        error: 'Data too long',
+        message: 'Some of your form data is too long. Please shorten your inputs and try again.',
+        code: 'DATA_TOO_LONG'
+      }, { status: 400 });
+    }
+    
+    // Handle timeout errors
+    if (e.code === 'P1008') {
+      return NextResponse.json({ 
+        error: 'Operation timeout',
+        message: 'The operation took too long to complete. Please try again.',
+        code: 'OPERATION_TIMEOUT'
+      }, { status: 408 });
+    }
+    
+    // Generic error fallback
+    return NextResponse.json({ 
+      error: 'Failed to save form',
+      message: 'An unexpected error occurred while saving your form. Please try again.',
+      code: 'SAVE_ERROR',
+      details: process.env.NODE_ENV === 'development' ? e.message : undefined
+    }, { status: 500 });
   }
 }
 

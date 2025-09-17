@@ -3,36 +3,65 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import BullyingTrainingAckForm, { BullyingTrainingAckFormRef } from '../../components/BullyingTrainingAckForm';
+import { useToast } from '@/components/ui/Toast';
 
 export default function BullyingTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const formRef = useRef<BullyingTrainingAckFormRef>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const res = await fetch(`/api/staff/onboard/${token}`);
         const data = await res.json();
         
-        if (!res.ok) throw new Error(data.error);
+        if (!res.ok) {
+          const errorMessage = data.message || data.error || 'Failed to load form data';
+          setError(errorMessage);
+          showToast({
+            type: 'error',
+            title: 'Error Loading Form',
+            message: errorMessage,
+            duration: 5000
+          });
+          return;
+        }
         
         setStaff(data.staff);
         setFormData(data.submissions['bullying_training'] || {});
+        
+        showToast({
+          type: 'success',
+          title: 'Form Loaded',
+          message: 'Your form data has been loaded successfully',
+          duration: 3000
+        });
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        const errorMessage = 'Unable to load form data. Please check your internet connection and try again.';
+        setError(errorMessage);
+        showToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: errorMessage,
+          duration: 5000
+        });
       } finally {
         setLoading(false);
       }
     };
 
     if (token) loadData();
-  }, [token]);
+  }, [token, showToast]);
 
   useEffect(() => {
     console.log("formData: ", formData);
@@ -46,13 +75,32 @@ export default function BullyingTrainingFormPage() {
       const success = await formRef.current.save(isSubmit);
       
       if (success && isSubmit) {
-        router.push(`/staff/onboard/${token}`);
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Your form has been submitted successfully. Redirecting...',
+          duration: 3000
+        });
+        // Small delay to show the success message
+        setTimeout(() => {
+          router.push(`/staff/onboard/${token}`);
+        }, 1000);
       } else if (success) {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your draft has been saved successfully',
+          duration: 3000
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save your form. Please try again.',
+        duration: 5000
+      });
     } finally {
       setSaving(false);
     }
@@ -61,7 +109,30 @@ export default function BullyingTrainingFormPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your form...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="text-red-600 text-6xl mb-4">⚠️</div>
+            <h2 className="text-xl font-semibold text-red-800 mb-2">Unable to Load Form</h2>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

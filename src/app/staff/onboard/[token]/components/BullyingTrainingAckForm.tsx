@@ -3,6 +3,7 @@
 import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormPage from '@/components/ui/FormPage';
+import { useToast } from '@/components/ui/Toast';
 
 export interface BullyingTrainingAckFormRef {
   save: (isSubmit: boolean) => Promise<boolean>;
@@ -16,46 +17,87 @@ interface BullyingTrainingAckFormProps {
 
 const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingTrainingAckFormProps>(
   ({ token, staff, onSubmitted }, ref) => {
+    const { showToast } = useToast();
     const [staffName, setStaffName] = useState('');
     const [staffSignature, setStaffSignature] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [managerName, setManagerName] = useState('');
     const [managerSignature, setManagerSignature] = useState('');
     const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Load existing data
     useEffect(() => {
       const loadData = async () => {
         try {
+          setLoading(true);
           const res = await fetch(`/api/staff/onboard/${token}`);
-          const data = await res.json();
+          const responseData = await res.json();
+          
+          if (!res.ok) {
+            // Handle API errors with user-friendly messages
+            const errorMessage = responseData.message || 'Failed to load form data';
+            showToast({
+              type: 'error',
+              title: 'Error Loading Form',
+              message: errorMessage,
+              duration: 5000
+            });
+            return;
+          }
           
           // Set staff name from database
           if (staff?.firstName && staff?.surname) {
             setStaffName(`${staff.firstName} ${staff.surname}`);
           }
           
-          if (data.submissions?.bullying_training) {
-            const formData = data.submissions.bullying_training;
+          if (responseData.submissions?.bullying_training) {
+            const formData = responseData.submissions.bullying_training;
             setStaffSignature(formData.staffSignature || '');
             setDate(formData.date || new Date().toISOString().split('T')[0]);
             setManagerName(formData.managerName || '');
             setManagerSignature(formData.managerSignature || '');
           }
+          
+          showToast({
+            type: 'success',
+            title: 'Form Loaded',
+            message: 'Your form data has been loaded successfully',
+            duration: 3000
+          });
+          
         } catch (error) {
           console.error('Error loading form data:', error);
+          showToast({
+            type: 'error',
+            title: 'Connection Error',
+            message: 'Unable to load form data. Please check your internet connection and try again.',
+            duration: 5000
+          });
+        } finally {
+          setLoading(false);
         }
       };
       loadData();
-    }, [token, staff]);
+    }, [token, staff, showToast]);
 
     const validateForm = () => {
       if (!staffName.trim()) {
-        alert('Staff Name is required');
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: 'Staff Name is required',
+          duration: 4000
+        });
         return false;
       }
       if (!staffSignature) {
-        alert('Staff Signature is required');
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: 'Staff Signature is required',
+          duration: 4000
+        });
         return false;
       }
       return true;
@@ -88,7 +130,27 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
         });
 
         const result = await res.json();
-        if (!res.ok) throw new Error(result.error || 'Failed to save');
+        
+        if (!res.ok) {
+          // Handle API errors with user-friendly messages
+          const errorMessage = result.message || result.error || 'Failed to save form';
+          showToast({
+            type: 'error',
+            title: 'Save Failed',
+            message: errorMessage,
+            duration: 5000
+          });
+          return false;
+        }
+
+        // Show success message
+        const action = isSubmit ? 'submitted' : 'saved';
+        showToast({
+          type: 'success',
+          title: 'Form Saved',
+          message: `Your form has been ${action} successfully`,
+          duration: 4000
+        });
 
         if (isSubmit && onSubmitted) {
           onSubmitted();
@@ -96,7 +158,12 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
         return true;
       } catch (error: any) {
         console.error('Error saving:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: 'Unable to save your form. Please check your internet connection and try again.',
+          duration: 5000
+        });
         return false;
       } finally {
         setSaving(false);
@@ -106,6 +173,19 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
     useImperativeHandle(ref, () => ({
       save,
     }));
+
+    if (loading) {
+      return (
+        <FormPage title="Bullying Training Acknowledgment" meta={{ website: 'infinitysupportswa.org', version: 'BT001', reviewDate: new Date().toISOString().slice(0,10) }}>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your form data...</p>
+            </div>
+          </div>
+        </FormPage>
+      );
+    }
 
     return (
       <FormPage title="Bullying Training Acknowledgment" meta={{ website: 'infinitysupportswa.org', version: 'BT001', reviewDate: new Date().toISOString().slice(0,10) }}>
