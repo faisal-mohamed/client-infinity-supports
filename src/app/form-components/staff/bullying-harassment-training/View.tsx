@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function BullyingHarassmentTrainingView({ excludeLastPage = false, children }: { excludeLastPage?: boolean; children?: React.ReactNode }) {
+export default function BullyingHarassmentTrainingView({ excludeLastPage = false, children, data = {} }: { excludeLastPage?: boolean; children?: React.ReactNode; data?: any }) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -111,6 +111,7 @@ export default function BullyingHarassmentTrainingView({ excludeLastPage = false
           </div>
         )}
         <div ref={pdfContainerRef} className="w-full" />
+        {children}
         {error && (
           <div className="text-sm text-red-600 mt-2">
             <p>Error: {error}</p>
@@ -122,7 +123,6 @@ export default function BullyingHarassmentTrainingView({ excludeLastPage = false
             />
           </div>
         )}
-        {children}
       </div>
     </div>
   );

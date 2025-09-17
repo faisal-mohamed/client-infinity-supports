@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function NdisWorkforceCapabilityView({ excludeLastPage = false, children, data = {} }: { excludeLastPage?: boolean; children?: React.ReactNode; data?: any }) {
+export default function BullyingTrainingView({ excludeLastPage = false, children, data = {} }: { excludeLastPage?: boolean; children?: React.ReactNode; data?: any }) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);
@@ -15,7 +15,7 @@ export default function NdisWorkforceCapabilityView({ excludeLastPage = false, c
       hasRenderedRef.current = true;
       setIsRendering(true);
       try {
-        console.log('Starting PDF rendering for NDIS Workforce Capability Framework');
+        console.log('Starting PDF rendering for Bullying Training');
         console.log('Injecting PDF.js scripts...');
         await injectScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
         await injectScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');
@@ -25,7 +25,7 @@ export default function NdisWorkforceCapabilityView({ excludeLastPage = false, c
         console.log('pdfjsLib found, setting worker source...');
         w['pdfjsLib'].GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const url = '/stafForms/NDIS WORKFORCE CAPABILITY FRAMEWORK.pdf';
+        const url = '/stafForms/Bullying Training.pdf';
         console.log('Loading PDF from:', url);
         const loadingTask = w['pdfjsLib'].getDocument(url);
         const pdf = await loadingTask.promise;
@@ -107,7 +107,7 @@ export default function NdisWorkforceCapabilityView({ excludeLastPage = false, c
         {isRendering && (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading NDIS Workforce Capability Framework...</p>
+            <p className="text-gray-600">Loading Bullying Training...</p>
           </div>
         )}
         <div ref={pdfContainerRef} className="w-full" />
@@ -117,9 +117,9 @@ export default function NdisWorkforceCapabilityView({ excludeLastPage = false, c
             <p>Error: {error}</p>
             <p className="mt-2">Attempting to show PDF directly:</p>
             <iframe 
-              src="/stafForms/NDIS WORKFORCE CAPABILITY FRAMEWORK.pdf" 
+              src="/stafForms/Bullying Training.pdf" 
               className="w-full h-96 border border-gray-300"
-              title="NDIS Workforce Capability Framework PDF"
+              title="Bullying Training PDF"
             />
           </div>
         )}

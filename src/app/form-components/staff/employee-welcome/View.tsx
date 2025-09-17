@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import EmployeeWelcomeAckView from './lastPageOnlyView';
 
-export default function EmployeeWelcomeView({ excludeLastPage = false, children, data }: { excludeLastPage?: boolean; children?: React.ReactNode; data: any }) {
+export default function EmployeeWelcomeView({ excludeLastPage = false, children, data = {} }: { excludeLastPage?: boolean; children?: React.ReactNode; data?: any }) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);

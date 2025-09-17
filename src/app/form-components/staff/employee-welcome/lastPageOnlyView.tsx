@@ -3,10 +3,10 @@
 import React, { useEffect } from "react";
 
 export default function EmployeeWelcomeAckView({
-  data,
+  data = {},
   meta = { website: "infinitysupportswa.org", formId: "SF009", reviewDate: new Date().toISOString().slice(0, 10) },
 }: {
-  data: any
+  data?: any
   meta?: { website: string; formId: string; reviewDate: string };
 }) {
 
@@ -41,7 +41,7 @@ export default function EmployeeWelcomeAckView({
             <input
               id="readAcknowledgement"
               type="checkbox"
-              checked={!data.readAcknowledgement}
+              checked={!data?.readAcknowledgement}
               readOnly
               className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded"
             />
@@ -57,16 +57,16 @@ export default function EmployeeWelcomeAckView({
           <div>
             <label className="block text-[12pt] mb-1">Name</label>
             <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
-              {`${data.staff.firstName} ${data.staff.surname}` || <span className="text-gray-400 italic">—</span>}
+              {data?.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '' || <span className="text-gray-400 italic">—</span>}
             </div>
           </div>
 
           {/* Signature */}
           <div className="mb-8">
             <label className="block text-[12pt] mb-2">Signature</label>
-            {data.staffSignature ? (
+            {data?.staffSignature ? (
               <img
-                src={data.staffSignature}
+                src={data?.staffSignature}
                 alt="Employee Signature"
                 className="border max-h-20 bg-white"
               />
@@ -79,8 +79,8 @@ export default function EmployeeWelcomeAckView({
           <div className="mb-6">
             <label className="block text-[12pt] mb-1">Date</label>
            <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
-  {data.staffSignedAt
-    ? new Date(data.staffSignedAt).toLocaleDateString("en-AU")
+  {data?.staffSignedAt
+    ? new Date(data?.staffSignedAt).toLocaleDateString("en-AU")
     : <span className="text-gray-400 italic">—</span>}
 </div>
 

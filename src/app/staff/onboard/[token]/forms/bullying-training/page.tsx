@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 
-export default function BullyingHarassmentFormPage() {
+export default function BullyingTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const [staff, setStaff] = useState<any>(null);
@@ -21,7 +21,7 @@ export default function BullyingHarassmentFormPage() {
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
-        setFormData(data.submissions['bullying_harassment_training'] || {});
+        setFormData(data.submissions['bullying_training'] || {});
       } catch (error: any) {
         console.error('Error loading data:', error);
         alert(error.message);
@@ -43,7 +43,7 @@ export default function BullyingHarassmentFormPage() {
       const res = await fetch(`/api/staff/onboard/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formKey: 'bullying_harassment_training', data: {}, submit: isSubmit }),
+        body: JSON.stringify({ formKey: 'bullying_training', data: {}, submit: isSubmit }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || 'Failed to save');
@@ -69,7 +69,7 @@ export default function BullyingHarassmentFormPage() {
     );
   }
 
-  const BullyingHarassmentTrainingView = getStaffFormComponent('bullying_harassment_training', 'view');
+  const BullyingTrainingView = getStaffFormComponent('bullying_training', 'view');
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -85,7 +85,7 @@ export default function BullyingHarassmentFormPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Bullying & Harassment Training</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Bullying Training</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
@@ -100,7 +100,7 @@ export default function BullyingHarassmentFormPage() {
         {/* View Component */}
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="view-component-wrapper">
-            <BullyingHarassmentTrainingView data={formData} />
+            <BullyingTrainingView data={formData} />
           </div>
           
           <div className="flex gap-4 mt-8 pt-6 border-t">
