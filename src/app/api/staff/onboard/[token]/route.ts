@@ -185,6 +185,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: staff.ndisCodeOfConduct.staffSignedAt?.toISOString() || ''
       };
     }
+
     return NextResponse.json({
       success: true,
       message: 'Staff data loaded successfully',

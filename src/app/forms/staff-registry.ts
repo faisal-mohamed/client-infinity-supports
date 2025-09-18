@@ -11,6 +11,14 @@ import BullyingTrainingView from '@/app/form-components/staff/bullying-training/
 
 import NDISCodeOfConductView from '../form-components/staff/code_of_conduct/View';
 import NDISCodeOfConductEdit from '../form-components/staff/code_of_conduct/Edit';
+import FairWorkInformationView from '../form-components/staff/fair-work-information/View';
+import FairWorkInformationEdit from '../form-components/staff/fair-work-information/Edit';
+import CasualEmploymentInformationView from '../form-components/staff/casual-employment-information/View';
+import CasualEmploymentInformationEdit from '../form-components/staff/casual-employment-information/Edit';
+import OrientationView from '../form-components/staff/orientation/View';
+import OrientationEdit from '../form-components/staff/orientation/Edit';
+import VehicleSafetyInspectionView from '../form-components/staff/vehicle-safety-inspection/View';
+import VehicleSafetyInspectionEdit from '../form-components/staff/vehicle-safety-inspection/Edit';
 import GovtTax from '@/app/form-components/staff/tax/page'
 
 import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
@@ -65,6 +73,30 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     name: 'NDIS Code of Conduct',
     viewComponent: NDISCodeOfConductView,
     editComponent: NDISCodeOfConductEdit,
+  },
+  fair_work_information: {
+    key: 'fair_work_information',
+    name: 'Fair Work Information Statement',
+    viewComponent: FairWorkInformationView,
+    editComponent: FairWorkInformationEdit,
+  },
+  casual_employment_information: {
+    key: 'casual_employment_information',
+    name: 'Casual Employment Information Statement',
+    viewComponent: CasualEmploymentInformationView,
+    editComponent: CasualEmploymentInformationEdit,
+  },
+  orientation: {
+    key: 'orientation',
+    name: 'Staff Orientation',
+    viewComponent: OrientationView,
+    editComponent: OrientationEdit,
+  },
+  vehicle_safety_inspection: {
+    key: 'vehicle_safety_inspection',
+    name: 'Vehicle Safety Inspection Checklist',
+    viewComponent: VehicleSafetyInspectionView,
+    editComponent: VehicleSafetyInspectionEdit,
   },
   govt_tax: {
     key: 'govt_tax',

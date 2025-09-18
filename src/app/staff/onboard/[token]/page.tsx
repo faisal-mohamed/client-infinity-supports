@@ -21,6 +21,10 @@ const FORM_SEQUENCE = [
   { key: 'bullying_harassment_training', name: 'Bullying & Harassment Training', route: 'bullying-harassment' },
   { key: 'bullying_training', name: 'Bullying Training', route: 'bullying-training' },
   { key: 'ndis_code_of_conduct', name: 'NDIS Code of Conduct', route: 'ndis-code-of-conduct' },
+  { key: 'fair_work_information', name: 'Fair Work Information Statement', route: 'fair-work-information' },
+  { key: 'casual_employment_information', name: 'Casual Employment Information Statement', route: 'casual-employment-information' },
+  { key: 'orientation', name: 'Staff Orientation', route: 'orientation' },
+  { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
   { key: 'govt_tax', name: 'Government Tax', route: 'govt-tax' },
   { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }
 ];
