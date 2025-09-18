@@ -21,6 +21,8 @@ import VehicleSafetyInspectionView from '../form-components/staff/vehicle-safety
 import VehicleSafetyInspectionEdit from '../form-components/staff/vehicle-safety-inspection/Edit';
 import GovtTax from '@/app/form-components/staff/tax/page'
 import GovtTaxEdit from '@/app/form-components/staff/tax/Edit'
+import SuperChoiceForm from '@/app/form-components/staff/super-choice-form/page'
+import SuperChoiceFormEdit from '@/app/form-components/staff/super-choice-form/Edit'
 
 import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
 import DocumentationAcknowledgement from '../form-components/staff/acknowledgement/page';
@@ -98,6 +100,12 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     name: 'Government Tax',
     viewComponent: GovtTax,
     editComponent: GovtTaxEdit,
+  },
+  super_choice_form: {
+    key: 'super_choice_form',
+    name: 'Superannuation Standard Choice Form',
+    viewComponent: SuperChoiceForm,
+    editComponent: SuperChoiceFormEdit,
   },
   vehicle_safety_inspection: {
     key: 'vehicle_safety_inspection',

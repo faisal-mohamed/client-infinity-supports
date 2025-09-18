@@ -25,6 +25,7 @@ const FORM_SEQUENCE = [
   { key: 'casual_employment_information', name: 'Casual Employment Information Statement', route: 'casual-employment-information' },
   { key: 'orientation', name: 'Staff Orientation', route: 'orientation' },
   { key: 'govt_tax', name: 'Government Tax', route: 'govt-tax' },
+  { key: 'super_choice_form', name: 'Superannuation Standard Choice Form', route: 'super-choice-form' },
   { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
   { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }
 ];
