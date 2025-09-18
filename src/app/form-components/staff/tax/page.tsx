@@ -507,69 +507,89 @@ function OverlaySquareRadioGroupFour({
 
 
 // ✅ Main Form
-export default function TFNOverlayForm() {
-  const [tfn, setTfn] = useState("123456789");
-  const [surname, setSurname] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [otherName, setOtherName] = useState("");
-  const [anotherName, setAnotherName] = useState("");
+interface TFNOverlayFormProps {
+  initialData?: any;
+  onDataChange?: (data: any) => void;
+  readOnly?: boolean;
+  showButtons?: boolean;
+}
 
-  const [town, setTown] = useState("");
-  const [state, setState] = useState("");
-  const [postcode, setPostcode] = useState("");
+export default function TFNOverlayForm({ 
+  initialData = {}, 
+  onDataChange, 
+  readOnly = false, 
+  showButtons = true 
+}: TFNOverlayFormProps = {}) {
+  const [tfn, setTfn] = useState(initialData.tfn || "123456789");
+  const [surname, setSurname] = useState(initialData.surname || "");
+  const [firstName, setFirstName] = useState(initialData.firstName || "");
+  const [otherName, setOtherName] = useState(initialData.otherName || "");
+  const [anotherName, setAnotherName] = useState(initialData.anotherName || "");
 
-  const [check1, setCheck1] = useState(false);
-  const [check2, setCheck2] = useState(false);
-  const [check3, setCheck3] = useState(false);
-  const [check4, setCheck4] = useState(false);
-  const [check5, setCheck5] = useState(false);
-  const [check6, setCheck6] = useState(false);
-  const [check7, setCheck7] = useState(false);
-  const [check8, setCheck8] = useState(false);
-  const [subscribe, setSubscribe] = useState(true);
+  const [town, setTown] = useState(initialData.town || "");
+  const [state, setState] = useState(initialData.state || "");
+  const [postcode, setPostcode] = useState(initialData.postcode || "");
 
+  const [check1, setCheck1] = useState(initialData.check1 || false);
+  const [check2, setCheck2] = useState(initialData.check2 || false);
+  const [check3, setCheck3] = useState(initialData.check3 || false);
+  const [check4, setCheck4] = useState(initialData.check4 || false);
+  const [check5, setCheck5] = useState(initialData.check5 || false);
+  const [check6, setCheck6] = useState(initialData.check6 || false);
+  const [check7, setCheck7] = useState(initialData.check7 || false);
+  const [check8, setCheck8] = useState(initialData.check8 || false);
+  const [subscribe, setSubscribe] = useState(initialData.subscribe || true);
 
-const [dob, setDob] = useState("10/10/1000");
+  const [dob, setDob] = useState(initialData.dob || "10/10/1000");
+  const [address, setAddress] = useState(initialData.address || "");
 
-const [address, setAddress] = useState("");
+  const [abnno, setAbnNo] = useState(initialData.abnno || "12345678901");
+  const [branchNo, setBranchNo] = useState(initialData.branchNo || "123");
+  const [haveAbn, setHaveAbn] = useState(initialData.haveAbn || "");
+  const [legalName, setLegalName] = useState(initialData.legalName || "");
 
+  const [payerSignatureAt, setPayerSignatureAt] = useState(initialData.payerSignatureAt || "10/10/1000");
+  const [payeeSignatureAt, setPayeeSignatureAt] = useState(initialData.payeeSignatureAt || "10/10/1000");
 
-const [abnno, setAbnNo] = useState("12345678901")
-const [branchNo, setBranchNo] = useState("123");
+  const [austrailanResident, setAustrailanResident] = useState(initialData.austrailanResident || "");
+  const [claimTaxFree, setClaimTaxFree] = useState(initialData.claimTaxFree || "");
+  const [seniorPensioner, setSeniorPensioner] = useState(initialData.seniorPensioner || "");
+  const [overseasForces, setOverseasForces] = useState(initialData.overseasForces || "");
+  const [tsldebt, setTsldebt] = useState(initialData.tsldebt || "");
+  const [financialDebt, setFinancialDebt] = useState(initialData.financialDebt || "");
 
-const [haveAbn, setHaveAbn] = useState("");
+  const [bussinessAddress, setBussinessAddress] = useState(initialData.bussinessAddress || "");
+  const [bussinessTown, setBussinessTown] = useState(initialData.bussinessTown || "");
+  const [bussinessState, setBussinessState] = useState(initialData.bussinessState || "");
+  const [bussinessPostcode, setBussinessPostcode] = useState(initialData.bussinessPostcode || "");
+  const [contactPerson, setContactPerson] = useState(initialData.contactPerson || "");
+  const [bussinessPhoneNo, setBussinessPhoneNo] = useState(initialData.bussinessPhoneNo || "");
+  const [selectedOption, setSelectedOption] = useState(initialData.selectedOption || "");
 
+  const [payerSignature, setPayerSignature] = useState<string | null>(initialData.payerSignature || null);
+  const [payeeSignature, setPayeeSignature] = useState<string | null>(initialData.payeeSignature || null);
 
-const [legalName, setLegalName] = useState("");
+  // Function to get current form data
+  const getFormData = () => ({
+    tfn, surname, firstName, otherName, anotherName, town, state, postcode,
+    check1, check2, check3, check4, check5, check6, check7, check8, subscribe,
+    dob, address, abnno, branchNo, haveAbn, legalName, payerSignatureAt, payeeSignatureAt,
+    austrailanResident, claimTaxFree, seniorPensioner, overseasForces, tsldebt,
+    financialDebt, bussinessAddress, bussinessTown, bussinessState, bussinessPostcode,
+    contactPerson, bussinessPhoneNo, selectedOption, payerSignature, payeeSignature
+  });
 
-const [payerSignatureAt, setPayerSignatureAt] = useState("10/10/1000");
-const [payeeSignatureAt, setPayeeSignatureAt] = useState("10/10/1000");
-
-
-const [austrailanResident, setAustrailanResident] = useState("");
-const [claimTaxFree, setClaimTaxFree] = useState("");
-const [seniorPensioner, setSeniorPensioner] = useState("");
-const [overseasForces, setOverseasForces] = useState("");
-const [tsldebt, setTsldebt] = useState("");
-
-const [financialDebt, setFinancialDebt] = useState("");
-
-const [bussinessAddress, setBussinessAddress] = useState("");
-const [bussinessTown, setBussinessTown] = useState("");
-const [bussinessState, setBussinessState] = useState("");
-const [bussinessPostcode, setBussinessPostcode] = useState("");
-
-const [contactPerson, setContactPerson] = useState("");
-
-const [bussinessPhoneNo, setBussinessPhoneNo] = useState("");
-
-const [selectedOption, setSelectedOption] = useState("");
-
-
-
- const [payerSignature, setPayerSignature] = useState<string | null>(null);
-  const [payeeSignature, setPayeeSignature] = useState<string | null>(null);
-
+  // Notify parent component when data changes
+  useEffect(() => {
+    if (onDataChange) {
+      onDataChange(getFormData());
+    }
+  }, [tfn, surname, firstName, otherName, anotherName, town, state, postcode,
+      check1, check2, check3, check4, check5, check6, check7, check8, subscribe,
+      dob, address, abnno, branchNo, haveAbn, legalName, payerSignatureAt, payeeSignatureAt,
+      austrailanResident, claimTaxFree, seniorPensioner, overseasForces, tsldebt,
+      financialDebt, bussinessAddress, bussinessTown, bussinessState, bussinessPostcode,
+      contactPerson, bussinessPhoneNo, selectedOption, payerSignature, payeeSignature]);
 
   const handleSave = () => {
     const formData = {
@@ -1023,26 +1043,29 @@ const [selectedOption, setSelectedOption] = useState("");
         label=""
       />
       
-       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
-  <button
-    onClick={handleSave}
-    className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
-  >
-    Save
-  </button>
-  <button
-    onClick={handleDownloadPDF}
-    disabled={isGeneratingPDF}
-    className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:bg-gray-400"
-  >
-    {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
-  </button>  <button
-    onClick={handleClear}
-    className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
-  >
-    Clear
-  </button>
-</div>
+       {showButtons && (
+         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4">
+           <button
+             onClick={handleSave}
+             className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
+           >
+             Save
+           </button>
+           <button
+             onClick={handleDownloadPDF}
+             disabled={isGeneratingPDF}
+             className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 disabled:bg-gray-400"
+           >
+             {isGeneratingPDF ? 'Generating...' : 'Download PDF'}
+           </button>
+           <button
+             onClick={handleClear}
+             className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
+           >
+             Clear
+           </button>
+         </div>
+       )}
 
     </div>
   );

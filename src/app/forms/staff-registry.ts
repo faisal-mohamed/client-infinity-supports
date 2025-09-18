@@ -20,6 +20,7 @@ import OrientationEdit from '../form-components/staff/orientation/Edit';
 import VehicleSafetyInspectionView from '../form-components/staff/vehicle-safety-inspection/View';
 import VehicleSafetyInspectionEdit from '../form-components/staff/vehicle-safety-inspection/Edit';
 import GovtTax from '@/app/form-components/staff/tax/page'
+import GovtTaxEdit from '@/app/form-components/staff/tax/Edit'
 
 import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
 import DocumentationAcknowledgement from '../form-components/staff/acknowledgement/page';
@@ -92,16 +93,17 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
     viewComponent: OrientationView,
     editComponent: OrientationEdit,
   },
+  govt_tax: {
+    key: 'govt_tax',
+    name: 'Government Tax',
+    viewComponent: GovtTax,
+    editComponent: GovtTaxEdit,
+  },
   vehicle_safety_inspection: {
     key: 'vehicle_safety_inspection',
     name: 'Vehicle Safety Inspection Checklist',
     viewComponent: VehicleSafetyInspectionView,
     editComponent: VehicleSafetyInspectionEdit,
-  },
-  govt_tax: {
-    key: 'govt_tax',
-    name: 'Government Tax',
-    viewComponent: GovtTax,
   },
   conflict_of_interest: {
     key: 'conflict_of_interest',

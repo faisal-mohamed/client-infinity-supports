@@ -24,8 +24,8 @@ const FORM_SEQUENCE = [
   { key: 'fair_work_information', name: 'Fair Work Information Statement', route: 'fair-work-information' },
   { key: 'casual_employment_information', name: 'Casual Employment Information Statement', route: 'casual-employment-information' },
   { key: 'orientation', name: 'Staff Orientation', route: 'orientation' },
-  { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
   { key: 'govt_tax', name: 'Government Tax', route: 'govt-tax' },
+  { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
   { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }
 ];
 
