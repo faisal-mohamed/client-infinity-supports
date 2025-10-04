@@ -177,9 +177,35 @@ const getCommonFieldValue = (fieldName: string): string => {
   useEffect(() => {
     console.log("Common fields data updated:", commonFieldsData);
   }, [commonFieldsData]);
-  const [currentStep, setCurrentStep] = useState(0);
+  const stepStorageKeyRef = useRef<string>("");
+  // Determine initial step synchronously to avoid flashing back to section 1
+  const initialStep = (() => {
+    if (typeof window === 'undefined') return 0;
+    const key = `emergency_drill_step:${window.location.pathname}`;
+    stepStorageKeyRef.current = key;
+    try {
+      const saved = parseInt(localStorage.getItem(key) || "", 10);
+      if (!isNaN(saved) && saved >= 0 && saved < FORM_SECTIONS.length) return saved;
+    } catch {}
+    return 0;
+  })();
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [maxStep, setMaxStep] = useState(0);
+  const [maxStep, setMaxStep] = useState(initialStep);
+  // Ensure key is set if constructed before window existed
+  useEffect(() => {
+    if (!stepStorageKeyRef.current && typeof window !== 'undefined') {
+      stepStorageKeyRef.current = `emergency_drill_step:${window.location.pathname}`;
+    }
+  }, []);
+
+  // Persist step on change
+  useEffect(() => {
+    if (!stepStorageKeyRef.current) return;
+    try {
+      localStorage.setItem(stepStorageKeyRef.current, String(currentStep));
+    } catch {}
+  }, [currentStep]);
   
   // Signature canvas ref
   const sigCanvasRef = useRef<SignatureCanvasRef | null>(null);
@@ -226,13 +252,13 @@ const getCommonFieldValue = (fieldName: string): string => {
   supervisorComments: "",
   nextDrillDate: "",
 
-  // Signatures
-  
-    ...formData,
-
+  // Signatures (defaults)
   supportWorkerSignature: "",
   supervisorSignature: "",
-signatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0])
+  signatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
+
+  // Incoming data from DB should override defaults, including signatures/date
+  ...formData,
 
 
 };

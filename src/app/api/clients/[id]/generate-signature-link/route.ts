@@ -91,8 +91,9 @@ export async function POST(
     );
 
     // Filter out assignments that don't have admin-filled submissions
+    // Special-case: allow emergency_drill even if not admin-filled
     const validSubmissions = formSubmissions.filter(sub => 
-      sub.submissionId && sub.filledByAdmin
+      sub.submissionId && (sub.filledByAdmin || sub.formKey === 'emergency_drill')
     );
 
     if (validSubmissions.length === 0) {

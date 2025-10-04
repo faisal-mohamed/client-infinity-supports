@@ -703,3 +703,51 @@ export async function POST(
     );
   }
 }
+
+// Save in-progress form data for a signature link
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ token: string; formSubmissionId: string }> }
+) {
+  try {
+    const { token, formSubmissionId } = await params;
+    const formSubmissionIdInt = parseInt(formSubmissionId);
+    const { data } = await req.json();
+
+    if (!token || !formSubmissionIdInt) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate signature batch and that this submission is part of it
+    const batch = await prisma.formBatch.findUnique({
+      where: { batchToken: token, isSignatureOnly: true },
+      include: {
+        signatureForms: { select: { formSubmissionId: true } },
+      },
+    });
+
+    if (!batch) return NextResponse.json({ error: "Signature link not found" }, { status: 404 });
+    if (batch.expiresAt < new Date()) return NextResponse.json({ error: "Signature link expired" }, { status: 410 });
+
+    const inBatch = batch.signatureForms.some((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
+    if (!inBatch) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
+
+    // Update submission data only
+    const updated = await prisma.formSubmission.update({
+      where: { id: formSubmissionIdInt },
+      data: {
+        data,
+        updatedAt: new Date(),
+      },
+      select: { id: true },
+    });
+
+    return NextResponse.json({ success: true, formSubmissionId: updated.id });
+  } catch (error: any) {
+    console.error("Error saving form via signature token:", error);
+    return NextResponse.json(
+      { error: "Failed to save form data", details: error.message },
+      { status: 500 }
+    );
+  }
+}

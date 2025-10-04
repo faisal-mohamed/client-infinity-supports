@@ -18,6 +18,7 @@ import {
   getFormSignatures,
   type SignatureRequirement,
 } from "@/app/forms/registry";
+import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
@@ -59,6 +60,8 @@ export default function FormSignaturePageClient() {
   const [error, setError] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { showToast } = useToast();
+  const [editedFormValues, setEditedFormValues] = useState<any | null>(null);
 
   // Multi-signature state
   const [requiredSignatures, setRequiredSignatures] = useState<
@@ -87,6 +90,10 @@ export default function FormSignaturePageClient() {
   const activeSignatureId = isGroupAny
     ? selectedGroupSignatureId
     : currentSig?.id;
+
+  const needsName = isGroupAny
+    ? !!sameGroupSigs.find((sig) => sig.id === activeSignatureId)?.signerName
+    : !!currentSig?.signerName;
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL LOGIC
   useEffect(() => {
@@ -206,6 +213,7 @@ export default function FormSignaturePageClient() {
 
       const data = await response.json();
       setFormData(data);
+      setEditedFormValues(data?.formSubmission?.data || {});
       console.log("Form data loaded:", data);
     } catch (error: any) {
       console.error("Error loading form data:", error);
@@ -241,7 +249,7 @@ export default function FormSignaturePageClient() {
       return;
     }
 
-    if (!signatureName.trim()) {
+    if (needsName && !signatureName.trim()) {
       alert("Please enter your name before submitting.");
       return;
     }
@@ -387,11 +395,18 @@ export default function FormSignaturePageClient() {
 
   // Get the appropriate form component from registry
   let FormViewComponent;
+  let FormEditComponent: any = null;
   try {
     FormViewComponent = getFormComponent(
       formData.formSubmission.form.formKey,
       "view"
     );
+    if (formData.formSubmission.form.formKey === "emergency_drill") {
+      FormEditComponent = getFormComponent(
+        formData.formSubmission.form.formKey,
+        "edit"
+      );
+    }
   } catch (error) {
     console.log("error : ", error);
     return (
@@ -416,6 +431,7 @@ export default function FormSignaturePageClient() {
   }
 
   const requiresSignature = formData.formSubmission.form.requiresSignature;
+  const isEmergencyDrill = formData.formSubmission.form.formKey === "emergency_drill";
   
   const allSignaturesComplete = requiredSignatures.length === 0;
 
@@ -497,22 +513,58 @@ export default function FormSignaturePageClient() {
 
         {/* Form Content */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
-          <FormViewComponent
-            formSchemas={formData.formSubmission.form.schema}
-            formData={formData.formSubmission.data}
-            showSignature={allSignaturesComplete}
-            existingSignature={formData.formSubmission.data?.signature} // Get signature from form data
-            isClientView={true}
-            commonFieldsData={formData.client.commonFields[0] || {}}
-            settings={formSettings}
-          />
+          {isEmergencyDrill && FormEditComponent ? (
+            <FormEditComponent
+              formData={editedFormValues}
+              commonFieldsData={formData.client.commonFields[0] || {}}
+              onChange={(values: any) => setEditedFormValues(values)}
+              readOnly={false}
+              handleSaveProgress={async () => {
+                try {
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                  showToast({ type: "success", title: "Saved", message: "Progress saved", duration: 2000 });
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                }
+              }}
+              handleSubmitForm={async () => {
+                try {
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                  showToast({ type: "success", title: "Saved", message: "Form data saved", duration: 2000 });
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                }
+              }}
+              settings={formSettings}
+            />
+          ) : (
+            <FormViewComponent
+              formSchemas={formData.formSubmission.form.schema}
+              formData={formData.formSubmission.data}
+              showSignature={allSignaturesComplete}
+              existingSignature={formData.formSubmission.data?.signature}
+              isClientView={true}
+              commonFieldsData={formData.client.commonFields[0] || {}}
+              settings={formSettings}
+            />
+          )}
         </div>
 
         {/* Signature Requirements Overview */}
         {/* {renderSignatureStatus()} */}
 
-        {/* Action Section - Only show for forms requiring signature */}
-        {requiresSignature && !showSignaturePad && !allSignaturesComplete && (
+        {/* Action Section - Only show for forms requiring signature (hidden for emergency_drill) */}
+        {requiresSignature && !isEmergencyDrill && !showSignaturePad && !allSignaturesComplete && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Review Complete
@@ -537,6 +589,7 @@ export default function FormSignaturePageClient() {
         )}
 
         {requiresSignature &&
+          !isEmergencyDrill &&
           showSignaturePad &&
           !allSignaturesComplete &&
           requiredSignatures.length > 0 && (
@@ -557,6 +610,7 @@ export default function FormSignaturePageClient() {
                     Select Signature Type
                   </label>
                   <select
+                    title="Select signature type"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     onChange={(e) => {
                       const selectedId = e.target.value;
@@ -588,19 +642,21 @@ export default function FormSignaturePageClient() {
               {activeSignatureId && (
                 <div className="mb-8">
                   <div className="max-w-2xl mx-auto space-y-6">
-                    {/* Name Input */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Your Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter your full name"
-                        value={signatureName}
-                        onChange={(e) => setSignatureName(e.target.value)}
-                      />
-                    </div>
+                    {/* Name Input (only if required by config) */}
+                    {needsName && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Your Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Enter your full name"
+                          value={signatureName}
+                          onChange={(e) => setSignatureName(e.target.value)}
+                        />
+                      </div>
+                    )}
 
                     {/* Signature Pad */}
                     <div>

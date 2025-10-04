@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { FaTimes, FaFileAlt, FaCopy, FaLink } from 'react-icons/fa';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 interface GeneratedLink {
   url: string;
@@ -30,9 +32,9 @@ export default function SignatureLinkModal({
 }: SignatureLinkModalProps) {
   if (!isOpen || !generatedLink) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+  const modalContent = (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <div className="min-w-0 flex-1 mr-4">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
@@ -115,4 +117,10 @@ export default function SignatureLinkModal({
       </div>
     </div>
   );
+
+  // Render in a portal to escape any parent stacking contexts
+  if (typeof window !== 'undefined') {
+    return ReactDOM.createPortal(modalContent, document.body);
+  }
+  return modalContent;
 }
