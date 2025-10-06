@@ -25,6 +25,7 @@ interface FormProps {
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
   handleSubmitForm?: () => Promise<void>;
+  saving?: boolean;
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -116,6 +117,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   handleSave,
   handleSaveProgress,
   handleSubmitForm,
+  saving = false,
   onCommonFieldsUpdated,
 }: any) => {
 
@@ -213,8 +215,8 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   const { showToast } = useToast();
 
   // Loading states
-  const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Note: 'saving' state comes from parent component via props
 
   // Track pending changes to common fields
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -793,7 +795,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
+              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? 'Saving...' : 'Save Progress'}
             </button>
           </div>

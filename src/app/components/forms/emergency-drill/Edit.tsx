@@ -26,8 +26,13 @@ interface FormProps {
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void; // Keep for backward compatibility
-  handleSaveProgress?: () => Promise<void>; // New: separate save function
+  handleSaveProgress?: () => Promise<void>; // New: separate save function for Save Progress button
+  handleSaveForNext?: () => Promise<void>; // New: separate save for Next button
+  handleSaveForPrev?: () => Promise<void>; // New: separate save for Previous button
   handleSubmitForm?: () => Promise<void>; // New: separate submit function
+  saving?: boolean; // Loading state for Save Progress button
+  navigatingNext?: boolean; // Loading state for Next button only
+  navigatingPrev?: boolean; // Loading state for Previous button only
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -164,8 +169,13 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   readOnly = false,
   fieldErrors = {},
   handleSave, // Legacy function
-  handleSaveProgress, // New: separate save function
+  handleSaveProgress, // New: separate save function for Save Progress button
+  handleSaveForNext, // New: separate save for Next button
+  handleSaveForPrev, // New: separate save for Previous button
   handleSubmitForm, // New: separate submit function
+  saving = false, // Loading state for Save Progress button
+  navigatingNext = false, // Loading state for Next button only
+  navigatingPrev = false, // Loading state for Previous button only
   onCommonFieldsUpdated,
 }: any ) => {
 
@@ -269,9 +279,9 @@ const getCommonFieldValue = (fieldName: string): string => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
 
-  // 🎯 SEPARATE LOADING STATES
-  const [saving, setSaving] = useState(false); // For save progress
+  // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
+  // Note: 'saving' state comes from parent component via props
 
   // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -370,12 +380,18 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   const handleNextSequential = async () => {
     // Save progress before moving to next section
-    await handleSaveProgress();
+    if (handleSaveForNext) {
+      await handleSaveForNext();
+    }
     handleNext();
   };
 
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
+    // Save progress before moving to previous section
     if (currentStep > 0) {
+      if (handleSaveForPrev) {
+        await handleSaveForPrev();
+      }
       setCurrentStep(currentStep - 1);
     }
   };
@@ -860,21 +876,21 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
+              disabled={currentStep === 0 || navigatingPrev}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
             >
-              <FaChevronLeft className="w-4 h-4" />
+              {navigatingPrev ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
               <span>Previous</span>
             </button>
 
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
@@ -882,7 +898,7 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
+              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? 'Saving...' : 'Save Progress'}
             </button>
           </div>

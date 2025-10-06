@@ -39,6 +39,8 @@ export default function FormEditPageClient() {
   const [commonFieldsData, setCommonFieldsData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [navigatingNext, setNavigatingNext] = useState(false); // For Next button only
+  const [navigatingPrev, setNavigatingPrev] = useState(false); // For Previous button only
 
   // Load assignment and existing data
   useEffect(() => {
@@ -80,7 +82,7 @@ export default function FormEditPageClient() {
     }
   };
 
-  // 🎯 SEPARATE SAVE PROGRESS FUNCTION
+  // 🎯 SEPARATE SAVE PROGRESS FUNCTION (for Save Progress button)
   const handleSaveProgress = async () => {
     if (!assignment) return;
     try {
@@ -118,6 +120,72 @@ export default function FormEditPageClient() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 🎯 SAVE FOR NEXT BUTTON
+  const handleSaveForNext = async () => {
+    if (!assignment) return;
+    try {
+      setNavigatingNext(true);
+
+      const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save form data');
+      
+      const result = await response.json();
+      console.log('Save for next result:', result);
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: 'Failed to save progress',
+        duration: 3000,
+      });
+    } finally {
+      setNavigatingNext(false);
+    }
+  };
+
+  // 🎯 SAVE FOR PREVIOUS BUTTON
+  const handleSaveForPrev = async () => {
+    if (!assignment) return;
+    try {
+      setNavigatingPrev(true);
+
+      const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save form data');
+      
+      const result = await response.json();
+      console.log('Save for previous result:', result);
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: 'Failed to save progress',
+        duration: 3000,
+      });
+    } finally {
+      setNavigatingPrev(false);
     }
   };
 
@@ -296,8 +364,13 @@ export default function FormEditPageClient() {
             onChange={handleFormChange}
             onSubmit={handleFormSubmit}
             handleSave={handleSave} // Legacy function for backward compatibility
-            handleSaveProgress={handleSaveProgress} // New: separate save function
+            handleSaveProgress={handleSaveProgress} // New: separate save function for Save Progress button
+            handleSaveForNext={handleSaveForNext} // New: separate save for Next button
+            handleSaveForPrev={handleSaveForPrev} // New: separate save for Previous button
             handleSubmitForm={handleSubmitForm} // New: separate submit function
+            saving={saving} // Pass saving state for Save Progress button
+            navigatingNext={navigatingNext} // Pass navigatingNext state for Next button
+            navigatingPrev={navigatingPrev} // Pass navigatingPrev state for Previous button
             readOnly={false}
             fieldErrors={{}}
             onCommonFieldsUpdated={() => {
