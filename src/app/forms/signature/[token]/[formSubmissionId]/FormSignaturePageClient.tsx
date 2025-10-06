@@ -62,6 +62,11 @@ export default function FormSignaturePageClient() {
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
   const [editedFormValues, setEditedFormValues] = useState<any | null>(null);
+  
+  // Button-specific loading states
+  const [saving, setSaving] = useState(false); // For Save Progress button
+  const [navigatingNext, setNavigatingNext] = useState(false); // For Next button
+  const [navigatingPrev, setNavigatingPrev] = useState(false); // For Previous button
 
   // Multi-signature state
   const [requiredSignatures, setRequiredSignatures] = useState<
@@ -521,6 +526,7 @@ export default function FormSignaturePageClient() {
               readOnly={false}
               handleSaveProgress={async () => {
                 try {
+                  setSaving(true);
                   const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -530,6 +536,38 @@ export default function FormSignaturePageClient() {
                   showToast({ type: "success", title: "Saved", message: "Progress saved", duration: 2000 });
                 } catch (e: any) {
                   showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              handleSaveForNext={async () => {
+                try {
+                  setNavigatingNext(true);
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setNavigatingNext(false);
+                }
+              }}
+              handleSaveForPrev={async () => {
+                try {
+                  setNavigatingPrev(true);
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setNavigatingPrev(false);
                 }
               }}
               handleSubmitForm={async () => {
@@ -545,6 +583,9 @@ export default function FormSignaturePageClient() {
                   showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
                 }
               }}
+              saving={saving}
+              navigatingNext={navigatingNext}
+              navigatingPrev={navigatingPrev}
               settings={formSettings}
             />
           ) : (
