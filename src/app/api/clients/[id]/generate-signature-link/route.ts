@@ -119,9 +119,18 @@ export async function POST(
       },
     });
 
-    // Create SignatureBatchForm entries for each valid submission
+    // Create SignatureBatchForm entries and update FormSubmission status
     const signatureBatchForms = await Promise.all(
       validSubmissions.map(async (submission) => {
+        // Update FormSubmission to mark as sent to client for completion
+        await prisma.formSubmission.update({
+          where: { id: submission.submissionId! },
+          data: {
+            filledByAdmin: false, // Mark as sent to client (waiting for their input)
+            // Keep admin data and timestamp - client will review and add to it
+          },
+        });
+
         return prisma.signatureBatchForm.create({
           data: {
             batchId: signatureBatch.id,

@@ -33,7 +33,8 @@ interface FormProps {
   saving?: boolean; // Loading state for Save Progress button
   navigatingNext?: boolean; // Loading state for Next button only
   navigatingPrev?: boolean; // Loading state for Previous button only
-  isSignatureLink?: boolean; // NEW: If true, apply signature link access restrictions
+  isSignatureLink?: boolean; // If true, apply signature link access restrictions
+  filledByClient?: boolean; // NEW: If true, form was filled via signature link (admin reviewing)
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -124,7 +125,7 @@ export const FORM_SECTIONS : any = [
       "nextDrillDate"
     ],
     icon: FaHome,
-        requiredFields: []
+    requiredFields: ["debriefConducted", "supervisorComments", "nextDrillDate"] // Required for admin
 
   },
   {
@@ -133,11 +134,12 @@ export const FORM_SECTIONS : any = [
     description: "Acknowledgements",
     fields: [
       "supportWorkerSignature",
+      "supportWorkerSignatureDate",
       "supervisorSignature",
-      "signatureDate"
+      "supervisorSignatureDate"
     ],
     icon: FaHome,
-        requiredFields: []
+    requiredFields: ["supportWorkerSignature", "supportWorkerSignatureDate"] // Required for staff
 
   }
 ];
@@ -177,7 +179,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   saving = false, // Loading state for Save Progress button
   navigatingNext = false, // Loading state for Next button only
   navigatingPrev = false, // Loading state for Previous button only
-  isSignatureLink = false, // NEW: Default to admin view
+  isSignatureLink = false, // Default to admin view
+  filledByClient = false, // NEW: If true, admin is reviewing client-submitted form
   onCommonFieldsUpdated,
 }: any ) => {
 
@@ -186,6 +189,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   const commonKey = commonFieldsMapping[fieldName];
   return commonFieldsData?.[commonKey] || '';
 };
+
   useEffect(() => {
     console.log("Common fields data updated:", commonFieldsData);
   }, [commonFieldsData]);
@@ -204,6 +208,16 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(initialStep);
+  
+  // DEBUG: Log access control props
+  useEffect(() => {
+    console.log('=== Emergency Drill Access Control ===');
+    console.log('isSignatureLink:', isSignatureLink);
+    console.log('filledByClient:', filledByClient);
+    console.log('readOnly:', readOnly);
+    console.log('currentStep:', currentStep);
+  }, [isSignatureLink, filledByClient, readOnly, currentStep]);
+  
   // Ensure key is set if constructed before window existed
   useEffect(() => {
     if (!stepStorageKeyRef.current && typeof window !== 'undefined') {
@@ -266,8 +280,9 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   // Signatures (defaults)
   supportWorkerSignature: "",
+  supportWorkerSignatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
   supervisorSignature: "",
-  signatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
+  supervisorSignatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
 
   // Incoming data from DB should override defaults, including signatures/date
   ...formData,
@@ -365,7 +380,18 @@ const getCommonFieldValue = (fieldName: string): string => {
   };
 
   const isCurrentSectionComplete = () => {
-    const required = FORM_SECTIONS[currentStep].requiredFields || [];
+    let required = FORM_SECTIONS[currentStep].requiredFields || [];
+    
+    // ADMIN REVIEW MODE: Check supervisor fields for signature section
+    if (filledByClient && !isSignatureLink && currentStep === 6) {
+      required = ['supervisorSignature', 'supervisorSignatureDate'];
+    }
+    
+    // ADMIN REVIEW MODE: Section 5 (Follow-up) requires all fields
+    if (filledByClient && !isSignatureLink && currentStep === 5) {
+      required = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
+    }
+    
     return required.every((key : any ) => {
       let value;
       
@@ -467,6 +493,11 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               View Only
             </span>
           )}
+          {fieldIsReadOnly && filledByClient && !isCommon && currentStep >= 0 && currentStep <= 4 && (
+            <span className="ml-2 text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+              Client Submitted
+            </span>
+          )}
         </label>
         <textarea
           name={name}
@@ -510,6 +541,11 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
           {fieldIsReadOnly && isSignatureLink && currentStep === 5 && (
             <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
               View Only
+            </span>
+          )}
+          {fieldIsReadOnly && filledByClient && currentStep >= 0 && currentStep <= 4 && (
+            <span className="ml-2 text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+              Client Submitted
             </span>
           )}
         </label>
@@ -625,6 +661,11 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               View Only
             </span>
           )}
+          {fieldReadOnly && filledByClient && name === 'supportWorkerSignature' && (
+            <span className="ml-2 text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+              Staff Signed
+            </span>
+          )}
         </label>
         <div className={`w-full rounded-lg border ${fieldReadOnly ? 'border-gray-300 bg-gray-50' : 'border-gray-200 bg-white'} p-4 shadow-sm`}>
           <SignatureCanvas
@@ -635,7 +676,13 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
             width={400}
             height={150}
             disabled={fieldReadOnly}
-            placeholder={fieldReadOnly ? "View only - signature will be added by supervisor" : (placeholder || "Draw your signature in the box above")}
+            placeholder={
+              fieldReadOnly && isSignatureLink 
+                ? "View only - signature will be added by supervisor"
+                : fieldReadOnly && filledByClient && name === 'supportWorkerSignature'
+                ? "Staff has already signed - view only"
+                : (placeholder || "Draw your signature in the box above")
+            }
           />
         </div>
         {fieldErrors[name] && (
@@ -647,22 +694,59 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
 
   // Helper to check if a field is required in the current section
   const isFieldRequired = (fieldName: string) => {
-    return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
+    const baseRequired = FORM_SECTIONS[currentStep].requiredFields || [];
+    
+    // ADMIN REVIEW MODE: Override required fields for admin sections
+    if (filledByClient && !isSignatureLink) {
+      // Section 5 (Follow-up) - all fields required for admin
+      if (currentStep === 5) {
+        const adminFollowupRequired = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
+        return adminFollowupRequired.includes(fieldName);
+      }
+      
+      // Section 6 (Signatures) - supervisor signature fields required for admin
+      if (currentStep === 6) {
+        const adminRequiredFields = ['supervisorSignature', 'supervisorSignatureDate'];
+        return adminRequiredFields.includes(fieldName);
+      }
+    }
+    
+    return baseRequired.includes(fieldName);
   };
 
-  // NEW: Helper to check if a field should be read-only based on signature link restrictions
+  // NEW: Helper to check if a field should be read-only based on access mode
   const isFieldReadOnly = (fieldName: string) => {
-    if (!isSignatureLink) return readOnly; // Admin view - use default readOnly prop
+    // SIGNATURE LINK MODE (Client/Staff filling form)
+    if (isSignatureLink) {
+      // Section 5 (Follow-up) - ALL fields read-only (admin will complete)
+      if (currentStep === 5) return true;
+      
+      // Section 6 (Signatures) - Only supervisor fields are read-only
+      if (currentStep === 6 && (fieldName === 'supervisorSignature' || fieldName === 'supervisorSignatureDate')) return true;
+      
+      // Sections 0-4: Fully editable
+      // Section 6: supportWorkerSignature and supportWorkerSignatureDate editable
+      return readOnly;
+    }
     
-    // Signature link restrictions:
-    // Section 5 (Follow-up) - ALL fields read-only
-    if (currentStep === 5) return true;
+    // ADMIN REVIEW MODE (Admin reviewing client-submitted form)
+    if (filledByClient && !isSignatureLink) {
+      // Sections 0-4 (1-5): Read-only (client/staff already filled)
+      if (currentStep >= 0 && currentStep <= 4) return true;
+      
+      // Section 5 (Follow-up): Editable (admin completes this)
+      if (currentStep === 5) return false;
+      
+      // Section 6 (Signatures):
+      if (currentStep === 6) {
+        // supportWorkerSignature and supportWorkerSignatureDate: Read-only (staff already signed)
+        if (fieldName === 'supportWorkerSignature' || fieldName === 'supportWorkerSignatureDate') return true;
+        // supervisorSignature and supervisorSignatureDate: Editable (admin signs)
+        return false;
+      }
+    }
     
-    // Section 6 (Signatures) - Only supervisorSignature is read-only
-    if (currentStep === 6 && fieldName === 'supervisorSignature') return true;
-    
-    // Sections 0-4: Fully editable
-    // Section 6: supportWorkerSignature and signatureDate editable
+    // NORMAL ADMIN MODE (Admin creating new form or form not filled by client)
     return readOnly;
   };
 
@@ -702,8 +786,9 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
   nextDrillDate: { label: "Date of Next Scheduled Drill", type: "text" },
 
   supportWorkerSignature: { label: "Support Worker", type: "supportWorkerSignature" },
+  supportWorkerSignatureDate: { label: "Support Worker Signature Date", type: "date" },
   supervisorSignature: { label: "Supervisor/Manager", type: "supervisorSignature" },
-  signatureDate: { label: "Date", type: "date" }
+  supervisorSignatureDate: { label: "Supervisor Signature Date", type: "date" }
 };
 
 
@@ -711,23 +796,48 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
     
-    FORM_SECTIONS.forEach((section: any ) => {
-      section.requiredFields.forEach((fieldName: any ) => {
-        let value;
-        
-        // For common fields, get value from commonFieldsData
-        if (isCommonField(fieldName)) {
-          value = getCommonFieldValue(fieldName);
-        } else {
-          value = localValues[fieldName];
-        }
-        
-        // Check if field is empty, null, undefined, or empty string
+    // ADMIN REVIEW MODE: Only validate supervisor sections (5 & 6)
+    if (filledByClient && !isSignatureLink) {
+      // Section 5 (Follow-up) - all fields required
+      const followupRequired = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
+      followupRequired.forEach((fieldName: any) => {
+        const value = localValues[fieldName];
         if (!value || (typeof value === 'string' && value.trim() === '')) {
-          missingFields.push(`${fieldName}`);
+          missingFields.push(`Follow-up: ${fieldName}`);
         }
       });
-    });
+      
+      // Section 6 (Signatures) - supervisor signature and date required
+      const signatureRequired = ['supervisorSignature', 'supervisorSignatureDate'];
+      signatureRequired.forEach((fieldName: any) => {
+        const value = localValues[fieldName];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          missingFields.push(`Signature: ${fieldName}`);
+        }
+      });
+    } else {
+      // SIGNATURE LINK or NORMAL ADMIN MODE: Check all sections
+      FORM_SECTIONS.forEach((section: any, index: number) => {
+        // Skip Follow-up section for signature link mode (admin completes it)
+        if (isSignatureLink && index === 5) return;
+        
+        section.requiredFields.forEach((fieldName: any) => {
+          let value;
+          
+          // For common fields, get value from commonFieldsData
+          if (isCommonField(fieldName)) {
+            value = getCommonFieldValue(fieldName);
+          } else {
+            value = localValues[fieldName];
+          }
+          
+          // Check if field is empty, null, undefined, or empty string
+          if (!value || (typeof value === 'string' && value.trim() === '')) {
+            missingFields.push(`${section.title}: ${fieldName}`);
+          }
+        });
+      });
+    }
     
     return {
       isValid: missingFields.length === 0,
@@ -881,6 +991,67 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
                     <p className="text-xs text-blue-700">
                       <strong>Support Worker:</strong> Please sign in the first signature field and enter the date.<br />
                       <strong>Supervisor Signature:</strong> This will be completed by your supervisor/manager in the office.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notice for Admin Review Mode - Client Submitted Sections */}
+            {filledByClient && !isSignatureLink && currentStep >= 0 && currentStep <= 4 && (
+              <div className="mt-3 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-blue-800 mb-1">
+                      Client/Staff Submitted Data - View Only
+                    </h3>
+                    <p className="text-xs text-blue-700">
+                      This section was completed by the client and support worker. You can review the information but cannot edit it. Please proceed to the Follow-up section to complete your part.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notice for Admin Review Mode - Follow-up Section */}
+            {filledByClient && !isSignatureLink && currentStep === 5 && (
+              <div className="mt-3 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-green-800 mb-1">
+                      Supervisor Section - Your Input Required
+                    </h3>
+                    <p className="text-xs text-green-700">
+                      Please complete this Follow-up section. Review the drill details from previous sections and provide your supervisor feedback and next scheduled drill date.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notice for Admin Review Mode - Signatures Section */}
+            {filledByClient && !isSignatureLink && currentStep === 6 && (
+              <div className="mt-3 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <FaSignature className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-green-800 mb-1">
+                      Supervisor Signature Required
+                    </h3>
+                    <p className="text-xs text-green-700">
+                      The support worker has already signed this form. Please add your supervisor signature and verify the date to complete the approval process.
                     </p>
                   </div>
                 </div>

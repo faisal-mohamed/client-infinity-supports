@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
+import StaffNotSubmittedModal from '@/components/ui/StaffNotSubmittedModal';
 
 
 // Types
@@ -14,6 +15,8 @@ interface FormAssignmentData {
   clientId: number;
   formId: number;
   formVersion: number;
+  filledByAdmin: boolean; // Check if filled by admin vs client
+  hasSubmission: boolean; // NEW: Check if submission data exists
   form: {
     formKey: string;
     title: string;
@@ -30,6 +33,7 @@ export default function FormEditPageClient() {
   const params = useParams();
   const router = useRouter();
   const { showToast } = useToast();
+  const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
   
   const clientId = parseInt(params.id as string);
   const assignmentId = parseInt(params.assignmentId as string);
@@ -57,6 +61,9 @@ export default function FormEditPageClient() {
       
       const data = await response.json();
       console.log('Loaded assignment data:', data);
+      console.log('hasSubmission:', data.assignment?.hasSubmission);
+      console.log('filledByAdmin:', data.assignment?.filledByAdmin);
+      console.log('staffSignature exists:', !!data.existingData?.supportWorkerSignature);
       setAssignment(data.assignment);
       setFormData(data.existingData || {});
       setCommonFieldsData(data.commonFields || {});
@@ -296,6 +303,49 @@ export default function FormEditPageClient() {
     );
   }
 
+  // NEW: Check if we need to block admin from editing
+  // Block if: form sent via link (filledByAdmin=false) AND staff hasn't submitted their portion yet
+  // For emergency drill: check if support worker signature exists - if yes, staff submitted
+  const staffHasSubmitted = formData?.supportWorkerSignature || formData?.clientSignature;
+  const isWaitingForStaff = !assignment.filledByAdmin && assignment.hasSubmission && !staffHasSubmitted;
+  
+  if (isWaitingForStaff) {
+    // Show modal and block access - signature link sent but staff hasn't submitted
+    return (
+      <>
+        <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Link 
+                  href={`/admin/clients/${clientId}/forms`}
+                  className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
+                >
+                  <FaArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Forms
+                </Link>
+                <div className="border-l border-gray-300 pl-4">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    Edit: {assignment?.form.title}
+                  </h1>
+                  <p className="text-sm text-gray-600">
+                    {assignment?.client.name} • {assignment?.client.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <StaffNotSubmittedModal
+          isOpen={true}
+          onClose={() => router.push(`/admin/clients/${clientId}/forms`)}
+          formTitle={assignment.form.title}
+        />
+      </>
+    );
+  }
+
   // Get the appropriate form component from registry
   let FormEditComponent;
   try {
@@ -371,6 +421,8 @@ export default function FormEditPageClient() {
             saving={saving} // Pass saving state for Save Progress button
             navigatingNext={navigatingNext} // Pass navigatingNext state for Next button
             navigatingPrev={navigatingPrev} // Pass navigatingPrev state for Previous button
+            filledByClient={assignment ? (!assignment.filledByAdmin && assignment.hasSubmission) : false} // NEW: Filled by client AND has actual submission data
+            isSignatureLink={false}
             readOnly={false}
             fieldErrors={{}}
             onCommonFieldsUpdated={() => {

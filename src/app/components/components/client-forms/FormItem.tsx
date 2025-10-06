@@ -14,6 +14,7 @@ import {
 import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 import EditWarningModal from '@/components/ui/EditWarningModal';
+import StaffNotSubmittedModal from '@/components/ui/StaffNotSubmittedModal';
 import FormActionDropdown from '@/components/ui/FormActionDropdown';
 import { useConfirm } from '@/components/ui/Confirm';
 import { useToast } from '@/components/ui/Toast';
@@ -39,6 +40,7 @@ export default function FormItem({
   const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
   const [showEditWarningModal, setShowEditWarningModal] = useState(false);
+  const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
   const dropdownTriggerRef : any = useRef<HTMLButtonElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const confirm = useConfirm();
@@ -54,6 +56,16 @@ export default function FormItem({
   } | null>(null);
 
   const handleEditClick = () => {
+    // Check if form was sent via signature link but staff hasn't submitted yet
+    const isWaitingForStaff = !assignment.filledByAdmin && !assignment.hasSubmission;
+    
+    if (isWaitingForStaff) {
+      // Show "waiting for staff" modal
+      setShowStaffNotSubmittedModal(true);
+      return;
+    }
+    
+    // Check if editing will invalidate signatures
     const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
     if (requiresSignatures && assignment.currentStatus === 'completed') {
       setShowEditWarningModal(true);
@@ -313,6 +325,19 @@ bgColor: 'from-amber-500 to-amber-600',
         onConfirm={handleEditConfirm}
         formTitle={assignment.form.title}
         onDownload={() => onDownloadPDF(assignment)}
+      />
+
+      <StaffNotSubmittedModal
+        isOpen={showStaffNotSubmittedModal}
+        onClose={() => setShowStaffNotSubmittedModal(false)}
+        formTitle={assignment.form.title}
+        onResendLink={() => {
+          setShowStaffNotSubmittedModal(false);
+          // Trigger resend link action if needed
+          if (assignment.form.formKey === 'emergency_drill') {
+            generateEmergencyDrillLink();
+          }
+        }}
       />
     </>
   );

@@ -28,9 +28,13 @@ interface FormProps {
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void; // Keep for backward compatibility
-  handleSaveProgress?: () => Promise<void>; // New: separate save function
+  handleSaveProgress?: () => Promise<void>; // New: separate save function for Save Progress button
+  handleSaveForNext?: () => Promise<void>; // New: separate save for Next button
+  handleSaveForPrev?: () => Promise<void>; // New: separate save for Previous button
   handleSubmitForm?: () => Promise<void>; // New: separate submit function
-  saving?: boolean;
+  saving?: boolean; // Loading state for Save Progress button
+  navigatingNext?: boolean; // Loading state for Next button only
+  navigatingPrev?: boolean; // Loading state for Previous button only
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -176,9 +180,13 @@ const ClientIntakeFormEnhanced: React.FC<FormProps> = ({
   readOnly = false,
   fieldErrors = {},
   handleSave, // Legacy function
-  handleSaveProgress, // New: separate save function
+  handleSaveProgress, // New: separate save function for Save Progress button
+  handleSaveForNext, // New: separate save for Next button
+  handleSaveForPrev, // New: separate save for Previous button
   handleSubmitForm, // New: separate submit function
-  saving = false,
+  saving = false, // Loading state for Save Progress button
+  navigatingNext = false, // Loading state for Next button only
+  navigatingPrev = false, // Loading state for Previous button only
   onCommonFieldsUpdated,
 } : any) => {
 
@@ -385,7 +393,10 @@ const getCommonFieldValue = (fieldName: string): string => {
   };
 
   const handleNextSequential = async () => {
-  await handleSaveProgress(); // Save before progressing
+  // Save before progressing
+  if (handleSaveForNext) {
+    await handleSaveForNext();
+  }
 
   if (currentStep < FORM_SECTIONS.length - 1) {
     setCompletedSteps((prev) => new Set([...prev, currentStep]));
@@ -397,8 +408,12 @@ const getCommonFieldValue = (fieldName: string): string => {
 
 
   // On Previous
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
     if (currentStep > 0) {
+      // Save before going back
+      if (handleSaveForPrev) {
+        await handleSaveForPrev();
+      }
       setCurrentStep(currentStep - 1);
     }
   };
@@ -920,21 +935,21 @@ const getCommonFieldValue = (fieldName: string): string => {
   <button
     type="button"
     onClick={handlePreviousSequential}
-    disabled={currentStep === 0}
-    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
+    disabled={currentStep === 0 || navigatingPrev}
+    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
   >
-    <FaChevronLeft className="w-4 h-4" />
+    {navigatingPrev ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
     <span>Previous</span>
   </button>
 
   <button
     type="button"
     onClick={handleNextSequential}
-    disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+    disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+    className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
   >
     <span>Next</span>
-    <FaChevronRight className="w-4 h-4" />
+    {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
   </button>
 
   <button

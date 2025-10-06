@@ -73,6 +73,8 @@ export async function GET(
     return NextResponse.json({
       assignment: {
         ...assignment,
+        hasSubmission: !!existingSubmission, // NEW: Check if submission exists
+        filledByAdmin: existingSubmission?.filledByAdmin || false, // NEW: Check who filled it
         submissionData: existingSubmission?.data,
         submissionId: existingSubmission?.id, // Add submission ID for PDF generation
         clientSignature: existingSubmission?.clientSignature,
