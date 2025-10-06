@@ -33,6 +33,7 @@ interface FormProps {
   saving?: boolean; // Loading state for Save Progress button
   navigatingNext?: boolean; // Loading state for Next button only
   navigatingPrev?: boolean; // Loading state for Previous button only
+  isSignatureLink?: boolean; // NEW: If true, apply signature link access restrictions
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -176,6 +177,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   saving = false, // Loading state for Save Progress button
   navigatingNext = false, // Loading state for Next button only
   navigatingPrev = false, // Loading state for Previous button only
+  isSignatureLink = false, // NEW: Default to admin view
   onCommonFieldsUpdated,
 }: any ) => {
 
@@ -406,14 +408,18 @@ const getCommonFieldValue = (fieldName: string): string => {
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const isFieldReadOnly = readOnly || isCommon;
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon; // Use the new helper
     
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-          
+          {fieldIsReadOnly && isSignatureLink && !isCommon && currentStep === 5 && (
+            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              View Only
+            </span>
+          )}
         </label>
         <input
           type={type}
@@ -421,14 +427,16 @@ const getCommonFieldValue = (fieldName: string): string => {
 value={type === "date" && displayValue ? formatDateForStorage(displayValue) : displayValue}
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
-          disabled={isFieldReadOnly}
+          disabled={fieldIsReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
+                : fieldIsReadOnly && isSignatureLink
+                ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          } ${fieldIsReadOnly ? "cursor-not-allowed" : ""}`}
         />
        
         {fieldErrors[name] && (
@@ -447,14 +455,18 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const isFieldReadOnly = readOnly || isCommon;
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon; // Use the new helper
     
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-         
+          {fieldIsReadOnly && isSignatureLink && !isCommon && currentStep === 5 && (
+            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              View Only
+            </span>
+          )}
         </label>
         <textarea
           name={name}
@@ -462,14 +474,16 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           rows={rows}
-          disabled={isFieldReadOnly}
+          disabled={fieldIsReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
+                : fieldIsReadOnly && isSignatureLink
+                ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          } ${fieldIsReadOnly ? "cursor-not-allowed" : ""}`}
         />
         
         {fieldErrors[name] && (
@@ -485,40 +499,51 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
     options: string[],
     showComments?: boolean,
     required?: boolean
-  ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <select
-        name={name}
-        value={localValues[name] || ""}
-        onChange={handleChange}
-        disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-          fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-      >
-        <option value="">Select an option</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-      {showComments && (
-        <div className="mt-3">
-          {renderTextArea("Comments", `${name}_comments`, 2, "Add any additional comments...")}
-        </div>
-      )}
-    </div>
-  );
+  ) => {
+    const fieldIsReadOnly = isFieldReadOnly(name);
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+          {fieldIsReadOnly && isSignatureLink && currentStep === 5 && (
+            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              View Only
+            </span>
+          )}
+        </label>
+        <select
+          name={name}
+          value={localValues[name] || ""}
+          onChange={handleChange}
+          disabled={fieldIsReadOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
+            fieldErrors[name]
+              ? "border-red-300 bg-red-50"
+              : fieldIsReadOnly && isSignatureLink
+              ? "bg-gray-50 border-gray-300"
+              : "hover:border-accent/40"
+          } ${fieldIsReadOnly ? "bg-gray-50 text-gray-400" : ""}`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+        {showComments && (
+          <div className="mt-3">
+            {renderTextArea("Comments", `${name}_comments`, 2, "Add any additional comments...")}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderMultiSelectCheckbox = (
     label: string,
@@ -587,33 +612,58 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
     placeholder?: string,
     required?: boolean,
 
-  ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <div className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <SignatureCanvas
-          ref={signatureRef}
-          onSignatureEnd={(dataUrl: string) => handleSignatureEnd(name, dataUrl)}
-          onSignatureClear={() => handleSignatureClear(name)}
-          existingSignature={localValues[name]}
-          width={400}
-          height={150}
-          disabled={readOnly}
-          placeholder={placeholder || "Draw your signature in the box above"}
-        />
+  ) => {
+    const fieldReadOnly = isFieldReadOnly(name); // Use the new helper
+    
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+          {fieldReadOnly && isSignatureLink && (
+            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              View Only
+            </span>
+          )}
+        </label>
+        <div className={`w-full rounded-lg border ${fieldReadOnly ? 'border-gray-300 bg-gray-50' : 'border-gray-200 bg-white'} p-4 shadow-sm`}>
+          <SignatureCanvas
+            ref={signatureRef}
+            onSignatureEnd={(dataUrl: string) => handleSignatureEnd(name, dataUrl)}
+            onSignatureClear={() => handleSignatureClear(name)}
+            existingSignature={localValues[name]}
+            width={400}
+            height={150}
+            disabled={fieldReadOnly}
+            placeholder={fieldReadOnly ? "View only - signature will be added by supervisor" : (placeholder || "Draw your signature in the box above")}
+          />
+        </div>
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
       </div>
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-    </div>
-  );
+    );
+  };
 
   // Helper to check if a field is required in the current section
   const isFieldRequired = (fieldName: string) => {
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
+  };
+
+  // NEW: Helper to check if a field should be read-only based on signature link restrictions
+  const isFieldReadOnly = (fieldName: string) => {
+    if (!isSignatureLink) return readOnly; // Admin view - use default readOnly prop
+    
+    // Signature link restrictions:
+    // Section 5 (Follow-up) - ALL fields read-only
+    if (currentStep === 5) return true;
+    
+    // Section 6 (Signatures) - Only supervisorSignature is read-only
+    if (currentStep === 6 && fieldName === 'supervisorSignature') return true;
+    
+    // Sections 0-4: Fully editable
+    // Section 6: supportWorkerSignature and signatureDate editable
+    return readOnly;
   };
 
    const FIELD_METADATA: any  = {
@@ -795,6 +845,47 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               {FORM_SECTIONS[currentStep].title}
             </h2>
             <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
+            
+            {/* Notice for Follow-up Section in Signature Link */}
+            {isSignatureLink && currentStep === 5 && (
+              <div className="mt-3 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-amber-800 mb-1">
+                      Admin/Supervisor Section - View Only
+                    </h3>
+                    <p className="text-xs text-amber-700">
+                      This section is reserved for supervisors and managers. You can view the information but cannot edit it. Your supervisor will complete this section after reviewing the drill.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notice for Signatures Section in Signature Link */}
+            {isSignatureLink && currentStep === 6 && (
+              <div className="mt-3 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <FaSignature className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-blue-800 mb-1">
+                      Signature Instructions
+                    </h3>
+                    <p className="text-xs text-blue-700">
+                      <strong>Support Worker:</strong> Please sign in the first signature field and enter the date.<br />
+                      <strong>Supervisor Signature:</strong> This will be completed by your supervisor/manager in the office.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <form

@@ -524,6 +524,7 @@ export default function FormSignaturePageClient() {
               commonFieldsData={formData.client.commonFields[0] || {}}
               onChange={(values: any) => setEditedFormValues(values)}
               readOnly={false}
+              isSignatureLink={true}
               handleSaveProgress={async () => {
                 try {
                   setSaving(true);
