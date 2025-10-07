@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
       });
 
       return newClient;
+    }, {
+      timeout: 10000, // 10 seconds timeout
+      maxWait: 5000,  // 5 seconds max wait for transaction
     });
 
     return NextResponse.json(result, { status: 201 });

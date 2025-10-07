@@ -1,284 +1,381 @@
-// Prisma client generator
 generator client {
   provider = "prisma-client-js"
 }
 
-// PostgreSQL datasource configuration
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // Ensure DATABASE_URL is set in your .env file
+  url      = env("DATABASE_URL")
 }
 
 model Admin {
-  id           Int                @id @default(autoincrement())
-  name         String
-  email        String             @unique(map: "Admin_email_unique")  // Custom constraint name
-  passwordHash String
-  resetToken   String?            // Password reset verification code
-  resetTokenExpiry DateTime?      // When the reset token expires
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  logs         FormActivityLog[]  // Logs of all admin activities (creating clients, managing forms, etc.)
-  clients      Client[]           // Admin's clients (who they created)
-  notifications FormSubmissionNotification[] // Notifications for this admin
-  appSettings  AppSettings[]      // Admin-specific app settings (for email_settings)
-
-  assignedFormAssignments FormAssignment[] @relation("AssignedForms")
-
+  id                      Int                          @id @default(autoincrement())
+  name                    String
+  email                   String                       @unique(map: "Admin_email_unique")
+  passwordHash            String
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  createdAt               DateTime                     @default(now())
+  updatedAt               DateTime                     @updatedAt
+  clients                 Client[]
+  logs                    FormActivityLog[]
+  assignedFormAssignments FormAssignment[]             @relation("AssignedForms")
+  notifications           FormSubmissionNotification[]
+  appSettings             AppSettings[]
 }
 
 model Client {
-  id            Int               @id @default(autoincrement())
-  name          String?
-  email         String?           // <- removed @unique
-  phone         String?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  forms         FormSubmission[]  
-  progress      FormProgress[]    
-  commonFields  CommonField[]     
-  insights      Insight[]         
-  createdBy     Admin?            @relation(fields: [createdById], references: [id])
-  createdById   Int?
-  formBatches   FormBatch[]       
-
-  logs          FormActivityLog[]  
-  notifications FormSubmissionNotification[] 
-
-  // Removed @@unique([email]) as well
+  id             Int                          @id @default(autoincrement())
+  name           String?
+  email          String?                      @unique
+  phone          String?
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime                     @updatedAt
+  createdById    Int?
+  createdBy      Admin?                       @relation(fields: [createdById], references: [id])
+  commonFields   CommonField?
+  logs           FormActivityLog[]
   FormAssignment FormAssignment[]
+  formBatches    FormBatch[]
+  progress       FormProgress[]
+  forms          FormSubmission[]
+  notifications  FormSubmissionNotification[]
+  insights       Insight[]
 }
 
-
 model MasterForm {
-  id        Int      @id @default(autoincrement())
-  formKey   String   @unique
-  title     String
-  version   Int      // Form version (e.g., 1, 2, 3)
-  schema    Json?    // JSON schema for the form structure (now optional)
-  requiresSignature Boolean? // NEW: Optional field to track if form requires signature
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int              @id @default(autoincrement())
+  formKey           String           @unique
+  title             String
+  version           Int
+  schema            Json?
+  requiresSignature Boolean?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  FormAssignment    FormAssignment[]
+  formProgress      FormProgress[]
+  formSubmissions   FormSubmission[]
 
-  // Reverse relation for form submissions linked to this form
-  formSubmissions FormSubmission[]
-
-  // Reverse relation for form progress linked to this form
-  formProgress    FormProgress[]
-
-  // Unique combination of formKey and version
-  @@unique([formKey, version])  
-  FormAssignment FormAssignment[]
+  @@unique([formKey, version])
 }
 
 model FormBatch {
-  id            Int       @id @default(autoincrement())
-  clientId      Int
-  batchToken    String    @unique  // Unique token for accessing all forms in this batch
-  passcode      String?   // Passcode for the entire batch (can be null for signature-only access)
-  expiresAt     DateTime
-  createdAt     DateTime  @default(now())
-  
-  // NEW FIELD for signature-only access
-  isSignatureOnly Boolean @default(false) // True when this batch is for signature collection only
-  
-  // NEW FIELDS for completion tracking
-  isCompleted     Boolean @default(false) // True when all required signatures are collected
-  completedAt     DateTime? // When the batch was completed
-  
-  // NEW FIELD for admin notification
-  adminNotified   Boolean @default(false) // Track if admin has been notified of completion
-
-  client        Client    @relation(fields: [clientId], references: [id])
-  assignments   FormAssignment[]
-  signatureForms SignatureBatchForm[] // NEW: Forms included in this signature batch
+  id              Int                  @id @default(autoincrement())
+  clientId        Int
+  batchToken      String               @unique
+  passcode        String?
+  expiresAt       DateTime
+  createdAt       DateTime             @default(now())
+  isSignatureOnly Boolean              @default(false)
+  isCompleted     Boolean              @default(false)
+  completedAt     DateTime?
+  adminNotified   Boolean              @default(false)
+  assignments     FormAssignment[]
+  client          Client               @relation(fields: [clientId], references: [id])
+  signatureForms  SignatureBatchForm[]
 }
 
 model FormAssignment {
-  id                    Int       @id @default(autoincrement())
-  clientId              Int       // Reference to Client
-  formId                Int       // Reference to MasterForm
-  formVersion           Int       // Version of the form being assigned
-  assignedAt            DateTime  @default(now())
+  id                      Int        @id @default(autoincrement())
+  clientId                Int
+  formId                  Int
+  formVersion             Int
+  assignedAt              DateTime   @default(now())
+  currentStatus           String     @default("not_started")
+  isCompleted             Boolean    @default(false)
+  isCommonFieldsCompleted Boolean    @default(false)
+  displayOrder            Int        @default(0)
+  batchId                 Int
+  assignedById            Int?
+  assignedBy              Admin?     @relation("AssignedForms", fields: [assignedById], references: [id])
+  batch                   FormBatch  @relation(fields: [batchId], references: [id])
+  client                  Client     @relation(fields: [clientId], references: [id])
+  form                    MasterForm @relation(fields: [formId], references: [id])
 
-  // SIMPLE STATUS TRACKING
-  currentStatus         String    @default("not_started") // "not_started", "in_progress", "completed"
-
-  isCompleted           Boolean   @default(false)
-  isCommonFieldsCompleted Boolean @default(false) // Track if common fields are completed
-  displayOrder          Int       @default(0) // Order in which forms should be displayed
-  batchId               Int       // Reference to FormBatch (required)
-
-  client                Client    @relation(fields: [clientId], references: [id])
-  form                  MasterForm @relation(fields: [formId], references: [id])
-  batch                 FormBatch @relation(fields: [batchId], references: [id])
-
-
-  assignedById          Int?
-  assignedBy            Admin?    @relation("AssignedForms", fields: [assignedById], references: [id])
-
-
-  
-
-  // Ensure unique assignment for client-form-version
   @@unique([clientId, formId, formVersion])
 }
 
 model FormSubmission {
-  id            Int      @id @default(autoincrement())
-  clientId      Int      // Reference to Client
-  formId        Int      // Reference to MasterForm
-  formVersion   Int      // Version of the form being submitted
-  data          Json     // JSON containing the form submission data (filled by admin or client)
-  isSubmitted   Boolean  @default(false)
-  submittedAt   DateTime?
-  updatedAt     DateTime @updatedAt
-  
-  // NEW FIELDS for admin-managed workflow
-  filledByAdmin Boolean  @default(false) // Track if admin filled this form
-  adminFilledAt DateTime? // When admin filled the form
-  clientSignature String? // Client's signature for this specific form
-  clientSignedAt DateTime? // When client signed this form
+  id               Int                          @id @default(autoincrement())
+  clientId         Int
+  formId           Int
+  formVersion      Int
+  data             Json
+  isSubmitted      Boolean                      @default(false)
+  submittedAt      DateTime?
+  updatedAt        DateTime                     @updatedAt
+  filledByAdmin    Boolean                      @default(false)
+  adminFilledAt    DateTime?
+  clientSignature  String?
+  clientSignedAt   DateTime?
+  client           Client                       @relation(fields: [clientId], references: [id])
+  form             MasterForm                   @relation(fields: [formId], references: [id])
+  notifications    FormSubmissionNotification[]
+  signatureBatches SignatureBatchForm[]
 
-  client        Client   @relation(fields: [clientId], references: [id])
-  form          MasterForm @relation(fields: [formId], references: [id])
-  signatureBatches SignatureBatchForm[] // NEW: Which signature batches include this form
-  notifications FormSubmissionNotification[] // Notifications for this form submission
-
-  // Ensure each submission for a client-form combination is unique
   @@unique([clientId, formId, formVersion])
 }
 
 model FormProgress {
-  id             Int      @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   clientId       Int
   formId         Int
-  formVersion    Int      // Version of the form
-  currentSection String?  // Current section the client is on
-  updatedAt      DateTime @updatedAt
-
-  client         Client   @relation(fields: [clientId], references: [id])
+  formVersion    Int
+  currentSection String?
+  updatedAt      DateTime   @updatedAt
+  client         Client     @relation(fields: [clientId], references: [id])
   form           MasterForm @relation(fields: [formId], references: [id])
 
-  // Ensure unique progress tracking for client-form-version
   @@unique([clientId, formId, formVersion])
 }
 
 model CommonField {
-  id        Int      @id @default(autoincrement())
-  clientId  Int      // Reference to the client
-  name      String?  // Client's name
-  age       Int?     // Client's age
-  email     String?  // Client's email
-  sex       String?
-  street    String?
-  state     String?
-  postCode  String?
-  dob       String?
-  ndis      String?
-  disability  String?
-  address   String?  // Client's address
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  phone     String?
-  surname   String?
-
-  client    Client   @relation(fields: [clientId], references: [id])
-  
-  // Ensures one entry per client
-  @@unique([clientId])
+  id         Int      @id @default(autoincrement())
+  clientId   Int      @unique
+  name       String?
+  age        Int?
+  email      String?
+  sex        String?
+  street     String?
+  state      String?
+  postCode   String?
+  dob        String?
+  ndis       String?
+  disability String?
+  address    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  phone      String?
+  surname    String?
+  client     Client   @relation(fields: [clientId], references: [id])
 }
 
 model Insight {
-  id            Int      @id @default(autoincrement())
-  clientId      Int      // Reference to the client
-  client        Client   @relation(fields: [clientId], references: [id])
-  age           Int?     // Example: Age of the client
-  location      String?  // Example: Location of the client
-  disability    String?  // Example: Disability information
-  language      String?  // Example: Primary spoken language
-  contractStart DateTime? // Example: Contract start date
-  contractEnd   DateTime? // Example: Contract end date
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  clientId      Int
+  age           Int?
+  location      String?
+  disability    String?
+  language      String?
+  contractStart DateTime?
+  contractEnd   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  client        Client    @relation(fields: [clientId], references: [id])
 }
 
 model FormActivityLog {
-  id            Int      @id @default(autoincrement())
-  clientId      Int?
-  adminId       Int?
-  logType       LogType  // Differentiates client actions from admin actions
-  action        String   // Action performed (e.g., "Client Filled Form", "Admin Assigned Form")
-  metadata      Json?    // Extra metadata related to the action (e.g., form details, section number)
-  createdAt     DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  clientId  Int?
+  adminId   Int?
+  logType   LogType
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  admin     Admin?   @relation(fields: [adminId], references: [id])
+  client    Client?  @relation(fields: [clientId], references: [id])
 
-  // Relations to Client and Admin models
-  client        Client?  @relation(fields: [clientId], references: [id])
-  admin         Admin?   @relation(fields: [adminId], references: [id])
-
-  // Ensuring both types of logs (client and admin) can exist
-  @@index([clientId, adminId]) // Indexing the client and admin fields for better search performance
+  @@index([clientId, adminId])
 }
 
-// NEW MODEL: Junction table connecting signature batches to specific forms
 model SignatureBatchForm {
-  id               Int @id @default(autoincrement())
-  batchId          Int // Reference to FormBatch
-  formSubmissionId Int // Reference to FormSubmission
-  createdAt        DateTime @default(now())
-  
-  batch            FormBatch @relation(fields: [batchId], references: [id])
+  id               Int            @id @default(autoincrement())
+  batchId          Int
+  formSubmissionId Int
+  createdAt        DateTime       @default(now())
+  batch            FormBatch      @relation(fields: [batchId], references: [id])
   formSubmission   FormSubmission @relation(fields: [formSubmissionId], references: [id])
-  
-  @@unique([batchId, formSubmissionId]) // Prevent duplicate entries
+
+  @@unique([batchId, formSubmissionId])
 }
 
-// Enum for differentiating between client and admin logs
-enum LogType {
-  CLIENT
-  ADMIN
-}
-
-// Application Settings Model for managing app-wide configurations
 model AppSettings {
-  id            Int      @id @default(autoincrement())
-  key           String
-  value         String?
-  type          String
-  category      String
-  label         String
-  description   String?
-  isRequired    Boolean  @default(false)
-  defaultValue  String?
-  validation    String?
-  sortOrder     Int      @default(0)
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  key          String
+  value        String?
+  type         String
+  category     String
+  label        String
+  description  String?
+  isRequired   Boolean  @default(false)
+  defaultValue String?
+  validation   String?
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  adminId      Int?
+  admin        Admin?   @relation(fields: [adminId], references: [id])
 
-  adminId       Int?
-  admin         Admin?   @relation(fields: [adminId], references: [id])
-
+  @@unique([key, adminId])
   @@index([category, adminId])
-  @@unique([key, adminId]) // 👈 THIS is crucial
   @@map("app_settings")
 }
 
-// Form Submission Notification Model for admin notifications when clients submit forms
 model FormSubmissionNotification {
-  id              Int      @id @default(autoincrement())
-  adminId         Int      // Which admin to notify
-  clientId        Int      // Which client submitted the form
-  formSubmissionId Int     // Which form submission triggered this notification
-  isRead          Boolean  @default(false) // Whether admin has read this notification
-  createdAt       DateTime @default(now())
-  
-  // Relations
-  admin           Admin    @relation(fields: [adminId], references: [id])
-  client          Client   @relation(fields: [clientId], references: [id])
-  formSubmission  FormSubmission @relation(fields: [formSubmissionId], references: [id])
-  
-  // Index for better query performance
+  id               Int            @id @default(autoincrement())
+  adminId          Int
+  clientId         Int
+  formSubmissionId Int
+  isRead           Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  admin            Admin          @relation(fields: [adminId], references: [id])
+  client           Client         @relation(fields: [clientId], references: [id])
+  formSubmission   FormSubmission @relation(fields: [formSubmissionId], references: [id])
+
   @@index([adminId, isRead])
   @@index([createdAt])
+}
+
+model Staff {
+  id                                Int                                @id @default(autoincrement())
+  firstName                         String
+  surname                           String
+  email                             String                             @unique
+  phone                             String?
+  role                              String?
+  status                            String                             @default("pending")
+  startDate                         DateTime?
+  linkToken                         String?                            @unique
+  linkExpiresAt                     DateTime?
+  createdAt                         DateTime                           @default(now())
+  updatedAt                         DateTime
+  StaffBullyingHarassmentTraining   StaffBullyingHarassmentTraining?
+  StaffBullyingTraining             StaffBullyingTraining?
+  StaffConflictOfInterest           StaffConflictOfInterest?
+  StaffDocumentationAcknowledgement StaffDocumentationAcknowledgement?
+  StaffEmploymentDetails            StaffEmploymentDetails?
+  StaffEmploymentWelcomeAck         StaffEmploymentWelcomeAck?
+  StaffFormSubmission               StaffFormSubmission[]
+  StaffNdisCodeOfConduct            StaffNdisCodeOfConduct?
+  StaffNdisWorkforceCapability      StaffNdisWorkforceCapability?
+  StaffPreEmploymentMedical         StaffPreEmploymentMedical?
+  StaffSupportWorker                StaffSupportWorker?
+}
+
+model StaffBullyingHarassmentTraining {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffBullyingTraining {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffConflictOfInterest {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffDocumentationAcknowledgement {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffEmploymentDetails {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffEmploymentWelcomeAck {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffFormSubmission {
+  id          Int       @id @default(autoincrement())
+  staffId     Int
+  formKey     String
+  data        Json
+  isSubmitted Boolean   @default(false)
+  submittedAt DateTime?
+  updatedAt   DateTime
+  Staff       Staff     @relation(fields: [staffId], references: [id])
+
+  @@unique([staffId, formKey])
+}
+
+model StaffNdisCodeOfConduct {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffNdisWorkforceCapability {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffPreEmploymentMedical {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffSupportWorker {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+enum LogType {
+  CLIENT
+  ADMIN
 }

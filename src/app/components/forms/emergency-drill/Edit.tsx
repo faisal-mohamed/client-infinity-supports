@@ -56,7 +56,7 @@ export const FORM_SECTIONS : any = [
   {
     id: "drillTypes",
     title: "Type of Drill Conducted",
-    description: "Select applicable emergency types",
+    description: "Select applicable emergency types ",
     fields: [
       "fire",
       "medical",
@@ -67,7 +67,7 @@ export const FORM_SECTIONS : any = [
       "otherDrill"
     ],
     icon: FaHome,
-    requiredFields: [] // At least one drill type should be selected, but we'll handle this in validation
+    requiredFields: ["atLeastOneDrillType"] // Special validation: at least one drill type must be selected
   },
   {
     id: "executionDetails",
@@ -437,12 +437,18 @@ const getCommonFieldValue = (fieldName: string): string => {
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
           const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
-          if (!hasAnyDrillType && !hasOtherDrill) {
-            missingFields.push('At least one drill type must be selected');
+          
+          if (!hasAnyDrillType) {
+            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+            if (allDrillTypesNo && !hasOtherDrill) {
+              missingFields.push('Other drill type (required when all standard drills are "No")');
+            } else {
+              missingFields.push('At least one drill type must be selected');
+            }
           }
       } else {
           currentSection.requiredFields.forEach((fieldName: any) => {
-            let value;
+      let value;
             if (isCommonField(fieldName)) {
               value = getCommonFieldValue(fieldName);
             } else {
@@ -459,8 +465,76 @@ const getCommonFieldValue = (fieldName: string): string => {
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
           const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
-          if (!hasAnyDrillType && !hasOtherDrill) {
-            missingFields.push('At least one drill type must be selected');
+          
+          if (!hasAnyDrillType) {
+            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+            if (allDrillTypesNo && !hasOtherDrill) {
+              missingFields.push('Other drill type (required when all standard drills are "No")');
+      } else {
+              missingFields.push('At least one drill type must be selected');
+            }
+          }
+        } else if (currentStep === 4) { // Section 5 (Recommendations) - check specify fields
+          // Check base required fields
+          currentSection.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(fieldName);
+            }
+          });
+          
+          // Check required dropdown questions
+          if (!localValues['additionalTrainingRequired'] || localValues['additionalTrainingRequired'] === 'Select an option') {
+            missingFields.push('additionalTrainingRequired (required)');
+          }
+          if (!localValues['planUpdateNeeded'] || localValues['planUpdateNeeded'] === 'Select an option') {
+            missingFields.push('planUpdateNeeded (required)');
+          }
+          
+          // Check specify fields based on dropdown selections
+          if (localValues['additionalTrainingRequired'] === 'Yes' && 
+              (!localValues['trainingDetails'] || localValues['trainingDetails'].trim() === '')) {
+            missingFields.push('trainingDetails (required when "Additional training required" is Yes)');
+          }
+          if (localValues['planUpdateNeeded'] === 'Yes' && 
+              (!localValues['planUpdateDetails'] || localValues['planUpdateDetails'].trim() === '')) {
+            missingFields.push('planUpdateDetails (required when "Updates needed for emergency plan" is Yes)');
+          }
+        } else if (currentStep === 4) { // Section 5 (Recommendations) - check specify fields
+          // Check base required fields
+          currentSection.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(fieldName);
+            }
+          });
+          
+          // Check required dropdown questions
+          if (!localValues['additionalTrainingRequired'] || localValues['additionalTrainingRequired'] === 'Select an option') {
+            missingFields.push('additionalTrainingRequired (required)');
+          }
+          if (!localValues['planUpdateNeeded'] || localValues['planUpdateNeeded'] === 'Select an option') {
+            missingFields.push('planUpdateNeeded (required)');
+          }
+          
+          // Check specify fields based on dropdown selections
+          if (localValues['additionalTrainingRequired'] === 'Yes' && 
+              (!localValues['trainingDetails'] || localValues['trainingDetails'].trim() === '')) {
+            missingFields.push('trainingDetails (required when "Additional training required" is Yes)');
+          }
+          if (localValues['planUpdateNeeded'] === 'Yes' && 
+              (!localValues['planUpdateDetails'] || localValues['planUpdateDetails'].trim() === '')) {
+            missingFields.push('planUpdateDetails (required when "Updates needed for emergency plan" is Yes)');
           }
         } else {
           currentSection.requiredFields.forEach((fieldName: any) => {
@@ -772,9 +846,55 @@ const getCommonFieldValue = (fieldName: string): string => {
   );
   };
 
+  // Helper to check if "Other" field is required (when all drill types are "No")
+  const isOtherDrillRequired = () => {
+    if (currentStep !== 1) return false;
+    const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+    const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+    const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+    return !hasAnyDrillType && allDrillTypesNo;
+  };
+
+  // Helper to check if specify fields are required based on dropdown selections
+  const isSpecifyFieldRequired = (fieldName: string) => {
+    if (currentStep !== 4) return false; // Section 5 (Recommendations)
+    
+    // trainingDetails is required if additionalTrainingRequired is "Yes"
+    if (fieldName === 'trainingDetails') {
+      return localValues['additionalTrainingRequired'] === 'Yes';
+    }
+    
+    // planUpdateDetails is required if planUpdateNeeded is "Yes"
+    if (fieldName === 'planUpdateDetails') {
+      return localValues['planUpdateNeeded'] === 'Yes';
+    }
+    
+    return false;
+  };
+
   // Helper to check if a field is required in the current section
   const isFieldRequired = (fieldName: string) => {
     const baseRequired = FORM_SECTIONS[currentStep].requiredFields || [];
+    
+    // Special case: Drill type fields are required (need to be selected)
+    if (currentStep === 1 && ['fire', 'medical', 'gas', 'power', 'natural', 'security'].includes(fieldName)) {
+      return true;
+    }
+    
+    // Special case: "Other" field is required when all drill types are "No"
+    if (fieldName === 'otherDrill' && currentStep === 1) {
+      return isOtherDrillRequired();
+    }
+    
+    // Special case: Specify fields are required when corresponding dropdown is "Yes"
+    if (isSpecifyFieldRequired(fieldName)) {
+      return true;
+    }
+    
+    // Special case: Dropdown questions in Section 5 are required
+    if (currentStep === 4 && ['additionalTrainingRequired', 'planUpdateNeeded'].includes(fieldName)) {
+      return true;
+    }
     
     // ADMIN REVIEW MODE: Override required fields for admin sections
     if (filledByClient && !isSignatureLink) {
@@ -861,13 +981,13 @@ const getCommonFieldValue = (fieldName: string): string => {
   supportWorkers: { label: "Support Worker(s) Involved", type: "text" },
   supervisorNotified: { label: "Supervisor/Manager Notified", type: "dropdown", options: ["Yes", "No"] },
 
-  fire: { label: "Fire or smoke emergency", type: "dropdown", options: ["Yes", "No"] },
-  medical: { label: "Medical emergency (e.g., client collapse, choking, seizure)", type: "dropdown", options: ["Yes", "No"] },
-  gas: { label: "Gas leak or carbon monoxide alert", type: "dropdown", options: ["Yes", "No"] },
-  power: { label: "Power outage", type: "dropdown", options: ["Yes", "No"] },
-  natural: { label: "Natural disaster (e.g., flood, earthquake)", type: "dropdown", options: ["Yes", "No"] },
-  security: { label: "Security threat (e.g., unauthorized visitor, break-in)", type: "dropdown", options: ["Yes", "No"] },
-  otherDrill: { label: "If Other (specify)", type: "text" },
+  fire: { label: "Fire or smoke emergency", type: "dropdown", options: ["Yes", "No"], required: true },
+  medical: { label: "Medical emergency (e.g., client collapse, choking, seizure)", type: "dropdown", options: ["Yes", "No"], required: true },
+  gas: { label: "Gas leak or carbon monoxide alert", type: "dropdown", options: ["Yes", "No"], required: true },
+  power: { label: "Power outage", type: "dropdown", options: ["Yes", "No"], required: true },
+  natural: { label: "Natural disaster (e.g., flood, earthquake)", type: "dropdown", options: ["Yes", "No"], required: true },
+  security: { label: "Security threat (e.g., unauthorized visitor, break-in)", type: "dropdown", options: ["Yes", "No"], required: true },
+  otherDrill: { label: "If Other (specify)", type: "text", required: false },
 
   planFollowed: { label: "Was the emergency plan followed?", type: "dropdown", options: ["Yes", "No"] },
   safetyProtocols: { label: "Were all safety measures and protocols implemented?", type: "dropdown", options: ["Yes", "No"] },
@@ -880,14 +1000,14 @@ const getCommonFieldValue = (fieldName: string): string => {
   unexpectedIssues: { label: "Any unexpected issues?", type: "text" },
 
   procedureChanges: { label: "Suggested changes to procedures", type: "text" },
-  additionalTrainingRequired: { label: "Additional training or support required?", type: "dropdown", options: ["Yes", "No"] },
-  trainingDetails: { label: "If yes, specify", type: "text" },
-  planUpdateNeeded: { label: "Updates needed for the client’s emergency plan?", type: "dropdown", options: ["Yes", "No"] },
-  planUpdateDetails: { label: "If yes, specify", type: "text" },
+  additionalTrainingRequired: { label: "Additional training or support required?", type: "dropdown", options: ["Yes", "No"], required: true },
+  trainingDetails: { label: "If yes, specify", type: "textarea", rows: 3 },
+  planUpdateNeeded: { label: "Updates needed for the client's emergency plan?", type: "dropdown", options: ["Yes", "No"], required: true },
+  planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3 },
 
   debriefConducted: { label: "Debrief conducted?", type: "dropdown", options: ["Yes", "No"] },
   supervisorComments: { label: "Supervisor/Manager Comments", type: "text" },
-  nextDrillDate: { label: "Date of Next Scheduled Drill", type: "text" },
+  nextDrillDate: { label: "Date of Next Scheduled Drill", type: "date" },
 
   supportWorkerSignature: { label: "Support Worker", type: "supportWorkerSignature" },
   supportWorkerSignatureDate: { label: "Support Worker Signature Date", type: "date" },
@@ -907,14 +1027,49 @@ const getCommonFieldValue = (fieldName: string): string => {
         return true;
       }
       
-      if (currentStep === 1) { // Section 2: At least one drill type must be selected
+      if (currentStep === 1) { // Section 2: Drill type validation
         const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
         const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
         const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
-        return hasAnyDrillType || hasOtherDrill;
+        
+        // If any drill type is "Yes", section is complete
+        if (hasAnyDrillType) return true;
+        
+        // If all drill types are "No", then "Other" field is required
+        const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+        if (allDrillTypesNo) {
+          return hasOtherDrill; // "Other" field must be filled
+        }
+        
+        // If some drill types are not selected yet, section is incomplete
+        return false;
       }
       
       // For other sections, check required fields
+      if (currentStep === 4) { // Section 5 (Recommendations) - check specify fields
+        const baseRequired = currentSection.requiredFields.every((fieldName: any) => {
+          let value;
+          if (isCommonField(fieldName)) {
+            value = getCommonFieldValue(fieldName);
+          } else {
+            value = localValues[fieldName];
+          }
+          return value && (typeof value !== 'string' || value.trim() !== '');
+        });
+        
+        // Check required dropdown questions
+        const dropdownRequired = localValues['additionalTrainingRequired'] && localValues['additionalTrainingRequired'] !== 'Select an option' &&
+                                localValues['planUpdateNeeded'] && localValues['planUpdateNeeded'] !== 'Select an option';
+        
+        // Check specify fields based on dropdown selections
+        const trainingRequired = localValues['additionalTrainingRequired'] === 'Yes' ? 
+          (localValues['trainingDetails'] && localValues['trainingDetails'].trim() !== '') : true;
+        const planUpdateRequired = localValues['planUpdateNeeded'] === 'Yes' ? 
+          (localValues['planUpdateDetails'] && localValues['planUpdateDetails'].trim() !== '') : true;
+        
+        return baseRequired && dropdownRequired && trainingRequired && planUpdateRequired;
+      }
+      
       return currentSection.requiredFields.every((fieldName: any) => {
         let value;
         if (isCommonField(fieldName)) {
@@ -948,6 +1103,48 @@ const getCommonFieldValue = (fieldName: string): string => {
     }
 
     // NORMAL ADMIN MODE: Check all required fields for current section
+    if (currentStep === 1) { // Section 2: Drill type validation
+      const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+      const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+      const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+      
+      // If any drill type is "Yes", section is complete
+      if (hasAnyDrillType) return true;
+      
+      // If all drill types are "No", then "Other" field is required
+      const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+      if (allDrillTypesNo) {
+        return hasOtherDrill; // "Other" field must be filled
+      }
+      
+      // If some drill types are not selected yet, section is incomplete
+      return false;
+    }
+    
+    if (currentStep === 4) { // Section 5 (Recommendations) - check specify fields
+      const baseRequired = currentSection.requiredFields.every((fieldName: any) => {
+        let value;
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
+        return value && (typeof value !== 'string' || value.trim() !== '');
+      });
+      
+      // Check required dropdown questions
+      const dropdownRequired = localValues['additionalTrainingRequired'] && localValues['additionalTrainingRequired'] !== 'Select an option' &&
+                              localValues['planUpdateNeeded'] && localValues['planUpdateNeeded'] !== 'Select an option';
+      
+      // Check specify fields based on dropdown selections
+      const trainingRequired = localValues['additionalTrainingRequired'] === 'Yes' ? 
+        (localValues['trainingDetails'] && localValues['trainingDetails'].trim() !== '') : true;
+      const planUpdateRequired = localValues['planUpdateNeeded'] === 'Yes' ? 
+        (localValues['planUpdateDetails'] && localValues['planUpdateDetails'].trim() !== '') : true;
+      
+      return baseRequired && dropdownRequired && trainingRequired && planUpdateRequired;
+    }
+    
     return currentSection.requiredFields.every((fieldName: any) => {
       let value;
         if (isCommonField(fieldName)) {
@@ -988,14 +1185,21 @@ const getCommonFieldValue = (fieldName: string): string => {
         // Skip Follow-up section (index 5) - admin completes it
         if (index === 5) return;
         
-        if (index === 1) { // Section 2: At least one drill type must be selected
+        if (index === 1) { // Section 2: Drill type validation
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
           const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
-          if (!hasAnyDrillType && !hasOtherDrill) {
-            missingFields.push(`${section.title}: At least one drill type must be selected`);
+          
+          if (!hasAnyDrillType) {
+            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+            if (allDrillTypesNo && !hasOtherDrill) {
+              missingFields.push(`${section.title}: Other drill type (required when all standard drills are "No")`);
+            } else {
+              missingFields.push(`${section.title}: At least one drill type must be selected`);
+            }
           }
-        } else {
+        } else if (index === 4) { // Section 5 (Recommendations) - check specify fields
+          // Check base required fields
           section.requiredFields.forEach((fieldName: any) => {
             let value;
             if (isCommonField(fieldName)) {
@@ -1003,6 +1207,36 @@ const getCommonFieldValue = (fieldName: string): string => {
             } else {
               value = localValues[fieldName];
             }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(`${section.title}: ${fieldName}`);
+            }
+          });
+          
+          // Check required dropdown questions
+          if (!localValues['additionalTrainingRequired'] || localValues['additionalTrainingRequired'] === 'Select an option') {
+            missingFields.push(`${section.title}: additionalTrainingRequired (required)`);
+          }
+          if (!localValues['planUpdateNeeded'] || localValues['planUpdateNeeded'] === 'Select an option') {
+            missingFields.push(`${section.title}: planUpdateNeeded (required)`);
+          }
+          
+          // Check specify fields based on dropdown selections
+          if (localValues['additionalTrainingRequired'] === 'Yes' && 
+              (!localValues['trainingDetails'] || localValues['trainingDetails'].trim() === '')) {
+            missingFields.push(`${section.title}: trainingDetails (required when "Additional training required" is Yes)`);
+          }
+          if (localValues['planUpdateNeeded'] === 'Yes' && 
+              (!localValues['planUpdateDetails'] || localValues['planUpdateDetails'].trim() === '')) {
+            missingFields.push(`${section.title}: planUpdateDetails (required when "Updates needed for emergency plan" is Yes)`);
+          }
+        } else {
+          section.requiredFields.forEach((fieldName: any) => {
+            let value;
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
             if (!value || (typeof value === 'string' && value.trim() === '')) {
               missingFields.push(`${section.title}: ${fieldName}`);
             }
@@ -1012,12 +1246,49 @@ const getCommonFieldValue = (fieldName: string): string => {
     } else {
       // NORMAL ADMIN MODE: Check all sections
       FORM_SECTIONS.forEach((section: any, index: number) => {
-        if (index === 1) { // Section 2: At least one drill type must be selected
+        if (index === 1) { // Section 2: Drill type validation
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
           const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
-          if (!hasAnyDrillType && !hasOtherDrill) {
-            missingFields.push(`${section.title}: At least one drill type must be selected`);
+          
+          if (!hasAnyDrillType) {
+            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
+            if (allDrillTypesNo && !hasOtherDrill) {
+              missingFields.push(`${section.title}: Other drill type (required when all standard drills are "No")`);
+            } else {
+              missingFields.push(`${section.title}: At least one drill type must be selected`);
+            }
+          }
+        } else if (index === 4) { // Section 5 (Recommendations) - check specify fields
+          // Check base required fields
+          section.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(`${section.title}: ${fieldName}`);
+            }
+          });
+          
+          // Check required dropdown questions
+          if (!localValues['additionalTrainingRequired'] || localValues['additionalTrainingRequired'] === 'Select an option') {
+            missingFields.push(`${section.title}: additionalTrainingRequired (required)`);
+          }
+          if (!localValues['planUpdateNeeded'] || localValues['planUpdateNeeded'] === 'Select an option') {
+            missingFields.push(`${section.title}: planUpdateNeeded (required)`);
+          }
+          
+          // Check specify fields based on dropdown selections
+          if (localValues['additionalTrainingRequired'] === 'Yes' && 
+              (!localValues['trainingDetails'] || localValues['trainingDetails'].trim() === '')) {
+            missingFields.push(`${section.title}: trainingDetails (required when "Additional training required" is Yes)`);
+          }
+          if (localValues['planUpdateNeeded'] === 'Yes' && 
+              (!localValues['planUpdateDetails'] || localValues['planUpdateDetails'].trim() === '')) {
+            missingFields.push(`${section.title}: planUpdateDetails (required when "Updates needed for emergency plan" is Yes)`);
           }
         } else {
           section.requiredFields.forEach((fieldName: any) => {
@@ -1032,7 +1303,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             }
           });
         }
-      });
+    });
     }
     
     return {
@@ -1164,6 +1435,9 @@ const getCommonFieldValue = (fieldName: string): string => {
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
               {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
               {FORM_SECTIONS[currentStep].title}
+              {currentStep === 1 && (
+                <span className="text-red-500 text-lg ml-1">*</span>
+              )}
             </h2>
             <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
             
