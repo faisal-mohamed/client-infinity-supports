@@ -57,7 +57,10 @@ export default function FormItem({
 
   const handleEditClick = () => {
     // Check if form was sent via signature link but staff hasn't submitted yet
-    const isWaitingForStaff = !assignment.filledByAdmin && !assignment.hasSubmission;
+    // ONLY apply this restriction to Emergency Drill form
+    const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
+                              !assignment.filledByAdmin && 
+                              !assignment.hasSubmission;
     
     if (isWaitingForStaff) {
       // Show "waiting for staff" modal
@@ -206,7 +209,7 @@ bgColor: 'from-amber-500 to-amber-600',
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.filledByAdmin ? (
+            {assignment.filledByAdmin || assignment.form.formKey === 'emergency_drill' ? (
               <input
                 type="checkbox"
                 checked={isSelected}

@@ -5,11 +5,17 @@ import './globals.css';
 
 import { Lexend , Montserrat} from 'next/font/google';
 import { Providers } from './providers';
+import NoFlashScript from '@/components/ui/NoFlashScript';
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' });
 
 const inter = Inter({ subsets: ['latin'] });
 
-const Monst = Montserrat({subsets: ['latin']})
+const Monst = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial']
+})
 
 export const metadata: Metadata = {
   title: 'Infinity Support Portal',
@@ -30,7 +36,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            html { 
+              visibility: hidden;
+            }
+            body { 
+              font-family: ${Monst.style.fontFamily}, system-ui, -apple-system, sans-serif;
+            }
+          `
+        }} />
+      </head>
       <body className={Monst.className}>
+        <NoFlashScript />
         <Providers>{children}</Providers>
       </body>
     </html>

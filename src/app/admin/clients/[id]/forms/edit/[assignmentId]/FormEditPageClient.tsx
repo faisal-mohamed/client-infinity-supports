@@ -305,9 +305,12 @@ export default function FormEditPageClient() {
 
   // NEW: Check if we need to block admin from editing
   // Block if: form sent via link (filledByAdmin=false) AND staff hasn't submitted their portion yet
-  // For emergency drill: check if support worker signature exists - if yes, staff submitted
+  // ONLY for Emergency Drill: check if support worker signature exists - if yes, staff submitted
   const staffHasSubmitted = formData?.supportWorkerSignature || formData?.clientSignature;
-  const isWaitingForStaff = !assignment.filledByAdmin && assignment.hasSubmission && !staffHasSubmitted;
+  const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
+                            !assignment.filledByAdmin && 
+                            assignment.hasSubmission && 
+                            !staffHasSubmitted;
   
   if (isWaitingForStaff) {
     // Show modal and block access - signature link sent but staff hasn't submitted

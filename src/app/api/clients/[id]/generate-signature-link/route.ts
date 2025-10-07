@@ -90,10 +90,35 @@ export async function POST(
       })
     );
 
+    // For emergency_drill and participant_risk_assessment: create FormSubmission if it doesn't exist
+    const processedSubmissions = await Promise.all(
+      formSubmissions.map(async (sub) => {
+        if (!sub.submissionId && (sub.formKey === 'emergency_drill' || sub.formKey === 'participant_risk_assessment')) {
+          // Create FormSubmission for these forms
+          const newSubmission = await prisma.formSubmission.create({
+            data: {
+              clientId: clientId,
+              formId: assignments.find(a => a.id === sub.assignmentId)!.formId,
+              formVersion: assignments.find(a => a.id === sub.assignmentId)!.formVersion,
+              data: {}, // Empty data - will be filled by client
+              filledByAdmin: false, // Not filled by admin yet
+              isSubmitted: false,
+            },
+          });
+          return {
+            ...sub,
+            submissionId: newSubmission.id,
+            filledByAdmin: false,
+          };
+        }
+        return sub;
+      })
+    );
+
     // Filter out assignments that don't have admin-filled submissions
-    // Special-case: allow emergency_drill even if not admin-filled
-    const validSubmissions = formSubmissions.filter(sub => 
-      sub.submissionId && (sub.filledByAdmin || sub.formKey === 'emergency_drill')
+    // Special-case: allow emergency_drill and participant_risk_assessment even if not admin-filled
+    const validSubmissions = processedSubmissions.filter(sub => 
+      sub.submissionId && (sub.filledByAdmin || sub.formKey === 'emergency_drill' || sub.formKey === 'participant_risk_assessment')
     );
 
     if (validSubmissions.length === 0) {

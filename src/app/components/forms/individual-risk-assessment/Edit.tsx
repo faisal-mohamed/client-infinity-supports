@@ -13,6 +13,7 @@ import {
   FaCheck,
   FaSave,
   FaInfoCircle,
+  FaSpinner,
   FaExclamationTriangle,
   FaClipboardCheck,
 } from "react-icons/fa";
@@ -401,6 +402,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
+        aria-label={label}
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
           fieldErrors[name]
             ? "border-red-300 bg-red-50"
