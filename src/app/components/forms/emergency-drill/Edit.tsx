@@ -346,6 +346,21 @@ const getCommonFieldValue = (fieldName: string): string => {
     };
   }, [localValues, onChange]);
 
+  // Auto-resize textareas on mount and when values change
+  useEffect(() => {
+    const autoResizeTextareas = () => {
+      const textareas = document.querySelectorAll('textarea[data-auto-resize="true"]');
+      textareas.forEach((textarea) => {
+        const element = textarea as HTMLTextAreaElement;
+        element.style.height = 'auto';
+        element.style.height = element.scrollHeight + 'px';
+      });
+    };
+
+    // Run on mount and when localValues change
+    autoResizeTextareas();
+  }, [localValues]);
+
  const handleChange = (
    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
  ) => {
@@ -630,7 +645,8 @@ const getCommonFieldValue = (fieldName: string): string => {
     name: string,
     rows: number = 3,
     placeholder?: string,
-    required?: boolean
+    required?: boolean,
+    autoResize?: boolean
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
@@ -655,11 +671,24 @@ const getCommonFieldValue = (fieldName: string): string => {
         <textarea
           name={name}
           value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
+          onChange={(e) => {
+            if (!isCommon) {
+              handleChange(e);
+              // Auto-resize functionality
+              if (autoResize) {
+                const textarea = e.target;
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+              }
+            }
+          }}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           rows={rows}
           disabled={fieldIsReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
+          data-auto-resize={autoResize ? "true" : "false"}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
+            autoResize ? "resize-none" : "resize-none"
+          } ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
@@ -1001,9 +1030,9 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   procedureChanges: { label: "Suggested changes to procedures", type: "text" },
   additionalTrainingRequired: { label: "Additional training or support required?", type: "dropdown", options: ["Yes", "No"], required: true },
-  trainingDetails: { label: "If yes, specify", type: "textarea", rows: 3 },
+  trainingDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true },
   planUpdateNeeded: { label: "Updates needed for the client's emergency plan?", type: "dropdown", options: ["Yes", "No"], required: true },
-  planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3 },
+  planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true },
 
   debriefConducted: { label: "Debrief conducted?", type: "dropdown", options: ["Yes", "No"] },
   supervisorComments: { label: "Supervisor/Manager Comments", type: "text" },
@@ -1562,7 +1591,7 @@ const getCommonFieldValue = (fieldName: string): string => {
                     if (meta.type === "textarea") {
                       return (
                         <div key={field} className="md:col-span-2">
-                          {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
+                          {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required, meta.autoResize)}
                         </div>
                       );
                     }
