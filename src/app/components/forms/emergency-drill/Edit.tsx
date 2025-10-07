@@ -51,7 +51,7 @@ export const FORM_SECTIONS : any = [
       "supervisorNotified"
     ],
     icon: FaHome,
-    requiredFields: []
+    requiredFields: ["drillDate", "drillTime", "supportWorkers"] // Required for client/staff
   },
   {
     id: "drillTypes",
@@ -67,9 +67,7 @@ export const FORM_SECTIONS : any = [
       "otherDrill"
     ],
     icon: FaHome,
-        requiredFields: []
-
-
+    requiredFields: [] // At least one drill type should be selected, but we'll handle this in validation
   },
   {
     id: "executionDetails",
@@ -83,8 +81,7 @@ export const FORM_SECTIONS : any = [
       "supportAction"
     ],
     icon: FaHome,
-        requiredFields: []
-
+    requiredFields: ["planFollowed", "safetyProtocols", "clientResponse", "supportAction"] // Required for client/staff
   },
   {
     id: "observations",
@@ -96,8 +93,7 @@ export const FORM_SECTIONS : any = [
       "unexpectedIssues"
     ],
     icon: FaHome,    
-    requiredFields: []
-
+    requiredFields: ["whatWentWell", "challenges"] // Required for client/staff
   },
   {
     id: "recommendations",
@@ -111,9 +107,7 @@ export const FORM_SECTIONS : any = [
       "planUpdateDetails"
     ],
     icon: FaHome,
-        requiredFields: []
-
-
+    requiredFields: ["procedureChanges"] // Required for client/staff
   },
   {
     id: "followup",
@@ -125,8 +119,7 @@ export const FORM_SECTIONS : any = [
       "nextDrillDate"
     ],
     icon: FaHome,
-    requiredFields: ["debriefConducted", "supervisorComments", "nextDrillDate"] // Required for admin
-
+    requiredFields: ["debriefConducted", "supervisorComments", "nextDrillDate"] // Required for admin only
   },
   {
     id: "signatures",
@@ -139,8 +132,7 @@ export const FORM_SECTIONS : any = [
       "supervisorSignatureDate"
     ],
     icon: FaHome,
-    requiredFields: ["supportWorkerSignature", "supportWorkerSignatureDate"] // Required for staff
-
+    requiredFields: ["supportWorkerSignature", "supportWorkerSignatureDate"] // Required for client/staff
   }
 ];
 
@@ -280,12 +272,16 @@ const getCommonFieldValue = (fieldName: string): string => {
 
   // Signatures (defaults)
   supportWorkerSignature: "",
-  supportWorkerSignatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
+  supportWorkerSignatureDate: "",
   supervisorSignature: "",
-  supervisorSignatureDate: formatDateForDisplay(new Date().toISOString().split("T")[0]),
+  supervisorSignatureDate: "",
 
-  // Incoming data from DB should override defaults, including signatures/date
+  // Incoming data from DB should override defaults, but filter out signature dates without signatures
   ...formData,
+  
+  // Clear signature dates if there's no corresponding signature
+  ...(formData?.supportWorkerSignature ? {} : { supportWorkerSignatureDate: "" }),
+  ...(formData?.supervisorSignature ? {} : { supervisorSignatureDate: "" }),
 
 
 };
@@ -295,6 +291,29 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
+
+  // Clean up signature dates on component mount if they don't have corresponding signatures
+  useEffect(() => {
+    const cleanedValues = { ...localValues };
+    let hasChanges = false;
+
+    // Clear support worker signature date if no signature
+    if (cleanedValues.supportWorkerSignatureDate && !cleanedValues.supportWorkerSignature) {
+      cleanedValues.supportWorkerSignatureDate = "";
+      hasChanges = true;
+    }
+
+    // Clear supervisor signature date if no signature
+    if (cleanedValues.supervisorSignatureDate && !cleanedValues.supervisorSignature) {
+      cleanedValues.supervisorSignatureDate = "";
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      setLocalValues(cleanedValues);
+      onChange(cleanedValues);
+    }
+  }, []); // Run only once on mount
 
   // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
@@ -379,34 +398,94 @@ const getCommonFieldValue = (fieldName: string): string => {
     return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
   };
 
-  const isCurrentSectionComplete = () => {
-    let required = FORM_SECTIONS[currentStep].requiredFields || [];
-    
-    // ADMIN REVIEW MODE: Check supervisor fields for signature section
-    if (filledByClient && !isSignatureLink && currentStep === 6) {
-      required = ['supervisorSignature', 'supervisorSignatureDate'];
-    }
-    
-    // ADMIN REVIEW MODE: Section 5 (Follow-up) requires all fields
-    if (filledByClient && !isSignatureLink && currentStep === 5) {
-      required = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
-    }
-    
-    return required.every((key : any ) => {
-      let value;
-      
-      // For common fields, get value from commonFieldsData
-      if (isCommonField(key)) {
-        value = getCommonFieldValue(key);
-      } else {
-        value = localValues[key];
-      }
-      
-      return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
-    });
-  };
 
   const handleNextSequential = async () => {
+    // Check if current section is complete before allowing navigation
+    if (!isCurrentSectionComplete()) {
+      const currentSection = FORM_SECTIONS[currentStep];
+      const missingFields: string[] = [];
+      
+      // Get missing required fields for current section
+      if (filledByClient && !isSignatureLink) {
+        // Admin review mode
+        if (currentStep === 5) {
+          const required = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
+          required.forEach(field => {
+            const value = localValues[field];
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(field);
+            }
+          });
+        } else if (currentStep === 6) {
+          const supervisorSignature = localValues['supervisorSignature'];
+          const supervisorSignatureDate = localValues['supervisorSignatureDate'];
+          if (!supervisorSignature || supervisorSignature.trim() === '') {
+            missingFields.push('supervisorSignature');
+          }
+          if (!supervisorSignatureDate || supervisorSignatureDate.trim() === '') {
+            missingFields.push('supervisorSignatureDate');
+          }
+        }
+      } else if (isSignatureLink) {
+        // Signature link mode
+        if (currentStep === 5) {
+          // Section 6 is view-only for client, no validation needed
+          return;
+        }
+        
+        if (currentStep === 1) {
+          const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+          const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+          if (!hasAnyDrillType && !hasOtherDrill) {
+            missingFields.push('At least one drill type must be selected');
+          }
+      } else {
+          currentSection.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(fieldName);
+            }
+          });
+        }
+      } else {
+        // Normal admin mode
+        if (currentStep === 1) {
+          const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+          const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+          if (!hasAnyDrillType && !hasOtherDrill) {
+            missingFields.push('At least one drill type must be selected');
+          }
+        } else {
+          currentSection.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(fieldName);
+            }
+          });
+        }
+      }
+      
+      showToast({
+        type: 'error',
+        title: 'Required Fields Missing',
+        message: `Please fill in the following required fields: ${missingFields.join(', ')}`,
+        duration: 5000,
+      });
+      return;
+    }
+    
     // Save progress before moving to next section
     if (handleSaveForNext) {
       await handleSaveForNext();
@@ -450,9 +529,9 @@ const getCommonFieldValue = (fieldName: string): string => {
         <input
           type={type}
           name={name}
-value={type === "date" && displayValue ? formatDateForStorage(displayValue) : displayValue}
+          value={type === "date" && displayValue ? formatDateForStorage(displayValue) : (displayValue || "")}
           onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
+          placeholder={isCommon ? "Value from common fields" : (type === "date" ? "Select date" : placeholder)}
           disabled={fieldIsReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
             fieldErrors[name]
@@ -534,10 +613,10 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
     const fieldIsReadOnly = isFieldReadOnly(name);
     
     return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
           {fieldIsReadOnly && isSignatureLink && currentStep === 5 && (
             <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
               View Only
@@ -548,38 +627,38 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               Client Submitted
             </span>
           )}
-        </label>
-        <select
-          name={name}
-          value={localValues[name] || ""}
-          onChange={handleChange}
+      </label>
+      <select
+        name={name}
+        value={localValues[name] || ""}
+        onChange={handleChange}
           disabled={fieldIsReadOnly}
           aria-label={label}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
+        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
+          fieldErrors[name]
+            ? "border-red-300 bg-red-50"
               : fieldIsReadOnly && isSignatureLink
               ? "bg-gray-50 border-gray-300"
-              : "hover:border-accent/40"
+            : "hover:border-accent/40"
           } ${fieldIsReadOnly ? "bg-gray-50 text-gray-400" : ""}`}
-        >
-          <option value="">Select an option</option>
-          {options.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-        )}
-        {showComments && (
-          <div className="mt-3">
-            {renderTextArea("Comments", `${name}_comments`, 2, "Add any additional comments...")}
-          </div>
-        )}
-      </div>
-    );
+      >
+        <option value="">Select an option</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      {fieldErrors[name] && (
+        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      )}
+      {showComments && (
+        <div className="mt-3">
+          {renderTextArea("Comments", `${name}_comments`, 2, "Add any additional comments...")}
+        </div>
+      )}
+    </div>
+  );
   };
 
   const renderMultiSelectCheckbox = (
@@ -653,10 +732,10 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
     const fieldReadOnly = isFieldReadOnly(name); // Use the new helper
     
     return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-gray-700 mb-1">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
           {fieldReadOnly && isSignatureLink && (
             <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
               View Only
@@ -667,15 +746,15 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
               Staff Signed
             </span>
           )}
-        </label>
+      </label>
         <div className={`w-full rounded-lg border ${fieldReadOnly ? 'border-gray-300 bg-gray-50' : 'border-gray-200 bg-white'} p-4 shadow-sm`}>
-          <SignatureCanvas
-            ref={signatureRef}
-            onSignatureEnd={(dataUrl: string) => handleSignatureEnd(name, dataUrl)}
-            onSignatureClear={() => handleSignatureClear(name)}
-            existingSignature={localValues[name]}
-            width={400}
-            height={150}
+        <SignatureCanvas
+          ref={signatureRef}
+          onSignatureEnd={(dataUrl: string) => handleSignatureEnd(name, dataUrl)}
+          onSignatureClear={() => handleSignatureClear(name)}
+          existingSignature={localValues[name]}
+          width={400}
+          height={150}
             disabled={fieldReadOnly}
             placeholder={
               fieldReadOnly && isSignatureLink 
@@ -684,13 +763,13 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
                 ? "Staff has already signed - view only"
                 : (placeholder || "Draw your signature in the box above")
             }
-          />
-        </div>
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-        )}
+        />
       </div>
-    );
+      {fieldErrors[name] && (
+        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      )}
+    </div>
+  );
   };
 
   // Helper to check if a field is required in the current section
@@ -717,32 +796,56 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
 
   // NEW: Helper to check if a field should be read-only based on access mode
   const isFieldReadOnly = (fieldName: string) => {
+    console.log(`=== isFieldReadOnly DEBUG for field: ${fieldName} ===`);
+    console.log('isSignatureLink:', isSignatureLink);
+    console.log('filledByClient:', filledByClient);
+    console.log('readOnly:', readOnly);
+    console.log('currentStep:', currentStep);
+    
     // SIGNATURE LINK MODE (Client/Staff filling form)
     if (isSignatureLink) {
       // Section 5 (Follow-up) - ALL fields read-only (admin will complete)
-      if (currentStep === 5) return true;
+      if (currentStep === 5) {
+        console.log('SIGNATURE LINK: Section 5 - returning true (read-only)');
+        return true;
+      }
       
       // Section 6 (Signatures) - Only supervisor fields are read-only
-      if (currentStep === 6 && (fieldName === 'supervisorSignature' || fieldName === 'supervisorSignatureDate')) return true;
+      if (currentStep === 6 && (fieldName === 'supervisorSignature' || fieldName === 'supervisorSignatureDate')) {
+        console.log('SIGNATURE LINK: Section 6 supervisor field - returning true (read-only)');
+        return true;
+      }
       
       // Sections 0-4: Fully editable
       // Section 6: supportWorkerSignature and supportWorkerSignatureDate editable
+      console.log('SIGNATURE LINK: returning readOnly prop:', readOnly);
       return readOnly;
     }
     
     // ADMIN REVIEW MODE (Admin reviewing client-submitted form)
     if (filledByClient && !isSignatureLink) {
+      console.log('ADMIN REVIEW MODE detected');
       // Sections 0-4 (1-5): Read-only (client/staff already filled)
-      if (currentStep >= 0 && currentStep <= 4) return true;
+      if (currentStep >= 0 && currentStep <= 4) {
+        console.log(`ADMIN REVIEW: Section ${currentStep + 1} - returning true (read-only)`);
+        return true;
+      }
       
       // Section 5 (Follow-up): Editable (admin completes this)
-      if (currentStep === 5) return false;
+      if (currentStep === 5) {
+        console.log('ADMIN REVIEW: Section 6 (Follow-up) - returning false (editable)');
+        return false;
+      }
       
       // Section 6 (Signatures):
       if (currentStep === 6) {
         // supportWorkerSignature and supportWorkerSignatureDate: Read-only (staff already signed)
-        if (fieldName === 'supportWorkerSignature' || fieldName === 'supportWorkerSignatureDate') return true;
+        if (fieldName === 'supportWorkerSignature' || fieldName === 'supportWorkerSignatureDate') {
+          console.log('ADMIN REVIEW: Client signature field - returning true (read-only)');
+          return true;
+        }
         // supervisorSignature and supervisorSignatureDate: Editable (admin signs)
+        console.log('ADMIN REVIEW: Supervisor signature field - returning false (editable)');
         return false;
       }
     }
@@ -793,7 +896,70 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
 };
 
 
-  // Validation function to check if all required fields are filled
+  // Check if current section is complete (for Next button validation)
+  const isCurrentSectionComplete = () => {
+    const currentSection = FORM_SECTIONS[currentStep];
+    if (!currentSection) return true;
+
+    // SIGNATURE LINK MODE (Client/Staff): Section 6 is view-only, always allow proceeding
+    if (isSignatureLink) {
+      if (currentStep === 5) { // Section 6 (Follow-up) - view-only for client, always complete
+        return true;
+      }
+      
+      if (currentStep === 1) { // Section 2: At least one drill type must be selected
+        const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+        const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+        const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+        return hasAnyDrillType || hasOtherDrill;
+      }
+      
+      // For other sections, check required fields
+      return currentSection.requiredFields.every((fieldName: any) => {
+        let value;
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
+        return value && (typeof value !== 'string' || value.trim() !== '');
+      });
+    }
+
+    // ADMIN REVIEW MODE: Only validate sections 5 & 6
+    if (filledByClient && !isSignatureLink) {
+      // Sections 0-4 (1-5): Always complete (read-only, client already filled)
+      if (currentStep >= 0 && currentStep <= 4) return true;
+      
+      if (currentStep === 5) { // Follow-up section - ALL fields required for admin
+        const required = ['debriefConducted', 'supervisorComments', 'nextDrillDate'];
+        return required.every(field => {
+          const value = localValues[field];
+          return value && (typeof value !== 'string' || value.trim() !== '');
+        });
+      }
+      if (currentStep === 6) { // Signatures section - BOTH supervisor signature AND date required
+        const supervisorSignature = localValues['supervisorSignature'];
+        const supervisorSignatureDate = localValues['supervisorSignatureDate'];
+        return supervisorSignature && supervisorSignature.trim() !== '' && 
+               supervisorSignatureDate && supervisorSignatureDate.trim() !== '';
+      }
+      return true;
+    }
+
+    // NORMAL ADMIN MODE: Check all required fields for current section
+    return currentSection.requiredFields.every((fieldName: any) => {
+      let value;
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
+      return value && (typeof value !== 'string' || value.trim() !== '');
+    });
+  };
+
+  // Validation function to check if all required fields are filled (for form submission)
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
     
@@ -816,27 +982,56 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
           missingFields.push(`Signature: ${fieldName}`);
         }
       });
-    } else {
-      // SIGNATURE LINK or NORMAL ADMIN MODE: Check all sections
+    } else if (isSignatureLink) {
+      // SIGNATURE LINK MODE: Validate sections 1-5 and 7 (client/staff sections)
       FORM_SECTIONS.forEach((section: any, index: number) => {
-        // Skip Follow-up section for signature link mode (admin completes it)
-        if (isSignatureLink && index === 5) return;
+        // Skip Follow-up section (index 5) - admin completes it
+        if (index === 5) return;
         
-        section.requiredFields.forEach((fieldName: any) => {
-          let value;
-          
-          // For common fields, get value from commonFieldsData
-          if (isCommonField(fieldName)) {
-            value = getCommonFieldValue(fieldName);
-          } else {
-            value = localValues[fieldName];
+        if (index === 1) { // Section 2: At least one drill type must be selected
+          const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+          const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+          if (!hasAnyDrillType && !hasOtherDrill) {
+            missingFields.push(`${section.title}: At least one drill type must be selected`);
           }
-          
-          // Check if field is empty, null, undefined, or empty string
-          if (!value || (typeof value === 'string' && value.trim() === '')) {
-            missingFields.push(`${section.title}: ${fieldName}`);
+        } else {
+          section.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(`${section.title}: ${fieldName}`);
+            }
+          });
+        }
+      });
+    } else {
+      // NORMAL ADMIN MODE: Check all sections
+      FORM_SECTIONS.forEach((section: any, index: number) => {
+        if (index === 1) { // Section 2: At least one drill type must be selected
+          const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
+          const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
+          if (!hasAnyDrillType && !hasOtherDrill) {
+            missingFields.push(`${section.title}: At least one drill type must be selected`);
           }
-        });
+        } else {
+          section.requiredFields.forEach((fieldName: any) => {
+            let value;
+            if (isCommonField(fieldName)) {
+              value = getCommonFieldValue(fieldName);
+            } else {
+              value = localValues[fieldName];
+            }
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(`${section.title}: ${fieldName}`);
+            }
+          });
+        }
       });
     }
     
@@ -889,14 +1084,29 @@ value={type === "date" && displayValue ? formatDateForStorage(displayValue) : di
   };
 
   const handleSignatureEnd = (fieldName: string, dataUrl: string) => {
-    const newValues = { ...localValues, [fieldName]: dataUrl };
+    const now = new Date();
+    const formattedDate = formatDateForDisplay(now.toISOString().split("T")[0]);
+    
+    const newValues = { 
+      ...localValues, 
+      [fieldName]: dataUrl,
+      // Automatically set the corresponding date when signature is provided
+      ...(fieldName === 'supportWorkerSignature' && { supportWorkerSignatureDate: formattedDate }),
+      ...(fieldName === 'supervisorSignature' && { supervisorSignatureDate: formattedDate })
+    };
     setLocalValues(newValues);
     onChange(newValues, fieldName, false);
   };
 
   // Handle signature clear
   const handleSignatureClear = (fieldName: string) => {
-    const newValues = { ...localValues, [fieldName]: "" };
+    const newValues = { 
+      ...localValues, 
+      [fieldName]: "",
+      // Clear the corresponding date when signature is cleared
+      ...(fieldName === 'supportWorkerSignature' && { supportWorkerSignatureDate: "" }),
+      ...(fieldName === 'supervisorSignature' && { supervisorSignatureDate: "" })
+    };
     setLocalValues(newValues);
     onChange(newValues, fieldName, false);
   };

@@ -424,9 +424,22 @@ export default function FormEditPageClient() {
             saving={saving} // Pass saving state for Save Progress button
             navigatingNext={navigatingNext} // Pass navigatingNext state for Next button
             navigatingPrev={navigatingPrev} // Pass navigatingPrev state for Previous button
-            filledByClient={assignment ? (!assignment.filledByAdmin && assignment.hasSubmission) : false} // NEW: Filled by client AND has actual submission data
+            filledByClient={(() => {
+              const isClientSubmitted = assignment ? (assignment.form.formKey === 'emergency_drill' && assignment.hasSubmission && (formData?.supportWorkerSignature || formData?.clientSignature)) : false;
+              console.log('=== ADMIN ACCESS CONTROL DEBUG ===');
+              console.log('assignment.form.formKey:', assignment?.form.formKey);
+              console.log('assignment.hasSubmission:', assignment?.hasSubmission);
+              console.log('formData?.supportWorkerSignature:', formData?.supportWorkerSignature);
+              console.log('formData?.clientSignature:', formData?.clientSignature);
+              console.log('filledByClient result:', isClientSubmitted);
+              return isClientSubmitted;
+            })()} // NEW: Emergency drill form submitted via signature link (has client/staff signature)
             isSignatureLink={false}
-            readOnly={false}
+            readOnly={(() => {
+              const isReadOnly = assignment ? (assignment.form.formKey === 'emergency_drill' && assignment.hasSubmission && (formData?.supportWorkerSignature || formData?.clientSignature)) : false;
+              console.log('readOnly result:', isReadOnly);
+              return isReadOnly;
+            })()} // Read-only for admin reviewing client-submitted emergency drill forms
             fieldErrors={{}}
             onCommonFieldsUpdated={() => {
               

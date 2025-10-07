@@ -712,7 +712,7 @@ export async function PUT(
   try {
     const { token, formSubmissionId } = await params;
     const formSubmissionIdInt = parseInt(formSubmissionId);
-    const { data } = await req.json();
+    const { data, isSubmitted } = await req.json();
 
     if (!token || !formSubmissionIdInt) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -732,12 +732,16 @@ export async function PUT(
     const inBatch = batch.signatureForms.some((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
     if (!inBatch) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
 
-    // Update submission data only
+    // Update submission data and mark as submitted if this is the final submission
     const updated = await prisma.formSubmission.update({
       where: { id: formSubmissionIdInt },
       data: {
         data,
         updatedAt: new Date(),
+        ...(isSubmitted && {
+          isSubmitted: true,
+          submittedAt: new Date(),
+        }),
       },
       select: { id: true },
     });

@@ -576,10 +576,25 @@ export default function FormSignaturePageClient() {
                   const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ data: editedFormValues }),
+                    body: JSON.stringify({ 
+                      data: editedFormValues,
+                      isSubmitted: true // Mark as final submission
+                    }),
                   });
                   if (!res.ok) throw new Error("Failed to save");
-                  showToast({ type: "success", title: "Saved", message: "Form data saved", duration: 2000 });
+                  
+                  // Show success message and redirect to forms list
+                  showToast({ 
+                    type: "success", 
+                    title: "Form Submitted Successfully", 
+                    message: "Thank you! Your form has been submitted and will be reviewed by your supervisor.", 
+                    duration: 3000 
+                  });
+                  
+                  // Redirect to forms list after a short delay
+                  setTimeout(() => {
+                    router.push(`/forms/signature/${token}`);
+                  }, 2000);
                 } catch (e: any) {
                   showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
                 }

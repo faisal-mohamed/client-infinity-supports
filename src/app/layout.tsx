@@ -5,7 +5,6 @@ import './globals.css';
 
 import { Lexend , Montserrat} from 'next/font/google';
 import { Providers } from './providers';
-import NoFlashScript from '@/components/ui/NoFlashScript';
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' });
 
 const inter = Inter({ subsets: ['latin'] });
@@ -39,9 +38,6 @@ export default function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{
           __html: `
-            html { 
-              visibility: hidden;
-            }
             body { 
               font-family: ${Monst.style.fontFamily}, system-ui, -apple-system, sans-serif;
             }
@@ -49,7 +45,6 @@ export default function RootLayout({
         }} />
       </head>
       <body className={Monst.className}>
-        <NoFlashScript />
         <Providers>{children}</Providers>
       </body>
     </html>
