@@ -56,7 +56,7 @@ export const FORM_SECTIONS : any = [
   {
     id: "drillTypes",
     title: "Type of Drill Conducted",
-    description: "Select applicable emergency types ",
+    description: "Select ONE drill type that was conducted",
     fields: [
       "fire",
       "medical",
@@ -67,7 +67,7 @@ export const FORM_SECTIONS : any = [
       "otherDrill"
     ],
     icon: FaHome,
-    requiredFields: ["atLeastOneDrillType"] // Special validation: at least one drill type must be selected
+    requiredFields: ["atLeastOneDrillType"] // Special validation: exactly one drill type must be selected
   },
   {
     id: "executionDetails",
@@ -329,6 +329,50 @@ const getCommonFieldValue = (fieldName: string): string => {
     return;
   };
 
+  // 🎯 NEW: Helper to get the first answered drill type
+  const getFirstAnsweredDrillType = () => {
+    const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
+    
+    // Check if "Other" is filled first
+    if (localValues['otherDrill'] && localValues['otherDrill'].trim() !== '') {
+      return 'otherDrill';
+    }
+    
+    // Find first drill type that has been answered (Yes or No)
+    for (const drillType of drillTypes) {
+      if (localValues[drillType] && localValues[drillType] !== '') {
+        return drillType;
+      }
+    }
+    
+    return null; // No drill type answered yet
+  };
+
+  // 🎯 NEW: Helper to check if a drill type field should be disabled
+  const isDrillTypeDisabled = (fieldName: string) => {
+    const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security', 'otherDrill'];
+    
+    // If not a drill type field, return false
+    if (!drillTypes.includes(fieldName)) {
+      return false;
+    }
+    
+    const firstAnswered = getFirstAnsweredDrillType();
+    
+    // If no drill type answered yet, all are enabled
+    if (!firstAnswered) {
+      return false;
+    }
+    
+    // If this is the first answered field, keep it enabled
+    if (firstAnswered === fieldName) {
+      return false;
+    }
+    
+    // All other drill types are disabled
+    return true;
+  };
+
   // Update display when commonFieldsData changes (but don't modify localValues for common fields)
   useEffect(() => {
     if (!commonFieldsData) return;
@@ -450,16 +494,16 @@ const getCommonFieldValue = (fieldName: string): string => {
         
         if (currentStep === 1) {
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
           
-          if (!hasAnyDrillType) {
-            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-            if (allDrillTypesNo && !hasOtherDrill) {
-              missingFields.push('Other drill type (required when all standard drills are "No")');
-            } else {
-              missingFields.push('At least one drill type must be selected');
-            }
+          // Count how many drill types are answered
+          const answeredDrillTypes = drillTypes.filter(type => 
+            localValues[type] && localValues[type] !== ''
+          );
+          
+          // Must have exactly ONE selection (either one drill type OR "Other")
+          if (!hasOtherDrill && answeredDrillTypes.length === 0) {
+            missingFields.push('Exactly one drill type must be selected');
           }
       } else {
           currentSection.requiredFields.forEach((fieldName: any) => {
@@ -478,16 +522,16 @@ const getCommonFieldValue = (fieldName: string): string => {
         // Normal admin mode
         if (currentStep === 1) {
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
           
-          if (!hasAnyDrillType) {
-            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-            if (allDrillTypesNo && !hasOtherDrill) {
-              missingFields.push('Other drill type (required when all standard drills are "No")');
-      } else {
-              missingFields.push('At least one drill type must be selected');
-            }
+          // Count how many drill types are answered
+          const answeredDrillTypes = drillTypes.filter(type => 
+            localValues[type] && localValues[type] !== ''
+          );
+          
+          // Must have exactly ONE selection (either one drill type OR "Other")
+          if (!hasOtherDrill && answeredDrillTypes.length === 0) {
+            missingFields.push('Exactly one drill type must be selected');
           }
         } else if (currentStep === 4) { // Section 5 (Recommendations) - check specify fields
           // Check base required fields
@@ -602,16 +646,23 @@ const getCommonFieldValue = (fieldName: string): string => {
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon; // Use the new helper
+    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 NEW: Check if drill type is disabled
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled; // Use the new helper + drill type logic
     
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-          {fieldIsReadOnly && isSignatureLink && !isCommon && currentStep === 5 && (
+          {fieldIsReadOnly && isSignatureLink && !isCommon && !drillTypeDisabled && currentStep === 5 && (
             <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
               View Only
+            </span>
+          )}
+          {/* 🎯 NEW: Show badge when "Other" field is disabled due to another selection */}
+          {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
+            <span className="ml-2 text-xs text-gray-600 font-semibold bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
+              Already Selected Another Drill
             </span>
           )}
         </label>
@@ -627,6 +678,8 @@ const getCommonFieldValue = (fieldName: string): string => {
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
+                : drillTypeDisabled
+                ? "bg-gray-100 border-gray-300 opacity-60 cursor-not-allowed"
                 : fieldIsReadOnly && isSignatureLink
                 ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
@@ -635,6 +688,12 @@ const getCommonFieldValue = (fieldName: string): string => {
        
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+        {/* 🎯 NEW: Show helper text for disabled "Other" field */}
+        {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
+          <p className="text-xs text-gray-500 mt-1">
+            ℹ️ Only one drill type can be selected per form.
+          </p>
         )}
       </div>
     );
@@ -650,21 +709,28 @@ const getCommonFieldValue = (fieldName: string): string => {
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon; // Use the new helper
+    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 NEW: Check if drill type is disabled
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled; // Use the new helper + drill type logic
     
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-          {fieldIsReadOnly && isSignatureLink && !isCommon && currentStep === 5 && (
+          {fieldIsReadOnly && isSignatureLink && !isCommon && !drillTypeDisabled && currentStep === 5 && (
             <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
               View Only
             </span>
           )}
-          {fieldIsReadOnly && filledByClient && !isCommon && currentStep >= 0 && currentStep <= 4 && (
+          {fieldIsReadOnly && filledByClient && !isCommon && !drillTypeDisabled && currentStep >= 0 && currentStep <= 4 && (
             <span className="ml-2 text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
               Client Submitted
+            </span>
+          )}
+          {/* 🎯 NEW: Show badge when "Other" textarea is disabled due to another selection */}
+          {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
+            <span className="ml-2 text-xs text-gray-600 font-semibold bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
+              Already Selected Another Drill
             </span>
           )}
         </label>
@@ -672,7 +738,7 @@ const getCommonFieldValue = (fieldName: string): string => {
           name={name}
           value={displayValue}
           onChange={(e) => {
-            if (!isCommon) {
+            if (!isCommon && !drillTypeDisabled) {
               handleChange(e);
               // Auto-resize functionality
               if (autoResize) {
@@ -693,6 +759,8 @@ const getCommonFieldValue = (fieldName: string): string => {
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
+                : drillTypeDisabled
+                ? "bg-gray-100 border-gray-300 opacity-60 cursor-not-allowed"
                 : fieldIsReadOnly && isSignatureLink
                 ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
@@ -701,6 +769,12 @@ const getCommonFieldValue = (fieldName: string): string => {
         
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+        {/* 🎯 NEW: Show helper text for disabled "Other" textarea */}
+        {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
+          <p className="text-xs text-gray-500 mt-1">
+            ℹ️ Only one drill type can be selected per form.
+          </p>
         )}
       </div>
     );
@@ -714,6 +788,8 @@ const getCommonFieldValue = (fieldName: string): string => {
     required?: boolean
   ) => {
     const fieldIsReadOnly = isFieldReadOnly(name);
+    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 NEW: Check if drill type is disabled
+    const isDisabled = fieldIsReadOnly || drillTypeDisabled; // Combine both conditions
     
     return (
     <div className="flex flex-col gap-1">
@@ -730,20 +806,26 @@ const getCommonFieldValue = (fieldName: string): string => {
               Client Submitted
             </span>
           )}
+          {/* 🎯 NEW: Show badge when drill type is disabled due to another selection */}
+          {drillTypeDisabled && !fieldIsReadOnly && currentStep === 1 && (
+            <span className="ml-2 text-xs text-gray-600 font-semibold bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
+              Already Selected Another Drill
+            </span>
+          )}
       </label>
       <select
         name={name}
         value={localValues[name] || ""}
         onChange={handleChange}
-          disabled={fieldIsReadOnly}
+          disabled={isDisabled}
           aria-label={label}
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
           fieldErrors[name]
             ? "border-red-300 bg-red-50"
-              : fieldIsReadOnly && isSignatureLink
-              ? "bg-gray-50 border-gray-300"
+              : isDisabled
+              ? "bg-gray-50 border-gray-300 cursor-not-allowed"
             : "hover:border-accent/40"
-          } ${fieldIsReadOnly ? "bg-gray-50 text-gray-400" : ""}`}
+          } ${isDisabled ? "bg-gray-100 text-gray-500 opacity-60" : ""}`}
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -754,6 +836,12 @@ const getCommonFieldValue = (fieldName: string): string => {
       </select>
       {fieldErrors[name] && (
         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      )}
+      {/* 🎯 NEW: Show helper text for disabled drill types */}
+      {drillTypeDisabled && !fieldIsReadOnly && currentStep === 1 && (
+        <p className="text-xs text-gray-500 mt-1">
+          ℹ️ Only one drill type can be selected per form. You've already selected {getFirstAnsweredDrillType()?.replace(/([A-Z])/g, ' $1').trim()}.
+        </p>
       )}
       {showComments && (
         <div className="mt-3">
@@ -905,9 +993,10 @@ const getCommonFieldValue = (fieldName: string): string => {
   const isFieldRequired = (fieldName: string) => {
     const baseRequired = FORM_SECTIONS[currentStep].requiredFields || [];
     
-    // Special case: Drill type fields are required (need to be selected)
+    // Special case: Drill type fields are NOT required (no asterisks needed)
+    // Validation still enforces "exactly one drill type" via custom logic
     if (currentStep === 1 && ['fire', 'medical', 'gas', 'power', 'natural', 'security'].includes(fieldName)) {
-      return true;
+      return false;
     }
     
     // Special case: "Other" field is required when all drill types are "No"
@@ -1010,13 +1099,13 @@ const getCommonFieldValue = (fieldName: string): string => {
   supportWorkers: { label: "Support Worker(s) Involved", type: "text" },
   supervisorNotified: { label: "Supervisor/Manager Notified", type: "dropdown", options: ["Yes", "No"] },
 
-  fire: { label: "Fire or smoke emergency", type: "dropdown", options: ["Yes", "No"], required: true },
-  medical: { label: "Medical emergency (e.g., client collapse, choking, seizure)", type: "dropdown", options: ["Yes", "No"], required: true },
-  gas: { label: "Gas leak or carbon monoxide alert", type: "dropdown", options: ["Yes", "No"], required: true },
-  power: { label: "Power outage", type: "dropdown", options: ["Yes", "No"], required: true },
-  natural: { label: "Natural disaster (e.g., flood, earthquake)", type: "dropdown", options: ["Yes", "No"], required: true },
-  security: { label: "Security threat (e.g., unauthorized visitor, break-in)", type: "dropdown", options: ["Yes", "No"], required: true },
-  otherDrill: { label: "If Other (specify)", type: "text", required: false },
+  fire: { label: "Fire or smoke emergency", type: "dropdown", options: ["Yes", "No"], required: false },
+  medical: { label: "Medical emergency (e.g., client collapse, choking, seizure)", type: "dropdown", options: ["Yes", "No"], required: false },
+  gas: { label: "Gas leak or carbon monoxide alert", type: "dropdown", options: ["Yes", "No"], required: false },
+  power: { label: "Power outage", type: "dropdown", options: ["Yes", "No"], required: false },
+  natural: { label: "Natural disaster (e.g., flood, earthquake)", type: "dropdown", options: ["Yes", "No"], required: false },
+  security: { label: "Security threat (e.g., unauthorized visitor, break-in)", type: "dropdown", options: ["Yes", "No"], required: false },
+  otherDrill: { label: "If Other (specify)", type: "textarea", rows: 3, autoResize: true, placeholder: "Please describe the type of drill conducted...", required: false },
 
   planFollowed: { label: "Was the emergency plan followed?", type: "dropdown", options: ["Yes", "No"] },
   safetyProtocols: { label: "Were all safety measures and protocols implemented?", type: "dropdown", options: ["Yes", "No"] },
@@ -1056,21 +1145,26 @@ const getCommonFieldValue = (fieldName: string): string => {
         return true;
       }
       
-      if (currentStep === 1) { // Section 2: Drill type validation
+      if (currentStep === 1) { // Section 2: Drill type validation (ONE drill type only)
         const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-        const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
         const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
         
-        // If any drill type is "Yes", section is complete
-        if (hasAnyDrillType) return true;
+        // Count how many drill types are answered
+        const answeredDrillTypes = drillTypes.filter(type => 
+          localValues[type] && localValues[type] !== ''
+        );
         
-        // If all drill types are "No", then "Other" field is required
-        const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-        if (allDrillTypesNo) {
-          return hasOtherDrill; // "Other" field must be filled
+        // If "Other" is filled, that's the one selection
+        if (hasOtherDrill) {
+          return true;
         }
         
-        // If some drill types are not selected yet, section is incomplete
+        // Must have exactly one drill type answered
+        if (answeredDrillTypes.length === 1) {
+          return true;
+        }
+        
+        // If no drill type selected or multiple selected, incomplete
         return false;
       }
       
@@ -1132,21 +1226,26 @@ const getCommonFieldValue = (fieldName: string): string => {
     }
 
     // NORMAL ADMIN MODE: Check all required fields for current section
-    if (currentStep === 1) { // Section 2: Drill type validation
+    if (currentStep === 1) { // Section 2: Drill type validation (ONE drill type only)
       const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-      const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
       const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
       
-      // If any drill type is "Yes", section is complete
-      if (hasAnyDrillType) return true;
+      // Count how many drill types are answered
+      const answeredDrillTypes = drillTypes.filter(type => 
+        localValues[type] && localValues[type] !== ''
+      );
       
-      // If all drill types are "No", then "Other" field is required
-      const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-      if (allDrillTypesNo) {
-        return hasOtherDrill; // "Other" field must be filled
+      // If "Other" is filled, that's the one selection
+      if (hasOtherDrill) {
+        return true;
       }
       
-      // If some drill types are not selected yet, section is incomplete
+      // Must have exactly one drill type answered
+      if (answeredDrillTypes.length === 1) {
+        return true;
+      }
+      
+      // If no drill type selected or multiple selected, incomplete
       return false;
     }
     
@@ -1214,18 +1313,18 @@ const getCommonFieldValue = (fieldName: string): string => {
         // Skip Follow-up section (index 5) - admin completes it
         if (index === 5) return;
         
-        if (index === 1) { // Section 2: Drill type validation
+        if (index === 1) { // Section 2: Drill type validation (ONE drill type only)
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
           
-          if (!hasAnyDrillType) {
-            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-            if (allDrillTypesNo && !hasOtherDrill) {
-              missingFields.push(`${section.title}: Other drill type (required when all standard drills are "No")`);
-            } else {
-              missingFields.push(`${section.title}: At least one drill type must be selected`);
-            }
+          // Count how many drill types are answered
+          const answeredDrillTypes = drillTypes.filter(type => 
+            localValues[type] && localValues[type] !== ''
+          );
+          
+          // Must have exactly ONE selection (either one drill type OR "Other")
+          if (!hasOtherDrill && answeredDrillTypes.length === 0) {
+            missingFields.push(`${section.title}: Exactly one drill type must be selected`);
           }
         } else if (index === 4) { // Section 5 (Recommendations) - check specify fields
           // Check base required fields
@@ -1275,18 +1374,18 @@ const getCommonFieldValue = (fieldName: string): string => {
     } else {
       // NORMAL ADMIN MODE: Check all sections
       FORM_SECTIONS.forEach((section: any, index: number) => {
-        if (index === 1) { // Section 2: Drill type validation
+        if (index === 1) { // Section 2: Drill type validation (ONE drill type only)
           const drillTypes = ['fire', 'medical', 'gas', 'power', 'natural', 'security'];
-          const hasAnyDrillType = drillTypes.some(type => localValues[type] === 'Yes');
           const hasOtherDrill = localValues['otherDrill'] && localValues['otherDrill'].trim() !== '';
           
-          if (!hasAnyDrillType) {
-            const allDrillTypesNo = drillTypes.every(type => localValues[type] === 'No');
-            if (allDrillTypesNo && !hasOtherDrill) {
-              missingFields.push(`${section.title}: Other drill type (required when all standard drills are "No")`);
-            } else {
-              missingFields.push(`${section.title}: At least one drill type must be selected`);
-            }
+          // Count how many drill types are answered
+          const answeredDrillTypes = drillTypes.filter(type => 
+            localValues[type] && localValues[type] !== ''
+          );
+          
+          // Must have exactly ONE selection (either one drill type OR "Other")
+          if (!hasOtherDrill && answeredDrillTypes.length === 0) {
+            missingFields.push(`${section.title}: Exactly one drill type must be selected`);
           }
         } else if (index === 4) { // Section 5 (Recommendations) - check specify fields
           // Check base required fields
@@ -1464,9 +1563,6 @@ const getCommonFieldValue = (fieldName: string): string => {
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
               {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
               {FORM_SECTIONS[currentStep].title}
-              {currentStep === 1 && (
-                <span className="text-red-500 text-lg ml-1">*</span>
-              )}
             </h2>
             <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
             
@@ -1566,6 +1662,27 @@ const getCommonFieldValue = (fieldName: string): string => {
                     </h3>
                     <p className="text-xs text-green-700">
                       The support worker has already signed this form. Please add your supervisor signature and verify the date to complete the approval process.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 🎯 NEW: Notice for Section 2 - One Drill Type Only (Only show for staff filling via signature link) */}
+            {currentStep === 1 && isSignatureLink && (
+              <div className="mt-3 p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <svg className="h-5 w-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-indigo-800 mb-1">
+                      Select ONE Drill Type Only
+                    </h3>
+                    <p className="text-xs text-indigo-700">
+                      This form documents a single emergency drill. Please select only ONE drill type that was conducted. Once you select a drill type (Yes/No), all other options will be automatically disabled.
                     </p>
                   </div>
                 </div>
