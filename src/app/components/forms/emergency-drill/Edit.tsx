@@ -383,6 +383,23 @@ const getCommonFieldValue = (fieldName: string): string => {
     return true;
   };
 
+  // Helper function to check if conditional "If yes, specify" fields should be disabled
+  const isConditionalFieldDisabled = (fieldName: string): boolean => {
+    // Check for training details field
+    if (fieldName === 'trainingDetails') {
+      const trainingRequired = localValues['additionalTrainingRequired'];
+      return trainingRequired !== 'Yes';
+    }
+    
+    // Check for plan update details field
+    if (fieldName === 'planUpdateDetails') {
+      const planUpdateNeeded = localValues['planUpdateNeeded'];
+      return planUpdateNeeded !== 'Yes';
+    }
+    
+    return false;
+  };
+
   // Update display when commonFieldsData changes (but don't modify localValues for common fields)
   useEffect(() => {
     if (!commonFieldsData) return;
@@ -451,28 +468,37 @@ const getCommonFieldValue = (fieldName: string): string => {
   }, []);
 
  const handleChange = (
-   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
- ) => {
-   const { name, value, type } = e.target;
- 
-   if (isCommonField(name)) {
-     showToast({
-       type: "info",
-       title: "Common Field",
-       message: "This field can only be updated from the client's common details section.",
-       duration: 3000,
-     });
-     return;
-   }
- 
-   const formattedValue =
-  type === "date" && value ? formatDateForDisplay(value) : value;
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value, type } = e.target;
+
+  if (isCommonField(name)) {
+    showToast({
+      type: "info",
+      title: "Common Field",
+      message: "This field can only be updated from the client's common details section.",
+      duration: 3000,
+    });
+    return;
+  }
+
+  const formattedValue =
+ type === "date" && value ? formatDateForDisplay(value) : value;
 
  
-   const newValues = { ...localValues, [name]: formattedValue };
-   setLocalValues(newValues);
-   onChange(newValues, name, isCommonField(name));
- };
+  let newValues = { ...localValues, [name]: formattedValue };
+  
+  // 🎯 NEW: Clear conditional "If yes, specify" fields when parent dropdown changes to "No"
+  if (name === 'additionalTrainingRequired' && value === 'No') {
+    newValues = { ...newValues, trainingDetails: '' };
+  }
+  if (name === 'planUpdateNeeded' && value === 'No') {
+    newValues = { ...newValues, planUpdateDetails: '' };
+  }
+  
+  setLocalValues(newValues);
+  onChange(newValues, name, isCommonField(name));
+};
 
   const handleNext = () => {
     if (currentStep < FORM_SECTIONS.length - 1) {
@@ -691,8 +717,9 @@ const getCommonFieldValue = (fieldName: string): string => {
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 NEW: Check if drill type is disabled
-    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled; // Use the new helper + drill type logic
+    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 Check if drill type is disabled
+    const conditionalDisabled = isConditionalFieldDisabled(name); // 🎯 Check if conditional field is disabled
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled || conditionalDisabled; // Use all helper functions
     
     return (
       <div className="flex flex-col gap-1">
@@ -704,7 +731,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               View Only
             </span>
           )}
-          {/* 🎯 NEW: Show badge when "Other" field is disabled due to another selection */}
+          {/* 🎯 Show badge when "Other" field is disabled due to another selection */}
           {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
             <span className="ml-2 text-xs text-gray-600 font-semibold bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
               Already Selected Another Drill
@@ -725,6 +752,8 @@ const getCommonFieldValue = (fieldName: string): string => {
                 ? "bg-blue-50 border-blue-200 text-blue-800"
                 : drillTypeDisabled
                 ? "bg-gray-100 border-gray-300 opacity-60 cursor-not-allowed"
+                : conditionalDisabled
+                ? "bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed text-gray-400"
                 : fieldIsReadOnly && isSignatureLink
                 ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
@@ -734,7 +763,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
-        {/* 🎯 NEW: Show helper text for disabled "Other" field */}
+        {/* 🎯 Show helper text for disabled "Other" field */}
         {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
           <p className="text-xs text-gray-500 mt-1">
             ℹ️ Only one drill type can be selected per form.
@@ -754,8 +783,9 @@ const getCommonFieldValue = (fieldName: string): string => {
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 NEW: Check if drill type is disabled
-    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled; // Use the new helper + drill type logic
+    const drillTypeDisabled = isDrillTypeDisabled(name); // 🎯 Check if drill type is disabled
+    const conditionalDisabled = isConditionalFieldDisabled(name); // 🎯 NEW: Check if conditional field is disabled
+    const fieldIsReadOnly = isFieldReadOnly(name) || isCommon || drillTypeDisabled || conditionalDisabled; // Use all helper functions
     
     return (
       <div className="flex flex-col gap-1">
@@ -772,7 +802,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               Client Submitted
             </span>
           )}
-          {/* 🎯 NEW: Show badge when "Other" textarea is disabled due to another selection */}
+          {/* 🎯 Show badge when "Other" textarea is disabled due to another selection */}
           {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
             <span className="ml-2 text-xs text-gray-600 font-semibold bg-gray-100 px-2 py-0.5 rounded-full border border-gray-300">
               Already Selected Another Drill
@@ -783,7 +813,7 @@ const getCommonFieldValue = (fieldName: string): string => {
           name={name}
           value={displayValue}
           onChange={(e) => {
-            if (!isCommon && !drillTypeDisabled) {
+            if (!isCommon && !drillTypeDisabled && !conditionalDisabled) {
               const newValue = e.target.value;
               
               // Check word limit (200 words)
@@ -840,6 +870,8 @@ const getCommonFieldValue = (fieldName: string): string => {
                 ? "bg-blue-50 border-blue-200 text-blue-800"
                 : drillTypeDisabled
                 ? "bg-gray-100 border-gray-300 opacity-60 cursor-not-allowed"
+                : conditionalDisabled
+                ? "bg-gray-50 border-gray-200 opacity-50 cursor-not-allowed text-gray-400"
                 : fieldIsReadOnly && isSignatureLink
                 ? "bg-gray-50 border-gray-300"
                 : "hover:border-accent/40"
@@ -849,6 +881,14 @@ const getCommonFieldValue = (fieldName: string): string => {
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
+        
+        {/* 🎯 Show helper text for disabled "Other" field */}
+        {drillTypeDisabled && name === 'otherDrill' && (
+          <p className="text-xs text-gray-500 mt-1">
+            ℹ️ Only one drill type can be selected per form.
+          </p>
+        )}
+        
         
         {/* Word count display */}
         {!isCommon && !fieldIsReadOnly && (
@@ -862,13 +902,6 @@ const getCommonFieldValue = (fieldName: string): string => {
               </p>
             )}
           </div>
-        )}
-        
-        {/* 🎯 NEW: Show helper text for disabled "Other" textarea */}
-        {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
-          <p className="text-xs text-gray-500 mt-1">
-            ℹ️ Only one drill type can be selected per form.
-          </p>
         )}
       </div>
     );
@@ -1211,14 +1244,14 @@ const getCommonFieldValue = (fieldName: string): string => {
   challenges: { label: "What difficulties or challenges were encountered?", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe any difficulties or challenges encountered..." },
   unexpectedIssues: { label: "Any unexpected issues?", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe any unexpected issues that occurred..." },
 
-  procedureChanges: { label: "Suggested changes to procedures", type: "text" },
+  procedureChanges: { label: "Suggested changes to procedures", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe suggested changes to procedures..." },
   additionalTrainingRequired: { label: "Additional training or support required?", type: "dropdown", options: ["Yes", "No"], required: true },
-  trainingDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true },
+  trainingDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true, placeholder: "Specify additional training or support needed..." },
   planUpdateNeeded: { label: "Updates needed for the client's emergency plan?", type: "dropdown", options: ["Yes", "No"], required: true },
-  planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true },
+  planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true, placeholder: "Specify updates needed for the emergency plan..." },
 
   debriefConducted: { label: "Debrief conducted?", type: "dropdown", options: ["Yes", "No"] },
-  supervisorComments: { label: "Supervisor/Manager Comments", type: "text" },
+  supervisorComments: { label: "Supervisor/Manager Comments", type: "textarea", rows: 3, autoResize: true, placeholder: "Add supervisor/manager comments..." },
   nextDrillDate: { label: "Date of Next Scheduled Drill", type: "date" },
 
   supportWorkerSignature: { label: "Support Worker", type: "supportWorkerSignature" },
