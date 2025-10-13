@@ -13,18 +13,38 @@ const FullContentField: React.FC<FullContentFieldProps> = ({
   className = '',
   type = 'text'
 }) => {
-  // Show clean empty boxes for unanswered fields (no "No response provided" text)
+  // Format time to show AM/PM
+  const formatTime = (timeValue: string) => {
+    if (!timeValue) return '';
+    
+    // If already has AM/PM, return as is
+    if (timeValue.includes('AM') || timeValue.includes('PM')) {
+      return timeValue;
+    }
+    
+    // Convert 24-hour format to 12-hour with AM/PM
+    const [hours, minutes] = timeValue.split(':');
+    const hour24 = parseInt(hours);
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+    
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  // Get display value (format time if needed)
+  const getDisplayValue = () => {
+    if (label.toLowerCase().includes('time') && value) {
+      return formatTime(value);
+    }
+    return value;
+  };
+  // Show clean display for empty fields (no boxes)
   if (!value || value.trim() === '') {
     return (
       <div className={`mb-4 ${className}`}>
-        <div className="font-medium mb-2 text-sm">{label}:</div>
-        <div 
-          className="border border-gray-400 p-3 bg-gray-50"
-          style={{ 
-            minHeight: type === 'textarea' ? '60px' : '40px'
-          }}
-        >
-          {/* Empty - no placeholder text */}
+        <div className="font-bold mb-2 text-sm text-gray-800">{label}:</div>
+        <div className="text-gray-400 italic pl-2 border-l-2 border-gray-200">
+          {/* Empty - no placeholder text, no boxes */}
         </div>
       </div>
     );
@@ -43,13 +63,13 @@ const FullContentField: React.FC<FullContentFieldProps> = ({
 
   // No max height - let content expand fully
 
-  // Handle signature display
+  // Handle signature display (keep box for signatures only)
   if (type === 'signature') {
     return (
       <div className={`mb-4 ${className}`}>
-        <div className="font-medium mb-2 text-sm">{label}:</div>
+        <div className="font-bold mb-2 text-sm text-gray-800">{label}:</div>
         <div 
-          className="border border-gray-400 p-3 bg-gray-50 flex items-center justify-center"
+          className="border border-gray-400 p-3 bg-gray-50 flex items-center justify-center ml-2 border-l-4 border-l-blue-300"
           style={{ minHeight: '60px' }}
         >
           {value && value.startsWith('data:image') ? (
@@ -66,17 +86,16 @@ const FullContentField: React.FC<FullContentFieldProps> = ({
 
   return (
     <div className={`mb-4 ${className}`}>
-      <div className="font-medium mb-2 text-sm">{label}:</div>
+      <div className="font-bold mb-2 text-sm text-gray-800">{label}:</div>
       <div 
-        className="border border-gray-400 p-3 bg-gray-50 text-sm leading-6 break-words whitespace-pre-wrap"
+        className="text-sm leading-6 break-words whitespace-pre-wrap text-gray-700 font-medium pl-2 border-l-4 border-l-gray-300 bg-gray-50 py-2 px-3 rounded-r"
         style={{ 
-          minHeight: getMinHeight(),
           wordWrap: 'break-word',
           overflowWrap: 'break-word',
           hyphens: 'auto'
         }}
       >
-        {value}
+        {getDisplayValue()}
       </div>
     </div>
   );

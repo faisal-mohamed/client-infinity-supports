@@ -60,8 +60,9 @@ const formSchema = {
     // Section 7: Signatures
     signatures: [
       { key: 'supportWorkerSignature', label: 'Support Worker', type: 'signature' },
+      { key: 'supportWorkerSignatureDate', label: 'Support Worker Date', type: 'text' },
       { key: 'supervisorSignature', label: 'Supervisor/Manager', type: 'signature' },
-      { key: 'signatureDate', label: 'Date', type: 'text' }
+      { key: 'supervisorSignatureDate', label: 'Supervisor Date', type: 'text' }
     ]
   }
 };

@@ -34,7 +34,11 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     if (commonFieldMapping?.[key]) {
       return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
     }
-    return data?.[key] ?? '';
+    
+    const value = data?.[key] ?? '';
+    
+    
+    return value;
   };
 
   const renderRadio = (key: string, options: string[]) => (
@@ -52,8 +56,8 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
               className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
             />
             <label htmlFor={`${key}-${opt}`} className="ml-2 text-sm text-gray-700">
-              {opt}
-            </label>
+            {opt}
+          </label>
           </div>
         )) ?? null}
       </div>
@@ -80,6 +84,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     let currentPage = [];
     let currentPageHeight = 0;
     const maxPageHeight = 800; // Maximum height per page
+    const sectionsWithTitleShown = new Set(); // Track which sections have shown their title
     
     // Define all sections in order
     const allSections = [
@@ -95,35 +100,121 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     allSections.forEach((section) => {
       const sectionFields = schema[section.id];
       if (sectionFields) {
-        sectionFields.forEach((field) => {
-          const content = getValue(field.key);
-          // Estimate height for each field
-          let estimatedHeight = 60; // Base height for label and padding
+        // Special handling for signatures section - keep it together
+        if (section.id === 'signatures') {
+          // Calculate total height needed for entire signature section
+          let signatureSectionHeight = 60; // Section header height
           
-          if (field.type === 'radio') {
-            estimatedHeight = 80;
-          } else if (field.type === 'textarea' || field.type === 'text') {
-            if (content && content.length > 0) {
-              const lines = Math.max(1, content.split('\n').length);
-              const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
-              estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
-            } else {
+          sectionFields.forEach((field) => {
+            const content = getValue(field.key);
+            let estimatedHeight = 60;
+            
+            if (field.type === 'radio') {
               estimatedHeight = 80;
+            } else if (field.type === 'textarea' || field.type === 'text') {
+              if (content && content.length > 0) {
+                const lines = Math.max(1, content.split('\n').length);
+                const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
+                estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
+              } else {
+                estimatedHeight = 80;
+              }
+            } else if (field.type === 'signature') {
+              estimatedHeight = 100;
             }
-          } else if (field.type === 'signature') {
-            estimatedHeight = 100;
-          }
-
-          // If adding this field would exceed page height, create new page
-          if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+            
+            signatureSectionHeight += estimatedHeight;
+          });
+          
+          // If signature section doesn't fit on current page, create new page
+          if (currentPageHeight + signatureSectionHeight > maxPageHeight && currentPage.length > 0) {
             pages.push([...currentPage]);
-            currentPage = [{ section, field, estimatedHeight }];
-            currentPageHeight = estimatedHeight;
-          } else {
-            currentPage.push({ section, field, estimatedHeight });
-            currentPageHeight += estimatedHeight;
+            currentPage = [];
+            currentPageHeight = 0;
           }
-        });
+          
+          // Add all signature fields to current page
+          sectionFields.forEach((field) => {
+            const content = getValue(field.key);
+            let estimatedHeight = 60;
+            
+            if (field.type === 'radio') {
+              estimatedHeight = 80;
+            } else if (field.type === 'textarea' || field.type === 'text') {
+              if (content && content.length > 0) {
+                const lines = Math.max(1, content.split('\n').length);
+                const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
+                estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
+              } else {
+                estimatedHeight = 80;
+              }
+            } else if (field.type === 'signature') {
+              estimatedHeight = 100;
+            }
+            
+            currentPage.push({ 
+              section, 
+              field, 
+              estimatedHeight, 
+              showSectionTitle: !sectionsWithTitleShown.has(section.id),
+              questionNumber: sectionFields.indexOf(field) + 1
+            });
+            currentPageHeight += estimatedHeight;
+            
+            // Mark section title as shown after first field
+            if (!sectionsWithTitleShown.has(section.id)) {
+              sectionsWithTitleShown.add(section.id);
+            }
+          });
+        } else {
+          // Regular sections - normal field-by-field processing
+          sectionFields.forEach((field) => {
+            const content = getValue(field.key);
+            // Estimate height for each field
+            let estimatedHeight = 60; // Base height for label and padding
+            
+            if (field.type === 'radio') {
+              estimatedHeight = 80;
+            } else if (field.type === 'textarea' || field.type === 'text') {
+              if (content && content.length > 0) {
+                const lines = Math.max(1, content.split('\n').length);
+                const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
+                estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
+              } else {
+                estimatedHeight = 80;
+              }
+            } else if (field.type === 'signature') {
+              estimatedHeight = 100;
+            }
+
+            // If adding this field would exceed page height, create new page
+            if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+              pages.push([...currentPage]);
+              currentPage = [{ 
+                section, 
+                field, 
+                estimatedHeight, 
+                showSectionTitle: !sectionsWithTitleShown.has(section.id),
+                questionNumber: sectionFields.indexOf(field) + 1
+              }];
+              currentPageHeight = estimatedHeight;
+            } else {
+              currentPage.push({ 
+                section, 
+                field, 
+                estimatedHeight, 
+                showSectionTitle: !sectionsWithTitleShown.has(section.id),
+                questionNumber: sectionFields.indexOf(field) + 1
+              });
+              currentPageHeight += estimatedHeight;
+            }
+            
+            // Mark section title as shown after first field
+            if (!sectionsWithTitleShown.has(section.id)) {
+              sectionsWithTitleShown.add(section.id);
+            }
+          });
+        }
       }
     });
 
@@ -137,15 +228,17 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
 
   const dynamicPages = createDynamicPages();
 
+
   // Render dynamic pages
   return (
     <>
+      
       {dynamicPages.map((pageFields, pageIndex) => {
         const pageNumber = pageIndex + 1;
         const totalPages = dynamicPages.length;
         const isFirstPage = pageIndex === 0;
         
-        return (
+    return (
           <EnhancedA4Page 
             key={pageNumber}
             settings={settings} 
@@ -153,39 +246,43 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             totalPages={totalPages} 
             showTitle={isFirstPage}
           >
-            <div className="space-y-5">
+        <div className="space-y-5">
               {pageFields.map((pageField, fieldIndex) => {
-                const { section, field } = pageField;
-                const isFirstInSection = fieldIndex === 0 || 
-                  pageFields[fieldIndex - 1].section.id !== section.id;
+                const { section, field, showSectionTitle, questionNumber } = pageField;
                 
                 return (
                   <div key={`${field.key}-${pageIndex}-${fieldIndex}`}>
-                    {/* Section Header */}
-                    {isFirstInSection && (
-                      <div className="mb-4 font-semibold text-base">{section.title}:</div>
+                    {/* Section Header - only show if this is the first field of the section */}
+                    {showSectionTitle && (
+                      <div className="mb-4 font-bold text-lg text-gray-900">
+                        {section.title}:
+                    </div>
                     )}
 
                     {/* Field Content */}
                     <div className="mb-4">
                       {field.type === 'radio' ? (
                         <div>
-                          <div className="font-medium mb-2 text-sm">{field.label}:</div>
-                          {renderRadio(field.key, field.options ?? [])}
-                        </div>
-                      ) : (
-                        <FullContentField
-                          label={field.label}
+                          <div className="font-bold mb-2 text-sm text-gray-800">
+                            ({questionNumber}) {field.label}:
+                </div>
+                          <div className="pl-2 border-l-4 border-l-gray-300 bg-gray-50 py-2 px-3 rounded-r">
+                            {renderRadio(field.key, field.options ?? [])}
+            </div>
+                    </div>
+                  ) : (
+                    <FullContentField
+                          label={`(${questionNumber}) ${field.label}`}
                           value={getValue(field.key)}
                           type={field.type}
                         />
                       )}
-                    </div>
-                  </div>
+            </div>
+          </div>
                 );
               })}
-            </div>
-          </EnhancedA4Page>
+        </div>
+      </EnhancedA4Page>
         );
       })}
     </>
