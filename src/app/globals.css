@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth textarea auto-resize */
+textarea[data-auto-resize="true"] {
+  transition: height 0.1s ease-out;
+  resize: none;
+  overflow: hidden;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 245, 247, 250;

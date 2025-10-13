@@ -136,6 +136,16 @@ export const FORM_SECTIONS : any = [
   }
 ];
 
+// Helper function to count words in text
+const countWords = (text: string): number => {
+  if (!text || text.trim() === '') return 0;
+  return text.trim().split(/\s+/).length;
+};
+
+// Helper function to check if text exceeds word limit
+const exceedsWordLimit = (text: string, limit: number = 200): boolean => {
+  return countWords(text) > limit;
+};
 
 const commonFieldsMapping: Record<string, string> = {
   name: "name",
@@ -396,14 +406,49 @@ const getCommonFieldValue = (fieldName: string): string => {
       const textareas = document.querySelectorAll('textarea[data-auto-resize="true"]');
       textareas.forEach((textarea) => {
         const element = textarea as HTMLTextAreaElement;
+        const rows = parseInt(element.getAttribute('data-rows') || '3');
+        
+        // Smooth resize with minimum height
         element.style.height = 'auto';
-        element.style.height = element.scrollHeight + 'px';
+        const newHeight = Math.max(element.scrollHeight, rows * 24 + 16) + 'px';
+        element.style.height = newHeight;
+        element.style.overflow = 'hidden';
+        element.style.resize = 'none';
+        element.style.transition = 'height 0.1s ease-out';
       });
     };
 
-    // Run on mount and when localValues change
-    autoResizeTextareas();
-  }, [localValues]);
+    // Debounced auto-resize to prevent excessive calls
+    const debouncedResize = setTimeout(autoResizeTextareas, 100);
+    
+    return () => clearTimeout(debouncedResize);
+  }, [localValues, currentStep]);
+
+  // Additional useEffect to run on component mount
+  useEffect(() => {
+    const autoResizeTextareas = () => {
+      const textareas = document.querySelectorAll('textarea[data-auto-resize="true"]');
+      textareas.forEach((textarea) => {
+        const element = textarea as HTMLTextAreaElement;
+        const rows = parseInt(element.getAttribute('data-rows') || '3');
+        
+        // Smooth resize with minimum height
+        element.style.height = 'auto';
+        const newHeight = Math.max(element.scrollHeight, rows * 24 + 16) + 'px';
+        element.style.height = newHeight;
+        element.style.overflow = 'hidden';
+        element.style.resize = 'none';
+        element.style.transition = 'height 0.1s ease-out';
+      });
+    };
+
+    // Run on mount with delay to ensure DOM is ready
+    const timeoutId = setTimeout(autoResizeTextareas, 150);
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
  const handleChange = (
    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -739,12 +784,45 @@ const getCommonFieldValue = (fieldName: string): string => {
           value={displayValue}
           onChange={(e) => {
             if (!isCommon && !drillTypeDisabled) {
+              const newValue = e.target.value;
+              
+              // Check word limit (200 words)
+              if (exceedsWordLimit(newValue, 200)) {
+                const wordCount = countWords(newValue);
+                showToast({
+                  type: 'warning',
+                  title: 'Word Limit Exceeded',
+                  message: `This field is limited to 200 words. You have entered ${wordCount} words. Please shorten your text.`,
+                  duration: 5000
+                });
+                return; // Don't update the value
+              }
+              
               handleChange(e);
-              // Auto-resize functionality
+              // Smooth auto-resize functionality
               if (autoResize) {
                 const textarea = e.target;
+                
+                // Store current scroll position to prevent jumping
+                const scrollTop = textarea.scrollTop;
+                
+                // Reset height to auto to get accurate scrollHeight
                 textarea.style.height = 'auto';
-                textarea.style.height = textarea.scrollHeight + 'px';
+                
+                // Calculate new height with padding
+                const newHeight = Math.max(textarea.scrollHeight, rows * 24 + 16) + 'px';
+                
+                // Only update if height actually changed significantly
+                const currentHeight = textarea.style.height;
+                if (currentHeight !== newHeight) {
+                  textarea.style.height = newHeight;
+                  textarea.style.overflow = 'hidden';
+                  textarea.style.resize = 'none';
+                  textarea.style.transition = 'height 0.1s ease-out';
+                  
+                  // Restore scroll position to prevent jumping
+                  textarea.scrollTop = scrollTop;
+                }
               }
             }
           }}
@@ -752,8 +830,9 @@ const getCommonFieldValue = (fieldName: string): string => {
           rows={rows}
           disabled={fieldIsReadOnly}
           data-auto-resize={autoResize ? "true" : "false"}
+          data-rows={rows}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            autoResize ? "resize-none" : "resize-none"
+            autoResize ? "resize-none overflow-hidden" : "resize-none"
           } ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
@@ -770,6 +849,21 @@ const getCommonFieldValue = (fieldName: string): string => {
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
+        
+        {/* Word count display */}
+        {!isCommon && !fieldIsReadOnly && (
+          <div className="flex justify-between items-center mt-1">
+            <p className="text-xs text-gray-500">
+              {countWords(displayValue)} / 200 words
+            </p>
+            {countWords(displayValue) > 180 && (
+              <p className="text-xs text-amber-600">
+                ⚠️ Approaching limit
+              </p>
+            )}
+          </div>
+        )}
+        
         {/* 🎯 NEW: Show helper text for disabled "Other" textarea */}
         {drillTypeDisabled && name === 'otherDrill' && currentStep === 1 && (
           <p className="text-xs text-gray-500 mt-1">
@@ -1110,12 +1204,12 @@ const getCommonFieldValue = (fieldName: string): string => {
   planFollowed: { label: "Was the emergency plan followed?", type: "dropdown", options: ["Yes", "No"] },
   safetyProtocols: { label: "Were all safety measures and protocols implemented?", type: "dropdown", options: ["Yes", "No"] },
   servicesContacted: { label: "Emergency services contacted? (if applicable)", type: "dropdown", options: ["Yes", "No"] },
-  clientResponse: { label: "Client response and involvement", type: "text" },
-  supportAction: { label: "Support worker actions", type: "text" },
+  clientResponse: { label: "Client response and involvement", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe how the client responded during the drill..." },
+  supportAction: { label: "Support worker actions", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe the actions taken by support workers..." },
 
-  whatWentWell: { label: "What went well?", type: "text" },
-  challenges: { label: "What difficulties or challenges were encountered?", type: "text" },
-  unexpectedIssues: { label: "Any unexpected issues?", type: "text" },
+  whatWentWell: { label: "What went well?", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe what went well during the drill..." },
+  challenges: { label: "What difficulties or challenges were encountered?", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe any difficulties or challenges encountered..." },
+  unexpectedIssues: { label: "Any unexpected issues?", type: "textarea", rows: 3, autoResize: true, placeholder: "Describe any unexpected issues that occurred..." },
 
   procedureChanges: { label: "Suggested changes to procedures", type: "text" },
   additionalTrainingRequired: { label: "Additional training or support required?", type: "dropdown", options: ["Yes", "No"], required: true },
