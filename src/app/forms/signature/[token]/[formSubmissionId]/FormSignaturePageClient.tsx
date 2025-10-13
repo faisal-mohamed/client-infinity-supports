@@ -521,7 +521,7 @@ export default function FormSignaturePageClient() {
           {isEmergencyDrill && FormEditComponent ? (
             <FormEditComponent
               formData={editedFormValues}
-              commonFieldsData={formData.client.commonFields[0] || {}}
+              commonFieldsData={formData.client.commonFields?.[0] || formData.client || {}}
               onChange={(values: any) => setEditedFormValues(values)}
               readOnly={false}
               isSignatureLink={true}
