@@ -42,7 +42,7 @@ const EnhancedA4Page: React.FC<EnhancedA4PageProps> = ({
       }}
     >
       <div className="p-[20mm] flex flex-col h-full">
-        <PageHeader showTitle={showTitle} pageNumber={pageNumber} />
+        <PageHeader showTitle={showTitle} pageNumber={pageNumber} settings={settings} />
         
         <div className="flex-1 overflow-hidden">
           <div className="text-black leading-relaxed font-sans" style={{ fontSize: '12px' }}>
