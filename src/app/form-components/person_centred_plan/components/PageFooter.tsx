@@ -10,17 +10,17 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
   const currentYear = new Date().getFullYear();
   
   return (
-    <div className="mt-auto pt-4 border-t border-gray-300">
-      {/* Simplified footer content */}
-      <div className="flex justify-between items-center text-xs text-blue-800">
+    <div className="mt-auto pt-4">
+      {/* Footer content matching reference image */}
+      <div className="flex justify-between items-center text-xs text-gray-700">
         <div>
           <a
-            className="underline"
+            className="text-blue-600 underline"
             href={settings?.company_website || 'https://www.infinitysupportswa.org'}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {settings?.company_website || 'www.infinitysupportswa.org'}
+            www.infinitysupportswa.org
           </a>
         </div>
         
@@ -29,7 +29,7 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
         </div>
         
         <div className="text-right">
-          <span>Date of Report: {settings?.review_date || new Date().toLocaleDateString()}</span>
+          <span>Date of Report: {settings?.review_date || new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
         </div>
       </div>
     </div>

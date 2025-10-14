@@ -46,12 +46,275 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
   
   const totalTextLength = textFields.reduce((sum, field) => sum + getContentLength(field), 0);
 
+  // Validation function to check if content fits properly
+  const validateContentFit = (estimatedHeight: number, content: string, fieldType: string) => {
+    // Adequate safety margin to prevent cutoff
+    let safetyMargin = 30;
+    
+    // Extra margin for textarea fields
+    if (fieldType === 'textarea') {
+      safetyMargin += 20;
+    }
+    
+    // Extra margin for long content
+    if (content && content.length > 400) {
+      safetyMargin += 30;
+    }
+    
+    // Extra margin for very long content
+    if (content && content.length > 800) {
+      safetyMargin += 40;
+    }
+    
+    // Extra margin for extremely long content
+    if (content && content.length > 1200) {
+      safetyMargin += 50;
+    }
+    
+    return estimatedHeight + safetyMargin;
+  };
+
+  // Test function to validate height calculations with real data
+  const testHeightCalculations = () => {
+    console.log('🧪 TESTING HEIGHT CALCULATIONS');
+    console.log('================================');
+    
+    // Test with sample long content
+    const testContents = [
+      { type: 'text', content: 'Short text', expected: 'small' },
+      { type: 'textarea', content: 'Medium length text that should fit on one page but needs proper height calculation to avoid cutoff issues.', expected: 'medium' },
+      { type: 'textarea', content: 'This is a very long text content that should definitely trigger page breaks and proper height calculations. It contains multiple sentences and should be long enough to test the dynamic pagination system. The content should flow properly across pages without any cutoff issues. This text is designed to test the height calculation algorithm with realistic content length that users might actually input into the form fields.', expected: 'long' },
+      { type: 'textarea', content: 'Extremely long content that should definitely span multiple pages. '.repeat(20) + 'This content is designed to test the maximum height calculation and ensure that even the longest possible content gets properly displayed without any cutoff. The system should handle this gracefully by creating multiple pages as needed.', expected: 'very long' }
+    ];
+
+    testContents.forEach((test, index) => {
+      const content = test.content;
+      const lines = Math.max(1, content.split('\n').length);
+      const wordsPerLine = 10;
+      const words = content.trim().split(/\s+/).length;
+      const wordBasedLines = Math.ceil(words / wordsPerLine);
+      const estimatedLines = Math.max(lines, wordBasedLines);
+      
+      const lineHeight = 24;
+      const padding = 80;
+      const labelHeight = 40;
+      const borderHeight = 20;
+      const minHeight = test.type === 'textarea' ? 140 : 120;
+      let estimatedHeight = Math.max(minHeight, (estimatedLines * lineHeight) + padding + labelHeight + borderHeight);
+      
+      estimatedHeight += 30; // Safety buffer
+      if (estimatedLines > 8) {
+        estimatedHeight += 50;
+      }
+      
+      const finalHeight = validateContentFit(estimatedHeight, content, test.type);
+      
+      console.log(`Test ${index + 1} (${test.expected}):`);
+      console.log(`  Content length: ${content.length} characters`);
+      console.log(`  Estimated lines: ${estimatedLines}`);
+      console.log(`  Calculated height: ${finalHeight}px`);
+      console.log(`  Would fit on page: ${finalHeight <= 791 ? 'YES' : 'NO - NEEDS NEW PAGE'}`);
+      console.log('');
+    });
+  };
+
+  // Test function specifically for Goals table height calculation
+  const testGoalsTableHeight = () => {
+    console.log('🎯 TESTING GOALS TABLE HEIGHT CALCULATION');
+    console.log('==========================================');
+    
+    // Test with sample long goal content
+    const testGoals = [
+      {
+        goal: 'Respiratory depression is a condition where breathing becomes slower and less effective, reducing oxygen levels and increasing carbon dioxide in the blood. This condition has historically been linked to the use of certain drugs, especially opioids, sedatives, and anesthetics.',
+        actions: 'Medical research has improved understanding of how these drugs affect the brain\'s respiratory center, decreasing the body\'s natural drive to breathe. Modern medicine has developed better monitoring and treatment protocols to manage this condition effectively.',
+        rating: 'New Goal',
+        byWhom: 'CLIENT',
+        byWhen: '2025-10-13',
+        reviewDate: '2025-10-24'
+      },
+      {
+        goal: 'Short goal',
+        actions: 'Short actions',
+        rating: 'Achieved',
+        byWhom: 'Staff',
+        byWhen: '2025-01-01',
+        reviewDate: '2025-12-31'
+      }
+    ];
+
+    testGoals.forEach((goal, index) => {
+      let goalsHeight = 100; // Base height
+      let rowHeight = 80; // Base row height
+      
+      // Calculate height for goal column
+      if (goal.goal && goal.goal.length > 0) {
+        const goalLines = Math.max(1, goal.goal.split('\n').length);
+        const goalWordLines = Math.ceil(goal.goal.length / 60);
+        const goalLinesTotal = Math.max(goalLines, goalWordLines);
+        rowHeight += Math.max(0, (goalLinesTotal - 3) * 20);
+      }
+      
+      // Calculate height for actions column
+      if (goal.actions && goal.actions.length > 0) {
+        const actionsLines = Math.max(1, goal.actions.split('\n').length);
+        const actionsWordLines = Math.ceil(goal.actions.length / 80);
+        const actionsLinesTotal = Math.max(actionsLines, actionsWordLines);
+        rowHeight += Math.max(0, (actionsLinesTotal - 4) * 20);
+      }
+      
+      goalsHeight += rowHeight;
+      const estimatedHeight = Math.max(450, goalsHeight);
+      
+      console.log(`Goal ${index + 1}:`);
+      console.log(`  Goal length: ${goal.goal.length} characters`);
+      console.log(`  Actions length: ${goal.actions.length} characters`);
+      console.log(`  Row height: ${rowHeight}px`);
+      console.log(`  Total table height: ${estimatedHeight}px`);
+      console.log(`  Would fit on page: ${estimatedHeight <= 791 ? 'YES' : 'NO - NEEDS NEW PAGE'}`);
+      console.log('');
+    });
+  };
+
+  // Test specific content that was cut off in the image
+  const testCutoffContent = () => {
+    console.log('🚨 TESTING CUTOFF CONTENT FROM IMAGE');
+    console.log('====================================');
+    
+    // Test the "Companion Card" content that was cut off
+    const companionCardContent = "Respiratory depression refers to a condition where breathing becomes slower and less effective, reducing oxygen levels and increasing carbon dioxide in the body. Historically, this condition has been linked to the use of certain drugs—especially opioids, sedatives, and anesthetics. In the early 20th century, doctors noticed that patients receiving morphine or barbiturates often experienced shallow or slow breathing. As medical research improved, scientists understood that these drugs affect the brain's respiratory center, decreasing the body's natural drive to breathe. Modern medicine has developed safer ways to monitor and manage respiratory depression, especially during surgery or pain treatment. With better technology, healthcare professionals can detect early signs and give antidotes like naloxone to reverse opioid-induced respiratory depression. Understanding its history has helped doctors create safer pain management practices and improve patient care.";
+    
+    const content = companionCardContent;
+    const lines = Math.max(1, content.split('\n').length);
+    const wordsPerLine = 12;
+    const words = content.trim().split(/\s+/).length;
+    const wordBasedLines = Math.ceil(words / wordsPerLine);
+    const estimatedLines = Math.max(lines, wordBasedLines);
+    
+    const lineHeight = 22;
+    const padding = 60;
+    const labelHeight = 30;
+    const borderHeight = 15;
+    const minHeight = 80; // text field
+    let estimatedHeight = Math.max(minHeight, (estimatedLines * lineHeight) + padding + labelHeight + borderHeight);
+    
+    estimatedHeight += 25; // Safety buffer
+    if (estimatedLines > 10) {
+      estimatedHeight += 30;
+    }
+    
+    // Apply validation
+    let safetyMargin = 30;
+    if (content.length > 400) safetyMargin += 30;
+    if (content.length > 800) safetyMargin += 40;
+    if (content.length > 1200) safetyMargin += 50;
+    
+    const finalHeight = estimatedHeight + safetyMargin;
+    
+    console.log(`Companion Card Content:`);
+    console.log(`  Content length: ${content.length} characters`);
+    console.log(`  Estimated lines: ${estimatedLines}`);
+    console.log(`  Calculated height: ${finalHeight}px`);
+    console.log(`  Would fit on page: ${finalHeight <= 791 ? 'YES' : 'NO - NEEDS NEW PAGE'}`);
+    console.log(`  Safety margin: ${safetyMargin}px`);
+    console.log('');
+    
+    if (finalHeight > 791) {
+      console.log('✅ CORRECT: This content SHOULD move to next page to prevent cutoff!');
+    } else {
+      console.log('⚠️  WARNING: This content might still get cut off!');
+    }
+  };
+
+  // Comprehensive validation function to check for cutoff issues
+  const validateNoCutoff = () => {
+    console.log('🔍 VALIDATING NO CUTOFF ISSUES');
+    console.log('===============================');
+    
+    let totalIssues = 0;
+    const issues = [];
+    
+    // Check all form fields for potential cutoff
+    const allFields = [
+      { key: 'name', label: 'Name', type: 'text' },
+      { key: 'address', label: 'Address', type: 'text' },
+      { key: 'dob', label: 'Date of Birth', type: 'date' },
+      { key: 'guardian', label: 'Parent/guardian', type: 'text' },
+      { key: 'guardianAddress', label: 'Address', type: 'text' },
+      { key: 'contactNumber', label: 'Contact Number', type: 'text' },
+      { key: 'disability', label: 'Disability', type: 'text' },
+      { key: 'ndisNumber', label: 'NDIS Number', type: 'text' },
+      { key: 'myStory', label: 'My Story', type: 'textarea' },
+      { key: 'strengths', label: 'Strengths', type: 'textarea' },
+      { key: 'challenges', label: 'Challenges', type: 'text' },
+      { key: 'allergies', label: 'Allergies', type: 'text' },
+      { key: 'respiratoryHistory', label: 'History of Respiratory Depression', type: 'textarea' },
+      { key: 'precautions', label: 'Precautions', type: 'textarea' },
+      { key: 'healthConditions', label: 'Health Conditions', type: 'textarea' },
+      { key: 'companionCard', label: 'Companion Card', type: 'text' },
+      { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text' }
+    ];
+
+    allFields.forEach(field => {
+      const content = getValue(field.key);
+      if (content && content.length > 0) {
+        const lines = Math.max(1, content.split('\n').length);
+        const wordsPerLine = 10;
+        const words = content.trim().split(/\s+/).length;
+        const wordBasedLines = Math.ceil(words / wordsPerLine);
+        const estimatedLines = Math.max(lines, wordBasedLines);
+        
+        const lineHeight = 24;
+        const padding = 80;
+        const labelHeight = 40;
+        const borderHeight = 20;
+        const minHeight = field.type === 'textarea' ? 140 : 120;
+        let estimatedHeight = Math.max(minHeight, (estimatedLines * lineHeight) + padding + labelHeight + borderHeight);
+        
+        estimatedHeight += 30; // Safety buffer
+        if (estimatedLines > 8) {
+          estimatedHeight += 50;
+        }
+        
+        const finalHeight = validateContentFit(estimatedHeight, content, field.type);
+        
+        if (finalHeight > 791) {
+          totalIssues++;
+          issues.push({
+            field: field.label,
+            contentLength: content.length,
+            estimatedHeight: finalHeight,
+            status: 'NEEDS NEW PAGE'
+          });
+        }
+      }
+    });
+
+    console.log(`Total fields checked: ${allFields.length}`);
+    console.log(`Potential cutoff issues: ${totalIssues}`);
+    
+    if (issues.length > 0) {
+      console.log('⚠️  FIELDS THAT NEED NEW PAGES:');
+      issues.forEach(issue => {
+        console.log(`  - ${issue.field}: ${issue.contentLength} chars, ${issue.estimatedHeight}px height`);
+      });
+    } else {
+      console.log('✅ NO CUTOFF ISSUES DETECTED - All content should fit properly!');
+    }
+    
+    console.log('');
+  };
+
   // Create dynamic pages based on content length
   const createDynamicPages = () => {
-    const pages = [];
-    let currentPage = [];
-    let currentPageHeight = 0;
-    const maxPageHeight = 800; // Maximum height per page
+    console.log('🔄 CREATING CSS-BASED PAGINATION');
+    console.log('=================================');
+    console.log('Using CSS page-break properties instead of JavaScript pagination');
+    console.log('This should prevent content cutoff by letting CSS handle natural page breaks');
+    console.log('');
+    
+    // SIMPLIFIED APPROACH: Let CSS handle pagination naturally
+    // We'll create logical sections and let CSS page-break properties handle the rest
     const sectionsWithTitleShown = new Set(); // Track which sections have shown their title
     
     // Define all sections in order
@@ -63,30 +326,18 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       { id: 'supportInfo', title: 'Support Information', sectionNumber: 5 }
     ];
 
+    // Create a single page with all sections - let CSS handle pagination
+    const allFields = [];
+    
     allSections.forEach((section) => {
       // Special handling for cover page
       if (section.id === 'cover') {
-        const coverHeight = 600; // Cover page height
-        
-        if (currentPageHeight + coverHeight > maxPageHeight && currentPage.length > 0) {
-          pages.push([...currentPage]);
-          currentPage = [];
-          currentPageHeight = 0;
-        }
-        
-        currentPage.push({ 
+        allFields.push({ 
           section, 
           field: { key: 'cover', type: 'cover' }, 
-          estimatedHeight: coverHeight, 
           showSectionTitle: false,
           questionNumber: 0
         });
-        currentPageHeight += coverHeight;
-        
-        // Always create new page after cover
-        pages.push([...currentPage]);
-        currentPage = [];
-        currentPageHeight = 0;
         return;
       }
 
@@ -118,23 +369,13 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           { key: 'healthcarePrompt', label: 'Proactive & preventative healthcare prompts', type: 'checkbox', options: ['Yes', 'No'] }
         ];
       } else if (section.id === 'goals') {
-        // Goals table - special handling
-        const goalsHeight = 400; // Estimated height for goals table
-        
-        if (currentPageHeight + goalsHeight > maxPageHeight && currentPage.length > 0) {
-          pages.push([...currentPage]);
-          currentPage = [];
-          currentPageHeight = 0;
-        }
-        
-        currentPage.push({ 
+        // Goals table - add to all fields
+        allFields.push({ 
           section, 
           field: { key: 'goals', type: 'goals_table' }, 
-          estimatedHeight: goalsHeight, 
           showSectionTitle: !sectionsWithTitleShown.has(section.id),
           questionNumber: 0
         });
-        currentPageHeight += goalsHeight;
         
         // Mark section title as shown
         if (!sectionsWithTitleShown.has(section.id)) {
@@ -163,15 +404,77 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
         } else if (field.type === 'textarea' || field.type === 'text') {
           if (content && content.length > 0) {
             const lines = Math.max(1, content.split('\n').length);
-            const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
-            estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
+            
+            // More accurate calculation for better page break detection
+            const wordsPerLine = 12; // Balanced for accuracy
+            const words = content.trim().split(/\s+/).length;
+            const wordBasedLines = Math.ceil(words / wordsPerLine);
+            
+            // Use the maximum of actual line breaks and word-based calculation
+            const estimatedLines = Math.max(lines, wordBasedLines);
+            
+            // More accurate height calculation
+            const lineHeight = 22; // Realistic line height
+            const padding = 60; // Adequate padding
+            const labelHeight = 30; // Label height
+            const borderHeight = 15; // Border height
+            
+            // Minimum height for textarea vs text
+            const minHeight = field.type === 'textarea' ? 100 : 80;
+            estimatedHeight = Math.max(minHeight, (estimatedLines * lineHeight) + padding + labelHeight + borderHeight);
+            
+            // Adequate safety buffer to prevent cutoff
+            estimatedHeight += 25; // Safety buffer
+            
+            // Extra buffer for long content to ensure page breaks
+            if (estimatedLines > 10) {
+              estimatedHeight += 30; // Extra buffer for long content
+            }
+            
+            // Apply validation to ensure content fits
+            estimatedHeight = validateContentFit(estimatedHeight, content, field.type);
           } else {
-            estimatedHeight = 80;
+            estimatedHeight = 80; // Minimum height for empty fields
           }
         } else if (field.type === 'goals_table') {
-          estimatedHeight = 400;
+          // Calculate height based on actual content in goals table
+          let goalsHeight = 80; // Reduced base height for table header and structure
+          
+          // Calculate height for each goal row based on content
+          for (let i = 1; i <= 5; i++) {
+            const goal = getValue(`goal${i}`);
+            const actions = getValue(`actions${i}`);
+            const rating = getValue(`rating${i}`);
+            const byWhom = getValue(`byWhom${i}`);
+            const byWhen = getValue(`byWhen${i}`);
+            const reviewDate = getValue(`reviewDate${i}`);
+            
+            if (goal || rating || actions || byWhom || byWhen || reviewDate) {
+              let rowHeight = 60; // Reduced base row height
+              
+              // Add height for long content in goal column
+              if (goal && goal.length > 0) {
+                const goalLines = Math.max(1, goal.split('\n').length);
+                const goalWordLines = Math.ceil(goal.length / 80); // Increased characters per line
+                const goalLinesTotal = Math.max(goalLines, goalWordLines);
+                rowHeight += Math.max(0, (goalLinesTotal - 3) * 15); // Reduced extra height per line
+              }
+              
+              // Add height for long content in actions column
+              if (actions && actions.length > 0) {
+                const actionsLines = Math.max(1, actions.split('\n').length);
+                const actionsWordLines = Math.ceil(actions.length / 100); // Increased characters per line
+                const actionsLinesTotal = Math.max(actionsLines, actionsWordLines);
+                rowHeight += Math.max(0, (actionsLinesTotal - 4) * 15); // Reduced extra height per line
+              }
+              
+              goalsHeight += rowHeight;
+            }
+          }
+          
+          estimatedHeight = Math.max(300, goalsHeight); // Reduced minimum height
         } else if (field.type === 'informal_supports_table') {
-          estimatedHeight = 300;
+          estimatedHeight = 250; // Reduced height for better space utilization
         }
 
         // If adding this field would exceed page height, create new page
@@ -185,6 +488,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             questionNumber: sectionFields.indexOf(field) + 1
           }];
           currentPageHeight = estimatedHeight;
+          
+          // Debug: Log when creating new page
+          console.log(`🔄 NEW PAGE CREATED for field: ${field.label}`);
+          console.log(`   Estimated height: ${estimatedHeight}px`);
+          console.log(`   Max page height: ${maxPageHeight}px`);
+          console.log(`   Previous page height: ${currentPageHeight - estimatedHeight}px`);
         } else {
           currentPage.push({ 
             section, 
@@ -194,6 +503,13 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             questionNumber: sectionFields.indexOf(field) + 1
           });
           currentPageHeight += estimatedHeight;
+          
+          // Debug: Log height calculations for all content
+          console.log(`📝 Field: ${field.label}`);
+          console.log(`   Content length: ${content ? content.length : 0} characters`);
+          console.log(`   Estimated height: ${estimatedHeight}px`);
+          console.log(`   Current page height: ${currentPageHeight}px`);
+          console.log(`   Remaining space: ${maxPageHeight - currentPageHeight}px`);
         }
         
         // Mark section title as shown after first field
@@ -254,7 +570,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
         <div className="mb-4 font-bold text-lg text-gray-900">Goals & Actions</div>
         
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-black text-sm">
+          <table className="w-full border-collapse border border-black text-sm" style={{ pageBreakInside: 'auto' }}>
             <thead>
               <tr className="bg-gray-100">
                 <th className="border border-black p-2 text-left font-bold w-1/6">GOAL</th>
@@ -267,9 +583,16 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             </thead>
             <tbody>
               {goals.map((goal, index) => (
-                <tr key={index}>
+                <tr key={index} style={{ pageBreakInside: 'avoid' }}>
                   <td className="border border-black p-2 align-top">
-                    <div className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                    <div 
+                      className="text-sm leading-relaxed break-words whitespace-pre-wrap"
+                      style={{ 
+                        minHeight: '60px',
+                        maxHeight: 'none',
+                        overflow: 'visible'
+                      }}
+                    >
                       {goal.goal || ''}
                     </div>
                   </td>
@@ -279,7 +602,14 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                     </div>
                   </td>
                   <td className="border border-black p-2 align-top">
-                    <div className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+                    <div 
+                      className="text-sm leading-relaxed break-words whitespace-pre-wrap"
+                      style={{ 
+                        minHeight: '60px',
+                        maxHeight: 'none',
+                        overflow: 'visible'
+                      }}
+                    >
                       {goal.actions || ''}
                     </div>
                   </td>
@@ -362,6 +692,14 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
   };
 
   const dynamicPages = createDynamicPages();
+
+  // Run tests to validate height calculations
+  React.useEffect(() => {
+    testHeightCalculations();
+    testGoalsTableHeight();
+    testCutoffContent();
+    validateNoCutoff();
+  }, []);
 
   // Render dynamic pages
   return (

@@ -1,5 +1,5 @@
 import React from 'react'
-import ContentAwarePagination from './components/ContentAwarePagination';
+import ContentAwarePagination from './components/ContentAwarePagination_FIXED';
 import './print-styles.css';
 
 export const formSchema  : any = {
@@ -149,8 +149,8 @@ page5: {
 const PersonCentredPlan = ({ formKey, commonFieldsData, settings, formData, images} : any ) => {
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
-      {/* Fixed width container that will zoom out on mobile */}
-      <div className="w-[900px] mx-auto py-8 print:py-0">
+      {/* A4 page container */}
+      <div className="py-8 print:py-0">
         <ContentAwarePagination
           formData={formData}
           commonFieldsData={commonFieldsData}

@@ -70,8 +70,8 @@ export default function ClientsPageClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [sortField, setSortField] = useState<string>("createdAt");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortField, setSortField] = useState<string>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
@@ -123,6 +123,8 @@ export default function ClientsPageClient() {
 
       setClients(data.clients);
       console.log("data.clients: ", data.clients);
+      console.log("First client structure: ", data.clients[0]);
+      console.log("First client commonFields: ", data.clients[0]?.commonFields);
       setPagination(data.pagination);
       setError("");
     } catch (err) {
@@ -649,7 +651,7 @@ export default function ClientsPageClient() {
                     </thead>
 
                     <tbody className="divide-y divide-gray-100">
-                      {clients.length === 0 ? (
+                      {sortedClients.length === 0 ? (
                         <tr>
                           <td
                             colSpan={6}
@@ -659,7 +661,7 @@ export default function ClientsPageClient() {
                           </td>
                         </tr>
                       ) : (
-                        clients.map((client: any, index: any) => (
+                        sortedClients.map((client: any, index: any) => (
                           <tr
                             key={client.id}
                             className="hover:bg-rose-50 transition"
@@ -688,15 +690,22 @@ export default function ClientsPageClient() {
                               )}
                             </td>
                             <td className="px-6 py-4">
-                              {client?.commonFields[0]?.state ? (
-                                <span className="inline-block text-xs font-medium bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
-                                  {client?.commonFields[0]?.state}
-                                </span>
-                              ) : (
-                                <span className="text-sm text-gray-400 italic">
-                                  N/A
-                                </span>
-                              )}
+                              {(() => {
+                                // Handle both array and object structures for commonFields
+                                const state = Array.isArray(client?.commonFields) 
+                                  ? client?.commonFields[0]?.state 
+                                  : client?.commonFields?.state;
+                                
+                                return state ? (
+                                  <span className="inline-block text-xs font-medium bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
+                                    {state}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-gray-400 italic">
+                                    N/A
+                                  </span>
+                                );
+                              })()}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
                               <div>
