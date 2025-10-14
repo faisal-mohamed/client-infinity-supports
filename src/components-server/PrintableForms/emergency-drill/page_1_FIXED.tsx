@@ -147,25 +147,54 @@ const Page1_FIXED: React.FC<any> = ({ schema, data, commonFieldsData, settings, 
           <div>
             <div className={`mb-3 ${A4_PDF_TYPOGRAPHY.sectionHeader}`}>2. Type of Emergency Drill Conducted:</div> <br /><br />
             <div className="space-y-3">
-              {schema?.drillTypes?.map((field: any) => (
-                <div key={field?.key} className="flex items-start">
-                  {field?.type === 'checkbox' ? (
-                    <>
-                      <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
-                      <span className={A4_PDF_TYPOGRAPHY.body}>{field?.label}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className={`min-w-[220px] ${A4_PDF_TYPOGRAPHY.body} font-medium`}>
-                        ● {field?.label}:
-                      </span>
-                      <span className={`flex-1 ml-2 min-w-[150px] ${A4_PDF_TYPOGRAPHY.body}`}>
-                        {getValue(field?.key)}
-                      </span>
-                    </>
+              {schema?.drillTypes?.type === 'select' ? (
+                <div>
+                  {/* Show dropdown with selected value */}
+                  <div className="flex items-start">
+                    <span className={`min-w-[220px] ${A4_PDF_TYPOGRAPHY.body} font-medium`}>
+                      ● {schema?.drillTypes?.label}:
+                    </span>
+                    <span className={`flex-1 ml-2 min-w-[150px] ${A4_PDF_TYPOGRAPHY.body}`}>
+                      {getValue('selectedDrillType') || 'No selection made'}
+                    </span>
+                  </div>
+                  
+                  {/* Show "Other" text field if "Other" is selected */}
+                  {getValue('selectedDrillType') === 'Other (specify)' && (
+                    <div className="mt-3">
+                      <div className="flex items-start">
+                        <span className={`min-w-[220px] ${A4_PDF_TYPOGRAPHY.body} font-medium`}>
+                          ● {schema?.drillTypes?.otherField?.label}:
+                        </span>
+                        <span className={`flex-1 ml-2 min-w-[150px] ${A4_PDF_TYPOGRAPHY.body}`}>
+                          {getValue(schema?.drillTypes?.otherField?.key)}
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
-              ))}
+              ) : (
+                // Fallback for old structure
+                schema?.drillTypes?.map((field: any) => (
+                  <div key={field?.key} className="flex items-start">
+                    {field?.type === 'checkbox' ? (
+                      <>
+                        <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
+                        <span className={A4_PDF_TYPOGRAPHY.body}>{field?.label}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={`min-w-[220px] ${A4_PDF_TYPOGRAPHY.body} font-medium`}>
+                          ● {field?.label}:
+                        </span>
+                        <span className={`flex-1 ml-2 min-w-[150px] ${A4_PDF_TYPOGRAPHY.body}`}>
+                          {getValue(field?.key)}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div> <br /><br />
 

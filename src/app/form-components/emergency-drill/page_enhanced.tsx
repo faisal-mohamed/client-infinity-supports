@@ -13,15 +13,26 @@ const formSchema = {
     ],
     
     // Section 2: Type of Emergency Drill Conducted
-    drillTypes: [
-      { key: 'fire', label: 'Fire or smoke emergency', type: 'checkbox' },
-      { key: 'medical', label: 'Medical emergency (e.g., client collapse, choking, seizure)', type: 'checkbox' },
-      { key: 'gas', label: 'Gas leak or carbon monoxide alert', type: 'checkbox' },
-      { key: 'power', label: 'Power outage', type: 'checkbox' },
-      { key: 'natural', label: 'Natural disaster (e.g., flood, earthquake)', type: 'checkbox' },
-      { key: 'security', label: 'Security threat (e.g., unauthorized visitor, break-in)', type: 'checkbox' },
-      { key: 'otherDrill', label: 'Other (specify)', type: 'textarea' }
-    ]
+    drillTypes: {
+      key: 'selectedDrillType',
+      label: 'Type of Emergency Drill Conducted',
+      type: 'select',
+      options: [
+        { value: 'Fire or smoke emergency', label: 'Fire or smoke emergency' },
+        { value: 'Medical emergency (e.g., client collapse, choking, seizure)', label: 'Medical emergency (e.g., client collapse, choking, seizure)' },
+        { value: 'Gas leak or carbon monoxide alert', label: 'Gas leak or carbon monoxide alert' },
+        { value: 'Power outage', label: 'Power outage' },
+        { value: 'Natural disaster (e.g., flood, earthquake)', label: 'Natural disaster (e.g., flood, earthquake)' },
+        { value: 'Security threat (e.g., unauthorized visitor, break-in)', label: 'Security threat (e.g., unauthorized visitor, break-in)' },
+        { value: 'Other (specify)', label: 'Other (specify)' }
+      ],
+      otherField: {
+        key: 'otherDrill',
+        label: 'Please specify other drill type',
+        type: 'text',
+        showWhen: 'Other (specify)'
+      }
+    }
   },
   
   page2: {

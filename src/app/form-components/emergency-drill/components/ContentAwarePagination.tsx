@@ -100,6 +100,37 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     allSections.forEach((section) => {
       const sectionFields = schema[section.id];
       if (sectionFields) {
+        // Special handling for drillTypes section - handle select structure
+        if (section.id === 'drillTypes' && sectionFields.type === 'select') {
+          const selectedDrillType = getValue(sectionFields.key);
+          const estimatedHeight = 60; // Base height for section
+          
+          // If adding this section would exceed page height, create new page
+          if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+            pages.push([...currentPage]);
+            currentPage = [];
+            currentPageHeight = 0;
+          }
+          
+          // Add drillTypes section to current page
+          currentPage.push({ 
+            section, 
+            field: sectionFields, 
+            estimatedHeight, 
+            showSectionTitle: !sectionsWithTitleShown.has(section.id),
+            questionNumber: 1
+          });
+          currentPageHeight += estimatedHeight;
+          
+          // Mark section title as shown
+          if (!sectionsWithTitleShown.has(section.id)) {
+            sectionsWithTitleShown.add(section.id);
+          }
+          
+          // Skip normal processing for this section
+          return;
+        }
+        
         // Special handling for signatures section - keep it together
         if (section.id === 'signatures') {
           // Calculate total height needed for entire signature section
@@ -261,7 +292,24 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
 
                     {/* Field Content */}
                     <div className="mb-4">
-                      {field.type === 'radio' ? (
+                      {field.type === 'select' ? (
+                        <div>
+                          <div className="font-bold mb-2 text-sm text-gray-800">
+                            ({questionNumber}) {field.label}:
+                          </div>
+                          <div className="pl-2 border-l-4 border-l-gray-300 bg-gray-50 py-2 px-3 rounded-r">
+                            <div className="mb-2">
+                              <strong>Selected:</strong> {getValue(field.key) || 'No selection made'}
+                            </div>
+                            {/* Show "Other" field if "Other (specify)" is selected */}
+                            {getValue(field.key) === 'Other (specify)' && field.otherField && (
+                              <div className="mt-2">
+                                <strong>{field.otherField.label}:</strong> {getValue(field.otherField.key)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : field.type === 'radio' ? (
                         <div>
                           <div className="font-bold mb-2 text-sm text-gray-800">
                             ({questionNumber}) {field.label}:

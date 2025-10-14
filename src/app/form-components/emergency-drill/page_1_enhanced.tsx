@@ -65,21 +65,44 @@ const Page1Enhanced: React.FC<any> = ({ schema, data, commonFieldsData, settings
         <div>
           <div className="mb-4 font-semibold text-base">2. Type of Emergency Drill Conducted:</div>
           <div className="space-y-3">
-            {schema?.drillTypes?.map((field: any) => (
-              <div key={field?.key}>
-                {field?.type === 'checkbox' ? (
-                  <div className="flex items-start">
-                    <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
-                    <span className="text-sm">{field?.label}</span>
+            {schema?.drillTypes?.type === 'select' ? (
+              <div>
+                {/* Show dropdown with selected value */}
+                <div className="flex items-start">
+                  <span className="min-w-[220px] font-medium text-sm">{schema?.drillTypes?.label}:</span>
+                  <span className="border-b border-black flex-1 ml-2 min-w-[150px] pb-1">
+                    {getValue('selectedDrillType') || 'No selection made'}
+                  </span>
+                </div>
+                
+                {/* Show "Other" text field if "Other" is selected */}
+                {getValue('selectedDrillType') === 'Other (specify)' && (
+                  <div className="mt-3">
+                    <FullContentField
+                      label={schema?.drillTypes?.otherField?.label}
+                      value={getValue(schema?.drillTypes?.otherField?.key)}
+                    />
                   </div>
-                ) : (
-                  <FullContentField
-                    label={field?.label}
-                    value={getValue(field?.key)}
-                  />
                 )}
               </div>
-            ))}
+            ) : (
+              // Fallback for old structure
+              schema?.drillTypes?.map((field: any) => (
+                <div key={field?.key}>
+                  {field?.type === 'checkbox' ? (
+                    <div className="flex items-start">
+                      <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
+                      <span className="text-sm">{field?.label}</span>
+                    </div>
+                  ) : (
+                    <FullContentField
+                      label={field?.label}
+                      value={getValue(field?.key)}
+                    />
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 

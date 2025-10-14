@@ -83,23 +83,48 @@ const Page1: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
         {/* Section 2 */}
         <div className="mb-4 font-semibold">2. Type of Emergency Drill Conducted:</div>
         <div className="space-y-3 mb-6">
-          {schema?.drillTypes?.map((field: any) => (
-            <div key={field?.key} className="flex items-start">
-              {field?.type === 'checkbox' ? (
-                <>
-                  <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
-                  <span>{field?.label}</span>
-                </>
-              ) : (
-                <>
-                  <span className="min-w-[220px] font-medium">{field?.label}:</span>
-                  <span className="border-b border-black flex-1 ml-2 min-w-[150px]">
-                    {getValue(field?.key)}
-                  </span>
-                </>
+          {schema?.drillTypes?.type === 'select' ? (
+            <div>
+              {/* Show dropdown with selected value */}
+              <div className="flex items-start">
+                <span className="min-w-[220px] font-medium">{schema?.drillTypes?.label}:</span>
+                <span className="border-b border-black flex-1 ml-2 min-w-[150px]">
+                  {getValue('selectedDrillType') || 'No selection made'}
+                </span>
+              </div>
+              
+              {/* Show "Other" text field if "Other" is selected */}
+              {getValue('selectedDrillType') === 'Other (specify)' && (
+                <div className="mt-3">
+                  <div className="flex items-start">
+                    <span className="min-w-[220px] font-medium">{schema?.drillTypes?.otherField?.label}:</span>
+                    <span className="border-b border-black flex-1 ml-2 min-w-[150px]">
+                      {getValue(schema?.drillTypes?.otherField?.key)}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
-          ))}
+          ) : (
+            // Fallback for old structure (should not be used anymore)
+            schema?.drillTypes?.map((field: any) => (
+              <div key={field?.key} className="flex items-start">
+                {field?.type === 'checkbox' ? (
+                  <>
+                    <input type="checkbox" checked={isChecked(field?.key)} readOnly className="mr-2 mt-1" />
+                    <span>{field?.label}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="min-w-[220px] font-medium">{field?.label}:</span>
+                    <span className="border-b border-black flex-1 ml-2 min-w-[150px]">
+                      {getValue(field?.key)}
+                    </span>
+                  </>
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Section 3 */}
