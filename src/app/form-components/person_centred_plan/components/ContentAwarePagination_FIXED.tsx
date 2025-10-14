@@ -246,12 +246,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     const renderTableHeader = () => (
       <thead style={{ display: 'table-header-group' }}>
         <tr>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold">GOAL</th>
-          <th className="border border-black bg-gray-100 p-2 text-center font-bold">RATING</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold">Actions & Resources</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold">By Whom</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold">By When</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold">Review Date</th>
+          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '30%' }}>GOAL</th>
+          <th className="border border-black bg-gray-100 p-2 text-center font-bold" style={{ width: '15%' }}>RATING</th>
+          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '25%' }}>Actions & Resources</th>
+          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By Whom</th>
+          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By When</th>
+          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>Review Date</th>
         </tr>
       </thead>
     );
@@ -259,55 +259,61 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     // Render goal row
     const renderGoalRow = (goal: any, index: number) => (
       <tr key={`goal-row-${index}`}>
-        <td className="border border-black p-2 align-top">
+        <td className="border border-black p-2 align-top" style={{ width: '30%' }}>
           <div
             className="text-sm leading-relaxed break-words whitespace-pre-wrap"
             style={{
               minHeight: '60px',
               maxHeight: 'none',
-              overflow: 'visible'
+              overflow: 'visible',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
             }}
           >
             {goal.goal || ''}
           </div>
         </td>
-        <td className="border border-black p-2 text-center align-top">
+        <td className="border border-black p-2 text-center align-top" style={{ width: '15%' }}>
           <div className="text-sm">{goal.rating || ''}</div>
         </td>
-        <td className="border border-black p-2 align-top">
+        <td className="border border-black p-2 align-top" style={{ width: '25%' }}>
           <div
             className="text-sm leading-relaxed break-words whitespace-pre-wrap"
             style={{
               minHeight: '60px',
               maxHeight: 'none',
-              overflow: 'visible'
+              overflow: 'visible',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word'
             }}
           >
             {goal.actions || ''}
           </div>
         </td>
-        <td className="border border-black p-2 align-top">
+        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
           <div className="text-sm">{goal.byWhom || ''}</div>
         </td>
-        <td className="border border-black p-2 align-top">
+        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
           <div className="text-sm">{goal.byWhen || ''}</div>
         </td>
-        <td className="border border-black p-2 align-top">
+        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
           <div className="text-sm">{goal.reviewDate || ''}</div>
         </td>
       </tr>
     );
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 w-full overflow-hidden">
         {goalPages.map((pageGoals, pageIndex) => (
-          <div key={`goals-page-${pageIndex}`} className="goals-table-page" style={{ pageBreakAfter: pageIndex < goalPages.length - 1 ? 'page' as any : 'auto' as any }}>
-            <table className="w-full border-collapse border border-black text-sm">
-              {renderTableHeader()}
-              <tbody>
-                {pageGoals.map((goal, index) => renderGoalRow(goal, index))}
-              </tbody>
-            </table>
+          <div key={`goals-page-${pageIndex}`} className="goals-table-page w-full overflow-hidden" style={{ pageBreakAfter: pageIndex < goalPages.length - 1 ? 'page' as any : 'auto' as any }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-black text-sm table-fixed min-w-full">
+                {renderTableHeader()}
+                <tbody>
+                  {pageGoals.map((goal, index) => renderGoalRow(goal, index))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ))}
       </div>
@@ -378,61 +384,67 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       if (item?.goalData) {
         // Render individual goal row with table header if it's the first goal
         return (
-          <div className="goals-table-page">
-            <table className="w-full border-collapse border border-black text-sm">
-              {item.goalIndex === 0 && (
-                <thead>
+          <div className="goals-table-page w-full overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-black text-sm table-fixed min-w-full">
+                {item.goalIndex === 0 && (
+                  <thead>
+                    <tr>
+                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '30%' }}>GOAL</th>
+                      <th className="border border-black bg-gray-100 p-2 text-center font-bold" style={{ width: '15%' }}>RATING</th>
+                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '25%' }}>Actions & Resources</th>
+                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By Whom</th>
+                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By When</th>
+                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>Review Date</th>
+                    </tr>
+                  </thead>
+                )}
+                <tbody>
                   <tr>
-                    <th className="border border-black bg-gray-100 p-2 text-left font-bold">GOAL</th>
-                    <th className="border border-black bg-gray-100 p-2 text-center font-bold">RATING</th>
-                    <th className="border border-black bg-gray-100 p-2 text-left font-bold">Actions & Resources</th>
-                    <th className="border border-black bg-gray-100 p-2 text-left font-bold">By Whom</th>
-                    <th className="border border-black bg-gray-100 p-2 text-left font-bold">By When</th>
-                    <th className="border border-black bg-gray-100 p-2 text-left font-bold">Review Date</th>
+                    <td className="border border-black p-2 align-top" style={{ width: '30%' }}>
+                      <div
+                        className="text-sm leading-relaxed break-words whitespace-pre-wrap"
+                        style={{
+                          minHeight: '80px',
+                          maxHeight: 'none',
+                          overflow: 'visible',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        {item.goalData.goal || ''}
+                      </div>
+                    </td>
+                    <td className="border border-black p-2 text-center align-top" style={{ width: '15%' }}>
+                      <div className="text-sm">{item.goalData.rating || ''}</div>
+                    </td>
+                    <td className="border border-black p-2 align-top" style={{ width: '25%' }}>
+                      <div
+                        className="text-sm leading-relaxed break-words whitespace-pre-wrap"
+                        style={{
+                          minHeight: '80px',
+                          maxHeight: 'none',
+                          overflow: 'visible',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        {item.goalData.actions || ''}
+                      </div>
+                    </td>
+                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
+                      <div className="text-sm">{item.goalData.byWhom || ''}</div>
+                    </td>
+                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
+                      <div className="text-sm">{item.goalData.byWhen || ''}</div>
+                    </td>
+                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
+                      <div className="text-sm">{item.goalData.reviewDate || ''}</div>
+                    </td>
                   </tr>
-                </thead>
-              )}
-              <tbody>
-                <tr>
-                  <td className="border border-black p-2 align-top">
-                    <div
-                      className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-                      style={{
-                        minHeight: '80px',
-                        maxHeight: 'none',
-                        overflow: 'visible'
-                      }}
-                    >
-                      {item.goalData.goal || ''}
-                    </div>
-                  </td>
-                  <td className="border border-black p-2 text-center align-top">
-                    <div className="text-sm">{item.goalData.rating || ''}</div>
-                  </td>
-                  <td className="border border-black p-2 align-top">
-                    <div
-                      className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-                      style={{
-                        minHeight: '80px',
-                        maxHeight: 'none',
-                        overflow: 'visible'
-                      }}
-                    >
-                      {item.goalData.actions || ''}
-                    </div>
-                  </td>
-                  <td className="border border-black p-2 align-top">
-                    <div className="text-sm">{item.goalData.byWhom || ''}</div>
-                  </td>
-                  <td className="border border-black p-2 align-top">
-                    <div className="text-sm">{item.goalData.byWhen || ''}</div>
-                  </td>
-                  <td className="border border-black p-2 align-top">
-                    <div className="text-sm">{item.goalData.reviewDate || ''}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           </div>
         );
       } else {
@@ -520,9 +532,9 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     const spacing = 30; // More spacing
     const totalHeight = (lines * lineHeight) + cellPadding + labelHeight + borderHeight + spacing;
 
-    // Maximum height per page - use the same calculation as main pagination
-    const maxPageHeight = 531; // Available content height from main pagination (with footer buffer)
-    const maxContentHeight = maxPageHeight - 50; // Extra buffer for content splitting (481px max)
+    // Maximum height per page - use the same calculation as main pagination with STRICT footer space
+    const maxPageHeight = 501; // Available content height from main pagination (with increased footer buffer)
+    const maxContentHeight = maxPageHeight - 100; // Extra buffer for content splitting to ensure footer space (401px max)
 
     console.log(`📏 Content analysis: ${content.length} chars, ${lines} lines, ${totalHeight}px (max: ${maxContentHeight}px)`);
 
@@ -569,6 +581,8 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       questionNumber: number;
       estimatedHeight?: number;
       content?: string;
+      goalData?: any;
+      goalIndex?: number;
     }> = [];
     let currentPageHeight = 0;
     
@@ -587,14 +601,19 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     const footerHeight = 80; // Footer content
     
     // Available content height = total page - margins - header - footer - buffer for footer space
-    const footerBuffer = 120; // Extra buffer to ensure footer always has space and proper separation
-    const availableContentHeight = pageHeight - marginTop - marginBottom - headerHeight - footerHeight - footerBuffer; // 531px with footer buffer
+    const footerBuffer = 150; // Increased buffer to ensure footer always has space and proper separation
+    const availableContentHeight = pageHeight - marginTop - marginBottom - headerHeight - footerHeight - footerBuffer; // 501px with increased footer buffer
     
-    console.log(`📏 MS Word-style pagination:`);
+    // Critical: Minimum space required before footer - if content would exceed this, move to next page
+    const minimumSpaceBeforeFooter = 100; // Minimum 100px space before footer
+    
+    console.log(`📏 STRICT MS Word-style pagination with footer protection:`);
     console.log(`  Page: ${pageWidth}x${pageHeight}px`);
     console.log(`  Margins: ${marginTop}px top, ${marginBottom}px bottom`);
     console.log(`  Header: ${headerHeight}px, Footer: ${footerHeight}px`);
+    console.log(`  Footer buffer: ${footerBuffer}px, Minimum space before footer: ${minimumSpaceBeforeFooter}px`);
     console.log(`  Available content: ${availableContentHeight}px`);
+    console.log(`  MAX content before footer: ${availableContentHeight - minimumSpaceBeforeFooter}px`);
     
     allFields.forEach((item, index) => {
       console.log(`\n🔍 Processing field ${index + 1}/${allFields.length}:`, item.field.label, item.field.type);
@@ -639,10 +658,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           
           console.log(`📊 Goal ${goalIndex + 1}: ${goalText.length} chars, ${actionsText.length} chars, ${estimatedHeight}px`);
           
-          // Check if this goal row fits on current page - ensure proper footer space
+          // Check if this goal row fits on current page - STRICT footer space checking
           const remainingHeight = availableContentHeight - currentPageHeight;
-          if (estimatedHeight > remainingHeight && currentPage.length > 0 && remainingHeight < 100) {
-            console.log(`📄 Page break for goal ${goalIndex + 1}! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Remaining: ${remainingHeight}px - Moving to next page with footer`);
+          const wouldExceedFooterSpace = (currentPageHeight + estimatedHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
+          
+          if (wouldExceedFooterSpace && currentPage.length > 0) {
+            console.log(`📄 STRICT Page break for goal ${goalIndex + 1}! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Would exceed footer space by ${(currentPageHeight + estimatedHeight) - (availableContentHeight - minimumSpaceBeforeFooter)}px - Moving to next page`);
             pages.push([...currentPage]);
             currentPage = [{ ...item, goalData: goal, goalIndex, estimatedHeight }];
             currentPageHeight = estimatedHeight;
@@ -656,9 +677,10 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       
       if (item.field.type === 'informal_supports_table') {
         const estimatedHeight = 300;
-        const remainingHeight = availableContentHeight - currentPageHeight;
-        if (estimatedHeight > remainingHeight && currentPage.length > 0 && remainingHeight < 100) {
-          console.log(`📄 Page break for informal supports table! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Remaining: ${remainingHeight}px - Moving to next page with footer`);
+        const wouldExceedFooterSpace = (currentPageHeight + estimatedHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
+        
+        if (wouldExceedFooterSpace && currentPage.length > 0) {
+          console.log(`📄 STRICT Page break for informal supports table! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Would exceed footer space by ${(currentPageHeight + estimatedHeight) - (availableContentHeight - minimumSpaceBeforeFooter)}px - Moving to next page`);
           pages.push([...currentPage]);
           currentPage = [{ ...item, estimatedHeight }];
           currentPageHeight = estimatedHeight;
@@ -692,30 +714,40 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             
             console.log(`📝 ${item.field.type} page ${pageIndex + 1}: ${contentPage.content.length} chars, ${lines} lines, ${finalHeight}px`);
             
-            // Check if this content page fits on current page - prevent unwanted splitting on same page
-            const remainingHeight = availableContentHeight - currentPageHeight;
+            // Check if this content page fits on current page - STRICT footer space checking
+            const wouldExceedFooterSpace = (currentPageHeight + finalHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
             
             // If this is a continuation of the same field and we're on the same page, combine them
             if (pageIndex > 0 && currentPage.length > 0) {
               const lastItem = currentPage[currentPage.length - 1];
               if (lastItem && lastItem.field.key === item.field.key && lastItem.content) {
-                // Combine the content instead of splitting
-                const combinedContent = lastItem.content + ' ' + contentPage.content;
+                // Check if combining would exceed footer space
                 const combinedHeight = Math.max(finalHeight, lastItem.estimatedHeight || 0);
+                const wouldCombinedExceedFooterSpace = (currentPageHeight - (lastItem.estimatedHeight || 0) + combinedHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
                 
-                console.log(`🔄 Combining content for ${item.field.key} instead of splitting (${combinedContent.length} chars)`);
-                
-                // Update the last item with combined content
-                currentPage[currentPage.length - 1] = {
-                  ...lastItem,
-                  content: combinedContent,
-                  estimatedHeight: combinedHeight
-                };
-                currentPageHeight = currentPageHeight - (lastItem.estimatedHeight || 0) + combinedHeight;
+                if (wouldCombinedExceedFooterSpace) {
+                  console.log(`📄 STRICT Page break for combined content! Would exceed footer space - Moving to next page`);
+                  pages.push([...currentPage]);
+                  currentPage = [{ ...item, content: contentPage.content, estimatedHeight: finalHeight }];
+                  currentPageHeight = finalHeight;
+                } else {
+                  // Combine the content instead of splitting
+                  const combinedContent = lastItem.content + ' ' + contentPage.content;
+                  
+                  console.log(`🔄 Combining content for ${item.field.key} instead of splitting (${combinedContent.length} chars)`);
+                  
+                  // Update the last item with combined content
+                  currentPage[currentPage.length - 1] = {
+                    ...lastItem,
+                    content: combinedContent,
+                    estimatedHeight: combinedHeight
+                  };
+                  currentPageHeight = currentPageHeight - (lastItem.estimatedHeight || 0) + combinedHeight;
+                }
               } else {
-                // Break to new page if content won't fit properly with footer space
-                if (finalHeight > remainingHeight && currentPage.length > 0 && remainingHeight < 100) {
-                  console.log(`📄 Page break for content! Current: ${currentPageHeight}px, Adding: ${finalHeight}px, Remaining: ${remainingHeight}px - Moving to next page with footer`);
+                // Break to new page if content would exceed footer space
+                if (wouldExceedFooterSpace && currentPage.length > 0) {
+                  console.log(`📄 STRICT Page break for content! Current: ${currentPageHeight}px, Adding: ${finalHeight}px, Would exceed footer space by ${(currentPageHeight + finalHeight) - (availableContentHeight - minimumSpaceBeforeFooter)}px - Moving to next page`);
                   pages.push([...currentPage]);
                   currentPage = [{ ...item, content: contentPage.content, estimatedHeight: finalHeight }];
                   currentPageHeight = finalHeight;
@@ -725,9 +757,9 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                 }
               }
             } else {
-              // Break to new page if content won't fit properly with footer space
-              if (finalHeight > remainingHeight && currentPage.length > 0 && remainingHeight < 100) {
-                console.log(`📄 Page break for content! Current: ${currentPageHeight}px, Adding: ${finalHeight}px, Remaining: ${remainingHeight}px - Moving to next page with footer`);
+              // Break to new page if content would exceed footer space
+              if (wouldExceedFooterSpace && currentPage.length > 0) {
+                console.log(`📄 STRICT Page break for content! Current: ${currentPageHeight}px, Adding: ${finalHeight}px, Would exceed footer space by ${(currentPageHeight + finalHeight) - (availableContentHeight - minimumSpaceBeforeFooter)}px - Moving to next page`);
                 pages.push([...currentPage]);
                 currentPage = [{ ...item, content: contentPage.content, estimatedHeight: finalHeight }];
                 currentPageHeight = finalHeight;
@@ -738,9 +770,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             }
           });
         } else {
-          // Empty content - add with base height
+          // Empty content - add with base height using STRICT footer space checking
           const estimatedHeight = 80;
-          if (currentPageHeight + estimatedHeight > availableContentHeight && currentPage.length > 0) {
+          const wouldExceedFooterSpace = (currentPageHeight + estimatedHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
+          
+          if (wouldExceedFooterSpace && currentPage.length > 0) {
+            console.log(`📄 STRICT Page break for empty content! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Would exceed footer space - Moving to next page`);
             pages.push([...currentPage]);
             currentPage = [{ ...item, estimatedHeight }];
             currentPageHeight = estimatedHeight;
@@ -752,11 +787,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
         return;
       }
       
-      // Default case for other field types
+      // Default case for other field types using STRICT footer space checking
       const estimatedHeight = 100;
-      const remainingHeight = availableContentHeight - currentPageHeight;
-      if (estimatedHeight > remainingHeight && currentPage.length > 0 && remainingHeight < 100) {
-        console.log(`📄 Page break for other field! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Remaining: ${remainingHeight}px - Moving to next page with footer`);
+      const wouldExceedFooterSpace = (currentPageHeight + estimatedHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
+      
+      if (wouldExceedFooterSpace && currentPage.length > 0) {
+        console.log(`📄 STRICT Page break for other field! Current: ${currentPageHeight}px, Adding: ${estimatedHeight}px, Would exceed footer space by ${(currentPageHeight + estimatedHeight) - (availableContentHeight - minimumSpaceBeforeFooter)}px - Moving to next page`);
         pages.push([...currentPage]);
         currentPage = [{ ...item, estimatedHeight }];
         currentPageHeight = estimatedHeight;
@@ -768,11 +804,13 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       console.log(`✅ Added to page. Current height: ${currentPageHeight}px / ${availableContentHeight}px`);
     });
     
-    // Add remaining fields to last page
+    // Add remaining fields to last page with STRICT footer space validation
     if (currentPage.length > 0) {
-      // Safety check: if the last page is too tall, split it
-      if (currentPageHeight > availableContentHeight) {
-        console.log(`⚠️ Last page too tall: ${currentPageHeight}px > ${availableContentHeight}px, splitting...`);
+      // STRICT Safety check: if the last page would exceed footer space, split it
+      const wouldLastPageExceedFooterSpace = currentPageHeight > (availableContentHeight - minimumSpaceBeforeFooter);
+      
+      if (wouldLastPageExceedFooterSpace) {
+        console.log(`⚠️ Last page would exceed footer space: ${currentPageHeight}px > ${availableContentHeight - minimumSpaceBeforeFooter}px, splitting...`);
         // Move the last item to a new page
         const lastItem = currentPage.pop();
         if (currentPage.length > 0) {
@@ -810,7 +848,8 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             width: '210mm',
             height: '297mm',
             minWidth: '210mm',
-            minHeight: '297mm'
+            minHeight: '297mm',
+            maxWidth: '100%'
           }}
         >
           {/* Header */}
@@ -820,17 +859,17 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                 <img
                   src="/infinity_logo.png"
                   alt="Infinity Supports WA logo"
-                  className="object-contain"
-                  style={{ height: '120px', width: '300px' }}
+                  className="object-contain max-w-full max-h-full"
+                  style={{ height: '80px', width: '200px' }}
                 />
               </div>
             </div>
           </div>
           
           {/* Content */}
-          <div className="flex-1 px-[20mm]">
+          <div className="flex-1 px-[20mm] overflow-hidden">
             <div className="text-black leading-relaxed font-sans" style={{ fontSize: '12px' }}>
-              <div className="space-y-3">
+              <div className="space-y-3 w-full">
                 {pageFields.map((item, index) => {
                   console.log(`Rendering field ${index}:`, item.section.title, item.field.label, item.field.type);
                   
@@ -855,17 +894,17 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           
           {/* Footer */}
           <div className="mt-auto pt-4 pb-[20mm] px-[20mm]" style={{ minHeight: '60px' }}>
-            <div className="flex justify-between items-center text-xs text-gray-700">
-              <div>
-                <a className="text-blue-600 underline" href="https://www.infinitysupportswa.org" target="_blank" rel="noopener noreferrer">
+            <div className="flex justify-between items-center text-xs text-gray-700 w-full max-w-full overflow-hidden">
+              <div className="flex-shrink-0 max-w-[30%] overflow-hidden">
+                <a className="text-blue-600 underline truncate block" href="https://www.infinitysupportswa.org" target="_blank" rel="noopener noreferrer">
                   www.infinitysupportswa.org
                 </a>
               </div>
-              <div className="text-center">
+              <div className="text-center flex-shrink-0 px-2">
                 <span>PCP-001</span>
               </div>
-              <div className="text-right">
-                <span>Date of Report: {new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+              <div className="text-right flex-shrink-0 max-w-[30%] overflow-hidden">
+                <span className="truncate block">Date of Report: {new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
               </div>
             </div>
           </div>
