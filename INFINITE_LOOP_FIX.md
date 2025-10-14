@@ -5,9 +5,10 @@ The component was experiencing a "Maximum update depth exceeded" error due to in
 
 1. **setState during render** in `renderSignatureStep()` function
 2. **Continuous ref updates** in SignatureCanvas component
-3. **State updates triggering re-renders** that caused more state updates
+3. **State updates triggering re-render** that caused more state updates
 
 ## ✅ **Fixes Applied**
+
 
 ### **1. Moved State Updates to useEffect**
 **Before (Problematic):**
