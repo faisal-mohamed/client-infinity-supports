@@ -62,14 +62,14 @@ export const formSchema: any = {
       { label: 'Contact Number', key: 'contactNumber', type: 'text' },
       { label: 'Disability', key: 'disability', type: 'text' },
       { label: 'NDIS Number', key: 'ndisNumber', type: 'text' },
-      { label: 'My Story', key: 'myStory', type: 'textarea', height: '120px' },
-      { label: 'Strengths', key: 'strengths', type: 'textarea', height: '80px' },
-      { label: 'Challenges', key: 'challenges', type: 'text' },
-      { label: 'Allergies', key: 'allergies', type: 'text' },
     ],
   },
   page3: {
     fields: [
+      { label: 'My Story', key: 'myStory', type: 'textarea', height: '120px' },
+      { label: 'Strengths', key: 'strengths', type: 'textarea', height: '80px' },
+      { label: 'Challenges', key: 'challenges', type: 'text' },
+      { label: 'Allergies', key: 'allergies', type: 'text' },
       { label: 'History of Respiratory Depression', key: 'respiratoryHistory', type: 'textarea' },
       { label: 'Precautions', key: 'precautions', type: 'textarea' },
       { label: 'Health Conditions', key: 'healthConditions', type: 'textarea' },

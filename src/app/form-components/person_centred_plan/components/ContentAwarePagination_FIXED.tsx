@@ -71,21 +71,27 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           { key: 'guardianAddress', label: 'Address', type: 'text' },
           { key: 'contactNumber', label: 'Contact Number', type: 'text' },
           { key: 'disability', label: 'Disability', type: 'text' },
-          { key: 'ndisNumber', label: 'NDIS Number', type: 'text' },
+          { key: 'ndisNumber', label: 'NDIS Number', type: 'text' }
+        ];
+    } else if (section.id === 'healthInfo') {
+      sectionFields = [
           { key: 'myStory', label: 'My Story', type: 'textarea' },
           { key: 'strengths', label: 'Strengths', type: 'textarea' },
           { key: 'challenges', label: 'Challenges', type: 'text' },
           { key: 'allergies', label: 'Allergies', type: 'text' },
-          { key: 'restrictivePractices', label: 'Any Restrictive Practices?', type: 'text' }
-        ];
-    } else if (section.id === 'healthInfo') {
-      sectionFields = [
         { key: 'respiratoryHistory', label: 'History of Respiratory Depression', type: 'textarea' },
         { key: 'precautions', label: 'Precautions', type: 'textarea' },
         { key: 'healthConditions', label: 'Health Conditions', type: 'textarea' },
         { key: 'companionCard', label: 'Companion Card', type: 'text' },
         { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text' },
-        { key: 'healthcarePrompt', label: 'Proactive & preventative healthcare prompts', type: 'checkbox' }
+        { 
+          key: 'healthcarePrompt', 
+          label: 'Proactive & preventative healthcare prompts', 
+          type: 'checkbox',
+          options: ['Yes', 'No'],
+          description: 'Does the participant require support to organize regular medical & dental check ups',
+          note: '(If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)'
+        }
       ];
     } else if (section.id === 'goals') {
       // Goals table - add to all fields
@@ -104,6 +110,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     } else if (section.id === 'supportInfo') {
       sectionFields = [
         { key: 'pbsSupportPlanIncluded', label: 'PBS Support Plan included?', type: 'text' },
+        { key: 'restrictivePractices', label: 'Any Restrictive Practices?', type: 'text' },
         { key: 'organizationName', label: 'Name of organization', type: 'text' },
         { key: 'contactPersonOrg', label: 'Contact person', type: 'text' },
         { key: 'contactNumberOrg', label: 'Contact number', type: 'text' },
@@ -466,7 +473,21 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                 {field.label}
               </td>
               <td className="border border-black p-2 bg-white">
-                {renderCheckbox(field.key, field.options || [])}
+                <div className="space-y-2">
+                  {field.description && (
+                    <p className="text-sm text-gray-700 mb-2">
+                      {field.description}
+                    </p>
+                  )}
+                  <div className="flex gap-4">
+                    {renderCheckbox(field.key, field.options || [])}
+                  </div>
+                  {field.note && (
+                    <p className="text-sm text-gray-600 font-medium mt-2">
+                      {field.note}
+                    </p>
+                  )}
+                </div>
               </td>
             </tr>
           </tbody>
@@ -622,6 +643,49 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
         // Cover page takes full content area
         pages.push([{ ...item, estimatedHeight: availableContentHeight }]);
         return;
+      }
+
+      // Special handling for personalInfo fields - force them all to stay together on one page
+      if (item.section.id === 'personalInfo') {
+        // Check if this is the first personalInfo field
+        const personalInfoFields = allFields.filter(f => f.section.id === 'personalInfo');
+        const isFirstPersonalInfo = item === personalInfoFields[0];
+        
+        if (isFirstPersonalInfo) {
+          // Calculate total height needed for all personalInfo fields
+          const totalPersonalInfoHeight = personalInfoFields.reduce((total, field) => {
+            const content = getValue(field.field.key);
+            const estimatedHeight = content ? Math.max(content.length * 0.5, 40) : 40;
+            return total + estimatedHeight;
+          }, 0);
+          
+          console.log(`👥 PERSONAL INFO GROUPING: ${personalInfoFields.length} fields, total height: ${totalPersonalInfoHeight}px`);
+          
+          // Check if all personalInfo fields fit on current page
+          const remainingHeight = availableContentHeight - currentPageHeight;
+          const wouldExceedFooterSpace = (currentPageHeight + totalPersonalInfoHeight) > (availableContentHeight - minimumSpaceBeforeFooter);
+          
+          if (wouldExceedFooterSpace && currentPage.length > 0) {
+            console.log(`📄 PERSONAL INFO: Moving all ${personalInfoFields.length} fields to new page! Current: ${currentPageHeight}px, Total needed: ${totalPersonalInfoHeight}px`);
+            pages.push([...currentPage]);
+            currentPage = [];
+            currentPageHeight = 0;
+          }
+          
+          // Add all personalInfo fields to current page
+          personalInfoFields.forEach(personalField => {
+            const content = getValue(personalField.field.key);
+            const estimatedHeight = content ? Math.max(content.length * 0.5, 40) : 40;
+            currentPage.push({ ...personalField, estimatedHeight });
+            currentPageHeight += estimatedHeight;
+          });
+          
+          console.log(`✅ PERSONAL INFO: Added all ${personalInfoFields.length} fields to page. New height: ${currentPageHeight}px`);
+          return; // Skip normal processing for all personalInfo fields
+        } else {
+          // Skip processing for non-first personalInfo fields (already processed above)
+          return;
+        }
       }
       
       if (item.field.type === 'goals_table') {
