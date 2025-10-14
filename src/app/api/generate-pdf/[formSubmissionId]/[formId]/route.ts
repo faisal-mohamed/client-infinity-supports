@@ -341,26 +341,43 @@ export async function GET(
     });
 
     const formData = formSubmission.data as any;
+    console.time('⏱️ HTML Generation');
     const html = await generateHTML(formData, form.formKey, commonFields, settings);
+    console.timeEnd('⏱️ HTML Generation');
 
     if (process.env.NODE_ENV === "development") {
       fs.writeFileSync("playwright-debug.html", html);
     }
 
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "domcontentloaded" });
-    await page.evaluateHandle("document.fonts.ready");
+    console.time('⏱️ Browser Launch');
+    const browser = await chromium.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    console.timeEnd('⏱️ Browser Launch');
 
+    console.time('⏱️ Page Creation');
+    const page = await browser.newPage();
+    console.timeEnd('⏱️ Page Creation');
+
+    console.time('⏱️ Set Content');
+    await page.setContent(html, { waitUntil: "load", timeout: 10000 });
+    console.timeEnd('⏱️ Set Content');
+
+    console.time('⏱️ PDF Generation');
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "15mm", bottom: "15mm", left: "10mm", right: "10mm" },
       preferCSSPageSize: true,
-      displayHeaderFooter: false
+      displayHeaderFooter: false,
+      timeout: 30000
     });
+    console.timeEnd('⏱️ PDF Generation');
 
+    console.time('⏱️ Browser Close');
     await browser.close();
+    console.timeEnd('⏱️ Browser Close');
 
     const filename = attachmentName || `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}_${form.formKey}.pdf`;
 

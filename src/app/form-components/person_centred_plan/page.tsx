@@ -1,9 +1,5 @@
 import React from 'react'
-import Page2 from './page_2';
-import Page3 from './page_3';
-import Page4 from './page_4';
-import Page5 from './page_5';
-import Page1 from './page_1';
+import ContentAwarePagination from './components/ContentAwarePagination';
 import './print-styles.css';
 
 export const formSchema  : any = {
@@ -150,16 +146,17 @@ page5: {
 //   frequency4: 'Occasionally',
 // };
 
-const PersonCentredPlan = ({ formKey, commonFieldsData, settings, formData} : any ) => {
+const PersonCentredPlan = ({ formKey, commonFieldsData, settings, formData, images} : any ) => {
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
       {/* Fixed width container that will zoom out on mobile */}
       <div className="w-[900px] mx-auto py-8 print:py-0">
-        <Page1 formSchema={formSchema.page1} commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-        <Page2 formSchema={formSchema.page2}  commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-        <Page3 formSchema={formSchema.page3}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-        <Page4 formSchema={formSchema.page4}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
-        <Page5 formSchema={formSchema.page5}   commonFieldsData={commonFieldsData} settings={settings} data={formData} />
+        <ContentAwarePagination
+          formData={formData}
+          commonFieldsData={commonFieldsData}
+          settings={settings}
+          images={images}
+        />
       </div>
     </div>
   )

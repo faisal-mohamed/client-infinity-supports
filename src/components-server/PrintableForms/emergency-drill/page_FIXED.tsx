@@ -3,10 +3,8 @@ import EmergencyDrillEnhanced from '../../../app/form-components/emergency-drill
 
 // ===== PDF FONT STYLES =====
 export const PDF_FONT_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
-  
   .font-montserrat {
-    font-family: 'Montserrat', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
