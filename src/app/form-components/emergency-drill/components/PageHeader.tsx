@@ -16,14 +16,14 @@ const PageHeader: React.FC<PageHeaderProps> = ({ showTitle = true, pageNumber, s
             src={settings.logoImage}
             alt="Infinity Supports WA logo"
             className="object-contain"
-            style={{ height: '60px', width: '150px' }}
+            style={{ height: '100px', width: '250px' }}
           />
         ) : (
           <img
             src="/infinity_logo.png"
             alt="Infinity Supports WA logo"
             className="object-contain"
-            style={{ height: '60px', width: '150px' }}
+            style={{ height: '100px', width: '250px' }}
           />
         )}
       </div>
@@ -39,13 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ showTitle = true, pageNumber, s
         </>
       )}
 
-      {pageNumber && pageNumber > 1 && (
-        <div className="text-center mb-4 text-sm text-gray-600">
-          Page {pageNumber}
-        </div>
-      )}
 
-      <hr className="border-gray-400 mb-4" />
     </div>
   );
 };
