@@ -28,16 +28,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({ showTitle = true, pageNumber, s
         )}
       </div>
 
-      {showTitle && (
-        <>
-          <div className="text-center mb-1 font-semibold" style={{ fontSize: '14px' }}>
-            Emergency Drill Reporting Form
-          </div>
-          <div className="text-center mb-4 italic" style={{ fontSize: '12px' }}>
-            (For Disability Support Workers in a Client's Home)
-          </div>
-        </>
-      )}
 
 
     </div>

@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chromium } from "playwright";
 import React from "react";
+import ReactDOMServer from "react-dom/server";
 import fs from "fs";
 import path from "path";
 import { prisma } from "@/lib/prisma";
@@ -37,6 +38,13 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
   const ReactDOMServer = await import("react-dom/server");
   const cssPath = path.resolve(process.cwd(), "public/tailwind-pdf.css");
   const css = fs.readFileSync(cssPath, "utf8");
+  
+  // Add emergency drill specific CSS
+  let emergencyDrillCSS = '';
+  if (formKey === 'emergency_drill') {
+    const pdfPrintCSSPath = path.resolve(process.cwd(), "src/components-server/PrintableForms/pdf/pdf-print.css");
+    emergencyDrillCSS = fs.readFileSync(pdfPrintCSSPath, "utf8");
+  }
 
   let PDFComponent = getPDFComponent(formKey);
   let componentProps: any = {};
@@ -116,15 +124,18 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         break;
 
         case "emergency_drill":
+        const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
         images = {
-          infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
+          infinityLogo: logoDataUrl,
+          infinityLogoDataUrl: logoDataUrl
         }
 
         componentProps = {
           formData,
           images,
           commonFieldsData: commonFields || {},
-          settings: settings || {}           // ✅ Also in fallback
+          settings: settings || {},
+          logoDataUrl: logoDataUrl  // Pass directly to component
         }
         break;
 
@@ -249,23 +260,33 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
   const element = React.createElement(PDFComponent, componentProps);
 
+  // For emergency_drill, use dedicated print CSS; for others, use legacy styles
+  const pageStyles = formKey === 'emergency_drill' ? '' : `
+    @page { size: A4; margin: 15mm 10mm 15mm 10mm; }
+    .a4-page { page-break-before: always; page-break-inside: avoid; width: 210mm; height: 297mm; display: flex; flex-direction: column; background: white; margin: 0 auto; }
+    .a4-page:first-child { page-break-before: auto; }
+    .a4-page:last-child { page-break-after: auto; }
+    .a4-page > * { flex-shrink: 0; }
+    .a4-page .flex-grow { flex-grow: 1; }
+    .a4-page .mt-auto { margin-top: auto; }
+    .footer { text-align: center; font-size: 9px; color: #666; margin-top: auto; padding: 8px 0; border-top: 1px solid #ddd; }
+    .header-logo { text-align: center; padding: 10px 0; }
+    .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  `;
+
   return `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <style>
       ${css}
-      @page { size: A4; margin: 15mm 10mm 15mm 10mm; }
+      ${emergencyDrillCSS}
+      ${pageStyles}
       body { font-family: 'sans-serif', sans-serif; margin: 0; padding: 0; font-size: 12px; line-height: 1.4; }
-      .a4-page { page-break-before: always; page-break-after: always; page-break-inside: avoid; width: 100%; min-height: 100vh; max-height: 100vh; display: flex; flex-direction: column; background: white; }
-      .a4-page:first-child { page-break-before: auto; }
       table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
       th, td { padding: 6px 8px; border: 1px solid #000; text-align: left; vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }
       th { background-color: #f0f0f0; font-weight: bold; }
       tr { page-break-inside: avoid; }
-      .footer { text-align: center; font-size: 9px; color: #666; margin-top: auto; padding: 8px 0; border-top: 1px solid #ddd; }
-      .header-logo { text-align: center; padding: 10px 0; }
-      .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
       .yes-no-container { display: flex; align-items: center; gap: 15px; }
       .yes-no-container label { margin-right: 8px; font-size: 11px; }
       .yes-no-container input[type="checkbox"] { margin-right: 4px; }
@@ -357,20 +378,40 @@ export async function GET(
     console.timeEnd('⏱️ Browser Launch');
 
     console.time('⏱️ Page Creation');
-    const page = await browser.newPage();
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 1800 }, // Standard viewport for A4
+    });
     console.timeEnd('⏱️ Page Creation');
 
     console.time('⏱️ Set Content');
-    await page.setContent(html, { waitUntil: "load", timeout: 10000 });
+    await page.setContent(html, { waitUntil: "networkidle", timeout: 15000 });
     console.timeEnd('⏱️ Set Content');
+
+    // Wait for fonts to load
+    console.time('⏱️ Font Loading');
+    await page.evaluateHandle('document.fonts.ready');
+    console.timeEnd('⏱️ Font Loading');
+
+    // Wait for all images to load (critical for header logos)
+    console.time('⏱️ Image Loading');
+    await page.evaluate(async () => {
+      const imgs = Array.from(document.images);
+      await Promise.all(
+        imgs.map(img => img.complete ? null : new Promise(res => {
+          img.onload = res; img.onerror = res;
+        }))
+      );
+    });
+    console.timeEnd('⏱️ Image Loading');
 
     console.time('⏱️ PDF Generation');
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "15mm", bottom: "15mm", left: "10mm", right: "10mm" },
+      margin: { top: "0", bottom: "0", left: "0", right: "0" },
       preferCSSPageSize: true,
       displayHeaderFooter: false,
+      scale: 1,
       timeout: 30000
     });
     console.timeEnd('⏱️ PDF Generation');

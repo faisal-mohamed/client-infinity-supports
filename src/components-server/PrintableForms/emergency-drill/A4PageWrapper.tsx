@@ -11,15 +11,19 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({
 }) => (
   <div
     className={`
-      w-[210mm] h-[297mm] mx-auto mb-8 bg-white 
-      print:shadow-none print:mb-0 print:border-none print:break-after-page
-      shadow-lg border border-gray-300 
-      p-[20mm] box-border flex flex-col
+      a4-page
       ${className}
     `}
     style={{
-      pageBreakAfter: "always",
       pageBreakInside: "avoid",
+      width: "210mm",
+      height: "297mm",
+      display: "flex",
+      flexDirection: "column",
+      background: "white",
+      margin: "0 auto",
+      padding: "20mm",
+      boxSizing: "border-box"
     }}
   >
     {children}
