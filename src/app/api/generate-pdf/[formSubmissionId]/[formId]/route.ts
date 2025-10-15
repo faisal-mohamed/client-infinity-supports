@@ -5,10 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { chromium } from "playwright";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
+import { renderToBuffer } from "@react-pdf/renderer";
 import fs from "fs";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
+import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -304,6 +306,24 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 </html>`;
 }
 
+// Generate PDF using @react-pdf/renderer (for emergency_drill)
+async function generatePDFWithReactPDF(
+  formData: any,
+  commonFields: any,
+  settings: any,
+  logoDataUrl: string
+): Promise<Buffer> {
+  const pdfDoc = React.createElement(EmergencyDrillPDF, {
+    formData,
+    commonFieldsData: commonFields,
+    settings,
+    logoDataUrl
+  });
+
+  const pdfBuffer = await renderToBuffer(pdfDoc);
+  return pdfBuffer;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ formSubmissionId: string; formId: string }> }
@@ -362,70 +382,81 @@ export async function GET(
     });
 
     const formData = formSubmission.data as any;
-    console.time('⏱️ HTML Generation');
-    const html = await generateHTML(formData, form.formKey, commonFields, settings);
-    console.timeEnd('⏱️ HTML Generation');
+    let pdfBuffer: Buffer;
 
-    if (process.env.NODE_ENV === "development") {
-      fs.writeFileSync("playwright-debug.html", html);
+    // Use @react-pdf/renderer for emergency_drill, Playwright for others
+    if (form.formKey === 'emergency_drill') {
+      console.time('⏱️ @react-pdf/renderer PDF Generation');
+      const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
+      pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl);
+      console.timeEnd('⏱️ @react-pdf/renderer PDF Generation');
+    } else {
+      // Original Playwright approach for other forms
+      console.time('⏱️ HTML Generation');
+      const html = await generateHTML(formData, form.formKey, commonFields, settings);
+      console.timeEnd('⏱️ HTML Generation');
+
+      if (process.env.NODE_ENV === "development") {
+        fs.writeFileSync("playwright-debug.html", html);
+      }
+
+      console.time('⏱️ Browser Launch');
+      const browser = await chromium.launch({ 
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      });
+      console.timeEnd('⏱️ Browser Launch');
+
+      console.time('⏱️ Page Creation');
+      const page = await browser.newPage({
+        viewport: { width: 1280, height: 1800 }, // Standard viewport for A4
+      });
+      console.timeEnd('⏱️ Page Creation');
+
+      console.time('⏱️ Set Content');
+      await page.setContent(html, { waitUntil: "networkidle", timeout: 15000 });
+      console.timeEnd('⏱️ Set Content');
+
+      // Wait for fonts to load
+      console.time('⏱️ Font Loading');
+      await page.evaluateHandle('document.fonts.ready');
+      console.timeEnd('⏱️ Font Loading');
+
+      // Wait for all images to load (critical for header logos)
+      console.time('⏱️ Image Loading');
+      await page.evaluate(async () => {
+        const imgs = Array.from(document.images);
+        await Promise.all(
+          imgs.map(img => img.complete ? null : new Promise(res => {
+            img.onload = res; img.onerror = res;
+          }))
+        );
+      });
+      console.timeEnd('⏱️ Image Loading');
+
+      console.time('⏱️ PDF Generation');
+      pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: { top: "0", bottom: "0", left: "0", right: "0" },
+        preferCSSPageSize: true,
+        displayHeaderFooter: false,
+        scale: 1,
+        tagged: true // Enable PDF tagging for better accessibility
+      });
+      console.timeEnd('⏱️ PDF Generation');
+
+      console.time('⏱️ Browser Close');
+      await browser.close();
+      console.timeEnd('⏱️ Browser Close');
     }
-
-    console.time('⏱️ Browser Launch');
-    const browser = await chromium.launch({ 
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-    });
-    console.timeEnd('⏱️ Browser Launch');
-
-    console.time('⏱️ Page Creation');
-    const page = await browser.newPage({
-      viewport: { width: 1280, height: 1800 }, // Standard viewport for A4
-    });
-    console.timeEnd('⏱️ Page Creation');
-
-    console.time('⏱️ Set Content');
-    await page.setContent(html, { waitUntil: "networkidle", timeout: 15000 });
-    console.timeEnd('⏱️ Set Content');
-
-    // Wait for fonts to load
-    console.time('⏱️ Font Loading');
-    await page.evaluateHandle('document.fonts.ready');
-    console.timeEnd('⏱️ Font Loading');
-
-    // Wait for all images to load (critical for header logos)
-    console.time('⏱️ Image Loading');
-    await page.evaluate(async () => {
-      const imgs = Array.from(document.images);
-      await Promise.all(
-        imgs.map(img => img.complete ? null : new Promise(res => {
-          img.onload = res; img.onerror = res;
-        }))
-      );
-    });
-    console.timeEnd('⏱️ Image Loading');
-
-    console.time('⏱️ PDF Generation');
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "0", bottom: "0", left: "0", right: "0" },
-      preferCSSPageSize: true,
-      displayHeaderFooter: false,
-      scale: 1,
-      timeout: 30000
-    });
-    console.timeEnd('⏱️ PDF Generation');
-
-    console.time('⏱️ Browser Close');
-    await browser.close();
-    console.timeEnd('⏱️ Browser Close');
 
     const filename = attachmentName || `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}_${form.formKey}.pdf`;
 
     if (returnBuffer) {
       // Return PDF buffer for email attachment (no download headers)
       console.log(`📄 Generated PDF buffer for email: ${filename}`);
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           "Content-Type": "application/pdf",
           "X-PDF-Filename": filename // Custom header to pass filename info
@@ -434,7 +465,7 @@ export async function GET(
     } else {
       // Original download behavior
       console.log(`📄 Generated PDF for download: ${filename}`);
-      return new NextResponse(pdfBuffer, {
+      return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `attachment; filename="${filename}"`

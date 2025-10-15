@@ -222,7 +222,7 @@ const EmergencyDrillStrictForm: React.FC<any> = ({ formData, commonFieldsData, s
               {getValue('supportWorkerSignature') ? (
                 <img
                   src={getValue('supportWorkerSignature')}
-                  alt="Support Worker Signature"
+                  alt={`Signature of ${getValue('supportWorkers') || 'Support Worker'}`}
                   className="signature-img"
                 />
               ) : (
@@ -238,7 +238,7 @@ const EmergencyDrillStrictForm: React.FC<any> = ({ formData, commonFieldsData, s
               {getValue('supervisorSignature') ? (
                 <img
                   src={getValue('supervisorSignature')}
-                  alt="Supervisor Signature"
+                  alt="Signature of Supervisor/Manager"
                   className="signature-img"
                 />
               ) : (
