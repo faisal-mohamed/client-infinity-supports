@@ -14,50 +14,43 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 0,
+    padding: 20,
     fontFamily: 'Helvetica',
     fontSize: 10,
     lineHeight: 1.4,
   },
   header: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 40,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
     borderBottom: '1 solid #e5e7eb',
+    paddingBottom: 10,
+    marginBottom: 15,
+    height: 40,
   },
   headerLogo: {
-    width: 60,
+    width: 80,
     height: 'auto',
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 25,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 15,
     backgroundColor: '#ffffff',
     borderTop: '1 solid #e5e7eb',
-    fontSize: 7,
+    paddingTop: 10,
+    fontSize: 8,
+    height: 30,
   },
   footerText: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#666666',
   },
   content: {
-    marginTop: 50,
-    marginBottom: 35,
-    paddingHorizontal: 20,
-    paddingTop: 15,
+    flex: 1,
+    paddingHorizontal: 0,
   },
   titleSection: {
     textAlign: 'center',
@@ -75,102 +68,114 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   section: {
-    marginBottom: 12,
+    marginBottom: 15,
     breakInside: 'avoid',
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 8,
     color: '#374151',
     borderBottom: '1 solid #d1d5db',
-    paddingBottom: 1,
+    paddingBottom: 3,
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 6,
     alignItems: 'flex-start',
+    breakInside: 'avoid',
   },
   label: {
-    width: 140,
+    width: 150,
     fontWeight: 'bold',
-    fontSize: 8,
+    fontSize: 9,
     color: '#374151',
   },
   value: {
     flex: 1,
-    fontSize: 8,
+    fontSize: 9,
     color: '#111827',
-    marginLeft: 8,
+    marginLeft: 10,
   },
   longAnswer: {
-    marginBottom: 8,
+    marginBottom: 10,
+    breakInside: 'avoid',
   },
   longAnswerLabel: {
     fontWeight: 'bold',
-    marginBottom: 3,
-    fontSize: 8,
+    marginBottom: 4,
+    fontSize: 9,
     color: '#374151',
   },
   longAnswerValue: {
     border: '0.5 solid #d1d5db',
-    borderRadius: 2,
-    padding: 4,
-    minHeight: 15,
-    fontSize: 8,
+    borderRadius: 3,
+    padding: 6,
+    minHeight: 20,
+    fontSize: 9,
     color: '#111827',
+    lineHeight: 1.3,
   },
   radioGroup: {
     flexDirection: 'row',
-    gap: 12,
-    marginLeft: 8,
+    gap: 15,
+    marginLeft: 10,
+    flexWrap: 'wrap',
   },
   radioItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: 8,
+    fontSize: 9,
+    marginBottom: 2,
   },
   checkbox: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     border: '1 solid #000000',
-    marginRight: 3,
+    marginRight: 4,
     backgroundColor: '#ffffff',
   },
   checkboxChecked: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     border: '1 solid #000000',
-    marginRight: 3,
+    marginRight: 4,
     backgroundColor: '#000000',
   },
   signatureSection: {
-    marginTop: 15,
-    paddingTop: 10,
+    marginTop: 20,
+    paddingTop: 15,
     borderTop: '1 solid #e5e7eb',
+    breakInside: 'avoid',
   },
   signatureBlock: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 15,
+    gap: 20,
+    marginTop: 10,
   },
   signatureItem: {
     flex: 1,
+    breakInside: 'avoid',
   },
   signatureLabel: {
     fontWeight: 'bold',
-    marginBottom: 4,
-    fontSize: 8,
+    marginBottom: 6,
+    fontSize: 9,
+    color: '#374151',
   },
   signatureImage: {
-    width: 120,
-    height: 40,
+    width: 150,
+    height: 50,
     border: '1 solid #d1d5db',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   signatureDate: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#666666',
+  },
+  pageBreak: {
+    breakBefore: 'page',
   },
 });
 
@@ -250,18 +255,10 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
   return (
     <Document>
-      {/* Page 1: Title and General Information */}
       <Page size="A4" style={styles.page}>
-        {/* Fixed Header */}
+        {/* Header - Fixed at top of every page */}
         <View style={styles.header} fixed>
           <Image src={logoDataUrl} style={styles.headerLogo} />
-        </View>
-
-        {/* Fixed Footer */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
-          <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
         </View>
 
         {/* Content */}
@@ -348,27 +345,9 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
               <Text style={styles.longAnswerValue}>{getValue('supportAction')}</Text>
             </View>
           </View>
-        </View>
-      </Page>
 
-      {/* Page 2: Observations and Recommendations */}
-      <Page size="A4" style={styles.page}>
-        {/* Fixed Header */}
-        <View style={styles.header} fixed>
-          <Image src={logoDataUrl} style={styles.headerLogo} />
-        </View>
-
-        {/* Fixed Footer */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
-          <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
-        </View>
-
-        {/* Content */}
-        <View style={styles.content}>
-          {/* Section 4: Observations */}
-          <View style={styles.section}>
+          {/* Section 4: Observations - Force page break */}
+          <View style={[styles.section, styles.pageBreak]}>
             <Text style={styles.sectionTitle}>4. Observations & Challenges</Text>
             
             <View style={styles.longAnswer}>
@@ -440,25 +419,7 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
               <Text style={styles.value}>{getValue('nextDrillDate')}</Text>
             </View>
           </View>
-        </View>
-      </Page>
 
-      {/* Page 3: Signatures */}
-      <Page size="A4" style={styles.page}>
-        {/* Fixed Header */}
-        <View style={styles.header} fixed>
-          <Image src={logoDataUrl} style={styles.headerLogo} />
-        </View>
-
-        {/* Fixed Footer */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
-          <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
-        </View>
-
-        {/* Content */}
-        <View style={styles.content}>
           {/* Section 7: Signatures */}
           <View style={styles.signatureSection}>
             <Text style={styles.sectionTitle}>7. Signatures</Text>
@@ -490,10 +451,16 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
             </View>
           </View>
         </View>
+
+        {/* Footer - Fixed at bottom of every page */}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
+          <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
+          <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
+        </View>
       </Page>
     </Document>
   );
 };
 
 export default EmergencyDrillPDF;
-

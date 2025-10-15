@@ -318,8 +318,8 @@ async function generatePDFWithReactPDF(
     commonFieldsData: commonFields,
     settings,
     logoDataUrl
-  });
-
+  }) as any;
+  
   const pdfBuffer = await renderToBuffer(pdfDoc);
   return pdfBuffer;
 }
@@ -451,7 +451,11 @@ export async function GET(
       console.timeEnd('⏱️ Browser Close');
     }
 
-    const filename = attachmentName || `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}_${form.formKey}.pdf`;
+    // Generate proper filename with client name and .pdf extension
+    const clientName = commonFields?.name || 'Unknown_Client';
+    const sanitizedClientName = clientName.replace(/[^a-zA-Z0-9]/g, "_");
+    const formTitle = form.title.replace(/[^a-zA-Z0-9]/g, "_");
+    const filename = attachmentName || `${formTitle}_${sanitizedClientName}.pdf`;
 
     if (returnBuffer) {
       // Return PDF buffer for email attachment (no download headers)
@@ -468,7 +472,10 @@ export async function GET(
       return new NextResponse(new Uint8Array(pdfBuffer), {
         headers: {
           "Content-Type": "application/pdf",
-          "Content-Disposition": `attachment; filename="${filename}"`
+          "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
         }
       });
     }
