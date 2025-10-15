@@ -89,7 +89,7 @@ const Page1: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
               <div className="flex items-start">
                 <span className="min-w-[220px] font-medium">{schema?.drillTypes?.label}:</span>
                 <span className="border-b border-black flex-1 ml-2 min-w-[150px]">
-                  {getValue('selectedDrillType') || 'No selection made'}
+                  {schema?.drillTypes?.options?.find((opt: any) => opt.value === getValue('selectedDrillType'))?.label || 'No selection made'}
                 </span>
               </div>
               

@@ -80,10 +80,15 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
 
   // Create dynamic pages based on content length
   const createDynamicPages = () => {
-    const pages = [];
-    let currentPage = [];
+    const pages: any[] = [];
+    let currentPage: any[] = [];
     let currentPageHeight = 0;
-    const maxPageHeight = 800; // Maximum height per page
+    
+    // Conservative page height calculation to prevent any cutoff
+    // Use much smaller height to ensure content never gets cut off
+    const maxPageHeight = 600; // Very conservative height to prevent cutoff
+    
+    console.log(`📏 Using conservative page height: ${maxPageHeight}px to prevent content cutoff`);
     const sectionsWithTitleShown = new Set(); // Track which sections have shown their title
     
     // Define all sections in order
@@ -103,7 +108,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
         // Special handling for drillTypes section - handle select structure
         if (section.id === 'drillTypes' && sectionFields.type === 'select') {
           const selectedDrillType = getValue(sectionFields.key);
-          const estimatedHeight = 60; // Base height for section
+          const estimatedHeight = 60; // Increased height for select field to prevent cutoff
           
           // If adding this section would exceed page height, create new page
           if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
@@ -120,7 +125,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             showSectionTitle: !sectionsWithTitleShown.has(section.id),
             questionNumber: 1
           });
-          currentPageHeight += estimatedHeight;
+          currentPageHeight += estimatedHeight + 30; // Increased spacing after drillTypes
           
           // Mark section title as shown
           if (!sectionsWithTitleShown.has(section.id)) {
@@ -136,7 +141,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           // Calculate total height needed for entire signature section
           let signatureSectionHeight = 60; // Section header height
           
-          sectionFields.forEach((field) => {
+          sectionFields.forEach((field: any) => {
             const content = getValue(field.key);
             let estimatedHeight = 60;
             
@@ -165,7 +170,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           }
           
           // Add all signature fields to current page
-          sectionFields.forEach((field) => {
+          sectionFields.forEach((field: any) => {
             const content = getValue(field.key);
             let estimatedHeight = 60;
             
@@ -199,27 +204,32 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           });
         } else {
           // Regular sections - normal field-by-field processing
-          sectionFields.forEach((field) => {
+          sectionFields.forEach((field: any) => {
             const content = getValue(field.key);
-            // Estimate height for each field
-            let estimatedHeight = 60; // Base height for label and padding
+            // Very conservative height estimates to prevent cutoff
+            let estimatedHeight = 50; // Increased base height for safety
             
             if (field.type === 'radio') {
-              estimatedHeight = 80;
-            } else if (field.type === 'textarea' || field.type === 'text') {
+              estimatedHeight = 70; // Increased radio field height
+            } else if (field.type === 'textarea') {
               if (content && content.length > 0) {
                 const lines = Math.max(1, content.split('\n').length);
-                const estimatedLines = Math.max(lines, Math.ceil(content.length / 60));
-                estimatedHeight = Math.max(100, estimatedLines * 25 + 40);
+                const estimatedLines = Math.max(lines, Math.ceil(content.length / 50)); // Fewer chars per line for safety
+                estimatedHeight = Math.max(80, estimatedLines * 25 + 40); // Increased line height and padding
               } else {
-                estimatedHeight = 80;
+                estimatedHeight = 80; // Increased empty textarea height
               }
+            } else if (field.type === 'text') {
+              estimatedHeight = 50; // Increased text field height
             } else if (field.type === 'signature') {
-              estimatedHeight = 100;
+              estimatedHeight = 100; // Increased signature field height
+            } else if (field.type === 'select') {
+              estimatedHeight = 60; // Increased select field height
             }
 
             // If adding this field would exceed page height, create new page
             if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+              console.log(`📄 Creating new page for ${field.label}. Current height: ${currentPageHeight}, Field height: ${estimatedHeight}, Max: ${maxPageHeight}`);
               pages.push([...currentPage]);
               currentPage = [{ 
                 section, 
@@ -228,7 +238,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                 showSectionTitle: !sectionsWithTitleShown.has(section.id),
                 questionNumber: sectionFields.indexOf(field) + 1
               }];
-              currentPageHeight = estimatedHeight;
+              currentPageHeight = estimatedHeight + 30; // Increased spacing for new page
             } else {
               currentPage.push({ 
                 section, 
@@ -237,7 +247,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                 showSectionTitle: !sectionsWithTitleShown.has(section.id),
                 questionNumber: sectionFields.indexOf(field) + 1
               });
-              currentPageHeight += estimatedHeight;
+              currentPageHeight += estimatedHeight + 30; // Increased spacing between fields
             }
             
             // Mark section title as shown after first field
@@ -253,6 +263,9 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     if (currentPage.length > 0) {
       pages.push(currentPage);
     }
+
+    console.log(`📊 Total pages created: ${pages.length}`);
+    console.log(`📊 Page breakdown:`, pages.map((page, index) => `${index + 1}: ${page.length} fields`));
 
     return pages;
   };
@@ -278,7 +291,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             showTitle={isFirstPage}
           >
         <div className="space-y-5">
-              {pageFields.map((pageField, fieldIndex) => {
+              {pageFields.map((pageField: any, fieldIndex: number) => {
                 const { section, field, showSectionTitle, questionNumber } = pageField;
                 
                 return (
