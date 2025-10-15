@@ -14,9 +14,11 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 20,
+    padding: 40,
+    paddingTop: 30,
+    paddingBottom: 15,
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 11,
     lineHeight: 1.4,
   },
   header: {
@@ -24,14 +26,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderBottom: '1 solid #e5e7eb',
     paddingBottom: 10,
     marginBottom: 15,
     height: 40,
   },
   headerLogo: {
-    width: 80,
-    height: 'auto',
+    width: 200,
+    height: 60,
   },
   footer: {
     flexDirection: 'row',
@@ -39,13 +40,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     backgroundColor: '#ffffff',
-    borderTop: '1 solid #e5e7eb',
     paddingTop: 10,
-    fontSize: 8,
+    fontSize: 10,
     height: 30,
   },
   footerText: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#666666',
   },
   content: {
@@ -53,19 +53,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   titleSection: {
-    textAlign: 'center',
-    marginBottom: 20,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: 0,
+    marginLeft: 10,
   },
   title: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#1f2937',
+    marginBottom: 2,
+    marginLeft: 0,
+    color: '#000000',
   },
   subtitle: {
     fontSize: 10,
     fontStyle: 'italic',
-    color: '#6b7280',
+    marginLeft: 0,
+    color: '#333333',
   },
   section: {
     marginBottom: 15,
@@ -76,14 +80,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#374151',
-    borderBottom: '1 solid #d1d5db',
-    paddingBottom: 3,
   },
   fieldRow: {
     flexDirection: 'row',
     marginBottom: 6,
     alignItems: 'flex-start',
     breakInside: 'avoid',
+    gap: 10,
   },
   label: {
     width: 150,
@@ -91,11 +94,17 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#374151',
   },
+  bulletLabel: {
+    width: 250,
+    fontSize: 10,
+    color: '#1f2937',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  },
   value: {
     flex: 1,
     fontSize: 9,
     color: '#111827',
-    marginLeft: 10,
   },
   longAnswer: {
     marginBottom: 10,
@@ -119,7 +128,6 @@ const styles = StyleSheet.create({
   radioGroup: {
     flexDirection: 'row',
     gap: 15,
-    marginLeft: 10,
     flexWrap: 'wrap',
   },
   radioItem: {
@@ -140,7 +148,12 @@ const styles = StyleSheet.create({
     height: 10,
     border: '1 solid #000000',
     marginRight: 4,
-    backgroundColor: '#000000',
+    backgroundColor: '#87ceeb',
+  },
+  tickMark: {
+    fontSize: 10,
+    color: '#2563eb',
+    fontWeight: 'bold',
   },
   signatureSection: {
     marginTop: 20,
@@ -263,54 +276,49 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
         {/* Content */}
         <View style={styles.content}>
-          {/* Title Section */}
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Emergency Drill Reporting Form</Text>
-            <Text style={styles.subtitle}>(For Disability Support Workers in a Client's Home)</Text>
-          </View>
 
           {/* Section 1: General Information */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>1. General Information</Text>
+            <Text style={styles.sectionTitle}>1. General Information:</Text>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Date of Drill:</Text>
+              <Text style={styles.bulletLabel}>(1) Date of Drill:</Text>
               <Text style={styles.value}>{getValue('drillDate')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Time of Drill:</Text>
+              <Text style={styles.bulletLabel}>(2) Time of Drill:</Text>
               <Text style={styles.value}>{getValue('drillTime')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Client's Name:</Text>
+              <Text style={styles.bulletLabel}>(3) Client's Name (if applicable):</Text>
               <Text style={styles.value}>{getValue('clientName')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Support Workers:</Text>
+              <Text style={styles.bulletLabel}>(4) Support Worker(s) Involved:</Text>
               <Text style={styles.value}>{getValue('supportWorkers')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Supervisor Notified:</Text>
+              <Text style={styles.bulletLabel}>(5) Supervisor/Manager Notified:</Text>
               {renderRadioGroup('supervisorNotified', ['Yes', 'No'])}
             </View>
           </View>
 
           {/* Section 2: Drill Type */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>2. Type of Emergency Drill</Text>
+            <Text style={styles.sectionTitle}>2. Type of Emergency Drill Conducted:</Text>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Drill Type:</Text>
+              <Text style={styles.bulletLabel}>(1) Type:</Text>
               <Text style={styles.value}>{getValue('selectedDrillType') || 'Not specified'}</Text>
             </View>
             
             {getValue('selectedDrillType') === 'Other (specify)' && (
               <View style={styles.fieldRow}>
-                <Text style={styles.label}>Other Type:</Text>
+                <Text style={styles.bulletLabel}>(2) Please specify other drill type:</Text>
                 <Text style={styles.value}>{getValue('otherDrill')}</Text>
               </View>
             )}
@@ -318,83 +326,83 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
           {/* Section 3: Execution Details */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>3. Drill Execution Details</Text>
+            <Text style={styles.sectionTitle}>3. Drill Execution Details:</Text>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Plan Followed:</Text>
+              <Text style={styles.bulletLabel}>(1) Was the emergency plan followed?</Text>
               {renderRadioGroup('planFollowed', ['Yes', 'No'])}
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Safety Protocols:</Text>
+              <Text style={styles.bulletLabel}>(2) Were all safety measures and protocols implemented?</Text>
               {renderRadioGroup('safetyProtocols', ['Yes', 'No'])}
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Services Contacted:</Text>
+              <Text style={styles.bulletLabel}>(3) Emergency services contacted? (if applicable)</Text>
               {renderRadioGroup('servicesContacted', ['Yes', 'No'])}
             </View>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Client Response:</Text>
+              <Text style={styles.longAnswerLabel}>Client response and involvement:</Text>
               <Text style={styles.longAnswerValue}>{getValue('clientResponse')}</Text>
             </View>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Support Worker Actions:</Text>
+              <Text style={styles.longAnswerLabel}>Support worker actions:</Text>
               <Text style={styles.longAnswerValue}>{getValue('supportAction')}</Text>
             </View>
           </View>
 
           {/* Section 4: Observations - Force page break */}
           <View style={[styles.section, styles.pageBreak]}>
-            <Text style={styles.sectionTitle}>4. Observations & Challenges</Text>
+            <Text style={styles.sectionTitle}>4. Observations & Challenges:</Text>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>What went well:</Text>
+              <Text style={styles.longAnswerLabel}>What went well?</Text>
               <Text style={styles.longAnswerValue}>{getValue('whatWentWell')}</Text>
             </View>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Challenges encountered:</Text>
+              <Text style={styles.longAnswerLabel}>What difficulties or challenges were encountered?</Text>
               <Text style={styles.longAnswerValue}>{getValue('challenges')}</Text>
             </View>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Unexpected issues:</Text>
+              <Text style={styles.longAnswerLabel}>Any unexpected issues?</Text>
               <Text style={styles.longAnswerValue}>{getValue('unexpectedIssues')}</Text>
             </View>
           </View>
 
           {/* Section 5: Recommendations */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>5. Recommendations & Improvements</Text>
+            <Text style={styles.sectionTitle}>5. Recommendations & Improvements:</Text>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Procedure changes:</Text>
+              <Text style={styles.longAnswerLabel}>Suggested changes to procedures:</Text>
               <Text style={styles.longAnswerValue}>{getValue('procedureChanges')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Additional training needed:</Text>
+              <Text style={styles.bulletLabel}>(1) Additional training or support required?</Text>
               {renderRadioGroup('additionalTrainingRequired', ['Yes', 'No'])}
             </View>
             
             {getValue('additionalTrainingRequired') === 'Yes' && (
               <View style={styles.longAnswer}>
-                <Text style={styles.longAnswerLabel}>Training details:</Text>
+                <Text style={styles.longAnswerLabel}>If yes, specify:</Text>
                 <Text style={styles.longAnswerValue}>{getValue('trainingDetails')}</Text>
               </View>
             )}
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Plan updates needed:</Text>
+              <Text style={styles.bulletLabel}>(2) Updates needed for the client's emergency plan?</Text>
               {renderRadioGroup('planUpdateNeeded', ['Yes', 'No'])}
             </View>
             
             {getValue('planUpdateNeeded') === 'Yes' && (
               <View style={styles.longAnswer}>
-                <Text style={styles.longAnswerLabel}>Update details:</Text>
+                <Text style={styles.longAnswerLabel}>If yes, specify:</Text>
                 <Text style={styles.longAnswerValue}>{getValue('planUpdateDetails')}</Text>
               </View>
             )}
@@ -402,27 +410,27 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
           {/* Section 6: Follow-up */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>6. Follow-Up Actions</Text>
+            <Text style={styles.sectionTitle}>6. Follow-Up Actions:</Text>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Debrief conducted:</Text>
+              <Text style={styles.bulletLabel}>(1) Debrief conducted?</Text>
               {renderRadioGroup('debriefConducted', ['Yes', 'No'])}
             </View>
             
             <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Supervisor comments:</Text>
+              <Text style={styles.longAnswerLabel}>Supervisor/Manager Comments:</Text>
               <Text style={styles.longAnswerValue}>{getValue('supervisorComments')}</Text>
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Next drill date:</Text>
+              <Text style={styles.bulletLabel}>(2) Date of Next Scheduled Drill:</Text>
               <Text style={styles.value}>{getValue('nextDrillDate')}</Text>
             </View>
           </View>
 
           {/* Section 7: Signatures */}
           <View style={styles.signatureSection}>
-            <Text style={styles.sectionTitle}>7. Signatures</Text>
+            <Text style={styles.sectionTitle}>7. Signatures:</Text>
             
             <View style={styles.signatureBlock}>
               <View style={styles.signatureItem}>
@@ -456,7 +464,7 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
           <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
-          <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
+          <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>
     </Document>
