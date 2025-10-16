@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     height: 40,
   },
   headerLogo: {
-    width: 200,
-    height: 60,
+    width: 220,
+    height: 70,
   },
   footer: {
     flexDirection: 'row',

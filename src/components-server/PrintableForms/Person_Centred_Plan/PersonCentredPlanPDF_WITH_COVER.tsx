@@ -20,72 +20,69 @@ const styles = StyleSheet.create({
   },
   coverHeader: {
     position: 'absolute',
-    top: 40,
-    right: 60,
-    flexDirection: 'row',
+    top: 50,
+    left: 0,
+    right: 0,
+    flexDirection: 'column',
     alignItems: 'center',
     zIndex: 10,
   },
   coverHeaderLogo: {
-    width: 200,
-    height: 60,
-  },
-  coverVerticalLine: {
-    position: 'absolute',
-    left: 80,
-    top: 100,
-    width: 2,
-    height: 200,
-    backgroundColor: '#9ca3af',
+    width: 300,
+    height: 90,
   },
   coverMainCircle: {
     position: 'absolute',
-    top: 200,
-    left: 150,
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: '#f97316', // Orange
-    border: '2 solid #f97316',
+    top: 380,
+    left: 200,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: '#f0ad7a', // Less bright orange
+    border: '1 solidrgb(221, 163, 111)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 5,
   },
   coverTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#000000',
     textAlign: 'center',
     fontFamily: 'Times-Roman',
+    lineHeight: 1.2,
   },
   coverBlueCircle1: {
     position: 'absolute',
-    top: 120,
-    left: 100,
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    backgroundColor: '#3b82f6', // Blue
-    opacity: 0.3,
-  },
-  coverBlueCircle2: {
-    position: 'absolute',
-    top: 280,
-    left: 80,
+    top: 300,
+    left: 120,
     width: 160,
     height: 160,
     borderRadius: 80,
-    backgroundColor: '#3b82f6', // Blue
-    opacity: 0.3,
+    backgroundColor: '#a8d8ea', // Less bright blue
+    opacity: 0.7,
+    zIndex: 3,
+  },
+  coverBlueCircle2: {
+    position: 'absolute',
+    top: 440,
+    left: 100,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: '#a8d8ea', // Less bright blue
+    opacity: 0.7,
+    zIndex: 3,
   },
   coverFooter: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 40,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 60,
+    paddingHorizontal: 50,
     fontSize: 10,
   },
   coverFooterText: {
@@ -117,8 +114,8 @@ const styles = StyleSheet.create({
     borderBottom: '1 solid #e5e7eb',
   },
   headerLogo: {
-    width: 150,
-    height: 40,
+    width: 200,
+    height: 55,
   },
   footer: {
     position: 'absolute',
@@ -197,6 +194,149 @@ const styles = StyleSheet.create({
     border: '1 solid #e5e7eb',
     borderRadius: 2,
   },
+  
+  // Goal Card Styles
+  goalCard: {
+    marginBottom: 15,
+    padding: 12,
+    backgroundColor: '#f8f9fa',
+    border: '1 solid #e5e7eb',
+    borderRadius: 6,
+    breakInside: 'auto', // Allow card to break across pages
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  goalTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  outcomeRating: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    backgroundColor: '#10b981', // Green color
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+  },
+  goalDescription: {
+    marginBottom: 8,
+  },
+  goalDescriptionLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#374151',
+  },
+  goalDescriptionValue: {
+    fontSize: 9,
+    color: '#111827',
+    lineHeight: 1.4,
+    padding: 6,
+    backgroundColor: '#ffffff',
+    border: '1 solid #e5e7eb',
+    borderRadius: 3,
+  },
+  goalActions: {
+    marginBottom: 8,
+  },
+  goalActionsLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#374151',
+  },
+  goalActionsValue: {
+    fontSize: 9,
+    color: '#111827',
+    lineHeight: 1.4,
+    padding: 6,
+    backgroundColor: '#ffffff',
+    border: '1 solid #e5e7eb',
+    borderRadius: 3,
+  },
+  goalMetadata: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    paddingTop: 6,
+    borderTop: '1 solid #e5e7eb',
+  },
+  goalMetadataItem: {
+    fontSize: 8,
+    color: '#6b7280',
+  },
+  
+  // Table Styles
+  table: {
+    marginBottom: 15,
+    border: '1 solid #e5e7eb',
+    borderRadius: 4,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#f3f4f6',
+    borderBottom: '1 solid #e5e7eb',
+  },
+  tableHeaderCell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#374151',
+    textAlign: 'center',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #e5e7eb',
+  },
+  tableRowLast: {
+    flexDirection: 'row',
+  },
+  tableCell: {
+    flex: 1,
+    padding: 8,
+    fontSize: 9,
+    color: '#111827',
+    textAlign: 'left',
+  },
+  tableCellCenter: {
+    flex: 1,
+    padding: 8,
+    fontSize: 9,
+    color: '#111827',
+    textAlign: 'center',
+  },
+  
+  // Support Information Table (2 columns)
+  supportTable: {
+    marginBottom: 15,
+  },
+  supportTableRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #e5e7eb',
+    minHeight: 20,
+  },
+  supportTableLabel: {
+    width: 200,
+    padding: 6,
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#374151',
+    backgroundColor: '#f9fafb',
+    borderRight: '1 solid #e5e7eb',
+  },
+  supportTableValue: {
+    flex: 1,
+    padding: 6,
+    fontSize: 9,
+    color: '#111827',
+  },
 });
 
 interface PersonCentredPlanPDFProps {
@@ -212,9 +352,28 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   settings,
   logoDataUrl,
 }) => {
+  // Debug logging to see what data we're getting
+  console.log('🔍 Person Centred Plan PDF - Form Data Keys:', Object.keys(formData || {}));
+  console.log('🔍 Person Centred Plan PDF - Form Data Sample:', {
+    respiratoryHistory: formData?.respiratoryHistory,
+    precautions: formData?.precautions,
+    companionCard: formData?.companionCard,
+    ambulanceCover: formData?.ambulanceCover,
+    healthConditions: formData?.healthConditions,
+  });
+  
+  // Check if all health fields have the same value
+  const healthFields = ['respiratoryHistory', 'precautions', 'companionCard', 'ambulanceCover', 'healthConditions'];
+  const healthValues = healthFields.map(field => formData?.[field]);
+  const allSame = healthValues.every(val => val === healthValues[0]);
+  console.log('🔍 Person Centred Plan PDF - All health fields same value?', allSame);
+  console.log('🔍 Person Centred Plan PDF - Health field values:', healthValues);
+
   const getValue = (key: string): string => {
     try {
-      return formData?.[key] || commonFieldsData?.[key] || '';
+      const value = formData?.[key] || commonFieldsData?.[key] || '';
+      console.log(`🔍 Person Centred Plan PDF - Getting value for ${key}:`, value);
+      return value;
     } catch {
       return '';
     }
@@ -276,9 +435,6 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         <View style={styles.coverHeader}>
           <Image src={logoDataUrl} style={styles.coverHeaderLogo} />
         </View>
-        
-        {/* Vertical Grey Line */}
-        <View style={styles.coverVerticalLine} />
         
         {/* Blue Circles (Background) */}
         <View style={styles.coverBlueCircle1} />
@@ -402,27 +558,27 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
             
             <View style={styles.longAnswer}>
               <Text style={styles.longAnswerLabel}>Respiratory History:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('respiratoryHistory')}</Text>
+              <Text style={styles.longAnswerValue}>{getValue('respiratoryHistory') || 'No respiratory history recorded'}</Text>
             </View>
             
             <View style={styles.longAnswer}>
               <Text style={styles.longAnswerLabel}>Precautions:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('precautions')}</Text>
+              <Text style={styles.longAnswerValue}>{getValue('precautions') || 'No precautions noted'}</Text>
             </View>
             
             <View style={styles.longAnswer}>
               <Text style={styles.longAnswerLabel}>Health Conditions:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('healthConditions')}</Text>
+              <Text style={styles.longAnswerValue}>{getValue('healthConditions') || 'No health conditions recorded'}</Text>
             </View>
             
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Companion Card:</Text>
-              <Text style={styles.value}>{getValue('companionCard')}</Text>
+            <View style={styles.longAnswer}>
+              <Text style={styles.longAnswerLabel}>Companion Card:</Text>
+              <Text style={styles.longAnswerValue}>{getValue('companionCard') || 'Not specified'}</Text>
             </View>
             
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Ambulance Cover:</Text>
-              <Text style={styles.value}>{getValue('ambulanceCover')}</Text>
+            <View style={styles.longAnswer}>
+              <Text style={styles.longAnswerLabel}>Ambulance Cover:</Text>
+              <Text style={styles.longAnswerValue}>{getValue('ambulanceCover') || 'Not specified'}</Text>
             </View>
           </View>
         </View>
@@ -444,19 +600,76 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>4. Goals:</Text>
             
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Goal 1:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('goal1')}</Text>
+            {/* Goal 1 Card */}
+            <View style={styles.goalCard}>
+              <View style={styles.goalHeader}>
+                <Text style={styles.goalTitle}>Goal 1</Text>
+                <Text style={styles.outcomeRating}>New Goal</Text>
+              </View>
+              
+              <View style={styles.goalDescription}>
+                <Text style={styles.goalDescriptionLabel}>Goal Description:</Text>
+                <Text style={styles.goalDescriptionValue}>{getValue('goal1') || 'No goal description provided'}</Text>
+              </View>
+              
+              <View style={styles.goalActions}>
+                <Text style={styles.goalActionsLabel}>Actions & Resources:</Text>
+                <Text style={styles.goalActionsValue}>{getValue('actions1') || 'No actions specified'}</Text>
+              </View>
+              
+              <View style={styles.goalMetadata}>
+                <Text style={styles.goalMetadataItem}>By Whom: {getValue('byWhom1') || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>By When: {formatDate(getValue('byWhen1')) || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>Review Date: {formatDate(getValue('reviewDate1')) || 'Not specified'}</Text>
+              </View>
             </View>
             
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Goal 2:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('goal2')}</Text>
+            {/* Goal 2 Card */}
+            <View style={styles.goalCard}>
+              <View style={styles.goalHeader}>
+                <Text style={styles.goalTitle}>Goal 2</Text>
+                <Text style={styles.outcomeRating}>Not Achieved</Text>
+              </View>
+              
+              <View style={styles.goalDescription}>
+                <Text style={styles.goalDescriptionLabel}>Goal Description:</Text>
+                <Text style={styles.goalDescriptionValue}>{getValue('goal2') || 'No goal description provided'}</Text>
+              </View>
+              
+              <View style={styles.goalActions}>
+                <Text style={styles.goalActionsLabel}>Actions & Resources:</Text>
+                <Text style={styles.goalActionsValue}>{getValue('actions2') || 'No actions specified'}</Text>
+              </View>
+              
+              <View style={styles.goalMetadata}>
+                <Text style={styles.goalMetadataItem}>By Whom: {getValue('byWhom2') || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>By When: {formatDate(getValue('byWhen2')) || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>Review Date: {formatDate(getValue('reviewDate2')) || 'Not specified'}</Text>
+              </View>
             </View>
             
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Goal 3:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('goal3')}</Text>
+            {/* Goal 3 Card */}
+            <View style={styles.goalCard}>
+              <View style={styles.goalHeader}>
+                <Text style={styles.goalTitle}>Goal 3</Text>
+                <Text style={styles.outcomeRating}>Partly Achieved</Text>
+              </View>
+              
+              <View style={styles.goalDescription}>
+                <Text style={styles.goalDescriptionLabel}>Goal Description:</Text>
+                <Text style={styles.goalDescriptionValue}>{getValue('goal3') || 'No goal description provided'}</Text>
+              </View>
+              
+              <View style={styles.goalActions}>
+                <Text style={styles.goalActionsLabel}>Actions & Resources:</Text>
+                <Text style={styles.goalActionsValue}>{getValue('actions3') || 'No actions specified'}</Text>
+              </View>
+              
+              <View style={styles.goalMetadata}>
+                <Text style={styles.goalMetadataItem}>By Whom: {getValue('byWhom3') || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>By When: {formatDate(getValue('byWhen3')) || 'Not specified'}</Text>
+                <Text style={styles.goalMetadataItem}>Review Date: {formatDate(getValue('reviewDate3')) || 'Not specified'}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -478,48 +691,63 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>5. Support Information:</Text>
             
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>PBS Support Plan:</Text>
-              <Text style={styles.value}>{getValue('pbsSupportPlanIncluded') || 'No'}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Restrictive Practices:</Text>
-              <Text style={styles.value}>{getValue('restrictivePractices') || 'No'}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Organization:</Text>
-              <Text style={styles.value}>{getValue('organizationName') || 'Not specified'}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Contact Person:</Text>
-              <Text style={styles.value}>{getValue('contactPersonOrg') || 'Not specified'}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Contact Number:</Text>
-              <Text style={styles.value}>{getValue('contactNumberOrg') || 'Not specified'}</Text>
+            <View style={styles.supportTable}>
+              <View style={styles.supportTableRow}>
+                <Text style={styles.supportTableLabel}>PBS Support Plan included?</Text>
+                <Text style={styles.supportTableValue}>{getValue('pbsSupportPlanIncluded') || 'No'}</Text>
+              </View>
+              
+              <View style={styles.supportTableRow}>
+                <Text style={styles.supportTableLabel}>Any Restrictive Practices?</Text>
+                <Text style={styles.supportTableValue}>{getValue('restrictivePractices') || 'No'}</Text>
+              </View>
+              
+              <View style={styles.supportTableRow}>
+                <Text style={styles.supportTableLabel}>Name of organization:</Text>
+                <Text style={styles.supportTableValue}>{getValue('organizationName') || 'Not specified'}</Text>
+              </View>
+              
+              <View style={styles.supportTableRow}>
+                <Text style={styles.supportTableLabel}>Contact person:</Text>
+                <Text style={styles.supportTableValue}>{getValue('contactPersonOrg') || 'Not specified'}</Text>
+              </View>
+              
+              <View style={styles.supportTableRow}>
+                <Text style={styles.supportTableLabel}>Contact number:</Text>
+                <Text style={styles.supportTableValue}>{getValue('contactNumberOrg') || 'Not specified'}</Text>
+              </View>
             </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>6. Informal Supports:</Text>
             
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Support 1:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('support1')}</Text>
-            </View>
-            
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Support 2:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('support2')}</Text>
-            </View>
-            
-            <View style={styles.longAnswer}>
-              <Text style={styles.longAnswerLabel}>Support 3:</Text>
-              <Text style={styles.longAnswerValue}>{getValue('support3')}</Text>
+            <View style={styles.table}>
+              {/* Table Header */}
+              <View style={styles.tableHeader}>
+                <Text style={styles.tableHeaderCell}>Informal Support</Text>
+                <Text style={styles.tableHeaderCell}>Role</Text>
+                <Text style={styles.tableHeaderCell}>Frequency</Text>
+              </View>
+              
+              {/* Table Rows */}
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCell}>{getValue('support1') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('role1') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('frequency1') || 'Not specified'}</Text>
+              </View>
+              
+              <View style={styles.tableRow}>
+                <Text style={styles.tableCell}>{getValue('support2') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('role2') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('frequency2') || 'Not specified'}</Text>
+              </View>
+              
+              <View style={styles.tableRowLast}>
+                <Text style={styles.tableCell}>{getValue('support3') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('role3') || 'Not specified'}</Text>
+                <Text style={styles.tableCell}>{getValue('frequency3') || 'Not specified'}</Text>
+              </View>
             </View>
           </View>
         </View>

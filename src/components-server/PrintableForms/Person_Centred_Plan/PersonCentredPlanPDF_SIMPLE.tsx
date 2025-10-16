@@ -13,25 +13,33 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 50,
-    paddingTop: 40,
-    paddingBottom: 20,
+    padding: 40,
+    paddingTop: 60,
+    paddingBottom: 40,
     fontFamily: 'Helvetica',
     fontSize: 11,
-    lineHeight: 1.4,
+    lineHeight: 1.5,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    paddingBottom: 20,
-    marginBottom: 30,
-    height: 80,
+    paddingBottom: 30,
+    marginBottom: 40,
+    height: 100,
   },
   headerLogo: {
-    width: 200,
-    height: 60,
+    width: 180,
+    height: 50,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000000',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   footer: {
     flexDirection: 'row',
@@ -52,52 +60,55 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 25,
     breakInside: 'avoid',
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 15,
     color: '#000000',
+    paddingBottom: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 10,
+    marginBottom: 12,
     alignItems: 'flex-start',
     breakInside: 'avoid',
-    gap: 10,
+    gap: 15,
   },
   label: {
-    width: 150,
+    width: 160,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 10,
     color: '#374151',
   },
   value: {
     flex: 1,
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
   },
   longAnswer: {
-    marginBottom: 15,
+    marginBottom: 18,
     breakInside: 'avoid',
   },
   longAnswerLabel: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 8,
     color: '#374151',
   },
   longAnswerValue: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
-    lineHeight: 1.4,
-    minHeight: 30,
-    padding: 8,
+    lineHeight: 1.5,
+    minHeight: 40,
+    padding: 12,
     backgroundColor: '#f9fafb',
     border: '1 solid #e5e7eb',
-    borderRadius: 4,
+    borderRadius: 6,
   },
 });
 
@@ -114,10 +125,29 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   settings,
   logoDataUrl,
 }) => {
+  // Debug logging to see what data we're getting
+  console.log('🔍 Person Centred Plan SIMPLE PDF - Form Data Keys:', Object.keys(formData || {}));
+  console.log('🔍 Person Centred Plan SIMPLE PDF - Form Data Sample:', {
+    respiratoryHistory: formData?.respiratoryHistory,
+    precautions: formData?.precautions,
+    companionCard: formData?.companionCard,
+    ambulanceCover: formData?.ambulanceCover,
+    healthConditions: formData?.healthConditions,
+  });
+  
+  // Check if all health fields have the same value
+  const healthFields = ['respiratoryHistory', 'precautions', 'companionCard', 'ambulanceCover', 'healthConditions'];
+  const healthValues = healthFields.map(field => formData?.[field]);
+  const allSame = healthValues.every(val => val === healthValues[0]);
+  console.log('🔍 Person Centred Plan SIMPLE PDF - All health fields same value?', allSame);
+  console.log('🔍 Person Centred Plan SIMPLE PDF - Health field values:', healthValues);
+
   // Simple getValue function
   const getValue = (key: string): string => {
     try {
-      return formData?.[key] || commonFieldsData?.[key] || '';
+      const value = formData?.[key] || commonFieldsData?.[key] || '';
+      console.log(`🔍 Person Centred Plan SIMPLE PDF - Getting value for ${key}:`, value);
+      return value;
     } catch {
       return '';
     }
@@ -146,25 +176,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.content}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PERSON CENTRED PLAN</Text>
-          </View>
-        </View>
-        
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
-          <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
-        </View>
-      </Page>
-
-      {/* Content Page */}
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header} fixed>
-          <Image src={logoDataUrl} style={styles.headerLogo} />
-        </View>
-        
-        <View style={styles.content}>
+          <Text style={styles.title}>Person Centred Plan</Text>
+          
           {/* Section 1: Personal Information */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>1. Personal Information:</Text>
@@ -337,8 +350,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.from_email || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centre_plan_form_id || ''}</Text>
           <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>
