@@ -14,9 +14,9 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 40,
-    paddingTop: 30,
-    paddingBottom: 15,
+    padding: 50,
+    paddingTop: 40,
+    paddingBottom: 20,
     fontFamily: 'Helvetica',
     fontSize: 11,
     lineHeight: 1.4,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   section: {
-    marginBottom: 15,
+    marginBottom: 25,
     breakInside: 'avoid',
   },
   sectionTitle: {
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 8,
     alignItems: 'flex-start',
     breakInside: 'avoid',
     gap: 10,
@@ -241,9 +241,13 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
   // Safe date formatting
   const formatDate = (dateString: string | undefined): string => {
-    if (!dateString) return new Date().toLocaleDateString();
+    if (!dateString) return '';
     try {
-      return new Date(dateString).toLocaleDateString();
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return String(dateString);
+      }
+      return date.toLocaleDateString();
     } catch {
       return String(dateString);
     }
@@ -431,6 +435,16 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
           {/* Section 7: Signatures */}
           <View style={styles.signatureSection}>
             <Text style={styles.sectionTitle}>7. Signatures:</Text>
+            
+            {/* Debug: Log signature date values */}
+            {(() => {
+              console.log('=== SIGNATURE DATES DEBUG ===');
+              console.log('supportWorkerSignatureDate:', getValue('supportWorkerSignatureDate'));
+              console.log('supervisorSignatureDate:', getValue('supervisorSignatureDate'));
+              console.log('Formatted supportWorkerDate:', formatDate(getValue('supportWorkerSignatureDate')));
+              console.log('Formatted supervisorDate:', formatDate(getValue('supervisorSignatureDate')));
+              return null;
+            })()}
             
             <View style={styles.signatureBlock}>
               <View style={styles.signatureItem}>

@@ -11,6 +11,7 @@ import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
+import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -138,6 +139,22 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           commonFieldsData: commonFields || {},
           settings: settings || {},
           logoDataUrl: logoDataUrl  // Pass directly to component
+        }
+        break;
+
+        case "person_centred_plan":
+        const logoDataUrlPCP = await encodeImageToBase64("/infinity_logo.png");
+        images = {
+          infinityLogo: logoDataUrlPCP,
+          infinityLogoDataUrl: logoDataUrlPCP
+        }
+
+        componentProps = {
+          formData,
+          images,
+          commonFieldsData: commonFields || {},
+          settings: settings || {},
+          logoDataUrl: logoDataUrlPCP  // Pass directly to component
         }
         break;
 
@@ -306,14 +323,20 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 </html>`;
 }
 
-// Generate PDF using @react-pdf/renderer (for emergency_drill)
+// Generate PDF using @react-pdf/renderer (for emergency_drill and person_centred_plan)
 async function generatePDFWithReactPDF(
   formData: any,
   commonFields: any,
   settings: any,
-  logoDataUrl: string
+  logoDataUrl: string,
+  formKey: string = 'emergency_drill'
 ): Promise<Buffer> {
-  const pdfDoc = React.createElement(EmergencyDrillPDF, {
+  // Choose the appropriate PDF component based on formKey
+  const PDFComponent = formKey === 'person_centred_plan' 
+    ? PersonCentredPlanPDF 
+    : EmergencyDrillPDF;
+  
+  const pdfDoc = React.createElement(PDFComponent, {
     formData,
     commonFieldsData: commonFields,
     settings,
@@ -384,11 +407,11 @@ export async function GET(
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;
 
-    // Use @react-pdf/renderer for emergency_drill, Playwright for others
-    if (form.formKey === 'emergency_drill') {
+    // Use @react-pdf/renderer for emergency_drill and person_centred_plan, Playwright for others
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan') {
       console.time('⏱️ @react-pdf/renderer PDF Generation');
       const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
-      pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl);
+      pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl, form.formKey);
       console.timeEnd('⏱️ @react-pdf/renderer PDF Generation');
     } else {
       // Original Playwright approach for other forms
