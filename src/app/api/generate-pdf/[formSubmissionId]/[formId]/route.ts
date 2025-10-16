@@ -11,7 +11,7 @@ import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
-import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF";
+import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_WITH_COVER";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -393,7 +393,7 @@ export async function GET(
       console.warn(`No common fields found for client ${clientId}`);
     }
 
-    // ✅ Fetch Form specific settings
+    // ✅ Fetch Form specific settings directly from database
     const rawSettings = await prisma.appSettings.findMany({
       where: { isActive: true },
       select: { key: true, value: true },
@@ -403,6 +403,9 @@ export async function GET(
     rawSettings.forEach(setting => {
       settings[setting.key] = setting.value;
     });
+    
+    console.log('📋 Settings from Database:', settings);
+    console.log('🔑 Available Settings Keys:', Object.keys(settings));
 
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;

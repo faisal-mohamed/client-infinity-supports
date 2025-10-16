@@ -12,24 +12,17 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
   return (
     <div className="mt-auto pt-4 border-t border-gray-300">
       {/* Simplified footer content */}
-      <div className="flex justify-between items-center text-xs text-blue-800">
+      <div className="flex justify-between items-center text-xs text-gray-600">
         <div>
-          <a
-            className="underline"
-            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {settings?.company_website || 'www.infinitysupportswa.org'}
-          </a>
+          <span>{settings?.from_email || ''}</span>
         </div>
         
         <div className="text-center">
-          <span>{settings?.emergency_drill || 'ED-001'}</span>
+          <span>{settings?.emergency_drill || ''}</span>
         </div>
         
         <div className="text-right">
-          <span>Date of Report: {settings?.review_date || new Date().toLocaleDateString()}</span>
+          <span>Date of Report: {settings?.review_date || ''}</span>
         </div>
       </div>
     </div>

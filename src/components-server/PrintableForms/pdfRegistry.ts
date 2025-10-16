@@ -3,7 +3,7 @@ import { ComponentType } from 'react';
 // PDF-specific form components
 import ClientIntakev2 from './ClientIntakev2_FIXED';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
-import PersonCentredPlan from './Person_Centred_Plan/page_FIXED'; // Assuming this is the correct import path
+import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
 import ParticipantRiskAssessment from './participant-risk-assessment/page_FIXED'; // Assuming this is the correct import path
 import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict form layout

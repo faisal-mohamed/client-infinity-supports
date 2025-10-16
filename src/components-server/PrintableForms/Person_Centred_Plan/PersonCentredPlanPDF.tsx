@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 10,
     alignItems: 'flex-start',
     breakInside: 'avoid',
     gap: 10,
@@ -624,6 +624,78 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     );
   };
 
+  // Render informal supports list (simple field rows)
+  const renderInformalSupportsList = () => {
+    console.log('=== RENDERING INFORMAL SUPPORTS LIST ===');
+    console.log('All formData keys:', Object.keys(formData || {}));
+    
+    let supports = [];
+    
+    // First, try to find individual informal support fields (support1, support2, etc.)
+    const individualSupports = [];
+    for (let i = 1; i <= 10; i++) {
+      const supportKey = `support${i}`;
+      
+      if (formData?.[supportKey] && formData[supportKey].trim()) {
+        individualSupports.push({
+          support: formData[supportKey] || '',
+          role: formData[`role${i}`] || 'Not specified',
+          frequency: formData[`frequency${i}`] || 'Not specified'
+        });
+        console.log(`Found individual support ${i}:`, formData[supportKey]);
+      }
+    }
+    
+    // If we found individual supports, use them
+    if (individualSupports.length > 0) {
+      console.log(`Found ${individualSupports.length} individual supports:`, individualSupports);
+      supports = individualSupports;
+    } else {
+      // Try different possible field names for informal supports data
+      const supportsData = getValue('informalSupports') || getValue('informalSupport') || getValue('myInformalSupports') || getValue('supportData');
+      
+      if (supportsData) {
+        try {
+          if (typeof supportsData === 'string') {
+            supports = JSON.parse(supportsData);
+          } else if (Array.isArray(supportsData)) {
+            supports = supportsData;
+          }
+        } catch (error) {
+          console.warn('Error parsing informal supports data:', error);
+          supports = [];
+        }
+      }
+    }
+    
+    if (!supports || supports.length === 0) {
+      return (
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Informal Supports:</Text>
+          <Text style={styles.value}>No informal supports recorded</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        {supports.map((support: any, index: number) => (
+          <View key={index} style={styles.section}>
+            <Text style={styles.bulletLabel}>({index + 1}) {support.support || support.name || 'Support'}:</Text>
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Role:</Text>
+              <Text style={styles.value}>{support.role || 'Not specified'}</Text>
+            </View>
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Frequency:</Text>
+              <Text style={styles.value}>{support.frequency || 'Not specified'}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   // Render informal supports table
   const renderInformalSupportsTable = () => {
     console.log('=== RENDERING INFORMAL SUPPORTS TABLE ===');
@@ -872,49 +944,36 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>5. Support Information:</Text>
             
-            {/* Debug: Log support information data */}
-            {(() => {
-              console.log('=== SUPPORT INFORMATION DEBUG ===');
-              console.log('pbsSupportPlanIncluded:', getValue('pbsSupportPlanIncluded'));
-              console.log('restrictivePractices:', getValue('restrictivePractices'));
-              console.log('organizationName:', getValue('organizationName'));
-              console.log('contactPersonOrg:', getValue('contactPersonOrg'));
-              console.log('contactNumberOrg:', getValue('contactNumberOrg'));
-              return null;
-            })()}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>PBS Support Plan included?</Text>
+              <Text style={styles.value}>{getValue('pbsSupportPlanIncluded') || 'No'}</Text>
+            </View>
             
-            <View style={styles.supportTable}>
-              <View style={styles.supportRow}>
-                <Text style={styles.supportLabel}>PBS Support Plan included?</Text>
-                <Text style={styles.supportValue}>{getValue('pbsSupportPlanIncluded') || 'No'}</Text>
-              </View>
-              
-              <View style={styles.supportRow}>
-                <Text style={styles.supportLabel}>Any Restrictive Practices?</Text>
-                <Text style={styles.supportValue}>{getValue('restrictivePractices') || 'No'}</Text>
-              </View>
-              
-              <View style={styles.supportRow}>
-                <Text style={styles.supportLabel}>Name of organization:</Text>
-                <Text style={styles.supportValue}>{getValue('organizationName') || 'Not specified'}</Text>
-              </View>
-              
-              <View style={styles.supportRow}>
-                <Text style={styles.supportLabel}>Contact person:</Text>
-                <Text style={styles.supportValue}>{getValue('contactPersonOrg') || 'Not specified'}</Text>
-              </View>
-              
-              <View style={styles.supportRow}>
-                <Text style={styles.supportLabel}>Contact number:</Text>
-                <Text style={styles.supportValue}>{getValue('contactNumberOrg') || 'Not specified'}</Text>
-              </View>
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Any Restrictive Practices?</Text>
+              <Text style={styles.value}>{getValue('restrictivePractices') || 'No'}</Text>
+            </View>
+            
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Name of organization:</Text>
+              <Text style={styles.value}>{getValue('organizationName') || 'Not specified'}</Text>
+            </View>
+            
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Contact person:</Text>
+              <Text style={styles.value}>{getValue('contactPersonOrg') || 'Not specified'}</Text>
+            </View>
+            
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Contact number:</Text>
+              <Text style={styles.value}>{getValue('contactNumberOrg') || 'Not specified'}</Text>
             </View>
           </View>
 
           {/* Section 6: Informal Supports */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>6. Informal Supports:</Text>
-            {renderInformalSupportsTable()}
+            {renderInformalSupportsList()}
           </View>
 
         </View>

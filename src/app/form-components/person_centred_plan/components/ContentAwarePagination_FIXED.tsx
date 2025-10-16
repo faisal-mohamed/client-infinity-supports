@@ -14,6 +14,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
   settings,
   images
 }) => {
+  // Debug logging for view form
+  console.log('🔍 Person Centred Plan ContentAwarePagination - Settings received:', settings);
+  console.log('🔍 Person Centred Plan ContentAwarePagination - Email:', settings?.from_email);
+  console.log('🔍 Person Centred Plan ContentAwarePagination - Form ID:', settings?.person_centre_plan_form_id);
+  console.log('🔍 Person Centred Plan ContentAwarePagination - Date:', settings?.review_date);
+  
   // Get value helper function
   const getValue = (key: string) => {
     return formData?.[key] || commonFieldsData?.[key] || '';
@@ -960,15 +966,13 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           <div className="mt-auto pt-4 pb-[20mm] px-[20mm]" style={{ minHeight: '60px' }}>
             <div className="flex justify-between items-center text-xs text-gray-700 w-full max-w-full overflow-hidden">
               <div className="flex-shrink-0 max-w-[30%] overflow-hidden">
-                <a className="text-blue-600 underline truncate block" href="https://www.infinitysupportswa.org" target="_blank" rel="noopener noreferrer">
-                  www.infinitysupportswa.org
-                </a>
+                <span className="truncate block">{settings?.from_email || ''}</span>
               </div>
               <div className="text-center flex-shrink-0 px-2">
-                <span>PCP-001</span>
+                <span>{settings?.person_centre_plan_form_id || ''}</span>
               </div>
               <div className="text-right flex-shrink-0 max-w-[30%] overflow-hidden">
-                <span className="truncate block">Date of Report: {new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+                <span className="truncate block">Date of Report: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</span>
               </div>
             </div>
           </div>

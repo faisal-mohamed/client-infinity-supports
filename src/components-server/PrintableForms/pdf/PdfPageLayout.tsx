@@ -6,9 +6,20 @@ export default function PdfPageLayout({
   logoDataUrl, footerData, children,
 }: {
   logoDataUrl: string;
-  footerData: { documentRef?: string; date?: string };
+  footerData: { 
+    documentRef?: string; 
+    date?: string;
+    email?: string;
+    formId?: string;
+  };
   children: React.ReactNode;
 }) {
+  // Debug logging for PdfPageLayout
+  console.log('🔍 PdfPageLayout - Footer data received:', footerData);
+  console.log('🔍 PdfPageLayout - Email:', footerData?.email);
+  console.log('🔍 PdfPageLayout - Form ID:', footerData?.formId);
+  console.log('🔍 PdfPageLayout - Date:', footerData?.date);
+  
   const formattedDate = formatDateForPDF(footerData?.date);
   
   return (
@@ -20,8 +31,8 @@ export default function PdfPageLayout({
 
       {/* fixed footer for ALL pages */}
       <footer className="pdf-footer-fixed" aria-hidden="true">
-        <span>www.infinitysupportswa.org</span>
-        <span>{footerData?.documentRef || "ED-001"}</span>
+        <span>{footerData?.email || ''}</span>
+        <span>{footerData?.formId || ''}</span>
         <span>Date of Report: {formattedDate}</span>
       </footer>
 

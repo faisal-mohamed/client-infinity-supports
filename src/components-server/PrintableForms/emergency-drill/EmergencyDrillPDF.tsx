@@ -253,6 +253,41 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
     }
   };
 
+  // Get report date with fallback to current date
+  const getReportDate = (): string => {
+    // Try multiple possible settings keys
+    const dateValue = settings?.review_date || settings?.reviewDate || settings?.report_date || settings?.reportDate;
+    
+    console.log('🔍 Emergency Drill - Settings keys:', Object.keys(settings || {}));
+    console.log('🔍 Emergency Drill - Date value found:', dateValue);
+    
+    if (dateValue) {
+      const formatted = formatDate(dateValue);
+      if (formatted) {
+        console.log('✅ Emergency Drill - Using settings date:', formatted);
+        return formatted;
+      }
+    }
+    
+    // Keep empty if no date found (no fallback)
+    console.log('⚠️ Emergency Drill - No date found in settings, keeping empty');
+    return '';
+  };
+
+  // Get form ID from settings
+  const getFormId = (): string => {
+    const formId = settings?.emergency_drill || settings?.emergency_drill_form_id;
+    console.log('🔍 Emergency Drill - Form ID found:', formId);
+    return formId || '';
+  };
+
+  // Get email from settings
+  const getEmail = (): string => {
+    const email = settings?.from_email || settings?.email;
+    console.log('🔍 Emergency Drill - Email found:', email);
+    return email || '';
+  };
+
   // Render checkbox component
   const renderCheckbox = (isChecked: boolean) => (
     <View style={isChecked ? styles.checkboxChecked : styles.checkbox} />
@@ -476,9 +511,9 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
         {/* Footer - Fixed at bottom of every page */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.emergency_drill || 'ED-001'}</Text>
-          <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>
       </Page>
     </Document>
