@@ -51,12 +51,13 @@ export async function GET() {
 
     // Generate PDF
     console.time('⏱️ PDF Generation Test');
-    const pdfDoc = React.createElement(EmergencyDrillPDF, {
-      formData: sampleFormData,
-      commonFieldsData: sampleCommonFields,
-      settings: sampleSettings,
-      logoDataUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkY2MzYzIi8+Cjx0ZXh0IHg9IjMwIiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW5maW5pdHk8L3RleHQ+Cjwvc3ZnPgo="
-    });
+    const pdfDoc = (<EmergencyDrillPDF
+      formData={sampleFormData}
+      commonFieldsData={sampleCommonFields}
+      settings={sampleSettings}
+      logoDataUrl="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjYwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjRkY2MzYzIi8+Cjx0ZXh0IHg9IjMwIiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SW5maW5pdHk8L3RleHQ+Cjwvc3ZnPgo="
+      />
+    );
 
     const pdfBuffer = await renderToBuffer(pdfDoc);
     console.timeEnd('⏱️ PDF Generation Test');

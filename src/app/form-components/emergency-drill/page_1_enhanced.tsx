@@ -1,7 +1,7 @@
 import React from 'react';
 import EnhancedA4Page from './components/EnhancedA4Page';
 import FullContentField from './components/FullContentField';
-import DebugField from './components/DebugField';
+
 
 const Page1Enhanced: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
   const commonFieldMapping: Record<string, string> = {

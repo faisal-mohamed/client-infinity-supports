@@ -111,7 +111,7 @@ export const TableComponent: React.FC<TableComponentProps> = ({
               key={column.key}
               style={[
                 tableStyles.tableHeaderCell,
-                index === columns.length - 1 && { borderRight: 'none' }
+                ...(index === columns.length - 1 ? [{ borderRight: 'none' }] : [])
               ]}
             >
               {column.label}
@@ -127,7 +127,7 @@ export const TableComponent: React.FC<TableComponentProps> = ({
               key={column.key}
               style={[
                 column.type === 'textarea' ? tableStyles.tableCellTextarea : tableStyles.tableCell,
-                colIndex === columns.length - 1 && { borderRight: 'none' }
+                ...(colIndex === columns.length - 1 ? [{ borderRight: 'none' }] : [])
               ]}
             >
               {String(row[column.key] || '')}

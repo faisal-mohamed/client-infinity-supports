@@ -66,6 +66,9 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       key: string;
       label: string;
       type: string;
+      options?: string[];
+      description?: string;
+      note?: string;
     }> = [];
     
       if (section.id === 'personalInfo') {

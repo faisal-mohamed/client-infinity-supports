@@ -50,7 +50,7 @@ export async function GET(
     });
 
     const settingsObj = settings.reduce((acc, setting) => {
-      acc[setting.key] = setting.value;
+      acc[setting.key] = setting.value || "";
       return acc;
     }, {} as Record<string, string>);
 
@@ -58,12 +58,14 @@ export async function GET(
     console.time('⏱️ @react-pdf/renderer PDF Preview Generation');
     const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
     
-    const pdfDoc = React.createElement(EmergencyDrillPDF, {
-      formData: formSubmission.data,
-      commonFieldsData: commonFields,
-      settings: settingsObj,
-      logoDataUrl
-    });
+    const pdfDoc = (
+      <EmergencyDrillPDF
+        formData={formSubmission.data}
+        commonFieldsData={commonFields}
+        settings={settingsObj}
+        logoDataUrl={logoDataUrl}
+      />
+    );
 
     const pdfBuffer = await renderToBuffer(pdfDoc);
     console.timeEnd('⏱️ @react-pdf/renderer PDF Preview Generation');

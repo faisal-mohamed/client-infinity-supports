@@ -56,6 +56,27 @@ const eslintConfig = [
       "@typescript-eslint/no-unsafe-function-type": "off",
     },
   },
+
+  // Disable style warnings for PDF components (react-pdf/renderer requires inline styles)
+  {
+    files: [
+      "**/PrintableForms/**/*.tsx",
+      "**/PrintableForms/**/*.ts",
+      "**/form-components/**/page_*.tsx",
+      "**/components-server/**/*.tsx",
+      "**/api/**/route.tsx", // API routes that generate PDFs
+      "**/api/**/route.ts",
+    ],
+    rules: {
+      "@next/next/no-css-tags": "off",
+      "@next/next/no-styled-jsx-in-document": "off",
+      "@next/next/no-sync-scripts": "off",
+      "react/forbid-dom-props": "off",
+      "react/forbid-component-props": "off",
+      "jsx-a11y/alt-text": "off", // react-pdf/renderer Image doesn't support alt prop
+      "react/no-unknown-property": "off", // Allow style prop for PDF components
+    },
+  },
 ];
 
 export default eslintConfig;

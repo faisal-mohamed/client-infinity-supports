@@ -78,12 +78,13 @@ export async function GET() {
   const logoDataUrl = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTAwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjUwIiB5PSIyNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMzc0MTUxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbmZpbml0eSBMb2dvPC90ZXh0Pgo8L3N2Zz4K";
 
   try {
-    const pdfDoc = React.createElement(PersonCentredPlanPDF, {
-      formData: sampleFormData,
-      commonFieldsData: sampleCommonFields,
-      settings: sampleSettings,
-      logoDataUrl: logoDataUrl,
-    });
+    const pdfDoc = (<PersonCentredPlanPDF
+      formData={sampleFormData}
+      commonFieldsData={sampleCommonFields}
+      settings={sampleSettings}
+      logoDataUrl={logoDataUrl}
+      />
+    );
 
     const pdfBuffer = await renderToBuffer(pdfDoc);
     const base64PDF = pdfBuffer.toString("base64");

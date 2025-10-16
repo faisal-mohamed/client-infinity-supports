@@ -69,7 +69,7 @@ export async function GET(
       assignment,
       form: assignment.form,
       client: assignment.client,
-      commonFields: assignment.client.commonFields[0] || null,
+      commonFields: assignment.client.commonFields || null,
       formData: formSubmission?.data || {},
       isSubmitted: formSubmission?.isSubmitted || false,
       navigation: {

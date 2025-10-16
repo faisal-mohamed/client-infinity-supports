@@ -232,7 +232,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     console.log('===============================');
     
     let totalIssues = 0;
-    const issues = [];
+    const issues: Array<{field: string, contentLength: number, estimatedHeight: number, status: string}> = [];
     
     // Check all form fields for potential cutoff
     const allFields = [
@@ -316,6 +316,10 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     // SIMPLIFIED APPROACH: Let CSS handle pagination naturally
     // We'll create logical sections and let CSS page-break properties handle the rest
     const sectionsWithTitleShown = new Set(); // Track which sections have shown their title
+    const pages: any[] = [];
+    let currentPage: any[] = [];
+    let currentPageHeight = 0;
+    const maxPageHeight = 791; // A4 page height in pixels minus margins
     
     // Define all sections in order
     const allSections = [
@@ -342,7 +346,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       }
 
       // Get fields for this section
-      let sectionFields = [];
+      let sectionFields: Array<{key: string, label: string, type: string, height?: string, options?: string[]}> = [];
       
       if (section.id === 'personalInfo') {
         sectionFields = [
@@ -719,7 +723,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             images={images}
           >
             <div className="space-y-5">
-              {pageFields.map((pageField, fieldIndex) => {
+              {pageFields.map((pageField: any, fieldIndex: number) => {
                 const { section, field, showSectionTitle, questionNumber } = pageField;
                 
                 return (
