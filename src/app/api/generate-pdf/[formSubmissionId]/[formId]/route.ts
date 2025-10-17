@@ -12,6 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_WITH_COVER";
+import ClientIntakev2 from "@/components-server/PrintableForms/ClientIntakev2";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -37,11 +38,11 @@ async function encodeImageToBase64(imagePath: string): Promise<string> {
   }
 }
 
-async function generateHTML(formData: any,  formKey: string, commonFields: any, settings : any) {
+async function generateHTML(formData: any, formKey: string, commonFields: any, settings: any) {
   const ReactDOMServer = await import("react-dom/server");
   const cssPath = path.resolve(process.cwd(), "public/tailwind-pdf.css");
   const css = fs.readFileSync(cssPath, "utf8");
-  
+
   // Add emergency drill specific CSS
   let emergencyDrillCSS = '';
   if (formKey === 'emergency_drill') {
@@ -56,15 +57,15 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
   try {
     switch (formKey) {
       case "client_intake_form":
-         images = {
+        images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
         };
 
-        componentProps = { 
+        componentProps = {
           formKey: 'client_intake_form',           // ✅ Required prop
           formData,                               // ✅ Form submission data
-          commonFields: commonFields || {} , 
-          images: images || {} ,     // ✅ Client's common fields data
+          commonFields: commonFields || {},
+          images: images || {},     // ✅ Client's common fields data
           settings: settings || {}
 
         };
@@ -76,11 +77,11 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           riskMatrix: await encodeImageToBase64("/home_risk_assessment.png")
         };
 
-        componentProps = { 
-          formData, 
+        componentProps = {
+          formData,
           images,
-          commonFields: commonFields || {} ,
-          settings: settings       
+          commonFields: commonFields || {},
+          settings: settings
         };
         break;
 
@@ -97,7 +98,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           settings: settings || {}
         };
         break;
-        case "sa_delivery_of_supports":
+      case "sa_delivery_of_supports":
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
         };
@@ -110,7 +111,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         };
         break;
 
-        case "participant_risk_assessment":
+      case "participant_risk_assessment":
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
           emergencyNo: await encodeImageToBase64("/participant_risk_assessment_emergency.png"),
@@ -126,7 +127,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         break;
 
-        case "emergency_drill":
+      case "emergency_drill":
         const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
         images = {
           infinityLogo: logoDataUrl,
@@ -142,7 +143,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         }
         break;
 
-        case "person_centred_plan":
+      case "person_centred_plan":
         const logoDataUrlPCP = await encodeImageToBase64("/infinity_logo.png");
         images = {
           infinityLogo: logoDataUrlPCP,
@@ -158,12 +159,12 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         }
         break;
 
-        case "individual_risk_assessment":
+      case "individual_risk_assessment":
         images = {
           infinityLogo: await encodeImageToBase64("/infinity_logo.png"),
           riskMatrix: await encodeImageToBase64("/individual-risk-assessment.png")
         };
-          componentProps = {
+        componentProps = {
           formData,
           images,
           commonFieldsData: commonFields || {},
@@ -172,7 +173,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         break;
 
-        case "welcome_form" : 
+      case "welcome_form":
         images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
           p1_4: await encodeImageToBase64('/welcomeimg/p1-4.png'),
@@ -186,7 +187,7 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         }
 
-          componentProps = {
+        componentProps = {
           formData,
           images,
           commonFieldsData: commonFields || {},
@@ -195,13 +196,13 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
 
         break;
 
-        case "support_action_plan": 
-        images =  {
+      case "support_action_plan":
+        images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
 
         }
 
-             componentProps = {
+        componentProps = {
           formData,
           images,
           commonFieldsData: commonFields || {},
@@ -211,8 +212,8 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
         break;
 
 
-        case "multi_disciplinary_meeting": 
-        images  =  {
+      case "multi_disciplinary_meeting":
+        images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
 
         }
@@ -221,45 +222,45 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
           formData,
           images,
           settings: settings || {},
-          commonFieldsData: commonFields ||  {},
+          commonFieldsData: commonFields || {},
         }
         break;
 
 
-      case "schedule_of_supports" : 
-      images  =  {
+      case "schedule_of_supports":
+        images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
 
         }
 
-      componentProps = {
-        formData,
-        images,
-        settings: settings || {},
-        commonFieldsData : commonFields || {}
-      }
+        componentProps = {
+          formData,
+          images,
+          settings: settings || {},
+          commonFieldsData: commonFields || {}
+        }
 
-      break;
+        break;
 
-      case "sa_support_coordination": 
-      images  =  {
+      case "sa_support_coordination":
+        images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
 
         }
 
-      componentProps = {
-        formData,
-        images,
-        settings: settings || {},
-        commonFieldsData : commonFields || {}
-      }
+        componentProps = {
+          formData,
+          images,
+          settings: settings || {},
+          commonFieldsData: commonFields || {}
+        }
 
-      break;
-      
+        break;
+
 
       default:
-        componentProps = { 
-          formData, 
+        componentProps = {
+          formData,
           commonFieldsData: commonFields || {},
           settings: settings || {},
           images
@@ -271,8 +272,8 @@ async function generateHTML(formData: any,  formKey: string, commonFields: any, 
   } catch (error) {
     console.error(`Error preparing form ${formKey}:`, error);
     PDFComponent = getPDFComponent("client_intake_form");
-    componentProps = { 
-      formData, 
+    componentProps = {
+      formData,
       commonFields: commonFields || {}            // ✅ Also in fallback
     };
   }
@@ -332,17 +333,22 @@ async function generatePDFWithReactPDF(
   formKey: string = 'emergency_drill'
 ): Promise<Buffer> {
   // Choose the appropriate PDF component based on formKey
-  const PDFComponent = formKey === 'person_centred_plan' 
-    ? PersonCentredPlanPDF 
-    : EmergencyDrillPDF;
-  
+  let PDFComponent;
+  if (formKey === 'person_centred_plan') {
+    PDFComponent = PersonCentredPlanPDF;
+  } else if (formKey === 'client_intake_form') {
+    PDFComponent = ClientIntakev2;
+  } else {
+    PDFComponent = EmergencyDrillPDF;
+  }
+
   const pdfDoc = React.createElement(PDFComponent, {
     formData,
     commonFieldsData: commonFields,
     settings,
     logoDataUrl
   }) as any;
-  
+
   const pdfBuffer = await renderToBuffer(pdfDoc);
   return pdfBuffer;
 }
@@ -403,15 +409,15 @@ export async function GET(
     rawSettings.forEach(setting => {
       settings[setting.key] = setting.value;
     });
-    
+
     console.log('📋 Settings from Database:', settings);
     console.log('🔑 Available Settings Keys:', Object.keys(settings));
 
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;
 
-    // Use @react-pdf/renderer for emergency_drill and person_centred_plan, Playwright for others
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan') {
+    // Use @react-pdf/renderer for emergency_drill, person_centred_plan, and client_intake_form
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form') {
       console.time('⏱️ @react-pdf/renderer PDF Generation');
       const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
       pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl, form.formKey);
@@ -427,7 +433,7 @@ export async function GET(
       }
 
       console.time('⏱️ Browser Launch');
-      const browser = await chromium.launch({ 
+      const browser = await chromium.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
       });

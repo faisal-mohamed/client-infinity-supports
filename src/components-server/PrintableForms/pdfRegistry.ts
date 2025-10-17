@@ -1,7 +1,7 @@
 import { ComponentType } from 'react';
 
 // PDF-specific form components
-import ClientIntakev2 from './ClientIntakev2_FIXED';
+import ClientIntakev2 from './ClientIntakev2';
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
@@ -31,7 +31,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: 'home_visit_risk_assessment',
-    component: HomeVisitRiskAssessment, 
+    component: HomeVisitRiskAssessment,
     name: 'Home Visit Risk Assessment Form',
   },
   {
@@ -84,18 +84,18 @@ const pdfFormRegistry: PDFFormComponent[] = [
     name: "SASupportCoordination",
     component: SASupportCoordination
   }
-  
+
 ];
 
 // Helper function to get PDF component by form key
 export const getPDFComponent = (formKey: string): ComponentType<any> => {
   const formConfig = pdfFormRegistry.find(config => config.formKey === formKey);
-  
+
   if (!formConfig) {
     console.warn(`PDF component not found for form key: ${formKey}, falling back to ClientIntakev2`);
     return ClientIntakev2; // Fallback to default component
   }
-  
+
   return formConfig.component;
 };
 

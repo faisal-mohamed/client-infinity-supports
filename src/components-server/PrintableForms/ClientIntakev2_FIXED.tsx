@@ -12,11 +12,11 @@ export const A4_PDF_TYPOGRAPHY = {
   input: 'text-xs font-normal font-montserrat leading-relaxed',           // 12px - Input content
   small: 'text-xs font-normal font-montserrat leading-relaxed',           // 10px - Fine print
   footer: 'text-xs font-normal font-montserrat leading-normal',           // 10px - Footer content
-  
+
   // Table specific
   tableHeader: 'text-xs font-bold font-montserrat leading-tight',         // 12px - Table headers
   tableCell: 'text-xs font-normal font-montserrat leading-relaxed',       // 12px - Table content
-  
+
   // Signature section
   signatureLabel: 'text-xs font-semibold font-montserrat leading-relaxed', // 12px - Signature labels
   signatureContent: 'text-xs font-bold font-montserrat leading-relaxed',   // 12px - Signature content
@@ -239,7 +239,7 @@ const formSchema: any = {
               "key": "interpreter"
             },
             "language": { "label": "Language", "key": "language" },
-            "culturalValues": { "label": "Cultural values/ beliefs or assumptions", "key":"culturalValues" },
+            "culturalValues": { "label": "Cultural values/ beliefs or assumptions", "key": "culturalValues" },
             "culturalBehaviours": { "label": "Cultural behaviours", "key": "culturalBehaviours" },
             "writtenCommunication": { "label": "Written communication/literacy", "key": "writtenCommunication" },
             "countryOfBirth": { "label": "Country of birth", "key": "countryOfBirth" }
@@ -491,19 +491,19 @@ const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: an
       <div key={opt} className="flex items-center space-x-1">
         <span className={`w-4 h-4 border border-black flex justify-center items-center ${A4_PDF_TYPOGRAPHY.small}`}>
           {selected?.includes(opt) ? (<svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="inline-block"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>) : ""}
         </span>
         <span className={A4_PDF_TYPOGRAPHY.body}>{opt}</span>
       </div>
@@ -511,20 +511,20 @@ const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: an
     {otherValue && (
       <div className="flex items-center space-x-1">
         <span className={`w-4 h-4 border border-black flex justify-center items-center ${A4_PDF_TYPOGRAPHY.small}`}>
-            <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="inline-block"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         </span>
         <span className={A4_PDF_TYPOGRAPHY.body}>{otherValue}</span>
       </div>
@@ -565,7 +565,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
             <tbody style={{ height: "100%" }}>
               {pageSchema.fields.map((field: any, idx: any) => {
                 const value = getFieldValue(field.key, formData, commonFields);
-                
+
                 if (field.type === "sectionHeader") {
                   return (
                     <tr key={idx} className="bg-gray-300 font-semibold">
@@ -575,7 +575,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </tr>
                   );
                 }
-                
+
                 if (field.type === "textarea") {
                   return (
                     <tr key={idx}>
@@ -589,7 +589,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </tr>
                   );
                 }
-                
+
                 if (field.type === "checkboxGroup") {
                   return (
                     <tr key={idx}>
@@ -609,11 +609,11 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </tr>
                   );
                 }
-                
+
                 return (
                   <tr key={idx}>
-                    <td 
-                      className={`border border-black px-1 py-0.5 font-semibold ${A4_PDF_TYPOGRAPHY.label}`} 
+                    <td
+                      className={`border border-black px-1 py-0.5 font-semibold ${A4_PDF_TYPOGRAPHY.label}`}
                       style={{ width: field.width || "auto" }}
                     >
                       {field.label}
@@ -648,12 +648,12 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
         }}
       >
         <div className="flex justify-center py-4 shrink-0">
-          <img 
-            alt={pageSchema.logo.alt} 
-            height={pageSchema.logo.height} 
-            src={images.infinityLogo} 
-            width={pageSchema.logo.width} 
-            className="object-contain" 
+          <img
+            alt={pageSchema.logo.alt}
+            height={pageSchema.logo.height}
+            src={images.infinityLogo}
+            width={pageSchema.logo.width}
+            className="object-contain"
           />
         </div><br /><br />
         <div className="px-0 flex-1 flex flex-col">
@@ -661,12 +661,12 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
             <tbody>
               {pageSchema.fields.map((field: any, idx: any) => {
                 const value = getFieldValue(field.key, formData, commonFields);
-                
+
                 if (field.type === "sectionHeader") {
                   return (
                     <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold`}>
-                      <td 
-                        className={`border border-black px-2 py-1 ${A4_PDF_TYPOGRAPHY.sectionHeader}`} 
+                      <td
+                        className={`border border-black px-2 py-1 ${A4_PDF_TYPOGRAPHY.sectionHeader}`}
                         colSpan={field.colSpan || 2}
                       >
                         {field.label}
@@ -674,13 +674,13 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </tr>
                   );
                 }
-                
+
                 if (field.type === "textarea") {
                   return (
                     <tr key={idx}>
-                      <td 
-                        className={`border border-black align-top p-2 ${A4_PDF_TYPOGRAPHY.body}`} 
-                        colSpan={field.colSpan || 2} 
+                      <td
+                        className={`border border-black align-top p-2 ${A4_PDF_TYPOGRAPHY.body}`}
+                        colSpan={field.colSpan || 2}
                         style={{ height: field.height || 256 }}
                       >
                         {value}
@@ -688,32 +688,32 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </tr>
                   );
                 }
-                
+
                 if (field.type === "checkboxGroup") {
                   return (
                     <tr key={idx}>
-                      <td 
-                        className={`border border-black px-2 py-1 font-semibold ${A4_PDF_TYPOGRAPHY.label}`} 
-                        style={{ width: field.width || "auto" }} 
+                      <td
+                        className={`border border-black px-2 py-1 font-semibold ${A4_PDF_TYPOGRAPHY.label}`}
+                        style={{ width: field.width || "auto" }}
                         colSpan={field.colSpan || 1}
                       >
                         {field.label}
                       </td>
                       <td className="border border-black px-2 py-1">
                         {displayCheckboxGroup(
-                          field.options, 
-                          value, 
+                          field.options,
+                          value,
                           field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : ""
                         )}
                       </td>
                     </tr>
                   );
                 }
-                
+
                 return (
                   <tr key={idx}>
-                    <td 
-                      className={`border border-black px-2 py-1 font-semibold ${A4_PDF_TYPOGRAPHY.label}`} 
+                    <td
+                      className={`border border-black px-2 py-1 font-semibold ${A4_PDF_TYPOGRAPHY.label}`}
                       style={{ width: field.width || "auto" }}
                     >
                       {field.label}
@@ -743,90 +743,90 @@ const extractPersonalSituationData = (fields: any, formData: any) => {
 
 const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
   const pageSchema = formSchema.schema.allAboutMeSchema;
-  
+
   const footer = <StandardFooter settings={settings} />;
-  
+
   const renderPersonalSituation = (psSchema: any, psData: any = {}) => (
     <div className="space-y-1">
       <div className={A4_PDF_TYPOGRAPHY.body}>
         <span className={`${A4_PDF_TYPOGRAPHY.label} font-bold`}>{psSchema.barriers.label}</span>
         <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex justify-center">
           {psData.barriers === "Yes" ? (
-              <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="black"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
           ) : ""}
         </span>
         {psSchema.barriers.options[0]}
         <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex justify-center">
-          {psData.barriers === "No" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+          {psData.barriers === "No" ? (<svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="inline-block"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>) : ""}
         </span>
         {psSchema.barriers.options[1]}
         <span className="ml-2">{psSchema.barriers.followUp}</span>
       </div>
-      
+
       <div className={A4_PDF_TYPOGRAPHY.body}>
         {psSchema.interpreter.label}
         <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex justify-center">
-          {psData.interpreter === "Yes" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+          {psData.interpreter === "Yes" ? (<svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="inline-block"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>) : ""}
         </span>
         {psSchema.interpreter.options[0]}
         <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex justify-center">
-          {psData.interpreter === "No" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+          {psData.interpreter === "No" ? (<svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="inline-block"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>) : ""}
         </span>
         {psSchema.interpreter.options[1]}
       </div>
-      
+
       <div className={A4_PDF_TYPOGRAPHY.body}>
         <strong>{psSchema.language.label}:</strong> {psData.language || ""}
       </div>
@@ -857,15 +857,15 @@ const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
       >
         {/* Header */}
         <div className="flex justify-center py-4 shrink-0">
-          <img 
-            alt={pageSchema.logo.alt} 
-            height={pageSchema.logo.height} 
-            src={images.infinityLogo} 
-            width={pageSchema.logo.width} 
-            className="object-contain" 
+          <img
+            alt={pageSchema.logo.alt}
+            height={pageSchema.logo.height}
+            src={images.infinityLogo}
+            width={pageSchema.logo.width}
+            className="object-contain"
           />
         </div> <br /><br />
-        
+
         {/* Main content */}
         <div className="flex-1 min-h-0 flex flex-col">
           <table className="w-full h-full border border-black border-collapse" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
@@ -945,20 +945,20 @@ const renderCheckboxList = (options: any, selected: any[] = [], otherValue = "")
       <li key={opt} className="flex items-center space-x-2">
         <label className="inline-flex items-center space-x-2">
           <span className={`w-4 h-4 border border-black flex justify-center items-center mr-2 ${A4_PDF_TYPOGRAPHY.small}`}>
-            {selected?.includes(opt) ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+            {selected?.includes(opt) ? (<svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="black"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>) : ""}
           </span>
           <span className={A4_PDF_TYPOGRAPHY.body}>{opt === "Other" ? "Other:" : opt}</span>
         </label>
@@ -1133,20 +1133,20 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     <td className={`border border-black p-1 align-top w-[180px] ${A4_PDF_TYPOGRAPHY.body}`}>
                       <div className="inline-flex items-start space-x-1">
                         <span className="w-4 h-4 border border-black flex justify-center mt-1">
-                          {value === "Yes" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+                          {value === "Yes" ? (<svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="12"
+                            height="12"
+                            fill="none"
+                            stroke="black"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="inline-block"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>) : ""}
                         </span>
                         <span>Yes</span>
                       </div>
@@ -1167,20 +1167,20 @@ const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
 
                     <td className={`border border-black p-1 text-center align-top w-[60px] ${A4_PDF_TYPOGRAPHY.body}`}>
                       <span className="w-4 h-4 border border-black flex justify-center">
-                        {value === "No" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+                        {value === "No" ? (<svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="black"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="inline-block"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>) : ""}
                       </span>
                       <span className="m-1">No</span>
                     </td>
@@ -1250,20 +1250,20 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     <td className={`border border-black p-1 align-top w-[180px] ${A4_PDF_TYPOGRAPHY.body}`}>
                       <div className="inline-flex items-start space-x-1">
                         <span className="w-4 h-4 border border-black flex justify-center mt-1">
-                          {value === "Yes" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+                          {value === "Yes" ? (<svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="12"
+                            height="12"
+                            fill="none"
+                            stroke="black"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="inline-block"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>) : ""}
                         </span>
                         <span>Yes</span>
                       </div>
@@ -1282,20 +1282,20 @@ const Page6 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                     </td>
                     <td className={`border border-black p-1 text-center align-top w-[60px] ${A4_PDF_TYPOGRAPHY.body}`}>
                       <span className="w-4 h-4 border border-black flex justify-center">
-                        {value === "No" ? (  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="12"
-    height="12"
-    fill="none"
-    stroke="black"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="inline-block"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>) : ""}
+                        {value === "No" ? (<svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="12"
+                          height="12"
+                          fill="none"
+                          stroke="black"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="inline-block"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>) : ""}
                       </span>
                       <span className="m-1">No</span>
                     </td>

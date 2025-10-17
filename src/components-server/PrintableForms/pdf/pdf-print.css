@@ -2,16 +2,19 @@
 :root {
   /* logo on pages 2+ */
   --rest-logo-h: 18mm;
-  --rest-gap:    6mm;      /* further reduced */
+  --rest-gap: 6mm;
+  /* further reduced */
 
   /* page-1 stack (title+subtitle+logo total) */
-  --first-header-h: 22mm;  /* much more compact */
+  --first-header-h: 22mm;
+  /* much more compact */
 
   /* footer height (DB footer) */
   --footer-h: 18mm;
 
   /* horizontal content margin */
-  --x-pad: 14mm;           /* ~40px */
+  --x-pad: 14mm;
+  /* ~40px */
 }
 
 /* ---- Page Setup ---- */
@@ -20,7 +23,8 @@
   margin: 0;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: "Inter", "Segoe UI", Arial, sans-serif;
@@ -35,16 +39,23 @@ html, body {
 /* ---- FIXED HEADER & FOOTER (appear on every page) --------------------- */
 .page-header-fixed {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: calc(var(--rest-logo-h) + var(--rest-gap));
-  display: flex; align-items: flex-end; justify-content: center;
-  background: #fff; z-index: 999;
-  padding-top: 2mm;       /* minimal padding */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #fff;
+  z-index: 999;
+  padding-top: 2mm;
+  /* minimal padding */
 }
 
 .page-header-fixed img {
   height: var(--rest-logo-h);
-  width: auto; object-fit: contain;
+  width: auto;
+  object-fit: contain;
 }
 
 /* This inline first-page header sits in flow and is shown only once */
@@ -56,16 +67,19 @@ html, body {
   height: var(--first-header-h);
   margin: 0 var(--x-pad);
   background: #fff;
-  padding-top: 2mm;    /* minimal top padding */
+  padding-top: 2mm;
+  /* minimal top padding */
 }
 
 .header-first-page h1 {
-  margin: 0 0 1mm 0;    /* minimal gap below title */
+  margin: 0 0 1mm 0;
+  /* minimal gap below title */
   font-size: 14pt;
   font-weight: 700;
   color: #000;
   text-align: center;
-  line-height: 1.2;    /* tighter line height */
+  line-height: 1.2;
+  /* tighter line height */
 }
 
 .header-first-page p {
@@ -74,16 +88,24 @@ html, body {
   color: #333;
   font-style: italic;
   text-align: center;
-  line-height: 1.2;    /* tighter line height */
+  line-height: 1.2;
+  /* tighter line height */
 }
 
 /* Fixed footer, aligned L/C/R exactly like the web view */
 .pdf-footer-fixed {
   position: fixed;
-  bottom: 0; left: 0; right: 0; height: var(--footer-h);
-  display: flex; align-items: center; justify-content: space-between;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 var(--x-pad);
-  font-size: 10pt; background: #fff; z-index: 999;
+  font-size: 10pt;
+  background: #fff;
+  z-index: 999;
   box-sizing: border-box;
 }
 
@@ -92,9 +114,11 @@ html, body {
 .pdf-body {
   padding: calc(var(--rest-logo-h) + var(--rest-gap) + 8mm) var(--x-pad) calc(var(--footer-h) + 12mm);
   /* +12mm bottom buffer to prevent content from getting too close to footer */
-  margin: 0; box-sizing: border-box;
+  margin: 0;
+  box-sizing: border-box;
   font: 11pt/1.4 "Inter", "Segoe UI", Arial, sans-serif;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   min-height: calc(100vh - var(--rest-logo-h) - var(--rest-gap) - var(--footer-h) - 20mm);
 }
 
@@ -107,10 +131,14 @@ html, body {
 
 /* ---- BREAKING RULES: allow natural page flow ---------- */
 .field-row {
-  display: grid; grid-template-columns: 180px 1fr;
-  column-gap: 6mm; row-gap: 2.5mm; margin-bottom: 2.5mm;
-  break-inside: auto; 
-  page-break-inside: auto; /* Allow natural page breaks */
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  column-gap: 6mm;
+  row-gap: 2.5mm;
+  margin-bottom: 2.5mm;
+  break-inside: auto;
+  page-break-inside: auto;
+  /* Allow natural page breaks */
 }
 
 .field-row label {
@@ -133,9 +161,10 @@ html, body {
 .card,
 .section-box {
   border-radius: 4px;
-  break-inside: auto; 
-  page-break-inside: auto; /* allow natural split for long content */
-  -webkit-box-decoration-break: clone; 
+  break-inside: auto;
+  page-break-inside: auto;
+  /* allow natural split for long content */
+  -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   overflow: visible !important;
 }
@@ -148,7 +177,8 @@ html, body {
 
 /* Field row labels should stay with their values */
 .field-row {
-  page-break-inside: avoid; /* Keep label+value together */
+  page-break-inside: avoid;
+  /* Keep label+value together */
   break-inside: avoid;
 }
 
@@ -195,19 +225,21 @@ html, body {
   justify-content: space-between;
   gap: 20px;
   margin-top: 20px;
-  break-inside: avoid; 
-  page-break-inside: avoid; /* Keep signature block together */
+  break-inside: avoid;
+  page-break-inside: avoid;
+  /* Keep signature block together */
 }
 
 .signature-section {
   flex: 1;
   text-align: left;
-  break-inside: avoid; 
-  page-break-inside: avoid; /* Keep each signature with its label */
+  break-inside: avoid;
+  page-break-inside: avoid;
+  /* Keep each signature with its label */
 }
 
 .signature-img {
-  break-inside: avoid; 
+  break-inside: avoid;
   page-break-inside: avoid;
 }
 
@@ -235,18 +267,19 @@ html, body {
 }
 
 /* Make checklists and tables printable without overflow */
-table { 
-  width: 100%; 
-  table-layout: fixed; 
-  border-collapse: collapse; 
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
   margin-bottom: 10px;
 }
 
-th, td { 
-  border: .5px solid #cfd2d7; 
-  padding: 2mm; 
-  overflow-wrap: anywhere; 
-  word-break: break-word; 
+th,
+td {
+  border: .5px solid #cfd2d7;
+  padding: 2mm;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 th {
@@ -257,7 +290,8 @@ th {
 /* Form Structure */
 .pdf-form section {
   margin-bottom: 20px;
-  page-break-inside: auto; /* Allow sections to break across pages */
+  page-break-inside: auto;
+  /* Allow sections to break across pages */
   break-inside: auto;
 }
 
@@ -268,7 +302,8 @@ th {
   margin: 16px 0 10px 0;
   padding-bottom: 3px;
   border-bottom: 1px solid #cfd2d7;
-  page-break-after: avoid; /* Keep section title with first content */
+  page-break-after: avoid;
+  /* Keep section title with first content */
   break-after: avoid;
 }
 
@@ -314,7 +349,9 @@ th {
 }
 
 /* Safety: never clip children */
-*{ overflow: visible !important; }
+* {
+  overflow: visible !important;
+}
 
 /* Ensure proper content flow and prevent overlapping */
 .pdf-form {
@@ -334,7 +371,7 @@ th {
 }
 
 /* Ensure content doesn't get hidden behind fixed elements */
-.pdf-body > * {
+.pdf-body>* {
   position: relative;
   z-index: 2;
 }

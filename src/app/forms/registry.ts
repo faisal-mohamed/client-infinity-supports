@@ -1,4 +1,7 @@
 import ClientIntakeFormEnhanced from "../components/forms/client_intake_form/ClientIntakeFormEnhanced";
+import ClientIntakeFormEdit from "../components/forms/client_intake_form/ClientIntakeFormEdit"; // NEW: Unified edit wrapper
+import ClientIntakeFormView from "../components/forms/client_intake_form/ClientIntakeFormView"; // NEW: Unified view wrapper
+import ClientIntakev2 from "../../components-server/PrintableForms/ClientIntakev2"; // NEW: PDF renderer for downloads
 import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Assuming this is the form renderer component
 
 import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
@@ -59,6 +62,7 @@ interface FormRegistryItem {
   name: string;
   editComponent: React.ComponentType<any>;
   viewComponent: React.ComponentType<any>;
+  pdfComponent?: React.ComponentType<any>; // NEW: PDF component for downloads
   signatures?: SignatureRequirement[]; // NEW: Signature configuration
 }
 
@@ -66,8 +70,10 @@ const formRegistry: Record<string, FormRegistryItem> = {
   client_intake_form: {
     key: "client_intake_form",
     name: "Client Intake Form",
-    editComponent: ClientIntakeFormEnhanced,
-    viewComponent: FormRenderer,
+    // NEW: Using unified component via wrappers
+    editComponent: ClientIntakeFormEdit,
+    viewComponent: ClientIntakeFormView,
+    pdfComponent: ClientIntakev2, // NEW: PDF renderer for downloads
   },
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",

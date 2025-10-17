@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 50,
     paddingTop: 40,
     paddingBottom: 20,
     fontFamily: 'Helvetica',
