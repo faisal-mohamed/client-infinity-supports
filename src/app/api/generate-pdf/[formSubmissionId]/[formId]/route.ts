@@ -11,7 +11,7 @@ import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
-import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_WITH_COVER";
+import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
 import ClientIntakev2 from "@/components-server/PrintableForms/ClientIntakev2";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
