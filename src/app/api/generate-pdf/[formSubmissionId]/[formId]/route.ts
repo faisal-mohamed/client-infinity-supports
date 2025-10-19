@@ -12,7 +12,7 @@ import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
-import ClientIntakev2 from "@/components-server/PrintableForms/ClientIntakev2";
+import ClientIntakev2Dynamic from "@/components-server/PrintableForms/ClientIntakev2_DYNAMIC";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -337,7 +337,7 @@ async function generatePDFWithReactPDF(
   if (formKey === 'person_centred_plan') {
     PDFComponent = PersonCentredPlanPDF;
   } else if (formKey === 'client_intake_form') {
-    PDFComponent = ClientIntakev2;
+    PDFComponent = ClientIntakev2Dynamic; // ✅ NEW: Using dynamic version
   } else {
     PDFComponent = EmergencyDrillPDF;
   }

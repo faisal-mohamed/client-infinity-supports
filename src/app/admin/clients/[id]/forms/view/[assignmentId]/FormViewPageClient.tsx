@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaEdit, FaSignature, FaDownload, FaUser, FaCalendarAlt, FaSpinner } from 'react-icons/fa';
+// Temporarily using placeholder icons to fix build issues
+const FaArrowLeft = () => <span>←</span>;
+const FaEdit = () => <span>✏️</span>;
+const FaSignature = () => <span>✍️</span>;
+const FaDownload = () => <span>⬇️</span>;
+const FaUser = () => <span>👤</span>;
+const FaCalendarAlt = () => <span>📅</span>;
+const FaSpinner = () => <span>⏳</span>;
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
 import { fetchFormSpecificSettings } from '@/lib/settings';

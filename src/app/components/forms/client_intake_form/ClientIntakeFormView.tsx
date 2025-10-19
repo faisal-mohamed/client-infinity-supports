@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import ClientIntakeFormUnified from "./ClientIntakeFormUnified";
+import ClientIntakeFormDynamic from "./ClientIntakeFormDynamic";
 
 /**
  * Wrapper component for PDF/view mode
- * This is used in the form registry for viewing/downloading forms
+ * Now uses dynamic content flow instead of fixed 8 pages
  */
 const ClientIntakeFormView: React.FC<any> = (props) => {
-  return <ClientIntakeFormUnified {...props} mode="pdf" />;
+  return <ClientIntakeFormDynamic {...props} />;
 };
 
 export default ClientIntakeFormView;

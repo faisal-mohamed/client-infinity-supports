@@ -129,13 +129,15 @@ const styles = StyleSheet.create({
   longAnswerValue: {
     border: '1 solid #000000',
     padding: 8,
-    minHeight: 200, // Full container height like first image
+    minHeight: 20, // Minimal height for border visibility
     fontSize: 10,
     color: '#111827',
     lineHeight: 1.4,
-    breakInside: 'avoid',
-    pageBreakInside: 'avoid',
+    breakInside: 'auto',
+    pageBreakInside: 'auto',
     backgroundColor: '#ffffff',
+    flexGrow: 1,
+    flexShrink: 1,
   },
   radioGroup: {
     flexDirection: 'row',
@@ -376,7 +378,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
       {getValue(fieldKey) === "Yes" && detailsField && getValue(detailsField) && (
         <View style={[styles.longAnswerValue, {
           marginTop: 4,
-          height: calculateTextHeight(getValue(detailsField))
+          flexGrow: 1,
+          flexShrink: 1
         }]}>
           <Text>Details: {getValue(detailsField)}</Text>
         </View>
@@ -533,11 +536,12 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
               minHeight: 200 // Ensure full container size
             }]}>
               <View style={[styles.longAnswerValue, {
-                height: calculateTextHeight(getValue('disabilityConditions'), 500), // Increased max height
                 width: '100%', // Full width container
                 border: '1 solid #000000', // Clear border
                 backgroundColor: '#ffffff', // White background
                 padding: 10, // More padding for better appearance
+                flexGrow: 1,
+                flexShrink: 1
               }]}>
                 <Text style={{
                   fontSize: 10,
@@ -617,23 +621,24 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>What other supports including mainstream health services you receive at present</Text>
             <View style={[styles.longAnswerValue, {
-              height: calculateOtherSupportsHeight(getValue('otherSupports') || '', 500), // Dynamic height based on content (500 words)
               minHeight: 20, // Minimal height - just enough for border visibility
-              maxHeight: 400, // Maximum height for 500 words
               border: '1 solid #000000',
               padding: 8,
               backgroundColor: '#ffffff',
               fontSize: 10,
               color: '#111827',
               lineHeight: 1.4,
-              breakInside: 'avoid',
-              pageBreakInside: 'avoid',
+              breakInside: 'auto',
+              pageBreakInside: 'auto',
+              flexGrow: 1,
+              flexShrink: 1
             }]}>
               <Text style={{
                 fontSize: 10,
                 lineHeight: 1.4,
                 wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap'
+                whiteSpace: 'pre-wrap',
+                flexShrink: 1
               }}>
                 {getValue('otherSupports') || ' '}
               </Text>
@@ -659,9 +664,9 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
             <Text style={styles.sectionTitle}>All About Me</Text>
             <View style={styles.longAnswer}>
               <View style={[styles.longAnswerValue, {
-                height: calculateDynamicAboutMeHeight(getValue('aboutMe') || '', 1000), // Dynamic height based on content
                 minHeight: 120, // Minimum height for any content
-                maxHeight: 800, // Maximum height for 1000 words
+                flexGrow: 1,
+                flexShrink: 1
               }]}>
                 <Text style={{
                   fontSize: 10,

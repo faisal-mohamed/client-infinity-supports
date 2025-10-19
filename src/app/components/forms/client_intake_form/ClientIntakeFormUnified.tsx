@@ -36,7 +36,22 @@ const FaSave = () => <span>💾</span>;
 const FaSpinner = () => <span>⏳</span>;
 import { useToast } from "@/components/ui/Toast";
 import { formatDateForInput, formatDateForStorage } from "@/lib/dateFormatHelper";
-import { format, parseISO, isValid } from "date-fns";
+
+// Simple date formatting functions to replace date-fns
+const format = (date: Date, formatStr: string): string => {
+  if (!date || isNaN(date.getTime())) return '';
+  if (formatStr === 'dd/MM/yyyy') {
+    return date.toLocaleDateString('en-AU', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+  }
+  return date.toLocaleDateString();
+};
+
+const parseISO = (dateString: string): Date => new Date(dateString);
+const isValid = (date: Date): boolean => !isNaN(date.getTime());
 
 // ===========================
 // INTERFACE DEFINITIONS
@@ -276,28 +291,11 @@ const ClientIntakeFormUnified: React.FC<FormProps> = ({
 
   // Helper function to calculate dynamic height based on content length
   const calculateDynamicHeight = (content: string, maxWords: number = 1000): number => {
-    if (!content || content.trim() === '') return 100; // Minimum height for empty content
-
-    const wordCount = content.trim().split(/\s+/).length;
+    if (!content || content.trim() === '') return 100;
     const characterCount = content.length;
-
-    // Base height for minimum content
-    const baseHeight = 120;
-
-    // Calculate height based on content length (up to maxWords)
-    const contentRatio = Math.min(wordCount / maxWords, 1); // Cap at 1.0 for maxWords
-    const maxHeight = 800; // Maximum height for 1000 words
-    const minHeight = 120;  // Minimum height
-
-    // Calculate dynamic height based on both word count and character count
-    const wordBasedHeight = minHeight + (contentRatio * (maxHeight - minHeight));
-    const characterBasedHeight = Math.max(120, (characterCount / 50) * 20); // ~20px per 50 characters
-
-    // Use the larger of the two calculations to ensure content fits
-    const dynamicHeight = Math.max(wordBasedHeight, characterBasedHeight);
-
-    // Ensure minimum height for any content
-    return Math.max(dynamicHeight, baseHeight);
+    const lineCount = content.split('\n').length;
+    const estimatedLines = Math.max(lineCount, Math.ceil(characterCount / 80));
+    return Math.max(120, estimatedLines * 20 + 40);
   };
 
   // Helper function to get content stats
@@ -509,6 +507,34 @@ const InteractiveView: React.FC<any> = ({
       return;
     }
 
+    // Check word count limit for text inputs
+    const meta = FIELD_METADATA[name];
+    let maxWords = meta?.maxWords;
+    
+    // For Yes/No detail fields, check parent's showIfYes config
+    if (!maxWords) {
+      const parentField = Object.keys(FIELD_METADATA).find(key => {
+        const parentMeta = FIELD_METADATA[key];
+        return parentMeta?.showIfYes?.inputName === name;
+      });
+      if (parentField) {
+        maxWords = FIELD_METADATA[parentField]?.showIfYes?.maxWords;
+      }
+    }
+    
+    if (maxWords && typeof value === 'string') {
+      const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+      
+      if (wordCount > maxWords) {
+        showToast({
+          type: "warning",
+          title: "Word Limit Exceeded",
+          message: `This field has ${wordCount} words (limit: ${maxWords}). Please reduce content to continue.`,
+          duration: 4000,
+        });
+      }
+    }
+
     const newValues = { ...localValues, [name]: value };
     setLocalValues(newValues);
 
@@ -547,7 +573,9 @@ const InteractiveView: React.FC<any> = ({
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key) => {
+    
+    // Check required fields are filled
+    const allFilled = required.every((key) => {
       let value;
 
       if (isCommonField(key)) {
@@ -558,6 +586,33 @@ const InteractiveView: React.FC<any> = ({
 
       return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
     });
+    
+    // Check no fields are over word limit in current section
+    const noOverLimit = FORM_SECTIONS[currentStep].fields.every((key) => {
+      const meta = FIELD_METADATA[key];
+      if (!meta?.maxWords) return true; // No limit = OK
+      
+      const value = localValues[key];
+      if (!value || typeof value !== 'string') return true;
+      
+      const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+      return wordCount <= meta.maxWords;
+    });
+    
+    // Also check Yes/No detail fields in current section
+    const noDetailOverLimit = FORM_SECTIONS[currentStep].fields.every((key) => {
+      const meta = FIELD_METADATA[key];
+      if (!meta?.showIfYes?.inputName || !meta?.showIfYes?.maxWords) return true;
+      
+      const detailFieldName = meta.showIfYes.inputName;
+      const detailValue = localValues[detailFieldName];
+      if (!detailValue || typeof detailValue !== 'string') return true;
+      
+      const wordCount = detailValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+      return wordCount <= meta.showIfYes.maxWords;
+    });
+
+    return allFilled && noOverLimit && noDetailOverLimit;
   };
 
   const getProgressPercentage = () => {
@@ -566,6 +621,7 @@ const InteractiveView: React.FC<any> = ({
 
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
+    const overLimitFields: string[] = [];
 
     FORM_SECTIONS.forEach(section => {
       section.requiredFields.forEach(fieldName => {
@@ -580,17 +636,76 @@ const InteractiveView: React.FC<any> = ({
         if (!value || (typeof value === 'string' && value.trim() === '')) {
           missingFields.push(`${fieldName}`);
         }
+        
+        // Check word count limits
+        const meta = FIELD_METADATA[fieldName];
+        if (meta?.maxWords && value && typeof value === 'string') {
+          const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+          if (wordCount > meta.maxWords) {
+            overLimitFields.push(`${meta.label || fieldName} (${wordCount}/${meta.maxWords} words)`);
+          }
+        }
+      });
+      
+      // Check word limits for all fields in section (including non-required)
+      section.fields.forEach(fieldName => {
+        const meta = FIELD_METADATA[fieldName];
+        const value = localValues[fieldName];
+        
+        // Check main field word limit
+        if (meta?.maxWords && value && typeof value === 'string') {
+          const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+          if (wordCount > meta.maxWords && !overLimitFields.some(f => f.includes(fieldName))) {
+            overLimitFields.push(`${meta.label || fieldName} (${wordCount}/${meta.maxWords} words)`);
+          }
+        }
+        
+        // Check Yes/No detail field word limit
+        if (meta?.showIfYes?.inputName && meta?.showIfYes?.maxWords) {
+          const detailValue = localValues[meta.showIfYes.inputName];
+          if (detailValue && typeof detailValue === 'string') {
+            const wordCount = detailValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+            if (wordCount > meta.showIfYes.maxWords) {
+              overLimitFields.push(`${meta.showIfYes.label} (${wordCount}/${meta.showIfYes.maxWords} words)`);
+            }
+          }
+        }
       });
     });
 
     return {
-      isValid: missingFields.length === 0,
-      missingFields
+      isValid: missingFields.length === 0 && overLimitFields.length === 0,
+      missingFields,
+      overLimitFields
     };
   };
 
   const handleSaveWithConfirm = async (submit: boolean) => {
     if (submit) {
+      // Validate before submission
+      const validation = validateRequiredFields();
+      
+      if (!validation.isValid) {
+        let errorMessage = '';
+        
+        if (validation.missingFields.length > 0) {
+          errorMessage += `Missing required fields:\n${validation.missingFields.join(', ')}\n\n`;
+        }
+        
+        if (validation.overLimitFields.length > 0) {
+          errorMessage += `Fields exceeding word limit:\n${validation.overLimitFields.join('\n')}`;
+        }
+        
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: errorMessage,
+          duration: 6000,
+        });
+        
+        return; // Prevent submission
+      }
+      
       setSubmitting(true);
       await handleSubmitForm();
       setSubmitting(false);
@@ -618,22 +733,22 @@ const InteractiveView: React.FC<any> = ({
     email: { label: "Email", type: "email", placeholder: "Enter your email address" },
     homePhone: { label: "Home Phone", type: "tel", placeholder: "Enter your home phone number" },
     mobile: { label: "Mobile", type: "tel", placeholder: "Enter your mobile number" },
-    disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3 },
+    disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3, maxWords: 500 },
     medicalCentreName: { label: "Medical Centre Name", type: "text", placeholder: "Name of your medical centre" },
     medicalPhone: { label: "Medical Centre Phone", type: "tel", placeholder: "Medical centre phone number" },
     supportCoordinatorName: { label: "Support Coordinator Name", type: "text", placeholder: "Coordinator's name" },
     supportCoordinatorEmail: { label: "Support Coordinator Email", type: "email", placeholder: "Coordinator's email" },
     supportCoordinatorCompany: { label: "Support Coordinator Company", type: "text", placeholder: "Company name" },
     supportCoordinatorContact: { label: "Support Coordinator Contact", type: "tel", placeholder: "Contact number" },
-    otherSupports: { label: "What other supports including mainstream health services you receive at present", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4 },
-    aboutMe: { label: "", type: "textarea", placeholder: "Tell us about yourself", rows: 4 },
+    otherSupports: { label: "What other supports including mainstream health services you receive at present", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4, maxWords: 500 },
+    aboutMe: { label: "", type: "textarea", placeholder: "Tell us about yourself", rows: 4, maxWords: 1000 },
     advocateName: { label: "Advocate Name", type: "text", placeholder: "Advocate's full name" },
     advocateEmail: { label: "Advocate Email", type: "email", placeholder: "Advocate's email" },
     advocatePhone: { label: "Advocate Phone", type: "tel", placeholder: "Advocate's phone" },
     advocateMobile: { label: "Advocate Mobile", type: "tel", placeholder: "Advocate's mobile" },
     advocateAddress: { label: "Advocate Address", type: "text", placeholder: "Advocate's address" },
     advocatePostalAddress: { label: "Advocate Postal Address", type: "text", placeholder: "Advocate's postal address" },
-    advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3 },
+    advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3, maxWords: 300 },
     advocateRelationship: { label: "Relationship with Participant", type: "text", placeholder: "Relationship" },
     barriers: { label: "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services", type: "dropdown", options: yesNoOptions },
     language: { label: "Language", type: "text", placeholder: "Primary language spoken" },
@@ -654,25 +769,25 @@ const InteractiveView: React.FC<any> = ({
     livingArrangementsOther: { label: "Please specify other living arrangement", type: "text", placeholder: "Specify other..." },
     travelArrangements: { label: "Travel Arrangements", type: "checkbox", options: travelArrangementsOptions },
     travelArrangementsOther: { label: "Please specify other travel arrangement", type: "text", placeholder: "Specify other..." },
-    medicationChart: { label: "Does the Participant require a Medication Chart?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: "medicationChartOthers" } },
+    medicationChart: { label: "Does the Participant require a Medication Chart?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: "medicationChartOthers", maxWords: 200 } },
     mealtimeManagement: { label: "Does the Participant require Mealtime Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Mealtime Management Plan Form" } },
-    bowelCare: { label: "Does the participant require Bowel Care Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers" } },
-    menstrualIssues: { label: "Are there any issues with a menstrual cycle or is assistance needed with female hygiene ", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, Please specify", inputName: "menstrualIssuesOthers" } },
-    epilepsy: { label: "Does the Participant have Epilepsy?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", inputName: "epilepsyOthers" } },
-    asthmatic: { label: "Is the Participant an Asthmatic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Asthma Plan", inputName: "asthmaticOthers" } },
-    allergies: { label: "Does the Participant have any allergies?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", inputName: "allergiesOthers" } },
-    anaphylactic: { label: "Is the Participant anaphylactic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", inputName: "anaphylacticOthers" } },
+    bowelCare: { label: "Does the participant require Bowel Care Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers", maxWords: 200 } },
+    menstrualIssues: { label: "Are there any issues with a menstrual cycle or is assistance needed with female hygiene ", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, Please specify", inputName: "menstrualIssuesOthers", maxWords: 200 } },
+    epilepsy: { label: "Does the Participant have Epilepsy?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", inputName: "epilepsyOthers", maxWords: 200 } },
+    asthmatic: { label: "Is the Participant an Asthmatic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Asthma Plan", inputName: "asthmaticOthers", maxWords: 200 } },
+    allergies: { label: "Does the Participant have any allergies?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", inputName: "allergiesOthers", maxWords: 200 } },
+    anaphylactic: { label: "Is the Participant anaphylactic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", inputName: "anaphylacticOthers", maxWords: 200 } },
     minorInjury: { label: "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?", type: "dropdown", options: yesNoOptions },
-    training: { label: "Does this participant require specific training?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to provide information such as implementing a positive behaviour support plan.", inputName: "trainingOthers" } },
-    othermedical: { label: "Are there any other medication conditions that will be relevant to the care provided to this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "othermedicalOthers" } },
-    trigger: { label: "Is there any specific trigger for community activities?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify and complete the Risk assessment for participants.", inputName: "triggerOthers" } },
-    absconding: { label: "Does the Participant show signs or a history of unexpectedly leaving (absconding)?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "abscondingOthers" } },
+    training: { label: "Does this participant require specific training?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to provide information such as implementing a positive behaviour support plan.", inputName: "trainingOthers", maxWords: 200 } },
+    othermedical: { label: "Are there any other medication conditions that will be relevant to the care provided to this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "othermedicalOthers", maxWords: 200 } },
+    trigger: { label: "Is there any specific trigger for community activities?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify and complete the Risk assessment for participants.", inputName: "triggerOthers", maxWords: 200 } },
+    absconding: { label: "Does the Participant show signs or a history of unexpectedly leaving (absconding)?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "abscondingOthers", maxWords: 200 } },
     historyOfFalls: { label: "Is this participant prone to falls or have a history of falls?", type: "dropdown", options: yesNoOptions },
-    behaviourConcern: { label: "Are there any Behaviours of Concern? Eg: Kicking, biting", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "behaviourConcernOthers" } },
-    positiveBehaviour: { label: "Is there a current Positive Behaviour Support Plan in place?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to High Risk Participant Register.", inputName: "positiveBehaviourOthers" } },
-    communicationAssistance: { label: "Does the participant require communication assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.", inputName: "communicationAssistanceOthers" } },
-    physicalAssistance: { label: "Is there any physical assistance or physical assistance preference for this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, specify.", inputName: "physicalAssistanceOthers" } },
-    languageConcern: { label: "Does the Participant have any expressive language concerns?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.", inputName: "languageConcernOthers" } },
+    behaviourConcern: { label: "Are there any Behaviours of Concern? Eg: Kicking, biting", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "behaviourConcernOthers", maxWords: 200 } },
+    positiveBehaviour: { label: "Is there a current Positive Behaviour Support Plan in place?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to High Risk Participant Register.", inputName: "positiveBehaviourOthers", maxWords: 200 } },
+    communicationAssistance: { label: "Does the participant require communication assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.", inputName: "communicationAssistanceOthers", maxWords: 200 } },
+    physicalAssistance: { label: "Is there any physical assistance or physical assistance preference for this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, specify.", inputName: "physicalAssistanceOthers", maxWords: 200 } },
+    languageConcern: { label: "Does the Participant have any expressive language concerns?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.", inputName: "languageConcernOthers", maxWords: 200 } },
     personalGoals: { label: "Does this Participant have any personal preferences & personal goals?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
   };
 
@@ -726,18 +841,37 @@ const InteractiveView: React.FC<any> = ({
     name: string,
     rows: number = 3,
     placeholder?: string,
-    required?: boolean
+    required?: boolean,
+    maxWords?: number
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
 
+    // Calculate word count
+    const wordCount = displayValue ? displayValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isOverLimit = maxWords ? wordCount > maxWords : false;
+    const percentUsed = maxWords ? Math.min((wordCount / maxWords) * 100, 100) : 0;
+
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-xs font-medium text-gray-700">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {maxWords && (
+            <span className={`text-xs font-medium ${
+              isOverLimit 
+                ? 'text-red-600' 
+                : wordCount > maxWords * 0.9 
+                  ? 'text-orange-500' 
+                  : 'text-gray-500'
+            }`}>
+              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
+            </span>
+          )}
+        </div>
         <textarea
           name={name}
           value={displayValue}
@@ -745,13 +879,40 @@ const InteractiveView: React.FC<any> = ({
           placeholder={isCommon ? "Value from common fields" : placeholder}
           rows={rows}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
-              : "hover:border-accent/40"
-            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          className={`w-full rounded-lg border ${
+            isOverLimit && !isCommon ? 'border-red-400' : 'border-gray-200'
+          } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${
+            isOverLimit && !isCommon ? 'focus:ring-red-400' : 'focus:ring-accent'
+          } focus:border-accent transition-all placeholder-gray-400 resize-none ${
+            fieldErrors[name]
+              ? "border-red-300 bg-red-50"
+              : isCommon
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
+        {maxWords && !isCommon && (
+          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div 
+              className={`h-full transition-all duration-300 ${
+                isOverLimit 
+                  ? 'bg-red-500' 
+                  : percentUsed > 90 
+                    ? 'bg-orange-400' 
+                    : percentUsed > 75 
+                      ? 'bg-yellow-400' 
+                      : 'bg-green-400'
+              }`}
+              style={{ width: `${Math.min(percentUsed, 100)}%` }}
+            />
+          </div>
+        )}
+        {isOverLimit && !isCommon && maxWords && (
+          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
+          </p>
+        )}
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
@@ -766,63 +927,112 @@ const InteractiveView: React.FC<any> = ({
     showIfYes?: {
       label: string;
       inputName?: string;
+      maxWords?: number;
     },
     required?: boolean
-  ) => (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <select
-        name={name}
-        value={localValues[name] || ""}
-        onChange={handleChange}
-        disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
-          ? "border-red-300 bg-red-50"
-          : "hover:border-accent/40"
-          } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-      >
-        <option value="">Select an option</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-      {showIfYes && localValues[name] === "Yes" && (
-        <div className="mt-3 pl-4 border-l-4 border-accent/30 bg-accent/5 rounded-xl py-2">
-          <label className="block text-xs font-medium text-accent mb-1">
-            {showIfYes.label}
-          </label>
-          {showIfYes.inputName && (
-            <>
-              <input
-                type="text"
-                name={showIfYes.inputName}
-                value={localValues[showIfYes.inputName] || ""}
-                onChange={handleChange}
-                disabled={readOnly}
-                className={`w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[showIfYes.inputName]
-                  ? "border-red-300 bg-red-50"
-                  : "hover:border-accent/40"
-                  } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-              />
-              {fieldErrors[showIfYes.inputName] && (
-                <p className="text-xs text-red-500 mt-1">
-                  {fieldErrors[showIfYes.inputName]}
-                </p>
+  ) => {
+    // Calculate word count for detail field
+    const detailValue = showIfYes?.inputName ? (localValues[showIfYes.inputName] || "") : "";
+    const detailWordCount = detailValue ? detailValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isDetailOverLimit = showIfYes?.maxWords ? detailWordCount > showIfYes.maxWords : false;
+    const detailPercentUsed = showIfYes?.maxWords ? Math.min((detailWordCount / showIfYes.maxWords) * 100, 100) : 0;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <select
+          name={name}
+          value={localValues[name] || ""}
+          onChange={handleChange}
+          disabled={readOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : "hover:border-accent/40"
+            } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+        {showIfYes && localValues[name] === "Yes" && (
+          <div className="mt-3 pl-4 border-l-4 border-accent/30 bg-accent/5 rounded-xl py-2">
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-medium text-accent">
+                {showIfYes.label}
+              </label>
+              {showIfYes.maxWords && showIfYes.inputName && (
+                <span className={`text-xs font-medium ${
+                  isDetailOverLimit 
+                    ? 'text-red-600' 
+                    : detailWordCount > showIfYes.maxWords * 0.9 
+                      ? 'text-orange-500' 
+                      : 'text-gray-500'
+                }`}>
+                  {detailWordCount}/{showIfYes.maxWords} words {isDetailOverLimit && '⚠️'}
+                </span>
               )}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
+            </div>
+            {showIfYes.inputName && (
+              <>
+                <input
+                  type="text"
+                  name={showIfYes.inputName}
+                  value={localValues[showIfYes.inputName] || ""}
+                  onChange={handleChange}
+                  disabled={readOnly}
+                  className={`w-full rounded-xl border ${
+                    isDetailOverLimit ? 'border-red-400' : 'border-gray-200'
+                  } bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
+                    isDetailOverLimit ? 'focus:ring-red-400' : 'focus:ring-accent'
+                  } focus:border-accent transition-all placeholder-gray-400 ${
+                    fieldErrors[showIfYes.inputName]
+                      ? "border-red-300 bg-red-50"
+                      : "hover:border-accent/40"
+                  } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+                />
+                {showIfYes.maxWords && (
+                  <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
+                    <div 
+                      className={`h-full transition-all duration-300 ${
+                        isDetailOverLimit 
+                          ? 'bg-red-500' 
+                          : detailPercentUsed > 90 
+                            ? 'bg-orange-400' 
+                            : detailPercentUsed > 75 
+                              ? 'bg-yellow-400' 
+                              : 'bg-green-400'
+                      }`}
+                      style={{ width: `${Math.min(detailPercentUsed, 100)}%` }}
+                    />
+                  </div>
+                )}
+                {isDetailOverLimit && showIfYes.maxWords && (
+                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span>Exceeds word limit by {detailWordCount - showIfYes.maxWords} words. Please reduce content.</span>
+                  </p>
+                )}
+                {fieldErrors[showIfYes.inputName] && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {fieldErrors[showIfYes.inputName]}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderMultiSelectCheckbox = (
     label: string,
@@ -974,7 +1184,7 @@ const InteractiveView: React.FC<any> = ({
                   {(() => {
                     const meta = FIELD_METADATA["aboutMe"];
                     const required = isFieldRequired("aboutMe");
-                    return renderTextArea(meta.label, "aboutMe", meta.rows || 4, meta.placeholder, required);
+                    return renderTextArea(meta.label, "aboutMe", meta.rows || 4, meta.placeholder, required, meta.maxWords);
                   })()}
                 </div>
               ) : (
@@ -983,7 +1193,7 @@ const InteractiveView: React.FC<any> = ({
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
                     if (meta.type === "textarea") {
-                      return <React.Fragment key={field}>{renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}</React.Fragment>;
+                      return <React.Fragment key={field}>{renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required, meta.maxWords)}</React.Fragment>;
                     }
                     if (meta.type === "dropdown") {
                       return <React.Fragment key={field}>{renderDropdown(meta.label, field, meta.options || [], meta.showIfYes, required)}</React.Fragment>;
@@ -1085,41 +1295,20 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
   const timestamp = new Date().toISOString();
   console.log(`🔍 PDFView in ClientIntakeFormUnified.tsx is being used for PDF generation - ${timestamp}`);
   console.log('📊 Form data keys:', Object.keys(formData || {}));
-  console.log('🎯 Medical Info fields:', {
-    medicationChart: getFieldValue('medicationChart'),
-    epilepsy: getFieldValue('epilepsy'),
-    allergies: getFieldValue('allergies')
-  });
-  console.log('🎯 Safety fields:', {
-    absconding: getFieldValue('absconding'),
-    historyOfFalls: getFieldValue('historyOfFalls'),
-    behaviourConcern: getFieldValue('behaviourConcern')
-  });
+  
+  // Use the same styling approach as ClientIntakev2Natural
+  const cleanText = (text: string) => {
+    if (!text) return '';
+    return text.replace(/\n\s*\n/g, '\n').trim();
+  };
 
   // Helper function to calculate dynamic height based on content length
   const calculateDynamicHeight = (content: string, maxWords: number = 1000): number => {
-    if (!content || content.trim() === '') return 100; // Minimum height for empty content
-
-    const wordCount = content.trim().split(/\s+/).length;
+    if (!content || content.trim() === '') return 100;
     const characterCount = content.length;
-
-    // Base height for minimum content
-    const baseHeight = 120;
-
-    // Calculate height based on content length (up to maxWords)
-    const contentRatio = Math.min(wordCount / maxWords, 1); // Cap at 1.0 for maxWords
-    const maxHeight = 800; // Maximum height for 1000 words
-    const minHeight = 120;  // Minimum height
-
-    // Calculate dynamic height based on both word count and character count
-    const wordBasedHeight = minHeight + (contentRatio * (maxHeight - minHeight));
-    const characterBasedHeight = Math.max(120, (characterCount / 50) * 20); // ~20px per 50 characters
-
-    // Use the larger of the two calculations to ensure content fits
-    const dynamicHeight = Math.max(wordBasedHeight, characterBasedHeight);
-
-    // Ensure minimum height for any content
-    return Math.max(dynamicHeight, baseHeight);
+    const lineCount = content.split('\n').length;
+    const estimatedLines = Math.max(lineCount, Math.ceil(characterCount / 80));
+    return Math.max(120, estimatedLines * 20 + 40);
   };
 
   // Helper function to calculate dynamic height for otherSupports (500 words)
@@ -1530,12 +1719,22 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-2 py-2 align-top text-xs bg-white"
                   colSpan={4}
                   style={{
-                    height: '200px', // Fixed full container height
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
-                    minHeight: '200px', // Ensure minimum full container size
-                    width: '100%'
+                    minHeight: '120px',
+                    width: '100%',
+                    display: 'block',
+                    boxSizing: 'border-box',
+                    textOverflow: 'clip',
+                    maxHeight: 'none',
+                    lineClamp: 'none',
+                    WebkitLineClamp: 'none',
+                    height: 'auto',
+                    breakInside: 'auto',
+                    pageBreakInside: 'auto',
+                    fontSize: '13px',
+                    lineHeight: '1.4'
                   }}
                 >
                   {getFieldValue('disabilityConditions') || ' '}
@@ -1557,8 +1756,16 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
             className="object-contain"
           />
         </div>
-        <div className="flex-1">
-          <table className="w-full border-collapse border border-black text-sm">
+        {/* Medical Contact & Support Coordinator Table */}
+        <div className="w-full mb-6">
+          <table className="w-full border-collapse border border-black text-sm"
+            style={{
+              tableLayout: 'fixed',
+              width: '100%',
+              breakInside: 'auto',
+              pageBreakInside: 'auto'
+            }}
+          >
             <tbody>
               {/* GP Medical Contact Section */}
               <tr className="bg-gray-300 font-semibold">
@@ -1612,25 +1819,51 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                 </td>
               </tr>
 
-              {/* What other supports Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>What other supports including mainstream health services you receive at present</td>
-              </tr>
-              <tr>
-                <td
-                  className="border border-black px-3 py-3 align-top bg-white"
-                  colSpan={4}
-                  style={{
-                    height: `${calculateOtherSupportsHeight(getFieldValue('otherSupports'))}px`,
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('otherSupports') || ' '}
-                </td>
-              </tr>
+              {/* What other supports Section - Move outside table for better flow */}
+            </tbody>
+          </table>
+        </div>
+
+        {/* What other supports Section - Standalone for better text flow */}
+        <div className="w-full mt-6 mb-4">
+          {/* Header Bar */}
+          <div className="bg-gray-300 border border-black px-2 py-1">
+            <span className="font-semibold text-black text-xs">What other supports including mainstream health services you receive at present</span>
+          </div>
+
+          {/* Content Area - Dynamic Height */}
+          <div
+            style={{
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              overflow: 'visible',
+              minHeight: '120px',
+              width: '100%',
+              display: 'block',
+              boxSizing: 'border-box',
+              textOverflow: 'clip',
+              maxHeight: 'none',
+              lineClamp: 'none',
+              WebkitLineClamp: 'none',
+              border: '1px solid black',
+              borderTop: 'none',
+              padding: '12px',
+              backgroundColor: 'white',
+              fontSize: '12px',
+              lineHeight: '1.4',
+              height: 'auto',
+              breakInside: 'auto',
+              pageBreakInside: 'auto'
+            }}
+          >
+            {getFieldValue('otherSupports') || ' '}
+          </div>
+        </div>
+
+        {/* Continue with next table if needed */}
+        <div className="flex-1 mt-4">
+          <table className="w-full border-collapse border border-black text-sm">
+            <tbody>
             </tbody>
           </table>
         </div>
@@ -1653,23 +1886,33 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
             <span className="font-semibold text-black text-xs">All About Me</span>
           </div>
 
-          {/* Content Area - Dynamic Height Based on Content */}
+          {/* Content Area - Fixed Text Overflow Issue */}
           <div
-            className="border-l border-r border-b border-black px-2 py-2 bg-white text-xs"
             style={{
-              height: `${calculateDynamicHeight(getFieldValue('aboutMe'))}px`, // Dynamic height based on content
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
               overflow: 'visible',
-              minHeight: '120px', // Minimum height for any content
+              minHeight: '120px',
               width: '100%',
               display: 'block',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              textOverflow: 'clip',
+              maxHeight: 'none',
+              lineClamp: 'none',
+              WebkitLineClamp: 'none',
+              border: '1px solid black',
+              borderTop: 'none',
+              padding: '8px',
+              backgroundColor: 'white',
+              fontSize: '12px',
+              lineHeight: '1.4',
+              height: 'auto',
+              breakInside: 'auto',
+              pageBreakInside: 'auto'
             }}
           >
             {getFieldValue('aboutMe') || ' '}
           </div>
-
         </div>
       </A4Page>
 
@@ -1739,7 +1982,8 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('advocateAddress'))}px`,
+                    height: 'auto',
+                    minHeight: '40px',
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
@@ -1757,7 +2001,8 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('advocatePostalAddress'))}px`,
+                    height: 'auto',
+                    minHeight: '40px',
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
@@ -1775,11 +2020,22 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('advocateOtherInfo'))}px`,
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
-                    fontSize: '13px'
+                    minHeight: '120px',
+                    width: '100%',
+                    display: 'block',
+                    boxSizing: 'border-box',
+                    textOverflow: 'clip',
+                    maxHeight: 'none',
+                    lineClamp: 'none',
+                    WebkitLineClamp: 'none',
+                    height: 'auto',
+                    breakInside: 'auto',
+                    pageBreakInside: 'auto',
+                    fontSize: '13px',
+                    lineHeight: '1.4'
                   }}
                 >
                   {getFieldValue('advocateOtherInfo') || ' '}
@@ -1848,7 +2104,8 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('culturalValues'))}px`,
+                    height: 'auto',
+                    minHeight: '40px',
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
@@ -1866,7 +2123,8 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('culturalBehaviours'))}px`,
+                    height: 'auto',
+                    minHeight: '40px',
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
@@ -1884,7 +2142,8 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   className="border border-black px-3 py-3 align-top"
                   colSpan={3}
                   style={{
-                    height: `${calculateAddressHeight(getFieldValue('writtenCommunication'))}px`,
+                    height: 'auto',
+                    minHeight: '40px',
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
                     overflow: 'visible',
