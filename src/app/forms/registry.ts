@@ -1,7 +1,7 @@
 import ClientIntakeFormEnhanced from "../components/forms/client_intake_form/ClientIntakeFormEnhanced";
 import ClientIntakeFormEdit from "../components/forms/client_intake_form/ClientIntakeFormEdit"; // NEW: Unified edit wrapper
 import ClientIntakeFormView from "../components/forms/client_intake_form/ClientIntakeFormView"; // NEW: Unified view wrapper
-import ClientIntakev2Multipage from "../../components-server/PrintableForms/ClientIntakev2_MULTIPAGE"; // NEW: PDF renderer for downloads
+import ClientIntakeFormPDF from "../../components/client-intake-form/ClientIntakeFormPDF"; // NEW: Improved HTML-based PDF renderer
 import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Assuming this is the form renderer component
 
 import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
@@ -73,7 +73,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     // NEW: Using unified component via wrappers
     editComponent: ClientIntakeFormEdit,
     viewComponent: ClientIntakeFormView,
-    pdfComponent: ClientIntakev2Multipage, // PDF renderer for downloads
+    pdfComponent: ClientIntakeFormPDF, // NEW: Improved HTML-based PDF renderer
   },
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",

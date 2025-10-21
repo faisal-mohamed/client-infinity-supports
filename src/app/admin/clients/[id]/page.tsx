@@ -251,7 +251,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">NDIS Number</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.[0]?.ndis || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields?.ndis || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -263,7 +263,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Date of Birth</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.[0]?.dob || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields?.dob || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -275,7 +275,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Gender</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.[0]?.sex || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields?.sex || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function ClientDetailPage() {
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Street Address</p>
                         <p className="font-bold text-gray-900">
-                          {client?.commonFields?.[0]?.address || client?.commonFields?.[0]?.street || 'Not provided'}
+                          {client?.commonFields?.address || client?.commonFields?.street || 'Not provided'}
                         </p>
                       </div>
                     </div>
@@ -326,7 +326,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">State</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.[0]?.state || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields?.state || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Postcode</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.[0]?.postCode || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900">{client?.commonFields?.postCode || 'Not provided'}</p>
                       </div>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function ClientDetailPage() {
         </div>
 
         {/* Enhanced Disability/Conditions */}
-        {client?.commonFields && client?.commonFields?.[0]?.disability && (
+        {client?.commonFields && client?.commonFields?.disability && (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-8 hover:shadow-xl transition-shadow duration-300">
             <div className="px-8 py-6 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
               <div className="flex items-center gap-4">
@@ -370,7 +370,7 @@ export default function ClientDetailPage() {
             <div className="p-8">
               <div className="bg-gray-50 rounded-xl p-6">
                 <p className="text-gray-700 whitespace-pre-line leading-relaxed text-base">
-                  {client?.commonFields?.[0]?.disability}
+                  {client?.commonFields?.disability}
                 </p>
               </div>
             </div>

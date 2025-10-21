@@ -2,7 +2,6 @@ import { ComponentType } from 'react';
 
 // PDF-specific form components
 import ClientIntakev2 from './ClientIntakev2';
-import ClientIntakev2Multipage from './ClientIntakev2_MULTIPAGE'; // Multipage version
 import ClientIntakev2Natural from './ClientIntakev2_NATURAL'; // Natural flow version
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
@@ -28,7 +27,7 @@ interface PDFFormComponent {
 const pdfFormRegistry: PDFFormComponent[] = [
   {
     formKey: 'client_intake_form',
-    component: ClientIntakev2Natural, // Natural flow version - like Person Centred Plan
+    component: ClientIntakev2Natural, // Revert to working version
     name: 'Client Intake Form',
   },
   {
