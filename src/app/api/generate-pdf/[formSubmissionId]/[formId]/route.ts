@@ -12,7 +12,6 @@ import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
-import ClientIntakev2Dynamic from "@/components-server/PrintableForms/ClientIntakev2_DYNAMIC";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -324,7 +323,7 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
 </html>`;
 }
 
-// Generate PDF using @react-pdf/renderer (for emergency_drill and person_centred_plan)
+// Generate PDF using @react-pdf/renderer (for emergency_drill, person_centred_plan, and client_intake_form)
 async function generatePDFWithReactPDF(
   formData: any,
   commonFields: any,
@@ -337,7 +336,8 @@ async function generatePDFWithReactPDF(
   if (formKey === 'person_centred_plan') {
     PDFComponent = PersonCentredPlanPDF;
   } else if (formKey === 'client_intake_form') {
-    PDFComponent = ClientIntakev2Dynamic; // ✅ NEW: Using dynamic version
+    // Use the component from the PDF registry (ClientIntakev2Matching)
+    PDFComponent = getPDFComponent(formKey);
   } else {
     PDFComponent = EmergencyDrillPDF;
   }

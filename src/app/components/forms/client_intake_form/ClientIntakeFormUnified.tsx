@@ -891,22 +891,6 @@ const InteractiveView: React.FC<any> = ({
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
-        {maxWords && !isCommon && (
-          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-300 ${
-                isOverLimit 
-                  ? 'bg-red-500' 
-                  : percentUsed > 90 
-                    ? 'bg-orange-400' 
-                    : percentUsed > 75 
-                      ? 'bg-yellow-400' 
-                      : 'bg-green-400'
-              }`}
-              style={{ width: `${Math.min(percentUsed, 100)}%` }}
-            />
-          </div>
-        )}
         {isOverLimit && !isCommon && maxWords && (
           <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
             <span>⚠️</span>
@@ -999,22 +983,6 @@ const InteractiveView: React.FC<any> = ({
                       : "hover:border-accent/40"
                   } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
                 />
-                {showIfYes.maxWords && (
-                  <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
-                    <div 
-                      className={`h-full transition-all duration-300 ${
-                        isDetailOverLimit 
-                          ? 'bg-red-500' 
-                          : detailPercentUsed > 90 
-                            ? 'bg-orange-400' 
-                            : detailPercentUsed > 75 
-                              ? 'bg-yellow-400' 
-                              : 'bg-green-400'
-                      }`}
-                      style={{ width: `${Math.min(detailPercentUsed, 100)}%` }}
-                    />
-                  </div>
-                )}
                 {isDetailOverLimit && showIfYes.maxWords && (
                   <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                     <span>⚠️</span>
