@@ -168,7 +168,12 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     // Contact Details
     { key: 'primaryContactName', label: 'Primary Contact Name', type: 'text' },
     { key: 'primaryContactRelationship', label: 'Primary Contact Relationship', type: 'text' },
-    { key: 'primaryContactPhone', label: 'Primary Contact Phone', type: 'text' },
+    { key: 'primaryContactHomePhone', label: 'Primary Contact Home Phone', type: 'text' },
+    { key: 'primaryContactMobile', label: 'Primary Contact Mobile', type: 'text' },
+    { key: 'secondaryContactName', label: 'Secondary Contact Name', type: 'text' },
+    { key: 'secondaryContactRelationship', label: 'Secondary Contact Relationship', type: 'text' },
+    { key: 'secondaryContactHomePhone', label: 'Secondary Contact Home Phone', type: 'text' },
+    { key: 'secondaryContactMobile', label: 'Secondary Contact Mobile', type: 'text' },
     { key: 'emergencyContactName', label: 'Emergency Contact Name', type: 'text' },
     { key: 'emergencyContactRelationship', label: 'Emergency Contact Relationship', type: 'text' },
     { key: 'emergencyContactPhone', label: 'Emergency Contact Phone', type: 'text' },
@@ -176,6 +181,8 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     // Living Arrangements
     { key: 'livingArrangements', label: 'Living Arrangements', type: 'text' },
     { key: 'livingArrangementsOthers', label: 'Living Arrangements Details', type: 'longtext' },
+    { key: 'travelArrangements', label: 'Travel Arrangements', type: 'text' },
+    { key: 'travelArrangementsOthers', label: 'Travel Arrangements Details', type: 'longtext' },
     
     // Medical Information
     { key: 'medicationChart', label: 'Does the Participant require a Medication Chart?', type: 'text' },
@@ -183,10 +190,25 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'mealtimeManagement', label: 'Does the Participant require Mealtime Management?', type: 'text' },
     { key: 'bowelCare', label: 'Does the participant require Bowel Care Management?', type: 'text' },
     { key: 'bowelCareOthers', label: 'Bowel Care Details', type: 'longtext' },
+    { key: 'menstrualIssues', label: 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', type: 'text' },
+    { key: 'menstrualIssuesOthers', label: 'Menstrual Issues Details', type: 'longtext' },
     { key: 'personalCare', label: 'Does the participant require Personal Care?', type: 'text' },
     { key: 'personalCareOthers', label: 'Personal Care Details', type: 'longtext' },
     { key: 'mobilityAids', label: 'Does the participant use any mobility aids?', type: 'text' },
     { key: 'mobilityAidsOthers', label: 'Mobility Aids Details', type: 'longtext' },
+    { key: 'epilepsy', label: 'Does the Participant have Epilepsy?', type: 'text' },
+    { key: 'epilepsyOthers', label: 'Epilepsy Details', type: 'longtext' },
+    { key: 'asthmatic', label: 'Is the Participant an Asthmatic?', type: 'text' },
+    { key: 'asthmaticOthers', label: 'Asthma Details', type: 'longtext' },
+    { key: 'allergies', label: 'Does the Participant have any allergies?', type: 'text' },
+    { key: 'allergiesOthers', label: 'Allergy Details', type: 'longtext' },
+    { key: 'anaphylactic', label: 'Is the Participant anaphylactic?', type: 'text' },
+    { key: 'anaphylacticOthers', label: 'Anaphylaxis Details', type: 'longtext' },
+    { key: 'minorInjury', label: 'Do you give permission for our company\'s staff to administer band-aids in cases of a minor injury?', type: 'text' },
+    { key: 'training', label: 'Does this participant require specific training?', type: 'text' },
+    { key: 'trainingOthers', label: 'Training Details', type: 'longtext' },
+    { key: 'othermedical', label: 'Are there any other medication conditions that will be relevant to the care provided to this Participant?', type: 'text' },
+    { key: 'othermedicalOthers', label: 'Other Medical Details', type: 'longtext' },
     { key: 'trigger', label: 'Is there any specific trigger for community activities?', type: 'text' },
     { key: 'triggerOthers', label: 'Trigger Details', type: 'longtext' },
     
@@ -196,19 +218,32 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'behaviourSupport', label: 'Does this Participant require Behaviour Support?', type: 'text' },
     { key: 'behaviourSupportOthers', label: 'Behaviour Support Details', type: 'longtext' },
     { key: 'personalGoals', label: 'Does this Participant have any personal preferences & personal goals?', type: 'text' },
-    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' }
+    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' },
+    { key: 'absconding', label: 'Does the Participant show signs or a history of unexpectedly leaving (absconding)?', type: 'text' },
+    { key: 'abscondingOthers', label: 'Absconding Details', type: 'longtext' },
+    { key: 'historyOfFalls', label: 'Is this participant prone to falls or have a history of falls?', type: 'text' },
+    { key: 'behaviourConcern', label: 'Are there any Behaviours of Concern? Eg: Kicking, biting', type: 'text' },
+    { key: 'behaviourConcernOthers', label: 'Behaviour Concern Details', type: 'longtext' },
+    { key: 'positiveBehaviour', label: 'Is there a current Positive Behaviour Support Plan in place?', type: 'text' },
+    { key: 'positiveBehaviourOthers', label: 'Positive Behaviour Details', type: 'longtext' },
+    { key: 'communicationAssistance', label: 'Does the participant require communication assistance?', type: 'text' },
+    { key: 'communicationAssistanceOthers', label: 'Communication Assistance Details', type: 'longtext' },
+    { key: 'physicalAssistance', label: 'Is there any physical assistance or physical assistance preference for this Participant?', type: 'text' },
+    { key: 'physicalAssistanceOthers', label: 'Physical Assistance Details', type: 'longtext' },
+    { key: 'languageConcern', label: 'Does the Participant have any expressive language concerns?', type: 'text' },
+    { key: 'languageConcernOthers', label: 'Language Concern Details', type: 'longtext' },
   ];
 
-  // Filter fields with values (matches web view)
-  const fieldsWithValues = allFields.filter(field => {
-    const value = getFieldValue(field.key);
-    return value && String(value).trim() !== '';
-  });
+  console.log('📋 Total fields to render:', allFields.length);
+  console.log('🎯 Rendering ALL fields (filled and empty)');
+
+  // Show ALL fields (filled and empty) - matches view page behavior
+  const allFieldsToRender = allFields; // No filtering - show everything
 
   // Render field (matches web view appearance EXACTLY)
   const renderField = (field: any) => {
     const value = getFieldValue(field.key);
-    const valueStr = String(value);
+    const valueStr = value && value.trim() !== '' ? String(value) : 'No information provided';
     const isLongText = field.type === 'longtext';
     
     return (
@@ -238,7 +273,7 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
 
         {/* Content - flows naturally with automatic page breaks */}
         <View>
-          {fieldsWithValues.map(field => renderField(field))}
+          {allFieldsToRender.map(field => renderField(field))}
         </View>
 
         {/* Fixed Footer on all pages */}
