@@ -4,7 +4,7 @@ import Page2 from './page_2';
 import Page3 from './page_3';
 
 
-export const formSchema = {
+const formSchema = {
   page1: {
     headerInfo: [
       { key: 'personName', label: "Person's Name", type: 'text' },
@@ -33,7 +33,7 @@ export const formSchema = {
   }
 };
 
-export const formData = {
+const formData = {
   personName: 'John Doe',
   activity: 'Swimming at Local Pool',
   assessorName: 'Jane Smith',

@@ -418,7 +418,7 @@ const adminId : any  = session?.user?.id;
     
     if (client) {
       // Use commonFields if available, otherwise initialize with basic client info
-      const commonFieldsData = client.commonFields[0] || {};
+      const commonFieldsData = client.commonFields || {};
       
       const fieldsData = {
         clientId: clientId,

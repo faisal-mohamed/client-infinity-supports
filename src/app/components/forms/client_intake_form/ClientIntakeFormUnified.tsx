@@ -20,20 +20,20 @@ import React, { useState, useEffect, useRef } from "react";
 // } from "react-icons/fa";
 
 // Temporary icon replacements
-const FaUser = () => <span>👤</span>;
-const FaStethoscope = () => <span>🩺</span>;
-const FaRegSmile = () => <span>😊</span>;
-const FaGavel = () => <span>⚖️</span>;
-const FaInfoCircle = () => <span>ℹ️</span>;
-const FaPhoneAlt = () => <span>📞</span>;
-const FaHome = () => <span>🏠</span>;
-const FaNotesMedical = () => <span>📋</span>;
-const FaShieldAlt = () => <span>🛡️</span>;
-const FaChevronLeft = () => <span>◀</span>;
-const FaChevronRight = () => <span>▶</span>;
-const FaCheck = () => <span>✓</span>;
-const FaSave = () => <span>💾</span>;
-const FaSpinner = () => <span>⏳</span>;
+const FaUser = ({ className }: { className?: string }) => <span className={className}>👤</span>;
+const FaStethoscope = ({ className }: { className?: string }) => <span className={className}>🩺</span>;
+const FaRegSmile = ({ className }: { className?: string }) => <span className={className}>😊</span>;
+const FaGavel = ({ className }: { className?: string }) => <span className={className}>⚖️</span>;
+const FaInfoCircle = ({ className }: { className?: string }) => <span className={className}>ℹ️</span>;
+const FaPhoneAlt = ({ className }: { className?: string }) => <span className={className}>📞</span>;
+const FaHome = ({ className }: { className?: string }) => <span className={className}>🏠</span>;
+const FaNotesMedical = ({ className }: { className?: string }) => <span className={className}>📋</span>;
+const FaShieldAlt = ({ className }: { className?: string }) => <span className={className}>🛡️</span>;
+const FaChevronLeft = ({ className }: { className?: string }) => <span className={className}>◀</span>;
+const FaChevronRight = ({ className }: { className?: string }) => <span className={className}>▶</span>;
+const FaCheck = ({ className }: { className?: string }) => <span className={className}>✓</span>;
+const FaSave = ({ className }: { className?: string }) => <span className={className}>💾</span>;
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 import { useToast } from "@/components/ui/Toast";
 import { formatDateForInput, formatDateForStorage } from "@/lib/dateFormatHelper";
 
@@ -932,6 +932,7 @@ const InteractiveView: React.FC<any> = ({
           value={localValues[name] || ""}
           onChange={handleChange}
           disabled={readOnly}
+          aria-label={label}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
             ? "border-red-300 bg-red-50"
             : "hover:border-accent/40"

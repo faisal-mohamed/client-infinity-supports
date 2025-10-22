@@ -4,7 +4,7 @@ import Page2 from './page_2'
 import Page3 from './page_3'
 import Page4 from './page_4';
 
-export const formSchema : any = {
+const formSchema : any = {
   page1: {
     title: "Support Coordination Action Plan",
   sections: [

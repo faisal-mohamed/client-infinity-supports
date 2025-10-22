@@ -14,7 +14,7 @@ import Page11 from "./page_11";
 import Page12 from "./page_12";
 import Page13 from "./page_13";
 
-export const riskAssessmentSchema : any = {
+const riskAssessmentSchema : any = {
   page1: {
     participantDetails: [
       { key: "ndisNumber", label: "NDIS Number", type: "text" },

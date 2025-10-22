@@ -4,7 +4,7 @@ import Page2 from './page_2'
 import Page3 from './page_3'
 
 
-export const formSchema = {
+const formSchema = {
   page1: {
       tableRows :  [
   { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },

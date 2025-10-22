@@ -118,6 +118,7 @@ export default function ClientDetailPage() {
       <button
         onClick={() => router.back()}
         className="p-3 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 hover:from-slate-200 hover:to-slate-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+        aria-label="Go back"
       >
         <FaArrowLeft className="h-5 w-5" />
       </button>
@@ -131,7 +132,12 @@ export default function ClientDetailPage() {
           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{client?.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 break-words leading-tight">
+            {client?.commonFields?.name && client?.commonFields?.surname 
+              ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+              : client?.name || 'Unknown Client'
+            }
+          </h1>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
@@ -179,9 +185,14 @@ export default function ClientDetailPage() {
                     <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
                       <FaUser className="h-4 w-4" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Full Name</p>
-                      <p className="font-bold text-gray-900 text-lg">{client?.name}</p>
+                      <p className="font-bold text-gray-900 text-lg break-words leading-tight">
+                        {client?.commonFields?.name && client?.commonFields?.surname 
+                          ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+                          : client?.name || 'Not provided'
+                        }
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -191,9 +202,11 @@ export default function ClientDetailPage() {
                     <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
                       <FaEnvelope className="h-4 w-4" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Email Address</p>
-                      <p className="font-semibold text-gray-900">{client?.email || 'Not provided'}</p>
+                      <p className="font-semibold text-gray-900 break-all leading-tight">
+                        {client?.commonFields?.email || client?.email || 'Not provided'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -203,9 +216,11 @@ export default function ClientDetailPage() {
                     <div className="p-2 rounded-lg bg-green-100 text-green-600">
                       <FaPhone className="h-4 w-4" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Phone Number</p>
-                      <p className="font-semibold text-gray-900">{client?.phone || 'Not provided'}</p>
+                      <p className="font-semibold text-gray-900 break-words leading-tight">
+                        {client?.commonFields?.phone || client?.phone || 'Not provided'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -310,9 +325,9 @@ export default function ClientDetailPage() {
                       <div className="p-2 rounded-lg bg-amber-100 text-amber-600">
                         <FaMapMarkerAlt className="h-4 w-4" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Street Address</p>
-                        <p className="font-bold text-gray-900">
+                        <p className="font-bold text-gray-900 break-words leading-tight">
                           {client?.commonFields?.address || client?.commonFields?.street || 'Not provided'}
                         </p>
                       </div>
@@ -324,9 +339,11 @@ export default function ClientDetailPage() {
                       <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
                         <FaGlobe className="h-4 w-4" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-500 mb-1">State</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.state || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900 break-words leading-tight">
+                          {client?.commonFields?.state || 'Not provided'}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -336,9 +353,11 @@ export default function ClientDetailPage() {
                       <div className="p-2 rounded-lg bg-green-100 text-green-600">
                         <FaMapMarkerAlt className="h-4 w-4" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-gray-500 mb-1">Postcode</p>
-                        <p className="font-bold text-gray-900">{client?.commonFields?.postCode || 'Not provided'}</p>
+                        <p className="font-bold text-gray-900 break-words leading-tight">
+                          {client?.commonFields?.postCode || 'Not provided'}
+                        </p>
                       </div>
                     </div>
                   </div>

@@ -2,7 +2,7 @@ import React from 'react'
 import ContentAwarePagination from './components/ContentAwarePagination_FIXED';
 import './print-styles.css';
 
-export const formSchema  : any = {
+const formSchema  : any = {
     page1: {
         logoPath: '/infinity_logo.png',
         mainImagePath: '/person_centred_plan_cover_image.png',

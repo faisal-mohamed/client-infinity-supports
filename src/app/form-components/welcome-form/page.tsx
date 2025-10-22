@@ -26,7 +26,7 @@ import Page24 from './page_24';
 import Page25 from './page_25';
 import Page26 from './page_26';
 
-export const formSchema : any  = {
+const formSchema : any  = {
   title: 'Welcome Pack Receipt Acknowledgement',
   fields: [
     {
