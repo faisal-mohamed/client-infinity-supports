@@ -42,6 +42,11 @@ const getFieldValue = (
     value = formData?.[fieldKey];
   }
 
+  // Debug logging for Others fields
+  if (fieldKey.includes('Others')) {
+    console.log(`🔍 Others field "${fieldKey}" = "${value}"`);
+  }
+
   // ✅ Reformat YYYY-MM-DD to DD-MM-YYYY
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
     const parsed = parseISO(value);

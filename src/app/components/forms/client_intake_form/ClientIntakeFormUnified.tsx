@@ -107,9 +107,9 @@ const FORM_SECTIONS = [
   },
   {
     id: "medicalContact",
-    title: "Medical Contact",
+    title: "Medical Contact & Support Coordinator",
     icon: FaStethoscope,
-    description: "GP Medical Contact & Support Coordinator",
+    description: "GP Medical Contact & Support Coordinator information",
     fields: [
       "medicalCentreName", "medicalPhone", "supportCoordinatorName",
       "supportCoordinatorEmail", "supportCoordinatorCompany",
@@ -163,7 +163,7 @@ const FORM_SECTIONS = [
   },
   {
     id: "livingArrangements",
-    title: "Arrangements",
+    title: "Living & Support Arrangements",
     icon: FaHome,
     description: "Living Arrangements & Travel Arrangements",
     requiredFields: [],
@@ -183,9 +183,9 @@ const FORM_SECTIONS = [
   },
   {
     id: "safety",
-    title: "Safety Considerations",
+    title: "Safety & Support Needs",
     icon: FaShieldAlt,
-    description: "Safety Considerations",
+    description: "Safety Considerations & Personal Goals",
     requiredFields: [],
     fields: [
       "absconding", "historyOfFalls", "behaviourConcern", "positiveBehaviour",
@@ -239,6 +239,80 @@ const travelArrangementsOptions = [
   "Drive own car.",
   "Other, please specify: ",
 ];
+
+// Field metadata - shared configuration
+const FIELD_METADATA: Record<string, any> = {
+  ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter your NDIS number" },
+  givenName: { label: "Given Name", type: "text", placeholder: "Enter your first name" },
+  surname: { label: "Surname", type: "text", placeholder: "Enter your last name" },
+  preferredName: { label: "Preferred Name", type: "text", placeholder: "How would you like to be called?" },
+  dateOfBirth: { label: "Date of Birth", type: "date", placeholder: "Enter your date of birth" },
+  sex: { label: "Sex", type: "text", placeholder: "Enter your sex" },
+  pronoun: { label: "Pronoun", type: "text", placeholder: "e.g., he/him, she/her, they/them" },
+  aboriginalTorres: { label: "Aboriginal or Torres Strait Islander?", type: "dropdown", options: yesNoOptions },
+  addressNumberStreet: { label: "Address (Number/Street)", type: "text", placeholder: "Enter your street address" },
+  state: { label: "State", type: "text", placeholder: "Enter your state" },
+  postcode: { label: "Postcode", type: "text", placeholder: "Enter your postcode" },
+  email: { label: "Email", type: "email", placeholder: "Enter your email address" },
+  homePhone: { label: "Home Phone", type: "tel", placeholder: "Enter your home phone number" },
+  mobile: { label: "Mobile", type: "tel", placeholder: "Enter your mobile number" },
+  disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3, maxWords: 500 },
+  medicalCentreName: { label: "Medical Centre Name", type: "text", placeholder: "Name of your medical centre" },
+  medicalPhone: { label: "Medical Centre Phone", type: "tel", placeholder: "Medical centre phone number" },
+  supportCoordinatorName: { label: "Support Coordinator Name", type: "text", placeholder: "Coordinator's name" },
+  supportCoordinatorEmail: { label: "Support Coordinator Email", type: "email", placeholder: "Coordinator's email" },
+  supportCoordinatorCompany: { label: "Support Coordinator Company", type: "text", placeholder: "Company name" },
+  supportCoordinatorContact: { label: "Support Coordinator Contact", type: "tel", placeholder: "Contact number" },
+  otherSupports: { label: "What other supports including mainstream health services you receive at present", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4, maxWords: 500 },
+  aboutMe: { label: "", type: "textarea", placeholder: "Tell us about yourself", rows: 4, maxWords: 1000 },
+  advocateName: { label: "Advocate Name", type: "text", placeholder: "Advocate's full name" },
+  advocateEmail: { label: "Advocate Email", type: "email", placeholder: "Advocate's email" },
+  advocatePhone: { label: "Advocate Phone", type: "tel", placeholder: "Advocate's phone" },
+  advocateMobile: { label: "Advocate Mobile", type: "tel", placeholder: "Advocate's mobile" },
+  advocateAddress: { label: "Advocate Address", type: "textarea", placeholder: "Enter advocate's full address", rows: 3 },
+  advocatePostalAddress: { label: "Advocate Postal Address", type: "textarea", placeholder: "Enter advocate's postal address", rows: 3 },
+  advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3, maxWords: 300 },
+  advocateRelationship: { label: "Relationship with Participant", type: "text", placeholder: "Relationship" },
+  barriers: { label: "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services", type: "dropdown", options: yesNoOptions },
+  language: { label: "Language", type: "text", placeholder: "Primary language spoken" },
+  interpreter: { label: "Verbal communication or spoken language - Is an interpreter needed?", type: "dropdown", options: yesNoOptions },
+  countryOfBirth: { label: "Country of Birth", type: "text", placeholder: "Enter your country of birth" },
+  culturalValues: { label: "Cultural Values", type: "text", placeholder: "Important cultural values" },
+  culturalBehaviours: { label: "Cultural Behaviours", type: "text", placeholder: "Important cultural behaviours" },
+  writtenCommunication: { label: "Written Communication / Literacy", type: "text", placeholder: "Communication preferences" },
+  primaryContactName: { label: "Primary Contact Name", type: "text", placeholder: "Primary contact's full name" },
+  primaryContactRelationship: { label: "Primary Contact Relationship", type: "text", placeholder: "Relationship to you" },
+  primaryContactHomePhone: { label: "Primary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
+  primaryContactMobile: { label: "Primary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
+  secondaryContactName: { label: "Secondary Contact Name", type: "text", placeholder: "Secondary contact's full name" },
+  secondaryContactRelationship: { label: "Secondary Contact Relationship", type: "text", placeholder: "Relationship to you" },
+  secondaryContactHomePhone: { label: "Secondary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
+  secondaryContactMobile: { label: "Secondary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
+  livingArrangements: { label: "What is your current living arrangement? ", type: "checkbox", options: livingArrangementsOptions },
+  livingArrangementsOther: { label: "Please specify other living arrangement", type: "text", placeholder: "Specify other..." },
+  travelArrangements: { label: "Travel Arrangements", type: "checkbox", options: travelArrangementsOptions },
+  travelArrangementsOther: { label: "Please specify other travel arrangement", type: "text", placeholder: "Specify other..." },
+  medicationChart: { label: "Does the Participant require a Medication Chart?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: "medicationChartOthers", maxWords: 200 } },
+  mealtimeManagement: { label: "Does the Participant require Mealtime Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Mealtime Management Plan Form" } },
+  bowelCare: { label: "Does the participant require Bowel Care Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers", maxWords: 200 } },
+  menstrualIssues: { label: "Are there any issues with a menstrual cycle or is assistance needed with female hygiene ", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, Please specify", inputName: "menstrualIssuesOthers", maxWords: 200 } },
+  epilepsy: { label: "Does the Participant have Epilepsy?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", inputName: "epilepsyOthers", maxWords: 200 } },
+  asthmatic: { label: "Is the Participant an Asthmatic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Asthma Plan", inputName: "asthmaticOthers", maxWords: 200 } },
+  allergies: { label: "Does the Participant have any allergies?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", inputName: "allergiesOthers", maxWords: 200 } },
+  anaphylactic: { label: "Is the Participant anaphylactic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", inputName: "anaphylacticOthers", maxWords: 200 } },
+  minorInjury: { label: "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?", type: "dropdown", options: yesNoOptions },
+  training: { label: "Does this participant require specific training?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to provide information such as implementing a positive behaviour support plan.", inputName: "trainingOthers", maxWords: 200 } },
+  othermedical: { label: "Are there any other medication conditions that will be relevant to the care provided to this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "othermedicalOthers", maxWords: 200 } },
+  trigger: { label: "Is there any specific trigger for community activities?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify and complete the Risk assessment for participants.", inputName: "triggerOthers", maxWords: 200 } },
+  absconding: { label: "Does the Participant show signs or a history of unexpectedly leaving (absconding)?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "abscondingOthers", maxWords: 200 } },
+  historyOfFalls: { label: "Is this participant prone to falls or have a history of falls?", type: "dropdown", options: yesNoOptions },
+  behaviourConcern: { label: "Are there any Behaviours of Concern? Eg: Kicking, biting", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "behaviourConcernOthers", maxWords: 200 } },
+  positiveBehaviour: { label: "Is there a current Positive Behaviour Support Plan in place?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to High Risk Participant Register.", inputName: "positiveBehaviourOthers", maxWords: 200 } },
+  communicationAssistance: { label: "Does the participant require communication assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.", inputName: "communicationAssistanceOthers", maxWords: 200 } },
+  physicalAssistance: { label: "Is there any physical assistance or physical assistance preference for this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, specify.", inputName: "physicalAssistanceOthers", maxWords: 200 } },
+  languageConcern: { label: "Does the Participant have any expressive language concerns?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.", inputName: "languageConcernOthers", maxWords: 200 } },
+  personalGoals: { label: "Does this Participant have any personal preferences & personal goals?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
+};
 
 // ===========================
 // UNIFIED COMPONENT
@@ -468,9 +542,146 @@ const InteractiveView: React.FC<any> = ({
 
   const [localValues, setLocalValues] = useState<any>(initialValues);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
+  const [validationWarnings, setValidationWarnings] = useState<Record<string, string>>({});
+
+  // ===========================
+  // VALIDATION FUNCTIONS
+  // ===========================
+
+  /**
+   * Validates phone/mobile number format
+   * Allows: digits, spaces, hyphens, parentheses, plus sign
+   * Returns: { isValid: boolean, sanitized: string }
+   */
+  const validatePhoneNumber = (value: string): { isValid: boolean; sanitized: string; message?: string } => {
+    if (!value || value.trim() === '') {
+      return { isValid: true, sanitized: '' }; // Empty is valid (not required)
+    }
+
+    // Allow only digits, spaces, hyphens, parentheses, and plus sign
+    const phoneRegex = /^[\d\s\-\(\)\+]+$/;
+    
+    if (!phoneRegex.test(value)) {
+      return {
+        isValid: false,
+        sanitized: value.replace(/[^\d\s\-\(\)\+]/g, ''),
+        message: 'Phone numbers can only contain digits, spaces, hyphens, parentheses, and plus sign'
+      };
+    }
+
+    // Check if there are at least some digits (minimum 7 digits for a valid phone)
+    const digitsOnly = value.replace(/\D/g, '');
+    if (digitsOnly.length > 0 && digitsOnly.length < 7) {
+      return {
+        isValid: false,
+        sanitized: value,
+        message: 'Phone number must contain at least 7 digits'
+      };
+    }
+
+    return { isValid: true, sanitized: value };
+  };
+
+  /**
+   * Validates email format
+   * Returns: { isValid: boolean, message?: string }
+   */
+  const validateEmail = (value: string): { isValid: boolean; message?: string } => {
+    if (!value || value.trim() === '') {
+      return { isValid: true }; // Empty is valid (not required)
+    }
+
+    // Basic email regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(value)) {
+      return {
+        isValid: false,
+        message: 'Please enter a valid email address (e.g., example@email.com)'
+      };
+    }
+
+    // Additional checks
+    if (value.length > 254) {
+      return {
+        isValid: false,
+        message: 'Email address is too long (maximum 254 characters)'
+      };
+    }
+
+    // Check for common typos
+    const domain = value.split('@')[1];
+    if (domain) {
+      const tld = domain.split('.').pop()?.toLowerCase();
+      if (tld && tld.length === 1) {
+        return {
+          isValid: false,
+          message: 'Email domain appears incomplete. Please check and try again.'
+        };
+      }
+    }
+
+    return { isValid: true };
+  };
+
+  /**
+   * Get field type from metadata
+   */
+  const getFieldType = (fieldName: string): string => {
+    const metadata = FIELD_METADATA[fieldName];
+    return metadata?.type || 'text';
+  };
+
+  /**
+   * Debounced validation - shows toast after user stops typing
+   */
+  const performDebouncedValidation = (name: string, value: string, fieldType: string) => {
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+
+    validationTimeoutRef.current = setTimeout(() => {
+      if (fieldType === 'tel') {
+        const validation = validatePhoneNumber(value);
+        if (!validation.isValid && value.trim() !== '') {
+          showToast({
+            type: "warning",
+            title: "Invalid Phone Number",
+            message: validation.message || "Please enter a valid phone number",
+            duration: 4000,
+          });
+          setValidationWarnings(prev => ({ ...prev, [name]: validation.message || '' }));
+        } else {
+          setValidationWarnings(prev => {
+            const newWarnings = { ...prev };
+            delete newWarnings[name];
+            return newWarnings;
+          });
+        }
+      } else if (fieldType === 'email') {
+        const validation = validateEmail(value);
+        if (!validation.isValid && value.trim() !== '') {
+          showToast({
+            type: "warning",
+            title: "Invalid Email Address",
+            message: validation.message || "Please enter a valid email address",
+            duration: 4000,
+          });
+          setValidationWarnings(prev => ({ ...prev, [name]: validation.message || '' }));
+        } else {
+          setValidationWarnings(prev => {
+            const newWarnings = { ...prev };
+            delete newWarnings[name];
+            return newWarnings;
+          });
+        }
+      }
+    }, 1000); // Wait 1 second after user stops typing
+  };
 
   const trackCommonFieldChange = (name: string, value: any) => {
     return;
@@ -490,6 +701,15 @@ const InteractiveView: React.FC<any> = ({
     };
   }, [localValues, onChange]);
 
+  // Cleanup validation timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -507,6 +727,24 @@ const InteractiveView: React.FC<any> = ({
       return;
     }
 
+    // Get field type for validation
+    const fieldType = getFieldType(name);
+    let processedValue = value;
+    
+    // For phone numbers: sanitize immediately (remove invalid characters as user types)
+    if (fieldType === 'tel') {
+      // Only allow digits, spaces, hyphens, parentheses, and plus sign
+      processedValue = value.replace(/[^\d\s\-\(\)\+]/g, '');
+      
+      // Trigger debounced validation (will show toast after user stops typing)
+      performDebouncedValidation(name, processedValue, fieldType);
+    }
+
+    // For email: trigger debounced validation
+    if (fieldType === 'email') {
+      performDebouncedValidation(name, processedValue, fieldType);
+    }
+
     // Check word count limit for text inputs
     const meta = FIELD_METADATA[name];
     let maxWords = meta?.maxWords;
@@ -522,8 +760,8 @@ const InteractiveView: React.FC<any> = ({
       }
     }
     
-    if (maxWords && typeof value === 'string') {
-      const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
+    if (maxWords && typeof processedValue === 'string') {
+      const wordCount = processedValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
       
       if (wordCount > maxWords) {
         showToast({
@@ -535,11 +773,11 @@ const InteractiveView: React.FC<any> = ({
       }
     }
 
-    const newValues = { ...localValues, [name]: value };
+    const newValues = { ...localValues, [name]: processedValue };
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
-    if (isCommon) trackCommonFieldChange(name, value);
+    if (isCommon) trackCommonFieldChange(name, processedValue);
     onChange(newValues, name, isCommon);
   };
 
@@ -718,79 +956,6 @@ const InteractiveView: React.FC<any> = ({
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
   };
 
-  const FIELD_METADATA: Record<string, any> = {
-    ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter your NDIS number" },
-    givenName: { label: "Given Name", type: "text", placeholder: "Enter your first name" },
-    surname: { label: "Surname", type: "text", placeholder: "Enter your last name" },
-    preferredName: { label: "Preferred Name", type: "text", placeholder: "How would you like to be called?" },
-    dateOfBirth: { label: "Date of Birth", type: "date", placeholder: "Enter your date of birth" },
-    sex: { label: "Sex", type: "text", placeholder: "Enter your sex" },
-    pronoun: { label: "Pronoun", type: "text", placeholder: "e.g., he/him, she/her, they/them" },
-    aboriginalTorres: { label: "Aboriginal or Torres Strait Islander?", type: "dropdown", options: yesNoOptions },
-    addressNumberStreet: { label: "Address (Number/Street)", type: "text", placeholder: "Enter your street address" },
-    state: { label: "State", type: "text", placeholder: "Enter your state" },
-    postcode: { label: "Postcode", type: "text", placeholder: "Enter your postcode" },
-    email: { label: "Email", type: "email", placeholder: "Enter your email address" },
-    homePhone: { label: "Home Phone", type: "tel", placeholder: "Enter your home phone number" },
-    mobile: { label: "Mobile", type: "tel", placeholder: "Enter your mobile number" },
-    disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3, maxWords: 500 },
-    medicalCentreName: { label: "Medical Centre Name", type: "text", placeholder: "Name of your medical centre" },
-    medicalPhone: { label: "Medical Centre Phone", type: "tel", placeholder: "Medical centre phone number" },
-    supportCoordinatorName: { label: "Support Coordinator Name", type: "text", placeholder: "Coordinator's name" },
-    supportCoordinatorEmail: { label: "Support Coordinator Email", type: "email", placeholder: "Coordinator's email" },
-    supportCoordinatorCompany: { label: "Support Coordinator Company", type: "text", placeholder: "Company name" },
-    supportCoordinatorContact: { label: "Support Coordinator Contact", type: "tel", placeholder: "Contact number" },
-    otherSupports: { label: "What other supports including mainstream health services you receive at present", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4, maxWords: 500 },
-    aboutMe: { label: "", type: "textarea", placeholder: "Tell us about yourself", rows: 4, maxWords: 1000 },
-    advocateName: { label: "Advocate Name", type: "text", placeholder: "Advocate's full name" },
-    advocateEmail: { label: "Advocate Email", type: "email", placeholder: "Advocate's email" },
-    advocatePhone: { label: "Advocate Phone", type: "tel", placeholder: "Advocate's phone" },
-    advocateMobile: { label: "Advocate Mobile", type: "tel", placeholder: "Advocate's mobile" },
-    advocateAddress: { label: "Advocate Address", type: "text", placeholder: "Advocate's address" },
-    advocatePostalAddress: { label: "Advocate Postal Address", type: "text", placeholder: "Advocate's postal address" },
-    advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3, maxWords: 300 },
-    advocateRelationship: { label: "Relationship with Participant", type: "text", placeholder: "Relationship" },
-    barriers: { label: "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services", type: "dropdown", options: yesNoOptions },
-    language: { label: "Language", type: "text", placeholder: "Primary language spoken" },
-    interpreter: { label: "Verbal communication or spoken language - Is an interpreter needed?", type: "dropdown", options: yesNoOptions },
-    countryOfBirth: { label: "Country of Birth", type: "text", placeholder: "Enter your country of birth" },
-    culturalValues: { label: "Cultural Values", type: "text", placeholder: "Important cultural values" },
-    culturalBehaviours: { label: "Cultural Behaviours", type: "text", placeholder: "Important cultural behaviours" },
-    writtenCommunication: { label: "Written Communication / Literacy", type: "text", placeholder: "Communication preferences" },
-    primaryContactName: { label: "Primary Contact Name", type: "text", placeholder: "Primary contact's full name" },
-    primaryContactRelationship: { label: "Primary Contact Relationship", type: "text", placeholder: "Relationship to you" },
-    primaryContactHomePhone: { label: "Primary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
-    primaryContactMobile: { label: "Primary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
-    secondaryContactName: { label: "Secondary Contact Name", type: "text", placeholder: "Secondary contact's full name" },
-    secondaryContactRelationship: { label: "Secondary Contact Relationship", type: "text", placeholder: "Relationship to you" },
-    secondaryContactHomePhone: { label: "Secondary Contact Home Phone", type: "tel", placeholder: "Home phone number" },
-    secondaryContactMobile: { label: "Secondary Contact Mobile", type: "tel", placeholder: "Mobile phone number" },
-    livingArrangements: { label: "What is your current living arrangement? ", type: "checkbox", options: livingArrangementsOptions },
-    livingArrangementsOther: { label: "Please specify other living arrangement", type: "text", placeholder: "Specify other..." },
-    travelArrangements: { label: "Travel Arrangements", type: "checkbox", options: travelArrangementsOptions },
-    travelArrangementsOther: { label: "Please specify other travel arrangement", type: "text", placeholder: "Specify other..." },
-    medicationChart: { label: "Does the Participant require a Medication Chart?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment", inputName: "medicationChartOthers", maxWords: 200 } },
-    mealtimeManagement: { label: "Does the Participant require Mealtime Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Mealtime Management Plan Form" } },
-    bowelCare: { label: "Does the participant require Bowel Care Management?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.", inputName: "bowelCareOthers", maxWords: 200 } },
-    menstrualIssues: { label: "Are there any issues with a menstrual cycle or is assistance needed with female hygiene ", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, Please specify", inputName: "menstrualIssuesOthers", maxWords: 200 } },
-    epilepsy: { label: "Does the Participant have Epilepsy?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", inputName: "epilepsyOthers", maxWords: 200 } },
-    asthmatic: { label: "Is the Participant an Asthmatic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure Participant's Doctor completes an Asthma Plan", inputName: "asthmaticOthers", maxWords: 200 } },
-    allergies: { label: "Does the Participant have any allergies?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", inputName: "allergiesOthers", maxWords: 200 } },
-    anaphylactic: { label: "Is the Participant anaphylactic?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", inputName: "anaphylacticOthers", maxWords: 200 } },
-    minorInjury: { label: "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?", type: "dropdown", options: yesNoOptions },
-    training: { label: "Does this participant require specific training?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, ensure to provide information such as implementing a positive behaviour support plan.", inputName: "trainingOthers", maxWords: 200 } },
-    othermedical: { label: "Are there any other medication conditions that will be relevant to the care provided to this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "othermedicalOthers", maxWords: 200 } },
-    trigger: { label: "Is there any specific trigger for community activities?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify and complete the Risk assessment for participants.", inputName: "triggerOthers", maxWords: 200 } },
-    absconding: { label: "Does the Participant show signs or a history of unexpectedly leaving (absconding)?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "abscondingOthers", maxWords: 200 } },
-    historyOfFalls: { label: "Is this participant prone to falls or have a history of falls?", type: "dropdown", options: yesNoOptions },
-    behaviourConcern: { label: "Are there any Behaviours of Concern? Eg: Kicking, biting", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, please specify.", inputName: "behaviourConcernOthers", maxWords: 200 } },
-    positiveBehaviour: { label: "Is there a current Positive Behaviour Support Plan in place?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to High Risk Participant Register.", inputName: "positiveBehaviourOthers", maxWords: 200 } },
-    communicationAssistance: { label: "Does the participant require communication assistance?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.", inputName: "communicationAssistanceOthers", maxWords: 200 } },
-    physicalAssistance: { label: "Is there any physical assistance or physical assistance preference for this Participant?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, specify.", inputName: "physicalAssistanceOthers", maxWords: 200 } },
-    languageConcern: { label: "Does the Participant have any expressive language concerns?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.", inputName: "languageConcernOthers", maxWords: 200 } },
-    personalGoals: { label: "Does this Participant have any personal preferences & personal goals?", type: "dropdown", options: yesNoOptions, showIfYes: { label: "If yes, refer to form Support Plan" } },
-  };
-
   const renderInput = (
     label: string,
     name: string,
@@ -804,10 +969,19 @@ const InteractiveView: React.FC<any> = ({
       : localValues[name] || "";
 
     const isFieldReadOnly = readOnly || isCommon;
+    const hasValidationWarning = validationWarnings[name];
 
     if (type === 'date' && displayValue) {
       displayValue = formatDateForInput(displayValue);
     }
+
+    // Helper text for different field types
+    const getHelperText = () => {
+      // No helper text needed - validation messages will show when there's an issue
+      return null;
+    };
+
+    const helperText = getHelperText();
 
     return (
       <div className="flex flex-col gap-1">
@@ -822,15 +996,30 @@ const InteractiveView: React.FC<any> = ({
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name]
-            ? "border-red-300 bg-red-50"
+          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 transition-all placeholder-gray-400 ${
+            fieldErrors[name]
+              ? "border-red-300 bg-red-50 focus:ring-red-400"
+              : hasValidationWarning
+              ? "border-amber-300 bg-amber-50 focus:ring-amber-400 focus:border-amber-400"
             : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
-              : "hover:border-accent/40"
+              ? "bg-blue-50 border-blue-200 text-blue-800 focus:ring-blue-400"
+              : "border-gray-200 hover:border-accent/40 focus:ring-accent focus:border-accent"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
         {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+          <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>{fieldErrors[name]}</span>
+          </p>
+        )}
+        {!fieldErrors[name] && hasValidationWarning && (
+          <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>{hasValidationWarning}</span>
+          </p>
+        )}
+        {!fieldErrors[name] && !hasValidationWarning && helperText && (
+          <p className="text-xs text-gray-500 mt-1">{helperText}</p>
         )}
       </div>
     );
@@ -1262,13 +1451,153 @@ const InteractiveView: React.FC<any> = ({
 
 const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, getFieldValue }) => {
   const timestamp = new Date().toISOString();
-  console.log(`🔍 PDFView in ClientIntakeFormUnified.tsx is being used for PDF generation - ${timestamp}`);
+  console.log(`🔍 PDFView UPDATED - Using new renderAllFields() function - ${timestamp}`);
   console.log('📊 Form data keys:', Object.keys(formData || {}));
+  console.log('🎯 Rendering ALL 71 fields with section headers');
   
   // Use the same styling approach as ClientIntakev2Natural
   const cleanText = (text: string) => {
     if (!text) return '';
     return text.replace(/\n\s*\n/g, '\n').trim();
+  };
+
+  // Helper function to render all fields dynamically
+  const renderAllFields = () => {
+    console.log('🚀 renderAllFields() called - rendering all sections');
+    console.log('📋 FORM_SECTIONS:', FORM_SECTIONS.length, 'sections');
+    console.log('🔧 FIELD_METADATA keys:', Object.keys(FIELD_METADATA).length, 'fields');
+    
+    return FORM_SECTIONS.map((section, sectionIndex) => (
+      <div key={section.id} className="mb-8">
+        {/* Section Header */}
+        <div className="bg-blue-600 text-white px-4 py-3 rounded-t-lg mb-0">
+          <h2 className="text-lg font-semibold">SECTION {sectionIndex + 1}: {section.title.toUpperCase()}</h2>
+          <p className="text-blue-100 text-sm mt-1">{section.description}</p>
+        </div>
+        
+        {/* Section Content */}
+        <div className="border border-gray-200 border-t-0 rounded-b-lg p-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {section.fields.map((fieldName: string) => {
+              const meta = FIELD_METADATA[fieldName];
+              if (!meta) return null;
+              
+              const value = getFieldValue(fieldName);
+              const displayValue = value || "";
+              
+              // Handle different field types
+              if (meta.type === "textarea") {
+                return (
+                  <div key={fieldName} className="md:col-span-2">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {meta.label}
+                      </label>
+                      <div className="min-h-[80px] p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                        {displayValue || <span className="text-gray-400 italic">No information provided</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              
+              if (meta.type === "checkbox") {
+                const selectedOptions = Array.isArray(displayValue) ? displayValue : [];
+                const otherFieldName = fieldName + "Other";
+                const otherValue = getFieldValue(otherFieldName);
+                
+                return (
+                  <div key={fieldName} className="md:col-span-2">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {meta.label}
+                      </label>
+                      <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                        {selectedOptions.length > 0 ? (
+                          <div className="space-y-1">
+                            {selectedOptions.map((option: string, index: number) => (
+                              <div key={index} className="flex items-center gap-2">
+                                <span className="w-4 h-4 border border-black flex justify-center items-center text-xs">✔</span>
+                                <span>{option}</span>
+                              </div>
+                            ))}
+                            {otherValue && (
+                              <div className="flex items-center gap-2">
+                                <span className="w-4 h-4 border border-black flex justify-center items-center text-xs">✔</span>
+                                <span>Other: {otherValue}</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 italic">No options selected</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              
+              if (meta.type === "dropdown" && meta.options) {
+                const isYesNo = meta.options.includes("Yes") && meta.options.includes("No");
+                const detailsField = meta.showIfYes?.inputName;
+                
+                if (isYesNo) {
+                  return (
+                    <div key={fieldName} className="md:col-span-2">
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {meta.label}
+                        </label>
+                        <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                          <div className="flex items-center gap-6 mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-4 h-4 border border-black flex justify-center items-center text-xs">
+                                {displayValue === "Yes" ? "✔" : ""}
+                              </span>
+                              <span className="font-medium">Yes</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="w-4 h-4 border border-black flex justify-center items-center text-xs">
+                                {displayValue === "No" ? "✔" : ""}
+                              </span>
+                              <span className="font-medium">No</span>
+                            </div>
+                          </div>
+                          {displayValue === "Yes" && detailsField && (
+                            <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+                              <div className="text-sm font-medium text-gray-700 mb-2">
+                                {meta.showIfYes?.label || "Details:"}
+                              </div>
+                              <div className="text-sm text-gray-600 whitespace-pre-wrap">
+                                {getFieldValue(detailsField) || <span className="text-gray-400 italic">No details provided</span>}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              }
+              
+              // Default text input
+              return (
+                <div key={fieldName} className={meta.type === "textarea" ? "md:col-span-2" : ""}>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {meta.label}
+                    </label>
+                    <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                      {displayValue || <span className="text-gray-400 italic">No information provided</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   // Helper function to calculate dynamic height based on content length
@@ -1544,9 +1873,9 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
   };
 
   return (
-    <div className="print:p-0">
-      {/* PAGE 1: Personal Information */}
-      <A4Page>
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Form Title */}
+      <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
           <img
             alt="Infinity Logo"
@@ -1556,759 +1885,14 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
             className="object-contain"
           />
         </div>
-        <div className="flex-1">
-          <table className="w-full h-full border-collapse border border-black text-xs">
-            <tbody>
-              <tr className="bg-gray-300 font-semibold text-white">
-                <td className="border border-black px-2 py-1" colSpan={4}>Participant Details</td>
-              </tr>
-              {/* Date - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Date:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('date') || ' '}
-                </td>
-              </tr>
-              {/* NDIS Number - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>NDIS Number:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('ndisNumber') || ' '}
-                </td>
-              </tr>
-              {/* Given Names - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Given name(s):</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('givenName') || ' '}
-                </td>
-              </tr>
-              {/* Surname - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Surname:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('surname') || ' '}
-                </td>
-              </tr>
-              {/* Sex Field - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Sex:</td>
-                <td className="border border-black px-2 py-1" colSpan={3}>
-                  {displayCheckboxGroup(["Male", "Female", "Prefer not to say"], getFieldValue('sex'))}
-                </td>
-              </tr>
-              {/* Pronoun Field - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Pronoun:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('pronoun') || ' '}
-                </td>
-              </tr>
-              {/* Aboriginal/Torres Strait Island - Single Box with Horizontal Checkboxes */}
-              <tr>
-                <td className="border border-black px-2 py-1" colSpan={4}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Are you an Aboriginal or Torres Strait Island descent?</span>
-                    <div className="flex flex-row gap-4">
-                      {displayCheckboxGroup(["Yes", "No"], getFieldValue('aboriginalTorres'))}
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">CLIENT INTAKE FORM</h1>
+        <p className="text-gray-600">All fields are displayed below - please review carefully</p>
                     </div>
-                  </div>
-                </td>
-              </tr>
-              {/* Preferred Name - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Preferred name:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('preferredName') || ' '}
-                </td>
-              </tr>
-              {/* Date of Birth - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Date of Birth:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('dateOfBirth') || ' '}
-                </td>
-              </tr>
 
-              <tr className="bg-gray-300 font-semibold text-white">
-                <td className="border border-black px-2 py-1" colSpan={4}>Residential Address Details</td>
-              </tr>
-              {/* Number / Street - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Number / Street:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('addressNumberStreet') || ' '}
-                </td>
-              </tr>
-              {/* State - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>State:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('state') || ' '}
-                </td>
-              </tr>
-              {/* Postcode - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Postcode:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('postcode') || ' '}
-                </td>
-              </tr>
-
-              <tr className="bg-gray-300 font-semibold text-white">
-                <td className="border border-black px-2 py-1" colSpan={4}>Participant Contact Details</td>
-              </tr>
-              {/* Email Address - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Email address:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('email') || ' '}
-                </td>
-              </tr>
-              {/* Home Phone No - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Home Phone No:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('homePhone') || ' '}
-                </td>
-              </tr>
-              {/* Mobile No - Single Row */}
-              <tr>
-                <td className="border border-black px-2 py-1 font-semibold" style={{ width: "25%" }}>Mobile No:</td>
-                <td className="border border-black px-2 py-1" colSpan={3} style={{ borderBottom: "1px solid #000" }}>
-                  {getFieldValue('mobile') || ' '}
-                </td>
-              </tr>
-
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-1 py-0.5" colSpan={4}>Disability Conditions/Disability type(s)</td>
-              </tr>
-              <tr>
-                <td
-                  className="border border-black px-2 py-2 align-top text-xs bg-white"
-                  colSpan={4}
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    minHeight: '120px',
-                    width: '100%',
-                    display: 'block',
-                    boxSizing: 'border-box',
-                    textOverflow: 'clip',
-                    maxHeight: 'none',
-                    lineClamp: 'none',
-                    WebkitLineClamp: 'none',
-                    height: 'auto',
-                    breakInside: 'auto',
-                    pageBreakInside: 'auto',
-                    fontSize: '13px',
-                    lineHeight: '1.4'
-                  }}
-                >
-                  {getFieldValue('disabilityConditions') || ' '}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </A4Page>
-
-      {/* PAGE 2: Medical Contact & Support Coordinator */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={150}
-            height={60}
-            className="object-contain"
-          />
-        </div>
-        {/* Medical Contact & Support Coordinator Table */}
-        <div className="w-full mb-6">
-          <table className="w-full border-collapse border border-black text-sm"
-            style={{
-              tableLayout: 'fixed',
-              width: '100%',
-              breakInside: 'auto',
-              pageBreakInside: 'auto'
-            }}
-          >
-            <tbody>
-              {/* GP Medical Contact Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>GP Medical Contact</td>
-              </tr>
-              {/* Medical Centre Name - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Medical Centre Name:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('medicalCentreName') || ' '}
-                </td>
-              </tr>
-              {/* Phone - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Phone:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('medicalPhone') || ' '}
-                </td>
-              </tr>
-
-              {/* Support Coordinator Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Support Coordinator</td>
-              </tr>
-              {/* Name - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Name:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('supportCoordinatorName') || ' '}
-                </td>
-              </tr>
-              {/* Email Address - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Email Address:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('supportCoordinatorEmail') || ' '}
-                </td>
-              </tr>
-              {/* Company - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Company:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('supportCoordinatorCompany') || ' '}
-                </td>
-              </tr>
-              {/* Contact Number - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Contact number:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('supportCoordinatorContact') || ' '}
-                </td>
-              </tr>
-
-              {/* What other supports Section - Move outside table for better flow */}
-            </tbody>
-          </table>
-        </div>
-
-        {/* What other supports Section - Standalone for better text flow */}
-        <div className="w-full mt-6 mb-4">
-          {/* Header Bar */}
-          <div className="bg-gray-300 border border-black px-2 py-1">
-            <span className="font-semibold text-black text-xs">What other supports including mainstream health services you receive at present</span>
-          </div>
-
-          {/* Content Area - Dynamic Height */}
-          <div
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              overflow: 'visible',
-              minHeight: '120px',
-              width: '100%',
-              display: 'block',
-              boxSizing: 'border-box',
-              textOverflow: 'clip',
-              maxHeight: 'none',
-              lineClamp: 'none',
-              WebkitLineClamp: 'none',
-              border: '1px solid black',
-              borderTop: 'none',
-              padding: '12px',
-              backgroundColor: 'white',
-              fontSize: '12px',
-              lineHeight: '1.4',
-              height: 'auto',
-              breakInside: 'auto',
-              pageBreakInside: 'auto'
-            }}
-          >
-            {getFieldValue('otherSupports') || ' '}
-          </div>
-        </div>
-
-        {/* Continue with next table if needed */}
-        <div className="flex-1 mt-4">
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-      </A4Page>
-
-      {/* PAGE 3: All About Me - Compact Header Bar */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={150}
-            height={60}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1">
-          {/* Compact Header Bar */}
-          <div className="bg-gray-300 border border-black px-2 py-1">
-            <span className="font-semibold text-black text-xs">All About Me</span>
-          </div>
-
-          {/* Content Area - Fixed Text Overflow Issue */}
-          <div
-            style={{
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              overflow: 'visible',
-              minHeight: '120px',
-              width: '100%',
-              display: 'block',
-              boxSizing: 'border-box',
-              textOverflow: 'clip',
-              maxHeight: 'none',
-              lineClamp: 'none',
-              WebkitLineClamp: 'none',
-              border: '1px solid black',
-              borderTop: 'none',
-              padding: '8px',
-              backgroundColor: 'white',
-              fontSize: '12px',
-              lineHeight: '1.4',
-              height: 'auto',
-              breakInside: 'auto',
-              pageBreakInside: 'auto'
-            }}
-          >
-            {getFieldValue('aboutMe') || ' '}
-          </div>
-        </div>
-      </A4Page>
-
-      {/* PAGE 4: Advocate Details */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={150}
-            height={60}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1">
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-              {/* Advocate Header */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Advocate/representative details (if applicable)</td>
-              </tr>
-
-              {/* Name - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Name:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('advocateName') || ' '}
-                </td>
-              </tr>
-
-              {/* Relationship - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Relationship with the participant:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('advocateRelationship') || ' '}
-                </td>
-              </tr>
-
-              {/* Phone No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Phone No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('advocatePhone') || ' '}
-                </td>
-              </tr>
-
-              {/* Mobile No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Mobile No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('advocateMobile') || ' '}
-                </td>
-              </tr>
-
-              {/* Email - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Email:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('advocateEmail') || ' '}
-                </td>
-              </tr>
-
-              {/* Address Details - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Address Details:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    height: 'auto',
-                    minHeight: '40px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('advocateAddress') || ' '}
-                </td>
-              </tr>
-
-              {/* Postal Address Details - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Postal Address Details:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    height: 'auto',
-                    minHeight: '40px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('advocatePostalAddress') || ' '}
-                </td>
-              </tr>
-
-              {/* Other Information - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Other Information:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    minHeight: '120px',
-                    width: '100%',
-                    display: 'block',
-                    boxSizing: 'border-box',
-                    textOverflow: 'clip',
-                    maxHeight: 'none',
-                    lineClamp: 'none',
-                    WebkitLineClamp: 'none',
-                    height: 'auto',
-                    breakInside: 'auto',
-                    pageBreakInside: 'auto',
-                    fontSize: '13px',
-                    lineHeight: '1.4'
-                  }}
-                >
-                  {getFieldValue('advocateOtherInfo') || ' '}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </A4Page>
-
-      {/* PAGE 5: Personal Situation */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={150}
-            height={60}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1">
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-              {/* Personal Situation Header */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Personal Situation</td>
-              </tr>
-
-              {/* Barriers Question - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {displayCheckboxGroup(["Yes", "No"], getFieldValue('barriers'))}
-                </td>
-              </tr>
-
-              {/* Interpreter Question - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Verbal communication or spoken language - Is an interpreter needed?</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {displayCheckboxGroup(["Yes", "No"], getFieldValue('interpreter'))}
-                </td>
-              </tr>
-
-              {/* Language - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Language:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('language') || ' '}
-                </td>
-              </tr>
-
-              {/* Country of Birth - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Country of birth:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('countryOfBirth') || ' '}
-                </td>
-              </tr>
-
-              {/* Cultural Values - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Cultural values/ beliefs or assumptions:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    height: 'auto',
-                    minHeight: '40px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('culturalValues') || ' '}
-                </td>
-              </tr>
-
-              {/* Cultural Behaviours - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Cultural behaviours:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    height: 'auto',
-                    minHeight: '40px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('culturalBehaviours') || ' '}
-                </td>
-              </tr>
-
-              {/* Written Communication - Dynamic Height */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Written communication/literacy:</td>
-                <td
-                  className="border border-black px-3 py-3 align-top"
-                  colSpan={3}
-                  style={{
-                    height: 'auto',
-                    minHeight: '40px',
-                    whiteSpace: 'pre-wrap',
-                    wordWrap: 'break-word',
-                    overflow: 'visible',
-                    fontSize: '13px'
-                  }}
-                >
-                  {getFieldValue('writtenCommunication') || ' '}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </A4Page>
-
-      {/* PAGE 6: Contact Details & Living Arrangements */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={150}
-            height={70}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1">
-          <table className="w-full border-collapse border border-black text-sm">
-            <tbody>
-              {/* Primary Contact Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Primary Contact</td>
-              </tr>
-
-              {/* Contact Name - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Contact Name:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('primaryContactName') || ' '}
-                </td>
-              </tr>
-
-              {/* Relationship - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Relationship:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('primaryContactRelationship') || ' '}
-                </td>
-              </tr>
-
-              {/* Home Phone No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Home Phone No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('primaryContactHomePhone') || ' '}
-                </td>
-              </tr>
-
-              {/* Mobile No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Mobile No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('primaryContactMobile') || ' '}
-                </td>
-              </tr>
-
-              {/* Secondary Contact Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Secondary Contact</td>
-              </tr>
-
-              {/* Contact Name - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Contact Name:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('secondaryContactName') || ' '}
-                </td>
-              </tr>
-
-              {/* Relationship - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Relationship:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('secondaryContactRelationship') || ' '}
-                </td>
-              </tr>
-
-              {/* Home Phone No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Home Phone No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('secondaryContactHomePhone') || ' '}
-                </td>
-              </tr>
-
-              {/* Mobile No - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>Mobile No:</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {getFieldValue('secondaryContactMobile') || ' '}
-                </td>
-              </tr>
-
-              {/* Living and support arrangements Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Living and support arrangements</td>
-              </tr>
-
-              {/* Living Arrangement Question - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>What is your current living arrangement? (Please tick the appropriate box)</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {displaySelectedOptions(getFieldValue('livingArrangements'), getFieldValue('livingArrangementsOther'))}
-                </td>
-              </tr>
-
-              {/* Travel Section */}
-              <tr className="bg-gray-300 font-semibold">
-                <td className="border border-black px-3 py-2" colSpan={4} style={{ fontSize: '14px' }}>Travel</td>
-              </tr>
-
-              {/* Travel Question - Single Row */}
-              <tr>
-                <td className="border border-black px-3 py-2 font-semibold" style={{ width: "25%", fontSize: '13px' }}>How do you travel to work or to your day service? (Please tick the appropriate box)</td>
-                <td className="border border-black px-3 py-2" colSpan={3} style={{ borderBottom: "1px solid #000", fontSize: '13px' }}>
-                  {displaySelectedOptions(getFieldValue('travelArrangements'), getFieldValue('travelArrangementsOther'))}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </A4Page>
-
-      {/* PAGE 7: Medical Information */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={120}
-            height={50}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1 px-6 py-4">
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 bg-gray-200 px-4 py-2 rounded">
-              Medication Information/Diagnosis/Health Concerns
-            </h2>
-
-            {renderYesNoQuestion('medicationChart', 'Does the Participant require a Medication Chart?', 'medicationChartOthers')}
-            {renderYesNoQuestion('mealtimeManagement', 'Does the Participant require Mealtime Management?')}
-            {renderYesNoQuestion('bowelCare', 'Does the participant require Bowel Care Management?', 'bowelCareOthers')}
-            {renderYesNoQuestion('menstrualIssues', 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', 'menstrualIssuesOthers')}
-            {renderYesNoQuestion('epilepsy', 'Does the Participant have Epilepsy?', 'epilepsyOthers')}
-            {renderYesNoQuestion('asthmatic', 'Is the Participant an Asthmatic?', 'asthmaticOthers')}
-            {renderYesNoQuestion('allergies', 'Does the Participant have any allergies?', 'allergiesOthers')}
-            {renderYesNoQuestion('anaphylactic', 'Is the Participant anaphylactic?', 'anaphylacticOthers')}
-            {renderYesNoQuestion('minorInjury', 'Do you give permission for our company\'s staff to administer band-aids in cases of a minor injury?')}
-            {renderYesNoQuestion('training', 'Does this participant require specific training?', 'trainingOthers')}
-            {renderYesNoQuestion('othermedical', 'Are there any other medication conditions that will be relevant to the care provided to this Participant?', 'othermedicalOthers')}
-            {renderYesNoQuestion('trigger', 'Is there any specific trigger for community activities?', 'triggerOthers')}
-          </div>
-        </div>
-      </A4Page>
-
-      {/* PAGE 8: Safety Considerations */}
-      <A4Page>
-        <div className="flex justify-center mb-4">
-          <img
-            alt="Infinity Logo"
-            src={images?.infinityLogo || "/infinity_logo.png"}
-            width={120}
-            height={50}
-            className="object-contain"
-          />
-        </div>
-        <div className="flex-1 px-6 py-4">
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-800 mb-4 bg-gray-200 px-4 py-2 rounded">
-              Safety Considerations
-            </h2>
-
-            {renderYesNoQuestion('absconding', 'Does the Participant show signs or a history of unexpectedly leaving (absconding)?', 'abscondingOthers')}
-            {renderYesNoQuestion('historyOfFalls', 'Is this participant prone to falls or have a history of falls?')}
-            {renderYesNoQuestion('behaviourConcern', 'Are there any behaviours of concern? E.g.: kicking, biting', 'behaviourConcernOthers')}
-            {renderYesNoQuestion('positiveBehaviour', 'Is there a current Positive Behaviour Support Plan in place', 'positiveBehaviourOthers')}
-            {renderYesNoQuestion('communicationAssistance', 'Does the participant require communication assistance?', 'communicationAssistanceOthers')}
-            {renderYesNoQuestion('physicalAssistance', 'Is there any physical assistance or physical assistance preference for this Participant?', 'physicalAssistanceOthers')}
-            {renderYesNoQuestion('languageConcern', 'Does the Participant have any expressive language concerns?', 'languageConcernOthers')}
-            {renderYesNoQuestion('personalGoals', 'Does this Participant have any personal preferences & personal goals?')}
-          </div>
-        </div>
-      </A4Page>
+      {/* Form Sections */}
+      {renderAllFields()}
     </div>
   );
 };
 
 export default ClientIntakeFormUnified;
-

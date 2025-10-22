@@ -68,6 +68,11 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     { key: 'primaryContactName', label: 'Primary Contact Name', type: 'text' },
     { key: 'primaryContactRelationship', label: 'Primary Contact Relationship', type: 'text' },
     { key: 'primaryContactPhone', label: 'Primary Contact Phone', type: 'text' },
+    { key: 'primaryContactMobile', label: 'Primary Contact Mobile', type: 'text' },
+    { key: 'secondaryContactName', label: 'Secondary Contact Name', type: 'text' },
+    { key: 'secondaryContactRelationship', label: 'Secondary Contact Relationship', type: 'text' },
+    { key: 'secondaryContactHomePhone', label: 'Secondary Contact Home Phone', type: 'text' },
+    { key: 'secondaryContactMobile', label: 'Secondary Contact Mobile', type: 'text' },
     { key: 'emergencyContactName', label: 'Emergency Contact Name', type: 'text' },
     { key: 'emergencyContactRelationship', label: 'Emergency Contact Relationship', type: 'text' },
     { key: 'emergencyContactPhone', label: 'Emergency Contact Phone', type: 'text' },
@@ -75,6 +80,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     // Living Arrangements
     { key: 'livingArrangements', label: 'Living Arrangements', type: 'text' },
     { key: 'livingArrangementsOthers', label: 'Living Arrangements Details', type: 'longtext' },
+    { key: 'travelArrangements', label: 'Travel Arrangements', type: 'text' },
+    { key: 'travelArrangementsOthers', label: 'Travel Arrangements Details', type: 'longtext' },
     
     // Medical Information
     { key: 'medicationChart', label: 'Does the Participant require a Medication Chart?', type: 'text' },
@@ -86,6 +93,19 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     { key: 'personalCareOthers', label: 'Personal Care Details', type: 'longtext' },
     { key: 'mobilityAids', label: 'Does the participant use any mobility aids?', type: 'text' },
     { key: 'mobilityAidsOthers', label: 'Mobility Aids Details', type: 'longtext' },
+    { key: 'epilepsy', label: 'Epilepsy', type: 'text' },
+    { key: 'epilepsyOthers', label: 'Epilepsy Details', type: 'longtext' },
+    { key: 'asthma', label: 'Asthma', type: 'text' },
+    { key: 'asthmaOthers', label: 'Asthma Details', type: 'longtext' },
+    { key: 'allergies', label: 'Allergies', type: 'text' },
+    { key: 'allergiesOthers', label: 'Allergy Details', type: 'longtext' },
+    { key: 'anaphylaxis', label: 'Anaphylaxis', type: 'text' },
+    { key: 'anaphylaxisOthers', label: 'Anaphylaxis Details', type: 'longtext' },
+    { key: 'minorInjuryPermission', label: 'Minor Injury Permission', type: 'text' },
+    { key: 'training', label: 'Training', type: 'text' },
+    { key: 'trainingOthers', label: 'Training Details', type: 'longtext' },
+    { key: 'otherMedical', label: 'Other Medical', type: 'text' },
+    { key: 'otherMedicalOthers', label: 'Other Medical Details', type: 'longtext' },
     { key: 'trigger', label: 'Is there any specific trigger for community activities?', type: 'text' },
     { key: 'triggerOthers', label: 'Trigger Details', type: 'longtext' },
     
@@ -95,15 +115,26 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     { key: 'behaviourSupport', label: 'Does this Participant require Behaviour Support?', type: 'text' },
     { key: 'behaviourSupportOthers', label: 'Behaviour Support Details', type: 'longtext' },
     { key: 'personalGoals', label: 'Does this Participant have any personal preferences & personal goals?', type: 'text' },
-    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' }
+    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' },
+    { key: 'absconding', label: 'Absconding', type: 'text' },
+    { key: 'abscondingOthers', label: 'Absconding Details', type: 'longtext' },
+    { key: 'historyOfFalls', label: 'History of Falls', type: 'text' },
+    { key: 'behaviourConcerns', label: 'Behaviour Concerns', type: 'text' },
+    { key: 'behaviourConcernOthers', label: 'Behaviour Concern Details', type: 'longtext' },
+    { key: 'positiveBehaviourSupport', label: 'Positive Behaviour Support', type: 'text' },
+    { key: 'positiveBehaviourOthers', label: 'Positive Behaviour Details', type: 'longtext' },
+    { key: 'communicationAssistance', label: 'Communication Assistance', type: 'text' },
+    { key: 'communicationAssistanceOthers', label: 'Communication Assistance Details', type: 'longtext' },
+    { key: 'physicalAssistance', label: 'Physical Assistance', type: 'text' },
+    { key: 'physicalAssistanceOthers', label: 'Physical Assistance Details', type: 'longtext' },
+    { key: 'languageConcerns', label: 'Language Concerns', type: 'text' },
+    { key: 'languageConcernOthers', label: 'Language Concern Details', type: 'longtext' }
   ];
 
   // Calculate field height based on content
   const calculateFieldHeight = (field: any) => {
     const value = getFieldValue(field.key);
-    if (!value) return 0;
-    
-    const valueStr = String(value);
+    const valueStr = String(value || '');
     const isLongText = field.type === 'longtext';
     
     // Base height for header + borders + padding
@@ -112,7 +143,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     // Calculate content height based on text length
     const charsPerLine = 80; // Approximate characters per line
     const lineHeight = 12; // Line height in pixels
-    const lines = Math.max(1, Math.ceil(valueStr.length / charsPerLine));
+    const lines = Math.max(1, Math.ceil(Math.max(1, valueStr.length) / charsPerLine));
     const contentHeight = lines * lineHeight;
     
     // Minimum heights
@@ -151,11 +182,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     return pages;
   };
 
-  // Filter fields with values
-  const fieldsWithValues = allFields.filter(field => {
-    const value = getFieldValue(field.key);
-    return value && String(value).trim() !== '';
-  });
+  // Show all fields, not just ones with values
+  const fieldsWithValues = allFields;
 
   // Group fields by height instead of fixed count
   const pages = groupFieldsByHeight();

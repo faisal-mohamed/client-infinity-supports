@@ -346,6 +346,7 @@ export default function FormViewPageClient() {
             isAdminView={true}
             commonFieldsData={commonFields}
             settings={settings}
+            mode="pdf"
           />
         </div>
       </div>

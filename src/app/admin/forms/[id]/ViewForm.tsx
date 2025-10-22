@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import FormRenderer from "@/components/clients-intake-form/FormRenderer";
+import ClientIntakeFormDynamic from "@/app/components/forms/client_intake_form/ClientIntakeFormDynamic";
 import Link from "next/link";
 import {
   FaArrowLeft,
@@ -185,7 +186,11 @@ export default function ViewFormClient({ formId }: { formId: string }) {
           <div className="p-8">
             <div className="p-8 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50">
               {form.formKey === "client_intake_form" ? (
-                <FormRenderer formKey={form.formKey} formSchema={form.schema} settings={settings} />
+                <>
+                  {console.log("ViewForm DEBUG - form.data:", form.data)}
+                  {console.log("ViewForm DEBUG - settings:", settings)}
+                  <ClientIntakeFormDynamic formKey={form.formKey} settings={settings} formData={form.data} />
+                </>
               ) : form.formKey === "home_visit_risk_assessment" ? (
                 <HomeRiskAssesmentView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "person_centred_plan" ? (
