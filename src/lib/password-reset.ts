@@ -19,20 +19,32 @@ export function isValidVerificationCode(code: string): boolean {
 
 /**
  * Check if a password meets minimum requirements
+ * Requirements:
+ * - At least 15 characters
+ * - At least one uppercase letter (A-Z)
+ * - At least one number (0-9)
+ * - At least one special character (!@#$%^&*_-+=[]{}|;:,.<>?)
  */
 export function isValidPassword(password: string): { valid: boolean; message?: string } {
   if (!password) {
     return { valid: false, message: 'Password is required' };
   }
   
-  if (password.length < 6) {
-    return { valid: false, message: 'Password must be at least 6 characters long' };
+  if (password.length < 15) {
+    return { valid: false, message: 'Password must be at least 15 characters long' };
   }
   
-  // Add more password requirements if needed
-  // if (!/(?=.*[a-z])/.test(password)) {
-  //   return { valid: false, message: 'Password must contain at least one lowercase letter' };
-  // }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one uppercase letter (A-Z)' };
+  }
+  
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one number (0-9)' };
+  }
+  
+  if (!/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password)) {
+    return { valid: false, message: 'Password must contain at least one special character (!@#$%^&*_-+=[]{}|;:,.<>?)' };
+  }
   
   return { valid: true };
 }
