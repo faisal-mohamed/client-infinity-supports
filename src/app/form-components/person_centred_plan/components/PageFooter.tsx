@@ -15,7 +15,7 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
       <div className="flex justify-between items-center text-xs text-gray-700">
         <div>
           <a
-            className="text-blue-600 underline"
+            className="text-gray-600 underline"
             href={settings?.company_website || 'https://www.infinitysupportswa.org'}
             target="_blank"
             rel="noopener noreferrer"

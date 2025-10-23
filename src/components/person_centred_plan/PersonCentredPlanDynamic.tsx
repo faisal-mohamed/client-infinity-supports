@@ -206,11 +206,11 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     
     return (
       <div key={field.key} className="mb-3">
-        <div className="bg-blue-100 border border-blue-300 px-2 py-1 rounded-t">
-          <span className="font-bold text-xs text-blue-800">{field.label}</span>
+        <div className="bg-gray-100 border border-gray-300 px-2 py-1 rounded-t">
+          <span className="font-bold text-xs text-gray-800">{field.label}</span>
         </div>
-        <div 
-          className="border border-blue-300 border-t-0 p-2 bg-white rounded-b"
+        <div
+          className="border border-gray-300 border-t-0 p-2 bg-white rounded-b"
           style={{
             whiteSpace: 'pre-wrap',
             wordWrap: 'break-word',

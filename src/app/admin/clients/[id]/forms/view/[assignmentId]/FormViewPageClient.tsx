@@ -90,6 +90,17 @@ export default function FormViewPageClient() {
 };
 
 
+  // Check if this is a person-centered plan form
+  const isPersonCenteredPlan = () => {
+    return assignment?.form?.formKey === 'person_centred_plan' || 
+           assignment?.form?.title?.toLowerCase().includes('person cent');
+  };
+
+  // Handle download button click
+  const handleDownloadButtonClick = () => {
+    handleDownloadPDF();
+  };
+
   // Download PDF function
   const handleDownloadPDF = async () => {
     if (!assignment || !assignment.submissionId) {
@@ -303,7 +314,7 @@ export default function FormViewPageClient() {
 
         {/* Download PDF Button */}
         <button
-          onClick={handleDownloadPDF}
+          onClick={handleDownloadButtonClick}
           disabled={downloadingPDF}
           className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white font-medium rounded-lg hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
           title="Download PDF"
@@ -350,6 +361,195 @@ export default function FormViewPageClient() {
           />
         </div>
       </div>
+
+      {/* Person Centered Plan - Goals, Support Information & Informal Supports Section */}
+      {isPersonCenteredPlan() && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* ===== GOALS & OUTCOMES SECTION ===== */}
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden mb-8">
+            {/* Header with Icon - Like PDF header */}
+            <div className="bg-white border-b border-gray-300 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-800">4. Goals & Outcomes</h3>
+              </div>
+            </div>
+
+            {/* Content Area - Like PDF content */}
+            <div className="px-6 py-6">
+              <div className="space-y-6">
+                {[1, 2, 3, 4, 5].map((goalNum) => {
+                  const goal = assignment?.submissionData?.[`goal${goalNum}`] || commonFields?.[`goal${goalNum}`] || '';
+                  const rating = assignment?.submissionData?.[`rating${goalNum}`] || commonFields?.[`rating${goalNum}`] || '';
+                  const actions = assignment?.submissionData?.[`actions${goalNum}`] || commonFields?.[`actions${goalNum}`] || '';
+                  const byWhom = assignment?.submissionData?.[`byWhom${goalNum}`] || commonFields?.[`byWhom${goalNum}`] || '';
+                  const byWhen = assignment?.submissionData?.[`byWhen${goalNum}`] || commonFields?.[`byWhen${goalNum}`] || '';
+                  const reviewDate = assignment?.submissionData?.[`reviewDate${goalNum}`] || commonFields?.[`reviewDate${goalNum}`] || '';
+                  
+                  if (!goal && !rating && !actions && !byWhom && !byWhen && !reviewDate) return null;
+                  
+                  return (
+                    <div key={goalNum} className="border border-gray-300 rounded">
+                      {/* Goal label with badge */}
+                      <div className="bg-gray-100 px-4 py-2 border-b border-gray-300 flex items-center justify-between">
+                        <span className="font-semibold text-gray-800 text-sm">Goal {goalNum}</span>
+                        {rating && (
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            rating.toLowerCase().includes('completely achieved') 
+                              ? 'bg-green-100 text-green-700' 
+                              : rating.toLowerCase().includes('new') 
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {rating}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Content with proper formatting */}
+                      <div className="px-4 py-3 bg-white text-sm">
+                        {goal && <p className="text-gray-700 mb-2 leading-relaxed">{goal}</p>}
+                        {actions && <p className="text-gray-700 mb-2 leading-relaxed">{actions}</p>}
+                        
+                        {/* Footer with metadata */}
+                        <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between text-xs text-gray-600">
+                          {byWhom && <span><strong>By Whom:</strong> {byWhom}</span>}
+                          {byWhen && <span><strong>By When:</strong> {byWhen}</span>}
+                          {reviewDate && <span><strong>Review Date:</strong> {reviewDate}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer bar */}
+            <div className="bg-gray-50 border-t border-gray-300 px-6 py-3 text-xs text-gray-600">
+              <span>Person Centered Plan</span>
+            </div>
+          </div>
+
+          {/* ===== SUPPORT INFORMATION SECTION ===== */}
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden mb-8">
+            {/* Header with Icon */}
+            <div className="bg-white border-b border-gray-300 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-800">5. Support Information</h3>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="px-6 py-6">
+              <div className="space-y-3">
+                {(assignment?.submissionData?.restrictivePractices || commonFields?.restrictivePractices) && (
+                  <div className="border border-gray-300 rounded">
+                    <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
+                      <span className="font-semibold text-gray-800 text-sm">Any Restrictive Practices?</span>
+                    </div>
+                    <div className="px-4 py-3 bg-white text-sm text-gray-700">
+                      {assignment?.submissionData?.restrictivePractices || commonFields?.restrictivePractices}
+                    </div>
+                  </div>
+                )}
+                
+                {(assignment?.submissionData?.organizationName || commonFields?.organizationName) && (
+                  <div className="border border-gray-300 rounded">
+                    <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
+                      <span className="font-semibold text-gray-800 text-sm">Name of organization</span>
+                    </div>
+                    <div className="px-4 py-3 bg-white text-sm text-gray-700">
+                      {assignment?.submissionData?.organizationName || commonFields?.organizationName}
+                    </div>
+                  </div>
+                )}
+                
+                {(assignment?.submissionData?.contactPersonOrg || commonFields?.contactPersonOrg) && (
+                  <div className="border border-gray-300 rounded">
+                    <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
+                      <span className="font-semibold text-gray-800 text-sm">Contact person</span>
+                    </div>
+                    <div className="px-4 py-3 bg-white text-sm text-gray-700">
+                      {assignment?.submissionData?.contactPersonOrg || commonFields?.contactPersonOrg}
+                    </div>
+                  </div>
+                )}
+                
+                {(assignment?.submissionData?.contactNumberOrg || commonFields?.contactNumberOrg) && (
+                  <div className="border border-gray-300 rounded">
+                    <div className="bg-gray-100 px-4 py-2 border-b border-gray-300">
+                      <span className="font-semibold text-gray-800 text-sm">Contact number</span>
+                    </div>
+                    <div className="px-4 py-3 bg-white text-sm text-gray-700">
+                      {assignment?.submissionData?.contactNumberOrg || commonFields?.contactNumberOrg}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer bar */}
+            <div className="bg-gray-50 border-t border-gray-300 px-6 py-3 text-xs text-gray-600">
+              <span>Person Centered Plan</span>
+            </div>
+          </div>
+
+          {/* ===== INFORMAL SUPPORTS SECTION ===== */}
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+            {/* Header with Icon */}
+            <div className="bg-white border-b border-gray-300 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h3 className="text-lg font-bold text-gray-800">6. Informal Supports</h3>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="px-6 py-6">
+              <div className="border border-gray-300 rounded overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-600 text-white">
+                      <th className="px-4 py-2 text-left font-semibold">Informal Support</th>
+                      <th className="px-4 py-2 text-left font-semibold">Role</th>
+                      <th className="px-4 py-2 text-left font-semibold">Frequency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4].map((supportNum) => {
+                      const support = assignment?.submissionData?.[`support${supportNum}`] || commonFields?.[`support${supportNum}`] || '';
+                      const role = assignment?.submissionData?.[`role${supportNum}`] || commonFields?.[`role${supportNum}`] || '';
+                      const frequency = assignment?.submissionData?.[`frequency${supportNum}`] || commonFields?.[`frequency${supportNum}`] || '';
+                      
+                      if (!support && !role && !frequency) return null;
+                      
+                      return (
+                        <tr key={supportNum} className="border-b border-gray-300 bg-white">
+                          <td className="px-4 py-3 text-gray-800">{support || '-'}</td>
+                          <td className="px-4 py-3 text-gray-700">{role || '-'}</td>
+                          <td className="px-4 py-3 text-gray-700">{frequency || '-'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Footer bar */}
+            <div className="bg-gray-50 border-t border-gray-300 px-6 py-3 text-xs text-gray-600">
+              <span>Person Centered Plan</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

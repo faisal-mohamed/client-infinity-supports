@@ -542,7 +542,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
             value={opt}
             checked={getValue(key) === opt}
             readOnly
-            className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+            className="form-checkbox h-4 w-4 text-gray-600 transition duration-150 ease-in-out"
           />
           <label htmlFor={`${key}-${opt}`} className="ml-2 text-sm text-gray-700">
             {opt}
