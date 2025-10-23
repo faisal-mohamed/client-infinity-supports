@@ -50,7 +50,7 @@ export async function GET(
     // In a full implementation, you would use puppeteer or similar to generate PDF
     const pdfContent = generateSimplePDF(formSubmission);
     
-    return new NextResponse(pdfContent, {
+    return new NextResponse(new Uint8Array(pdfContent), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${formSubmission.form.title}.pdf"`,

@@ -371,8 +371,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('disabilityConditions') || ' '}
                 </Text>
@@ -438,8 +438,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('otherSupports') || ' '}
                 </Text>
@@ -469,8 +469,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('aboutMe') || ' '}
                 </Text>
@@ -531,8 +531,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('advocateOtherInfo') || ' '}
                 </Text>
@@ -658,8 +658,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   Live with Parent/Family/Support Person{'\n'}
                   Live in private rental arrangement with others{'\n'}
@@ -691,8 +691,8 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{ 
                   fontSize: 10, 
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   Taxi{'\n'}
                   Pick up/ drop off by Parent/Family/Support Person{'\n'}

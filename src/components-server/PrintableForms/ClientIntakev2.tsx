@@ -531,8 +531,6 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Disability Conditions/Disability type(s)</Text>
             <View style={[styles.longAnswer, {
-              breakInside: 'avoid',
-              pageBreakInside: 'avoid',
               minHeight: 200 // Ensure full container size
             }]}>
               <View style={[styles.longAnswerValue, {
@@ -546,8 +544,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{
                   fontSize: 10,
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('disabilityConditions') || ' '}
                 </Text>
@@ -636,8 +634,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
               <Text style={{
                 fontSize: 10,
                 lineHeight: 1.4,
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
+                
+                
                 flexShrink: 1
               }}>
                 {getValue('otherSupports') || ' '}
@@ -671,8 +669,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{
                   fontSize: 10,
                   lineHeight: 1.4,
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap'
+                  
+                  
                 }}>
                   {getValue('aboutMe') || ' '}
                 </Text>

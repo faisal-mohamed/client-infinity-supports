@@ -33,7 +33,7 @@ export default function PdfPageLayout({
       <footer className="pdf-footer-fixed" aria-hidden="true">
         <span>{footerData?.email || ''}</span>
         <span>{footerData?.formId || ''}</span>
-        <span>Date of Report: {formattedDate}</span>
+        <span>Review Date: {formattedDate}</span>
       </footer>
 
       {/* body content lives strictly between header and footer */}

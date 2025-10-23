@@ -1,7 +1,7 @@
 import React from 'react';
 import { UnifiedFieldRenderer } from '../shared/UnifiedFieldRenderer';
 
-const A4Page = ({ children, pageNumber }: { children: React.ReactNode; pageNumber: number }) => (
+const A4Page = ({ children, pageNumber, settings }: { children: React.ReactNode; pageNumber: number; settings?: any }) => (
   <div style={{
     width: '794px',
     minHeight: '1123px',
@@ -55,7 +55,7 @@ const A4Page = ({ children, pageNumber }: { children: React.ReactNode; pageNumbe
       paddingTop: '10px',
       color: '#666'
     }}>
-      www.infinitysupports.com.au | Form ID: CIF-001 | Review Date: 01/01/2025 | Page {pageNumber + 1}
+      {settings?.from_email || ''} | {settings?.client_intake_form_id || 'CIF-001'} | Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}
     </div>
   </div>
 );
@@ -163,7 +163,7 @@ const ClientIntakeFormPDF = ({ formData, commonFieldsData, settings }: any) => {
   return (
     <div className="pdf-mode">
       {pages.map((pageFields, pageIndex) => (
-        <A4Page key={pageIndex} pageNumber={pageIndex}>
+        <A4Page key={pageIndex} pageNumber={pageIndex} settings={settings}>
           {pageFields.map((field, fieldIndex) => (
             <UnifiedFieldRenderer
               key={fieldIndex}

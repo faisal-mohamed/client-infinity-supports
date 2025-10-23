@@ -167,6 +167,31 @@ const ClientIntakev2Multipage: React.FC<ClientIntakeFormPDFProps> = ({
     <View style={isChecked ? styles.checkboxChecked : styles.checkbox} />
   );
 
+  // Function to split text for pages
+  const splitTextForPages = (text: string, maxLength: number = 800): string[] => {
+    if (!text || text.length <= maxLength) return [text || ''];
+    
+    const chunks: string[] = [];
+    let currentChunk = '';
+    const words = text.split(' ');
+    
+    for (const word of words) {
+      if ((currentChunk + ' ' + word).length <= maxLength) {
+        currentChunk += (currentChunk ? ' ' : '') + word;
+      } else {
+        if (currentChunk) chunks.push(currentChunk);
+        currentChunk = word;
+      }
+    }
+    
+    if (currentChunk) chunks.push(currentChunk);
+    return chunks.length > 0 ? chunks : [''];
+  };
+
+  // Split About Me text into chunks
+  const aboutMeText = cleanText(getValue('aboutMe'));
+  const aboutMeChunks = splitTextForPages(aboutMeText, 800);
+
   // Natural text flow - no artificial chunking
   // Let content flow naturally across pages like Person Centred Plan
 

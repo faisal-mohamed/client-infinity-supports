@@ -85,6 +85,7 @@ interface FormProps {
     company_website?: string;
     client_intake_form_id?: string;
     review_date?: string;
+    from_email?: string;
   };
 }
 
@@ -1692,7 +1693,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
 
     return (
       <div className="flex justify-between text-xs px-1 text-gray-600 mt-4">
-        <span>Website: {settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
+        <span>{settings?.from_email || ''}</span>
         <span>{settings?.client_intake_form_id || 'CF001'}</span>
         <span>Review Date: {formatDate(settings?.review_date)}</span>
       </div>

@@ -367,9 +367,9 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
       </head>
       <body>
         {/* Fixed Header */}
-        <pdf-header className="pdf-header">
+        <div className="pdf-header">
           <img src={logoDataUrl} alt="Infinity Supports WA" />
-        </pdf-header>
+        </div>
 
         {/* Main Content */}
         <div className="pdf-body">
@@ -468,11 +468,11 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
         </div>
 
         {/* Fixed Footer */}
-        <pdf-footer className="pdf-footer">
+        <div className="pdf-footer">
           <span>{getEmail()}</span>
           <span>{getFormId()}</span>
           <span>Review Date: {getReportDate()}</span>
-        </pdf-footer>
+        </div>
       </body>
     </html>
   );

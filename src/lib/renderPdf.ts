@@ -6,7 +6,12 @@ export async function generateHTML(formData: any, uiSchema: any) {
   const ReactDOMServer = await import("react-dom/server");
   const { default: PrintableForm } = await import("@/components-server/PrintableForms/ClientIntakev2");
 
-  const element = React.createElement(PrintableForm, { formData, uiSchema });
+  const element = React.createElement(PrintableForm, { 
+    formData, 
+    commonFieldsData: formData, 
+    settings: {}, 
+    logoDataUrl: '' 
+  });
   const renderedForm = ReactDOMServer.renderToString(element);
 
   // ✅ Load Tailwind build from local minified CSS

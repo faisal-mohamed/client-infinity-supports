@@ -475,9 +475,9 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>Website: {settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
-        <span>Page {pageNumber}</span>
-        <span>{settings?.person_centred_plan_id || 'PCP001'}</span>
+        <span>{settings?.from_email || ''}</span>
+        <span>{settings?.person_centre_plan_form_id || ''}</span>
+        <span>Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}</span>
       </div>
     </div>
   );

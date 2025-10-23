@@ -156,8 +156,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
   // Group fields into pages based on height
   const groupFieldsByHeight = () => {
     const maxPageHeight = 900; // Available height per page (1123 - header - footer - margins)
-    const pages = [];
-    let currentPage = [];
+    const pages: typeof allFields[] = [];
+    let currentPage: typeof allFields = [];
     let currentHeight = 0;
     
     fieldsWithValues.forEach(field => {
@@ -229,9 +229,9 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
       
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>Website: {settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
-        <span>Page {pageNumber}</span>
+        <span>{settings?.from_email || ''}</span>
         <span>{settings?.client_intake_form_id || 'CF001'}</span>
+        <span>Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}</span>
       </div>
     </div>
   );
