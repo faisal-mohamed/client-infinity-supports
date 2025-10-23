@@ -73,29 +73,29 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     
       if (section.id === 'personalInfo') {
         sectionFields = [
-          { key: 'name', label: 'Name', type: 'text' },
-          { key: 'address', label: 'Address', type: 'text' },
-          { key: 'dob', label: 'Date of Birth', type: 'date' },
-          { key: 'guardian', label: 'Parent/guardian', type: 'text' },
-          { key: 'guardianAddress', label: 'Address', type: 'text' },
-          { key: 'contactNumber', label: 'Contact Number', type: 'text' },
-          { key: 'disability', label: 'Disability', type: 'text' },
-          { key: 'ndisNumber', label: 'NDIS Number', type: 'text' }
+          { key: 'name', label: '1) Name', type: 'text' },
+          { key: 'address', label: '2) Address', type: 'text' },
+          { key: 'dob', label: '3) Date of Birth', type: 'date' },
+          { key: 'guardian', label: '4) Guardian/Parent', type: 'text' },
+          { key: 'guardianAddress', label: '5) Guardian Address', type: 'text' },
+          { key: 'contactNumber', label: '6) Contact Number', type: 'text' },
+          { key: 'disability', label: '7) Disability', type: 'text' },
+          { key: 'ndisNumber', label: '8) NDIS Number', type: 'text' }
         ];
     } else if (section.id === 'healthInfo') {
       sectionFields = [
-          { key: 'myStory', label: 'My Story', type: 'textarea' },
-          { key: 'strengths', label: 'Strengths', type: 'textarea' },
-          { key: 'challenges', label: 'Challenges', type: 'text' },
-          { key: 'allergies', label: 'Allergies', type: 'text' },
-        { key: 'respiratoryHistory', label: 'History of Respiratory Depression', type: 'textarea' },
-        { key: 'precautions', label: 'Precautions', type: 'textarea' },
-        { key: 'healthConditions', label: 'Health Conditions', type: 'textarea' },
-        { key: 'companionCard', label: 'Companion Card', type: 'text' },
-        { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text' },
+          { key: 'myStory', label: '1) My Story', type: 'textarea' },
+          { key: 'strengths', label: '2) My Strengths', type: 'textarea' },
+          { key: 'challenges', label: '3) My Challenges', type: 'text' },
+          { key: 'allergies', label: '4) Allergies', type: 'text' },
+        { key: 'respiratoryHistory', label: '5) History of Respiratory Depression', type: 'textarea' },
+        { key: 'precautions', label: '6) Precautions', type: 'textarea' },
+        { key: 'healthConditions', label: '7) Health Conditions', type: 'textarea' },
+        { key: 'companionCard', label: '8) Does the participant have a Companion Card?', type: 'text' },
+        { key: 'ambulanceCover', label: '9) Does the participant have Ambulance Cover?', type: 'text' },
         { 
           key: 'healthcarePrompt', 
-          label: 'Proactive & preventative healthcare prompts', 
+          label: '10) Does the participant require support to organize regular medical & dental check ups? (If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)', 
           type: 'checkbox',
           options: ['Yes', 'No'],
           description: 'Does the participant require support to organize regular medical & dental check ups',
@@ -118,11 +118,11 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       return;
     } else if (section.id === 'supportInfo') {
       sectionFields = [
-        { key: 'pbsSupportPlanIncluded', label: 'PBS Support Plan included?', type: 'text' },
-        { key: 'restrictivePractices', label: 'Any Restrictive Practices?', type: 'text' },
-        { key: 'organizationName', label: 'Name of organization', type: 'text' },
-        { key: 'contactPersonOrg', label: 'Contact person', type: 'text' },
-        { key: 'contactNumberOrg', label: 'Contact number', type: 'text' },
+        { key: 'pbsSupportPlanIncluded', label: '1) Is a PBS Support Plan included?', type: 'text' },
+        { key: 'restrictivePractices', label: '2) Does the participant have any Restrictive Practices in their support plan?', type: 'text' },
+        { key: 'organizationName', label: '3) Name of organization providing support', type: 'text' },
+        { key: 'contactPersonOrg', label: '4) Contact person from the organization', type: 'text' },
+        { key: 'contactNumberOrg', label: '5) Contact number for the organization', type: 'text' },
         { key: 'informalSupports', label: 'My Informal Supports', type: 'informal_supports_table' }
       ];
     }
@@ -224,7 +224,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
               {goal.actions && (
                 <div className="mb-3">
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{goal.actions}</p>
-                </div>
+          </div>
               )}
               
               {/* Footer with metadata */}
@@ -314,14 +314,14 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                   {item.goalData.rating}
                 </span>
               )}
-            </div>
+                      </div>
             
             {/* Goal Content */}
             <div className="px-4 py-3 bg-white">
               {item.goalData.goal && (
                 <div className="mb-3">
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{item.goalData.goal}</p>
-                </div>
+                      </div>
               )}
               
               {item.goalData.actions && (

@@ -15,27 +15,27 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   // All Person Centred Plan fields with correct field names
   const allFields = [
     // Personal Information
-    { key: 'name', label: 'Name', type: 'text', section: 'Personal Information' },
-    { key: 'address', label: 'Address', type: 'text', section: 'Personal Information' },
-    { key: 'dob', label: 'Date of Birth', type: 'text', section: 'Personal Information' },
-    { key: 'guardian', label: 'Guardian', type: 'text', section: 'Personal Information' },
-    { key: 'contactNumber', label: 'Contact Number', type: 'text', section: 'Personal Information' },
-    { key: 'disability', label: 'Disability', type: 'text', section: 'Personal Information' },
-    { key: 'ndisNumber', label: 'NDIS Number', type: 'text', section: 'Personal Information' },
+    { key: 'name', label: '1) Name', type: 'text', section: 'Personal Information' },
+    { key: 'address', label: '2) Address', type: 'text', section: 'Personal Information' },
+    { key: 'dob', label: '3) Date of Birth', type: 'text', section: 'Personal Information' },
+    { key: 'guardian', label: '4) Guardian/Parent', type: 'text', section: 'Personal Information' },
+    { key: 'contactNumber', label: '5) Contact Number', type: 'text', section: 'Personal Information' },
+    { key: 'disability', label: '6) Disability', type: 'text', section: 'Personal Information' },
+    { key: 'ndisNumber', label: '7) NDIS Number', type: 'text', section: 'Personal Information' },
     
     // About Me
-    { key: 'myStory', label: 'My Story', type: 'longtext', section: 'About Me' },
-    { key: 'strengths', label: 'My Strengths', type: 'longtext', section: 'About Me' },
-    { key: 'allergies', label: 'Allergies', type: 'longtext', section: 'About Me' },
-    { key: 'challenges', label: 'My Challenges', type: 'longtext', section: 'About Me' },
+    { key: 'myStory', label: '1) My Story', type: 'longtext', section: 'About Me' },
+    { key: 'strengths', label: '2) My Strengths', type: 'longtext', section: 'About Me' },
+    { key: 'allergies', label: '3) Allergies', type: 'longtext', section: 'About Me' },
+    { key: 'challenges', label: '4) My Challenges', type: 'longtext', section: 'About Me' },
     
     // Health Information
-    { key: 'respiratoryHistory', label: 'Respiratory History', type: 'longtext', section: 'Health Information' },
-    { key: 'precautions', label: 'Precautions', type: 'longtext', section: 'Health Information' },
-    { key: 'healthConditions', label: 'Health Conditions', type: 'longtext', section: 'Health Information' },
-    { key: 'companionCard', label: 'Companion Card', type: 'text', section: 'Health Information' },
-    { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text', section: 'Health Information' },
-    { key: 'healthcarePrompt', label: 'Healthcare Prompt', type: 'text', section: 'Health Information' },
+    { key: 'respiratoryHistory', label: '1) History of Respiratory Depression', type: 'longtext', section: 'Health Information' },
+    { key: 'precautions', label: '2) Precautions', type: 'longtext', section: 'Health Information' },
+    { key: 'healthConditions', label: '3) Health Conditions', type: 'longtext', section: 'Health Information' },
+    { key: 'companionCard', label: '4) Does the participant have a Companion Card?', type: 'text', section: 'Health Information' },
+    { key: 'ambulanceCover', label: '5) Does the participant have Ambulance Cover?', type: 'text', section: 'Health Information' },
+    { key: 'healthcarePrompt', label: '6) Does the participant require support to organize regular medical & dental check ups? (If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)', type: 'text', section: 'Health Information' },
     
     // Goals (1-10) - correct field names
     { key: 'goal1', label: 'Goal 1', type: 'longtext' },
@@ -115,7 +115,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     let currentHeight = 0;
     
     // Calculate height for goal cards
-    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 150 }));
+    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 150, showSection: false, sectionNumber: 0 }));
     
     // Check if support information table has data
     const hasSupportInfo = [
@@ -133,26 +133,41 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     
     const tablesAndGoals = [
       ...goalsToAdd,
-      ...(hasSupportInfo ? [{ type: 'support_info_table', estimatedHeight: 200 }] : []),
-      ...(hasInformalSupports ? [{ type: 'informal_supports_table', estimatedHeight: 200 }] : [])
+      ...(hasSupportInfo ? [{ type: 'support_info_table', estimatedHeight: 200, showSection: false, sectionNumber: 0 }] : []),
+      ...(hasInformalSupports ? [{ type: 'informal_supports_table', estimatedHeight: 200, showSection: false, sectionNumber: 0 }] : [])
     ];
     
     const itemsToProcess = [
-      ...otherFields.map(f => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false })),
+      ...otherFields.map(f => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false, sectionNumber: 0 })),
       ...tablesAndGoals
     ];
     
     let lastSection: string | null = null;
+    let sectionNumber = 0;
     itemsToProcess.forEach((item: any, index: number) => {
       const itemHeight = item.estimatedHeight;
       
-      // Check if this is a new section for field items
-      const currentSection = item.type === 'field' ? item.field.section : null;
-      const isNewSection = currentSection && currentSection !== lastSection;
-      if (isNewSection) lastSection = currentSection as string;
+      // Determine current section
+      let currentSection: string | null = null;
+      if (item.type === 'field') {
+        currentSection = item.field.section;
+      } else if (item.type === 'goal') {
+        currentSection = 'Goals & Outcomes';
+      } else if (item.type === 'support_info_table') {
+        currentSection = 'Support Information';
+      } else if (item.type === 'informal_supports_table') {
+        currentSection = 'Informal Supports';
+      }
       
-      // Add showSection flag for first field of each section
-      if (item.type === 'field' && isNewSection) {
+      const isNewSection = currentSection && currentSection !== lastSection;
+      if (isNewSection) {
+        lastSection = currentSection as string;
+        sectionNumber++;
+      }
+      
+      // Add section number and showSection flag
+      item.sectionNumber = sectionNumber;
+      if ((item.type === 'field' || item.type === 'goal' || item.type === 'support_info_table' || item.type === 'informal_supports_table') && isNewSection) {
         item.showSection = true;
       }
       
@@ -210,91 +225,103 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   });
 
   // Render goal card
-  const renderGoalCard = (goalNum: number) => {
+  const renderGoalCard = (goalNum: number, sectionNumber: number = 0, showSection: boolean = false) => {
     const goal = getGoalData(goalNum);
     return (
-      <div key={`goal-${goalNum}`} className="border-2 border-gray-300 rounded-lg overflow-hidden mb-3">
-        {/* Goal Header */}
-        <div className="bg-gray-100 px-3 py-2 border-b-2 border-gray-300 flex items-center justify-between">
-          <span className="font-bold text-sm text-gray-800">Goal {goalNum}</span>
-          {goal.rating && (
-            <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
-              {goal.rating}
-            </span>
-          )}
-        </div>
-        
-        {/* Goal Content */}
-        <div className="px-3 py-2 bg-white">
-          {goal.goal && (
-            <div className="mb-2">
-              <p className="text-xs leading-tight whitespace-pre-wrap">{goal.goal}</p>
-            </div>
-          )}
+      <div key={`goal-${goalNum}`}>
+        {/* Section Header - Show once at the beginning of goals */}
+        {showSection && sectionNumber > 0 && (
+          <div className="mb-3 mt-4">
+            <span className="font-bold text-base text-gray-900">{sectionNumber}. Goals & Outcomes</span>
+          </div>
+        )}
+        {/* Goal Card */}
+        <div className="border-2 border-gray-300 rounded-lg overflow-hidden mb-3">
+          {/* Goal Header */}
+          <div className="bg-gray-100 px-3 py-2 border-b-2 border-gray-300 flex items-center justify-between">
+            <span className="font-bold text-sm text-gray-800">Goal {goalNum}</span>
+            {goal.rating && (
+              <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                {goal.rating}
+              </span>
+            )}
+          </div>
           
-          {goal.actions && (
-            <div className="mb-2">
-              <p className="text-xs leading-tight whitespace-pre-wrap">{goal.actions}</p>
-            </div>
-          )}
-          
-          {/* Footer with metadata */}
-          {(goal.byWhom || goal.byWhen || goal.reviewDate) && (
-            <div className="border-t border-gray-300 pt-1 mt-1 flex justify-between text-xs text-gray-600 gap-1">
-              {goal.byWhom && <span><strong>By Whom:</strong> {goal.byWhom}</span>}
-              {goal.byWhen && <span><strong>By When:</strong> {goal.byWhen}</span>}
-              {goal.reviewDate && <span><strong>Review Date:</strong> {goal.reviewDate}</span>}
-            </div>
-          )}
+          {/* Goal Content */}
+          <div className="px-3 py-2 bg-white">
+            {goal.goal && (
+              <div className="mb-2">
+                <p className="text-xs leading-tight whitespace-pre-wrap">{goal.goal}</p>
+              </div>
+            )}
+            
+            {goal.actions && (
+              <div className="mb-2">
+                <p className="text-xs leading-tight whitespace-pre-wrap">{goal.actions}</p>
+              </div>
+            )}
+            
+            {/* Footer with metadata */}
+            {(goal.byWhom || goal.byWhen || goal.reviewDate) && (
+              <div className="border-t border-gray-300 pt-1 mt-1 flex justify-between text-xs text-gray-600 gap-1">
+                {goal.byWhom && <span><strong>By Whom:</strong> {goal.byWhom}</span>}
+                {goal.byWhen && <span><strong>By When:</strong> {goal.byWhen}</span>}
+                {goal.reviewDate && <span><strong>Review Date:</strong> {goal.reviewDate}</span>}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
   // Render Support Information Table
-  const renderSupportInformationTable = () => {
+  const renderSupportInformationTable = (sectionNumber: number = 0) => {
     const supportData = [
-      { label: 'PBS Support Plan included?', value: getFieldValue('pbsSupportPlanIncluded') },
-      { label: 'Any Restrictive Practices?', value: getFieldValue('restrictivePractices') },
-      { label: 'Name of organization', value: getFieldValue('organizationName') },
-      { label: 'Contact person', value: getFieldValue('contactPersonOrg') },
-      { label: 'Contact number', value: getFieldValue('contactNumberOrg') }
+      { label: '1) Is a PBS Support Plan included?', value: getFieldValue('pbsSupportPlanIncluded') },
+      { label: '2) Does the participant have any Restrictive Practices in their support plan?', value: getFieldValue('restrictivePractices') },
+      { label: '3) Name of organization providing support', value: getFieldValue('organizationName') },
+      { label: '4) Contact person from the organization', value: getFieldValue('contactPersonOrg') },
+      { label: '5) Contact number for the organization', value: getFieldValue('contactNumberOrg') }
     ].filter(item => item.value && item.value.trim() !== '');
 
     if (supportData.length === 0) return null;
 
     return (
-      <div key="support-info-table" className="border border-gray-300 rounded-lg overflow-hidden mb-3">
-        {/* Table Header */}
-        <div className="bg-gray-100 px-3 py-2 border-b border-gray-300">
-          <span className="font-bold text-sm text-gray-800">Support Information</span>
-        </div>
-        
+      <div key="support-info-table" className="mb-3">
+        {/* Section Header - Plain text with numbering */}
+        {sectionNumber > 0 && (
+          <div className="mb-3 mt-4">
+            <span className="font-bold text-base text-gray-900">{sectionNumber}. Support Information</span>
+          </div>
+        )}
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-xs">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Label</th>
-                <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {supportData.map((item, idx) => (
-                <tr key={idx}>
-                  <td className="border border-gray-300 px-2 py-1 bg-white">{item.label}</td>
-                  <td className="border border-gray-300 px-2 py-1 bg-white">{item.value}</td>
+        <div className="border border-gray-300 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Label</th>
+                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Value</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {supportData.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="border border-gray-300 px-2 py-1 bg-white">{item.label}</td>
+                    <td className="border border-gray-300 px-2 py-1 bg-white">{item.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   };
 
   // Render Informal Supports Table
-  const renderInformalSupportsTable = () => {
+  const renderInformalSupportsTable = (sectionNumber: number = 0) => {
     const informalSupports = [];
     for (let i = 1; i <= 5; i++) {
       // Try both field name variations - 'support' and 'informalSupport'
@@ -310,32 +337,35 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     if (informalSupports.length === 0) return null;
 
     return (
-      <div key="informal-supports-table" className="border border-gray-300 rounded-lg overflow-hidden mb-3">
-        {/* Table Header */}
-        <div className="bg-gray-100 px-3 py-2 border-b border-gray-300">
-          <span className="font-bold text-sm text-gray-800">Informal Supports</span>
-        </div>
-        
+      <div key="informal-supports-table" className="mb-3">
+        {/* Section Header - Plain text with numbering */}
+        {sectionNumber > 0 && (
+          <div className="mb-3 mt-4">
+            <span className="font-bold text-base text-gray-900">{sectionNumber}. Informal Supports</span>
+          </div>
+        )}
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-xs">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Support Person</th>
-                <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Role</th>
-                <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Frequency</th>
-              </tr>
-            </thead>
-            <tbody>
-              {informalSupports.map((support, idx) => (
-                <tr key={idx}>
-                  <td className="border border-gray-300 px-2 py-1 bg-white">{support.name}</td>
-                  <td className="border border-gray-300 px-2 py-1 bg-white">{support.role}</td>
-                  <td className="border border-gray-300 px-2 py-1 bg-white">{support.frequency}</td>
+        <div className="border border-gray-300 rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-xs">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Support Person</th>
+                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Role</th>
+                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Frequency</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {informalSupports.map((support, idx) => (
+                  <tr key={idx}>
+                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.name}</td>
+                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.role}</td>
+                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.frequency}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -350,13 +380,13 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   // Render item (field or goal card)
   const renderItem = (item: any) => {
     if (item.type === 'goal') {
-      return renderGoalCard(item.number);
+      return renderGoalCard(item.number, item.sectionNumber, item.showSection);
     } else if (item.type === 'field') {
       return renderField(item.field, item.showSection, item.sectionNumber);
     } else if (item.type === 'support_info_table') {
-      return renderSupportInformationTable();
+      return renderSupportInformationTable(item.sectionNumber);
     } else if (item.type === 'informal_supports_table') {
-      return renderInformalSupportsTable();
+      return renderInformalSupportsTable(item.sectionNumber);
     }
     return null;
   };
@@ -456,7 +486,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     <div className="print:p-0">
       {pagesGrouped.map((pageItems, index) => (
         <A4Page key={index} pageNumber={index + 1}>
-          {pageItems.map(item => renderItem(item))}
+          {pageItems.map((item: any) => renderItem(item))}
         </A4Page>
       ))}
     </div>
