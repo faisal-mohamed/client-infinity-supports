@@ -183,8 +183,8 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     </div>
   );
 
-  // Render goals table with proper pagination
-  const renderGoalsTable = () => {
+  // Render goals as individual organized cards instead of table
+  const renderGoalsCards = () => {
     const goals = [];
     for (let i = 1; i <= 5; i++) {
       const goal = getValue(`goal${i}`);
@@ -195,140 +195,44 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       const reviewDate = getValue(`reviewDate${i}`);
       
       if (goal || rating || actions || byWhom || byWhen || reviewDate) {
-        goals.push({ goal, rating, actions, byWhom, byWhen, reviewDate });
+        goals.push({ number: i, goal, rating, actions, byWhom, byWhen, reviewDate });
       }
     }
-
-    // Calculate estimated height for each goal row
-    const estimateGoalHeight = (goal: any) => {
-      const goalText = goal.goal || '';
-      const actionsText = goal.actions || '';
-      
-      // Estimate based on text length
-      const goalLines = Math.ceil(goalText.length / 50);
-      const actionsLines = Math.ceil(actionsText.length / 50);
-      
-      const maxLines = Math.max(goalLines, actionsLines, 3); // Minimum 3 lines
-      const lineHeight = 20;
-      const padding = 16; // 8px top + 8px bottom
-      const borderHeight = 2;
-      
-      return (maxLines * lineHeight) + padding + borderHeight;
-    };
-
-    // Split goals into pages based on available height
-    const maxPageHeight = 600; // Available height per page
-    const tableHeaderHeight = 50;
-    const availableHeight = maxPageHeight - tableHeaderHeight;
-    
-    const goalPages: Array<Array<{
-      goal: string;
-      rating: string;
-      actions: string;
-      byWhom: string;
-      byWhen: string;
-      reviewDate: string;
-    }>> = [];
-    let currentPageGoals: Array<{
-      goal: string;
-      rating: string;
-      actions: string;
-      byWhom: string;
-      byWhen: string;
-      reviewDate: string;
-    }> = [];
-    let currentPageHeight = 0;
-
-    goals.forEach((goal, index) => {
-      const goalHeight = estimateGoalHeight(goal);
-      
-      // If adding this goal would exceed page height, start a new page
-      if (currentPageHeight + goalHeight > availableHeight && currentPageGoals.length > 0) {
-        goalPages.push([...currentPageGoals]);
-        currentPageGoals = [goal];
-        currentPageHeight = goalHeight;
-      } else {
-        currentPageGoals.push(goal);
-        currentPageHeight += goalHeight;
-      }
-    });
-
-    // Add remaining goals to the last page
-    if (currentPageGoals.length > 0) {
-      goalPages.push(currentPageGoals);
-    }
-
-    // Render table header
-    const renderTableHeader = () => (
-      <thead style={{ display: 'table-header-group' }}>
-        <tr>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '30%' }}>GOAL</th>
-          <th className="border border-black bg-gray-100 p-2 text-center font-bold" style={{ width: '15%' }}>RATING</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '25%' }}>Actions & Resources</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By Whom</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By When</th>
-          <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>Review Date</th>
-        </tr>
-      </thead>
-    );
-
-    // Render goal row
-    const renderGoalRow = (goal: any, index: number) => (
-      <tr key={`goal-row-${index}`}>
-        <td className="border border-black p-2 align-top" style={{ width: '30%' }}>
-          <div
-            className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-            style={{
-              minHeight: '60px',
-              maxHeight: 'none',
-              overflow: 'visible',
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word'
-            }}
-          >
-            {goal.goal || ''}
-          </div>
-        </td>
-        <td className="border border-black p-2 text-center align-top" style={{ width: '15%' }}>
-          <div className="text-sm">{goal.rating || ''}</div>
-        </td>
-        <td className="border border-black p-2 align-top" style={{ width: '25%' }}>
-          <div
-            className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-            style={{
-              minHeight: '60px',
-              maxHeight: 'none',
-              overflow: 'visible',
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word'
-            }}
-          >
-            {goal.actions || ''}
-          </div>
-        </td>
-        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-          <div className="text-sm">{goal.byWhom || ''}</div>
-        </td>
-        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-          <div className="text-sm">{goal.byWhen || ''}</div>
-        </td>
-        <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-          <div className="text-sm">{goal.reviewDate || ''}</div>
-        </td>
-      </tr>
-    );
 
     return (
-      <div className="space-y-4 w-full overflow-hidden">
-        {goalPages.map((pageGoals, pageIndex) => (
-          <div key={`goals-page-${pageIndex}`} className="goals-table-page w-full overflow-hidden" style={{ pageBreakAfter: pageIndex < goalPages.length - 1 ? 'page' as any : 'auto' as any }}>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-black text-sm table-fixed min-w-full">
-                {renderTableHeader()}
-                <tbody>
-                  {pageGoals.map((goal, index) => renderGoalRow(goal, index))}
-                </tbody>
-              </table>
+      <div className="space-y-4 w-full">
+        {goals.map((goal) => (
+          <div key={`goal-card-${goal.number}`} className="border-2 border-gray-300 rounded-lg overflow-hidden">
+            {/* Goal Header */}
+            <div className="bg-gray-100 px-4 py-3 border-b-2 border-gray-300 flex items-center justify-between">
+              <span className="font-bold text-base text-gray-800">Goal {goal.number}</span>
+              {goal.rating && (
+                <span className="px-3 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                  {goal.rating}
+                </span>
+              )}
+            </div>
+            
+            {/* Goal Content */}
+            <div className="px-4 py-3 bg-white">
+              {goal.goal && (
+                <div className="mb-3">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{goal.goal}</p>
+                </div>
+              )}
+              
+              {goal.actions && (
+                <div className="mb-3">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{goal.actions}</p>
+                </div>
+              )}
+              
+              {/* Footer with metadata */}
+              <div className="border-t-2 border-gray-300 pt-2 mt-2 flex justify-between text-xs text-gray-700">
+                {goal.byWhom && <span><strong>By Whom:</strong> {goal.byWhom}</span>}
+                {goal.byWhen && <span><strong>By When:</strong> {goal.byWhen}</span>}
+                {goal.reviewDate && <span><strong>Review Date:</strong> {goal.reviewDate}</span>}
+              </div>
             </div>
           </div>
         ))}
@@ -398,74 +302,46 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
     if (field.type === 'goals_table') {
       // Check if this is an individual goal row or the full table
       if (item?.goalData) {
-        // Render individual goal row with table header if it's the first goal
+        // Render individual goal as an organized card
+        const goalNum = item.goalIndex + 1;
         return (
-          <div className="goals-table-page w-full overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-black text-sm table-fixed min-w-full">
-                {item.goalIndex === 0 && (
-                  <thead>
-                    <tr>
-                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '30%' }}>GOAL</th>
-                      <th className="border border-black bg-gray-100 p-2 text-center font-bold" style={{ width: '15%' }}>RATING</th>
-                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '25%' }}>Actions & Resources</th>
-                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By Whom</th>
-                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>By When</th>
-                      <th className="border border-black bg-gray-100 p-2 text-left font-bold" style={{ width: '10%' }}>Review Date</th>
-                    </tr>
-                  </thead>
-                )}
-                <tbody>
-                  <tr>
-                    <td className="border border-black p-2 align-top" style={{ width: '30%' }}>
-                      <div
-                        className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-                        style={{
-                          minHeight: '80px',
-                          maxHeight: 'none',
-                          overflow: 'visible',
-                          wordBreak: 'break-word',
-                          overflowWrap: 'break-word'
-                        }}
-                      >
-                        {item.goalData.goal || ''}
-                      </div>
-                    </td>
-                    <td className="border border-black p-2 text-center align-top" style={{ width: '15%' }}>
-                      <div className="text-sm">{item.goalData.rating || ''}</div>
-                    </td>
-                    <td className="border border-black p-2 align-top" style={{ width: '25%' }}>
-                      <div
-                        className="text-sm leading-relaxed break-words whitespace-pre-wrap"
-                        style={{
-                          minHeight: '80px',
-                          maxHeight: 'none',
-                          overflow: 'visible',
-                          wordBreak: 'break-word',
-                          overflowWrap: 'break-word'
-                        }}
-                      >
-                        {item.goalData.actions || ''}
-                      </div>
-                    </td>
-                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-                      <div className="text-sm">{item.goalData.byWhom || ''}</div>
-                    </td>
-                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-                      <div className="text-sm">{item.goalData.byWhen || ''}</div>
-                    </td>
-                    <td className="border border-black p-2 align-top" style={{ width: '10%' }}>
-                      <div className="text-sm">{item.goalData.reviewDate || ''}</div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="border-2 border-gray-300 rounded-lg overflow-hidden mb-4">
+            {/* Goal Header */}
+            <div className="bg-gray-100 px-4 py-3 border-b-2 border-gray-300 flex items-center justify-between">
+              <span className="font-bold text-base text-gray-800">Goal {goalNum}</span>
+              {item.goalData.rating && (
+                <span className="px-3 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                  {item.goalData.rating}
+                </span>
+              )}
+            </div>
+            
+            {/* Goal Content */}
+            <div className="px-4 py-3 bg-white">
+              {item.goalData.goal && (
+                <div className="mb-3">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{item.goalData.goal}</p>
+                </div>
+              )}
+              
+              {item.goalData.actions && (
+                <div className="mb-3">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{item.goalData.actions}</p>
+                </div>
+              )}
+              
+              {/* Footer with metadata */}
+              <div className="border-t-2 border-gray-300 pt-2 mt-2 flex justify-between text-xs text-gray-700 gap-2">
+                {item.goalData.byWhom && <span><strong>By Whom:</strong> {item.goalData.byWhom}</span>}
+                {item.goalData.byWhen && <span><strong>By When:</strong> {item.goalData.byWhen}</span>}
+                {item.goalData.reviewDate && <span><strong>Review Date:</strong> {item.goalData.reviewDate}</span>}
+              </div>
             </div>
           </div>
         );
       } else {
         // Fallback to original table rendering
-        return renderGoalsTable();
+        return renderGoalsCards();
       }
     }
     
