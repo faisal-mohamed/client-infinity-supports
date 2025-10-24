@@ -97,6 +97,14 @@ export async function getClient(id: number) {
   return response.json();
 }
 
+export async function checkClientEmailExists(email: string) {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return { exists: false, id: null };
+  const res = await fetch(`/api/clients?exists=true&email=${encodeURIComponent(normalized)}`);
+  if (!res.ok) return { exists: false, id: null };
+  return res.json();
+}
+
 export async function createClient(clientData: {
   name?: string;
   email?: string;
@@ -123,8 +131,11 @@ export async function createClient(clientData: {
   });
   
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to create client');
+    const errorBody = await response.json().catch(() => ({}));
+    const err: any = new Error(errorBody.error || 'Failed to create client');
+    err.status = response.status;
+    err.fieldErrors = errorBody.fieldErrors;
+    throw err;
   }
   
   return response.json();

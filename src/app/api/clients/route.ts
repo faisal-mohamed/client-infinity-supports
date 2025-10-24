@@ -13,17 +13,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // // 🔍 Step 1: Check if email already exists
-    // const existingClient = await prisma.client.findUnique({
-    //   where: { email },
-    // });
+    // Normalize email
+    const normalizedEmail = email.trim().toLowerCase();
 
-    // if (existingClient) {
-    //   return NextResponse.json(
-    //     { error: "Client already exists with this email." },
-    //     { status: 409 } // 409 Conflict
-    //   );
-    // }
+    // 🔍 Step 1: Quick precheck for duplicate email (fast fail)
+    const existingClient = await prisma.client.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true }
+    });
+    if (existingClient) {
+      return NextResponse.json(
+        {
+          error: "Email already exists",
+          fieldErrors: { email: "A client with this email already exists." },
+          existingClientId: existingClient.id
+        },
+        { status: 409 }
+      );
+    }
 
     // 🛠 Step 2: Proceed with creation inside a transaction
     const clientName = name?.trim();
@@ -32,7 +39,7 @@ export async function POST(req: NextRequest) {
       const newClient = await tx.client.create({
         data: {
           name: clientName,
-          email,
+          email: normalizedEmail,
           phone,
         },
       });
@@ -42,7 +49,7 @@ export async function POST(req: NextRequest) {
           clientId: newClient.id,
           name: commonFields?.name || clientName,
           age: commonFields?.age,
-          email: commonFields?.email || email,
+          email: (commonFields?.email || normalizedEmail),
           sex: commonFields?.sex,
           street: commonFields?.street,
           state: commonFields?.state,
@@ -77,8 +84,25 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error("Error creating client:", error);
+    // Handle Prisma unique constraint (duplicate email)
+    if (error.code === 'P2002') {
+      return NextResponse.json(
+        {
+          error: 'Email already exists',
+          fieldErrors: { email: 'A client with this email already exists.' }
+        },
+        { status: 409 }
+      );
+    }
+    // Handle transaction timeout/closed
+    if (error.code === 'P2028') {
+      return NextResponse.json(
+        { error: 'Request timed out. Please retry.' },
+        { status: 504 }
+      );
+    }
     return NextResponse.json(
-      { error: "Failed to create client", details: error.message },
+      { error: 'Failed to create client', details: error.message },
       { status: 500 }
     );
   }
@@ -89,6 +113,16 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
+    // Quick existence check: /api/clients?exists=true&email=foo@bar
+    const exists = url.searchParams.get('exists');
+    if (exists === 'true') {
+      const email = (url.searchParams.get('email') || '').trim().toLowerCase();
+      if (!email) {
+        return NextResponse.json({ exists: false });
+      }
+      const found = await prisma.client.findUnique({ where: { email }, select: { id: true } });
+      return NextResponse.json({ exists: !!found, id: found?.id ?? null });
+    }
     const search = url.searchParams.get('search') as string | undefined;
     const state = url.searchParams.get('state') as string | undefined;
     const sex = url.searchParams.get('sex') as string | undefined;
