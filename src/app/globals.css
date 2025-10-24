@@ -376,3 +376,84 @@ body {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
 }
+
+/* Client Details Page Styles */
+
+/* Line clamp utilities for text truncation */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-oriented: vertical;
+  overflow: hidden;
+}
+
+/* Card hover effects */
+.info-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .responsive-text-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  .responsive-text-xl {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  .responsive-text-2xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .responsive-text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+/* Focus styles for accessibility */
+.focus-ring:focus {
+  outline: 2px solid #f43f5e;
+  outline-offset: 2px;
+}
+
+/* Text selection styling */
+::selection {
+  background-color: #f43f5e;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: #f43f5e;
+  color: white;
+}
