@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -9,6 +9,55 @@ import {
   FaPhone, FaVenusMars, FaGlobe, FaClipboardList
 } from 'react-icons/fa';
 import { getClient } from '@/lib/api';
+
+// Renders text on a single line and automatically reduces font size
+// to fit within the available container width. Uses discrete Tailwind
+// size classes from largest to smallest.
+function OneLineAutoSize({
+  text,
+  className = '',
+  sizes,
+}: {
+  text: string;
+  className?: string;
+  sizes: string[]; // e.g., ['text-xl','text-lg','text-base','text-sm']
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const measureRef = useRef<HTMLSpanElement | null>(null);
+  const [appliedSize, setAppliedSize] = useState<string>(sizes[0] || 'text-base');
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const measure = measureRef.current;
+    if (!container || !measure) return;
+
+    const compute = () => {
+      for (let i = 0; i < sizes.length; i++) {
+        const sizeClass = sizes[i];
+        // apply class to measurement element and check fit
+        measure.className = `invisible absolute whitespace-nowrap ${className} ${sizeClass}`;
+        const fits = measure.scrollWidth <= container.clientWidth;
+        if (fits || i === sizes.length - 1) {
+          setAppliedSize(sizeClass);
+          break;
+        }
+      }
+    };
+
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [text, className, sizes]);
+
+  return (
+    <div ref={containerRef} className="w-full">
+      {/* Hidden measuring element */}
+      <span ref={measureRef}>{text}</span>
+      {/* Visible text */}
+      <p className={`whitespace-nowrap ${className} ${appliedSize}`}>{text}</p>
+    </div>
+  );
+}
 
 export default function ClientDetailPage() {
   const router = useRouter();
@@ -187,12 +236,15 @@ export default function ClientDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Full Name</p>
-                      <p className="font-bold text-gray-900 text-lg break-words leading-tight">
-                        {client?.commonFields?.name && client?.commonFields?.surname 
-                          ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
-                          : client?.name || 'Not provided'
+                      <OneLineAutoSize
+                        text={
+                          (client?.commonFields?.name && client?.commonFields?.surname
+                            ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+                            : client?.name || 'Not provided') as string
                         }
-                      </p>
+                        sizes={["text-2xl","text-xl","text-lg","text-base","text-sm"]}
+                        className="font-bold text-gray-900 leading-tight"
+                      />
                     </div>
                   </div>
                 </div>
@@ -204,9 +256,11 @@ export default function ClientDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-500 mb-1">Email Address</p>
-                      <p className="font-semibold text-gray-900 break-all leading-tight">
-                        {client?.commonFields?.email || client?.email || 'Not provided'}
-                      </p>
+                      <OneLineAutoSize
+                        text={(client?.commonFields?.email || client?.email || 'Not provided') as string}
+                        sizes={["text-lg","text-base","text-sm","text-xs"]}
+                        className="font-semibold text-gray-900"
+                      />
                     </div>
                   </div>
                 </div>
