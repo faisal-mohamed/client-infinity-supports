@@ -113,6 +113,11 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     return value ? String(value) : '';
   };
 
+  // Helper to decide if a dependent detail should render
+  const shouldShowDetail = (parentKey: string, detailKey: string) => {
+    return getFieldValue(parentKey) === 'Yes' && !!getFieldValue(detailKey);
+  };
+
   // All form fields in order (matches ClientIntakeFormDynamic.tsx)
   const allFields = [
     // Personal Information
@@ -159,7 +164,7 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     // Cultural Information
     { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues', type: 'text' },
     { key: 'language', label: 'Language', type: 'text' },
-    { key: 'interpreter', label: 'Is an interpreter needed?', type: 'text' },
+    { key: 'interpreter', label: 'Verbal communication or spoken language - Is an interpreter needed?', type: 'text' },
     { key: 'countryOfBirth', label: 'Country of Birth', type: 'text' },
     { key: 'culturalValues', label: 'Cultural Values', type: 'longtext' },
     { key: 'culturalBehaviours', label: 'Cultural Behaviours', type: 'longtext' },
@@ -174,15 +179,13 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'secondaryContactRelationship', label: 'Secondary Contact Relationship', type: 'text' },
     { key: 'secondaryContactHomePhone', label: 'Secondary Contact Home Phone', type: 'text' },
     { key: 'secondaryContactMobile', label: 'Secondary Contact Mobile', type: 'text' },
-    { key: 'emergencyContactName', label: 'Emergency Contact Name', type: 'text' },
-    { key: 'emergencyContactRelationship', label: 'Emergency Contact Relationship', type: 'text' },
-    { key: 'emergencyContactPhone', label: 'Emergency Contact Phone', type: 'text' },
+    // Emergency contact fields removed from view per requirements
     
     // Living Arrangements
     { key: 'livingArrangements', label: 'Living Arrangements', type: 'text' },
-    { key: 'livingArrangementsOthers', label: 'Living Arrangements Details', type: 'longtext' },
+    { key: 'livingArrangementsOther', label: 'Please specify other living arrangement', type: 'longtext' },
     { key: 'travelArrangements', label: 'Travel Arrangements', type: 'text' },
-    { key: 'travelArrangementsOthers', label: 'Travel Arrangements Details', type: 'longtext' },
+    { key: 'travelArrangementsOther', label: 'Please specify other travel arrangement', type: 'longtext' },
     
     // Medical Information
     { key: 'medicationChart', label: 'Does the Participant require a Medication Chart?', type: 'text' },
@@ -192,14 +195,11 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'bowelCareOthers', label: 'Bowel Care Details', type: 'longtext' },
     { key: 'menstrualIssues', label: 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', type: 'text' },
     { key: 'menstrualIssuesOthers', label: 'Menstrual Issues Details', type: 'longtext' },
-    { key: 'personalCare', label: 'Does the participant require Personal Care?', type: 'text' },
-    { key: 'personalCareOthers', label: 'Personal Care Details', type: 'longtext' },
-    { key: 'mobilityAids', label: 'Does the participant use any mobility aids?', type: 'text' },
-    { key: 'mobilityAidsOthers', label: 'Mobility Aids Details', type: 'longtext' },
+    // Removed from view per requirements (not in edit form)
     { key: 'epilepsy', label: 'Does the Participant have Epilepsy?', type: 'text' },
     { key: 'epilepsyOthers', label: 'Epilepsy Details', type: 'longtext' },
     { key: 'asthmatic', label: 'Is the Participant an Asthmatic?', type: 'text' },
-    { key: 'asthmaticOthers', label: 'Asthma Details', type: 'longtext' },
+    { key: 'asthmaticOthers', label: "(ensure Participant's Doctor completes an Asthma Plan)", type: 'longtext' },
     { key: 'allergies', label: 'Does the Participant have any allergies?', type: 'text' },
     { key: 'allergiesOthers', label: 'Allergy Details', type: 'longtext' },
     { key: 'anaphylactic', label: 'Is the Participant anaphylactic?', type: 'text' },
@@ -243,8 +243,35 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
   // Render field (matches web view appearance EXACTLY)
   const renderField = (field: any) => {
     const value = getFieldValue(field.key);
-    const valueStr = value && value.trim() !== '' ? String(value) : 'No information provided';
+    const isListField = field.key === 'livingArrangements' || field.key === 'travelArrangements';
+    const valueStr = isListField
+      ? ''
+      : (value && String(value).trim() !== '' ? String(value) : 'No information provided');
     const isLongText = field.type === 'longtext';
+
+    // Filter longtext "If yes" detail fields if parent is not Yes
+    const yesNoPairs: Record<string, string> = {
+      medicationChartOthers: 'medicationChart',
+      bowelCareOthers: 'bowelCare',
+      menstrualIssuesOthers: 'menstrualIssues',
+      epilepsyOthers: 'epilepsy',
+      asthmaticOthers: 'asthmatic',
+      allergiesOthers: 'allergies',
+      anaphylacticOthers: 'anaphylactic',
+      trainingOthers: 'training',
+      othermedicalOthers: 'othermedical',
+      triggerOthers: 'trigger',
+      abscondingOthers: 'absconding',
+      behaviourConcernOthers: 'behaviourConcern',
+      positiveBehaviourOthers: 'positiveBehaviour',
+    };
+
+    if (field.key in yesNoPairs) {
+      const parent = yesNoPairs[field.key];
+      if (!shouldShowDetail(parent, field.key)) {
+        return null;
+      }
+    }
     
     return (
       <View key={field.key} style={styles.fieldContainer} wrap={false}>
@@ -252,7 +279,35 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
           <Text style={styles.fieldLabel}>{field.label}</Text>
         </View>
         <View style={isLongText ? styles.fieldValueLong : styles.fieldValue}>
-          <Text>{valueStr}</Text>
+          {isListField ? (
+            <>
+              {(() => {
+                const arr = Array.isArray(value)
+                  ? value
+                  : String(value || '')
+                      .split(',')
+                      .map((s: string) => s.trim())
+                      .filter((s: string) => s.length > 0);
+                return arr.length > 0 ? (
+                  <View>
+                    {arr.map((item: string, idx: number) => (
+                      <Text key={idx}>• {item}</Text>
+                    ))}
+                  </View>
+                ) : (
+                  <Text> </Text>
+                );
+              })()}
+            </>
+          ) : (
+            <Text>
+              {field.key === 'mealtimeManagement' && getFieldValue('mealtimeManagement') === 'Yes'
+                ? 'Yes (refer to Mealtime Management Plan Form)'
+                : field.key === 'asthmatic' && getFieldValue('asthmatic') === 'Yes'
+                  ? "Yes (ensure Participant's Doctor completes an Asthma Plan)"
+                  : valueStr}
+            </Text>
+          )}
         </View>
       </View>
     );

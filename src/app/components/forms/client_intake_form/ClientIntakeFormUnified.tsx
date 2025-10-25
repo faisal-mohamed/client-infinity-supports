@@ -774,7 +774,19 @@ const InteractiveView: React.FC<any> = ({
       }
     }
 
-    const newValues = { ...localValues, [name]: processedValue };
+    const newValues: any = { ...localValues, [name]: processedValue };
+
+    // If toggling a Yes/No parent to a non-Yes value, clear its dependent detail field
+    const parentMeta = FIELD_METADATA[name];
+    if (
+      parentMeta?.type === 'dropdown' &&
+      Array.isArray(parentMeta.options) &&
+      parentMeta.options.includes('Yes') &&
+      parentMeta?.showIfYes?.inputName &&
+      processedValue !== 'Yes'
+    ) {
+      newValues[parentMeta.showIfYes.inputName] = '';
+    }
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
@@ -782,7 +794,45 @@ const InteractiveView: React.FC<any> = ({
     onChange(newValues, name, isCommon);
   };
 
+  // Build list of Yes/No parents with dependent detail fields
+  const yesNoDetailMappings: Array<{ parent: string; detail: string }> = React.useMemo(() => {
+    return Object.keys(FIELD_METADATA).reduce((acc: Array<{ parent: string; detail: string }>, key: string) => {
+      const meta = FIELD_METADATA[key];
+      if (
+        meta?.type === 'dropdown' &&
+        Array.isArray(meta.options) &&
+        meta.options.includes('Yes') &&
+        meta?.showIfYes?.inputName
+      ) {
+        acc.push({ parent: key, detail: meta.showIfYes.inputName });
+      }
+      return acc;
+    }, []);
+  }, []);
+
+  const sanitizeYesNoDependents = (values: any) => {
+    const cleaned = { ...values };
+    yesNoDetailMappings.forEach(({ parent, detail }) => {
+      if (cleaned[parent] !== 'Yes') {
+        cleaned[detail] = '';
+      }
+    });
+    return cleaned;
+  };
+
+  const applySanitization = () => {
+    const cleaned = sanitizeYesNoDependents(localValues);
+    // Only update state if changes are actually needed
+    const changed = Object.keys(cleaned).some((k) => cleaned[k] !== localValues[k]);
+    if (changed) {
+      setLocalValues(cleaned);
+      onChange(cleaned);
+    }
+    return cleaned;
+  };
+
   const handleNextSequential = async () => {
+    applySanitization();
     if (handleSaveForNext) {
       await handleSaveForNext();
     }
@@ -797,6 +847,7 @@ const InteractiveView: React.FC<any> = ({
 
   const handlePreviousSequential = async () => {
     if (currentStep > 0) {
+      applySanitization();
       if (handleSaveForPrev) {
         await handleSaveForPrev();
       }
@@ -920,6 +971,7 @@ const InteractiveView: React.FC<any> = ({
   };
 
   const handleSaveWithConfirm = async (submit: boolean) => {
+    applySanitization();
     if (submit) {
       // Validate before submission
       const validation = validateRequiredFields();
@@ -949,6 +1001,15 @@ const InteractiveView: React.FC<any> = ({
       await handleSubmitForm();
       setSubmitting(false);
     } else {
+      // Save Progress also sanitized
+      await handleSaveProgress();
+    }
+  };
+
+  // Dedicated sanitized Save Progress trigger
+  const handleSaveProgressSanitized = async () => {
+    applySanitization();
+    if (handleSaveProgress) {
       await handleSaveProgress();
     }
   };
@@ -1401,7 +1462,7 @@ const InteractiveView: React.FC<any> = ({
             </button>
 
             <button
-              onClick={() => handleSaveProgress()}
+              onClick={() => handleSaveProgressSanitized()}
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >

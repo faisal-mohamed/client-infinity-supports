@@ -319,6 +319,7 @@ const ClientIntakev2Multipage: React.FC<ClientIntakeFormPDFProps> = ({
           <Text style={styles.sectionTitle}>Medical Information</Text>
           {renderQuestion('medicationChart', 'Does the Participant require a Medication Chart?', 'medicationChartOthers')}
           {renderQuestion('mealtimeManagement', 'Does the Participant require Mealtime Management?')}
+          {renderQuestion('menstrualIssues', 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene?', 'menstrualIssuesOthers')}
           {renderQuestion('epilepsy', 'Does the Participant have Epilepsy?', 'epilepsyOthers')}
           {renderQuestion('asthmatic', 'Is the Participant an Asthmatic?', 'asthmaticOthers')}
           {renderQuestion('allergies', 'Does the Participant have any allergies?', 'allergiesOthers')}
@@ -498,7 +499,7 @@ const ClientIntakev2Multipage: React.FC<ClientIntakeFormPDFProps> = ({
             <Text style={styles.value}>{getValue('countryOfBirth')}</Text>
           </View>
           {renderQuestion('barriers', 'Are there any cultural, communication barriers or intimacy issues?')}
-          {renderQuestion('interpreter', 'Is an interpreter needed?')}
+          {renderQuestion('interpreter', 'Verbal communication or spoken language - Is an interpreter needed?')}
         </View>
 
         <View style={styles.section}>

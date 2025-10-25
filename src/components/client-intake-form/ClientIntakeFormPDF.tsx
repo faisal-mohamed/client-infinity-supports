@@ -151,14 +151,63 @@ const ClientIntakeFormPDF = ({ formData, commonFieldsData, settings }: any) => {
     // Cultural Information
     { label: 'Are there any cultural, communication barriers or intimacy issues', value: getValue('barriers'), type: 'text' },
     { label: 'Language', value: getValue('language'), type: 'text' },
-    { label: 'Is an interpreter needed?', value: getValue('interpreter'), type: 'text' },
+    { label: 'Verbal communication or spoken language - Is an interpreter needed?', value: getValue('interpreter'), type: 'text' },
     { label: 'Country of Birth', value: getValue('countryOfBirth'), type: 'text' },
     { label: 'Cultural Values', value: getValue('culturalValues'), type: 'longtext' },
     { label: 'Cultural Behaviours', value: getValue('culturalBehaviours'), type: 'longtext' },
     { label: 'Written Communication / Literacy', value: getValue('writtenCommunication'), type: 'longtext' }
   ];
 
-  const pages = groupFieldsByHeight(fields);
+  // Filter out any "If yes" detail when parent isn't Yes
+  const parentMap: Record<string, string> = {
+    medicationChartOthers: 'medicationChart',
+    bowelCareOthers: 'bowelCare',
+    menstrualIssuesOthers: 'menstrualIssues',
+    epilepsyOthers: 'epilepsy',
+    asthmaticOthers: 'asthmatic',
+    allergiesOthers: 'allergies',
+    anaphylacticOthers: 'anaphylactic',
+    trainingOthers: 'training',
+    othermedicalOthers: 'othermedical',
+    triggerOthers: 'trigger',
+  };
+
+  const filtered = fields.filter((f) => {
+    const detailKey = Object.keys(parentMap).find((k) => f.label.toLowerCase().includes(k.replace(/others?$/i, '').toLowerCase()));
+    if (!detailKey) return true;
+    const parentKey = parentMap[detailKey];
+    const parentVal = getValue(parentKey);
+    return parentVal === 'Yes' && !!f.value;
+  });
+
+  // For list fields, render bullet points instead of a comma line
+  const bulletify = (label: string, value: any) => {
+    const listKeys = ['livingArrangements', 'travelArrangements'];
+    const isList = listKeys.some(k => label.toLowerCase().includes(k.toLowerCase()));
+    if (!isList) return { label, value };
+    const arr = Array.isArray(value) ? value : String(value || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (arr.length === 0) return { label, value: '' };
+    return { label, value: arr.map(item => `• ${item}`).join('\n') };
+  };
+
+  const yesInlineNoteMap: Record<string, string> = {
+    mealtimeManagement: 'refer to Mealtime Management Plan Form',
+    asthmatic: "ensure Participant's Doctor completes an Asthma Plan",
+  };
+
+  const bulletAdjusted = filtered.map(f => {
+    const adjusted = bulletify(f.label, f.value);
+    // Inline note inside value when Yes
+    const key = Object.keys(yesInlineNoteMap).find(k => f.label.toLowerCase().includes(k.toLowerCase().replace(/([A-Z])/g, ' $1').trim()));
+    let valueOut = adjusted.value;
+    if (key && (commonFieldsData?.[key] || formData?.[key]) === 'Yes') {
+      const current = String(f.value || 'Yes');
+      valueOut = current && current !== 'Yes' ? current : `Yes (${yesInlineNoteMap[key]})`;
+    }
+    return { ...f, value: valueOut };
+  });
+
+  const pages = groupFieldsByHeight(bulletAdjusted);
 
   return (
     <div className="pdf-mode">

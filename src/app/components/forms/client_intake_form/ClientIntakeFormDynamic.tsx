@@ -58,7 +58,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     // Cultural Information
     { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues', type: 'text' },
     { key: 'language', label: 'Language', type: 'text' },
-    { key: 'interpreter', label: 'Is an interpreter needed?', type: 'text' },
+    { key: 'interpreter', label: 'Verbal communication or spoken language - Is an interpreter needed?', type: 'text' },
     { key: 'countryOfBirth', label: 'Country of Birth', type: 'text' },
     { key: 'culturalValues', label: 'Cultural Values', type: 'longtext' },
     { key: 'culturalBehaviours', label: 'Cultural Behaviours', type: 'longtext' },
@@ -67,69 +67,93 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     // Contact Details
     { key: 'primaryContactName', label: 'Primary Contact Name', type: 'text' },
     { key: 'primaryContactRelationship', label: 'Primary Contact Relationship', type: 'text' },
-    { key: 'primaryContactPhone', label: 'Primary Contact Phone', type: 'text' },
+    { key: 'primaryContactHomePhone', label: 'Primary Contact Home Phone', type: 'text' },
     { key: 'primaryContactMobile', label: 'Primary Contact Mobile', type: 'text' },
     { key: 'secondaryContactName', label: 'Secondary Contact Name', type: 'text' },
     { key: 'secondaryContactRelationship', label: 'Secondary Contact Relationship', type: 'text' },
     { key: 'secondaryContactHomePhone', label: 'Secondary Contact Home Phone', type: 'text' },
     { key: 'secondaryContactMobile', label: 'Secondary Contact Mobile', type: 'text' },
-    { key: 'emergencyContactName', label: 'Emergency Contact Name', type: 'text' },
-    { key: 'emergencyContactRelationship', label: 'Emergency Contact Relationship', type: 'text' },
-    { key: 'emergencyContactPhone', label: 'Emergency Contact Phone', type: 'text' },
+    // Emergency contact fields removed from view per requirements
     
     // Living Arrangements
     { key: 'livingArrangements', label: 'Living Arrangements', type: 'text' },
-    { key: 'livingArrangementsOthers', label: 'Living Arrangements Details', type: 'longtext' },
+    { key: 'livingArrangementsOther', label: 'Please specify other living arrangement', type: 'longtext' },
     { key: 'travelArrangements', label: 'Travel Arrangements', type: 'text' },
-    { key: 'travelArrangementsOthers', label: 'Travel Arrangements Details', type: 'longtext' },
+    { key: 'travelArrangementsOther', label: 'Please specify other travel arrangement', type: 'longtext' },
     
     // Medical Information
     { key: 'medicationChart', label: 'Does the Participant require a Medication Chart?', type: 'text' },
     { key: 'medicationChartOthers', label: 'Medication Chart Details', type: 'longtext' },
     { key: 'mealtimeManagement', label: 'Does the Participant require Mealtime Management?', type: 'text' },
     { key: 'bowelCare', label: 'Does the participant require Bowel Care Management?', type: 'text' },
-    { key: 'bowelCareOthers', label: 'Bowel Care Details', type: 'longtext' },
-    { key: 'personalCare', label: 'Does the participant require Personal Care?', type: 'text' },
-    { key: 'personalCareOthers', label: 'Personal Care Details', type: 'longtext' },
-    { key: 'mobilityAids', label: 'Does the participant use any mobility aids?', type: 'text' },
-    { key: 'mobilityAidsOthers', label: 'Mobility Aids Details', type: 'longtext' },
-    { key: 'epilepsy', label: 'Epilepsy', type: 'text' },
-    { key: 'epilepsyOthers', label: 'Epilepsy Details', type: 'longtext' },
-    { key: 'asthma', label: 'Asthma', type: 'text' },
-    { key: 'asthmaOthers', label: 'Asthma Details', type: 'longtext' },
-    { key: 'allergies', label: 'Allergies', type: 'text' },
-    { key: 'allergiesOthers', label: 'Allergy Details', type: 'longtext' },
-    { key: 'anaphylaxis', label: 'Anaphylaxis', type: 'text' },
-    { key: 'anaphylaxisOthers', label: 'Anaphylaxis Details', type: 'longtext' },
-    { key: 'minorInjuryPermission', label: 'Minor Injury Permission', type: 'text' },
-    { key: 'training', label: 'Training', type: 'text' },
-    { key: 'trainingOthers', label: 'Training Details', type: 'longtext' },
-    { key: 'otherMedical', label: 'Other Medical', type: 'text' },
-    { key: 'otherMedicalOthers', label: 'Other Medical Details', type: 'longtext' },
+    { key: 'bowelCareOthers', label: 'If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.', type: 'longtext' },
+    { key: 'menstrualIssues', label: 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', type: 'text' },
+    { key: 'menstrualIssuesOthers', label: 'If yes, Please specify', type: 'longtext' },
+    // Removed from view per requirements (not present in edit)
+    { key: 'epilepsy', label: 'Does the Participant have Epilepsy?', type: 'text' },
+    { key: 'epilepsyOthers', label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", type: 'longtext' },
+    { key: 'asthmatic', label: 'Is the Participant an Asthmatic?', type: 'text' },
+    { key: 'asthmaticOthers', label: "If yes ,ensure Participant's Doctor completes an Asthma Plan", type: 'longtext' },
+    { key: 'allergies', label: 'Does the Participant have any allergies?', type: 'text' },
+    { key: 'allergiesOthers', label: 'If yes, ensure to have an Allergy Plan from Participant\'s Doctor', type: 'longtext' },
+    { key: 'anaphylactic', label: 'Is the Participant anaphylactic?', type: 'text' },
+    { key: 'anaphylacticOthers', label: 'If yes, ensure to have an anaphylaxis Plan from the Participant\'s Doctor', type: 'longtext' },
+    { key: 'minorInjury', label: "Do you give permission for our company's staff to administer band-aids in cases of a minor injury?", type: 'text' },
+    { key: 'training', label: 'Does this participant require specific training?', type: 'text' },
+    { key: 'trainingOthers', label: 'If yes, ensure to provide information such as implementing a positive behaviour support plan.', type: 'longtext' },
+    { key: 'othermedical', label: 'Are there any other medication conditions that will be relevant to the care provided to this Participant?', type: 'text' },
+    { key: 'othermedicalOthers', label: 'If yes, please specify.', type: 'longtext' },
     { key: 'trigger', label: 'Is there any specific trigger for community activities?', type: 'text' },
-    { key: 'triggerOthers', label: 'Trigger Details', type: 'longtext' },
+    { key: 'triggerOthers', label: 'If yes, please specify and complete the Risk assessment for participants.', type: 'longtext' },
     
     // Safety Considerations
-    { key: 'riskAssessment', label: 'Does this Participant require a Risk Assessment?', type: 'text' },
-    { key: 'riskAssessmentOthers', label: 'Risk Assessment Details', type: 'longtext' },
-    { key: 'behaviourSupport', label: 'Does this Participant require Behaviour Support?', type: 'text' },
-    { key: 'behaviourSupportOthers', label: 'Behaviour Support Details', type: 'longtext' },
+    // Removed from view (not present in edit form): Risk Assessment and Behaviour Support
     { key: 'personalGoals', label: 'Does this Participant have any personal preferences & personal goals?', type: 'text' },
-    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' },
-    { key: 'absconding', label: 'Absconding', type: 'text' },
-    { key: 'abscondingOthers', label: 'Absconding Details', type: 'longtext' },
-    { key: 'historyOfFalls', label: 'History of Falls', type: 'text' },
-    { key: 'behaviourConcerns', label: 'Behaviour Concerns', type: 'text' },
-    { key: 'behaviourConcernOthers', label: 'Behaviour Concern Details', type: 'longtext' },
-    { key: 'positiveBehaviourSupport', label: 'Positive Behaviour Support', type: 'text' },
-    { key: 'positiveBehaviourOthers', label: 'Positive Behaviour Details', type: 'longtext' },
-    { key: 'communicationAssistance', label: 'Communication Assistance', type: 'text' },
-    { key: 'communicationAssistanceOthers', label: 'Communication Assistance Details', type: 'longtext' },
-    { key: 'physicalAssistance', label: 'Physical Assistance', type: 'text' },
-    { key: 'physicalAssistanceOthers', label: 'Physical Assistance Details', type: 'longtext' },
-    { key: 'languageConcerns', label: 'Language Concerns', type: 'text' },
-    { key: 'languageConcernOthers', label: 'Language Concern Details', type: 'longtext' }
+    { key: 'personalGoalsOthers', label: 'If yes, refer to form Support Plan', type: 'longtext' },
+    { key: 'absconding', label: 'Does the Participant show signs or a history of unexpectedly leaving (absconding)?', type: 'text' },
+    { key: 'abscondingOthers', label: 'If yes, please specify.', type: 'longtext' },
+    { key: 'historyOfFalls', label: 'Is this participant prone to falls or have a history of falls?', type: 'text' },
+    { key: 'behaviourConcern', label: 'Are there any Behaviours of Concern? Eg: Kicking, biting', type: 'text' },
+    { key: 'behaviourConcernOthers', label: 'If yes, please specify.', type: 'longtext' },
+    { key: 'positiveBehaviour', label: 'Is there a current Positive Behaviour Support Plan in place?', type: 'text' },
+    { key: 'positiveBehaviourOthers', label: 'If yes, refer to High Risk Participant Register.', type: 'longtext' },
+    { key: 'communicationAssistance', label: 'Does the participant require communication assistance?', type: 'text' },
+    { key: 'communicationAssistanceOthers', label: 'If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.', type: 'longtext' },
+    { key: 'physicalAssistance', label: 'Is there any physical assistance or physical assistance preference for this Participant?', type: 'text' },
+    { key: 'physicalAssistanceOthers', label: 'If yes, specify.', type: 'longtext' },
+    { key: 'languageConcern', label: 'Does the Participant have any expressive language concerns?', type: 'text' },
+    { key: 'languageConcernOthers', label: 'If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.', type: 'longtext' }
   ];
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+  const dependentMap: Record<string, string> = {
+    medicationChartOthers: 'medicationChart',
+    bowelCareOthers: 'bowelCare',
+    menstrualIssuesOthers: 'menstrualIssues',
+    epilepsyOthers: 'epilepsy',
+    asthmaticOthers: 'asthmatic',
+    allergiesOthers: 'allergies',
+     anaphylacticOthers: 'anaphylactic',
+     trainingOthers: 'training',
+     othermedicalOthers: 'othermedical',
+    triggerOthers: 'trigger',
+    abscondingOthers: 'absconding',
+     behaviourConcernOthers: 'behaviourConcern',
+     positiveBehaviourOthers: 'positiveBehaviour',
+    communicationAssistanceOthers: 'communicationAssistance',
+    physicalAssistanceOthers: 'physicalAssistance',
+     languageConcernOthers: 'languageConcern',
+    personalGoalsOthers: 'personalGoals'
+  };
+
+  const shouldIncludeField = (fieldKey: string) => {
+    const parentKey = dependentMap[fieldKey];
+    if (!parentKey) return true;
+    const parentValue = getFieldValue(parentKey);
+    const detailValue = getFieldValue(fieldKey);
+    return parentValue === 'Yes' && !!detailValue;
+  };
+
+  const visibleFields = allFields.filter(f => shouldIncludeField(f.key));
 
   // Calculate field height based on content
   const calculateFieldHeight = (field: any) => {
@@ -182,8 +206,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     return pages;
   };
 
-  // Show all fields, not just ones with values
-  const fieldsWithValues = allFields;
+  // Show fields with conditional visibility for dependent details
+  const fieldsWithValues = visibleFields;
 
   // Group fields by height instead of fixed count
   const pages = groupFieldsByHeight();
@@ -239,16 +263,38 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
   // Render field with dynamic height
   const renderField = (field: any) => {
     const value = getFieldValue(field.key);
-    const valueStr = String(value);
+    let valueStr = Array.isArray(value) ? value.join(', ') : String(value || '');
     const isLongText = field.type === 'longtext';
+    
+    // Special bullet rendering for multi-select lists
+    const isBulletList = field.key === 'livingArrangements' || field.key === 'travelArrangements';
+    const items = isBulletList
+      ? (Array.isArray(value)
+          ? value
+          : String(value || '')
+              .split(',')
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0))
+      : [];
     
     // Calculate dynamic height
     const charsPerLine = 80;
     const lineHeight = 12;
     const lines = Math.max(1, Math.ceil(valueStr.length / charsPerLine));
-    const contentHeight = lines * lineHeight;
+    const contentHeight = isBulletList ? Math.max(18 * items.length, 25) : lines * lineHeight;
     const minHeight = isLongText ? 50 : 25;
     const actualHeight = Math.max(minHeight, contentHeight);
+
+    // Inline yes-only guidance messages (no input) for certain Yes/No questions
+    // Inline note next to Yes for select questions
+    const yesInlineNoteMap: Record<string, string> = {
+      mealtimeManagement: 'refer to Mealtime Management Plan Form',
+      asthmatic: "ensure Participant's Doctor completes an Asthma Plan",
+      personalGoals: 'refer to form Support Plan',
+    };
+    if (yesInlineNoteMap[field.key] && value === 'Yes') {
+      valueStr = `Yes (${yesInlineNoteMap[field.key]})`;
+    }
     
     return (
       <div key={field.key} className="mb-3">
@@ -258,7 +304,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
         <div 
           className="border border-black border-t-0 p-2 bg-white"
           style={{
-            whiteSpace: 'pre-wrap',
+            whiteSpace: isBulletList ? 'normal' : 'pre-wrap',
             wordWrap: 'break-word',
             overflow: 'visible',
             height: `${actualHeight}px`,
@@ -266,7 +312,19 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
             lineHeight: '12px'
           }}
         >
-          {valueStr}
+          {isBulletList ? (
+            <ul className="list-disc pl-5">
+              {items.length > 0 ? (
+                items.map((opt: string, idx: number) => (
+                  <li key={idx}>{opt}</li>
+                ))
+              ) : (
+                <li style={{ listStyleType: 'none' }}>&nbsp;</li>
+              )}
+            </ul>
+          ) : (
+            valueStr
+          )}
         </div>
       </div>
     );
