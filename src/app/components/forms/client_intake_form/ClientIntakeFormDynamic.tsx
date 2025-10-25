@@ -56,7 +56,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     { key: 'advocateRelationship', label: 'Advocate Relationship with Participant', type: 'text' },
     
     // Cultural Information
-    { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues', type: 'text' },
+    { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services', type: 'text' },
     { key: 'language', label: 'Language', type: 'text' },
     { key: 'interpreter', label: 'Verbal communication or spoken language - Is an interpreter needed?', type: 'text' },
     { key: 'countryOfBirth', label: 'Country of Birth', type: 'text' },
@@ -289,7 +289,6 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     // Inline note next to Yes for select questions
     const yesInlineNoteMap: Record<string, string> = {
       mealtimeManagement: 'refer to Mealtime Management Plan Form',
-      asthmatic: "ensure Participant's Doctor completes an Asthma Plan",
       personalGoals: 'refer to form Support Plan',
     };
     if (yesInlineNoteMap[field.key] && value === 'Yes') {

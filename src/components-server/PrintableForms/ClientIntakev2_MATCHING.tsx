@@ -162,7 +162,7 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'advocateRelationship', label: 'Advocate Relationship with Participant', type: 'text' },
     
     // Cultural Information
-    { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues', type: 'text' },
+    { key: 'barriers', label: 'Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services', type: 'text' },
     { key: 'language', label: 'Language', type: 'text' },
     { key: 'interpreter', label: 'Verbal communication or spoken language - Is an interpreter needed?', type: 'text' },
     { key: 'countryOfBirth', label: 'Country of Birth', type: 'text' },
@@ -192,46 +192,42 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
     { key: 'medicationChartOthers', label: 'Medication Chart Details', type: 'longtext' },
     { key: 'mealtimeManagement', label: 'Does the Participant require Mealtime Management?', type: 'text' },
     { key: 'bowelCare', label: 'Does the participant require Bowel Care Management?', type: 'text' },
-    { key: 'bowelCareOthers', label: 'Bowel Care Details', type: 'longtext' },
+    { key: 'bowelCareOthers', label: 'If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care.', type: 'longtext' },
     { key: 'menstrualIssues', label: 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', type: 'text' },
-    { key: 'menstrualIssuesOthers', label: 'Menstrual Issues Details', type: 'longtext' },
+    { key: 'menstrualIssuesOthers', label: 'If yes, Please specify', type: 'longtext' },
     // Removed from view per requirements (not in edit form)
     { key: 'epilepsy', label: 'Does the Participant have Epilepsy?', type: 'text' },
-    { key: 'epilepsyOthers', label: 'Epilepsy Details', type: 'longtext' },
+    { key: 'epilepsyOthers', label: "If yes, ensure Participant's Doctor completes an Epilepsy Plan", type: 'longtext' },
     { key: 'asthmatic', label: 'Is the Participant an Asthmatic?', type: 'text' },
-    { key: 'asthmaticOthers', label: "(ensure Participant's Doctor completes an Asthma Plan)", type: 'longtext' },
+    { key: 'asthmaticOthers', label: "If yes ,ensure Participant's Doctor completes an Asthma Plan", type: 'longtext' },
     { key: 'allergies', label: 'Does the Participant have any allergies?', type: 'text' },
-    { key: 'allergiesOthers', label: 'Allergy Details', type: 'longtext' },
+    { key: 'allergiesOthers', label: "If yes, ensure to have an Allergy Plan from Participant's Doctor", type: 'longtext' },
     { key: 'anaphylactic', label: 'Is the Participant anaphylactic?', type: 'text' },
-    { key: 'anaphylacticOthers', label: 'Anaphylaxis Details', type: 'longtext' },
+    { key: 'anaphylacticOthers', label: "If yes, ensure to have an anaphylaxis Plan from the Participant's Doctor", type: 'longtext' },
     { key: 'minorInjury', label: 'Do you give permission for our company\'s staff to administer band-aids in cases of a minor injury?', type: 'text' },
     { key: 'training', label: 'Does this participant require specific training?', type: 'text' },
-    { key: 'trainingOthers', label: 'Training Details', type: 'longtext' },
+    { key: 'trainingOthers', label: 'If yes, ensure to provide information such as implementing a positive behaviour support plan.', type: 'longtext' },
     { key: 'othermedical', label: 'Are there any other medication conditions that will be relevant to the care provided to this Participant?', type: 'text' },
-    { key: 'othermedicalOthers', label: 'Other Medical Details', type: 'longtext' },
+    { key: 'othermedicalOthers', label: 'If yes, please specify.', type: 'longtext' },
     { key: 'trigger', label: 'Is there any specific trigger for community activities?', type: 'text' },
-    { key: 'triggerOthers', label: 'Trigger Details', type: 'longtext' },
+    { key: 'triggerOthers', label: 'If yes, please specify and complete the Risk assessment for participants.', type: 'longtext' },
     
-    // Safety Considerations
-    { key: 'riskAssessment', label: 'Does this Participant require a Risk Assessment?', type: 'text' },
-    { key: 'riskAssessmentOthers', label: 'Risk Assessment Details', type: 'longtext' },
-    { key: 'behaviourSupport', label: 'Does this Participant require Behaviour Support?', type: 'text' },
-    { key: 'behaviourSupportOthers', label: 'Behaviour Support Details', type: 'longtext' },
+    // Safety Considerations (align with view; remove Risk Assessment & Behaviour Support)
     { key: 'personalGoals', label: 'Does this Participant have any personal preferences & personal goals?', type: 'text' },
-    { key: 'personalGoalsOthers', label: 'Personal Goals Details', type: 'longtext' },
+    { key: 'personalGoalsOthers', label: 'If yes, refer to form Support Plan', type: 'longtext' },
     { key: 'absconding', label: 'Does the Participant show signs or a history of unexpectedly leaving (absconding)?', type: 'text' },
-    { key: 'abscondingOthers', label: 'Absconding Details', type: 'longtext' },
+    { key: 'abscondingOthers', label: 'If yes, please specify.', type: 'longtext' },
     { key: 'historyOfFalls', label: 'Is this participant prone to falls or have a history of falls?', type: 'text' },
     { key: 'behaviourConcern', label: 'Are there any Behaviours of Concern? Eg: Kicking, biting', type: 'text' },
-    { key: 'behaviourConcernOthers', label: 'Behaviour Concern Details', type: 'longtext' },
+    { key: 'behaviourConcernOthers', label: 'If yes, please specify.', type: 'longtext' },
     { key: 'positiveBehaviour', label: 'Is there a current Positive Behaviour Support Plan in place?', type: 'text' },
-    { key: 'positiveBehaviourOthers', label: 'Positive Behaviour Details', type: 'longtext' },
+    { key: 'positiveBehaviourOthers', label: 'If yes, refer to High Risk Participant Register.', type: 'longtext' },
     { key: 'communicationAssistance', label: 'Does the participant require communication assistance?', type: 'text' },
-    { key: 'communicationAssistanceOthers', label: 'Communication Assistance Details', type: 'longtext' },
+    { key: 'communicationAssistanceOthers', label: 'If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan.', type: 'longtext' },
     { key: 'physicalAssistance', label: 'Is there any physical assistance or physical assistance preference for this Participant?', type: 'text' },
-    { key: 'physicalAssistanceOthers', label: 'Physical Assistance Details', type: 'longtext' },
+    { key: 'physicalAssistanceOthers', label: 'If yes, specify.', type: 'longtext' },
     { key: 'languageConcern', label: 'Does the Participant have any expressive language concerns?', type: 'text' },
-    { key: 'languageConcernOthers', label: 'Language Concern Details', type: 'longtext' },
+    { key: 'languageConcernOthers', label: 'If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication.', type: 'longtext' },
   ];
 
   console.log('📋 Total fields to render:', allFields.length);
@@ -264,6 +260,7 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
       abscondingOthers: 'absconding',
       behaviourConcernOthers: 'behaviourConcern',
       positiveBehaviourOthers: 'positiveBehaviour',
+      personalGoalsOthers: 'personalGoals',
     };
 
     if (field.key in yesNoPairs) {
@@ -303,9 +300,7 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
             <Text>
               {field.key === 'mealtimeManagement' && getFieldValue('mealtimeManagement') === 'Yes'
                 ? 'Yes (refer to Mealtime Management Plan Form)'
-                : field.key === 'asthmatic' && getFieldValue('asthmatic') === 'Yes'
-                  ? "Yes (ensure Participant's Doctor completes an Asthma Plan)"
-                  : valueStr}
+                : valueStr}
             </Text>
           )}
         </View>
@@ -333,15 +328,9 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
 
         {/* Fixed Footer on all pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>
-            Website: {settings?.company_website || 'https://www.infinitysupportswa.org'}
-          </Text>
-          <Text style={styles.footerText} render={({ pageNumber, totalPages }) => (
-            `Page ${pageNumber} of ${totalPages}`
-          )} />
-          <Text style={styles.footerText}>
-            {settings?.client_intake_form_id || 'CF001'}
-          </Text>
+          <Text style={styles.footerText}>{settings?.from_email || ''}</Text>
+          <Text style={styles.footerText}>{settings?.client_intake_form_id || 'CF001'}</Text>
+          <Text style={styles.footerText}>Review Date: {settings?.review_date || ''}</Text>
         </View>
       </Page>
     </Document>
