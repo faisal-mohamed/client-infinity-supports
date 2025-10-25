@@ -24,7 +24,7 @@ import {
   FaComments,
   FaPenNib,
   FaListAlt,
-  FaSpinner
+  
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -37,6 +37,8 @@ import { showAsRequired } from "@jsonforms/core";
 
 
 //helper functions
+// Match Client Intake form's custom spinner (hourglass emoji)
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 
 
 
@@ -292,6 +294,9 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
+  const [navigatingNext, setNavigatingNext] = useState(false);
+  const [navigatingPrev, setNavigatingPrev] = useState(false);
+  const [showSaveSpinner, setShowSaveSpinner] = useState(false);
 
     
 
@@ -481,6 +486,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
   // Note: 'saving' state comes from parent component via props
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
 
   // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<
@@ -516,7 +522,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
     // Prevent changes to common fields
     if (isCommonField(name)) {
@@ -528,6 +535,34 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         duration: 3000,
       });
       return;
+    }
+
+    // Domain-specific input sanitization and validation
+    if (name === "emergencyContactPhone") {
+      // Allow digits, spaces, parentheses, dash, and optional leading plus for country codes
+      value = value.replace(/[^0-9+()\-\s]/g, "");
+      const phone = String(value).trim();
+      if (phone.length > 0) {
+        const isValidPhone = /^\+?[\d\s()\-]{6,20}$/.test(phone);
+        setLocalErrors((prev) => ({
+          ...prev,
+          emergencyContactPhone: isValidPhone ? "" : "Enter a valid phone number (e.g., +61 401 234 567).",
+        }));
+      } else {
+        setLocalErrors((prev) => ({ ...prev, emergencyContactPhone: "" }));
+      }
+    }
+    if (name === "emergencyContactEmail") {
+      const email = String(value).trim();
+      if (email.length > 0) {
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        setLocalErrors((prev) => ({
+          ...prev,
+          emergencyContactEmail: isValidEmail ? "" : "Please enter a valid email address.",
+        }));
+      } else {
+        setLocalErrors((prev) => ({ ...prev, emergencyContactEmail: "" }));
+      }
     }
 
     const newValues = { ...localValues, [name]: value };
@@ -588,14 +623,32 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   };
 
   const handleNextSequential = async () => {
-    // Save progress before moving to next section
-    await handleSaveProgress();
+    // Non-blocking: navigate immediately, save in background
+    setShowSaveSpinner(false);
+    setNavigatingNext(true);
     handleNext();
+    try {
+      await handleSaveProgress();
+    } catch (e) {
+      // saving failure is already toasting in parent in most flows; ignore here
+    } finally {
+      setNavigatingNext(false);
+    }
   };
 
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
     if (currentStep > 0) {
+      // Non-blocking: navigate immediately, save in background
+      setShowSaveSpinner(false);
+      setNavigatingPrev(true);
       setCurrentStep(currentStep - 1);
+      try {
+        await handleSaveProgress();
+      } catch (e) {
+        // parent toasts
+      } finally {
+        setNavigatingPrev(false);
+      }
     }
   };
 
@@ -612,6 +665,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       ? getCommonFieldValue(name)
       : localValues[name] || "";
     const isFieldReadOnly = readOnly || isCommon;
+    const mergedError = (fieldErrors as any)?.[name] || localErrors[name];
 
     return (
       <div className="flex flex-col gap-1">
@@ -620,14 +674,16 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <input
-          type={type}
+          type={name === "emergencyContactPhone" ? "tel" : type}
           name={name}
           value={displayValue}
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
+          inputMode={name === "emergencyContactPhone" ? "tel" : undefined}
+          pattern={name === "emergencyContactPhone" ? "[0-9+()\\-\\s]*" : undefined}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
+            mergedError
               ? "border-red-300 bg-red-50"
               : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -635,8 +691,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
 
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        {mergedError && (
+          <p className="text-xs text-red-500 mt-1">{mergedError}</p>
         )}
       </div>
     );
@@ -654,6 +710,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       ? getCommonFieldValue(name)
       : localValues[name] || "";
     const isFieldReadOnly = readOnly || isCommon;
+    const mergedError = (fieldErrors as any)?.[name] || localErrors[name];
 
     return (
       <div className="flex flex-col gap-1">
@@ -669,7 +726,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
           rows={rows}
           disabled={isFieldReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
-            fieldErrors[name]
+            mergedError
               ? "border-red-300 bg-red-50"
               : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -677,8 +734,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
 
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        {mergedError && (
+          <p className="text-xs text-red-500 mt-1">{mergedError}</p>
         )}
       </div>
     );
@@ -701,6 +758,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
+        aria-label={`Select ${label}`}
+        title={`Select ${label}`}
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
           fieldErrors[name]
             ? "border-red-300 bg-red-50"
@@ -1348,6 +1407,8 @@ const renderDropdownSeverityRisk = (
             ? handleSeverityChange(e.target.value)
             : setLocalValues({ ...localValues, [field]: e.target.value })
         }
+        aria-label={`Select ${label}`}
+        title={`Select ${label}`}
       >
         <option value="">-- Select --</option>
         {options.map((opt) => (
@@ -1361,6 +1422,14 @@ const renderDropdownSeverityRisk = (
 };
 
 
+  const handleSaveProgressButton = async () => {
+    setShowSaveSpinner(true);
+    try {
+      await handleSaveProgress();
+    } finally {
+      setShowSaveSpinner(false);
+    }
+  };
 
   const renderRiskQuestionBlock = (index: number) => {
     const yesNoOptions = ["Yes", "No"];
@@ -1970,14 +2039,18 @@ const renderDropdownSeverityRisk = (
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || navigatingPrev}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === 0
+                currentStep === 0 || navigatingPrev
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
               }`}
             >
-              <FaChevronLeft className="w-4 h-4" />
+              {navigatingPrev ? (
+                <FaSpinner className="w-4 h-4 animate-spin" />
+              ) : (
+                <FaChevronLeft className="w-4 h-4" />
+              )}
               <span>Previous</span>
             </button>
 
@@ -1986,26 +2059,32 @@ const renderDropdownSeverityRisk = (
               onClick={handleNextSequential}
               disabled={
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                navigatingNext
               }
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                navigatingNext
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
               }`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? (
+                <FaSpinner className="w-4 h-4 animate-spin" />
+              ) : (
+                <FaChevronRight className="w-4 h-4" />
+              )}
             </button>
 
             <button
-              onClick={() => handleSaveProgress()}
-              disabled={saving || submitting}
+              onClick={handleSaveProgressButton}
+              disabled={saving || submitting || showSaveSpinner}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
-              {saving ? "Saving..." : "Save Progress"}
+              {showSaveSpinner ? <FaSpinner className="w-4 h-4 animate-pulse" /> : <FaSave className="w-4 h-4" />}
+              {showSaveSpinner ? "Saving..." : "Save Progress"}
             </button>
           </div>
 
@@ -2018,8 +2097,17 @@ const renderDropdownSeverityRisk = (
               }}
               disabled={saving || submitting}
             >
-              <FaCheck className="w-4 h-4" />
-              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
+              {submitting ? (
+                <>
+                  <FaSpinner className="w-4 h-4 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <FaCheck className="w-4 h-4" />
+                  <span>Submit Form</span>
+                </>
+              )}
             </button>
           )}
         </footer>
