@@ -27,10 +27,12 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({
         boxShadow: "0 0 10px rgba(0,0,0,0.1)",
         pageBreakAfter: "always",
         padding: "20mm",
+        overflow: fixedHeight ? 'hidden' : 'visible', // Prevent overflow clipping
+        minHeight: '1123px', // Ensure minimum A4 height
       }}
     >
       {/* Content area that takes all available space */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col" style={{ overflow: 'visible', minHeight: 0 }}>
           {children}
       </div>
       

@@ -139,10 +139,10 @@ export const FORM_SECTIONS : any = [
     fields: [
       "noiseSensitive",
       "familyBehavioralHistory",
-      "behaviorPractitionerInvolved",
+      "behaviorPractitionerInvolved", // Standalone question
       "mobilityIssues",
       "showeringToiletingHazards",
-      "medicationRespDepression",
+      "medicationRiskDepression",
       "medicationRiskYesNo",
       "medicationRiskComment",
     ],
@@ -1142,9 +1142,9 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       options: yesNoOptions,
     },
     familyBehavioralHistoryComment: {
-      label: "Comment",
-      type: "text",
-      placeholder: "Optional comment",
+      label: "Is there a behaviour practitioner involved? ",
+      type: "dropdown",
+      options: yesNoOptions,
     },
     familyBehavioralHistoryRating: {
       label: "Risk Rating",
@@ -1156,16 +1156,6 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       label: "Is there a behaviour practitioner involved? ",
       type: "dropdown",
       options: yesNoOptions,
-    },
-    behaviorPractitionerInvolvedComment: {
-      label: "Comment",
-      type: "text",
-      placeholder: "Optional comment",
-    },
-    behaviorPractitionerInvolvedRating: {
-      label: "Risk Rating",
-      type: "dropdown",
-      options: ratingOptions,
     },
 
     mobilityIssues: {
@@ -1619,7 +1609,6 @@ const renderDropdownSeverityRisk = (
   const fields = [
     "noiseSensitive",
     "familyBehavioralHistory",
-    "behaviorPractitionerInvolved",
     "mobilityIssues",
     "showeringToiletingHazards",
     "medicationRiskDepression"
@@ -1631,39 +1620,70 @@ const renderDropdownSeverityRisk = (
         const ratingKey = `${key}Rating`;
         const commentKey = `${key}Comment`;
 
-        const isBehaviorOnly = key === "behaviorPractitionerInvolved";
+        const isBehaviorPractitioner = key === "behaviorPractitionerInvolved";
+        const meta = FIELD_METADATA[key];
+        const fieldType = meta?.type || "dropdown";
 
         return (
           <div
             key={key}
             className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
           >
-            {/* ✅ Always render Yes/No dropdown */}
-            {renderDropdown(
-              FIELD_METADATA[key].label,
-              key,
-              yesNoOptions,
-              false
+            {isBehaviorPractitioner ? (
+              // For behaviorPractitionerInvolved: render as text input in first column only
+              <>
+                {renderInput(
+                  meta.label,
+                  key,
+                  "text",
+                  meta.placeholder,
+                  false
+                )}
+                <div></div>
+                <div></div>
+              </>
+            ) : (
+              <>
+                {/* ✅ Always render Yes/No dropdown */}
+                {renderDropdown(
+                  FIELD_METADATA[key].label,
+                  key,
+                  yesNoOptions,
+                  false
+                )}
+
+                {/* ✅ Render rating */}
+                {renderDropdown(
+                  FIELD_METADATA[ratingKey].label,
+                  ratingKey,
+                  ratingOptions,
+                  false
+                )}
+
+                {/* ✅ Render comment */}
+                {(() => {
+                  // Special handling for familyBehavioralHistoryComment -> behaviorPractitionerInvolved
+                  const actualCommentField = commentKey === "familyBehavioralHistoryComment" ? "behaviorPractitionerInvolved" : commentKey;
+                  
+                  return FIELD_METADATA[commentKey]?.type === "dropdown" ? (
+                    renderDropdown(
+                      FIELD_METADATA[commentKey].label,
+                      actualCommentField,
+                      FIELD_METADATA[commentKey].options || [],
+                      false
+                    )
+                  ) : (
+                    renderInput(
+                      FIELD_METADATA[commentKey].label,
+                      commentKey,
+                      "text",
+                      FIELD_METADATA[commentKey].placeholder,
+                      false
+                    )
+                  );
+                })()}
+              </>
             )}
-
-            {/* ✅ Only render rating if not behaviorPractitionerInvolved */}
-            {!isBehaviorOnly &&
-              renderDropdown(
-                FIELD_METADATA[ratingKey].label,
-                ratingKey,
-                ratingOptions,
-                false
-              )}
-
-            {/* ✅ Only render comment if not behaviorPractitionerInvolved */}
-            {!isBehaviorOnly &&
-              renderInput(
-                FIELD_METADATA[commentKey].label,
-                commentKey,
-                "text",
-                FIELD_METADATA[commentKey].placeholder,
-                false
-              )}
           </div>
         );
       })}
@@ -2013,8 +2033,24 @@ const renderDropdownSeverityRisk = (
     return null; // Don't render unless participantInvolved === "No"
   }
 
-  const meta = FIELD_METADATA[field] || { label: field, type: "text" };
+  // Skip the comment and rating fields for behaviorPractitionerInvolved (only render the main question)
+  if (field === "behaviorPractitionerInvolvedComment" || field === "behaviorPractitionerInvolvedRating") {
+    return null;
+  }
+
+  const meta = FIELD_METADATA[field];
+  if (!meta) {
+    console.warn(`Field metadata not found for: ${field}`);
+    return null;
+  }
   const required = isFieldRequired(field);
+  
+  // Special handling for behaviorPractitionerInvolved to use the comment field
+  let actualFieldName = field;
+  if (field === "familyBehavioralHistoryComment") {
+    // Use behaviorPractitionerInvolved field to store the data
+    actualFieldName = "behaviorPractitionerInvolved";
+  }
 
   if (meta.type === "textarea") {
     return (
@@ -2025,9 +2061,11 @@ const renderDropdownSeverityRisk = (
   }
 
   if (meta.type === "dropdown") {
+    // Use actualFieldName for behaviorPractitionerInvolved mapping
+    const fieldToUse = actualFieldName !== field ? actualFieldName : field;
     return (
       <div key={field} className="md:col-span-2">
-        {renderDropdown(meta.label, field, meta.options || [], meta.showComments, required)}
+        {renderDropdown(meta.label, fieldToUse, meta.options || [], meta.showComments, required)}
       </div>
     );
   }

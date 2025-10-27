@@ -147,7 +147,9 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       return fieldValue.includes(option);
     }
     // Handle string values that might be comma-separated
-    return String(fieldValue).split(',').map(s => s.trim()).includes(option);
+    const fieldString = String(fieldValue);
+    const optionsList = fieldString.split(',').map(s => s.trim());
+    return optionsList.includes(option) || optionsList.some(val => option.toLowerCase().includes(val.toLowerCase()) || val.toLowerCase().includes(option.toLowerCase()));
   };
   // Compute selected risk level preferring single source of truth
   const getSelectedRiskLevel = (): "Low" | "Moderate" | "High" | "Critical" | "" => {
@@ -352,57 +354,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     }
   ];
 
-  // 5. MEDICATION RESPIRATORY DEPRESSION
-  allFormSections.push({
-    type: "medication-respiratory",
-    height: 200,
-    content: () => (
-      <table className="w-full border border-black border-collapse text-xs">
-        <thead>
-          <tr className="bg-gray-300 font-bold text-left">
-            <th className="border border-black p-2" colSpan={2}>MEDICATION - RESPIRATORY DEPRESSION</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="border border-black p-2" colSpan={2}>
-              <strong>Does the participant take any of the following medications that can cause Respiratory Depression?</strong>
-            </td>
-          </tr>
-          {["Benzodiazepines", "Opioids", "Polypharmacy", "Psychotropic polypharmacy", "Combination of any of the above medications"].map((med, index) => (
-            <tr key={index}>
-              <td className="border border-black p-2">
-                <label className="inline-flex items-center">
-                  <input type="checkbox" checked={isMultiChecked('medicationRespDepression', med)} readOnly className="mr-2" />
-                  {med}
-                </label>
-              </td>
-              <td className="border border-black p-2"></td>
-            </tr>
-          ))}
-          <tr>
-            <td className="border border-black p-2">
-              <strong>Do these medications pose a risk?</strong>
-              <div className="flex gap-4 mt-1">
-                <label className="inline-flex items-center">
-                  <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'yes')} readOnly className="mr-1" />
-                  YES
-                </label>
-                <label className="inline-flex items-center">
-                  <input type="checkbox" checked={isChecked('medicationRiskYesNo', 'no')} readOnly className="mr-1" />
-                  NO
-                </label>
-              </div>
-            </td>
-            <td className="border border-black p-2">
-              <strong>If yes, please specify:</strong><br/>
-              {getValue("medicationRiskComment")}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    )
-  });
+  // Medication respiratory depression is now included in the INDIVIDUAL RISK ASSESSMENTS table as Question 14
 
   // 6. MEDICATION MANAGEMENT WITH INSTRUCTIONS
   allFormSections.push({
@@ -815,41 +767,18 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     { key: "risk8", label: "Can the participant use public transport?", questionNum: 8 },
     { key: "risk9", label: "Is the client known to be affected by crowds?", questionNum: 9 },
     { key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?", questionNum: 10, commentKey: "noiseSensitiveComment" },
-    { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11, commentKey: "familyBehavioralHistoryComment" },
-    { key: "behaviorPractitionerInvolved", label: "Is there a behaviour practitioner involved?", questionNum: 12 },
-    { key: "mobilityIssues", label: "Does the client have mobility issues?", questionNum: 13, commentKey: "mobilityIssuesComment" },
-    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered?", questionNum: 14, commentKey: "showeringToiletingHazardsComment" }
+    { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11, commentKey: "familyBehavioralHistoryComment", hasSubQuestion: true, subQuestionKey: "behaviorPractitionerInvolved" },
+    { key: "mobilityIssues", label: "Does the client have mobility issues?", questionNum: 12, commentKey: "mobilityIssuesComment" },
+    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered?", questionNum: 13, commentKey: "showeringToiletingHazardsComment" },
+    { key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)", questionNum: 14, commentKey: "medicationRiskDepressionComment", isSpecial: true }
   ];
 
-  // Add risk table sections
-  const riskTableSections = [];
-  let currentQuestions = [];
-  let currentHeight = 0;
-  const maxSectionHeight = 400; // Increased for better distribution
-  const questionHeight = 50;
-
-  riskQuestions.forEach((question) => {
-    if (currentHeight + questionHeight > maxSectionHeight && currentQuestions.length > 0) {
-      riskTableSections.push({
+  // Add risk table as single section - let measured pagination handle splitting naturally
+  const riskTableSections = [{
         type: "risk-table",
-        height: currentHeight + 80,
-        questions: [...currentQuestions]
-      });
-      currentQuestions = [question];
-      currentHeight = questionHeight;
-    } else {
-      currentQuestions.push(question);
-      currentHeight += questionHeight;
-    }
-  });
-
-  if (currentQuestions.length > 0) {
-    riskTableSections.push({
-      type: "risk-table", 
-      height: currentHeight + 80,
-      questions: currentQuestions
-    });
-  }
+    height: (riskQuestions.length * 50) + 80, // All 14 questions together
+    questions: riskQuestions
+  }];
 
   // Add remaining sections
   allFormSections.push(
@@ -972,18 +901,18 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     const issueLength = (row.issue || '').length;
     const controlLength = (row.control || '').length;
     
-    // Base height for table cell (padding + borders)
-    const baseHeight = 40; // padding + borders + spacing
+    // Base height for table cell (padding + borders) - more conservative
+    const baseHeight = 60; // More padding to prevent clipping
     
-    // Calculate lines needed based on content length
-    const charsPerLine = 60; // Characters per line
-    const lineHeight = 16; // Line height in pixels
+    // Calculate lines needed based on content length - more conservative estimates
+    const charsPerLine = 45; // Fewer chars per line (accounts for wrapping in narrow columns)
+    const lineHeight = 20; // Larger line height for readability
     
     const issueLines = Math.max(1, Math.ceil(issueLength / charsPerLine));
     const controlLines = Math.max(1, Math.ceil(controlLength / charsPerLine));
     
-    // Use the maximum lines from issue or control columns
-    const maxLines = Math.max(issueLines, controlLines, 2);
+    // Use the maximum lines from issue or control columns with margin
+    const maxLines = Math.max(issueLines, controlLines) + 1; // Add buffer line
     const contentHeight = maxLines * lineHeight;
     
     return baseHeight + contentHeight;
@@ -1021,7 +950,14 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
 
   // Render a controls table page with its rows
   const renderControlsTablePage = (rows: any[], isFirstPage: boolean) => (
-    <table className="w-full border border-black border-collapse text-xs">
+    <table className="w-full border border-black border-collapse text-xs" style={{ tableLayout: 'fixed', width: '100%' }}>
+      {/* Use colgroup to enforce fixed column widths across all rows */}
+      <colgroup>
+        <col style={{ width: '35%' }} />
+        <col style={{ width: '10%' }} />
+        <col style={{ width: '35%' }} />
+        <col style={{ width: '20%' }} />
+      </colgroup>
       {isFirstPage && (
         <>
           <thead>
@@ -1040,9 +976,9 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       <tbody>
         {rows.map((row, index) => (
           <tr key={index}>
-            <td className="border border-black p-2 align-top">{row.issue || '\u00A0'}</td>
+            <td className="border border-black p-2 align-top" style={{ wordWrap: 'break-word' }}>{row.issue || '\u00A0'}</td>
             <td className="border border-black p-2 align-top text-center">{row.score || '\u00A0'}</td>
-            <td className="border border-black p-2 align-top">{row.control || '\u00A0'}</td>
+            <td className="border border-black p-2 align-top" style={{ wordWrap: 'break-word' }}>{row.control || '\u00A0'}</td>
             <td className="border border-black p-2 align-top">{row.person || '\u00A0'}</td>
           </tr>
         ))}
@@ -1065,9 +1001,8 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     byType('medical-conditions'),
     byType('emergency-contact'),
     byType('persons-involved'),
-    // Risk Assessment (Q1–14) split across pages
+    // Risk Assessment (Q1–14 including medication question) split across pages
     ...riskTableSections,
-    byType('medication-respiratory'),
     byType('medication-management-detailed'),
     byType('participant-dependency-health-safety'),
     byType('risk-level-selected'),
@@ -1263,7 +1198,8 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
   // Pack sections into A4 pages based on measured heights
   React.useEffect(() => {
     if (!measuredHeights) return;
-    const maxPageHeight = 700; // available content height under A4 wrapper
+    // Account for logo (60px) and spacing on each page
+    const maxPageHeight = 950; // Available content height (1123px A4 - logo - padding - footer space)
     const finalPages: any[][] = [];
     let current: any[] = [];
     let used = 0;
@@ -1308,11 +1244,14 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     return pages;
   };
 
-  const initialPages = groupSectionsByHeight();
+  // Don't calculate initialPages anymore - rely on measured pagination
+  // const initialPages = groupSectionsByHeight();
 
-  // Render risk table with proper header structure from page 2
-  const renderRiskTable = (questions: any[]) => (
+  // Render risk table - render headers only once for first occurrence, then just data rows
+  const renderRiskTable = (questions: any[], showHeader: boolean = true) => (
     <table className="w-full border border-black border-collapse text-xs">
+      {showHeader && (
+        <>
       <thead>
         <tr>
           <th className="border border-black w-[20%]"></th>
@@ -1328,8 +1267,50 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
           <th className="border border-black p-2 w-[20%]">Comments/Controls</th>
         </tr>
       </thead>
+        </>
+      )}
       <tbody>
-        {questions.map((question) => (
+        {questions.map((question) => {
+          // Special handling for medication question (Q14)
+          if (question.isSpecial && question.key === 'medicationRiskDepression') {
+            const medOptions = ["Benzodiazepines", "Opioids", "Polypharmacy", "Psychotropic polypharmacy", "Combination of any of the above medications"];
+            const selectedMeds = medOptions.filter(med => isMultiChecked(question.key, med));
+            return (
+              <tr key={question.key}>
+                <td className="border border-black p-2 align-top">{question.questionNum}</td>
+                <td className="border border-black p-2 align-top">
+                  <div className="mb-2">{question.label.split('?')[0]}?</div>
+                  <div className="text-xs mt-1">
+                    {medOptions.map((med, idx) => (
+                      <div key={idx} className="inline-flex items-center mr-3">
+                        <input type="checkbox" checked={selectedMeds.includes(med)} readOnly className="mr-1 w-3 h-3" />
+                        {med}
+                      </div>
+                    ))}
+                  </div>
+                </td>
+                <td className="border border-black p-2 align-top text-center">
+                  <div className="flex flex-col items-start gap-1">
+                    <label className="inline-flex items-center space-x-1">
+                      <input type="checkbox" checked={getValue(question.key)?.toLowerCase() === 'yes'} readOnly className="w-3 h-3" />
+                      <span>YES</span>
+                    </label>
+                    <label className="inline-flex items-center space-x-1">
+                      <input type="checkbox" checked={getValue(question.key)?.toLowerCase() === 'no'} readOnly className="w-3 h-3" />
+                      <span>NO</span>
+                    </label>
+                  </div>
+                </td>
+                <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
+                <td className="border border-black p-2 align-top">
+                  {getValue(question.commentKey || `${question.key}Comment`) || '\u00A0'}
+                </td>
+              </tr>
+            );
+          }
+          
+          // Standard question rendering
+          return (
           <tr key={question.key}>
             <td className="border border-black p-2 align-top">{question.questionNum}</td>
             <td className="border border-black p-2 align-top">{question.label}</td>
@@ -1347,11 +1328,32 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             </td>
             <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
             <td className="border border-black p-2 align-top">
+              {/* For Question 11, show sub-question and answer in comments */}
+                {question.hasSubQuestion && question.subQuestionKey ? (
+                  <div>
+                    {question.commentLabel ? `${question.commentLabel}: ` : ''}
+                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
+                    <div className="flex flex-col items-start gap-1">
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
+                        <span>YES</span>
+                      </label>
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
+                        <span>NO</span>
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <>
               {question.commentLabel ? `${question.commentLabel}: ` : ''}
               {getValue(`${question.commentKey || `${question.key}Comment`}`)}
+                  </>
+                )}
             </td>
           </tr>
-        ))}
+          );
+        })}
       </tbody>
     </table>
   );
@@ -1363,16 +1365,19 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         {allSections.map((section: any, i: number) => (
           <div key={`measure-${i}`} ref={(el) => { if (el) sectionRefs.current[i] = el; }} style={{ width: 794 }}>
             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-              {section.type === 'risk-table' ? renderRiskTable(section.questions || []) : section.content?.()}
+              {section.type === 'risk-table' ? renderRiskTable(section.questions || [], true) 
+               : section.type === 'controls-table-page' ? renderControlsTablePage(section.rows || [], section.isFirstPage || false)
+               : section.content?.()}
             </div>
           </div>
         ))}
       </div>
 
-      {(pages.length > 0 ? pages : initialPages).map((pageSections, index) => (
+      {(pages.length > 0 ? pages : []).map((pageSections, index) => (
         <A4PageWrapper 
           key={index}
           footer={<PRAFooter settings={settings} />}
+          fixedHeight={false}
         >
           <div className="flex flex-col h-full text-xs font-sans">
             {/* Standardized Logo */}
@@ -1394,17 +1399,19 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             )}
 
             {/* Content */}
-            <div className="flex-1 flex flex-col space-y-4">
+            <div className="flex-1 flex flex-col space-y-4" style={{ pageBreakInside: 'auto' }}>
               {pageSections.map((section: any, sectionIndex: number) => (
               <div 
                   key={sectionIndex} 
-                  style={section.type === 'controls-table-page' || section.type === 'controls-table'
-                    ? { pageBreakInside: 'auto', pageBreakAfter: 'auto' } // Allow page breaks for controls table
-                    : { breakInside: 'avoid', pageBreakInside: 'avoid' }
-                  }
+                  style={{
+                    pageBreakInside: 'auto',
+                    breakInside: 'avoid',
+                    maxHeight: 'none',
+                    overflow: 'visible'
+                  }}
                 >
                   {section.type === "risk-table" ? (
-                    renderRiskTable(section.questions || [])
+                    renderRiskTable(section.questions || [], true)
                   ) : section.type === "controls-table-page" ? (
                     renderControlsTablePage(section.rows || [], section.isFirstPage || false)
                   ) : (
@@ -1419,17 +1426,53 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       
       {/* Controls table is now part of the main pages with proper pagination */}
       
-      <style jsx global>{`
-        table {
-          border-collapse: collapse;
-        }
-        table td {
-          overflow: visible !important;
-          white-space: normal !important;
-          word-wrap: break-word !important;
-          word-break: break-word !important;
-        }
-      `}</style>
+       <style jsx global>{`
+         table {
+           border-collapse: collapse;
+           page-break-inside: auto;
+         }
+         table td {
+           overflow: visible !important;
+           white-space: normal !important;
+           word-wrap: break-word !important;
+           word-break: break-word !important;
+           vertical-align: top !important;
+           height: auto !important;
+           min-height: 40px !important;
+         }
+         table tr {
+           page-break-inside: avoid !important;
+           page-break-after: auto;
+           height: auto !important;
+         }
+         .space-y-4 > * {
+           page-break-inside: auto;
+         }
+         table[style*="tableLayout: fixed"] td:nth-child(1),
+         table[style*="tableLayout: fixed"] th:nth-child(1) {
+           width: 35% !important;
+           max-width: 35% !important;
+           min-width: 35% !important;
+         }
+         table[style*="tableLayout: fixed"] td:nth-child(2),
+         table[style*="tableLayout: fixed"] th:nth-child(2) {
+           width: 10% !important;
+           max-width: 10% !important;
+           min-width: 10% !important;
+         }
+         table[style*="tableLayout: fixed"] td:nth-child(3),
+         table[style*="tableLayout: fixed"] th:nth-child(3) {
+           width: 35% !important;
+           max-width: 35% !important;
+           min-width: 35% !important;
+         }
+         table[style*="tableLayout: fixed"] td:nth-child(4),
+         table[style*="tableLayout: fixed"] th:nth-child(4) {
+           width: 20% !important;
+           max-width: 20% !important;
+           min-width: 20% !important;
+         }
+       `}</style>
     </div>
   );
 };
