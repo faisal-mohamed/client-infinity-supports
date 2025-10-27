@@ -16,7 +16,7 @@ import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view"
 import { fetchFormSpecificSettings } from "@/lib/settings";
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
-import ParticipantRiskAssessment from "@/app/form-components/participant-risk-assessment/page";
+import ParticipantRiskAssessmentView from "@/components/participant-risk-assessment/view";
 import EmergencyDrill from "@/app/form-components/emergency-drill/page";
 import IndividualRiskAssessment from "@/app/form-components/individual-risk-assessment/page";
 import WelcomeFormView from "@/components/welcome-form/View";
@@ -198,7 +198,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
               ) : form.formKey === "sa_delivery_of_supports" ? (
                 <SADeliverySupports formKey={form.formKey} settings={settings} />
               ) : form.formKey === "participant_risk_assessment" ? (
-                <ParticipantRiskAssessment formKey={form.formKey} settings={settings} />
+                <ParticipantRiskAssessmentView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "individual_risk_assessment" ? (
                 <IndividualRiskAssessment formKey={form.formKey} settings={settings} />
               ) : form.formKey === "emergency_drill" ? (

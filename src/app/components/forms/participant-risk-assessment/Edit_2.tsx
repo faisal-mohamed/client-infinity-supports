@@ -1451,6 +1451,31 @@ const renderDropdownSeverityRisk = (
       type: "text",
     };
 
+    // Special handling for Q2: enable comment only if Yes; clear on No
+    const isQ2 = index === 2;
+    const riskValue = localValues[riskField];
+    const isYes = String(riskValue || "").toLowerCase() === "yes";
+
+    const handleRiskChange = (value: string) => {
+      const next = { ...localValues, [riskField]: value } as any;
+      if (isQ2 && String(value).toLowerCase() === "no") {
+        next[commentField] = ""; // clear comment when switching to No
+      }
+      setLocalValues(next);
+    };
+
+    const renderQ2CommentInput = () => (
+      <input
+        type={commentMeta.type}
+        className="w-full border px-3 py-2 rounded disabled:bg-gray-100 disabled:text-gray-500"
+        placeholder={commentMeta.placeholder}
+        value={localValues[commentField] || ""}
+        onChange={(e) => setLocalValues({ ...localValues, [commentField]: e.target.value })}
+        disabled={isQ2 && !isYes}
+        aria-label={commentMeta.label}
+      />
+    );
+
     return (
       <div
         key={index}
@@ -1460,14 +1485,42 @@ const renderDropdownSeverityRisk = (
           {riskMeta.label}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {renderDropdown("Yes / No", riskField, yesNoOptions, false)}
+          {/* Yes/No */}
+          <div>
+            <label className="block font-medium mb-1">Yes / No</label>
+            <select
+              className="w-full border px-3 py-2 rounded"
+              value={localValues[riskField] || ""}
+              onChange={(e) => handleRiskChange(e.target.value)}
+              aria-label={`Select ${riskMeta.label}`}
+              title={`Select ${riskMeta.label}`}
+            >
+              <option value="">-- Select --</option>
+              {yesNoOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Rating */}
           {renderDropdown("Risk Rating", ratingField, ratingOptions, false)}
-          {renderInput(
-            "Comment",
-            commentField,
-            commentMeta.type,
-            commentMeta.placeholder,
-            false
+
+          {/* Comment (conditional for Q2) */}
+          {isQ2 ? (
+            <div>
+              <label className="block font-medium mb-1">Comment</label>
+              {renderQ2CommentInput()}
+            </div>
+          ) : (
+            renderInput(
+              "Comment",
+              commentField,
+              commentMeta.type,
+              commentMeta.placeholder,
+              false
+            )
           )}
         </div>
       </div>

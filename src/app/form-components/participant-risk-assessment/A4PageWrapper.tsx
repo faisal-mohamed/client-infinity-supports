@@ -6,6 +6,7 @@ interface A4PageWrapperProps {
   pageNumber?: number;
   totalPages?: number;
   footer?: React.ReactNode;
+  fixedHeight?: boolean; // if true, uses A4 fixed height; otherwise dynamic height
 }
 
 // --- FormRenderer-style A4 Page Wrapper Component with proper content distribution ---
@@ -14,14 +15,15 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({
   className = '',
   pageNumber,
   totalPages,
-  footer
+  footer,
+  fixedHeight = true,
 }) => {
   return (
     <div 
       className={`bg-white mx-auto shadow-md flex flex-col relative ${className}`}
       style={{
         width: "794px",
-        height: "1123px", // Fixed height to ensure consistent page size
+        ...(fixedHeight ? { height: "1123px" } : {}),
         boxShadow: "0 0 10px rgba(0,0,0,0.1)",
         pageBreakAfter: "always",
         padding: "20mm",
@@ -29,7 +31,7 @@ const A4PageWrapper: React.FC<A4PageWrapperProps> = ({
     >
       {/* Content area that takes all available space */}
       <div className="flex-1 flex flex-col">
-        {children}
+          {children}
       </div>
       
       {/* Footer always at bottom */}
