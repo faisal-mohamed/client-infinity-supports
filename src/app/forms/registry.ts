@@ -15,6 +15,7 @@ import SADeliverySupportsEdit from "../components/forms/sa-delivery-of-supports/
 
 import ParticipantRiskAssessmentView from "@/components/participant-risk-assessment/view";
 import ParticipantRiskAssessmentEdit from "../components/forms/participant-risk-assessment/Edit_2";
+import ParticipantRiskAssessmentPDF from "@/components/participant-risk-assessment/ParticipantRiskAssessmentPDF";
 
 import EmergencyDrillEdit from "../components/forms/emergency-drill/Edit";
 import EmergencyDrill from "@/components/emergency-drill/View"; // Assuming this is
@@ -143,6 +144,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: "Participant Risk Assessment",
     viewComponent: ParticipantRiskAssessmentView,
     editComponent: ParticipantRiskAssessmentEdit,
+    pdfComponent: ParticipantRiskAssessmentPDF,
     signatures: [
       {
         id: "staff_signature",
@@ -363,6 +365,11 @@ export const getFormSignatures = (formKey: string): SignatureRequirement[] => {
 export const hasSignatureRequirement = (formKey: string): boolean => {
   const signatures = getFormSignatures(formKey);
   return signatures.length > 0;
+};
+
+export const getPDFComponent = (formKey: string) => {
+  const formConfig = formRegistry[formKey];
+  return formConfig?.pdfComponent;
 };
 
 export const getAllForms = () => {

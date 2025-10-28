@@ -280,18 +280,34 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
   const element = React.createElement(PDFComponent, componentProps);
 
   // For emergency_drill, use dedicated print CSS; for others, use legacy styles
-  const pageStyles = formKey === 'emergency_drill' ? '' : `
-    @page { size: A4; margin: 15mm 10mm 15mm 10mm; }
-    .a4-page { page-break-before: always; page-break-inside: avoid; width: 210mm; height: 297mm; display: flex; flex-direction: column; background: white; margin: 0 auto; }
-    .a4-page:first-child { page-break-before: auto; }
-    .a4-page:last-child { page-break-after: auto; }
-    .a4-page > * { flex-shrink: 0; }
-    .a4-page .flex-grow { flex-grow: 1; }
-    .a4-page .mt-auto { margin-top: auto; }
-    .footer { text-align: center; font-size: 9px; color: #666; margin-top: auto; padding: 8px 0; border-top: 1px solid #ddd; }
-    .header-logo { text-align: center; padding: 10px 0; }
-    .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  `;
+  let pageStyles = '';
+  if (formKey === 'emergency_drill') {
+    pageStyles = '';
+  } else if (formKey === 'participant_risk_assessment') {
+    pageStyles = `
+      tr, td, th, div, section, p, img, ul, li {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      table {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+    `;
+  } else {
+    pageStyles = `
+      @page { size: A4; margin: 15mm 10mm 15mm 10mm; }
+      .a4-page { page-break-before: always; page-break-inside: avoid; width: 210mm; height: 297mm; display: flex; flex-direction: column; background: white; margin: 0 auto; }
+      .a4-page:first-child { page-break-before: auto; }
+      .a4-page:last-child { page-break-after: auto; }
+      .a4-page > * { flex-shrink: 0; }
+      .a4-page .flex-grow { flex-grow: 1; }
+      .a4-page .mt-auto { margin-top: auto; }
+      .footer { text-align: center; font-size: 9px; color: #666; margin-top: auto; padding: 8px 0; border-top: 1px solid #ddd; }
+      .header-logo { text-align: center; padding: 10px 0; }
+      .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    `;
+  }
 
   return `<!DOCTYPE html>
 <html>
@@ -467,15 +483,59 @@ export async function GET(
       console.timeEnd('⏱️ Image Loading');
 
       console.time('⏱️ PDF Generation');
-      pdfBuffer = await page.pdf({
+      
+      // For participant risk assessment, use header/footer
+      const pdfOptions: any = {
         format: "A4",
         printBackground: true,
-        margin: { top: "0", bottom: "0", left: "0", right: "0" },
         preferCSSPageSize: true,
-        displayHeaderFooter: false,
         scale: 1,
-        tagged: true // Enable PDF tagging for better accessibility
-      });
+        tagged: true
+      };
+      
+      if (form.formKey === 'participant_risk_assessment') {
+        const website = settings?.company_website || settings?.website || settings?.from_email || '';
+        const formId = settings?.participant_risk_assessment || settings?.client_intake_form_id || 'C001';
+        
+        // Format review date as DD-MM-YYYY
+        let reviewDate = '';
+        if (settings?.review_date) {
+          const date = new Date(settings.review_date);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          reviewDate = `${day}-${month}-${year}`;
+        }
+        
+        const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
+        
+        // Exact margins as specified
+        pdfOptions.margin = { top: "110px", bottom: "90px", left: "18px", right: "18px" };
+        pdfOptions.displayHeaderFooter = true;
+        
+        // Header: logo centered with proper container width
+        pdfOptions.headerTemplate = `
+          <div style="width: 100%; text-align: center; padding: 25px 0 10px 0;">
+            <img src="${logoDataUrl}" style="height: 55px; margin: 0 auto; display: block;" />
+          </div>
+        `;
+        
+        // Footer: 3 columns with proper left/center/right alignment like sample image
+        pdfOptions.footerTemplate = `
+          <div style="font-size: 9px; padding: 10px 18px 5px 18px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="text-align: left; flex: 1;">Website: ${website}</span>
+              <span style="text-align: center; flex: 0; padding: 0 30px;">${formId}</span>
+              <span style="text-align: right; flex: 1;">Review Date: ${reviewDate}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        pdfOptions.margin = { top: "0", bottom: "0", left: "0", right: "0" };
+        pdfOptions.displayHeaderFooter = false;
+      }
+      
+      pdfBuffer = await page.pdf(pdfOptions);
       console.timeEnd('⏱️ PDF Generation');
 
       console.time('⏱️ Browser Close');

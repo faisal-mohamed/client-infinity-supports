@@ -7,7 +7,7 @@ import ClientIntakev2Matching from './ClientIntakev2_MATCHING'; // Matches web v
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
-import ParticipantRiskAssessment from './participant-risk-assessment/page_FIXED'; // Assuming this is the correct import path
+import ParticipantRiskAssessmentPDF from './participant-risk-assessment/ParticipantRiskAssessmentPDF'; // Server-side PDF component
 import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict form layout
 import IndividualRiskAssessmentView from './individual-risk-assessment/page_FIXED'; // Assuming this is the correct import path
 import WelcomeForm from './welcome-form/page_FIXED';
@@ -48,7 +48,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: 'participant_risk_assessment',
-    component: ParticipantRiskAssessment,
+    component: ParticipantRiskAssessmentPDF,
     name: 'Participant Risk Assessment',
   },
   {
