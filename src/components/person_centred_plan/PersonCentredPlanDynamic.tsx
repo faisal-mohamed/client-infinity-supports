@@ -114,8 +114,8 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     let currentPage: any[] = [];
     let currentHeight = 0;
     
-    // Calculate height for goal cards
-    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 150, showSection: false, sectionNumber: 0 }));
+    // Calculate height for goal cards - increased to accommodate additional labels
+    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 220, showSection: false, sectionNumber: 0 }));
     
     // Check if support information table has data
     const hasSupportInfo = [
@@ -238,32 +238,39 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         {/* Goal Card */}
         <div className="border-2 border-gray-300 rounded-lg overflow-hidden mb-3">
           {/* Goal Header */}
-          <div className="bg-gray-100 px-3 py-2 border-b-2 border-gray-300 flex items-center justify-between">
-            <span className="font-bold text-sm text-gray-800">Goal {goalNum}</span>
+          <div className="bg-gray-100 px-3 py-2 border-b-2 border-gray-300">
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-bold text-sm text-gray-800">Goal {goalNum}</span>
+            </div>
             {goal.rating && (
-              <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                {goal.rating}
-              </span>
+              <div className="mt-1">
+                <span className="text-xs text-gray-600 mr-2">Outcome Rating:</span>
+                <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                  {goal.rating}
+                </span>
+              </div>
             )}
           </div>
           
           {/* Goal Content */}
-          <div className="px-3 py-2 bg-white">
+          <div className="px-3 py-2 bg-white space-y-2">
             {goal.goal && (
               <div className="mb-2">
+                <div className="text-xs font-semibold text-gray-700 mb-1">Goal {goalNum}:</div>
                 <p className="text-xs leading-tight whitespace-pre-wrap">{goal.goal}</p>
               </div>
             )}
             
             {goal.actions && (
               <div className="mb-2">
+                <div className="text-xs font-semibold text-gray-700 mb-1">Actions & Resources {goalNum}:</div>
                 <p className="text-xs leading-tight whitespace-pre-wrap">{goal.actions}</p>
               </div>
             )}
             
             {/* Footer with metadata */}
             {(goal.byWhom || goal.byWhen || goal.reviewDate) && (
-              <div className="border-t border-gray-300 pt-1 mt-1 flex justify-between text-xs text-gray-600 gap-1">
+              <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between text-xs text-gray-600 gap-2 flex-wrap">
                 {goal.byWhom && <span><strong>By Whom:</strong> {goal.byWhom}</span>}
                 {goal.byWhen && <span><strong>By When:</strong> {goal.byWhen}</span>}
                 {goal.reviewDate && <span><strong>Review Date:</strong> {goal.reviewDate}</span>}
@@ -477,7 +484,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>{settings?.from_email || ''}</span>
         <span>{settings?.person_centre_plan_form_id || ''}</span>
-        <span>Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}</span>
+        <span>Date of Report: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString('en-GB') : ''}</span>
       </div>
     </div>
   );

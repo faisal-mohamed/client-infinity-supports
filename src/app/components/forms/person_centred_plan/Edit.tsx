@@ -11,9 +11,11 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
-  FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
+
+// Match Client Intake form's custom spinner (hourglass emoji)
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 
 interface FormProps {
   formData: any;
@@ -24,8 +26,12 @@ interface FormProps {
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
+  handleSaveForNext?: () => Promise<void>;
+  handleSaveForPrev?: () => Promise<void>;
   handleSubmitForm?: () => Promise<void>;
   saving?: boolean;
+  navigatingNext?: boolean;
+  navigatingPrev?: boolean;
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -116,8 +122,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   fieldErrors = {},
   handleSave,
   handleSaveProgress,
+  handleSaveForNext,
+  handleSaveForPrev,
   handleSubmitForm,
   saving = false,
+  navigatingNext = false,
+  navigatingPrev = false,
   onCommonFieldsUpdated,
 }: any) => {
 
@@ -216,7 +226,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
 
   // Loading states
   const [submitting, setSubmitting] = useState(false);
-  // Note: 'saving' state comes from parent component via props
+  // Note: 'saving' and 'navigatingNext' states come from parent component via props
 
   // Track pending changes to common fields
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -313,10 +323,23 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
 
   const handleNextSequential = async () => {
     // Save progress before moving to next section
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    try {
+      // Use handleSaveForNext if available (parent manages loading state)
+      if (handleSaveForNext) {
+        await handleSaveForNext();
+      } else if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } catch (error) {
+      console.error("Error saving progress:", error);
+      showToast({
+        type: "error",
+        title: "Error",
+        message: "Failed to save progress. Please try again.",
+        duration: 3000,
+      });
     }
-    handleNext();
   };
 
   const handlePreviousSequential = () => {
@@ -411,11 +434,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
+      <label htmlFor={name} className="text-xs font-medium text-gray-700 mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <select
+        id={name}
         name={name}
         value={localValues[name] || ""}
         onChange={handleChange}
@@ -783,11 +807,11 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
