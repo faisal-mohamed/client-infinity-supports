@@ -28,9 +28,9 @@ const PersonCenteredPlanModal: React.FC<PersonCenteredPlanModalProps> = ({
     return formData?.[key] || commonFieldsData?.[key] || '';
   };
 
-  // Get all goals
+  // Get all goals (dynamically check up to 20 goals)
   const goals = [];
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 20; i++) {
     const goal = getValue(`goal${i}`);
     const rating = getValue(`rating${i}`);
     const actions = getValue(`actions${i}`);

@@ -11,6 +11,8 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
+  FaPlus,
+  FaTimes,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -144,6 +146,31 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
+  const [numberOfGoals, setNumberOfGoals] = useState(1); // Start with 1 goal by default
+
+  // Detect existing goals when form loads
+  useEffect(() => {
+    if (formData) {
+      let maxGoalNum = 0;
+      // Check up to 20 goals to find the highest goal number with data
+      for (let i = 1; i <= 20; i++) {
+        const hasGoal = 
+          formData[`goal${i}`] || 
+          formData[`rating${i}`] || 
+          formData[`actions${i}`] || 
+          formData[`byWhom${i}`] || 
+          formData[`byWhen${i}`] || 
+          formData[`reviewDate${i}`];
+        if (hasGoal) {
+          maxGoalNum = i;
+        }
+      }
+      // Set numberOfGoals to at least 1, or the number of goals found
+      if (maxGoalNum > 0) {
+        setNumberOfGoals(maxGoalNum);
+      }
+    }
+  }, [formData]); // Run when formData changes
 
   const initialValues = {
     // Personal Information - these will be overridden by common fields if available
@@ -275,6 +302,71 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     const isCommon = !!commonFieldsMapping[name];
     if (isCommon) trackCommonFieldChange(name, value);
     onChange(newValues, name, isCommon);
+  };
+
+  const handleRemoveGoal = (goalNumToRemove: number) => {
+    // Check if goal has any data
+    const hasData = 
+      localValues[`goal${goalNumToRemove}`] || 
+      localValues[`rating${goalNumToRemove}`] || 
+      localValues[`actions${goalNumToRemove}`] || 
+      localValues[`byWhom${goalNumToRemove}`] || 
+      localValues[`byWhen${goalNumToRemove}`] || 
+      localValues[`reviewDate${goalNumToRemove}`];
+
+    if (hasData) {
+      // Show confirmation dialog
+      const confirmRemove = window.confirm(
+        `Are you sure you want to remove Goal ${goalNumToRemove}? This will permanently delete all data for this goal.\n\nThis action cannot be undone.`
+      );
+
+      if (!confirmRemove) {
+        return; // User cancelled
+      }
+    }
+
+    // Proceed with removal
+    const newValues = { ...localValues };
+    
+    // Remove the selected goal's data
+    const fieldsToRemove = [
+      `goal${goalNumToRemove}`,
+      `rating${goalNumToRemove}`,
+      `actions${goalNumToRemove}`,
+      `byWhom${goalNumToRemove}`,
+      `byWhen${goalNumToRemove}`,
+      `reviewDate${goalNumToRemove}`
+    ];
+    
+    fieldsToRemove.forEach(field => {
+      delete newValues[field];
+    });
+    
+    // Rename goals after the removed one
+    for (let i = goalNumToRemove + 1; i <= numberOfGoals; i++) {
+      // Move data from goal i to goal i-1
+      const fieldsToRename = [
+        { old: `goal${i}`, new: `goal${i - 1}` },
+        { old: `rating${i}`, new: `rating${i - 1}` },
+        { old: `actions${i}`, new: `actions${i - 1}` },
+        { old: `byWhom${i}`, new: `byWhom${i - 1}` },
+        { old: `byWhen${i}`, new: `byWhen${i - 1}` },
+        { old: `reviewDate${i}`, new: `reviewDate${i - 1}` }
+      ];
+      
+      fieldsToRename.forEach(({ old, new: newName }) => {
+        if (newValues[old] !== undefined) {
+          newValues[newName] = newValues[old];
+          delete newValues[old];
+        }
+      });
+    }
+    
+    setLocalValues(newValues);
+    onChange(newValues);
+    
+    // Decrease the number of goals
+    setNumberOfGoals(numberOfGoals - 1);
   };
 
   const handleNext = () => {
@@ -667,37 +759,74 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
               {FORM_SECTIONS[currentStep].id === "goals" ? (
                 // Special layout for goals section
                 <div className="space-y-6">
-                  {[1, 2, 3].map((num) => (
+                  {Array.from({ length: numberOfGoals }, (_, i) => i + 1).map((num) => (
                     <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-800">Goal {num}</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-800">Goal {num}</h3>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveGoal(num)}
+                          className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1 rounded hover:bg-red-50"
+                          title="Remove this goal"
+                        >
+                          <FaTimes className="text-lg" />
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[`goal${num}`, `rating${num}`, `actions${num}`, `byWhom${num}`, `byWhen${num}`, `reviewDate${num}`].map((field) => {
-                          const meta = FIELD_METADATA[field] || { label: field, type: "text" };
-                          const required = isFieldRequired(field);
+                        {[
+                          { key: `goal${num}`, label: `Goal ${num}`, type: "textarea", rows: 3, placeholder: "Describe your goal", span: 2 },
+                          { key: `rating${num}`, label: `Outcome Rating ${num}`, type: "dropdown", options: outcomeRatingOptions, span: 1 },
+                          { key: `actions${num}`, label: `Actions & Resources ${num}`, type: "textarea", rows: 3, placeholder: "What actions are needed?", span: 2 },
+                          { key: `byWhom${num}`, label: `By Whom ${num}`, type: "text", placeholder: "Who is responsible?", span: 1 },
+                          { key: `byWhen${num}`, label: `By When ${num}`, type: "date", span: 1 },
+                          { key: `reviewDate${num}`, label: `Review Date ${num}`, type: "date", span: 2 }
+                        ].map((field) => {
+                          const meta = FIELD_METADATA[field.key] || {};
+                          const required = isFieldRequired(field.key);
+                          const spanClass = field.span === 2 ? "md:col-span-2" : "";
                           
-                          if (meta.type === "textarea") {
+                          // Use field properties with meta as fallback
+                          const label = field.label;
+                          const fieldType = field.type || meta.type || "text";
+                          const options = field.options || meta.options || [];
+                          const rows = field.rows || meta.rows || 3;
+                          const placeholder = field.placeholder || meta.placeholder;
+                          
+                          if (fieldType === "textarea") {
                             return (
-                              <div key={field} className="md:col-span-2">
-                                {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
+                              <div key={field.key} className={spanClass}>
+                                {renderTextArea(label, field.key, rows, placeholder, required)}
                               </div>
                             );
                           }
-                          if (meta.type === "dropdown") {
+                          if (fieldType === "dropdown") {
                             return (
-                              <div key={field}>
-                                {renderDropdown(meta.label, field, meta.options || [], required)}
+                              <div key={field.key} className={spanClass}>
+                                {renderDropdown(label, field.key, options, required)}
                               </div>
                             );
                           }
                           return (
-                            <div key={field}>
-                              {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+                            <div key={field.key} className={spanClass}>
+                              {renderInput(label, field.key, fieldType, placeholder, required)}
                             </div>
                           );
                         })}
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Add Goal Button */}
+                  <div className="flex justify-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setNumberOfGoals(numberOfGoals + 1)}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-md hover:shadow-lg"
+                    >
+                      <FaPlus className="text-sm" />
+                      Add Goal {numberOfGoals + 1}
+                    </button>
+                  </div>
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "supportInfo" ? (
                 // Special layout for support info section

@@ -218,8 +218,8 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     };
   };
 
-  // Get active goals (1-5 for now)
-  const activeGoals = [1, 2, 3, 4, 5].filter(num => {
+  // Get active goals (dynamically check up to 20 goals)
+  const activeGoals = Array.from({ length: 20 }, (_, i) => i + 1).filter(num => {
     const goal = getGoalData(num);
     return goal.goal || goal.rating || goal.actions || goal.byWhom || goal.byWhen || goal.reviewDate;
   });
