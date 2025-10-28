@@ -1,0 +1,358 @@
+/* ========================================
+   BULLET-PROOF PDF STYLING
+   Based on PDF Generation System Guide
+   ======================================== */
+
+/* @page margin-box approach - The "only 100% reliable way" */
+@page {
+  size: A4;
+  margin-top: 120px; /* reserves header space */
+  margin-bottom: 80px; /* reserves footer space */
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+/* Running header/footer - No Repetition needed */
+@media print {
+  pdf-header { position: running(header); }
+  pdf-footer { position: running(footer); }
+}
+
+/* Header appears via @top-center */
+@page {
+  @top-center { content: element(header); }
+  @bottom-center { content: element(footer); }
+}
+
+/* Main PDF body - starts after reserved header space */
+.pdf-body {
+  padding: 0;
+  font-family: 'Helvetica', Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  color: #000000;
+}
+
+/* Header styling */
+.pdf-header {
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pdf-header img {
+  max-width: 220px;
+  height: auto;
+  max-height: 70px;
+}
+
+/* Footer styling */
+.pdf-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  font-size: 10pt;
+  color: #666666;
+}
+
+/* Sections */
+section {
+  margin-bottom: 25px;
+  page-break-inside: avoid; /* Keep sections together */
+}
+
+.section-title {
+  font-size: 11pt;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #374151;
+  background-color: #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+/* Field rows */
+.field-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 8px;
+  align-items: flex-start;
+  gap: 10px;
+  page-break-inside: avoid;
+}
+
+.field-row label {
+  width: 150px;
+  font-weight: bold;
+  font-size: 9pt;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.field-row .value {
+  flex: 1;
+  font-size: 9pt;
+  color: #111827;
+  word-wrap: break-word;
+}
+
+/* Full container for large text fields */
+.full-container {
+  margin-bottom: 15px;
+  page-break-inside: avoid;
+  width: 100%;
+}
+
+.full-container-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 9pt;
+  color: #374151;
+}
+
+.full-container-value {
+  border: 1px solid #000000;
+  border-radius: 3px;
+  padding: 10px;
+  min-height: 200px; /* Fixed minimum height for full container */
+  font-size: 10pt;
+  color: #111827;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap; /* Preserves line breaks */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Disability Conditions - Special full container */
+.disability-container {
+  border: 1px solid #000000;
+  padding: 10px;
+  min-height: 200px;
+  font-size: 10pt;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+}
+
+/* Long answer fields */
+.long-answer {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+}
+
+.long-answer-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 9pt;
+  color: #374151;
+}
+
+.long-answer-value {
+  border: 1px solid #000000;
+  border-radius: 3px;
+  padding: 10px;
+  min-height: 100px;
+  font-size: 10pt;
+  color: #111827;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  page-break-inside: avoid;
+}
+
+/* Radio/Checkbox groups */
+.radio-group {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.radio-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 9pt;
+  margin-bottom: 2px;
+}
+
+.radio-item input[type="checkbox"] {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #000000;
+  margin-right: 4px;
+  background-color: #ffffff;
+}
+
+.radio-item input[type="checkbox"]:checked {
+  background-color: #87ceeb;
+}
+
+/* Yes/No with details */
+.yes-no-container {
+  margin-bottom: 10px;
+  page-break-inside: avoid;
+}
+
+.yes-no-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 9pt;
+  color: #374151;
+}
+
+.yes-no-options {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.yes-no-details {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-size: 9pt;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Page breaks */
+.page-break-before {
+  page-break-before: always;
+}
+
+.page-break-after {
+  page-break-after: always;
+}
+
+.page-break-inside-avoid {
+  page-break-inside: avoid;
+}
+
+/* Table styling for form layout */
+.form-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.form-table th,
+.form-table td {
+  border: 1px solid #000000;
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 9pt;
+}
+
+.form-table th {
+  background-color: #e5e7eb;
+  font-weight: bold;
+  color: #374151;
+}
+
+.form-table .full-width-cell {
+  width: 100%;
+  min-height: 200px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  background-color: #ffffff;
+}
+
+/* Print-specific optimizations */
+@media print {
+  /* Ensure no content is hidden */
+  .pdf-body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Prevent unwanted page breaks */
+  .no-break {
+    page-break-inside: avoid;
+  }
+  
+  /* Ensure full containers don't split */
+  .full-container,
+  .disability-container,
+  .long-answer-value {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* Chrome handles pagination natively */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Bullet-proof features */
+.bullet-proof-container {
+  /* Zero Overlap: Space reserved via @page margin */
+  /* True Repetition: Header/footer on every page automatically */
+  /* No Cut-Off Guaranteed: Content never hidden behind header */
+  /* Simpler Markup: No fixed positioning or spacer elements needed */
+  /* Compatible: Works across long multi-page PDFs in Playwright/Puppeteer */
+  /* Auto-Pagination: Chrome's print engine handles page breaks correctly */
+}
+
+/* Specific field containers */
+.disability-conditions-field {
+  border: 1px solid #000000;
+  padding: 10px;
+  min-height: 200px;
+  font-size: 10pt;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.about-me-field {
+  border: 1px solid #000000;
+  padding: 10px;
+  min-height: 400px;
+  font-size: 10pt;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.other-supports-field {
+  border: 1px solid #000000;
+  padding: 10px;
+  min-height: 250px;
+  font-size: 10pt;
+  line-height: 1.4;
+  background-color: #ffffff;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  width: 100%;
+  box-sizing: border-box;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}

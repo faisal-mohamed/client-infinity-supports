@@ -1,0 +1,52 @@
+/* Unified Form Styles for Consistent Interactive/PDF Rendering */
+
+.unified-field {
+  margin-bottom: 16px;
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+.unified-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.unified-content {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background-color: #ffffff;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* PDF Mode Specific */
+.pdf-mode .unified-content {
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  font-family: 'Helvetica', sans-serif;
+  border-radius: 0;
+}
+
+/* Page Break Handling */
+.page-break-field {
+  break-inside: auto;
+  page-break-inside: auto;
+  overflow: visible;
+}
+
+/* Long Content Handling */
+.long-content {
+  break-inside: auto;
+  page-break-inside: auto;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
