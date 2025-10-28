@@ -515,7 +515,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
     { key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?", questionNum: 10 },
     { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11 },
     { key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)", questionNum: 12 },
-    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered?", questionNum: 13 }
+    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)", questionNum: 13 }
   ];
 
   // Filter risk questions to only show answered ones - SHOW ALL QUESTIONS

@@ -71,8 +71,8 @@ export default function ParticipantRiskAssessmentPDF({
     { questionNum: "9", key: "risk9", label: "Is the client known to be affected by crowds?" },
     { questionNum: "10", key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?" },
     { questionNum: "11", key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?" },
-    { questionNum: "12", key: "mobilityIssues", label: "Does the client have mobility issues?" },
-    { questionNum: "13", key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered?" },
+    { questionNum: "12", key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)" },
+    { questionNum: "13", key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)" },
     { questionNum: "14", key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)" }
   ];
 
@@ -635,27 +635,30 @@ export default function ParticipantRiskAssessmentPDF({
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li>Upon hearing the alarm or when the situation requires evacuation</li>
-                <li>Prepare to evacuate; shut electrical/gas if safe</li>
-                <li>Close doors for fire; leave doors open for bomb threat</li>
-                <li>Assist participant in immediate danger</li>
-                <li>Leave the building via the nearest safe route</li>
-                <li>Obey all directions from emergency services</li>
+                <h1>Upon hearing the alarm or when the situation requires the participant to leave the premises:</h1>
+                <li>Prepare to evacuate</li>
+                <li>Get your environment ready to be left unattended. Shut down electrical/electronic devices; turn off gas if safe to do so.</li>
+                <li>For fire, close the doors as you go – do not lock them. In the case of a bomb threat, leave doors open. </li>
+                <li>Leave the building via the nearest safe route. </li>
+                <li>Obey all directions from emergency services.</li>
                 <li>Move calmly to assembly point</li>
-                <li>Follow closely the instructions of emergency services personnel and campus wardens</li>
+                <li>Move calmly to assembly point 
+</li>
+                <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
                 <li>Wait for the OK to re-enter the building</li>
               </ul>
             </td>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li>Ring 000 and provide details of the fire then ring supervisor</li>
-                <li>Assist any person in immediate danger only if safe to do so</li>
-                <li>If safe to do so, close doors to minimise spread of fire</li>
+                
+                <li>Ring 000 and provide details of the fire then ring supervisor.</li>
+                <li>Assist any person in immediate danger only if safe to do so. </li>
+                <li>If safe to do so, close doors to minimise spread of fire. </li>
                 <li>Attack the fire only if safe to do so</li>
                 <li>Contact the nearest warden and follow their instructions (if applicable)</li>
                 <li>Assist with evacuation of participants with mobility issues</li>
-                <li>Move to the evacuation location in plan and stay there until all clear has been given</li>
-                <li>Follow closely the instructions of emergency services personnel and campus warden</li>
+                <li>Move to the evacuation location in plan and stay there until all clear has been given. </li>
+                <li>Follow closely the instructions of emergency services personnel and campus warden.</li>
               </ul>
             </td>
           </tr>
@@ -666,18 +669,19 @@ export default function ParticipantRiskAssessmentPDF({
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li>Do not move a participant unless they are exposed to a life-threatening situation</li>
-                <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor</li>
-                <li>Arrange for the ambulance to be met</li>
+                <h1>Assess the situation:</h1>
+                <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
+                <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
+                <li>Arrange for the ambulance to be met.</li>
                 <li>Remain with the participant and administer first aid as appropriate until assistance arrives</li>
-                <li>Follow closely the instructions of emergency services personnel</li>
+                <li>Follow closely the instructions of emergency services personnel.</li>
               </ul>
             </td>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li>Keep well clear of the disturbance and do not say or do anything that may encourage irrational behaviour</li>
-                <li>Consider locking down the building to prevent unauthorised entry</li>
-                <li>Follow closely the instructions of emergency services personnel and campus wardens</li>
+                <li>Keep well clear of the disturbance and do not say or do anything that may encourage irrational behaviour.</li>
+                <li>Consider locking down the building to prevent unauthorised entry.</li>
+                <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
                 <li>Evacuate the building only if instructed to do so by emergency services personnel or campus warden</li>
               </ul>
             </td>
