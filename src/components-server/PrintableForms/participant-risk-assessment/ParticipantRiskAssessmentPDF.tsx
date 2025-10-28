@@ -60,12 +60,12 @@ export default function ParticipantRiskAssessmentPDF({
   };
 
   const riskQuestions = [
-    { questionNum: "1", key: "risk1", label: "Does the participant have any allergies?" },
-    { questionNum: "2", key: "risk2", label: "Does the participant have any dietary requirements?" },
-    { questionNum: "3", key: "risk3", label: "Does the participant have any medical conditions?" },
-    { questionNum: "4", key: "risk4", label: "Does the participant require any assistance with personal care?" },
-    { questionNum: "5", key: "risk5", label: "Does the participant require any assistance with mobility?" },
-    { questionNum: "6", key: "risk6", label: "Does the participant require any assistance with communication?" },
+    { questionNum: "1", key: "risk1", label: "Is the client able to open door?" },
+    { questionNum: "2", key: "risk2", label: "Is there a safe evacuation point at your home?" },
+    { questionNum: "3", key: "risk3", label: "Is the service to be provided at night or outside of normal working hours?" },
+    { questionNum: "4", key: "risk4", label: "Are there the any expressive language concerns?" },
+    { questionNum: "5", key: "risk5", label: "Has relevant medical history been communicated including potential risk situations?" },
+    { questionNum: "6", key: "risk6", label: "Does the Participant have any road safety skills?" },
     { questionNum: "7", key: "risk7", label: "Can the participant travel in an unmodified vehicle?" },
     { questionNum: "8", key: "risk8", label: "Can the participant use public transport?" },
     { questionNum: "9", key: "risk9", label: "Is the client known to be affected by crowds?" },
@@ -635,29 +635,27 @@ export default function ParticipantRiskAssessmentPDF({
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <h1>Upon hearing the alarm or when the situation requires the participant to leave the premises:</h1>
+                <li><strong>Upon hearing the alarm or when the situation requires the participant to leave the premises:</strong></li>
                 <li>Prepare to evacuate</li>
                 <li>Get your environment ready to be left unattended. Shut down electrical/electronic devices; turn off gas if safe to do so.</li>
-                <li>For fire, close the doors as you go – do not lock them. In the case of a bomb threat, leave doors open. </li>
-                <li>Leave the building via the nearest safe route. </li>
+                <li>For fire, close the doors as you go – do not lock them. In the case of a bomb threat, leave doors open.</li>
+                <li>Assist participant in immediate danger</li>
+                <li>Leave the building via the nearest safe route.</li>
                 <li>Obey all directions from emergency services.</li>
                 <li>Move calmly to assembly point</li>
-                <li>Move calmly to assembly point 
-</li>
                 <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
                 <li>Wait for the OK to re-enter the building</li>
               </ul>
             </td>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                
                 <li>Ring 000 and provide details of the fire then ring supervisor.</li>
-                <li>Assist any person in immediate danger only if safe to do so. </li>
-                <li>If safe to do so, close doors to minimise spread of fire. </li>
-                <li>Attack the fire only if safe to do so</li>
+                <li>Assist any person in immediate danger only if safe to do so.</li>
+                <li>If safe to do so, close doors to minimise spread of fire.</li>
+                <li>Attack the fire only if safe to do so.</li>
                 <li>Contact the nearest warden and follow their instructions (if applicable)</li>
-                <li>Assist with evacuation of participants with mobility issues</li>
-                <li>Move to the evacuation location in plan and stay there until all clear has been given. </li>
+                <li>Assist with evacuation of participants with mobility issues.</li>
+                <li>Move to the evacuation location in plan and stay there until all clear has been given.</li>
                 <li>Follow closely the instructions of emergency services personnel and campus warden.</li>
               </ul>
             </td>
@@ -669,11 +667,11 @@ export default function ParticipantRiskAssessmentPDF({
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <h1>Assess the situation:</h1>
+                <li><strong>Assess the situation:</strong></li>
                 <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
                 <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
                 <li>Arrange for the ambulance to be met.</li>
-                <li>Remain with the participant and administer first aid as appropriate until assistance arrives</li>
+                <li>Remain with the participant and administer first aid as appropriate until assistance arrives.</li>
                 <li>Follow closely the instructions of emergency services personnel.</li>
               </ul>
             </td>
