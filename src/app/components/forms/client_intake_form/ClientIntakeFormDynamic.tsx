@@ -305,8 +305,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
           style={{
             whiteSpace: isBulletList ? 'normal' : 'pre-wrap',
             wordWrap: 'break-word',
-            overflow: 'visible',
-            height: `${actualHeight}px`,
+            overflow: 'hidden',
+            minHeight: `${actualHeight}px`,
             fontSize: '10px',
             lineHeight: '12px'
           }}

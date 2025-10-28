@@ -387,7 +387,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     showToast({
       type: "success",
       title: "Goal Removed",
-      message: "The goal has been removed from the form. Click 'Save Progress' or 'Submit' to save changes.",
+      message: "The goal has been removed from the form.",
       duration: 3000,
     });
     

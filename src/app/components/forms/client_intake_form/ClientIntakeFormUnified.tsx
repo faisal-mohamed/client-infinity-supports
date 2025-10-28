@@ -1530,7 +1530,16 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
     console.log('🔧 FIELD_METADATA keys:', Object.keys(FIELD_METADATA).length, 'fields');
     
     return FORM_SECTIONS.map((section, sectionIndex) => (
-      <div key={section.id} className="mb-8">
+      <div 
+        key={section.id} 
+        className="mb-8"
+        style={{
+          marginTop: sectionIndex > 0 ? '24px' : '0px',
+          pageBreakBefore: sectionIndex > 0 ? 'auto' : 'auto',
+          breakInside: 'avoid',
+          pageBreakInside: 'avoid'
+        }}
+      >
         {/* Section Header */}
         <div className="bg-blue-600 text-white px-4 py-3 rounded-t-lg mb-0">
           <h2 className="text-lg font-semibold">SECTION {sectionIndex + 1}: {section.title.toUpperCase()}</h2>
@@ -1538,7 +1547,13 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
         </div>
         
         {/* Section Content */}
-        <div className="border border-gray-200 border-t-0 rounded-b-lg p-6 bg-white">
+        <div 
+          className="border border-gray-200 border-t-0 rounded-b-lg p-6 bg-white"
+          style={{
+            breakInside: 'avoid',
+            pageBreakInside: 'avoid'
+          }}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {section.fields.map((fieldName: string) => {
               const meta = FIELD_METADATA[fieldName];
@@ -1549,13 +1564,27 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
               
               // Handle different field types
               if (meta.type === "textarea") {
+                const isLongText = meta.label?.toLowerCase().includes('address') || 
+                                   meta.label?.toLowerCase().includes('additional') ||
+                                   fieldName?.includes('Other');
+                
                 return (
                   <div key={fieldName} className="md:col-span-2">
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         {meta.label}
                       </label>
-                      <div className="min-h-[80px] p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                      <div 
+                        className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                        style={{
+                          minHeight: isLongText ? '100px' : '80px',
+                          whiteSpace: 'pre-wrap',
+                          wordWrap: 'break-word',
+                          overflow: 'hidden',
+                          maxHeight: '500px',
+                          overflowY: 'auto'
+                        }}
+                      >
                         {displayValue || <span className="text-gray-400 italic">No information provided</span>}
                       </div>
                     </div>
@@ -1649,7 +1678,16 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {meta.label}
                     </label>
-                    <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm">
+                    <div 
+                      className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                      style={{
+                        whiteSpace: 'pre-wrap',
+                        wordWrap: 'break-word',
+                        overflow: 'hidden',
+                        maxHeight: '150px',
+                        overflowY: 'auto'
+                      }}
+                    >
                       {displayValue || <span className="text-gray-400 italic">No information provided</span>}
                     </div>
                   </div>
