@@ -22,7 +22,7 @@ const FaSpinner = ({ className }: { className?: string }) => <span className={cl
 interface FormProps {
   formData: any;
   commonFieldsData: any;
-  onChange: (values: any, field?: string, isCommon?: boolean) => void;
+  onChange: (values: any, field?: string, isCommon?: boolean, fullReplace?: boolean) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
@@ -147,10 +147,11 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
   const [numberOfGoals, setNumberOfGoals] = useState(1); // Start with 1 goal by default
+  const hasInitializedGoals = useRef(false);
 
-  // Detect existing goals when form loads
+  // Detect existing goals when form loads (only once on mount)
   useEffect(() => {
-    if (formData) {
+    if (formData && !hasInitializedGoals.current) {
       let maxGoalNum = 0;
       // Check up to 20 goals to find the highest goal number with data
       for (let i = 1; i <= 20; i++) {
@@ -169,6 +170,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       if (maxGoalNum > 0) {
         setNumberOfGoals(maxGoalNum);
       }
+      hasInitializedGoals.current = true;
     }
   }, [formData]); // Run when formData changes
 
@@ -305,6 +307,17 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   };
 
   const handleRemoveGoal = (goalNumToRemove: number) => {
+    // Prevent removing the last remaining goal
+    if (numberOfGoals <= 1) {
+      showToast({
+        type: "warning",
+        title: "Cannot Remove Goal",
+        message: "At least one goal is required. You cannot remove the last goal.",
+        duration: 3000,
+      });
+      return;
+    }
+
     // Check if goal has any data
     const hasData = 
       localValues[`goal${goalNumToRemove}`] || 
@@ -328,7 +341,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     // Proceed with removal
     const newValues = { ...localValues };
     
-    // Remove the selected goal's data
+    // Delete the selected goal's fields
     const fieldsToRemove = [
       `goal${goalNumToRemove}`,
       `rating${goalNumToRemove}`,
@@ -338,13 +351,14 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       `reviewDate${goalNumToRemove}`
     ];
     
+    // Remove these fields from newValues
     fieldsToRemove.forEach(field => {
       delete newValues[field];
     });
     
     // Rename goals after the removed one
+    // If we removed goal 2, then goal3→goal2, goal4→goal3, etc.
     for (let i = goalNumToRemove + 1; i <= numberOfGoals; i++) {
-      // Move data from goal i to goal i-1
       const fieldsToRename = [
         { old: `goal${i}`, new: `goal${i - 1}` },
         { old: `rating${i}`, new: `rating${i - 1}` },
@@ -362,8 +376,20 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       });
     }
     
+    // Update local state (already has deleted fields removed)
     setLocalValues(newValues);
-    onChange(newValues);
+    
+    // Update parent state - force full replacement to remove deleted fields
+    // Pass newValues directly as full replacement (not merged)
+    onChange(newValues, undefined, false, true);
+    
+    // Show success message
+    showToast({
+      type: "success",
+      title: "Goal Removed",
+      message: "The goal has been removed from the form. Click 'Save Progress' or 'Submit' to save changes.",
+      duration: 3000,
+    });
     
     // Decrease the number of goals
     setNumberOfGoals(numberOfGoals - 1);
@@ -760,17 +786,20 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                 // Special layout for goals section
                 <div className="space-y-6">
                   {Array.from({ length: numberOfGoals }, (_, i) => i + 1).map((num) => (
-                    <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div key={`goal-${num}`} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800">Goal {num}</h3>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveGoal(num)}
-                          className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1 rounded hover:bg-red-50"
-                          title="Remove this goal"
-                        >
-                          <FaTimes className="text-lg" />
-                        </button>
+                        {/* Only show remove button if there's more than 1 goal */}
+                        {numberOfGoals > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGoal(num)}
+                            className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1 rounded hover:bg-red-50"
+                            title="Remove this goal"
+                          >
+                            <FaTimes className="text-lg" />
+                          </button>
+                        )}
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[
