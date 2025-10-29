@@ -12,6 +12,7 @@ import {
   FaCheck,
   FaSave,
   FaSpinner,
+  FaHourglassHalf,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
@@ -209,6 +210,9 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
   // Loading states
   const [submitting, setSubmitting] = useState(false);
+  const [loadingButton, setLoadingButton] = useState<null | 'next' | 'save'>(null);
+  const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  const getError = (name: string) => localErrors[name] || fieldErrors[name];
   // Note: 'saving' state comes from parent component via props
 
   useEffect(() => {
@@ -243,7 +247,43 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     if (type === 'checkbox') {
       newValue = (e.target as HTMLInputElement).checked;
     }
-    
+    // Phone sanitization
+    if (name === 'homePhone' || name === 'mobilePhone') {
+      const digits = String(newValue).replace(/\D/g, '');
+      newValue = digits;
+      if (digits && digits.length < 6) {
+        setLocalErrors((prev) => ({ ...prev, [name]: 'Please enter a valid phone number' }));
+      } else {
+        setLocalErrors((prev) => { const { [name]: _, ...rest } = prev; return rest; });
+      }
+    }
+    // Email validation for provider email
+    if (name === 'fundingSource') {
+      const email = String(newValue).trim();
+      const ok = email === '' ? true : /^(?:[A-Z0-9._%+-]+)@(?:[A-Z0-9-]+\.)+[A-Z]{2,}$/i.test(email);
+      if (!ok) setLocalErrors((prev) => ({ ...prev, [name]: 'Enter a valid email address' }));
+      else setLocalErrors((prev) => { const { [name]: _, ...rest } = prev; return rest; });
+    }
+    // Signature role switch clears the other role's signature and metadata
+    if (name === 'signatureRole') {
+      const role = String(newValue);
+      const cleared: Record<string, any> = {};
+      if (role === 'Participant') {
+        cleared['nomineeSignature'] = '';
+        cleared['nomineeSignatureDate'] = '';
+        cleared['nomineeName'] = '';
+      } else if (role === 'Nominee') {
+        cleared['participantSignature'] = '';
+        cleared['participantSignatureDate'] = '';
+        cleared['participantName'] = '';
+      }
+      const merged = { ...localValues, [name]: newValue, ...cleared };
+      setLocalValues(merged);
+      onChange(merged, name, false);
+      Object.keys(cleared).forEach((k) => onChange(merged, k, false));
+      return;
+    }
+
     const newValues = { ...localValues, [name]: newValue };
     setLocalValues(newValues);
 
@@ -291,10 +331,15 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   };
 
   const handleNextSequential = async () => {
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    try {
+      setLoadingButton('next');
+      if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } finally {
+      setLoadingButton(null);
     }
-    handleNext();
   };
 
   const handlePreviousSequential = () => {
@@ -305,9 +350,13 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
 
   useEffect(() => {
-    localValues["planManagerName"] = "";
-    localValues["fundingSource"] = "";
-  }, [localValues["planManagerManaged"]])
+    // When plan manager option is turned off, clear its details
+    if (!localValues.planManagerManaged) {
+      const cleared = { ...localValues, planManagerName: "", fundingSource: "" };
+      setLocalValues(cleared);
+      onChange(cleared);
+    }
+  }, [localValues.planManagerManaged])
   // --- Input rendering utilities ---
   const renderInput = (
     label: string,
@@ -334,15 +383,15 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
+            getError(name)
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        {getError(name) && (
+          <p className="text-xs text-red-500 mt-1">{getError(name)}</p>
         )}
       </div>
     );
@@ -373,8 +422,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             {required && <span className="text-red-500 ml-1">*</span>}
           </span>
         </label>
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        {getError(name) && (
+          <p className="text-xs text-red-500 mt-1">{getError(name)}</p>
         )}
       </div>
     );
@@ -407,8 +456,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           </label>
         ))}
       </div>
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      {getError(name) && (
+        <p className="text-xs text-red-500 mt-1">{getError(name)}</p>
       )}
     </div>
   );
@@ -444,7 +493,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           onChange={isCommon ? undefined : handleChange}
           disabled={isFieldReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-            fieldErrors[name]
+            getError(name)
               ? "border-red-300 bg-red-50"
               : isCommon 
                 ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -458,8 +507,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             </option>
           ))}
         </select>
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        {getError(name) && (
+          <p className="text-xs text-red-500 mt-1">{getError(name)}</p>
         )}
       </div>
     );
@@ -489,8 +538,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           placeholder={placeholder || "Draw your signature in the box above"}
         />
       </div>
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+      {getError(name) && (
+        <p className="text-xs text-red-500 mt-1">{getError(name)}</p>
       )}
     </div>
   );
@@ -917,20 +966,37 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={loadingButton === 'next' || currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(loadingButton === 'next' || currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
-              <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {loadingButton === 'next' ? (
+                <>
+                  <FaHourglassHalf className="w-4 h-4 animate-spin" />
+                  <span>Saving…</span>
+                </>
+              ) : (
+                <>
+                  <span>Next</span>
+                  <FaChevronRight className="w-4 h-4" />
+                </>
+              )}
             </button>
 
             <button
-              onClick={() => handleSaveProgress && handleSaveProgress()}
-              disabled={saving || submitting}
+              onClick={async () => {
+                if (!handleSaveProgress) return;
+                try {
+                  setLoadingButton('save');
+                  await handleSaveProgress();
+                } finally {
+                  setLoadingButton(null);
+                }
+              }}
+              disabled={loadingButton === 'save' || saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save Progress'}
+              {loadingButton === 'save' ? <FaHourglassHalf className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
+              {loadingButton === 'save' ? 'Saving…' : 'Save Progress'}
             </button>
           </div>
 

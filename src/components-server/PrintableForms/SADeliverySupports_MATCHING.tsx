@@ -469,6 +469,10 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
     const sigValue = getFieldValue(meta.signatureKey || '');
     const dateValue = getFieldValue(meta.dateKey || '');
     const nameValue = getFieldValue(meta.nameKey || '');
+    const role = getFieldValue('signatureRole');
+    const key: string = (meta.signatureKey || '') as string;
+    if (key.startsWith('participant') && role !== 'Participant') return null;
+    if (key.startsWith('nominee') && role !== 'Nominee') return null;
 
     return (
       <View key={meta.title || 'signature'} style={styles.fieldContainer}>
@@ -619,6 +623,13 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
         const value = getFieldValue(block.key || '');
         const valueStr = value && String(value).trim() !== '' ? String(value) : 'No information provided';
         const isLongText = valueStr.length > 100;
+        // Hide plan manager details unless enabled and at least one value is present
+        if (block.key === 'planManagerName' || block.key === 'fundingSource') {
+          const enabled = !!getFieldValue('planManagerManaged');
+          const nameVal = getFieldValue('planManagerName');
+          const emailVal = getFieldValue('fundingSource');
+          if (!enabled || (!nameVal && !emailVal)) return null;
+        }
         // Remove wrap={false} to allow content to break across pages
         return (
           <View key={block.key} style={styles.fieldContainer}>

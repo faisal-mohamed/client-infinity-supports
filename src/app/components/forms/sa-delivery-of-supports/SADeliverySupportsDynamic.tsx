@@ -306,6 +306,10 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
     const sigValue = getFieldValue(meta.signatureKey || '');
     const dateValue = getFieldValue(meta.dateKey || '');
     const nameValue = getFieldValue(meta.nameKey || '');
+    const role = getFieldValue('signatureRole');
+    const key: string = meta.signatureKey || '';
+    if (key.startsWith('participant') && role !== 'Participant') return null;
+    if (key.startsWith('nominee') && role !== 'Nominee') return null;
 
     return (
       <div key={meta.title || 'signature'} className="mb-4">
@@ -484,6 +488,13 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
       }
       case 'text': {
         const displayValue = getFieldValue(block.key || '');
+        // Hide plan manager details unless enabled and at least one value is present
+        if (block.key === 'planManagerName' || block.key === 'fundingSource') {
+          const enabled = !!getFieldValue('planManagerManaged');
+          const nameVal = getFieldValue('planManagerName');
+          const emailVal = getFieldValue('fundingSource');
+          if (!enabled || (!nameVal && !emailVal)) return null;
+        }
         return (
           <div key={block.key} className="mb-3">
             <div className="bg-gray-300 border border-black px-2 py-1">
