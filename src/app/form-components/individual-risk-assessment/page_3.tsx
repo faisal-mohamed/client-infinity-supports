@@ -87,7 +87,12 @@ const Page3: React.FC<Page3Props> = ({
               <div className="mb-12">
                 <label className="font-bold">Assessor's Signature:</label>
                 <span className="inline-block border-b border-black w-48 ml-2 align-middle">
-                  <img src={getValue?.('assessorSignature')} alt="Assessor Signature" />
+                  {(() => {
+                    const signatureSrc = (getValue?.('assessorSignature') as string) || '';
+                    return signatureSrc ? (
+                      <img src={signatureSrc} alt="Assessor Signature" className="h-10 object-contain" />
+                    ) : null;
+                  })()}
                 </span>
               </div>
             </form>

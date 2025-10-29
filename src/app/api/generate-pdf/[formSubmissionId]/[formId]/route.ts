@@ -360,11 +360,20 @@ async function generatePDFWithReactPDF(
 
   try { console.log('[PDF Route] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
 
+  // Provide optional images for specific forms
+  let images: any = {};
+  try {
+    if (formKey === 'individual_risk_assessment') {
+      images.riskMatrix = await encodeImageToBase64('/individual-risk-assessment.png');
+    }
+  } catch (e) { console.warn('[PDF Route] Could not encode additional images:', e); }
+
   const pdfDoc = React.createElement(PDFComponent, {
     formData,
     commonFieldsData: commonFields,
     settings,
-    logoDataUrl
+    logoDataUrl,
+    images
   }) as any;
 
   const pdfBuffer = await renderToBuffer(pdfDoc);
@@ -452,8 +461,8 @@ export async function GET(
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;
 
-    // Use @react-pdf/renderer for emergency_drill, person_centred_plan, client_intake_form, and sa_delivery_of_supports
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports') {
+    // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment') {
       console.log('[PDF Route] Using @react-pdf for', form.formKey, 'submission', submissionId);
       console.log('[PDF Route] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');
