@@ -230,18 +230,9 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
   };
 
   const formatDate = (value: string) => {
-    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      try {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          const day = String(date.getDate()).padStart(2, '0');
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const year = date.getFullYear();
-          return `${day}-${month}-${year}`;
-        }
-      } catch (e) {
-        // Ignore
-      }
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y, m, d] = value.split('-');
+      return `${d}-${m}-${y}`; // avoid timezone shifts
     }
     return value || '';
   };
@@ -662,6 +653,12 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
     }
   };
 
+  // Footer values (mirror settings API keys)
+  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  const footerId = settings?.sa_delivery_of_supports || '';
+  const footerDate = formatDate(settings?.review_date || '');
+  try { console.log('[PDF SA Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) }); } catch {}
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -681,9 +678,9 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
 
         {/* Fixed Footer on all pages - matches Client Intake Form pattern */}
        <View style={styles.footer} fixed>
-         <Text style={styles.footerText}>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</Text>
-         <Text style={styles.footerText}>{settings?.sa_delivery_of_supports || ''}</Text>
-         <Text style={styles.footerText}>Review Date: {formatDate(settings?.review_date || '')}</Text>
+         <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+         <Text style={styles.footerText}>{footerId}</Text>
+         <Text style={styles.footerText}>Review Date: {footerDate}</Text>
        </View>
       </Page>
     </Document>

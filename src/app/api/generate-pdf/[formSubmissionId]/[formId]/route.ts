@@ -428,7 +428,25 @@ export async function GET(
       settings[setting.key] = setting.value;
     });
 
-    console.log('📋 Settings from Database:', settings);
+    // Overlay with form-specific settings API (same as web view) to avoid stale DB values
+    try {
+      const origin = new URL(req.url).origin;
+      const cookieHeader = req.headers.get('cookie') || '';
+      const formsResp = await fetch(`${origin}/api/settings?forms=true`, {
+        cache: 'no-store',
+        headers: { cookie: cookieHeader }
+      });
+      if (formsResp.ok) {
+        const formsData = await formsResp.json();
+        const formSettings = formsData?.settings || {};
+        console.log('[PDF Route] Overlay form settings from API:', formSettings);
+        Object.assign(settings, formSettings);
+      }
+    } catch (e) {
+      console.warn('[PDF Route] Could not overlay form settings from API:', e);
+    }
+
+    console.log('📋 Settings from Database (overlaid):', settings);
     console.log('🔑 Available Settings Keys:', Object.keys(settings));
 
     const formData = formSubmission.data as any;
