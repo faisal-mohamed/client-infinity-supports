@@ -11,10 +11,11 @@ type Props = {
   images?: { infinityLogo?: string };
 };
 
-const TOP_SPACER = 16; // ~2 lines
-const BOTTOM_SPACER = 20; // ~2 lines
+const TOP_SPACER = 24; // strict 2-line space under header
+const BOTTOM_SPACER = 24; // strict 2-line space above footer
 const BLOCK_SPACING = 8;
-const SAFETY_BUFFER = 6;
+const SAFETY_BUFFER = 6; // generic small buffer used in estimates
+const BOTTOM_GAP = 28; // enforce ~2 lines of space above the footer
 
 const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsData = {}, settings = {}, images = {} }) => {
   const getValue = (key: string) => {
@@ -63,7 +64,9 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   type Unit =
     | { kind: 'block'; index: number }
     | { kind: 'ai_header' }
-    | { kind: 'ai_paragraph'; text: string; isFirst: boolean };
+    | { kind: 'ai_paragraph'; text: string; isFirst: boolean }
+    | { kind: 'risk_header' }
+    | { kind: 'risk_row'; i: number };
 
   const additionalSupportText = useMemo(() => (getValue('additionalSupport') || '').toString(), [formData]);
 
@@ -72,13 +75,36 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
       .split(/\n{2,}|\r?\n/)
       .map((t: string) => t.trim())
       .filter((t: string) => t.length > 0);
-    return raw.length ? raw : [];
+    // Further split very long paragraphs into sentence chunks to improve packing
+    const expanded: string[] = [];
+    raw.forEach((p: string) => {
+      if (p.length > 400) {
+        const parts = p.split(/(?<=[.!?])\s+/).map((s: string) => s.trim()).filter(Boolean);
+        // Combine small sentences to avoid too many tiny blocks
+        let buffer = '';
+        parts.forEach((s: string) => {
+          if ((buffer + ' ' + s).trim().length < 220) {
+            buffer = (buffer ? buffer + ' ' : '') + s;
+          } else {
+            if (buffer) expanded.push(buffer);
+            buffer = s;
+          }
+        });
+        if (buffer) expanded.push(buffer);
+      } else {
+        expanded.push(p);
+      }
+    });
+    return expanded.length ? expanded : [];
   }, [additionalSupportText]);
 
   const units: Unit[] = useMemo(() => {
     const out: Unit[] = [];
     blocks.forEach((b, i) => {
-      if (b.type === 'additional_info' && additionalSupportParas.length) {
+      if (b.type === 'risk_table') {
+        out.push({ kind: 'risk_header' });
+        riskIndices.forEach((ri) => out.push({ kind: 'risk_row', i: ri }));
+      } else if (b.type === 'additional_info' && additionalSupportParas.length) {
         out.push({ kind: 'ai_header' });
         additionalSupportParas.forEach((p: string, idx: number) => out.push({ kind: 'ai_paragraph', text: p, isFirst: idx === 0 }));
       } else {
@@ -117,9 +143,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
       case 'risk_matrix':
         return 430; // scaled image + legend
       case 'risk_table':
-        // header ~30 + rows (approx 110 each for safe packing)
-        const rows = riskIndices.length || 1;
-        return 30 + rows * 110;
+        return 0; // handled per-row via split units
       case 'additional_info':
         return 0; // handled via split units
       case 'review_and_signature':
@@ -132,20 +156,23 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   const estimateHeightForUnit = (u: Unit): number => {
     if (u.kind === 'block') return estimateHeightForBlock(blocks[u.index]);
     if (u.kind === 'ai_header') return 30; // section bar
+    if (u.kind === 'risk_header') return 34; // table header
+    if (u.kind === 'risk_row') return 60; // closer to actual single-row height
     // paragraph box approx height by characters
     const chars = u.text.length;
-    const approxLines = Math.ceil(chars / 100);
-    return 24 + approxLines * 16; // padding + lines
+    const approxLines = Math.ceil(chars / 110);
+    return 16 + approxLines * 14; // padding + lines (tighter)
   };
 
   useEffect(() => {
     const hs = units.map((u, idx) => {
       const el = measureRefs.current[idx];
+      const est = estimateHeightForUnit(u);
       if (el) {
         const h = Math.ceil(el.getBoundingClientRect().height);
-        return h > 0 ? h : estimateHeightForUnit(u);
+        if (h > 0) return h; // trust measurement for all units
       }
-      return estimateHeightForUnit(u);
+      return est;
     });
     if (hs.some((x) => x && x > 0)) setMeasuredHeights(hs);
   }, [units, measureVersion]);
@@ -155,16 +182,27 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
     const out: number[][] = [];
     let cur: number[] = [];
     let h = 0;
-    const MIN_SPACE_AFTER_TABLE = 60; // ensure we don't squeeze content after a tall table
+    const MIN_SPACE_AFTER_TABLE = 90; // allow tighter packing after table
     hs.forEach((bh, idx) => {
       const next = (cur.length ? BLOCK_SPACING : 0) + bh;
       const prevIdx = cur.length ? cur[cur.length - 1] : null;
       const prevIsRiskTable = prevIdx !== null && units[prevIdx].kind === 'block' && blocks[(units[prevIdx] as any).index].type === 'risk_table';
       const remaining = PAGE_BUDGET - h;
+      // If page would start with a risk row, we render the table header; include its height in the fit check
+      const pageStartHeaderOverhead = cur.length === 0 && units[idx].kind === 'risk_row' ? 34 : 0;
 
       if (
-        (h + next + SAFETY_BUFFER > PAGE_BUDGET && cur.length) ||
-        (prevIsRiskTable && remaining < MIN_SPACE_AFTER_TABLE)
+        // Ensure a minimum bottom gap so we never collide with footer, and include any start-of-page overhead
+        (h + next + pageStartHeaderOverhead + BOTTOM_GAP > PAGE_BUDGET && cur.length) ||
+        (prevIsRiskTable && remaining < MIN_SPACE_AFTER_TABLE) ||
+        (units[idx].kind === 'ai_header' && (() => {
+          const headerH = 30; // section bar
+          const firstPara = additionalSupportParas?.[0] || '';
+          const approxLines = Math.ceil(firstPara.length / 110);
+          const firstParaH = 16 + approxLines * 14; // padding + lines (tighter)
+          const need = headerH + firstParaH + BOTTOM_GAP; // require bottom gap on page with AI header + first para
+          return remaining < need;
+        })())
       ) {
         out.push(cur);
         cur = [idx];
@@ -271,7 +309,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
                 <td className="border border-black p-2 align-top">{getValue(`riskIdentified_${i}`)}</td>
                 <td className="border border-black p-2 align-top">{getValue(`likelihood_${i}`)}</td>
                 <td className="border border-black p-2 align-top">{getValue(`severity_${i}`)}</td>
-                <td className="border border-black p-2 align-top whitespace-pre-wrap">{getValue(`controls_${i}`)}</td>
+            <td className="border border-black p-2 align-top whitespace-pre-wrap break-words">{getValue(`controls_${i}`)}</td>
               </tr>
             ))}
           </tbody>
@@ -319,7 +357,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
       case 'risk_matrix':
         return <RiskMatrix />;
       case 'risk_table':
-        return <RiskTable />;
+        return null; // handled via split units
       case 'additional_info':
         return null; // handled by split units
       case 'review_and_signature':
@@ -340,10 +378,46 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
     }
     if (u.kind === 'ai_paragraph') {
       return (
-        <div className="text-xs whitespace-pre-wrap mb-2">
+        <div className="text-xs whitespace-pre-wrap break-words mb-2">
           {u.isFirst && <div className="font-bold mb-1">Additional Support Requirements</div>}
           <div>{u.text}</div>
         </div>
+      );
+    }
+    if (u.kind === 'risk_header') {
+      return (
+        <div className="mb-2">
+          {riskIndices.length > 0 && (
+            <>
+              <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Risk Assessment</div>
+              <table className="w-full border border-black text-xs border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border border-black p-2 text-left w-[35%]">Risk Identified</th>
+                    <th className="border border-black p-2 text-left w-[15%]">Likelihood</th>
+                    <th className="border border-black p-2 text-left w-[15%]">Severity</th>
+                    <th className="border border-black p-2 text-left w-[35%]">Control Measures</th>
+                  </tr>
+                </thead>
+              </table>
+            </>
+          )}
+        </div>
+      );
+    }
+    if (u.kind === 'risk_row') {
+      const i = u.i;
+      return (
+        <table className="w-full border border-black text-xs border-collapse">
+          <tbody>
+            <tr>
+              <td className="border border-black p-2 align-top w-[35%]">{getValue(`riskIdentified_${i}`)}</td>
+              <td className="border border-black p-2 align-top w-[15%]">{getValue(`likelihood_${i}`)}</td>
+              <td className="border border-black p-2 align-top w-[15%]">{getValue(`severity_${i}`)}</td>
+              <td className="border border-black p-2 align-top w-[35%] whitespace-pre-wrap break-words">{getValue(`controls_${i}`)}</td>
+            </tr>
+          </tbody>
+        </table>
       );
     }
     return null;
@@ -372,7 +446,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
         />
       </div>
       <div style={{ height: `${TOP_SPACER}px` }} />
-      <div className="flex-1 overflow-visible">{children}</div>
+      <div className="flex-1 overflow-hidden">{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</span>
@@ -390,7 +464,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   return (
     <div>
       {/* Hidden measuring container to capture real heights */}
-      <div style={{ position: 'absolute', left: -10000, top: 0, width: '734px', visibility: 'hidden' }} aria-hidden>
+      <div style={{ position: 'absolute', left: -10000, top: 0, width: '794px', visibility: 'hidden' }} aria-hidden>
         <div
           style={{ width: '794px', height: '1123px', boxSizing: 'border-box', padding: '30px', display: 'flex', flexDirection: 'column' }}
         >
@@ -400,6 +474,12 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
+          {/* Footer placeholder to ensure measurement includes footer height */}
+          <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
+            <span>Website:</span>
+            <span>IRA</span>
+            <span>Review Date:</span>
+          </div>
         </div>
 
         {units.map((u, i) => (
@@ -411,11 +491,43 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
 
       {pages.map((idxs, p) => (
         <A4Page key={p} pageNumber={p + 1}>
-          {idxs.map((i, k) => (
-            <div key={`u-${p}-${i}`} style={{ marginBottom: k ? `${BLOCK_SPACING}px` : 0 }}>
-              {renderUnit(units[i])}
-            </div>
-          ))}
+          {(() => {
+            const rendered: React.ReactNode[] = [];
+            if (idxs.length > 0) {
+              const firstUnit = units[idxs[0]] as any;
+              if (firstUnit?.kind === 'risk_row') {
+                rendered.push(
+                  <div key={`repeat-risk-header-${p}`} className="mb-2">
+                    <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Risk Assessment</div>
+                    <table className="w-full border border-black text-xs border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="border border-black p-2 text-left w-[35%]">Risk Identified</th>
+                          <th className="border border-black p-2 text-left w-[15%]">Likelihood</th>
+                          <th className="border border-black p-2 text-left w-[15%]">Severity</th>
+                          <th className="border border-black p-2 text-left w-[35%]">Control Measures</th>
+                        </tr>
+                      </thead>
+                    </table>
+                  </div>
+                );
+              } else if (firstUnit?.kind === 'ai_paragraph') {
+                rendered.push(
+                  <div key={`repeat-ai-header-${p}`} className="mb-2 text-xs">
+                    <div className="bg-gray-300 border border-black px-2 py-1 font-bold">Additional Information</div>
+                  </div>
+                );
+              }
+            }
+            idxs.forEach((i, k) => {
+              rendered.push(
+                <div key={`u-${p}-${i}`} style={{ marginBottom: k ? `${BLOCK_SPACING}px` : 0 }}>
+                  {renderUnit(units[i])}
+                </div>
+              );
+            });
+            return rendered;
+          })()}
         </A4Page>
       ))}
     </div>

@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#ffffff',
     padding: 30,
-    paddingTop: 110,
-    paddingBottom: 60,
+    paddingTop: 120,
+    paddingBottom: 70,
     fontFamily: 'Helvetica'
   },
   header: {
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   title: { textAlign: 'center', fontSize: 12, fontWeight: 'bold', marginBottom: 8, textDecoration: 'underline' },
   sectionHeader: { fontSize: 10, fontWeight: 'bold', marginTop: 10, marginBottom: 6, textDecoration: 'underline' },
   label: { fontSize: 9, fontWeight: 'bold' },
-  value: { fontSize: 9 },
+  value: { fontSize: 9, lineHeight: 1.3 },
   row: { flexDirection: 'row' },
   cell: { border: '1 solid #000', padding: 6, flexGrow: 1 },
   inlineRow: { flexDirection: 'row', marginBottom: 4 },
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   gridCell: { flexBasis: '50%', borderRight: '1 solid #000', borderBottom: '1 solid #000', padding: 6 },
   gridCellLast: { flexBasis: '50%', borderBottom: '1 solid #000', padding: 6 },
   gridCellFull: { flexBasis: '100%', borderBottom: '1 solid #000', padding: 6 },
-  tableHeaderCell: { border: '1 solid #000', backgroundColor: '#f3f4f6', padding: 6, fontSize: 9, fontWeight: 'bold', flexGrow: 1 },
+  tableHeaderCell: { border: '1 solid #000', backgroundColor: '#f3f4f6', padding: 6, fontSize: 9, fontWeight: 'bold', flexGrow: 1, lineHeight: 1.2 },
   sectionBar: { backgroundColor: '#e5e7eb', border: '1 solid #000', padding: 6, fontSize: 9, fontWeight: 'bold', marginTop: 8 },
   footer: {
     position: 'absolute', bottom: 15, left: 30, right: 30,
@@ -47,8 +47,12 @@ const styles = StyleSheet.create({
 });
 
 const get = (obj: any, key: string, common?: any) => {
-  if (!obj) return '';
-  return obj[key] ?? (common ? common[key] : '') ?? '';
+  // Prefer value from form data; fall back to mapped common fields
+  const formValue = obj ? obj[key] : undefined;
+  if (formValue !== undefined && formValue !== null && String(formValue).length > 0) return formValue;
+  const map: Record<string, string> = { personName: 'name' };
+  const commonKey = map[key] || key;
+  return (common ? common[commonKey] : '') ?? '';
 };
 
 const formatDate = (value: string) => {
@@ -67,7 +71,7 @@ const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, com
   const headerField = (label: string, key: string) => (
     <View style={styles.inlineRow}>
       <Text style={styles.inlineLabel}>{label}:</Text>
-      <Text style={styles.inlineValue}>{get(formData, key)}</Text>
+      <Text style={styles.inlineValue}>{get(formData, key, commonFieldsData)}</Text>
     </View>
   );
 
@@ -88,7 +92,7 @@ const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, com
     </View>
   );
 
-  const riskIndices = React.useMemo(() => {
+  const riskIndices = (() => {
     const idxSet = new Set<number>();
     const fields = ['riskIdentified', 'likelihood', 'severity', 'controls'];
     Object.keys(formData || {}).forEach((k) => {
@@ -102,7 +106,7 @@ const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, com
       }
     });
     return Array.from(idxSet).sort((a, b) => a - b);
-  }, [formData]);
+  })();
 
   return (
     <Document>
@@ -118,39 +122,43 @@ const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, com
         <View style={styles.grid}>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}><Text style={styles.inlineLabel}>Person's Name:</Text></View>
-            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'personName')}</Text></View>
+            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'personName', commonFieldsData)}</Text></View>
           </View>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}><Text style={styles.inlineLabel}>Date:</Text></View>
-            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{formatDate(get(formData, 'date'))}</Text></View>
+            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{formatDate(get(formData, 'date', commonFieldsData))}</Text></View>
           </View>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}><Text style={styles.inlineLabel}>Activity:</Text></View>
-            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'activity')}</Text></View>
+            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'activity', commonFieldsData)}</Text></View>
           </View>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}><Text style={styles.inlineLabel}>Assessor's Name:</Text></View>
-            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'assessorName')}</Text></View>
+            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'assessorName', commonFieldsData)}</Text></View>
           </View>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}><Text style={styles.inlineLabel}>Location:</Text></View>
-            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'location')}</Text></View>
+            <View style={styles.gridCellLast}><Text style={styles.inlineValue}>{get(formData, 'location', commonFieldsData)}</Text></View>
           </View>
         </View>
 
-        {/* Risk Matrix */}
-        <Image src={(images?.riskMatrix || settings?.riskMatrixDataUrl || '/individual-risk-assessment.png')} style={{ width: 520, height: 270, marginTop: 8, marginBottom: 12 }} />
+        {/* Risk Matrix (render only if image available) */}
+        {images?.riskMatrix ? (
+          <Image src={images.riskMatrix} style={{ width: 520, height: 240, marginTop: 8, marginBottom: 10, objectFit: 'contain' }} />
+        ) : null}
 
         {/* Colour legend / notes */}
         <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#065f46', textDecoration: 'underline' }}>LOW GREEN</Text>
-        <Text style={{ fontSize: 9, marginBottom: 4 }}>Visit acceptable. Ensure control options are followed.</Text>
+        <Text style={{ fontSize: 9, marginBottom: 3 }}>Visit acceptable. Ensure control options are followed.</Text>
         <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#92400e', textDecoration: 'underline' }}>MEDIUM YELLOW</Text>
-        <Text style={{ fontSize: 9, marginBottom: 4 }}>Visit should only proceed after consultation with manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re‑classify as Moderate Risk.</Text>
+        <Text style={{ fontSize: 9, marginBottom: 3 }}>Visit should only proceed after consultation with manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re‑classify as Moderate Risk.</Text>
         <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#b45309', textDecoration: 'underline' }}>MODERATE ORANGE</Text>
-        <Text style={{ fontSize: 9, marginBottom: 4 }}>Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re‑classify as High Risk.</Text>
+        <Text style={{ fontSize: 9, marginBottom: 3 }}>Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re‑classify as High Risk.</Text>
         <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#991b1b', textDecoration: 'underline' }}>HIGH RED</Text>
-        <Text style={{ fontSize: 9, marginBottom: 6 }}>Visit must only proceed with Director approval. The risks associated with the visit must be re‑assessed & other options considered.</Text>
+        <Text style={{ fontSize: 9, marginBottom: 5 }}>Visit must only proceed with Director approval. The risks associated with the visit must be re‑assessed & other options considered.</Text>
 
+        {/* Start the Risk Assessment on a new page */}
+        <View break />
         <Text style={styles.sectionBar}>Risk Assessment</Text>
         {riskIndices.length > 0 && (
           <View style={styles.row}>

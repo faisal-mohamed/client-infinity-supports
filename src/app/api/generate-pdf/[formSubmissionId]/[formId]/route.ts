@@ -360,21 +360,22 @@ async function generatePDFWithReactPDF(
 
   try { console.log('[PDF Route] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
 
-  // Provide optional images for specific forms
-  let images: any = {};
+  // Provide optional images for specific formsny = {};
   try {
     if (formKey === 'individual_risk_assessment') {
+      // Use the same matrix image used by the web view for consistent clarity
       images.riskMatrix = await encodeImageToBase64('/individual-risk-assessment.png');
     }
   } catch (e) { console.warn('[PDF Route] Could not encode additional images:', e); }
 
-  const pdfDoc = React.createElement(PDFComponent, {
+  const pdfProps: any = {
     formData,
     commonFieldsData: commonFields,
     settings,
     logoDataUrl,
     images
-  }) as any;
+  };
+  const pdfDoc = React.createElement(PDFComponent as any, pdfProps) as any;
 
   const pdfBuffer = await renderToBuffer(pdfDoc);
   return pdfBuffer;
