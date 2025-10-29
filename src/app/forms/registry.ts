@@ -11,6 +11,7 @@ import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import PersonCentredPlanEdit from "@/app/components/forms/person_centred_plan/Edit";
 
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
+import SADeliverySupportsView from "../components/forms/sa-delivery-of-supports/SADeliverySupportsView";
 import SADeliverySupportsEdit from "../components/forms/sa-delivery-of-supports/Edit";
 
 import ParticipantRiskAssessmentView from "@/components/participant-risk-assessment/view";
@@ -102,7 +103,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   sa_delivery_of_supports: {
     key: "sa_delivery_of_supports",
     name: "SA Delivery of Supports",
-    viewComponent: SADeliverySupports,
+    viewComponent: SADeliverySupportsView,
     editComponent: SADeliverySupportsEdit,
     signatures: [
       {

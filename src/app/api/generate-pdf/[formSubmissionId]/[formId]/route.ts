@@ -432,8 +432,10 @@ export async function GET(
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;
 
-    // Use @react-pdf/renderer for emergency_drill, person_centred_plan, and client_intake_form
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form') {
+    // Use @react-pdf/renderer for emergency_drill, person_centred_plan, client_intake_form, and sa_delivery_of_supports
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports') {
+      console.log('[PDF Route] Using @react-pdf for', form.formKey, 'submission', submissionId);
+      console.log('[PDF Route] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');
       const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
       pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl, form.formKey);

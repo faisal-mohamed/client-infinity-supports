@@ -7,6 +7,7 @@ import ClientIntakev2Matching from './ClientIntakev2_MATCHING'; // Matches web v
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
+import SADeliverySupportsMatching from './SADeliverySupports_MATCHING'; // Dynamic PDF with auto page breaks
 import ParticipantRiskAssessmentPDF from './participant-risk-assessment/ParticipantRiskAssessmentPDF'; // Server-side PDF component
 import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict form layout
 import IndividualRiskAssessmentView from './individual-risk-assessment/page_FIXED'; // Assuming this is the correct import path
@@ -43,7 +44,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: 'sa_delivery_of_supports',
-    component: SADeliverySupports,
+    component: SADeliverySupportsMatching, // Use matching dynamic PDF component
     name: 'SA Delivery of Supports',
   },
   {
