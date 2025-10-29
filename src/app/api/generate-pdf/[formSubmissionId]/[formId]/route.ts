@@ -348,15 +348,17 @@ async function generatePDFWithReactPDF(
   formKey: string = 'emergency_drill'
 ): Promise<Buffer> {
   // Choose the appropriate PDF component based on formKey
+  // Emergency Drill has a bespoke component; all others come from the registry
   let PDFComponent;
-  if (formKey === 'person_centred_plan') {
-    PDFComponent = PersonCentredPlanPDF;
-  } else if (formKey === 'client_intake_form') {
-    // Use the component from the PDF registry (ClientIntakev2Matching)
-    PDFComponent = getPDFComponent(formKey);
-  } else {
+  if (formKey === 'emergency_drill') {
     PDFComponent = EmergencyDrillPDF;
+  } else if (formKey === 'person_centred_plan') {
+    PDFComponent = PersonCentredPlanPDF;
+  } else {
+    PDFComponent = getPDFComponent(formKey);
   }
+
+  try { console.log('[PDF Route] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
 
   const pdfDoc = React.createElement(PDFComponent, {
     formData,

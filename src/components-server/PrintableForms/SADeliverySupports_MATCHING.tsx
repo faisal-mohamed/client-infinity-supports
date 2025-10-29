@@ -656,26 +656,24 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
       <Page size="A4" style={styles.page}>
         {/* Fixed Header on all pages */}
         <View style={styles.header} fixed>
-          <Image
-            src={logoDataUrl}
-            style={styles.headerLogo}
-          />
-          <Text style={styles.title}>SERVICE AGREEMENT FOR SERVICE DELIVERY</Text>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
         </View>
 
         {/* Content - flows naturally with automatic page breaks */}
         {/* Render all blocks from schema */}
         <View>
+          {/* Title only once at the start of content (not in fixed header) */}
+          <Text style={styles.title}>SERVICE AGREEMENT FOR SERVICE DELIVERY</Text>
           {(() => { try { console.log('PDF SADelivery: blocks', saDeliverySchema.length); } catch (e) {} return null; })()}
           {saDeliverySchema.map((block, idx) => renderBlock(block))}
         </View>
 
         {/* Fixed Footer on all pages - matches Client Intake Form pattern */}
-      <View style={styles.footer} fixed>
-        <Text style={styles.footerText}>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</Text>
-          <Text style={styles.footerText}>{settings?.sa_delivery_of_supports || ''}</Text>
-          <Text style={styles.footerText}>Review Date: {formatDate(settings?.review_date || '')}</Text>
-        </View>
+       <View style={styles.footer} fixed>
+         <Text style={styles.footerText}>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</Text>
+         <Text style={styles.footerText}>{settings?.sa_delivery_of_supports || ''}</Text>
+         <Text style={styles.footerText}>Review Date: {formatDate(settings?.review_date || '')}</Text>
+       </View>
       </Page>
     </Document>
   );
