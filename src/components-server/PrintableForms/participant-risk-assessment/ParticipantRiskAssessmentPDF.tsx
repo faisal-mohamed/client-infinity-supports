@@ -18,6 +18,16 @@ export default function ParticipantRiskAssessmentPDF({
   settings 
 }: any) {
   
+  // Debug logs for Q11 fields (visible in server logs)
+  try {
+    // eslint-disable-next-line no-console
+    console.log('[PRA PDF] Q11 debug', {
+      familyBehavioralHistory: formData?.familyBehavioralHistory,
+      familyBehavioralHistoryComment: formData?.familyBehavioralHistoryComment,
+      behaviorPractitionerInvolved: formData?.behaviorPractitionerInvolved,
+    });
+  } catch {}
+
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
     familyName: "surname",
@@ -292,26 +302,60 @@ export default function ParticipantRiskAssessmentPDF({
           </tr>
         </thead>
         <tbody>
-          {riskQuestions.map((question) => (
-            <tr key={question.key}>
-              <td style={cellStyle}>{question.questionNum}</td>
-              <td style={cellStyle}>{question.label}</td>
-              <td style={{ ...cellStyle, textAlign: 'center' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px' }}>
-                    <input type="checkbox" checked={isChecked(question.key, 'yes')} readOnly style={{ marginRight: '4px' }} />
-                    YES
-                  </label>
-                  <label style={{ display: 'block' }}>
-                    <input type="checkbox" checked={isChecked(question.key, 'no')} readOnly style={{ marginRight: '4px' }} />
-                    NO
-                  </label>
-                </div>
-              </td>
-              <td style={{ ...cellStyle, textAlign: 'center' }}>{getValue(`${question.key}Rating`)}</td>
-              <td style={cellStyle}>{getValue(`${question.key}Comment`)}</td>
-            </tr>
-          ))}
+          {riskQuestions.map((question) => {
+            const isQ11 = question.key === 'familyBehavioralHistory';
+            return (
+              <tr key={question.key}>
+                <td style={cellStyle}>{question.questionNum}</td>
+                <td style={cellStyle}>{question.label}</td>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px' }}>
+                      <input type="checkbox" checked={isChecked(question.key, 'yes')} readOnly style={{ marginRight: '4px' }} />
+                      YES
+                    </label>
+                    <label style={{ display: 'block' }}>
+                      <input type="checkbox" checked={isChecked(question.key, 'no')} readOnly style={{ marginRight: '4px' }} />
+                      NO
+                    </label>
+                  </div>
+                </td>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>{getValue(`${question.key}Rating`)}</td>
+                <td style={cellStyle}>
+                  {isQ11 ? (
+                    <div>
+                      {(() => {
+                        const commentText = getValue(`${question.key}Comment`);
+                        return commentText ? <div style={{ marginBottom: '6px' }}>{commentText}</div> : null;
+                      })()}
+                      {(() => {
+                        const raw = (formData?.behaviorPractitionerInvolved || '').toString().trim().toLowerCase();
+                        const yn = raw === 'yes' || raw === 'true' || raw === '1' || raw === 'y' ? 'Yes' : raw === 'no' || raw === 'false' || raw === '0' || raw === 'n' ? 'No' : '';
+                        return (
+                          <div style={{ marginBottom: '6px', fontWeight: 500 }}>
+                            Behaviour practitioner involved: {yn || '—'}
+                          </div>
+                        );
+                      })()}
+                      <div style={{ marginBottom: '4px' }}>Is there a behaviour practitioner involved?</div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '4px' }}>
+                          <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'yes')} readOnly style={{ marginRight: '4px' }} />
+                          YES
+                        </label>
+                        <label style={{ display: 'block' }}>
+                          <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'no')} readOnly style={{ marginRight: '4px' }} />
+                          NO
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    getValue(`${question.key}Comment`)
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
@@ -351,14 +395,25 @@ export default function ParticipantRiskAssessmentPDF({
                   NO
                 </label>
               </div>
-              <div>
+              <div style={{ marginBottom: '10px' }}>
                 <p style={{ marginBottom: '5px' }}>Administration of Medication Required</p>
                 <label style={{ marginRight: '15px' }}>
-                  <input type="checkbox" checked={isChecked('administrationMedicationRequired', 'yes')} readOnly style={{ marginRight: '4px' }} />
+                  <input type="checkbox" checked={isChecked('adminMedicationRequired', 'yes')} readOnly style={{ marginRight: '4px' }} />
                   YES
                 </label>
                 <label>
-                  <input type="checkbox" checked={isChecked('administrationMedicationRequired', 'no')} readOnly style={{ marginRight: '4px' }} />
+                  <input type="checkbox" checked={isChecked('adminMedicationRequired', 'no')} readOnly style={{ marginRight: '4px' }} />
+                  NO
+                </label>
+              </div>
+              <div>
+                <p style={{ marginBottom: '5px' }}>NO – This participant does not require medication management</p>
+                <label style={{ marginRight: '15px' }}>
+                  <input type="checkbox" checked={isChecked('noMedicationRequired', 'yes')} readOnly style={{ marginRight: '4px' }} />
+                  YES
+                </label>
+                <label>
+                  <input type="checkbox" checked={isChecked('noMedicationRequired', 'no')} readOnly style={{ marginRight: '4px' }} />
                   NO
                 </label>
               </div>
@@ -594,13 +649,21 @@ export default function ParticipantRiskAssessmentPDF({
             <td style={cellStyle}>Mental Health Emergency Response Line</td>
             <td style={cellStyle} colSpan={2}>1300 555 788 (Perth) / 1300 676 822 (Peel)</td>
           </tr>
+        </tbody>
+      </table>
+
+      {/* Emergency/Disaster Support Plan */}
+      <table style={tableStyle}>
+        <thead>
           <tr style={{ backgroundColor: '#d1d5db', fontWeight: 'bold' }}>
-            <td style={cellStyle} colSpan={3}>Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)</td>
+            <th style={cellStyle} colSpan={3}>Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)</th>
           </tr>
           <tr style={{ fontWeight: 'bold' }}>
-            <td style={cellStyle}>Emergency</td>
-            <td style={cellStyle} colSpan={2}>Support provided to the participants in the event of an emergency</td>
+            <th style={cellStyle}>Emergency</th>
+            <th style={cellStyle} colSpan={2}>Support provided to the participants in the event of an emergency</th>
           </tr>
+        </thead>
+        <tbody>
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>Infinity is unable to support for extended period</td>
             <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Infinity will assist the client/family to source alternative providers</td>
@@ -744,13 +807,13 @@ export default function ParticipantRiskAssessmentPDF({
         </thead>
         <tbody>
           <tr>
-            <td style={cellStyle}>Authorised by:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Authorised by:</td>
             <td style={cellStyle}>{getValue('authorisedBy')}</td>
-            <td style={cellStyle}>Role:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Role:</td>
             <td style={cellStyle}>{getValue('role')}</td>
           </tr>
           <tr>
-            <td style={cellStyle}>Signature:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Signature:</td>
             <td style={cellStyle}>
               {(() => {
                 const sig = String(getValue('signature') || '');
@@ -758,11 +821,11 @@ export default function ParticipantRiskAssessmentPDF({
                 return isImg ? <img src={sig} alt="Signature" style={{ maxHeight: '40px', maxWidth: '100%' }} /> : sig;
               })()}
             </td>
-            <td style={cellStyle}>Date:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Date:</td>
             <td style={cellStyle}>{formatDate(getValue('signatureDate'))}</td>
           </tr>
           <tr>
-            <td style={cellStyle}>Participant / Guardian Signature:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Participant / Guardian Signature:</td>
             <td style={cellStyle}>
               {(() => {
                 const gsig = String(getValue('guardianSignature') || '');
@@ -770,12 +833,41 @@ export default function ParticipantRiskAssessmentPDF({
                 return isImg ? <img src={gsig} alt="Guardian Signature" style={{ maxHeight: '40px', maxWidth: '100%' }} /> : gsig;
               })()}
             </td>
-            <td style={cellStyle}>Date:</td>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Date:</td>
             <td style={cellStyle}>{formatDate(getValue('guardianDate'))}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, fontWeight: 'bold', verticalAlign: 'top' }}>Is a copy supplied to the participant?</td>
+            <td style={cellStyle}>
+              <label style={{ display: 'block', marginBottom: '4px' }}>
+                <input type="checkbox" checked={isChecked('copySupplied', 'yes')} readOnly style={{ marginRight: '4px' }} />
+                YES
+              </label>
+              <label style={{ display: 'block' }}>
+                <input type="checkbox" checked={isChecked('copySupplied', 'no')} readOnly style={{ marginRight: '4px' }} />
+                NO
+              </label>
+            </td>
+            <td style={{ ...cellStyle, fontWeight: 'bold', verticalAlign: 'top' }}>Copy placed on file?</td>
+            <td style={cellStyle}>
+              <label style={{ display: 'block', marginBottom: '4px' }}>
+                <input type="checkbox" checked={isChecked('copyOnFile', 'yes')} readOnly style={{ marginRight: '4px' }} />
+                YES
+              </label>
+              <label style={{ display: 'block' }}>
+                <input type="checkbox" checked={isChecked('copyOnFile', 'no')} readOnly style={{ marginRight: '4px' }} />
+                NO
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Date for Review:</td>
+            <td style={cellStyle} colSpan={3}>{formatDate(getValue('reviewDate'))}</td>
           </tr>
         </tbody>
       </table>
     </>
   );
 }
+
 

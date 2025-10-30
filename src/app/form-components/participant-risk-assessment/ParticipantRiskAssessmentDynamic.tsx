@@ -659,44 +659,69 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
         </tr>
       </thead>
       <tbody>
-        {questions.map((question) => (
-          <tr key={question.key}>
-            <td className="border border-black px-2 py-2 text-center align-top">
-              {question.questionNum}
-            </td>
-            <td className="border border-black px-2 py-2 align-top">
-              {question.label}
-            </td>
-            <td className="border border-black px-2 py-2 align-top">
-              <div className="flex flex-col gap-1">
-                <label className="inline-flex items-center space-x-1">
-                  <input 
-                    type="checkbox" 
-                    checked={isChecked(question.key, 'yes')} 
-                    readOnly 
-                    className="w-3 h-3" 
-                  />
-                  <span>YES</span>
-                </label>
-                <label className="inline-flex items-center space-x-1">
-                  <input 
-                    type="checkbox" 
-                    checked={isChecked(question.key, 'no')} 
-                    readOnly 
-                    className="w-3 h-3" 
-                  />
-                  <span>NO</span>
-                </label>
-              </div>
-            </td>
-            <td className="border border-black px-1 py-2 text-center">
-              {getValue(`${question.key}Rating`)}
-            </td>
-            <td className="border border-black px-2 py-2">
-              {getValue(`${question.key}Comment`)}
-            </td>
-          </tr>
-        ))}
+        {questions.map((question) => {
+          const isQ11 = question.key === 'familyBehavioralHistory';
+          return (
+            <tr key={question.key}>
+              <td className="border border-black px-2 py-2 text-center align-top">
+                {question.questionNum}
+              </td>
+              <td className="border border-black px-2 py-2 align-top">
+                {question.label}
+              </td>
+              <td className="border border-black px-2 py-2 align-top">
+                <div className="flex flex-col gap-1">
+                  <label className="inline-flex items-center space-x-1">
+                    <input
+                      type="checkbox"
+                      checked={isChecked(question.key, 'yes')}
+                      readOnly
+                      className="w-3 h-3"
+                    />
+                    <span>YES</span>
+                  </label>
+                  <label className="inline-flex items-center space-x-1">
+                    <input
+                      type="checkbox"
+                      checked={isChecked(question.key, 'no')}
+                      readOnly
+                      className="w-3 h-3"
+                    />
+                    <span>NO</span>
+                  </label>
+                </div>
+              </td>
+              <td className="border border-black px-1 py-2 text-center">
+                {getValue(`${question.key}Rating`)}
+              </td>
+              <td className="border border-black px-2 py-2 align-top">
+                {isQ11 ? (
+                  <div>
+                    {(() => {
+                      const commentText = getValue(`${question.key}Comment`);
+                      return commentText ? (
+                        <div className="mb-2">{commentText}</div>
+                      ) : null;
+                    })()}
+                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
+                    <div className="flex flex-col gap-1">
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'yes')} readOnly className="w-3 h-3" />
+                        <span>YES</span>
+                      </label>
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'no')} readOnly className="w-3 h-3" />
+                        <span>NO</span>
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  getValue(`${question.key}Comment`)
+                )}
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

@@ -287,6 +287,9 @@ const Page3: React.FC<Page3Props> = ({ formData, schema, commonFieldsData, setti
                 </td>
                 <td className="border border-black">{formData?.familyBehavioralHistoryRating}</td>
                 <td className="border border-black px-2 py-2 align-top">
+                  {formData?.familyBehavioralHistoryComment && (
+                    <div className="mb-2">{formData.familyBehavioralHistoryComment}</div>
+                  )}
                   Is there a behaviour practitioner involved?
                   <div className="mt-2 flex flex-col gap-1">
                     <label className="inline-flex items-center space-x-1">

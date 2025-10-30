@@ -1331,28 +1331,33 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             </td>
             <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
             <td className="border border-black p-2 align-top">
-              {/* For Question 11, show sub-question and answer in comments */}
-                {question.hasSubQuestion && question.subQuestionKey ? (
-                  <div>
-                    {question.commentLabel ? `${question.commentLabel}: ` : ''}
-                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
-                    <div className="flex flex-col items-start gap-1">
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
-                        <span>YES</span>
-                      </label>
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
-                        <span>NO</span>
-                      </label>
-                    </div>
+              {/* For Question 11, include any comment text and the sub-question Yes/No */}
+              {question.hasSubQuestion && question.subQuestionKey ? (
+                <div>
+                  {(() => {
+                    const commentText = getValue(`${question.commentKey || `${question.key}Comment`}`);
+                    return commentText ? (
+                      <div className="mb-2">{commentText}</div>
+                    ) : null;
+                  })()}
+                  <div className="mb-1">Is there a behaviour practitioner involved?</div>
+                  <div className="flex flex-col items-start gap-1">
+                    <label className="inline-flex items-center space-x-1">
+                      <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
+                      <span>YES</span>
+                    </label>
+                    <label className="inline-flex items-center space-x-1">
+                      <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
+                      <span>NO</span>
+                    </label>
                   </div>
-                ) : (
-                  <>
-              {question.commentLabel ? `${question.commentLabel}: ` : ''}
-              {getValue(`${question.commentKey || `${question.key}Comment`}`)}
-                  </>
-                )}
+                </div>
+              ) : (
+                <>
+                  {question.commentLabel ? `${question.commentLabel}: ` : ''}
+                  {getValue(`${question.commentKey || `${question.key}Comment`}`)}
+                </>
+              )}
             </td>
           </tr>
           );
