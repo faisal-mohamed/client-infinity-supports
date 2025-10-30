@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 // Dynamic Person Centred Plan - Pages based on data content
 const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
@@ -19,9 +19,10 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     { key: 'address', label: '2) Address', type: 'text', section: 'Personal Information' },
     { key: 'dob', label: '3) Date of Birth', type: 'text', section: 'Personal Information' },
     { key: 'guardian', label: '4) Guardian/Parent', type: 'text', section: 'Personal Information' },
-    { key: 'contactNumber', label: '5) Contact Number', type: 'text', section: 'Personal Information' },
-    { key: 'disability', label: '6) Disability', type: 'text', section: 'Personal Information' },
-    { key: 'ndisNumber', label: '7) NDIS Number', type: 'text', section: 'Personal Information' },
+    { key: 'guardianAddress', label: '5) Address', type: 'text', section: 'Personal Information' },
+    { key: 'contactNumber', label: '6) Contact Number', type: 'text', section: 'Personal Information' },
+    { key: 'disability', label: '7) Disability', type: 'text', section: 'Personal Information' },
+    { key: 'ndisNumber', label: '8) NDIS Number', type: 'text', section: 'Personal Information' },
     
     // About Me
     { key: 'myStory', label: '1) My Story', type: 'longtext', section: 'About Me' },
@@ -88,123 +89,26 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     { key: 'frequency3', label: 'Support 3 Frequency', type: 'text' }
   ];
 
-  // Calculate field height based on content
+  // Calculate field height based on content (conservative, includes margins)
   const calculateFieldHeight = (field: any) => {
     const value = getFieldValue(field.key);
     if (!value || value.trim() === '') return 0;
     
     const isLongText = field.type === 'longtext';
     const baseHeight = 45; // Header + borders + padding
+    const fieldMarginBottomPx = 12; // matches mb-3
+    const safetyPadding = 12;
     
-    const charsPerLine = 80;
-    const lineHeight = 12;
+    const charsPerLine = 65; // conservative wrap width
+    const lineHeight = 14; // slightly taller lines
     const lines = Math.max(1, Math.ceil(value.length / charsPerLine));
     const contentHeight = lines * lineHeight;
     
-    const minContentHeight = isLongText ? 60 : 30;
+    const minContentHeight = isLongText ? 70 : 36;
     const actualContentHeight = Math.max(minContentHeight, contentHeight);
     
-    return baseHeight + actualContentHeight;
+    return baseHeight + actualContentHeight + fieldMarginBottomPx + safetyPadding;
   };
-
-  // Group fields by height for pages
-  const groupFieldsByHeight = () => {
-    const maxPageHeight = 900; // Available height per page
-    const pages: any[] = [];
-    let currentPage: any[] = [];
-    let currentHeight = 0;
-    
-    // Calculate height for goal cards - increased to accommodate additional labels
-    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 220, showSection: false, sectionNumber: 0 }));
-    
-    // Check if support information table has data
-    const hasSupportInfo = [
-      getFieldValue('pbsSupportPlanIncluded'),
-      getFieldValue('restrictivePractices'),
-      getFieldValue('organizationName'),
-      getFieldValue('contactPersonOrg'),
-      getFieldValue('contactNumberOrg')
-    ].some(v => v && v.trim() !== '');
-    
-    // Check if informal supports table has data
-    const hasInformalSupports = [1, 2, 3, 4, 5].some(i =>
-      getFieldValue(`support${i}`) || getFieldValue(`informalSupport${i}`) || getFieldValue(`role${i}`) || getFieldValue(`frequency${i}`)
-    );
-    
-    const tablesAndGoals = [
-      ...goalsToAdd,
-      ...(hasSupportInfo ? [{ type: 'support_info_table', estimatedHeight: 200, showSection: false, sectionNumber: 0 }] : []),
-      ...(hasInformalSupports ? [{ type: 'informal_supports_table', estimatedHeight: 200, showSection: false, sectionNumber: 0 }] : [])
-    ];
-    
-    const itemsToProcess = [
-      ...otherFields.map(f => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false, sectionNumber: 0 })),
-      ...tablesAndGoals
-    ];
-    
-    let lastSection: string | null = null;
-    let sectionNumber = 0;
-    itemsToProcess.forEach((item: any, index: number) => {
-      const itemHeight = item.estimatedHeight;
-      
-      // Determine current section
-      let currentSection: string | null = null;
-      if (item.type === 'field') {
-        currentSection = item.field.section;
-      } else if (item.type === 'goal') {
-        currentSection = 'Goals & Outcomes';
-      } else if (item.type === 'support_info_table') {
-        currentSection = 'Support Information';
-      } else if (item.type === 'informal_supports_table') {
-        currentSection = 'Informal Supports';
-      }
-      
-      const isNewSection = currentSection && currentSection !== lastSection;
-      if (isNewSection) {
-        lastSection = currentSection as string;
-        sectionNumber++;
-      }
-      
-      // Add section number and showSection flag
-      item.sectionNumber = sectionNumber;
-      if ((item.type === 'field' || item.type === 'goal' || item.type === 'support_info_table' || item.type === 'informal_supports_table') && isNewSection) {
-        item.showSection = true;
-      }
-      
-      if (currentHeight + itemHeight > maxPageHeight && currentPage.length > 0) {
-        pages.push([...currentPage]);
-        currentPage = [item];
-        currentHeight = itemHeight;
-        lastSection = currentSection as string | null; // Reset section tracking for new page
-      } else {
-        currentPage.push(item);
-        currentHeight += itemHeight;
-      }
-    });
-    
-    if (currentPage.length > 0) {
-      pages.push(currentPage);
-    }
-    
-    return pages;
-  };
-
-  // Filter fields with values
-  const fieldsWithValues = allFields.filter(field => {
-    const value = getFieldValue(field.key);
-    return value && String(value).trim() !== '';
-  });
-
-  // Separate goals from regular fields
-  const goalsFields = fieldsWithValues.filter(f => 
-    f.key.match(/^(goal|rating|actions|byWhom|byWhen|reviewDate)\d+/)
-  );
-  const otherFields = fieldsWithValues.filter(f => 
-    !f.key.match(/^(goal|rating|actions|byWhom|byWhen|reviewDate)\d+/) &&
-    !f.key.match(/^informal/) &&
-    !f.key.match(/^(pbsSupportPlanIncluded|restrictivePractices|organizationName|contactPersonOrg|contactNumberOrg|role|frequency)/) &&
-    !f.key.match(/^(supportInfo)/)
-  );
 
   // Helper to get goal data
   const getGoalData = (goalNum: number) => {
@@ -223,6 +127,118 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     const goal = getGoalData(num);
     return goal.goal || goal.rating || goal.actions || goal.byWhom || goal.byWhen || goal.reviewDate;
   });
+
+  // Filter fields with values
+  const fieldsWithValues = allFields.filter(field => {
+    const value = getFieldValue(field.key);
+    return value && String(value).trim() !== '';
+  });
+
+  // Separate goals from regular fields
+  const goalsFields = fieldsWithValues.filter(f => 
+    f.key.match(/^(goal|rating|actions|byWhom|byWhen|reviewDate)\d+/)
+  );
+  const otherFields = fieldsWithValues.filter(f => 
+    !f.key.match(/^(goal|rating|actions|byWhom|byWhen|reviewDate)\d+/) &&
+    !f.key.match(/^informal/) &&
+    !f.key.match(/^(pbsSupportPlanIncluded|restrictivePractices|organizationName|contactPersonOrg|contactNumberOrg|role|frequency)/) &&
+    !f.key.match(/^(supportInfo)/)
+  );
+
+  // -------- Measurement-based pagination --------
+  const pageBudget = 900; // content height budget per page
+  const bottomBuffer = 8;
+  const measureRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
+
+  // Build items list once per data set
+  const itemsToProcess = useMemo(() => {
+    const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 240, showSection: false, sectionNumber: 0, key: `goal-${num}` }));
+
+    const hasSupportInfo = [
+      getFieldValue('pbsSupportPlanIncluded'),
+      getFieldValue('restrictivePractices'),
+      getFieldValue('organizationName'),
+      getFieldValue('contactPersonOrg'),
+      getFieldValue('contactNumberOrg')
+    ].some(v => v && v.trim() !== '');
+
+    const hasInformalSupports = [1, 2, 3, 4, 5].some(i =>
+      getFieldValue(`support${i}`) || getFieldValue(`informalSupport${i}`) || getFieldValue(`role${i}`) || getFieldValue(`frequency${i}`)
+    );
+
+    const tablesAndGoals = [
+      ...goalsToAdd,
+      ...(hasSupportInfo ? [{ type: 'support_info_table', estimatedHeight: 240, showSection: false, sectionNumber: 0, key: 'support-info' }] : []),
+      ...(hasInformalSupports ? [{ type: 'informal_supports_table', estimatedHeight: 260, showSection: false, sectionNumber: 0, key: 'informal-supports' }] : [])
+    ];
+
+    const list = [
+      ...otherFields.map((f, idx) => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false, sectionNumber: 0, key: `field-${f.key}-${idx}` })),
+      ...tablesAndGoals
+    ];
+
+    let lastSection: string | null = null;
+    let sectionNumber = 0;
+    list.forEach((item: any) => {
+      let currentSection: string | null = null;
+      if (item.type === 'field') currentSection = item.field.section;
+      else if (item.type === 'goal') currentSection = 'Goals & Outcomes';
+      else if (item.type === 'support_info_table') currentSection = 'Support Information';
+      else if (item.type === 'informal_supports_table') currentSection = 'Informal Supports';
+
+      const isNewSection = currentSection && currentSection !== lastSection;
+      if (isNewSection) { lastSection = currentSection as string; sectionNumber++; }
+      item.sectionNumber = sectionNumber;
+      if (isNewSection) item.showSection = true;
+    });
+
+    return list;
+  }, [JSON.stringify(formData), JSON.stringify(commonFieldsData)]);
+
+  // Hidden measurement container to capture real heights
+  useLayoutEffect(() => {
+    const updates: Record<string, number> = {};
+    let changed = false;
+    itemsToProcess.forEach((item: any) => {
+      const el = measureRefs.current[item.key];
+      if (!el) return;
+      const h = el.offsetHeight;
+      if (measuredHeights[item.key] !== h) { updates[item.key] = h; changed = true; }
+    });
+    if (changed) setMeasuredHeights(prev => ({ ...prev, ...updates }));
+  }, [itemsToProcess]);
+
+  // Group fields by measured height for pages
+  const groupFieldsByHeight = () => {
+    const pages: any[] = [];
+    let currentPage: any[] = [];
+    let currentHeight = 0;
+    itemsToProcess.forEach((item: any) => {
+      const est = item.estimatedHeight || 0;
+      const measured = measuredHeights[item.key];
+      const itemHeight = (measured ?? est) + bottomBuffer;
+      
+      if (currentHeight + itemHeight > pageBudget && currentPage.length > 0) {
+        pages.push([...currentPage]);
+        currentPage = [item];
+        currentHeight = itemHeight;
+      } else {
+        currentPage.push(item);
+        currentHeight += itemHeight;
+      }
+    });
+    
+    if (currentPage.length > 0) {
+      pages.push(currentPage);
+    }
+    
+    return pages;
+  };
+
+  
+
+  
 
   // Render goal card
   const renderGoalCard = (goalNum: number, sectionNumber: number = 0, showSection: boolean = false) => {
@@ -408,7 +424,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     const lineHeight = 12;
     const lines = Math.max(1, Math.ceil(value.length / charsPerLine));
     const contentHeight = lines * lineHeight;
-    const minHeight = isLongText ? 60 : 30;
+    const minHeight = isLongText ? 70 : 36;
     const actualHeight = Math.max(minHeight, contentHeight);
     
     return (
@@ -430,7 +446,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
             whiteSpace: 'pre-wrap',
             wordWrap: 'break-word',
             overflow: 'visible',
-            height: `${actualHeight}px`,
+            minHeight: `${actualHeight}px`,
             fontSize: '10px',
             lineHeight: '12px'
           }}
@@ -491,8 +507,28 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
 
   return (
     <div className="print:p-0">
+      {/* Hidden measurement container (offscreen) */}
+      <div aria-hidden style={{ position: 'absolute', visibility: 'hidden', top: -9999, left: -9999, width: '794px', padding: '30px' }}>
+        {itemsToProcess.map((item: any) => (
+          <div key={`m-${item.key}`} ref={(el) => { (measureRefs.current as any)[item.key] = el; }}>
+            {renderItem(item)}
+          </div>
+        ))}
+      </div>
+
+      {/* Cover Page with main image (always first) */}
+      <A4Page pageNumber={1}>
+        <div className="flex-1 flex items-center justify-center">
+          <img
+            alt="Person Centred Plan Cover"
+            src={images?.mainImage || "/person_centred_plan_cover_image.png"}
+            className="object-contain"
+            style={{ maxWidth: '700px', maxHeight: '650px', width: 'auto', height: 'auto' }}
+          />
+        </div>
+      </A4Page>
       {pagesGrouped.map((pageItems, index) => (
-        <A4Page key={index} pageNumber={index + 1}>
+        <A4Page key={index} pageNumber={index + 2}>
           {pageItems.map((item: any) => renderItem(item))}
         </A4Page>
       ))}

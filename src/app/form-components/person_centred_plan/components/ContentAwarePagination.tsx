@@ -15,6 +15,12 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
   settings,
   images
 }) => {
+  // Debug: log images/settings presence
+  console.log('PCP View: ContentAwarePagination mounted');
+  console.log('PCP View: images keys =>', images ? Object.keys(images) : null);
+  console.log('PCP View: images.infinityLogo length =>', images?.infinityLogo?.length || 0);
+  console.log('PCP View: images.mainImage length =>', images?.mainImage?.length || 0);
+  console.log('PCP View: settings.person_centre_plan_form_id =>', settings?.person_centre_plan_form_id);
   const getValue = (key: string) => {
     const commonFieldMapping: Record<string, string> = {
       name: 'name',
@@ -330,18 +336,19 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       { id: 'supportInfo', title: 'Support Information', sectionNumber: 5 }
     ];
 
-    // Create a single page with all sections - let CSS handle pagination
-    const allFields = [];
-    
+    // Build pages in order
     allSections.forEach((section) => {
-      // Special handling for cover page
+      // Special handling for cover page — dedicate a full page
       if (section.id === 'cover') {
-        allFields.push({ 
-          section, 
-          field: { key: 'cover', type: 'cover' }, 
+        pages.push([{
+          section,
+          field: { key: 'cover', type: 'cover' },
+          estimatedHeight: 760, // occupy almost the full page
           showSectionTitle: false,
-          questionNumber: 0
-        });
+          questionNumber: 0,
+        }]);
+        currentPage = [];
+        currentPageHeight = 0;
         return;
       }
 
@@ -745,6 +752,10 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
                                 maxHeight: '650px',
                                 width: 'auto',
                                 height: 'auto'
+                              }}
+                              onLoad={() => console.log('PCP View: cover image loaded')}
+                              onError={(e) => {
+                                console.error('PCP View: cover image failed to load. src=', (e.target as HTMLImageElement).src);
                               }}
                             />
                           </div>

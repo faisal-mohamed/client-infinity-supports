@@ -24,6 +24,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     position: 'relative',
   },
+  kvTable: {
+    border: '1 solid #000000',
+    marginBottom: 10,
+  },
+  kvRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #000000',
+  },
+  kvCellLabel: {
+    width: 170,
+    padding: 4,
+    backgroundColor: '#e5e7eb',
+    borderRight: '1 solid #000000',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  kvCellValue: {
+    flex: 1,
+    padding: 4,
+    fontSize: 9,
+  },
   coverHeader: {
     position: 'absolute',
     top: 50,
@@ -734,40 +755,39 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>1. Personal Information</Text>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>{getValue('name')}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Address:</Text>
-              <Text style={styles.value}>{getValue('address')}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Date of Birth:</Text>
-              <Text style={styles.value}>{formatDate(getValue('dob'))}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Guardian:</Text>
-              <Text style={styles.value}>{getValue('guardian')}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Contact Number:</Text>
-              <Text style={styles.value}>{getValue('contactNumber')}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>Disability:</Text>
-              <Text style={styles.value}>{getValue('disability')}</Text>
-            </View>
-            
-            <View style={styles.fieldRow}>
-              <Text style={styles.label}>NDIS Number:</Text>
-              <Text style={styles.value}>{getValue('ndisNumber')}</Text>
+            <View style={styles.kvTable}>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Name</Text>
+                <Text style={styles.kvCellValue}>{getValue('name')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Address</Text>
+                <Text style={styles.kvCellValue}>{getValue('address')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Date of Birth</Text>
+                <Text style={styles.kvCellValue}>{formatDate(getValue('dob'))}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Guardian</Text>
+                <Text style={styles.kvCellValue}>{getValue('guardian')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Guardian Address</Text>
+                <Text style={styles.kvCellValue}>{getValue('guardianAddress')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Contact Number</Text>
+                <Text style={styles.kvCellValue}>{getValue('contactNumber')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>Disability</Text>
+                <Text style={styles.kvCellValue}>{getValue('disability')}</Text>
+              </View>
+              <View style={styles.kvRow}>
+                <Text style={styles.kvCellLabel}>NDIS Number</Text>
+                <Text style={styles.kvCellValue}>{getValue('ndisNumber')}</Text>
+              </View>
             </View>
           </View>
 

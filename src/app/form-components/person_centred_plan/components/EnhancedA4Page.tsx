@@ -21,6 +21,10 @@ const EnhancedA4Page: React.FC<EnhancedA4PageProps> = ({
   className = '',
   images
 }) => {
+  // Debug header image presence
+  if (typeof window !== 'undefined') {
+    console.log('PCP View: EnhancedA4Page render - page', pageNumber, 'images keys', images ? Object.keys(images) : null);
+  }
   return (
     <div
       className={`
