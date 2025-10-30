@@ -219,12 +219,14 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: 12,
     color: '#111827',
-    borderBottom: '2 solid #3b82f6',
-    paddingBottom: 8,
+    backgroundColor: '#f3f4f6',
+    border: '1 solid #d1d5db',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
   },
   fullPageSection: {
     breakInside: 'avoid', // Keep section together on one page
@@ -237,12 +239,12 @@ const styles = StyleSheet.create({
   label: {
     width: 140,
     fontWeight: 'bold',
-    fontSize: 9,
+    fontSize: 10,
     color: '#374151',
   },
   value: {
     flex: 1,
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
   },
   longAnswer: {
@@ -252,12 +254,12 @@ const styles = StyleSheet.create({
   },
   longAnswerLabel: {
     fontWeight: 'bold',
-    marginBottom: 8, // Increased margin between label and content
-    fontSize: 11,
+    marginBottom: 8,
+    fontSize: 12,
     color: '#111827',
   },
   longAnswerValue: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
     lineHeight: 1.5,
     padding: 15, // Increased padding to prevent text cutoff
@@ -272,7 +274,7 @@ const styles = StyleSheet.create({
   
   // Container continuity styles for page breaks - maintaining rounded rectangle shape
   longAnswerValueContinuous: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
     lineHeight: 1.5,
     padding: 15,
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   
   // Style for My Story without container box
   longAnswerValueNoBox: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
     lineHeight: 1.5,
     padding: 0, // No padding since no box
@@ -297,7 +299,7 @@ const styles = StyleSheet.create({
   
   // Enhanced container styles with better page break handling - maintaining rounded rectangle shape
   longAnswerValueWithBottomBorder: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
     lineHeight: 1.5,
     padding: 15,
@@ -317,7 +319,7 @@ const styles = StyleSheet.create({
   
   // Container that ends on page - with proper closing
   longAnswerValueEnding: {
-    fontSize: 9,
+    fontSize: 10,
     color: '#111827',
     lineHeight: 1.5,
     padding: 15,

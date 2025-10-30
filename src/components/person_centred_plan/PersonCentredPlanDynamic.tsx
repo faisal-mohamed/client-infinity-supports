@@ -153,6 +153,19 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
 
   // Build items list once per data set
   const itemsToProcess = useMemo(() => {
+    const personalInfoKeys = new Set<string>([
+      'name','address','dob','guardian','guardianAddress','contactNumber','disability','ndisNumber'
+    ]);
+
+    // Build Personal Info table item first
+    const personalInfoItem = {
+      type: 'personal_info_table',
+      key: 'personal-info',
+      estimatedHeight: 240,
+      showSection: true,
+      sectionNumber: 1,
+    } as any;
+
     const goalsToAdd = activeGoals.map(num => ({ type: 'goal', number: num, estimatedHeight: 240, showSection: false, sectionNumber: 0, key: `goal-${num}` }));
 
     const hasSupportInfo = [
@@ -174,7 +187,10 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     ];
 
     const list = [
-      ...otherFields.map((f, idx) => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false, sectionNumber: 0, key: `field-${f.key}-${idx}` })),
+      personalInfoItem,
+      ...otherFields
+        .filter((f) => !personalInfoKeys.has(f.key))
+        .map((f, idx) => ({ type: 'field', field: f, estimatedHeight: calculateFieldHeight(f), showSection: false, sectionNumber: 0, key: `field-${f.key}-${idx}` })),
       ...tablesAndGoals
     ];
 
@@ -404,6 +420,8 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const renderItem = (item: any) => {
     if (item.type === 'goal') {
       return renderGoalCard(item.number, item.sectionNumber, item.showSection);
+    } else if (item.type === 'personal_info_table') {
+      return renderPersonalInfoTable();
     } else if (item.type === 'field') {
       return renderField(item.field, item.showSection, item.sectionNumber);
     } else if (item.type === 'support_info_table') {
@@ -412,6 +430,37 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       return renderInformalSupportsTable(item.sectionNumber);
     }
     return null;
+  };
+
+  const renderPersonalInfoTable = () => {
+    const rows: Array<{label: string, value: string}> = [
+      { label: 'Name', value: getFieldValue('name') },
+      { label: 'Address', value: getFieldValue('address') },
+      { label: 'Date of Birth', value: getFieldValue('dob') },
+      { label: 'Guardian/Parent', value: getFieldValue('guardian') },
+      { label: 'Address', value: getFieldValue('guardianAddress') },
+      { label: 'Contact Number', value: getFieldValue('contactNumber') },
+      { label: 'Disability', value: getFieldValue('disability') },
+      { label: 'NDIS Number', value: getFieldValue('ndisNumber') },
+    ].filter(r => r.value && r.value.trim() !== '');
+
+    if (rows.length === 0) return null;
+
+    return (
+      <div className="mb-3">
+        <div className="mb-3 mt-4">
+          <span className="font-bold text-base text-gray-900">1. Personal Information</span>
+        </div>
+        <div className="border border-gray-800">
+          {rows.map((r, idx) => (
+            <div key={idx} className="flex border-b border-gray-800">
+              <div className="w-56 bg-gray-200 border-r border-gray-800 p-2 text-xs font-bold">{r.label}</div>
+              <div className="flex-1 p-2 text-xs whitespace-pre-wrap">{r.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   // Render field with dynamic height
