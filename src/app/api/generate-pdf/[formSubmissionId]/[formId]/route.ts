@@ -360,7 +360,8 @@ async function generatePDFWithReactPDF(
 
   try { console.log('[PDF Route] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
 
-  // Provide optional images for specific formsny = {};
+  // Provide optional images for specific forms
+  let images: any = {};
   try {
     if (formKey === 'individual_risk_assessment') {
       // Use the same matrix image used by the web view for consistent clarity

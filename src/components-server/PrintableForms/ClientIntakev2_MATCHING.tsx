@@ -261,6 +261,9 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
       behaviourConcernOthers: 'behaviourConcern',
       positiveBehaviourOthers: 'positiveBehaviour',
       personalGoalsOthers: 'personalGoals',
+      communicationAssistanceOthers: 'communicationAssistance',
+      physicalAssistanceOthers: 'physicalAssistance',
+      languageConcernOthers: 'languageConcern',
     };
 
     if (field.key in yesNoPairs) {

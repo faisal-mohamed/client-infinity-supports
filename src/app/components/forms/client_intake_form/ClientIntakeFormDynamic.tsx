@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 // Dynamic PDF View - Multiple A4 pages with auto page breaks
 const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
@@ -155,62 +155,71 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
 
   const visibleFields = allFields.filter(f => shouldIncludeField(f.key));
 
-  // Calculate field height based on content
-  const calculateFieldHeight = (field: any) => {
-    const value = getFieldValue(field.key);
-    const valueStr = String(value || '');
-    const isLongText = field.type === 'longtext';
-    
-    // Base height for header + borders + padding
-    const baseHeight = 45; // Header (25px) + borders + padding
-    
-    // Calculate content height based on text length
-    const charsPerLine = 80; // Approximate characters per line
-    const lineHeight = 12; // Line height in pixels
-    const lines = Math.max(1, Math.ceil(Math.max(1, valueStr.length) / charsPerLine));
-    const contentHeight = lines * lineHeight;
-    
-    // Minimum heights
-    const minContentHeight = isLongText ? 50 : 25;
-    const actualContentHeight = Math.max(minContentHeight, contentHeight);
-    
-    return baseHeight + actualContentHeight;
-  };
+  // Measurement-based pagination
+  const measureRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
+  const pageContentMaxHeight = 1000; // tighter budget to avoid boundary clipping
+  const safetyGap = 10; // larger buffer at page bottom
+  const fieldMarginBottomPx = 12; // Tailwind mb-3 ≈ 12px, not included in offsetHeight
+  const [measureVersion, setMeasureVersion] = useState(0);
 
-  // Group fields into pages based on height
-  const groupFieldsByHeight = () => {
-    const maxPageHeight = 900; // Available height per page (1123 - header - footer - margins)
-    const pages: typeof allFields[] = [];
-    let currentPage: typeof allFields = [];
-    let currentHeight = 0;
-    
-    fieldsWithValues.forEach(field => {
-      const fieldHeight = calculateFieldHeight(field);
-      
-      // If adding this field would exceed page height, start new page
-      if (currentHeight + fieldHeight > maxPageHeight && currentPage.length > 0) {
-        pages.push(currentPage);
-        currentPage = [field];
-        currentHeight = fieldHeight;
-      } else {
-        currentPage.push(field);
-        currentHeight += fieldHeight;
+  // Re-measure on window resize or device pixel ratio changes
+  useEffect(() => {
+    const handle = () => setMeasureVersion((v) => v + 1);
+    window.addEventListener('resize', handle);
+    // Listen to DPR changes
+    const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    const dprListener = () => handle();
+    if (mq && mq.addEventListener) mq.addEventListener('change', dprListener);
+    return () => {
+      window.removeEventListener('resize', handle);
+      if (mq && mq.removeEventListener) mq.removeEventListener('change', dprListener);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    const updates: Record<string, number> = {};
+    let changed = false;
+    visibleFields.forEach((f) => {
+      const el = measureRefs.current[f.key];
+      if (!el) return;
+      const h = el.offsetHeight;
+      if (measuredHeights[f.key] !== h) {
+        updates[f.key] = h;
+        changed = true;
       }
     });
-    
-    // Add the last page if it has fields
-    if (currentPage.length > 0) {
-      pages.push(currentPage);
+    if (changed) {
+      setMeasuredHeights((prev) => ({ ...prev, ...updates }));
     }
-    
-    return pages;
+  }, [visibleFields, measureVersion]);
+
+  const estimateHeight = (field: any) => {
+    const base = 55;
+    const v = String(getFieldValue(field.key) || '');
+    const lines = Math.ceil(v.length / 100);
+    return base + lines * 10;
   };
 
-  // Show fields with conditional visibility for dependent details
-  const fieldsWithValues = visibleFields;
-
-  // Group fields by height instead of fixed count
-  const pages = groupFieldsByHeight();
+  const pages = useMemo(() => {
+    const pgs: typeof allFields[] = [];
+    let current: typeof allFields = [];
+    let height = 0;
+    visibleFields.forEach((f) => {
+      const base = measuredHeights[f.key] ?? estimateHeight(f);
+      const h = base + fieldMarginBottomPx + safetyGap;
+      if (height + h > pageContentMaxHeight && current.length > 0) {
+        pgs.push(current);
+        current = [f];
+        height = h;
+      } else {
+        current.push(f);
+        height += h;
+      }
+    });
+    if (current.length) pgs.push(current);
+    return pgs;
+  }, [visibleFields, measuredHeights, measureVersion]);
 
   // A4 Page Component
   const A4Page = ({ children, pageNumber }: any) => (
@@ -246,7 +255,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
         </div>
       )}
       
-      {/* Content Area */}
+      {/* Content Area: fixed-height; prevent pushing footer to next page */}
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
@@ -305,7 +314,8 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
           style={{
             whiteSpace: isBulletList ? 'normal' : 'pre-wrap',
             wordWrap: 'break-word',
-            overflow: 'hidden',
+            // Allow content to expand if height estimation is short; avoids hiding bottom lines
+            overflow: 'visible',
             minHeight: `${actualHeight}px`,
             fontSize: '10px',
             lineHeight: '12px'
@@ -329,8 +339,32 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     );
   };
 
+  // Hidden measurement container to capture actual heights with identical markup/styles
+  const renderMeasurementContainer = () => (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+        top: -9999,
+        left: -9999,
+        width: "794px",
+        boxSizing: 'border-box',
+        padding: "30px"
+      }}
+    >
+      {visibleFields.map((field) => (
+        <div key={`m-${field.key}`} ref={(el) => { (measureRefs.current as any)[field.key] = el; }}>
+          {renderField(field)}
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <div className="print:p-0">
+      {renderMeasurementContainer()}
       {pages.map((pageFields, index) => (
         <A4Page key={index} pageNumber={index + 1}>
           {pageFields.map(field => renderField(field))}
