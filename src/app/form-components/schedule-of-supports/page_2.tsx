@@ -35,14 +35,6 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           />
         </div>
 
-        {/* Top Border Table (empty structure) */}
-        <div className="border border-black w-full mb-6 grid grid-cols-6">
-          <div className="col-span-3 border-r border-black h-8" />
-          <div className="border-r border-black h-8" />
-          <div className="border-r border-black h-8" />
-          <div className="h-8" />
-        </div>
-
         {/* Main Content */}
         <div className="flex-1 leading-relaxed" style={{ fontSize: '12px' }}>
           <p className="font-bold mb-2">
@@ -94,7 +86,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 text-xs flex justify-between">
-          <span>Website: {settings?.company_website}</span>
+          <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
