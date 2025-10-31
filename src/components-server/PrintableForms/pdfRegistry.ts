@@ -12,7 +12,7 @@ import ParticipantRiskAssessmentPDF from './participant-risk-assessment/Particip
 import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict form layout
 import IndividualRiskAssessmentMatching from './IndividualRiskAssessment_MATCHING';
 import WelcomeForm from './welcome-form/page_FIXED';
-import ScheduleForSupport from './support-action-plan/page_FIXED';
+import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
 import MDT from './mdt/page'
 import ScheduleOfSupports from './schedule-of-supports/page_FIXED';
 import SASupportCoordination from './sa-support-coordination/page_FIXED';
@@ -69,7 +69,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: "support_action_plan",
-    component: ScheduleForSupport,
+    component: SupportActionPlanMatching,
     name: "Support Co-ordination Action Plan"
   },
   {

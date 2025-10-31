@@ -28,7 +28,7 @@ import WelcomeFormView from "@/components/welcome-form/View";
 import WelcomeFormEdit from "../components/forms/welcome-form/Edit";
 
 import ScheduleForSupportEdit from "../components/forms/support-action-plan/Edit";
-import ScheduleForSupportView from "@/components/support-action-plan/View";
+import SupportActionPlanView from "../components/forms/support-action-plan/SupportActionPlanView";
 
 import MDTEdit from "../components/forms/mdt/Edit";
 import MDTView from "@/components/mdt/View";
@@ -225,7 +225,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   support_action_plan: {
     key: "support_action_plan",
     name: "Support Action Plan",
-    viewComponent: ScheduleForSupportView,
+    viewComponent: SupportActionPlanView,
     editComponent: ScheduleForSupportEdit,
     signatures: [
       {

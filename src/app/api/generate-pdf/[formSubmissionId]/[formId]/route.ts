@@ -196,18 +196,16 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
         break;
 
       case "support_action_plan":
-        images = {
-          infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
-
+        console.log("[PDF API] Generating PDF for support_action_plan (SupportActionPlan_MATCHING)");
+        {
+          const logoDataUrl = await encodeImageToBase64('/infinity_logo.png');
+          componentProps = {
+            formData,
+            commonFieldsData: commonFields || {},
+            settings: settings || {},
+            logoDataUrl
+          }
         }
-
-        componentProps = {
-          formData,
-          images,
-          commonFieldsData: commonFields || {},
-          settings: settings || {}           // ✅ Also in fallback
-        }
-
         break;
 
 
@@ -464,7 +462,7 @@ export async function GET(
     let pdfBuffer: Buffer;
 
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment') {
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan') {
       console.log('[PDF Route] Using @react-pdf for', form.formKey, 'submission', submissionId);
       console.log('[PDF Route] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');
