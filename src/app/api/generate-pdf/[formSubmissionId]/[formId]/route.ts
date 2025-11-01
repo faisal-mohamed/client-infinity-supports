@@ -240,18 +240,19 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
         break;
 
       case "sa_support_coordination":
+        console.log('🔍 [PDF DEBUG] Processing SA Support Coordination case');
         images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
-
         }
 
         componentProps = {
           formData,
           images,
           settings: settings || {},
-          commonFieldsData: commonFields || {}
+          commonFieldsData: commonFields || {},
+          logoDataUrl: await encodeImageToBase64('/infinity_logo.png')
         }
-
+        console.log('🔍 [PDF DEBUG] SA Support Coordination props prepared');
         break;
 
 
@@ -345,18 +346,25 @@ async function generatePDFWithReactPDF(
   logoDataUrl: string,
   formKey: string = 'emergency_drill'
 ): Promise<Buffer> {
+  console.log('🔍 [PDF DEBUG] generatePDFWithReactPDF called for:', formKey);
+  console.log('🔍 [PDF DEBUG] Available settings:', Object.keys(settings || {}));
+  
   // Choose the appropriate PDF component based on formKey
   // Emergency Drill has a bespoke component; all others come from the registry
   let PDFComponent;
   if (formKey === 'emergency_drill') {
+    console.log('🔍 [PDF DEBUG] Using EmergencyDrillPDF component');
     PDFComponent = EmergencyDrillPDF;
   } else if (formKey === 'person_centred_plan') {
+    console.log('🔍 [PDF DEBUG] Using PersonCentredPlanPDF component');
     PDFComponent = PersonCentredPlanPDF;
   } else {
+    console.log('🔍 [PDF DEBUG] Getting component from registry for:', formKey);
     PDFComponent = getPDFComponent(formKey);
+    console.log('🔍 [PDF DEBUG] Registry returned component:', PDFComponent?.name || 'Anonymous');
   }
 
-  try { console.log('[PDF Route] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
+  try { console.log('✅ [PDF DEBUG] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
 
   // Provide optional images for specific forms
   let images: any = {};
@@ -461,15 +469,21 @@ export async function GET(
     const formData = formSubmission.data as any;
     let pdfBuffer: Buffer;
 
+    // 🔍 DEBUG: Log which PDF method will be used
+    console.log('🔍 [PDF DEBUG] Form Key:', form.formKey);
+    console.log('🔍 [PDF DEBUG] Form ID:', formIdInt);
+    console.log('🔍 [PDF DEBUG] Submission ID:', submissionId);
+
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports') {
-      console.log('[PDF Route] Using @react-pdf for', form.formKey, 'submission', submissionId);
-      console.log('[PDF Route] Settings keys available:', Object.keys(settings || {}));
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination') {
+      console.log('✅ [PDF DEBUG] Using @react-pdf/renderer for:', form.formKey);
+      console.log('✅ [PDF DEBUG] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');
       const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
       pdfBuffer = await generatePDFWithReactPDF(formData, commonFields, settings, logoDataUrl, form.formKey);
       console.timeEnd('⏱️ @react-pdf/renderer PDF Generation');
     } else {
+      console.log('⚠️ [PDF DEBUG] Using Playwright HTML for:', form.formKey);
       // Original Playwright approach for other forms
       console.time('⏱️ HTML Generation');
       const html = await generateHTML(formData, form.formKey, commonFields, settings);

@@ -15,7 +15,7 @@ import WelcomeForm from './welcome-form/page_FIXED';
 import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
 import MDT from './mdt/page'
 import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
-import SASupportCoordination from './sa-support-coordination/page_FIXED';
+import SASupportCoordination from './SASupportCoordination_MATCHING';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -92,13 +92,15 @@ const pdfFormRegistry: PDFFormComponent[] = [
 
 // Helper function to get PDF component by form key
 export const getPDFComponent = (formKey: string): ComponentType<any> => {
+  console.log('🔍 [PDF REGISTRY] Looking for component with key:', formKey);
   const formConfig = pdfFormRegistry.find(config => config.formKey === formKey);
 
   if (!formConfig) {
-    console.warn(`PDF component not found for form key: ${formKey}, falling back to ClientIntakev2`);
+    console.warn('⚠️ [PDF REGISTRY] PDF component not found for form key:', formKey, 'falling back to ClientIntakev2');
     return ClientIntakev2; // Fallback to default component
   }
 
+  console.log('✅ [PDF REGISTRY] Found component for', formKey, ':', formConfig.name);
   return formConfig.component;
 };
 
