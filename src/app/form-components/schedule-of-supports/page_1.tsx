@@ -90,18 +90,26 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                 const totalHours = formData?.[`${key}_totalHours`] || "";
                 const totalKms = formData?.[`${key}_totalKms`] || "";
 
+                // For per-km items, show km data in the Weeks column, not Total Hours
+                let displayWeeks = weeks;
+                let displayHours = totalHours;
+                if (item?.isPerKm) {
+                  displayWeeks = totalKms || "";
+                  displayHours = "-";
+                }
+
                 let totalCost = "";
                 if (item?.isPerKm) {
                   const kms = parseFloat(totalKms);
-                  if (!isNaN(kms)) {
+                  if (!isNaN(kms) && kms > 0) {
                     totalCost = `$${(kms * getCostNumber(item?.cost || "")).toFixed(2)}`;
                   } else {
-                    totalCost = "As required";
+                    totalCost = "";
                   }
                 } else {
                   const costPerHour = getCostNumber(item?.cost || "");
                   const hoursNum = parseFloat(totalHours);
-                  if (!isNaN(hoursNum)) {
+                  if (!isNaN(hoursNum) && hoursNum > 0) {
                     totalCost = `$${(hoursNum * costPerHour).toFixed(2)}`;
                   }
                 }
@@ -111,8 +119,8 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                     <td className={`${cellClass} text-left`}>
                       {item?.description}
                     </td>
-                    <td className={`${cellClass} text-center`}>{weeks}</td>
-                    <td className={`${cellClass} text-center`}>{totalHours}</td>
+                    <td className={`${cellClass} text-center`}>{displayWeeks}</td>
+                    <td className={`${cellClass} text-center`}>{displayHours}</td>
                     <td className={`${cellClass} text-right`}>{item?.cost}</td>
                     <td className={`${cellClass} text-right`}>{totalCost}</td>
                   </tr>

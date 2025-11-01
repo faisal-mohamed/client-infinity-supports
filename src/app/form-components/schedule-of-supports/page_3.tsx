@@ -97,10 +97,11 @@ received.
           </div>
 
           {/* Signature Boxes */}
-          <div className="border border-black p-4 space-y-4">
+          <div className="space-y-4">
             {/* Conditional: Show only Participant OR Nominee based on signatureRole */}
             {getValue("signatureRole") === "Participant" && (
-              <>
+              <div className="border border-black p-4">
+                <p className="font-bold mb-3">Participant Signature</p>
                 {/* Participant */}
                 <div>
                   <div className="flex justify-between items-start gap-4">
@@ -121,15 +122,16 @@ received.
                   </div>
                   <p className="mt-2 font-medium">Name: {getValue("participantName")}</p>
                 </div>
-                <p>
+                <p className="mt-3 text-sm italic">
                   I confirm that this agreement has been explained to the person
                   receiving the services (participant) and that they agree to this.
                 </p>
-              </>
+              </div>
             )}
 
             {getValue("signatureRole") === "Nominee" && (
-              <>
+              <div className="border border-black p-4">
+                <p className="font-bold mb-3">Nominee Signature</p>
                 {/* Nominee */}
                 <div>
                   <div className="flex justify-between items-start gap-4">
@@ -150,15 +152,16 @@ received.
                   </div>
                   <p className="mt-2 font-medium">Name: {getValue("nomineeName")}</p>
                 </div>
-                <p>
+                <p className="mt-3 text-sm italic">
                   I confirm that this agreement has been explained to the person
                   receiving the services (participant) and that they agree to this: [If signed by a Nominee:]
                 </p>
-              </>
+              </div>
             )}
 
             {/* Representative */}
-            <div className="border border-black p-4 mt-6">
+            <div className="border border-black p-4">
+              <p className="font-bold mb-3">Provider Signature</p>
               <div className="flex justify-between items-start gap-4">
                 <div className="flex flex-col">
                   <p className="mb-1 font-medium">Signature on behalf of Infinity Support WA:</p>
@@ -176,7 +179,6 @@ received.
                 </div>
               </div>
               <p className="mt-2 font-medium">Name: {getValue("represenativeName")}</p>
-
             </div>
           </div>
         </div>

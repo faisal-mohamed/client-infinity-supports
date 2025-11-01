@@ -14,7 +14,7 @@ import IndividualRiskAssessmentMatching from './IndividualRiskAssessment_MATCHIN
 import WelcomeForm from './welcome-form/page_FIXED';
 import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
 import MDT from './mdt/page'
-import ScheduleOfSupports from './schedule-of-supports/page_FIXED';
+import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
 import SASupportCoordination from './sa-support-coordination/page_FIXED';
 
 // Interface for PDF form components
