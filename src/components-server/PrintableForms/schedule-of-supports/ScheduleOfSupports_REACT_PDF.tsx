@@ -348,42 +348,81 @@ export default function ScheduleOfSupports({
           </Text>
         </View>
 
-        <View style={styles.signatureSection}>
+        <View style={{ marginTop: 15 }}>
           {formData?.signatureRole === "Participant" && (
-            <View style={{ border: '1 solid #000', padding: 8, marginBottom: 15 }}>
-              <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 6 }}>Participant Signature</Text>
+            <View style={{ border: '1 solid #000', padding: 10, marginBottom: 12 }}>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 8 }}>Participant Signature</Text>
               <View style={styles.signatureRow}>
-                <Text>Signature of participant: ________________________</Text>
-                <Text>Date: {formatDate(formData?.participantSignatureDate)}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of participant:</Text>
+                  {formData?.participantSignature ? (
+                    <Image 
+                      src={formData.participantSignature} 
+                      style={{ width: 200, height: 60, border: '1 solid #ccc', marginTop: 4 }} 
+                    />
+                  ) : (
+                    <Text>________________________</Text>
+                  )}
+                </View>
+                <View style={{ marginLeft: 15 }}>
+                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
+                  <Text style={{ fontSize: 10 }}>{formatDate(formData?.participantSignatureDate)}</Text>
+                </View>
               </View>
-              <Text>Name: {formData?.participantName || ''}</Text>
-              <Text style={{ marginTop: 8, fontSize: 9, fontStyle: 'italic' }}>
+              <Text style={{ marginTop: 8 }}>Name: {formData?.participantName || ''}</Text>
+              <Text style={{ marginTop: 10, fontSize: 9, fontStyle: 'italic' }}>
                 I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
               </Text>
             </View>
           )}
 
           {formData?.signatureRole === "Nominee" && (
-            <View style={{ border: '1 solid #000', padding: 8, marginBottom: 15 }}>
-              <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 6 }}>Nominee Signature</Text>
+            <View style={{ border: '1 solid #000', padding: 10, marginBottom: 12 }}>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 8 }}>Nominee Signature</Text>
               <View style={styles.signatureRow}>
-                <Text>Signature of Nominee: ________________________</Text>
-                <Text>Date: {formatDate(formData?.nomineeSignatureDate)}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of Nominee:</Text>
+                  {formData?.nomineeSignature ? (
+                    <Image 
+                      src={formData.nomineeSignature} 
+                      style={{ width: 200, height: 60, border: '1 solid #ccc', marginTop: 4 }} 
+                    />
+                  ) : (
+                    <Text>________________________</Text>
+                  )}
+                </View>
+                <View style={{ marginLeft: 15 }}>
+                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
+                  <Text style={{ fontSize: 10 }}>{formatDate(formData?.nomineeSignatureDate)}</Text>
+                </View>
               </View>
-              <Text>Name: {formData?.nomineeName || ''}</Text>
-              <Text style={{ marginTop: 8, fontSize: 9, fontStyle: 'italic' }}>
+              <Text style={{ marginTop: 8 }}>Name: {formData?.nomineeName || ''}</Text>
+              <Text style={{ marginTop: 10, fontSize: 9, fontStyle: 'italic' }}>
                 I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this: [If signed by a Nominee:]
               </Text>
             </View>
           )}
 
-          <View style={{ border: '1 solid #000', padding: 8 }}>
-            <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 6 }}>Provider Signature</Text>
+          <View style={{ border: '1 solid #000', padding: 10 }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 8 }}>Provider Signature</Text>
             <View style={styles.signatureRow}>
-              <Text>Signature on behalf of Infinity Support WA: ________________________</Text>
-              <Text>Date: {formatDate(formData?.representativeSignatureDate)}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature on behalf of Infinity Support WA:</Text>
+                {formData?.representativeSignature ? (
+                  <Image 
+                    src={formData.representativeSignature} 
+                    style={{ width: 200, height: 60, border: '1 solid #ccc', marginTop: 4 }} 
+                  />
+                ) : (
+                  <Text>________________________</Text>
+                )}
+              </View>
+              <View style={{ marginLeft: 15 }}>
+                <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
+                <Text style={{ fontSize: 10 }}>{formatDate(formData?.representativeSignatureDate)}</Text>
+              </View>
             </View>
-            <Text>Name: {formData?.represenativeName || ''}</Text>
+            <Text style={{ marginTop: 8 }}>Name: {formData?.represenativeName || ''}</Text>
           </View>
         </View>
 
