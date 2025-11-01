@@ -46,7 +46,7 @@ const getValue = (key: string): string => {
 
   return (
     <A4PageWrapper>
-      <div className="h-full flex flex-col px-6 py-10 font-sans" style={{ fontSize: '12px' }}>
+      <div className="h-full flex flex-col px-8 py-10 font-sans" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-10">
           <img
@@ -64,7 +64,7 @@ const getValue = (key: string): string => {
             <p>
               <input
                 type="checkbox"
-                className="mr-2"
+                className="mr-2 accent-blue-600"
                 checked={isChecked("providerTravelAgreement")}
                 readOnly
                 style={{verticalAlign: 'middle'}}

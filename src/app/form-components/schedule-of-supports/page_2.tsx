@@ -25,7 +25,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
 
   return (
     <A4PageWrapper>
-      <div className="flex flex-col h-full px-6 pt-6 pb-4 font-sans text-black leading-7" style={{ fontSize: '12px' }}>
+      <div className="flex flex-col h-full px-8 pt-6 pb-4 font-sans text-black leading-7" style={{ fontSize: '12px' }}>
         {/* Logo and Tagline */}
         <div className="flex flex-col items-center mb-6">
           <img
@@ -42,17 +42,17 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2">
-            <input type="checkbox" className="mr-2" checked={isChecked('transportOption1')} readOnly />
+            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption1')} readOnly />
             Transport Services provided to the value of <strong>{formData?.transportValue1 || '__________________'}</strong>. Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget. Anything over this amount will be: <strong>{formData?.transportOver1 || '__________________'}</strong>.
           </p>
 
           <p className="mb-2">
-            <input type="checkbox" className="mr-2" checked={isChecked('transportOption2')} readOnly />
+            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption2')} readOnly />
             For Transport Services provided to the value of <strong>{formData?.transportValue2 || '____________'}</strong>. Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget. Anything over this amount will be: <strong>{formData?.transportOver2 || '__________________'}</strong>.
           </p>
 
           <p className="mb-2">
-            <input type="checkbox" className="mr-2" checked={isChecked('transportOption3')} readOnly />
+            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption3')} readOnly />
             For any transport services provided. Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.
           </p>
 
@@ -62,7 +62,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2">
-            <input type="checkbox" className="mr-2" checked={isChecked('establishmentFeeAgreement')} readOnly />
+            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('establishmentFeeAgreement')} readOnly />
             If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
           </p>
 

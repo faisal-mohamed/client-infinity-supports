@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 30,
+    padding: 40,
     fontFamily: 'Helvetica',
     fontSize: 10,
   },
@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
   },
   table: {
     marginBottom: 15,
+    marginHorizontal: 5,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -72,15 +73,15 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 8,
     height: 8,
-    border: '1 solid #000',
+    border: '1 solid #666',
     marginRight: 6,
     marginTop: 2,
   },
   checkedBox: {
     width: 8,
     height: 8,
-    border: '1 solid #000',
-    backgroundColor: '#000',
+    border: '1 solidrgb(0, 0, 0)',
+    backgroundColor: '#0066cc',
     marginRight: 6,
     marginTop: 2,
   },

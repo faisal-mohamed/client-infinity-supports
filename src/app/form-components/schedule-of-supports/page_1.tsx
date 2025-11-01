@@ -39,7 +39,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
   return (
     <A4PageWrapper>
-      <div className="w-full h-full flex flex-col px-6 pt-6 pb-2 font-sans" style={{ fontSize: '12px' }}>
+      <div className="w-full h-full flex flex-col px-8 pt-6 pb-2 font-sans" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-2">
           <img
@@ -64,7 +64,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         </div>
 
         {/* Table container - fills remaining height */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col px-2">
           <table className="table-fixed border border-black w-full border-collapse" style={{ fontSize: '11px' }}>
             <thead>
               <tr>
