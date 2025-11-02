@@ -11,7 +11,7 @@ import SADeliverySupportsMatching from './SADeliverySupports_MATCHING'; // Dynam
 import ParticipantRiskAssessmentPDF from './participant-risk-assessment/ParticipantRiskAssessmentPDF'; // Server-side PDF component
 import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict form layout
 import IndividualRiskAssessmentMatching from './IndividualRiskAssessment_MATCHING';
-import WelcomeForm from './welcome-form/page_FIXED';
+import WelcomeFormMatching from './WelcomeForm_MATCHING';
 import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
 import MDT from './mdt/page'
 import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
@@ -64,7 +64,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: "welcome_form",
-    component: WelcomeForm,
+    component: WelcomeFormMatching, // NEW: Unified PDF with all 26 pages
     name: "Welcome Form"
   },
   {

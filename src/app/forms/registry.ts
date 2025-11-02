@@ -25,7 +25,9 @@ import IndividualRiskAssessmentView from "@/components/individual-risk-assessmen
 import IndividualRiskAssessmentEdit from "../components/forms/individual-risk-assessment/Edit";
 
 import WelcomeFormView from "@/components/welcome-form/View";
+import WelcomeFormDynamic from "../components/forms/welcome-form/WelcomeFormDynamic";
 import WelcomeFormEdit from "../components/forms/welcome-form/Edit";
+import WelcomeForm_MATCHING from "../../components-server/PrintableForms/WelcomeForm_MATCHING";
 
 import ScheduleForSupportEdit from "../components/forms/support-action-plan/Edit";
 import SupportActionPlanView from "../components/forms/support-action-plan/SupportActionPlanView";
@@ -208,8 +210,9 @@ const formRegistry: Record<string, FormRegistryItem> = {
   welcome_form: {
     key: "welcome_form",
     name: "Welcome Form",
-    viewComponent: WelcomeFormView,
+    viewComponent: WelcomeFormDynamic, // NEW: Dynamic view with auto-pagination
     editComponent: WelcomeFormEdit,
+    pdfComponent: WelcomeForm_MATCHING, // NEW: Unified PDF download
     signatures: [
       {
         id: "client_signature",
