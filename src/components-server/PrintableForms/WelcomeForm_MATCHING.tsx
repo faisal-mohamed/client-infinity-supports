@@ -447,26 +447,20 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
   console.log('📄 [BROWSER] Cover page found:', !!coverPageBlock);
   console.log('📝 [BROWSER] Content blocks:', contentBlocks.length);
 
-  // Group content blocks into pages (simple approach - 5-6 blocks per page)
+  // Group content blocks into fewer pages with better space utilization
   const contentPages: WelcomeSchemaBlock[][] = [];
   let currentPage: WelcomeSchemaBlock[] = [];
-  let currentPageHeight = 0;
-  const maxPageHeight = 800; // Approximate max content height per page
+  const blocksPerPage = 8; // More blocks per page to reduce empty space
 
   contentBlocks.forEach((block, index) => {
-    const estimatedHeight = block.estimatedHeight || 100;
-    
-    // Start new page if current page would be too full
-    if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+    // Start new page only when we have enough blocks
+    if (currentPage.length >= blocksPerPage) {
       contentPages.push([...currentPage]);
       currentPage = [];
-      currentPageHeight = 0;
     }
     
     currentPage.push(block);
-    currentPageHeight += estimatedHeight;
-    
-    console.log(`📄 [BROWSER] Block ${index} (${block.type}) added to page ${contentPages.length + 1}, height: ${estimatedHeight}`);
+    console.log(`📄 [BROWSER] Block ${index} (${block.type}) added to page ${contentPages.length + 1}`);
   });
 
   // Add final page if it has content
@@ -478,43 +472,6 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
 
   return (
     <Document>
-      {/* DEBUG PAGE - Shows all path information */}
-      <Page size="A4" style={{ padding: 30, fontSize: 10 }}>
-        <Text style={{ fontSize: 16, marginBottom: 20, fontWeight: 'bold' }}>
-          🔍 WELCOME FORM PDF DEBUG INFO
-        </Text>
-        
-        <Text style={{ marginBottom: 10 }}>
-          Using Base64 Images from API (like other working PDFs)
-        </Text>
-        
-        <Text style={{ marginBottom: 10 }}>
-          Schema Blocks: {debugInfo.schemaBlocks}
-        </Text>
-        
-        <Text style={{ marginBottom: 10 }}>
-          Form Data Keys: {debugInfo.formDataKeys.join(', ')}
-        </Text>
-        
-        <Text style={{ marginBottom: 20 }}>
-          Settings Keys: {debugInfo.settingsKeys.join(', ')}
-        </Text>
-        
-        <Text style={{ fontSize: 14, marginBottom: 10, fontWeight: 'bold' }}>
-          IMAGE PATH RESOLUTION:
-        </Text>
-        
-        {debugInfo.imagePaths.map((pathInfo, index) => (
-          <Text key={index} style={{ marginBottom: 5, fontSize: 9 }}>
-            {pathInfo}
-          </Text>
-        ))}
-        
-        <Text style={{ marginTop: 20, fontSize: 12, color: 'blue' }}>
-          Using base64 images from API like SA Delivery and other working PDFs
-        </Text>
-      </Page>
-
       {/* Cover Page */}
       {coverPageBlock && (
         <Page size="A4" style={styles.coverPage}>
