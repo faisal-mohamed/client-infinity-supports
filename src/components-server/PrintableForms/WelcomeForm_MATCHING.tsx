@@ -57,9 +57,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    fontSize: 9,
     borderTop: '1 solid #d1d5db',
-    paddingTop: 12,
-    fontSize: 10,
+    paddingTop: 6,
+  },
+  footerText: {
+    fontSize: 9,
     color: '#6b7280',
   },
   coverTitle: {
@@ -470,6 +473,12 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
 
   console.log(`📚 [BROWSER] Total content pages: ${contentPages.length}`);
 
+  // Footer values (mirror settings API keys like SA Delivery)
+  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  const footerId = settings?.welcome_form || '';
+  const footerDate = formatDate(settings?.review_date || '');
+  console.log('[PDF Welcome Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) });
+
   return (
     <Document>
       {/* Cover Page */}
@@ -506,38 +515,35 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
           </View>
 
           <View style={styles.footer}>
-            <Text>Website: {settings?.company_website || ''}</Text>
-            <Text>{settings?.welcome_form || ''}</Text>
-            <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
+            <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+            <Text style={styles.footerText}>{footerId}</Text>
+            <Text style={styles.footerText}>Review Date: {footerDate}</Text>
           </View>
         </Page>
       )}
 
-      {/* Content Pages */}
-      {contentPages.map((pageBlocks, pageIndex) => (
-        <Page key={`content-page-${pageIndex}`} size="A4" style={styles.page}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
-          </View>
+      {/* Single Content Page with Fixed Footer - Like SA Delivery */}
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
+        </View>
 
-          {/* Content */}
-          <View>
-            {pageBlocks.map((block, blockIndex) => {
-              const globalIndex = contentBlocks.indexOf(block);
-              console.log(`🎨 [WelcomeForm_MATCHING] Page ${pageIndex + 1}, rendering block ${globalIndex}: ${block.type}`);
-              return renderBlockContent(block, globalIndex);
-            })}
-          </View>
+        {/* Content - All blocks in one page with automatic page breaks */}
+        <View>
+          {contentBlocks.map((block, blockIndex) => {
+            console.log(`🎨 [WelcomeForm_MATCHING] Rendering block ${blockIndex}: ${block.type}`);
+            return renderBlockContent(block, blockIndex);
+          })}
+        </View>
 
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text>Website: {settings?.company_website || ''}</Text>
-            <Text>{settings?.welcome_form || ''}</Text>
-            <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
-          </View>
-        </Page>
-      ))}
+        {/* Fixed Footer on all pages - Like SA Delivery */}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+          <Text style={styles.footerText}>{footerId}</Text>
+          <Text style={styles.footerText}>Review Date: {footerDate}</Text>
+        </View>
+      </Page>
     </Document>
   );
 };

@@ -7,6 +7,22 @@ import { welcomeFormSchema, WelcomeSchemaBlock, WELCOME_PAGE_BUDGET, WELCOME_BLO
 // Dynamic Welcome Form View - Multiple A4 pages with auto page breaks
 const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, settings, images }) => {
   
+  const formatDate = (value: string) => {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    return value;
+  };
+
+  // Footer values (mirror settings API keys like SA Delivery)
+  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  const footerId = settings?.welcome_form || '';
+  const footerDate = formatDate(settings?.review_date || '');
+  console.log('[View Welcome Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) });
+  
   // Page layout constants (matching SA Delivery pattern)
   const PAGE_BUDGET = 1000; // Available content height per page
   const TOP_SPACER = 24; // Space after header
@@ -36,16 +52,6 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
     }
 
     return rawValue ?? "";
-  };
-
-  const formatDate = (value: string) => {
-    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      const parsed = parseISO(value);
-      if (isValid(parsed)) {
-        return format(parsed, "dd-MM-yyyy");
-      }
-    }
-    return value;
   };
 
   // Measurement refs for accurate height calculation
@@ -165,9 +171,9 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
       
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 pt-2 border-t">
-        <span>Website: {settings?.company_website || ''}</span>
-        <span>{settings?.welcome_form || ''}</span>
-        <span>Review Date: {formatDate(settings?.review_date || '')}</span>
+        <span>Website: {footerWebsite}</span>
+        <span>{footerId}</span>
+        <span>Review Date: {footerDate}</span>
       </div>
     </div>
   );
