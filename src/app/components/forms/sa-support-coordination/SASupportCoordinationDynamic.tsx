@@ -2,14 +2,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO, isValid } from "date-fns";
-import { saSupportCoordinationSchema, calculateBlockHeight, SchemaBlock } from './schema';
 
-// Dynamic SA Support Coordination View - Schema-based with content-height pagination
+// Dynamic SA Support Coordination View - Matches Model PDF with Dynamic Pagination
 const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings, isReadOnly = true }) => {
   
-  // Constants for pagination - MATCHES SA Delivery form
+// Constants for pagination
   const PAGE_BUDGET = 1000; // Available height per page in pixels (1123px - header - footer - padding)
-  const BLOCK_SPACING = 16; // Space between blocks
+const BLOCK_SPACING = 16; // Space between blocks
   const SAFETY_BUFFER = 100; // Safety margin for header + footer
   
   const commonFieldMapping: Record<string, string> = {
@@ -61,7 +60,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
     return value;
   };
 
-  // Support categories and costs (from reference)
+  // Support categories and costs (from model PDF)
   const supportCategories = [
     "07_001_0106_8_3 Level 1 Support Connection",
     "07_002_0106_8_3 Level 2 Support Coordination", 
@@ -69,8 +68,9 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
   ];
   const costPerHr = ["$74.63", "$100.14", "$98.30"];
 
-  // Content blocks for the form - GRANULAR BLOCKS for better page filling
+  // Content blocks for the form - GRANULAR BLOCKS matching Model PDF order
   const contentBlocks = [
+    // ===== SECTION 1 =====
     // Block 1: Header + Date
     {
       type: 'header_date',
@@ -82,7 +82,6 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
             <p className="font-bold underline text-sm mt-1">SECTION 1</p>
           </div>
           
-          {/* Date Field */}
           <div className="mb-4">
             <span className="font-bold text-xs">Date:</span>
             <div className="border-b border-black inline-block ml-2 min-w-[200px] text-xs">
@@ -368,9 +367,9 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <tr className="bg-gray-200">
                 <th className="border border-black p-2 text-left font-bold">Support Category</th>
                 <th className="border border-black p-2 text-center font-bold">Weeks</th>
-                <th className="border border-black p-2 text-center font-bold">Total Hours</th>
-                <th className="border border-black p-2 text-center font-bold">Cost per hr</th>
-                <th className="border border-black p-2 text-center font-bold">Total Cost</th>
+                <th className="border border-black p-2 text-center font-bold">Total<br/>Hours</th>
+                <th className="border border-black p-2 text-center font-bold">Cost per<br/>hr</th>
+                <th className="border border-black p-2 text-center font-bold">Total<br/>Cost</th>
               </tr>
             </thead>
             <tbody>
@@ -407,13 +406,12 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
         <div className="mb-4">
           <p className="font-bold text-sm mb-2 underline">SCHEDULE OF SUPPORTS</p>
           <p className="text-xs leading-relaxed mb-2">
-            All figures quoted below! Should read all figures quoted above are based on NDIS. 
-            Infinity Supports WA agrees to provide the individual named in Section 1 with the following Support Coordination. 
-            The supports and their prices are set out in the Schedule of Supports below (if NDIS). All supports are as per 
-            the NDIS Price Guide and are GST inclusive (if applicable) and include the cost of providing the supports. 
-            All figures quoted below are based on NDIS pricing and the individual's NDIS plan at the time of agreement. 
-            Prices, funding totals and hours will be adjusted periodically to reflect changes to NDIS pricing and the 
-            individual's NDIS plan.
+            All figures quoted above are based on NDIS pricing. Infinity Supports WA agrees to provide the individual 
+            named in Section 1 with the following Support Coordination. The supports and their prices are set out in 
+            the Schedule of Supports above. All supports are as per the NDIS Price Guide and are GST inclusive 
+            (if applicable) and include the cost of providing the supports. All figures quoted are based on NDIS 
+            pricing and the individual's NDIS plan at the time of agreement. Prices, funding totals and hours will 
+            be adjusted periodically to reflect changes to NDIS pricing and the individual's NDIS plan.
           </p>
           
           <p className="text-xs leading-relaxed mb-4">
@@ -421,22 +419,21 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
             Service Agreement. The Parties agree that any changes to this Service Agreement will be in writing, signed, 
             and dated by the Parties.
           </p>
-        </div>
+            </div>
       )
     },
 
-    // Block 12: Conflict of Interest Header + Declaration
+    // Block 12: Conflict of Interest Declaration
     {
       type: 'conflict_declaration',
-      height: 100,
+      height: 60,
       content: () => (
         <div className="mb-4">
-          <p className="font-bold text-sm mb-2 mt-4">CONFLICT OF INTEREST</p>
-          <p className="font-bold text-xs mb-2">Conflict of Interest Declaration:</p>
-            <div className="border border-black p-2 min-h-[60px] text-xs">
-              {getFieldValue('conflictDeclaration') || ''}
-            </div>
-        </div>
+          <p className="font-bold text-sm mb-2 underline">CONFLICT OF INTEREST</p>
+          <p className="text-xs leading-relaxed">
+            I <span className="border-b-2 border-black px-2 font-semibold">{getFieldValue('conflictDeclaration') || '____________________'}</span> have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen. I have been given information on the following companies.
+          </p>
+              </div>
       )
     },
 
@@ -503,85 +500,11 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       )
     },
 
-    // Block 18: Support Coordination Services
+    // Block 18: Signed/Print Name/Date Table
     {
-      type: 'support_services',
-      height: 200,
+      type: 'conflict_signature_table',
+      height: 100,
       content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Support Coordination Services Include:</h3>
-          <div className="space-y-2">
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getFieldValue('supportCoordinationGeneral') === 'yes'} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-0.5"
-                aria-label="General support coordination"
-              />
-              <span className="text-xs leading-relaxed">
-                General support coordination to help you understand and implement your NDIS plan
-              </span>
-            </div>
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getFieldValue('providerLiaison') === 'yes'} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-0.5"
-                aria-label="Provider liaison"
-              />
-              <span className="text-xs leading-relaxed">
-                Liaison with service providers to ensure quality service delivery
-              </span>
-            </div>
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getFieldValue('planReview') === 'yes'} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-0.5"
-                aria-label="Plan review"
-              />
-              <span className="text-xs leading-relaxed">
-                Assistance with plan reviews and goal setting
-              </span>
-            </div>
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getFieldValue('crisisSupport') === 'yes'} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-0.5"
-                aria-label="Crisis support"
-              />
-              <span className="text-xs leading-relaxed">
-                Crisis support and problem-solving assistance
-              </span>
-            </div>
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getFieldValue('capacityBuilding') === 'yes'} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-0.5"
-                aria-label="Capacity building"
-              />
-              <span className="text-xs leading-relaxed">
-                Capacity building to help you become more independent
-              </span>
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    // Block 19: Section 3 - Funding Management
-    {
-      type: 'section3_funding',
-      height: 300,
-      content: () => (
-        <div className="mb-6">
           <table className="w-full border border-black border-collapse text-xs mb-4">
             <tbody>
               <tr>
@@ -598,51 +521,97 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </tr>
             </tbody>
           </table>
+      )
+    },
+
+    // Block 19: ENDING THIS SERVICE AGREEMENT
+    {
+      type: 'ending_agreement',
+      height: 100,
+      content: () => (
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">ENDING THIS SERVICE AGREEMENT</h3>
+          <p className="text-xs leading-relaxed mb-2">
+            Should either Party wishes to end this Service Agreement before the cease date they must give 2 weeks' notice in writing.
+          </p>
+          <p className="text-xs leading-relaxed">
+            If either Party seriously breaches this Service Agreement the requirement of notice will be waived.
+          </p>
+        </div>
+      )
+    },
+
+    // Block 20: SERVICE PAYMENTS (NDIS)
+    {
+      type: 'service_payments',
+      height: 280,
+      content: () => (
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">SERVICE PAYMENTS (NDIS)</h3>
 
           <div className="space-y-2">
-            <div className="flex items-center">
+            <div className="flex items-start">
               <input 
                 type="checkbox" 
                 checked={getFieldValue('selfManaged') === 'yes'} 
                 readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600"
+                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Self-managed funding"
               />
-              <span className="text-xs">Self-managed funding</span>
+              <span className="text-xs leading-relaxed">
+                The Individual has chosen to self-manage the funding for NDIS supports provided under this Service Agreement. After providing those supports, <span className="font-bold text-red-600">Infinity Supports WA</span> will send the Individual an invoice for those supports for the Individual to pay. The Individual will pay the invoice within 7 days.
+              </span>
             </div>
-            <div className="flex items-center">
+
+            <div className="flex items-start">
               <input 
                 type="checkbox" 
                 checked={getFieldValue('nomineeManaged') === 'yes'} 
                 readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600"
+                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Nominee managed funding"
               />
-              <span className="text-xs">Nominee managed funding</span>
+              <span className="text-xs leading-relaxed">
+                The Individual's Nominee manages the funding for supports provided under this Service Agreement. After providing those supports, <span className="font-bold text-red-600">Infinity Supports WA</span> will send the Individual's Nominee an invoice for those supports for the Individual's Nominee to pay. The Individual's Nominee will pay the invoice within 7 days.
+              </span>
             </div>
-            <div className="flex items-center">
+
+            <div className="flex items-start">
               <input 
                 type="checkbox" 
                 checked={getFieldValue('ndiaManaged') === 'yes'} 
                 readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600"
+                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="NDIA managed funding"
               />
-              <span className="text-xs">NDIA managed funding</span>
+              <span className="text-xs leading-relaxed">
+                The Individual has nominated the NDIA to manage the funding for supports provided under this Service Agreement. After providing those supports, <span className="font-bold text-red-600">Infinity Supports WA</span> will claim payment for those supports from the NDIA.
+              </span>
             </div>
-            <div className="flex items-center">
+
+            <div className="flex items-start">
               <input 
                 type="checkbox" 
                 checked={getFieldValue('planManagerManaged') === 'yes'} 
                 readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600"
+                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Plan Manager managed funding"
               />
-              <span className="text-xs">Plan Manager managed funding</span>
+              <span className="text-xs leading-relaxed">
+                The Individual has nominated the Plan Management Provider to manage the funding for NDIS supports provided under this Service Agreement. After providing those services, <span className="font-bold text-red-600">Infinity Supports WA</span> will claim payment for those services from <span className="underline">Registered Plan Management Provider</span>.
+              </span>
             </div>
           </div>
+        </div>
+      )
+    },
 
-          <table className="w-full border border-black border-collapse text-xs mt-4">
+    // Block 21: Plan Manager Details
+    {
+      type: 'plan_manager_details',
+      height: 70,
+      content: () => (
+        <table className="w-full border border-black border-collapse text-xs mb-4">
             <tbody>
               <tr>
                 <td className="border border-black p-2 font-bold w-1/3">Plan Manager Name:</td>
@@ -654,126 +623,202 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </tr>
             </tbody>
           </table>
-        </div>
       )
     },
 
-    // Block 20: Service Delivery
+    // Block 22: GOODS AND SERVICES TAX (GST) / NDIS
     {
-      type: 'terms_1',
-      height: 200,
+      type: 'gst_section',
+      height: 100,
       content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Service Delivery</h3>
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">GOODS AND SERVICES TAX (GST) / NDIS</h3>
           <p className="text-xs leading-relaxed">
-            All services will be delivered in accordance with NDIS Practice Standards and Quality Indicators. 
-            We are committed to providing safe, effective, and person-centered support coordination services 
-            that meet your individual needs and goals.
+            For the purposes of GST legislation, the Parties confirm that a supply of supports under this Service Agreement is a supply of one or more of the reasonable and necessary supports specified in the statement included, under subsection 33(2) of the National Disability Insurance Scheme Act 2013 (NDIS Act), in the Participant's NDIS plan currently in effect under section 37 of the NDIS Act.
           </p>
         </div>
       )
     },
 
-    // Block 21: Frequency and Duration
+    // Block 23: RESPONSIBILITIES OF INFINITY SUPPORTS WA
     {
-      type: 'frequency_duration',
+      type: 'responsibilities_provider',
+      height: 300,
+      content: () => (
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">RESPONSIBILITIES OF INFINITY SUPPORTS WA</h3>
+          <p className="text-xs mb-2"><span className="font-bold text-red-600">Infinity Supports WA</span> agrees to:</p>
+          <ul className="list-disc list-inside text-xs leading-relaxed space-y-1 ml-2">
+            <li>Understand and use your NDIS plan to pursue your goals</li>
+            <li>Review the provision of <span className="underline">supports</span> with the Individual in line with the applicable requirements</li>
+            <li>Connect you with providers, community, mainstream and the government services</li>
+            <li>Source information regarding Allied Health professionals</li>
+            <li>Build your confidence and skills to use and coordinate your supports</li>
+            <li>Communicate openly and honestly in a timely manner</li>
+            <li>Treat the Individual with courtesy and respect</li>
+            <li>Consult the Individual on decisions about how supports are provided</li>
+            <li>Give the Individual information about managing any complaints or disagreements and details of <span className="font-bold text-red-600">Infinity Supports WA</span> cancellation policy (if relevant)</li>
+            <li>Listen to the Individual's feedback and resolve problems in a timely manner</li>
+            <li>Give the Individual the required notice if <span className="font-bold text-red-600">Infinity Supports WA</span> needs to end the Service Agreement (see 'Ending this Service Agreement' below for more information)</li>
+            <li>Protect the Individual's privacy and confidential information</li>
+            <li>Provide <span className="underline">supports</span> in a manner consistent with all relevant laws, including but not limited to, the National Disability Insurance Scheme Act 2013 and rules, and the Australian Consumer Law; keep accurate records on the supports provided to the Individuals</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24: RESPONSIBILITIES OF INDIVIDUAL
+    {
+      type: 'responsibilities_individual',
+      height: 220,
+      content: () => (
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">RESPONSIBILITIES OF INDIVIDUAL / INDIVIDUAL'S REPRESENTATIVE</h3>
+          <p className="text-xs mb-2">agrees to:</p>
+          <ul className="list-disc list-inside text-xs leading-relaxed space-y-1 ml-2">
+            <li>Inform <span className="font-bold text-red-600">Infinity Supports WA</span> about how they wish the services to be delivered to meet the Individual's needs</li>
+            <li>Treat <span className="font-bold text-red-600">Infinity Supports WA</span> with courtesy and respect</li>
+            <li>Talk to <span className="font-bold text-red-600">Infinity Supports WA</span> if the Individual has any concerns about the services being provided</li>
+            <li>Give <span className="font-bold text-red-600">Infinity Supports WA</span> the required notice if the Individual needs to end the Service Agreement (see 'Ending this Service Agreement' below for more information), and</li>
+            <li>Let the <span className="font-bold text-red-600">Infinity Supports WA</span> know immediately if the Individual's plan/funding is suspended or replaced by a new plan or the Individual's funding ceases</li>
+            <li><span className="underline">Will update</span> <span className="font-bold text-red-600">Infinity Supports WA</span> of any changes in circumstances including any changes to living arrangements including addresses, medication, behaviour, contact details or health of the individual which may affect service provision</li>
+            <li>The Individual's plan is expected to remain in effect during the period the services are provided; and will immediately notify <span className="font-bold text-red-600">Infinity Supports WA</span> if the Individual's Plan is replaced by a new plan or the Individual's funding ceases</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24b: FEEDBACK, COMPLAINTS AND DISPUTES
+    {
+      type: 'complaints_disputes',
       height: 150,
       content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Frequency and Duration</h3>
-          <div className="space-y-2">
-            <div>
-              <p className="font-bold text-xs mb-1">Frequency of support coordination sessions:</p>
-              <div className="border-b border-black min-h-[20px] text-xs">
-                {getFieldValue('frequency') || ''}
-              </div>
-            </div>
-            <div>
-              <p className="font-bold text-xs mb-1">Expected duration of engagement:</p>
-              <div className="border-b border-black min-h-[20px] text-xs">
-                {getFieldValue('duration') || ''}
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    },
-
-    {
-      type: 'pricing',
-      height: 120,
-      content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Pricing</h3>
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">FEEDBACK, COMPLAINTS AND DISPUTES</h3>
+          <p className="text-xs leading-relaxed mb-3">
+            If the Individual wishes to give <span className="font-bold text-red-600">Infinity Supports WA</span> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to <span className="underline">Sharon Mays</span> Director or <span className="underline">Anand Sekar</span> Director 0493282661; Email: <span className="underline">admin@infinitysupportswa.org</span>.
+          </p>
           <p className="text-xs leading-relaxed">
-            All support coordination is charged in accordance with the current NDIS Price Guide. 
-            Prices are subject to change in line with NDIS pricing updates. We will notify you of 
-            any price changes that may affect your service agreement.
+            If the <span className="underline">Individual</span> is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <span className="underline">www.ndis.gov.au</span> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <span className="underline">www.disability.wa.gov.au</span>
           </p>
         </div>
       )
     },
 
+    // Block 24c: EMERGENCY PREPAREDNESS - Part 1 (Header, Intro, Training)
     {
-      type: 'terms_2', 
-      height: 150,
+      type: 'emergency_prep_part1',
+      height: 240,
       content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Participant Rights and Responsibilities</h3>
+        <div className="mb-4">
+          <h3 className="font-bold text-sm mb-2 underline">EMERGENCY PREPAREDNESS</h3>
+          
+          <p className="text-xs leading-relaxed mb-2">
+            <span className="font-bold text-red-600">Infinity Supports WA</span>, will develop a to respond to any unplanned event that can cause:
+          </p>
+          
+          <ul className="list-disc list-inside text-xs leading-relaxed space-y-1 ml-4 mb-3">
+            <li>Deaths; or</li>
+            <li>Significant injuries to employees or occupants; and/or</li>
+            <li>Shut down the business; and/or</li>
+            <li>Disruption to operations; and/or</li>
+            <li>Physical or environmental damage</li>
+          </ul>
+          
+          <p className="text-xs leading-relaxed mb-3">
+            For your peace of mind, all our support workers are trained on how to respond in case of an emergency, and they will receive a copy of your Individual Disaster Management Plan so that they are fully aware of your health condition and the required action plans in case of an emergency.
+          </p>
+          
+          <p className="text-xs leading-relaxed mb-3">
+            Individual Disaster Management Plan and Risk Assessment will be developed and signed by <span className="font-bold text-red-600">Infinity Supports WA</span> and the Individual and/or representative. Providers' Responsibility related to participants Individual Disaster Management Plan and Risk Assessment is subject to 73G requirements.
+          </p>
+          
           <p className="text-xs leading-relaxed">
-            You have the right to receive services that are safe, respectful, and of high quality. 
-            You also have responsibilities including treating staff with respect, providing accurate 
-            information, and giving reasonable notice for cancellations.
+            It is the provider's responsibility to document the assessment of the participant's risk factors using Intake Form, Support Plan, and Participant, Home, and Community Risk Assessment forms.
           </p>
         </div>
       )
     },
 
+    // Block 24d: EMERGENCY PREP - Bullet 1
     {
-      type: 'cancellation',
-      height: 120,
+      type: 'emergency_prep_bullet1',
+      height: 35,
       content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Cancellation Policy</h3>
+        <div className="mb-2">
+          <ul className="list-disc list-inside text-xs leading-relaxed ml-4">
+            <li>A copy of the Individual Disaster Management Plan and Risk Assessment will be provided to the participant and another copy should be kept in their file.</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24e: EMERGENCY PREP - Bullet 2
+    {
+      type: 'emergency_prep_bullet2',
+      height: 60,
+      content: () => (
+        <div className="mb-2">
+          <ul className="list-disc list-inside text-xs leading-relaxed ml-4">
+            <li>The Individual Disaster Management Plan and Risk Assessment will be reviewed every year or when the participant's circumstances change. If there is any update on the Individual Disaster Management Plan and Risk Assessment, a copy of the new Individual Disaster Management Plan and Risk Assessment will be provided to the client and a copy will be kept in their folder.</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24f: EMERGENCY PREP - Bullet 3
+    {
+      type: 'emergency_prep_bullet3',
+      height: 35,
+      content: () => (
+        <div className="mb-2">
+          <ul className="list-disc list-inside text-xs leading-relaxed ml-4">
+            <li>It is the provider's responsibility to mention the rights and responsibilities of the participant and the provider on the service agreement.</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24g: EMERGENCY PREP - Bullet 4
+    {
+      type: 'emergency_prep_bullet4',
+      height: 35,
+      content: () => (
+        <div className="mb-2">
+          <ul className="list-disc list-inside text-xs leading-relaxed ml-4">
+            <li>Using the Human Resource Management process will assist the provider to ensure that the participant's support worker has been screened.</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24h: EMERGENCY PREP - Bullet 5
+    {
+      type: 'emergency_prep_bullet5',
+      height: 40,
+      content: () => (
+        <div className="mb-2">
+          <ul className="list-disc list-inside text-xs leading-relaxed ml-4">
+            <li>Participants who are subject to this requirement will be registered on the High-Risk Participant Register and some specific support workers will be delegated to those who are registered on this form.</li>
+          </ul>
+        </div>
+      )
+    },
+
+    // Block 24i: EMERGENCY PREP - NDIS Audit
+    {
+      type: 'emergency_prep_audit',
+      height: 50,
+      content: () => (
+        <div className="mb-4">
           <p className="text-xs leading-relaxed">
-            We require at least 2 business days notice for cancellations. Cancellations made with 
-            less notice may be charged in accordance with NDIS guidelines.
+            <span className="font-bold text-red-600">Infinity Supports WA PTY Ltd</span> will be required to complete an audit with NDIS, as a participant you may be asked to provide comments and feedback regarding your service. This is an OPT IN or OUT option to be completed in the following section.
           </p>
         </div>
       )
     },
 
-    {
-      type: 'complaints',
-      height: 130,
-      content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Complaints and Feedback</h3>
-          <p className="text-xs leading-relaxed">
-            We welcome feedback and take all complaints seriously. You can raise concerns with your 
-            support coordinator, our management team, or external bodies such as the NDIS Quality and 
-            Safeguards Commission.
-          </p>
-        </div>
-      )
-    },
-
-    {
-      type: 'terms_3',
-      height: 150, 
-      content: () => (
-        <div className="mb-6">
-          <h3 className="font-bold text-sm mb-3">Privacy and Confidentiality</h3>
-          <p className="text-xs leading-relaxed">
-            We are committed to protecting your privacy and maintaining confidentiality of your personal 
-            information in accordance with privacy legislation and NDIS requirements. Information will 
-            only be shared with your consent or as required by law.
-          </p>
-        </div>
-      )
-    },
-
-    // Block: Consent Table
+    // Block 27: Consent Table
     {
       type: 'consent_table',
       height: 220,
@@ -818,8 +863,15 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
 
               <tr>
                 <td className="border border-black p-3 align-top">
-                  Hereby give consent to Infinity Supports WA to obtain and share relevant documented 
-                  information with other service providers and professionals involved in my care.
+                  Hereby give consent to Infinity Supports WA to obtain & share relevant documented 
+                  information regarding my service. This may include but not limited to:
+                  <ul className="list-disc list-inside ml-4 mt-1">
+                    <li>Legal Guardian/Next of Kin</li>
+                    <li>GP/health care professional</li>
+                    <li>Therapy providers</li>
+                    <li>Plan Managers</li>
+                    <li>Others: <span className="border-b border-black inline-block min-w-[100px]">{getFieldValue('consentInfoShareOthers') || ''}</span></li>
+                  </ul>
                 </td>
                 <td className="border border-black p-3 align-top">
                   <div className="space-y-1">
@@ -847,7 +899,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
 
               <tr>
                 <td className="border border-black p-3 align-top">
-                  Hereby give consent to take part in an NDIS audit and document review if required.
+                  I consent to take part in a NDIS audit and my documents be reviewed as required.
                 </td>
                 <td className="border border-black p-3 align-top">
                   <div className="space-y-1">
@@ -878,7 +930,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       )
     },
 
-    // Block: Participant Signature (separate block)
+    // Block 28: Participant Signature
     {
       type: 'signature_participant',
       height: 140,
@@ -888,7 +940,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
             <h4 className="font-bold text-sm mb-3">Participant Signature</h4>
             <div className="grid grid-cols-2 gap-4 mb-2">
               <div>
-                <p className="text-xs mb-1">Signature:</p>
+                <p className="text-xs mb-1">Signature of participant:</p>
                 {getFieldValue('participantSignature') ? (
                   <img 
                     src={getFieldValue('participantSignature')} 
@@ -907,12 +959,15 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </div>
             </div>
             <p className="text-xs">Name: {getFieldValue('participantName') || ''}</p>
+            <p className="text-xs italic mt-2">
+              I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
+            </p>
           </div>
         </div>
       )
     },
 
-    // Block: Nominee Signature (separate block)
+    // Block 29: Nominee Signature
     {
       type: 'signature_nominee',
       height: 150,
@@ -925,7 +980,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
             </p>
             <div className="grid grid-cols-2 gap-4 mb-2">
               <div>
-                <p className="text-xs mb-1">Signature:</p>
+                <p className="text-xs mb-1">Signature of Nominee:</p>
                 {getFieldValue('nomineeSignature') ? (
                   <img 
                     src={getFieldValue('nomineeSignature')} 
@@ -949,7 +1004,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       )
     },
 
-    // Block: Provider Signature (separate block)
+    // Block 30: Provider Signature
     {
       type: 'signature_provider',
       height: 130,
@@ -1027,13 +1082,12 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
     return pageGroups;
   }, [measuredHeights, PAGE_BUDGET, SAFETY_BUFFER, BLOCK_SPACING]);
 
-  // Measure actual heights after render - wait for all content to be fully rendered
+  // Measure actual heights after render
   useEffect(() => {
     const measureHeights = () => {
     const heights = contentBlocks.map((_, i) => {
       const el = measureRefs.current[i];
         if (el) {
-          // Get the actual rendered height including all children
           const actualHeight = el.scrollHeight || el.offsetHeight;
           return actualHeight > 0 ? actualHeight : contentBlocks[i].height;
         }
@@ -1051,16 +1105,12 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      setMeasuredHeights(null); // Reset to trigger re-measurement
+      setMeasuredHeights(null);
     };
 
-    // Set initial width
     setWindowWidth(window.innerWidth);
-
-    // Add resize listener
     window.addEventListener('resize', handleResize);
     
-    // Debounced re-measure after resize
     const timer = setTimeout(() => {
       if (windowWidth > 0) {
         const heights = contentBlocks.map((_, i) => {
@@ -1090,8 +1140,8 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
     <div
       className="bg-white mx-auto shadow-md"
          style={{ 
-        width: "794px", // A4 width in pixels
-        height: "1123px", // A4 height in pixels
+        width: "794px",
+        height: "1123px",
         boxShadow: "0 0 10px rgba(0,0,0,0.1)",
         pageBreakAfter: pageNumber < totalPages ? "always" : "auto",
         boxSizing: 'border-box',
@@ -1134,7 +1184,6 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
 
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white">
-      
       <style jsx>{`
         @media print {
           .a4-page {
@@ -1161,16 +1210,16 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
         }
       `}</style>
       
-      {/* Hidden measurement elements - must match page width for accurate measurements */}
+      {/* Hidden measurement elements */}
       <div style={{ 
         position: 'absolute', 
         left: '-9999px', 
         top: '-9999px',
-        width: '794px', // CRITICAL: Match actual page width for accurate text wrapping
-        padding: '30px' // Match page padding
+        width: '794px',
+        padding: '30px'
       }}>
         {contentBlocks.map((block, index) => (
-          <div key={index} ref={el => { measureRefs.current[index] = el; }} style={{ marginBottom: '12px' }}>
+          <div key={index} ref={el => { measureRefs.current[index] = el; }} style={{ marginBottom: '16px' }}>
             {block.content()}
           </div>
         ))}
@@ -1196,4 +1245,3 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
 };
 
 export default SASupportCoordinationDynamic;
-
