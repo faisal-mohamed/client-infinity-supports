@@ -372,6 +372,21 @@ async function generatePDFWithReactPDF(
     if (formKey === 'individual_risk_assessment') {
       // Use the same matrix image used by the web view for consistent clarity
       images.riskMatrix = await encodeImageToBase64('/individual-risk-assessment.png');
+    } else if (formKey === 'welcome_form') {
+      // Add all welcome form images
+      console.log('🖼️ [PDF DEBUG] Loading welcome form images...');
+      images = {
+        infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
+        p1_1: await encodeImageToBase64('/welcomeimg/p1-1.png'),
+        p1_2: await encodeImageToBase64('/welcomeimg/p1-2.png'),
+        p1_3: await encodeImageToBase64('/welcomeimg/p1-3.png'),
+        p1_4: await encodeImageToBase64('/welcomeimg/p1-4.png'),
+        p1_5: await encodeImageToBase64('/welcomeimg/p1-5.png'),
+        p3_1: await encodeImageToBase64('/welcomeimg/p3-1.png'),
+        p3_2: await encodeImageToBase64('/welcomeimg/p3-2.png'),
+        p4_1: await encodeImageToBase64('/welcomeimg/p4-1.png'),
+      };
+      console.log('✅ [PDF DEBUG] Welcome form images loaded:', Object.keys(images));
     }
   } catch (e) { console.warn('[PDF Route] Could not encode additional images:', e); }
 
@@ -475,7 +490,7 @@ export async function GET(
     console.log('🔍 [PDF DEBUG] Submission ID:', submissionId);
 
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination') {
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form') {
       console.log('✅ [PDF DEBUG] Using @react-pdf/renderer for:', form.formKey);
       console.log('✅ [PDF DEBUG] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');

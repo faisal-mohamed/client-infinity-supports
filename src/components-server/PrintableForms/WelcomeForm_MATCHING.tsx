@@ -8,9 +8,9 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 import { welcomeFormSchema, WelcomeSchemaBlock } from '../../app/components/forms/welcome-form/schema';
+import path from 'path';
 
-// Matching PDF generation - matches WelcomeFormDynamic.tsx web view design
-// Natural flow with automatic page breaks
+
 
 const styles = StyleSheet.create({
   page: {
@@ -61,12 +61,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     fontSize: 10,
     color: '#6b7280',
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
   },
   coverTitle: {
     fontSize: 14,
@@ -184,23 +178,111 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 16,
   },
-  missionImage: {
-    alignSelf: 'center',
-    marginBottom: 24,
-  },
 });
 
 interface WelcomeFormPDFProps {
   formData?: any;
   commonFieldsData?: any;
   settings?: any;
+  images?: any; // Base64 encoded images from API
 }
 
 const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
   formData = {},
   commonFieldsData = {},
-  settings = {}
+  settings = {},
+  images = {} // Receive base64 images from API
 }) => {
+
+  // Use base64 images provided by API instead of file paths
+  const getImageSrc = (relativePath: string): string => {
+    // Handle case where images object is missing or empty
+    if (!images || Object.keys(images).length === 0) {
+      console.log(`🖼️ [BROWSER] No images provided by API, using fallback for: ${relativePath}`);
+      return relativePath; // Fallback to original path
+    }
+
+    // Map web paths to API image keys
+    const imageMap: Record<string, string> = {
+      '/infinity_logo.png': 'infinityLogo',
+      '/welcomeimg/p1-1.png': 'p1_1',
+      '/welcomeimg/p1-2.png': 'p1_2', 
+      '/welcomeimg/p1-3.png': 'p1_3',
+      '/welcomeimg/p1-4.png': 'p1_4',
+      '/welcomeimg/p1-5.png': 'p1_5',
+      '/welcomeimg/p3-1.png': 'p3_1',
+      '/welcomeimg/p3-2.png': 'p3_2',
+      '/welcomeimg/p4-1.png': 'p4_1'
+    };
+    
+    const imageKey = imageMap[relativePath];
+    const base64Image = images[imageKey];
+    
+    console.log(`🖼️ [BROWSER] Image ${relativePath} -> key: ${imageKey} -> ${base64Image ? 'found' : 'missing'}`);
+    
+    return base64Image || relativePath; // Fallback to original path if not found
+  };
+
+  // Add comprehensive logging to BROWSER CONSOLE
+  console.log('🔍 [BROWSER] WelcomeForm PDF Generation Started');
+  console.log('📊 [BROWSER] Schema blocks:', welcomeFormSchema.length);
+  console.log('📋 [BROWSER] Form data:', formData);
+  console.log('🏢 [BROWSER] Settings:', settings);
+  console.log('🖼️ [BROWSER] Images received:', Object.keys(images));
+  
+  // Test schema import
+  if (!welcomeFormSchema || welcomeFormSchema.length === 0) {
+    console.error('❌ [BROWSER] Schema is empty or not imported!');
+    return (
+      <Document>
+        <Page size="A4">
+          <Text style={{ fontSize: 16, margin: 50, color: 'red' }}>
+            ERROR: Schema not found - {welcomeFormSchema?.length || 0} blocks loaded
+          </Text>
+        </Page>
+      </Document>
+    );
+  }
+
+  // Log each schema block to browser
+  console.log('📝 [BROWSER] Schema blocks details:');
+  welcomeFormSchema.forEach((block, index) => {
+    console.log(`  Block ${index}:`, {
+      type: block.type,
+      label: block.label?.substring(0, 50),
+      content: block.content?.substring(0, 100),
+      hasItems: !!block.items,
+      itemsCount: block.items?.length || 0,
+      hasImage: !!block.image,
+      hasImages: !!block.images
+    });
+  });
+
+  // Create debug info for UI
+  const debugInfo = {
+    schemaBlocks: welcomeFormSchema.length,
+    formDataKeys: Object.keys(formData),
+    settingsKeys: Object.keys(settings),
+    imagePaths: [] as string[]
+  };
+
+  // Test image path resolution - using base64 images from API
+  const testImages = ['/infinity_logo.png', '/welcomeimg/p1-1.png', '/welcomeimg/p3-1.png'];
+  testImages.forEach(img => {
+    const resolved = getImageSrc(img);
+    debugInfo.imagePaths.push(`${img} -> ${resolved.substring(0, 50)}...`);
+  });
+  
+  // Log each schema block
+  welcomeFormSchema.forEach((block, index) => {
+    console.log(`📝 [WelcomeForm_MATCHING] Block ${index}:`, {
+      type: block.type,
+      label: block.label?.substring(0, 50),
+      content: block.content?.substring(0, 100),
+      hasItems: !!block.items,
+      itemsCount: block.items?.length || 0
+    });
+  });
 
   const commonFieldMapping: Record<string, string> = {
     name: "name",
@@ -215,7 +297,6 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
 
-    // Convert YYYY-MM-DD to DD-MM-YYYY if valid
     if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       try {
         const [year, month, day] = rawValue.split('-');
@@ -240,53 +321,11 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
     return value;
   };
 
-  // Render individual block
-  const renderBlock = (block: WelcomeSchemaBlock, index: number) => {
+  // Render individual block content
+  const renderBlockContent = (block: WelcomeSchemaBlock, index: number) => {
+    console.log(`🎨 [BROWSER] Rendering block ${index}: ${block.type}`);
+    
     switch (block.type) {
-      case 'cover_page':
-        return (
-          <Page key={index} size="A4" style={styles.coverPage}>
-            {/* Cover Logo */}
-            <View style={{ alignItems: 'center', marginBottom: 40 }}>
-              <Image src="/infinity_logo.png" style={styles.coverLogo} />
-            </View>
-
-            {/* Cover Content */}
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={styles.coverTitle}>{block.label}</Text>
-              <Text style={styles.coverSubtitle}>{block.content}</Text>
-
-              {/* Main Image */}
-              {block.image && (
-                <Image 
-                  src={block.image.src} 
-                  style={[styles.centerImage, { width: 200, height: 100, marginBottom: 80 }]} 
-                />
-              )}
-
-              {/* Flag Images */}
-              {block.images && (
-                <View style={styles.flagsContainer}>
-                  {block.images.map((img, imgIndex) => (
-                    <Image
-                      key={imgIndex}
-                      src={img.src}
-                      style={styles.flagImage}
-                    />
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Text>Website: {settings?.company_website || ''}</Text>
-              <Text>{settings?.welcome_form || ''}</Text>
-              <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
-            </View>
-          </Page>
-        );
-
       case 'section_header':
         return (
           <Text key={index} style={styles.sectionHeader}>{block.label}</Text>
@@ -316,7 +355,7 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
           <View key={index} style={{ alignItems: 'center', marginBottom: 16 }}>
             {block.image && (
               <Image 
-                src={block.image.src} 
+                src={getImageSrc(block.image.src)} 
                 style={[
                   styles.centerImage, 
                   { 
@@ -401,37 +440,147 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
     }
   };
 
+  // Separate cover page and content blocks
+  const coverPageBlock = welcomeFormSchema.find(block => block.type === 'cover_page');
+  const contentBlocks = welcomeFormSchema.filter(block => block.type !== 'cover_page');
+
+  console.log('📄 [BROWSER] Cover page found:', !!coverPageBlock);
+  console.log('📝 [BROWSER] Content blocks:', contentBlocks.length);
+
+  // Group content blocks into pages (simple approach - 5-6 blocks per page)
+  const contentPages: WelcomeSchemaBlock[][] = [];
+  let currentPage: WelcomeSchemaBlock[] = [];
+  let currentPageHeight = 0;
+  const maxPageHeight = 800; // Approximate max content height per page
+
+  contentBlocks.forEach((block, index) => {
+    const estimatedHeight = block.estimatedHeight || 100;
+    
+    // Start new page if current page would be too full
+    if (currentPageHeight + estimatedHeight > maxPageHeight && currentPage.length > 0) {
+      contentPages.push([...currentPage]);
+      currentPage = [];
+      currentPageHeight = 0;
+    }
+    
+    currentPage.push(block);
+    currentPageHeight += estimatedHeight;
+    
+    console.log(`📄 [BROWSER] Block ${index} (${block.type}) added to page ${contentPages.length + 1}, height: ${estimatedHeight}`);
+  });
+
+  // Add final page if it has content
+  if (currentPage.length > 0) {
+    contentPages.push(currentPage);
+  }
+
+  console.log(`📚 [BROWSER] Total content pages: ${contentPages.length}`);
+
   return (
     <Document>
-      {/* Process schema blocks and create pages */}
-      {welcomeFormSchema.map((block, index) => {
-        if (block.type === 'cover_page') {
-          return renderBlock(block, index);
-        }
-        return null;
-      })}
-
-      {/* Regular content pages */}
-      <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Image src="/infinity_logo.png" style={styles.headerLogo} />
-        </View>
-
-        {/* Content */}
-        <View>
-          {welcomeFormSchema
-            .filter(block => block.type !== 'cover_page')
-            .map((block, index) => renderBlock(block, index + 1))}
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text>Website: {settings?.company_website || ''}</Text>
-          <Text>{settings?.welcome_form || ''}</Text>
-          <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
-        </View>
+      {/* DEBUG PAGE - Shows all path information */}
+      <Page size="A4" style={{ padding: 30, fontSize: 10 }}>
+        <Text style={{ fontSize: 16, marginBottom: 20, fontWeight: 'bold' }}>
+          🔍 WELCOME FORM PDF DEBUG INFO
+        </Text>
+        
+        <Text style={{ marginBottom: 10 }}>
+          Using Base64 Images from API (like other working PDFs)
+        </Text>
+        
+        <Text style={{ marginBottom: 10 }}>
+          Schema Blocks: {debugInfo.schemaBlocks}
+        </Text>
+        
+        <Text style={{ marginBottom: 10 }}>
+          Form Data Keys: {debugInfo.formDataKeys.join(', ')}
+        </Text>
+        
+        <Text style={{ marginBottom: 20 }}>
+          Settings Keys: {debugInfo.settingsKeys.join(', ')}
+        </Text>
+        
+        <Text style={{ fontSize: 14, marginBottom: 10, fontWeight: 'bold' }}>
+          IMAGE PATH RESOLUTION:
+        </Text>
+        
+        {debugInfo.imagePaths.map((pathInfo, index) => (
+          <Text key={index} style={{ marginBottom: 5, fontSize: 9 }}>
+            {pathInfo}
+          </Text>
+        ))}
+        
+        <Text style={{ marginTop: 20, fontSize: 12, color: 'blue' }}>
+          Using base64 images from API like SA Delivery and other working PDFs
+        </Text>
       </Page>
+
+      {/* Cover Page */}
+      {coverPageBlock && (
+        <Page size="A4" style={styles.coverPage}>
+          <View style={{ alignItems: 'center', marginBottom: 40 }}>
+            <Image src={getImageSrc('/infinity_logo.png')} style={styles.coverLogo} />
+          </View>
+
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={styles.coverTitle}>{coverPageBlock.label}</Text>
+            <Text style={styles.coverSubtitle}>{coverPageBlock.content}</Text>
+
+            {/* Main Image */}
+            {coverPageBlock.image && (
+              <Image 
+                src={getImageSrc(coverPageBlock.image.src)} 
+                style={[styles.centerImage, { width: 200, height: 100, marginBottom: 80 }]}
+              />
+            )}
+
+            {/* Flag Images */}
+            {coverPageBlock.images && (
+              <View style={styles.flagsContainer}>
+                {coverPageBlock.images.map((img, imgIndex) => (
+                  <Image
+                    key={imgIndex}
+                    src={getImageSrc(img.src)}
+                    style={styles.flagImage}
+                  />
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View style={styles.footer}>
+            <Text>Website: {settings?.company_website || ''}</Text>
+            <Text>{settings?.welcome_form || ''}</Text>
+            <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
+          </View>
+        </Page>
+      )}
+
+      {/* Content Pages */}
+      {contentPages.map((pageBlocks, pageIndex) => (
+        <Page key={`content-page-${pageIndex}`} size="A4" style={styles.page}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
+          </View>
+
+          {/* Content */}
+          <View>
+            {pageBlocks.map((block, blockIndex) => {
+              const globalIndex = contentBlocks.indexOf(block);
+              console.log(`🎨 [WelcomeForm_MATCHING] Page ${pageIndex + 1}, rendering block ${globalIndex}: ${block.type}`);
+              return renderBlockContent(block, globalIndex);
+            })}
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text>Website: {settings?.company_website || ''}</Text>
+            <Text>{settings?.welcome_form || ''}</Text>
+            <Text>Review Date: {formatDate(settings?.review_date || '')}</Text>
+          </View>
+        </Page>
+      ))}
     </Document>
   );
 };
