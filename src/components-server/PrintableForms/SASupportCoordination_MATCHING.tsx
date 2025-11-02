@@ -120,14 +120,14 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   signatureBox: {
-    border: '1 solid #000000',
+    border: '0.5 solid #000000',
     padding: 10,
     minHeight: 50,
     marginBottom: 10,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '1 solid #000000',
+    borderBottom: '0.5 solid #000000',
     paddingVertical: 4,
   },
   tableCell: {
@@ -169,7 +169,10 @@ export default function SASupportCoordination({
     return value || '';
   };
 
-  const isChecked = (key: string) => formData?.[key]?.toString().toLowerCase() === 'yes';
+  const isChecked = (key: string) => {
+    const value = formData?.[key];
+    return value === true || value?.toString().toLowerCase() === 'yes';
+  };
   const getValue = (key: string) => formData?.[key] || commonFieldsData?.[key] || '';
 
   return (
@@ -196,62 +199,105 @@ export default function SASupportCoordination({
             <Text style={[styles.sectionTitle, { textAlign: 'center' }]}>SECTION 1</Text>
             <Text style={styles.staticContent}>Date: {formatDate(getValue('date'))}</Text>
             
-            {/* Participant Details Table (simplified for PDF) */}
-            <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 8, marginBottom: 4, backgroundColor: '#e5e7eb', padding: 4 }}>
-              Participant Details - NDIS Number: {commonFieldsData?.ndis || getValue('ndisNumber')}
-            </Text>
-            
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Surname:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.surname || getValue('surname')}</Text>
+            {/* Participant Details - Bordered Block */}
+            <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }}>
+              {/* Grey Header */}
+              <View style={{ backgroundColor: '#e5e7eb', borderBottom: '0.5 solid #000', padding: 6, flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>Participant Details</Text>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>NDIS Number: {commonFieldsData?.ndis || getValue('ndisNumber')}</Text>
+              </View>
+              
+              {/* Table Rows */}
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Surname:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.surname || getValue('surname')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Given name(s):</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.name || getValue('givenNames')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Sex:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.sex || getValue('sex')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Pronoun:</Text>
+                <Text style={styles.tableCell}>{getValue('pronoun')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Indigenous descent:</Text>
+                <Text style={styles.tableCell}>{getValue('indigenousDescent')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Preferred name:</Text>
+                <Text style={styles.tableCell}>{getValue('preferredName')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Date of Birth:</Text>
+                <Text style={styles.tableCell}>{formatDate(commonFieldsData?.dob || getValue('dob'))}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Address:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.street || getValue('address')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>State:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.state || getValue('state') || 'WA'}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Postcode:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.postCode || getValue('postcode')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Email:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.email || getValue('email')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Home Phone:</Text>
+                <Text style={styles.tableCell}>{commonFieldsData?.phone || getValue('homePhone')}</Text>
+              </View>
             </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Given name(s):</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.name || getValue('givenNames')}</Text>
+
+            {/* Residential Address Details - Separate Bordered Block */}
+            <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }}>
+              <View style={{ backgroundColor: '#e5e7eb', borderBottom: '0.5 solid #000', padding: 6 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>Residential Address Details</Text>
+              </View>
+              <View style={{ borderBottom: '0.5 solid #000', padding: 6 }}>
+                <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Number / Street:</Text>
+                <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.street || getValue('address')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1, borderRight: '0.5 solid #000', padding: 6 }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>State:</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.state || getValue('state') || 'WA'}</Text>
+                </View>
+                <View style={{ flex: 1, padding: 6 }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Postcode:</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.postCode || getValue('postcode')}</Text>
+                </View>
+              </View>
             </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Sex:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.sex || getValue('sex')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Pronoun:</Text>
-              <Text style={styles.tableCell}>{getValue('pronoun')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Indigenous descent:</Text>
-              <Text style={styles.tableCell}>{getValue('indigenousDescent')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Preferred name:</Text>
-              <Text style={styles.tableCell}>{getValue('preferredName')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Date of Birth:</Text>
-              <Text style={styles.tableCell}>{formatDate(commonFieldsData?.dob || getValue('dob'))}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Address:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.street || getValue('address')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>State:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.state || getValue('state') || 'WA'}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Postcode:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.postCode || getValue('postcode')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Email:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.email || getValue('email')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Home Phone:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.phone || getValue('homePhone')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Mobile:</Text>
-              <Text style={styles.tableCell}>{commonFieldsData?.phone || getValue('mobile')}</Text>
+
+            {/* Participant Contact Details - Separate Bordered Block */}
+            <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }}>
+              <View style={{ backgroundColor: '#e5e7eb', borderBottom: '0.5 solid #000', padding: 6 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>Participant Contact Details</Text>
+              </View>
+              <View style={{ borderBottom: '0.5 solid #000', padding: 6 }}>
+                <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Email address:</Text>
+                <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.email || getValue('email')}</Text>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ flex: 1, borderRight: '0.5 solid #000', padding: 6 }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Home Phone No:</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.phone || getValue('homePhone')}</Text>
+                </View>
+                <View style={{ flex: 1, padding: 6 }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Mobile No:</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.phone || getValue('mobile')}</Text>
+                </View>
+              </View>
             </View>
           </View>
 
@@ -291,22 +337,22 @@ export default function SASupportCoordination({
             
             <Text style={[styles.staticTitle, { textDecoration: 'underline' }]}>SCHEDULE OF SUPPORT</Text>
             
-            {/* Schedule Table */}
-            <View style={{ marginBottom: 8 }}>
-              <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderBottom: '1 solid #000', paddingVertical: 4, paddingHorizontal: 4 }}>
-                <Text style={{ flex: 2, fontSize: 8, fontWeight: 'bold' }}>Support Category</Text>
-                <Text style={{ flex: 1, fontSize: 8, fontWeight: 'bold', textAlign: 'center' }}>Weeks</Text>
-                <Text style={{ flex: 1, fontSize: 8, fontWeight: 'bold', textAlign: 'center' }}>Total Hours</Text>
-                <Text style={{ flex: 1, fontSize: 8, fontWeight: 'bold', textAlign: 'center' }}>Cost per hr</Text>
-                <Text style={{ flex: 1, fontSize: 8, fontWeight: 'bold', textAlign: 'center' }}>Total Cost</Text>
+            {/* Schedule Table - Bordered Block */}
+            <View style={{ border: '0.5 solid #000', marginBottom: 12 }} wrap={false}>
+              <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderBottom: '0.5 solid #000', paddingVertical: 6, paddingHorizontal: 6 }}>
+                <Text style={{ flex: 2, fontSize: 9, fontWeight: 'bold' }}>Support Category</Text>
+                <Text style={{ flex: 1, fontSize: 9, fontWeight: 'bold', textAlign: 'center' }}>Weeks</Text>
+                <Text style={{ flex: 1, fontSize: 9, fontWeight: 'bold', textAlign: 'center' }}>Total Hours</Text>
+                <Text style={{ flex: 1, fontSize: 9, fontWeight: 'bold', textAlign: 'center' }}>Cost per hr</Text>
+                <Text style={{ flex: 1, fontSize: 9, fontWeight: 'bold', textAlign: 'center' }}>Total Cost</Text>
               </View>
               {['07_001_0106_8_3 Level 1 Support Connection', '07_002_0106_8_3 Level 2 Support Coordination', '07_101_0106_6_3 Psychosocial Recovery Coaching'].map((category, i) => (
-                <View key={i} style={{ flexDirection: 'row', borderBottom: '1 solid #000', paddingVertical: 4, paddingHorizontal: 4 }}>
-                  <Text style={{ flex: 2, fontSize: 8 }}>{category}</Text>
-                  <Text style={{ flex: 1, fontSize: 8, textAlign: 'center' }}>{getValue(`weeks${i+1}`)}</Text>
-                  <Text style={{ flex: 1, fontSize: 8, textAlign: 'center' }}>{getValue(`totalHours${i+1}`)}</Text>
-                  <Text style={{ flex: 1, fontSize: 8, textAlign: 'center' }}>{['$74.63', '$100.14', '$98.30'][i]}</Text>
-                  <Text style={{ flex: 1, fontSize: 8, textAlign: 'center' }}>${getValue(`totalCost${i+1}`)}</Text>
+                <View key={i} style={{ flexDirection: 'row', borderBottom: '0.5 solid #000', paddingVertical: 6, paddingHorizontal: 6 }}>
+                  <Text style={{ flex: 2, fontSize: 9 }}>{category}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_weeks`)}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_totalHours`)}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{['$74.63', '$100.14', '$98.30'][i]}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_totalCost`) ? `$${getValue(`row${i+1}_totalCost`)}` : ''}</Text>
                 </View>
               ))}
             </View>
@@ -342,7 +388,7 @@ export default function SASupportCoordination({
                 {getValue('conflictOption1') && (
                   <View style={{ marginBottom: 8 }}>
                     <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>1. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, border: '1 solid #000' }]}>
+                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
                       <Text style={{ fontSize: 8 }}>{getValue('conflictOption1')}</Text>
                     </View>
             </View>
@@ -351,7 +397,7 @@ export default function SASupportCoordination({
                 {getValue('conflictOption2') && (
                   <View style={{ marginBottom: 8 }}>
                     <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>2. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, border: '1 solid #000' }]}>
+                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
                       <Text style={{ fontSize: 8 }}>{getValue('conflictOption2')}</Text>
                     </View>
               </View>
@@ -360,7 +406,7 @@ export default function SASupportCoordination({
                 {getValue('conflictOption3') && (
                   <View style={{ marginBottom: 8 }}>
                     <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>3. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, border: '1 solid #000' }]}>
+                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
                       <Text style={{ fontSize: 8 }}>{getValue('conflictOption3')}</Text>
                     </View>
                   </View>
@@ -374,19 +420,25 @@ export default function SASupportCoordination({
             </Text>
           </View>
 
-          {/* Signed/Print Name/Date Table */}
-          <View style={styles.section}>
+          {/* Signed/Print Name/Date Table - Bordered Block */}
+          <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }} wrap={false}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Signed:</Text>
-              <Text style={[styles.tableCell, styles.inputField]}>{getValue('signature')}</Text>
+              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Signed:</Text>
+              <View style={[styles.tableCell, { alignItems: 'center', justifyContent: 'center', flex: 0.7 }]}>
+                {getValue('signature') ? (
+                  <Image src={getValue('signature')} style={{ width: 150, height: 50, objectFit: 'contain' }} />
+                ) : (
+                  <Text style={styles.inputField}></Text>
+                )}
+              </View>
             </View>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Print Name:</Text>
-              <Text style={[styles.tableCell, styles.inputField]}>{getValue('printName')}</Text>
+              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Print Name:</Text>
+              <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{getValue('printName')}</Text>
             </View>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Date:</Text>
-              <Text style={[styles.tableCell, styles.inputField]}>{formatDate(getValue('signDate'))}</Text>
+              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Date:</Text>
+              <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{formatDate(getValue('signDate'))}</Text>
             </View>
           </View>
 
@@ -434,15 +486,15 @@ export default function SASupportCoordination({
             </View>
           </View>
 
-          {/* Plan Manager Details */}
-          <View style={styles.section}>
+          {/* Plan Manager Details - Bordered Table */}
+          <View style={{ border: '0.5 solid #000', marginBottom: 12 }} wrap={false}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Plan Manager Name:</Text>
-              <Text style={[styles.tableCell, styles.inputField]}>{getValue('planManagerName')}</Text>
+              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Plan Manager Name:</Text>
+              <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerName')}</Text>
             </View>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Email:</Text>
-              <Text style={[styles.tableCell, styles.inputField]}>{getValue('planManagerEmail')}</Text>
+              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Email:</Text>
+              <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerEmail')}</Text>
             </View>
           </View>
 
@@ -537,62 +589,62 @@ export default function SASupportCoordination({
             </Text>
           </View>
 
-          {/* Consent Section */}
-          <View style={styles.section}>
+          {/* Consent Section - Keep Together */}
+          <View style={styles.section} wrap={false}>
             <Text style={styles.staticTitle}>Consent</Text>
             
             {/* Consent 1: Media */}
-            <View style={{ borderBottom: '1 solid #000', paddingVertical: 6, marginBottom: 6 }}>
-              <Text style={{ fontSize: 9, marginBottom: 4 }}>
+            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }}>
+              <Text style={{ fontSize: 9, marginBottom: 6 }}>
                 Hereby give consent to Infinity Supports WA to obtain and use images and likeness of myself on media releases, including social media and promotion.
               </Text>
               <View style={{ flexDirection: 'row' }}>
                 <View style={styles.radioOption}>
                   <View style={getValue('consentMedia') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>Yes</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
-                <View style={[styles.radioOption, { marginLeft: 12 }]}>
+                <View style={[styles.radioOption, { marginLeft: 16 }]}>
                   <View style={getValue('consentMedia') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>No</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>
             </View>
 
             {/* Consent 2: Information Sharing */}
-            <View style={{ borderBottom: '1 solid #000', paddingVertical: 6, marginBottom: 6 }}>
-              <Text style={{ fontSize: 9, marginBottom: 2 }}>
+            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }}>
+              <Text style={{ fontSize: 9, marginBottom: 4 }}>
                 Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to:
               </Text>
-              <Text style={{ fontSize: 8, marginLeft: 10 }}>• Legal Guardian/Next of Kin</Text>
-              <Text style={{ fontSize: 8, marginLeft: 10 }}>• GP/health care professional</Text>
-              <Text style={{ fontSize: 8, marginLeft: 10 }}>• Therapy providers</Text>
-              <Text style={{ fontSize: 8, marginLeft: 10 }}>• Plan Managers</Text>
-              <Text style={{ fontSize: 8, marginLeft: 10 }}>• Others: {getValue('consentInfoShareOthers')}</Text>
+              <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 1 }}>• Legal Guardian/Next of Kin</Text>
+              <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 1 }}>• GP/health care professional</Text>
+              <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 1 }}>• Therapy providers</Text>
+              <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 1 }}>• Plan Managers</Text>
+              <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 4 }}>• Others: {getValue('consentInfoShareOthers')}</Text>
               <View style={{ flexDirection: 'row', marginTop: 4 }}>
                 <View style={styles.radioOption}>
                   <View style={getValue('consentInfoShare') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>Yes</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
-                <View style={[styles.radioOption, { marginLeft: 12 }]}>
+                <View style={[styles.radioOption, { marginLeft: 16 }]}>
                   <View style={getValue('consentInfoShare') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>No</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>
             </View>
 
             {/* Consent 3: NDIS Audit */}
-            <View style={{ borderBottom: '1 solid #000', paddingVertical: 6, marginBottom: 6 }}>
-              <Text style={{ fontSize: 9, marginBottom: 4 }}>
+            <View style={{ paddingVertical: 6, marginBottom: 8 }}>
+              <Text style={{ fontSize: 9, marginBottom: 6 }}>
                 I consent to take part in a NDIS audit and my documents be reviewed as required.
               </Text>
               <View style={{ flexDirection: 'row' }}>
                 <View style={styles.radioOption}>
                   <View style={getValue('consentAudit') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>Yes</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
-                <View style={[styles.radioOption, { marginLeft: 12 }]}>
+                <View style={[styles.radioOption, { marginLeft: 16 }]}>
                   <View style={getValue('consentAudit') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
-                  <Text style={{ fontSize: 9 }}>No</Text>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>
             </View>
@@ -600,62 +652,58 @@ export default function SASupportCoordination({
 
           {/* Signatures */}
           <View style={styles.section}>
-            {/* Participant Signature */}
-            <View style={styles.signatureBox}>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Participant Signature</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                <View style={{ width: '60%' }}>
-                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of participant:</Text>
-                  {getValue('participantSignature') ? (
-                    <Image src={getValue('participantSignature')} style={{ width: 200, height: 60, border: '1 solid #ccc' }} />
-                  ) : (
-                    <View style={{ borderBottom: '1 solid #000', height: 60, width: 200 }} />
-                  )}
+            {/* Participant Signature - CONDITIONAL (only if participant signed) */}
+            {getValue('participantSignature') && !getValue('nomineeSignature') && (
+              <View style={styles.signatureBox} wrap={false}>
+                <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Participant Signature</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <View style={{ width: '60%' }}>
+                    <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of participant:</Text>
+                    <Image src={getValue('participantSignature')} style={{ width: 200, height: 60, border: '0.5 solid #ccc' }} />
+                  </View>
+                  <View style={{ width: '35%' }}>
+                    <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
+                    <Text style={{ fontSize: 10 }}>{formatDate(getValue('participantSignatureDate'))}</Text>
+                  </View>
                 </View>
-                <View style={{ width: '35%' }}>
-                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
-                  <Text style={{ fontSize: 10 }}>{formatDate(getValue('participantSignatureDate'))}</Text>
-                </View>
+                <Text style={{ fontSize: 9 }}>Name: {getValue('participantName') || commonFieldsData?.name}</Text>
+                <Text style={{ fontSize: 8, fontStyle: 'italic', marginTop: 6 }}>
+                  I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
+                </Text>
               </View>
-              <Text style={{ fontSize: 9 }}>Name: {getValue('participantName') || commonFieldsData?.name}</Text>
-              <Text style={{ fontSize: 8, fontStyle: 'italic', marginTop: 6 }}>
-                I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
-              </Text>
-            </View>
+            )}
 
-            {/* Nominee Signature */}
-            <View style={styles.signatureBox}>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Nominee Signature</Text>
-              <Text style={{ fontSize: 9, fontStyle: 'italic', marginBottom: 6 }}>
-                I confirm this agreement was explained and accepted by the participant. [if signed by a Nominee]
-              </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                <View style={{ width: '60%' }}>
-                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of Nominee:</Text>
-                  {getValue('nomineeSignature') ? (
-                    <Image src={getValue('nomineeSignature')} style={{ width: 200, height: 60, border: '1 solid #ccc' }} />
-                  ) : (
-                    <View style={{ borderBottom: '1 solid #000', height: 60, width: 200 }} />
-                  )}
+            {/* Nominee Signature - CONDITIONAL (only if nominee signed) */}
+            {getValue('nomineeSignature') && (
+              <View style={styles.signatureBox} wrap={false}>
+                <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Nominee Signature</Text>
+                <Text style={{ fontSize: 9, fontStyle: 'italic', marginBottom: 6 }}>
+                  I confirm this agreement was explained and accepted by the participant. [if signed by a Nominee]
+                </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <View style={{ width: '60%' }}>
+                    <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature of Nominee:</Text>
+                    <Image src={getValue('nomineeSignature')} style={{ width: 200, height: 60, border: '0.5 solid #ccc' }} />
+                  </View>
+                  <View style={{ width: '35%' }}>
+                    <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
+                    <Text style={{ fontSize: 10 }}>{formatDate(getValue('nomineeSignatureDate'))}</Text>
+                  </View>
                 </View>
-                <View style={{ width: '35%' }}>
-                  <Text style={{ fontSize: 9, marginBottom: 4 }}>Date:</Text>
-                  <Text style={{ fontSize: 10 }}>{formatDate(getValue('nomineeSignatureDate'))}</Text>
-                </View>
+                <Text style={{ fontSize: 9 }}>Name: {getValue('nomineeName')}</Text>
               </View>
-              <Text style={{ fontSize: 9 }}>Name: {getValue('nomineeName')}</Text>
-            </View>
+            )}
 
             {/* Provider Signature */}
-            <View style={styles.signatureBox}>
+            <View style={styles.signatureBox} wrap={false}>
               <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Provider Signature</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                 <View style={{ width: '60%' }}>
                   <Text style={{ fontSize: 9, marginBottom: 4 }}>Signature on behalf of Infinity Supports WA:</Text>
                   {getValue('providerSignature') ? (
-                    <Image src={getValue('providerSignature')} style={{ width: 200, height: 60, border: '1 solid #ccc' }} />
+                    <Image src={getValue('providerSignature')} style={{ width: 200, height: 60, border: '0.5 solid #ccc' }} />
                   ) : (
-                    <View style={{ borderBottom: '1 solid #000', height: 60, width: 200 }} />
+                    <View style={{ borderBottom: '0.5 solid #000', height: 60, width: 200 }} />
                   )}
                 </View>
                 <View style={{ width: '35%' }}>

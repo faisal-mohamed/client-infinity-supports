@@ -274,7 +274,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('noCopyRequested') === 'yes'} 
+              checked={getFieldValue('noCopyRequested') === true} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="No copy requested"
@@ -296,7 +296,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('planAttached') === 'yes'} 
+              checked={getFieldValue('planAttached') === true} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="Plan attached"
@@ -318,7 +318,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('planNotAttached') === 'yes'} 
+              checked={getFieldValue('planNotAttached') === true} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="Plan not attached"
@@ -379,16 +379,16 @@ const BLOCK_SPACING = 16; // Space between blocks
                     {supportCategories[i-1]}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {getFieldValue(`weeks${i}`) || ''}
+                    {getFieldValue(`row${i}_weeks`) || ''}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {getFieldValue(`totalHours${i}`) || ''}
+                    {getFieldValue(`row${i}_totalHours`) || ''}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
                     {costPerHr[i-1]}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    ${getFieldValue(`totalCost${i}`) || ''}
+                    {getFieldValue(`row${i}_totalCost`) ? `$${getFieldValue(`row${i}_totalCost`)}` : ''}
                   </td>
                 </tr>
               ))}
@@ -504,12 +504,27 @@ const BLOCK_SPACING = 16; // Space between blocks
     {
       type: 'conflict_signature_table',
       height: 100,
-      content: () => (
+      content: () => {
+        const signature = getFieldValue('signature');
+        
+        return (
           <table className="w-full border border-black border-collapse text-xs mb-4">
             <tbody>
               <tr>
                 <td className="border border-black p-2 font-bold w-1/3">Signed:</td>
-                <td className="border border-black p-2">{getFieldValue('signature') || ''}</td>
+                <td className="border border-black p-2">
+                  {signature ? (
+                    <div className="h-16 flex items-center justify-center py-1">
+                      <img 
+                        src={signature} 
+                        alt="Signature" 
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-16"></div>
+                  )}
+                </td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-bold">Print Name:</td>
@@ -521,7 +536,8 @@ const BLOCK_SPACING = 16; // Space between blocks
               </tr>
             </tbody>
           </table>
-      )
+        );
+      }
     },
 
     // Block 19: ENDING THIS SERVICE AGREEMENT
@@ -553,7 +569,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('selfManaged') === 'yes'} 
+                checked={getFieldValue('selfManaged') === true} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Self-managed funding"
@@ -566,7 +582,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('nomineeManaged') === 'yes'} 
+                checked={getFieldValue('nomineeManaged') === true} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Nominee managed funding"
@@ -579,7 +595,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('ndiaManaged') === 'yes'} 
+                checked={getFieldValue('ndiaManaged') === true} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="NDIA managed funding"
@@ -592,7 +608,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('planManagerManaged') === 'yes'} 
+                checked={getFieldValue('planManagerManaged') === true} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Plan Manager managed funding"
@@ -930,78 +946,97 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     },
 
-    // Block 28: Participant Signature
+    // Block 28: Participant Signature (CONDITIONAL - only if participant signed)
     {
       type: 'signature_participant',
       height: 140,
-      content: () => (
-        <div className="mb-4">
-          <div className="border border-black p-3">
-            <h4 className="font-bold text-sm mb-3">Participant Signature</h4>
-            <div className="grid grid-cols-2 gap-4 mb-2">
-              <div>
-                <p className="text-xs mb-1">Signature of participant:</p>
-                {getFieldValue('participantSignature') ? (
-                  <img 
-                    src={getFieldValue('participantSignature')} 
-                    alt="Participant Signature" 
-                    className="h-14 max-w-[200px] border border-gray-300"
-                  />
-                ) : (
-                  <div className="border-b border-black h-14"></div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs mb-1">Date:</p>
-                <div className="border-b border-black h-8 text-xs pt-1">
-                  {formatDate(getFieldValue('participantSignatureDate')) || ''}
+      content: () => {
+        const participantSig = getFieldValue('participantSignature');
+        const nomineeSig = getFieldValue('nomineeSignature');
+        
+        // Only show if participant signed (not nominee)
+        if (!participantSig || nomineeSig) return null;
+        
+        return (
+          <div className="mb-4">
+            <div className="border border-black p-3">
+              <h4 className="font-bold text-sm mb-3">Participant Signature</h4>
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <div>
+                  <p className="text-xs mb-1">Signature of participant:</p>
+                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                    {participantSig ? (
+                      <img 
+                        src={participantSig} 
+                        alt="Participant Signature" 
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-xs">No signature</span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs mb-1">Date:</p>
+                  <div className="border-b border-black h-8 text-xs pt-1">
+                    {formatDate(getFieldValue('participantSignatureDate')) || ''}
+                  </div>
                 </div>
               </div>
+              <p className="text-xs">Name: {getFieldValue('participantName') || ''}</p>
+              <p className="text-xs italic mt-2">
+                I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
+              </p>
             </div>
-            <p className="text-xs">Name: {getFieldValue('participantName') || ''}</p>
-            <p className="text-xs italic mt-2">
-              I confirm that this agreement has been explained to the person receiving the services (participant) and that they agree to this.
-            </p>
           </div>
-        </div>
-      )
+        );
+      }
     },
 
-    // Block 29: Nominee Signature
+    // Block 29: Nominee Signature (CONDITIONAL - only if nominee signed)
     {
       type: 'signature_nominee',
       height: 150,
-      content: () => (
-        <div className="mb-4">
-          <div className="border border-black p-3">
-            <h4 className="font-bold text-sm mb-3">Nominee Signature</h4>
-            <p className="text-xs italic mb-2">
-              I confirm this agreement was explained and accepted by the participant. [if signed by a Nominee]
-            </p>
-            <div className="grid grid-cols-2 gap-4 mb-2">
-              <div>
-                <p className="text-xs mb-1">Signature of Nominee:</p>
-                {getFieldValue('nomineeSignature') ? (
-                  <img 
-                    src={getFieldValue('nomineeSignature')} 
-                    alt="Nominee Signature" 
-                    className="h-14 max-w-[200px] border border-gray-300"
-                  />
-                ) : (
-                  <div className="border-b border-black h-14"></div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs mb-1">Date:</p>
-                <div className="border-b border-black h-8 text-xs pt-1">
-                  {formatDate(getFieldValue('nomineeSignatureDate')) || ''}
+      content: () => {
+        const nomineeSig = getFieldValue('nomineeSignature');
+        
+        // Only show if nominee signed
+        if (!nomineeSig) return null;
+        
+        return (
+          <div className="mb-4">
+            <div className="border border-black p-3">
+              <h4 className="font-bold text-sm mb-3">Nominee Signature</h4>
+              <p className="text-xs italic mb-2">
+                I confirm this agreement was explained and accepted by the participant. [if signed by a Nominee]
+              </p>
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <div>
+                  <p className="text-xs mb-1">Signature of Nominee:</p>
+                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                    {nomineeSig ? (
+                      <img 
+                        src={nomineeSig} 
+                        alt="Nominee Signature" 
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-gray-400 text-xs">No signature</span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs mb-1">Date:</p>
+                  <div className="border-b border-black h-8 text-xs pt-1">
+                    {formatDate(getFieldValue('nomineeSignatureDate')) || ''}
+                  </div>
                 </div>
               </div>
+              <p className="text-xs">Name: {getFieldValue('nomineeName') || ''}</p>
             </div>
-            <p className="text-xs">Name: {getFieldValue('nomineeName') || ''}</p>
           </div>
-        </div>
-      )
+        );
+      }
     },
 
     // Block 30: Provider Signature
