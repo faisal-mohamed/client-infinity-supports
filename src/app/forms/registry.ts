@@ -6,6 +6,8 @@ import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Ass
 
 import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
 import HomeVisitRiskAssessmentEdit from "../components/forms/home_visit_risk_assessment/Edit";
+import HomeVisitDynamic from "../components/forms/home-visit-risk-assessment/HomeVisitDynamic";
+import HomeVisitRiskAssessment_MATCHING from "../../components-server/PrintableForms/HomeVisitRiskAssessment_MATCHING";
 
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import PersonCentredPlanEdit from "@/app/components/forms/person_centred_plan/Edit";
@@ -82,16 +84,18 @@ const formRegistry: Record<string, FormRegistryItem> = {
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",
     name: "Home & Visit Risk Assessment",
-    viewComponent: HomeVisitRiskAssessment,
+    viewComponent: HomeVisitDynamic, // NEW: Dynamic view with auto-pagination
     editComponent: HomeVisitRiskAssessmentEdit,
+    pdfComponent: HomeVisitRiskAssessment_MATCHING, // NEW: Unified PDF download
     signatures: [
       {
-        id: "client_signature",
-        label: "Client Signature",
-        description:
-          "I acknowledge that this risk assessment has been completed and I understand the safety considerations outlined above.",
+        id: "assessor_signature",
+        label: "Assessor Signature",
+        description: "Signature of the Risk Assessment Assessor",
         required: true,
-        dataKey: "signature", // Maps to formData.signature field where the actual signature is stored
+        dataKey: "assessorSignature",
+        signedAtKey: "completionDate",
+        signerName: "assessorName",
       },
     ],
   },
