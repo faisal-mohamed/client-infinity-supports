@@ -65,9 +65,9 @@ export const saDeliverySchema: SchemaBlock[] = [
 
   { type: 'section_header', label: 'Schedule of Supports' },
   {
-    type: 'paragraph',
+    type: 'styled_paragraph',
     content:
-      'Infinity Supports WA agrees to provide the Individual named in Section 1 the support as per the Schedule of Supports and the duration of the support.'
+      '<red>Infinity Supports WA</red> agrees to provide the Individual named in Section 1 the support as per the Schedule of Supports and the duration of the support.'
   },
   {
     type: 'paragraph',
@@ -75,8 +75,8 @@ export const saDeliverySchema: SchemaBlock[] = [
       'The supports and their prices are set out in the Schedule of Supports. All supports are as per the NDIS Price Guide and are GST inclusive (if applicable) and include the cost of providing the supports. All figures quoted below are based on NDIS pricing and the Individual\'s NDIS plan at the time of agreement. Prices, funding totals and hours will be adjusted periodically to reflect changes to NDIS pricing and the Individual\'s NDIS plan.'
   },
   {
-    type: 'paragraph',
-    content: 'Additional agreed information in the provision of support by Infinity Supports WA Pty Ltd.'
+    type: 'styled_paragraph',
+    content: 'Additional agreed information in the provision of support by <red>Infinity Supports WA</red> Pty Ltd.'
   },
 
   // Service Payments (NDIS)
@@ -99,8 +99,8 @@ export const saDeliverySchema: SchemaBlock[] = [
   // Responsibilities of Infinity Supports WA (static list)
   { 
     type: 'section_with_list', 
-    label: 'Responsibilities of Infinity Supports WA',
-    content: 'Infinity Support WA agrees to:',
+    label: 'Responsibilities of <red>Infinity Supports WA</red>',
+    content: '<red>Infinity Support WA</red> agrees to:',
     items: [
       'Review the provision of supports with the Individual in line with the applicable requirements.',
       "Once agreed, provide supports that meet the Individual’s needs at the Individual’s preferred times.",
@@ -161,16 +161,16 @@ export const saDeliverySchema: SchemaBlock[] = [
     label: 'Feedback, Complaints, and Disputes' 
   },
   {
-    type: 'paragraph',
-    content: 'If the Individual wishes to give Infinity Supports WA feedback or If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to Sharon Mays Director or Anand Sekar Director 0493282661.'
+    type: 'styled_paragraph',
+    content: 'If the Individual wishes to give <red>Infinity Supports WA</red> feedback or If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to <underline>Sharon Mays Director</underline> or <underline>Anand Sekar Director 0493282661</underline>.'
   },
   {
-    type: 'paragraph',
-    content: 'Email: admin@infinitysupportswa.org. Alternatively, the individual can lodge their complaint or feedback on www.infinitysupportswa.org.'
+    type: 'styled_paragraph',
+    content: 'Email: <link>admin@infinitysupportswa.org</link>. Alternatively, the individual can lodge their complaint or feedback on <link>www.infinitysupportswa.org</link>.'
   },
   {
-    type: 'paragraph',
-    content: 'If the Individual is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting www.ndis.gov.au for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit www.disability.wa.gov.au.'
+    type: 'styled_paragraph',
+    content: 'If the Individual is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <link>www.ndis.gov.au</link> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <link>www.disability.wa.gov.au</link>.'
   },
 
   // Emergency Preparedness (complete content)
@@ -270,8 +270,8 @@ export const saDeliverySchema: SchemaBlock[] = [
       }
     ]
   },
-  // "If Others, specify" field (conditional on infoSharingConsent)
-  { type: 'text', key: 'othersInfoSharingConsent', label: 'If Others, specify' },
+  // "If Others, specify" field - REMOVED: now displayed inline within infoSharingConsent
+  // { type: 'text', key: 'othersInfoSharingConsent', label: 'If Others, specify' },
 
   // Signature Groups (table format with 3 columns: Signature/Date/Name)
   {

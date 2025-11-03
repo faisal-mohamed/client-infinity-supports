@@ -879,6 +879,34 @@ const BLOCK_SPACING = 16; // Space between blocks
 
               <tr>
                 <td className="border border-black p-3 align-top">
+                  Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).
+                </td>
+                <td className="border border-black p-3 align-top">
+                  <div className="space-y-1">
+                    <label className="flex items-center text-xs">
+                      <input
+                        type="radio"
+                        checked={getFieldValue("consentProfile") === "Yes"}
+                        readOnly
+                        className="mr-2 w-4 h-4 accent-blue-600"
+                      />
+                      Yes
+                    </label>
+                    <label className="flex items-center text-xs">
+                      <input
+                        type="radio"
+                        checked={getFieldValue("consentProfile") === "No"}
+                        readOnly
+                        className="mr-2 w-4 h-4 accent-blue-600"
+                      />
+                      No
+                    </label>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td className="border border-black p-3 align-top">
                   Hereby give consent to Infinity Supports WA to obtain & share relevant documented 
                   information regarding my service. This may include but not limited to:
                   <ul className="list-disc list-inside ml-4 mt-1">

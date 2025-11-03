@@ -158,14 +158,15 @@ const formSchema  : any = {
           "GP/health care professional",
           "Therapy providers",
           "Plan Managers",
-          "Others: ____________________________________________",
+          "Others", // Value will be appended by renderer
         ],
       },
-      {
-  key: "othersInfoSharingConsent",
-  label: "If Others, specify",
-  type: "text"
-},
+      // REMOVED: "If Others, specify" - now displayed inline within infoSharingConsent
+      // {
+      //   key: "othersInfoSharingConsent",
+      //   label: "If Others, specify",
+      //   type: "text"
+      // },
       {
         key: "moneyHandlingConsent",
         label:

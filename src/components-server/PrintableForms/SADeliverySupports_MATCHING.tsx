@@ -512,18 +512,65 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
         return renderSignatureGroup(block);
       
       case 'section_header':
+        const headerLabelPDF = block.label || '';
+        const hasRedInHeaderPDF = headerLabelPDF.includes('<red>');
+        
         return (
           <View key={block.label} style={styles.fieldContainer}>
-            <Text style={styles.sectionHeader}>{block.label}</Text>
+            <Text style={styles.sectionHeader}>
+              {hasRedInHeaderPDF ? (
+                <>
+                  {headerLabelPDF.split(/<red>|<\/red>/).map((part, i) => {
+                    if (i % 2 === 1) {
+                      return <Text key={i} style={{ color: '#DC2626' }}>{part}</Text>;
+                    }
+                    return part;
+                  })}
+                </>
+              ) : (
+                headerLabelPDF
+              )}
+            </Text>
           </View>
         );
       
       case 'section_with_list':
+        const listLabelPDF = block.label || '';
+        const listContentPDF = block.content || '';
+        const hasRedInLabelPDF = listLabelPDF.includes('<red>');
+        const hasRedInContentPDF = listContentPDF.includes('<red>');
+        
         return (
           <View key={block.label} style={styles.fieldContainer}>
-            <Text style={styles.staticTitle}>{block.label}</Text>
+            <Text style={styles.staticTitle}>
+              {hasRedInLabelPDF ? (
+                <>
+                  {listLabelPDF.split(/<red>|<\/red>/).map((part, i) => {
+                    if (i % 2 === 1) {
+                      return <Text key={i} style={{ color: '#DC2626', fontWeight: 'bold' }}>{part}</Text>;
+                    }
+                    return part;
+                  })}
+                </>
+              ) : (
+                listLabelPDF
+              )}
+            </Text>
             {block.content && (
-              <Text style={[styles.staticContent, { marginBottom: 4 }]}>{block.content}</Text>
+              <Text style={[styles.staticContent, { marginBottom: 4 }]}>
+                {hasRedInContentPDF ? (
+                  <>
+                    {listContentPDF.split(/<red>|<\/red>/).map((part, i) => {
+                      if (i % 2 === 1) {
+                        return <Text key={i} style={{ color: '#DC2626', fontWeight: 'bold' }}>{part}</Text>;
+                      }
+                      return part;
+                    })}
+                  </>
+                ) : (
+                  listContentPDF
+                )}
+              </Text>
             )}
             {(block.items || []).map((item, idx) => {
               const itemText = typeof item === 'string' ? item : '';
@@ -539,6 +586,76 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
         return (
           <View key={content.substring(0, 50)} style={styles.fieldContainer}>
             <Text style={styles.staticContent}>{content}</Text>
+          </View>
+        );
+      
+      case 'styled_paragraph':
+        const styledContent = block.content || '';
+        // Parse styled content for PDF with tags: <red>, <underline>, <link>
+        const parseStyledTextPDF = (text: string) => {
+          const parts: any[] = [];
+          let remaining = text;
+          
+          while (remaining.length > 0) {
+            const redMatch = remaining.match(/<red>(.*?)<\/red>/);
+            const underlineMatch = remaining.match(/<underline>(.*?)<\/underline>/);
+            const linkMatch = remaining.match(/<link>(.*?)<\/link>/);
+            
+            const matches = [
+              redMatch ? { match: redMatch, type: 'red', index: remaining.indexOf(redMatch[0]) } : null,
+              underlineMatch ? { match: underlineMatch, type: 'underline', index: remaining.indexOf(underlineMatch[0]) } : null,
+              linkMatch ? { match: linkMatch, type: 'link', index: remaining.indexOf(linkMatch[0]) } : null
+            ].filter(Boolean).sort((a, b) => a!.index - b!.index);
+            
+            if (matches.length === 0) {
+              parts.push({ text: remaining, style: 'normal' });
+              break;
+            }
+            
+            const firstMatch = matches[0]!;
+            
+            if (firstMatch.index > 0) {
+              parts.push({ text: remaining.substring(0, firstMatch.index), style: 'normal' });
+            }
+            
+            const innerText = firstMatch.match[1];
+            parts.push({ text: innerText, style: firstMatch.type });
+            
+            remaining = remaining.substring(firstMatch.index + firstMatch.match[0].length);
+          }
+          
+          return parts;
+        };
+        
+        const parsedParts = parseStyledTextPDF(styledContent);
+        
+        return (
+          <View key={styledContent.substring(0, 50)} style={styles.fieldContainer}>
+            <Text style={styles.staticContent}>
+              {parsedParts.map((part, idx) => {
+                if (part.style === 'red') {
+                  return (
+                    <Text key={idx} style={{ color: '#DC2626', fontWeight: 'bold' }}>
+                      {part.text}
+                    </Text>
+                  );
+                } else if (part.style === 'underline') {
+                  return (
+                    <Text key={idx} style={{ textDecoration: 'underline' }}>
+                      {part.text}
+                    </Text>
+                  );
+                } else if (part.style === 'link') {
+                  return (
+                    <Text key={idx} style={{ color: '#2563EB', textDecoration: 'underline' }}>
+                      {part.text}
+                    </Text>
+                  );
+                } else {
+                  return <Text key={idx}>{part.text}</Text>;
+                }
+              })}
+            </Text>
           </View>
         );
       

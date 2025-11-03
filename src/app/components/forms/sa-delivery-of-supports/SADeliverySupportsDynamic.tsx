@@ -366,18 +366,66 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
         return renderSignatureGroup(block);
       
       case 'section_header':
+        const headerLabel = block.label || '';
+        const parsedHeaderLabel = headerLabel.replace(/<red>(.*?)<\/red>/g, (_, text) => text);
+        const hasRedInHeader = headerLabel.includes('<red>');
+        
         return (
           <div key={block.label} className="mb-3">
-            <p className="font-bold underline text-sm">{block.label}</p>
+            <p className="font-bold underline text-sm">
+              {hasRedInHeader ? (
+                <>
+                  {headerLabel.split(/<red>|<\/red>/).map((part, i) => {
+                    if (i % 2 === 1) {
+                      return <span key={i} className="text-red-600">{part}</span>;
+                    }
+                    return part;
+                  })}
+                </>
+              ) : (
+                headerLabel
+              )}
+            </p>
           </div>
         );
       
       case 'section_with_list':
+        const listLabel = block.label || '';
+        const listContent = block.content || '';
+        const hasRedInLabel = listLabel.includes('<red>');
+        const hasRedInContent = listContent.includes('<red>');
+        
         return (
           <div key={block.label} className="mb-4">
-            <p className="font-bold underline text-sm mb-2">{block.label}</p>
+            <p className="font-bold underline text-sm mb-2">
+              {hasRedInLabel ? (
+                <>
+                  {listLabel.split(/<red>|<\/red>/).map((part, i) => {
+                    if (i % 2 === 1) {
+                      return <span key={i} className="text-red-600">{part}</span>;
+                    }
+                    return part;
+                  })}
+                </>
+              ) : (
+                listLabel
+              )}
+            </p>
             {block.content && (
-              <p className="text-sm leading-loose mb-2">{block.content}</p>
+              <p className="text-sm leading-loose mb-2">
+                {hasRedInContent ? (
+                  <>
+                    {listContent.split(/<red>|<\/red>/).map((part, i) => {
+                      if (i % 2 === 1) {
+                        return <span key={i} className="text-red-600 font-bold">{part}</span>;
+                      }
+                      return part;
+                    })}
+                  </>
+                ) : (
+                  listContent
+                )}
+              </p>
             )}
             <ul className="list-disc list-inside space-y-2 text-sm leading-loose">
               {(block.items || [])
@@ -405,6 +453,69 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
             ) : (
               content
             )}
+          </p>
+        );
+      
+      case 'styled_paragraph':
+        const styledContent = block.content || '';
+        // Parse styled content with tags: <red>, <underline>, <link>
+        const parseStyledText = (text: string) => {
+          const parts: React.ReactNode[] = [];
+          let remaining = text;
+          let key = 0;
+          
+          while (remaining.length > 0) {
+            // Find the next tag
+            const redMatch = remaining.match(/<red>(.*?)<\/red>/);
+            const underlineMatch = remaining.match(/<underline>(.*?)<\/underline>/);
+            const linkMatch = remaining.match(/<link>(.*?)<\/link>/);
+            
+            // Find which tag comes first
+            const matches = [
+              redMatch ? { match: redMatch, type: 'red', index: remaining.indexOf(redMatch[0]) } : null,
+              underlineMatch ? { match: underlineMatch, type: 'underline', index: remaining.indexOf(underlineMatch[0]) } : null,
+              linkMatch ? { match: linkMatch, type: 'link', index: remaining.indexOf(linkMatch[0]) } : null
+            ].filter(Boolean).sort((a, b) => a!.index - b!.index);
+            
+            if (matches.length === 0) {
+              // No more tags, add remaining text
+              parts.push(remaining);
+              break;
+            }
+            
+            const firstMatch = matches[0]!;
+            
+            // Add text before the tag
+            if (firstMatch.index > 0) {
+              parts.push(remaining.substring(0, firstMatch.index));
+            }
+            
+            // Add styled element
+            const innerText = firstMatch.match[1];
+            if (firstMatch.type === 'red') {
+              parts.push(<span key={key++} className="text-red-600 font-bold">{innerText}</span>);
+            } else if (firstMatch.type === 'underline') {
+              parts.push(<span key={key++} className="underline">{innerText}</span>);
+            } else if (firstMatch.type === 'link') {
+              const isEmail = innerText.includes('@');
+              const href = isEmail ? `mailto:${innerText}` : (innerText.startsWith('http') ? innerText : `https://${innerText}`);
+              parts.push(
+                <a key={key++} href={href} className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">
+                  {innerText}
+                </a>
+              );
+            }
+            
+            // Move past this tag
+            remaining = remaining.substring(firstMatch.index + firstMatch.match[0].length);
+          }
+          
+          return parts;
+        };
+        
+        return (
+          <p key={styledContent.substring(0, 50)} className="mb-2 text-sm leading-loose" style={{ fontSize: '14px' }}>
+            {parseStyledText(styledContent)}
           </p>
         );
       
