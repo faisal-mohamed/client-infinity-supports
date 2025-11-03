@@ -12,13 +12,17 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
-  FaSpinner,
+  FaSpinner as FaSpinnerIcon,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
 import {formatDateForStorage, formatDateForInput} from '@/lib/dateFormatHelper'
+
+// Match Client Intake form's custom hourglass emoji for better visual consistency
+const FaHourglassHalf = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
+const FaSpinner = FaSpinnerIcon;
 
 interface FormProps {
   formData: any;
@@ -109,9 +113,9 @@ const FORM_SECTIONS : any  = [
     icon: FaSignature,
     description: "Completion and signature details",
     fields: [
-      "authorName", "designation", "signature"
+      "authorName", "designation", "assessorSignature"
     ],
-    requiredFields: ["designation", "signature", "authorName"],
+    requiredFields: ["designation", "assessorSignature", "authorName"],
   },
 ];
 
@@ -225,9 +229,10 @@ const getCommonFieldValue = (fieldName: string): string => {
     responsible5: "",
     
     // Signature
+    authorName: "",
     designation: "",
+    assessorSignature: "",
     ...formData,
-    signature: "",
   };
 
   // Initialize local values with form data, but common fields will be displayed from commonFieldsData
@@ -238,6 +243,10 @@ const getCommonFieldValue = (fieldName: string): string => {
   // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
   // Note: 'saving' state comes from parent component via props
+  
+  // 🎯 UI BUSY ACTION STATE - Track which specific button action is in progress
+  const [uiBusyAction, setUiBusyAction] = useState<'next' | 'save' | 'submit' | null>(null);
+  const buttonsLocked = uiBusyAction !== null || saving || submitting;
 
   // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -374,9 +383,15 @@ const handleChange = (
 
 
   const handleNextSequential = async () => {
-    // Save progress before moving to next section
-    await handleSaveProgress();
-    handleNext();
+    if (buttonsLocked) return;
+    setUiBusyAction('next');
+    try {
+      // Save progress before moving to next section
+      await handleSaveProgress();
+      handleNext();
+    } finally {
+      setUiBusyAction(null);
+    }
   };
 
   const handlePreviousSequential = () => {
@@ -787,7 +802,7 @@ responsible5: {
         authorName: { label: "Name", type: "text", placeholder: "Enter your Name" },
 
     designation: { label: "Designation", type: "text", placeholder: "Enter your designation/title" },
-    signature: { label: "Signature", type: "signature", placeholder: "Draw your signature in the box above" },
+    assessorSignature: { label: "Signature", type: "signature", placeholder: "Draw your signature in the box above" },
   };
 
   const validateRequiredFields = () => {
@@ -866,16 +881,16 @@ responsible5: {
   // Handle signature end (when user finishes drawing)
   const handleSignatureEnd = (dataUrl: string) => {
     // Update local values with signature
-    const newValues = { ...localValues, signature: dataUrl };
+    const newValues = { ...localValues, assessorSignature: dataUrl };
     setLocalValues(newValues);
-    onChange(newValues, "signature", false);
+    onChange(newValues, "assessorSignature", false);
   };
 
   // Handle signature clear
   const handleSignatureClear = () => {
-    const newValues = { ...localValues, signature: "" };
+    const newValues = { ...localValues, assessorSignature: "" };
     setLocalValues(newValues);
-    onChange(newValues, "signature", false);
+    onChange(newValues, "assessorSignature", false);
   };
 
 
@@ -1084,8 +1099,8 @@ useEffect(() => {
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
+              disabled={currentStep === 0 || buttonsLocked}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === 0 || buttonsLocked) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
             >
               <FaChevronLeft className="w-4 h-4" />
               <span>Previous</span>
@@ -1094,34 +1109,75 @@ useEffect(() => {
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || buttonsLocked}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || buttonsLocked) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
-              <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {uiBusyAction === 'next' ? (
+                <>
+                  <FaHourglassHalf className="w-4 h-4 animate-spin" />
+                  <span>Next</span>
+                </>
+              ) : (
+                <>
+                  <span>Next</span>
+                  <FaChevronRight className="w-4 h-4" />
+                </>
+              )}
             </button>
 
             <button
-              onClick={() => handleSaveProgress()}
-              disabled={saving || submitting}
+              onClick={async () => {
+                if (buttonsLocked) return;
+                setUiBusyAction('save');
+                try {
+                  await handleSaveProgress();
+                } finally {
+                  setUiBusyAction(null);
+                }
+              }}
+              disabled={buttonsLocked}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save Progress'}
+              {(uiBusyAction === 'save') || (saving && uiBusyAction === null) ? (
+                <>
+                  <FaSpinner className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <FaSave className="w-4 h-4" />
+                  <span>Save Progress</span>
+                </>
+              )}
             </button>
           </div>
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
-              onClick={(e) => {
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition disabled:opacity-50"
+              onClick={async (e) => {
                 e.preventDefault();
-                handleFormSubmitCheckValidation();
+                if (buttonsLocked) return;
+                setUiBusyAction('submit');
+                try {
+                  await handleFormSubmitCheckValidation();
+                } finally {
+                  setUiBusyAction(null);
+                }
               }}
-              disabled={saving || submitting}
+              disabled={buttonsLocked}
             >
-              <FaCheck className="w-4 h-4" />
-              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
+              {(uiBusyAction === 'submit') || (submitting && uiBusyAction === null) ? (
+                <>
+                  <FaHourglassHalf className="w-4 h-4 animate-spin" />
+                  <span>Submitting...</span>
+                </>
+              ) : (
+                <>
+                  <FaCheck className="w-4 h-4" />
+                  <span>Submit Form</span>
+                </>
+              )}
             </button>
           )}
         </footer>

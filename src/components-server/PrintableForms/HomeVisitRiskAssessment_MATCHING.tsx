@@ -289,7 +289,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       ndisNumber: 'ndis',        // Web view uses 'ndis'
       dob: 'dob',
       address: 'street',          // Web view uses 'street'
-    };
+  };
 
     // Try form data first, then common fields with proper mapping
     let rawValue = formData?.[key];
@@ -544,28 +544,28 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
           )}
 
           {/* Signature Section */}
-            <View style={styles.signatureGrid}>
+          <View style={styles.signatureGrid}>
             <View style={styles.signatureField}>
               <Text style={styles.signatureLabel}>Name:</Text>
               <View style={styles.signatureBox}>
-                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{getFieldValue('name')}</Text>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{getFieldValue('authorName') || getFieldValue('name')}</Text>
               </View>
             </View>
 
             <View style={styles.signatureField}>
               <Text style={styles.signatureLabel}>Signature:</Text>
-                    <View style={styles.signatureBox}>
-                {getFieldValue('signature')?.startsWith('data:image') && (
-                  <Image src={getFieldValue('signature')} style={styles.signatureImage} />
-                      )}
-                    </View>
+              <View style={styles.signatureBox}>
+                {getFieldValue('assessorSignature')?.startsWith('data:image') && (
+                  <Image src={getFieldValue('assessorSignature')} style={styles.signatureImage} />
+                )}
+              </View>
             </View>
 
             <View style={styles.signatureField}>
               <Text style={styles.signatureLabel}>Designation:</Text>
               <View style={styles.signatureBox}>
                 <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{getFieldValue('designation')}</Text>
-                </View>
+              </View>
             </View>
           </View>
         </View>

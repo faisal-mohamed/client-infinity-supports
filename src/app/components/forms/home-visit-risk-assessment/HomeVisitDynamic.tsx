@@ -48,11 +48,11 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
     
     const mappedKey = commonFieldMap[key];
     let rawValue = mappedKey ? commonFieldsData?.[mappedKey] : formData?.[key];
-    
+
     if (typeof rawValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       return formatDate(rawValue);
     }
-    
+
     return rawValue ?? '';
   };
 
@@ -216,30 +216,30 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
     <div className="mb-4">
       <h2 className="text-lg font-semibold text-center mb-4">Home & Visit Risk Assessment</h2>
       <table className="w-full border border-black text-xs table-fixed">
-        <tbody>
-          <tr>
+          <tbody>
+            <tr>
             <td className="border border-black p-2 w-1/3">
-              <span className="font-semibold">Name:</span> {getFieldValue('name')}
-            </td>
-            <td className="border border-black p-2 w-1/3">
-              <span className="font-semibold">NDIS Number:</span> {getFieldValue('ndisNumber')}
-            </td>
-            <td className="border border-black p-2 w-1/3">
-              <span className="font-semibold">DOB:</span> {getFieldValue('dob')}
-            </td>
-          </tr>
-          <tr>
-            <td className="border border-black p-2" colSpan={3}>
-              <span className="font-semibold">Address:</span> {getFieldValue('address')}
-            </td>
-          </tr>
-          <tr>
-            <td className="border border-black p-2" colSpan={3}>
+                <span className="font-semibold">Name:</span> {getFieldValue('name')}
+              </td>
+              <td className="border border-black p-2 w-1/3">
+                <span className="font-semibold">NDIS Number:</span> {getFieldValue('ndisNumber')}
+              </td>
+              <td className="border border-black p-2 w-1/3">
+                <span className="font-semibold">DOB:</span> {getFieldValue('dob')}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-2" colSpan={3}>
+                <span className="font-semibold">Address:</span> {getFieldValue('address')}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-2" colSpan={3}>
               <span className="font-semibold">Date of completion of risk assessment:</span> {formatDate(formData?.completionDate)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
     </div>
   );
 
@@ -254,14 +254,14 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
         )}
         <table className="w-full border-collapse border border-black text-sm">
           {sectionIndex === 0 && (
-            <thead>
+          <thead>
               <tr className="bg-gray-200">
                 <th className="border border-black w-[40%] p-2 text-left">Question</th>
-                <th className="border border-black w-[7%] text-center p-2">YES</th>
-                <th className="border border-black w-[7%] text-center p-2">NO</th>
+              <th className="border border-black w-[7%] text-center p-2">YES</th>
+              <th className="border border-black w-[7%] text-center p-2">NO</th>
                 <th className="border border-black w-[46%] p-2 text-left">COMMENTS</th>
-              </tr>
-            </thead>
+            </tr>
+          </thead>
           )}
           <tbody>
             {section.fields.map((field) => {
@@ -290,8 +290,8 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
                         ))}
                         {comments && <div className="mt-1 italic text-xs">{comments}</div>}
                       </div>
-                    </td>
-                  </tr>
+              </td>
+            </tr>
                 );
               }
 
@@ -300,14 +300,14 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
                   <td className="border border-black p-2 align-top font-medium">{field.label}</td>
                   <td className="border border-black text-center align-top p-1">
                     {value?.toLowerCase() === "yes" ? "✔️" : ""}
-                  </td>
+              </td>
                   <td className="border border-black text-center align-top p-1">
                     {value?.toLowerCase() === "no" ? "✔️" : ""}
-                  </td>
+              </td>
                   <td className="border border-black p-2 align-top text-xs">
                     {comments}
-                  </td>
-                </tr>
+              </td>
+            </tr>
               );
             })}
           </tbody>
@@ -317,19 +317,19 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
   };
 
   const renderRiskMatrix = () => (
-    <div className="mb-4">
+        <div className="mb-4">
       <div className="flex justify-center mb-3">
-        <img
-          src="/home_risk_assessment.png"
-          alt="Risk Matrix"
+            <img
+              src="/home_risk_assessment.png"
+              alt="Risk Matrix"
           className="max-w-full h-auto"
           style={{ maxHeight: '300px' }}
-        />
-      </div>
+            />
+          </div>
       <div className="space-y-2 text-xs">
         <h3 className="text-sm font-semibold underline text-center mb-2">
-          Risk Assessment Outcome – Proceed with Visit as follows:
-        </h3>
+              Risk Assessment Outcome – Proceed with Visit as follows:
+            </h3>
         {[
           { title: "LOW GREEN", color: "green", text: "Visit acceptable. Ensure control options are followed." },
           { title: "MEDIUM YELLOW", color: "yellow", text: "Visit should only proceed after consultation with Manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as Moderate Risk." },
@@ -340,44 +340,44 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
             <h4 className="font-bold text-xs">
               <span>{block.title.split(" ")[0]} </span>
               <span className={`text-${block.color}-600`}>{block.title.split(" ")[1]}</span>
-            </h4>
+                </h4>
             <p className="text-xs leading-relaxed text-gray-700">{block.text}</p>
-          </div>
+              </div>
         ))}
-      </div>
-    </div>
+          </div>
+        </div>
   );
 
   const renderRiskTable = () => (
     <div className="mb-4">
       <table className="w-full border-collapse border border-black text-xs">
-        <thead>
-          <tr className="bg-gray-400">
+            <thead>
+              <tr className="bg-gray-400">
             <th className="border border-black p-2 text-left font-bold text-black">Issue/Task</th>
             <th className="border border-black p-2 text-left font-bold text-black">Risk Score</th>
             <th className="border border-black p-2 text-left font-bold text-black">Control Measure</th>
             <th className="border border-black p-2 text-left font-bold text-black">Person Responsible</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filledRiskRows.map((row) => (
-            <tr key={row}>
-              <td className="border border-black p-2 align-top">
+              </tr>
+            </thead>
+            <tbody>
+              {filledRiskRows.map((row) => (
+                <tr key={row}>
+                  <td className="border border-black p-2 align-top">
                 {getFieldValue(`issue${row}`)}
-              </td>
-              <td className="border border-black p-2 align-top">
+                  </td>
+                  <td className="border border-black p-2 align-top">
                 {getFieldValue(`riskScore${row}`)}
-              </td>
-              <td className="border border-black p-2 align-top">
+                  </td>
+                  <td className="border border-black p-2 align-top">
                 {getFieldValue(`control${row}`)}
-              </td>
-              <td className="border border-black p-2 align-top">
+                  </td>
+                  <td className="border border-black p-2 align-top">
                 {getFieldValue(`responsible${row}`)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
     </div>
   );
 
@@ -387,14 +387,14 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
         <div className="text-center">
           <div className="font-semibold mb-2">Name:</div>
           <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">
-            {getFieldValue('name')}
+            {getFieldValue('authorName') || getFieldValue('name')}
           </div>
         </div>
         <div className="text-center">
           <div className="font-semibold mb-2">Signature:</div>
           <div className="border-b-2 border-black pb-1 min-h-[24px] flex justify-center items-center">
-            {formData?.signature ? (
-              <img src={formData.signature} alt="Signature" className="max-h-[50px] object-contain" />
+            {formData?.assessorSignature ? (
+              <img src={formData.assessorSignature} alt="Signature" className="max-h-[50px] object-contain" />
             ) : (
               <span className="text-gray-400 italic">No signature</span>
             )}
@@ -508,7 +508,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
               {renderUnit(units[unitIdx])}
             </div>
           ))}
-        </A4Page>
+    </A4Page>
       ))}
     </div>
   );
