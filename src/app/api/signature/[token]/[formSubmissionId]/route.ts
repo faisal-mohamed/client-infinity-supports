@@ -29,22 +29,6 @@ export async function GET(
         id: true,
         name: true,
         email: true,
-        commonFields: {
-          select: {
-            name: true,
-            age: true,
-            email: true,
-            sex: true,
-            street: true,
-            state: true,
-            postCode: true,
-            dob: true,
-            ndis: true,
-            disability: true,
-            address: true,
-            phone: true,
-          },
-        },
       },
     },
     signatureForms: {
@@ -101,9 +85,17 @@ export async function GET(
 
 console.log(result);
 
+    // Fetch commonFields separately (same as admin API for consistency)
+    const commonFields = await prisma.commonField.findUnique({
+      where: { clientId: batch.client.id },
+    });
+
     return NextResponse.json({
       formSubmission: result.formSubmission,
-      client: batch.client,
+      client: {
+        ...batch.client,
+        commonFields: commonFields ? [commonFields] : [], // Wrap in array for backward compatibility
+      },
       batchToken: batch.batchToken,
       isExpired: batch.expiresAt < new Date(),
     });
