@@ -22,16 +22,15 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings,
 
   const commonFieldMapping: Record<string, string> = {
     name: "name",
-    ndisNumber: "ndis", 
+    ndisNumber: "ndisNumber", // Changed from "ndis" to "ndisNumber"
     dob: "dob",
-    address: "street",
+    address: "address", // Changed from "street" to "address"
   };
 
   // Get field value helper function
   const getFieldValue = (key: string): string => {
-    let rawValue = commonFieldMapping[key]
-      ? commonFieldsData?.[commonFieldMapping[key]]
-      : formData?.[key];
+    // First try commonFieldsData, then formData
+    let rawValue = commonFieldsData?.[commonFieldMapping[key]] || formData?.[key];
 
     if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       const parsed = parseISO(rawValue);

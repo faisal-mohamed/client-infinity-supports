@@ -7,28 +7,19 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer';
-import { homeVisitSchema, HomeVisitSchemaBlock } from '../../app/components/forms/home-visit-risk-assessment/schema';
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 30,
-    paddingTop: 120,
-    paddingBottom: 50,
-    fontFamily: 'Helvetica',
-  },
-  coverPage: {
-    flexDirection: 'column',
-    backgroundColor: '#ffffff',
-    padding: 30,
-    paddingTop: 80,
-    paddingBottom: 50,
+    padding: 20,
+    paddingTop: 85,
+    paddingBottom: 40,
     fontFamily: 'Helvetica',
   },
   header: {
     position: 'absolute',
-    top: 20,
+    top: 15,
     left: 0,
     right: 0,
     flexDirection: 'column',
@@ -36,168 +27,236 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerLogo: {
-    width: 180,
-    height: 70,
+    width: 150,
+    height: 60,
     objectFit: 'contain',
-  },
-  coverLogo: {
-    width: 200,
-    height: 80,
-    objectFit: 'contain',
-    marginBottom: 24,
   },
   footer: {
     position: 'absolute',
-    bottom: 15,
-    left: 30,
-    right: 30,
+    bottom: 10,
+    left: 20,
+    right: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    fontSize: 9,
+    fontSize: 8,
     borderTop: '1 solid #d1d5db',
-    paddingTop: 6,
+    paddingTop: 4,
   },
   footerText: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#6b7280',
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  coverTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  coverSubtitle: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 1.5,
-  },
-  sectionHeader: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    marginTop: 16,
-    borderBottom: '2 solid #3b82f6',
-    paddingBottom: 4,
-  },
-  fieldContainer: {
-    marginBottom: 12,
-  },
-  fieldLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 4,
+    textAlign: 'center',
+    marginBottom: 8,
   },
-  fieldValue: {
-    fontSize: 10,
-    borderBottom: '1 solid #9ca3af',
-    paddingBottom: 4,
-    minHeight: 16,
+  // Metadata table styles
+  metadataTable: {
+    border: '1 solid #000000',
+    marginBottom: 6,
   },
-  radioContainer: {
+  metadataRow: {
     flexDirection: 'row',
-    gap: 16,
+    borderBottom: '1 solid #000000',
   },
-  radioOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+  metadataCell: {
+    padding: 4,
+    fontSize: 8,
+    borderRight: '1 solid #000000',
+    flex: 1,
   },
-  radioCircle: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    border: '1 solid #374151',
+  metadataCellLast: {
+    padding: 4,
+    fontSize: 8,
+    flex: 1,
   },
-  radioSelected: {
-    backgroundColor: '#374151',
+  metadataCellFull: {
+    padding: 4,
+    fontSize: 8,
   },
-  radioText: {
-    fontSize: 10,
+  labelText: {
+    fontWeight: 'bold',
   },
-  textareaValue: {
-    fontSize: 10,
-    border: '1 solid #d1d5db',
-    padding: 8,
-    minHeight: 40,
-    backgroundColor: '#f9fafb',
+  // Q&A table styles
+  qaTable: {
+    border: '1 solid #000000',
+    marginTop: 4,
   },
-  table: {
-    marginBottom: 16,
-  },
-  tableHeader: {
+  qaHeaderRow: {
     flexDirection: 'row',
     backgroundColor: '#f3f4f6',
-    borderBottom: '1 solid #d1d5db',
+    borderBottom: '1 solid #000000',
   },
-  tableHeaderCell: {
-    flex: 1,
-    padding: 8,
-    fontSize: 10,
+  qaHeaderCell: {
+    padding: 4,
+    fontSize: 8,
     fontWeight: 'bold',
-    borderRight: '1 solid #d1d5db',
+    borderRight: '1 solid #000000',
   },
-  tableRow: {
+  qaHeaderCellLast: {
+    padding: 4,
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+  qaSectionRow: {
     flexDirection: 'row',
-    borderBottom: '1 solid #e5e7eb',
+    backgroundColor: '#d1d5db',
+    borderBottom: '1 solid #000000',
   },
-  tableCell: {
+  qaSectionCell: {
+    padding: 5,
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+  qaRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #000000',
+  },
+  qaQuestionCell: {
+    width: '40%',
+    padding: 4,
+    fontSize: 7,
+    fontWeight: 'bold',
+    borderRight: '1 solid #000000',
+  },
+  qaYesCell: {
+    width: '7%',
+    padding: 4,
+    fontSize: 7,
+    textAlign: 'center',
+    borderRight: '1 solid #000000',
+  },
+  qaNoCell: {
+    width: '7%',
+    padding: 4,
+    fontSize: 7,
+    textAlign: 'center',
+    borderRight: '1 solid #000000',
+  },
+  qaCommentsCell: {
+    width: '46%',
+    padding: 4,
+    fontSize: 7,
+  },
+  // Risk assessment table
+  riskTable: {
+    border: '1 solid #000000',
+    marginTop: 6,
+  },
+  riskHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#9ca3af',
+    borderBottom: '1 solid #000000',
+  },
+  riskHeaderCell: {
+    padding: 5,
+    fontSize: 8,
+    fontWeight: 'bold',
+    borderRight: '1 solid #000000',
     flex: 1,
-    padding: 8,
+  },
+  riskHeaderCellLast: {
+    padding: 5,
+    fontSize: 8,
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  riskRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #000000',
+  },
+  riskCell: {
+    padding: 5,
+    fontSize: 7,
+    borderRight: '1 solid #000000',
+    flex: 1,
+    minHeight: 30,
+  },
+  riskCellLast: {
+    padding: 5,
+    fontSize: 7,
+    flex: 1,
+    minHeight: 30,
+  },
+  // Risk matrix and legend
+  riskMatrix: {
+    width: 500,
+    height: 220,
+    marginTop: 6,
+    marginBottom: 8,
+    objectFit: 'contain',
+  },
+  legendTitle: {
     fontSize: 9,
-    borderRight: '1 solid #e5e7eb',
-    minHeight: 32,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    textAlign: 'center',
+    textDecoration: 'underline',
   },
-  signatureSection: {
-    marginTop: 24,
+  legendBlock: {
+    marginBottom: 4,
   },
+  legendBlockTitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 1,
+  },
+  legendBlockText: {
+    fontSize: 7,
+    lineHeight: 1.3,
+  },
+  // Signature section
   signatureGrid: {
     flexDirection: 'row',
-    gap: 16,
+    marginTop: 20,
+    gap: 12,
   },
   signatureField: {
     flex: 1,
+    alignItems: 'center',
+  },
+  signatureLabel: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 6,
   },
   signatureBox: {
-    border: '1 solid #d1d5db',
-    height: 60,
+    borderBottom: '2 solid #000000',
+    width: '100%',
+    minHeight: 40,
     marginBottom: 4,
-    backgroundColor: '#f9fafb',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   signatureImage: {
-    maxHeight: 60,
+    maxHeight: 35,
+    maxWidth: 100,
     objectFit: 'contain',
   },
-  coverInfo: {
-    marginTop: 32,
+  checkboxGroup: {
+    flexDirection: 'column',
+    gap: 1,
   },
-  coverInfoGrid: {
+  checkboxOption: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
+    alignItems: 'center',
+    marginBottom: 1,
   },
-  coverInfoField: {
-    width: '45%',
-    marginBottom: 16,
+  checkbox: {
+    width: 7,
+    height: 7,
+    border: '1 solid #000000',
+    marginRight: 3,
   },
-  coverInfoLabel: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginBottom: 4,
+  checkboxChecked: {
+    backgroundColor: '#000000',
   },
-  coverInfoValue: {
-    fontSize: 10,
-    borderBottom: '1 solid #9ca3af',
-    paddingBottom: 4,
-    minHeight: 16,
+  checkboxText: {
+    fontSize: 7,
   },
 });
 
@@ -215,44 +274,31 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   images = {}
 }) => {
 
-  // Use base64 images provided by API instead of file paths
-  const getImageSrc = (relativePath: string): string => {
-    if (!images || Object.keys(images).length === 0) {
-      console.log(`🖼️ [BROWSER] No images provided by API, using fallback for: ${relativePath}`);
-      return relativePath;
+  console.log('🔍 [PDF] HomeVisit PDF Generation Started');
+  console.log('📋 [PDF] Form data keys:', Object.keys(formData));
+  console.log('🏢 [PDF] Settings:', settings);
+  console.log('🏢 [PDF] Settings keys:', Object.keys(settings || {}));
+  console.log('🖼️ [PDF] Images received:', Object.keys(images));
+  console.log('🔧 [PDF] Common fields:', commonFieldsData);
+
+  // Get field value helper - FIXED to match web view field mapping
+  const getFieldValue = (key: string): string => {
+    // Common field mappings - match web view exactly
+    const commonFieldMap: Record<string, string> = {
+      name: 'name',
+      ndisNumber: 'ndis',        // Web view uses 'ndis'
+      dob: 'dob',
+      address: 'street',          // Web view uses 'street'
+    };
+
+    // Try form data first, then common fields with proper mapping
+    let rawValue = formData?.[key];
+    
+    if (!rawValue && commonFieldMap[key]) {
+      rawValue = commonFieldsData?.[commonFieldMap[key]];
     }
 
-    const imageMap: Record<string, string> = {
-      '/infinity_logo.png': 'infinityLogo',
-    };
-    
-    const imageKey = imageMap[relativePath];
-    const base64Image = images[imageKey];
-    
-    console.log(`🖼️ [BROWSER] Image ${relativePath} -> key: ${imageKey} -> ${base64Image ? 'found' : 'missing'}`);
-    
-    return base64Image || relativePath;
-  };
-
-  console.log('🔍 [BROWSER] HomeVisit PDF Generation Started');
-  console.log('📊 [BROWSER] Schema blocks:', homeVisitSchema.length);
-  console.log('📋 [BROWSER] Form data:', formData);
-  console.log('🏢 [BROWSER] Settings:', settings);
-  console.log('🖼️ [BROWSER] Images received:', Object.keys(images));
-
-  const commonFieldMapping: Record<string, string> = {
-    name: "name",
-    ndisNumber: "ndis",
-    dob: "dob",
-    address: "street",
-  };
-
-  // Get field value helper function
-  const getFieldValue = (key: string): string => {
-    let rawValue = commonFieldMapping[key]
-      ? commonFieldsData?.[commonFieldMapping[key]]
-      : formData?.[key];
-
+    // Format dates
     if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       try {
         const [year, month, day] = rawValue.split('-');
@@ -277,13 +323,102 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     return value;
   };
 
-  // Footer values (mirror settings API keys like SA Delivery)
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
-  const footerId = settings?.home_visit_form_id || '';
+  // Footer values - match web view exactly
+  const footerWebsite = settings?.company_website || settings?.website || settings?.from_email || '';
+  const footerId = settings?.home_visit_form_id || 'HV001';
   const footerDate = formatDate(settings?.review_date || '');
-  console.log('[PDF HomeVisit Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) });
+  
+  console.log('🦶 [PDF Footer]', { footerWebsite, footerId, footerDate });
 
-  // Filter filled risk assessment rows
+  const logoSrc = images?.infinityLogo || '/infinity_logo.png';
+  const riskMatrixSrc = images?.riskMatrix || '/home_risk_assessment.png';
+
+  // Page 1 & 2 Questions (CLIENT AND FAMILY, ENVIRONMENT, GEOGRAPHICAL LOCATION)
+  const page1Questions = [
+    { section: 'CLIENT AND FAMILY' },
+    { label: 'Will anyone else be present during the visit?', key: 'visitCompany' },
+    { label: 'Any history of verbal or physical aggression from the client or family?', key: 'aggressionHistory' },
+    { label: 'Any history of alcohol or drug use? (If yes, there can be no use of alcohol or use of drugs whilst the staff member is in home)', key: 'drugUseHistory' },
+    { label: 'Is there an advanced care directive? (If yes, please add this information to risk assessment and care plan)', key: 'careDirective' },
+    { section: 'ENVIRONMENT' },
+    { label: 'If there are any pets, has the client agreed to restrain them during the visit?', key: 'petsRestrained' },
+    { label: 'Are there any weapons in the home? (If yes, please make sure they are stored appropriately during the visit.)', key: 'weaponsInHome' },
+  ];
+
+  const page2Questions = [
+    { label: 'If there are any smokers, have they agreed to refrain from smoking during the visit?', key: 'smokingAgreement' },
+    { label: 'Are there smoke detectors present and in working condition?', key: 'smokeDetectors' },
+    { label: 'Any apparent fire hazards?', key: 'fireHazards' },
+    { section: 'GEOGRAPHICAL LOCATION' },
+    { label: 'Are there any difficulties locating the address/access to the building?', key: 'accessDifficulties' },
+    { label: 'Is there parking available?', key: 'parking' },
+    { label: 'Is entry via the front door? If no, which door is used for entry?', key: 'entryPoint', type: 'checkbox' },
+    { label: 'Are there any issues with mobile phone reception?', key: 'mobileReception' },
+  ];
+
+  // Render Q&A Row
+  const renderQARow = (q: any) => {
+    if (q.section) {
+      return (
+        <View style={styles.qaSectionRow} key={q.section}>
+          <Text style={styles.qaSectionCell}>{q.section}</Text>
+        </View>
+      );
+    }
+
+    const value = getFieldValue(q.key);
+    const comments = getFieldValue(`${q.key}_comments`);
+
+    // Handle checkbox type (entry point)
+    if (q.type === 'checkbox') {
+      const entryOptions: string[] = ['Left side', 'Right Side', 'Rear', 'Front Door', 'Other'];
+      const rawValue = formData?.[q.key];
+      const selectedOptions: string[] = Array.isArray(rawValue) ? rawValue : [];
+      
+      return (
+        <View style={styles.qaRow} key={q.key}>
+          <View style={styles.qaQuestionCell}>
+            <Text>{q.label}</Text>
+          </View>
+          <View style={styles.qaYesCell}></View>
+          <View style={styles.qaNoCell}></View>
+          <View style={styles.qaCommentsCell}>
+            <View style={styles.checkboxGroup}>
+              {entryOptions.map((opt: string) => (
+                <View style={styles.checkboxOption} key={opt}>
+                  <View style={selectedOptions.includes(opt) ? [styles.checkbox, styles.checkboxChecked] : styles.checkbox} />
+                  <Text style={styles.checkboxText}>{opt}</Text>
+                </View>
+              ))}
+            </View>
+            {comments && <Text style={{ fontSize: 8, marginTop: 4, fontStyle: 'italic' }}>{comments}</Text>}
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.qaRow} key={q.key}>
+        <View style={styles.qaQuestionCell}>
+          <Text>{q.label}</Text>
+        </View>
+        <View style={styles.qaYesCell}>
+          <Text>{value?.toLowerCase() === 'yes' ? '✔' : ''}</Text>
+        </View>
+        <View style={styles.qaNoCell}>
+          <Text>{value?.toLowerCase() === 'no' ? '✔' : ''}</Text>
+        </View>
+        <View style={styles.qaCommentsCell}>
+          <Text>{comments || ''}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  // Combine all questions for continuous flow
+  const allQuestions = [...page1Questions, ...page2Questions];
+
+  // Filter filled risk assessment rows - only show rows with data
   const filledRiskRows = [1, 2, 3, 4, 5].filter(row => {
     const issue = getFieldValue(`issue${row}`);
     const riskScore = getFieldValue(`riskScore${row}`);
@@ -292,303 +427,154 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     return issue || riskScore || control || responsible;
   });
 
-  // Render individual block content
-  const renderBlockContent = (block: HomeVisitSchemaBlock, index: number) => {
-    console.log(`🎨 [BROWSER] Rendering block ${index}: ${block.type}`);
-    
-    switch (block.type) {
-      case 'section_header':
-        return (
-          <Text key={index} style={styles.sectionHeader}>{block.label}</Text>
-        );
-
-      case 'form_field':
-        return (
-          <View key={index}>
-            {block.fields?.map((field, fieldIndex) => (
-              <View key={fieldIndex} style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>
-                  {field.label}
-                  {field.required && <Text style={{ color: '#ef4444' }}> *</Text>}
-                </Text>
-                {field.type === 'radio' ? (
-                  <View style={styles.radioContainer}>
-                    {field.options?.map((option, optIndex) => (
-                      <View key={optIndex} style={styles.radioOption}>
-                        <View style={[
-                          styles.radioCircle,
-                          getFieldValue(field.key) === option && styles.radioSelected
-                        ]} />
-                        <Text style={styles.radioText}>{option}</Text>
-                      </View>
-                    ))}
-                  </View>
-                ) : field.type === 'textarea' ? (
-                  <Text style={styles.textareaValue}>
-                    {getFieldValue(field.key) || ''}
-                  </Text>
-                ) : field.type === 'signature' ? (
-                  <View style={styles.signatureBox}>
-                    {getFieldValue(field.key)?.startsWith('data:image') && (
-                      <Image
-                        src={getFieldValue(field.key)}
-                        style={styles.signatureImage}
-                      />
-                    )}
-                  </View>
-                ) : (
-                  <Text style={styles.fieldValue}>
-                    {getFieldValue(field.key) || ''}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-        );
-
-      case 'table':
-        return (
-          <View key={index} style={styles.table}>
-            <View style={styles.tableHeader}>
-              {block.table?.headers.map((header, headerIndex) => (
-                <Text key={headerIndex} style={styles.tableHeaderCell}>
-                  {header}
-                </Text>
-              ))}
-            </View>
-            {block.table?.rows.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.tableRow}>
-                {row.fields.map((field, fieldIndex) => (
-                  <Text key={fieldIndex} style={styles.tableCell}>
-                    {getFieldValue(field.key) || ''}
-                  </Text>
-                ))}
-              </View>
-            ))}
-          </View>
-        );
-
-      case 'signature_section':
-        return (
-          <View key={index} style={styles.signatureSection}>
-            <Text style={styles.sectionHeader}>{block.label}</Text>
-            <View style={styles.signatureGrid}>
-              {block.fields?.map((field, fieldIndex) => (
-                <View key={fieldIndex} style={styles.signatureField}>
-                  <Text style={styles.fieldLabel}>
-                    {field.label}
-                    {field.required && <Text style={{ color: '#ef4444' }}> *</Text>}
-                  </Text>
-                  {field.type === 'signature' ? (
-                    <View style={styles.signatureBox}>
-                      {getFieldValue(field.key)?.startsWith('data:image') && (
-                        <Image
-                          src={getFieldValue(field.key)}
-                          style={styles.signatureImage}
-                        />
-                      )}
-                    </View>
-                  ) : (
-                    <Text style={styles.fieldValue}>
-                      {getFieldValue(field.key) || ''}
-                    </Text>
-                  )}
-                </View>
-              ))}
-            </View>
-          </View>
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
     <Document>
-      {/* Single Content Page with Fixed Footer - Like SA Delivery */}
+      {/* SINGLE PAGE with dynamic flow - React-PDF will auto-paginate */}
       <Page size="A4" style={styles.page}>
-        {/* Fixed Header */}
-        <View style={styles.header}>
-          <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
+        {/* Fixed Header on all pages */}
+        <View style={styles.header} fixed>
+          <Image src={logoSrc} style={styles.headerLogo} />
         </View>
 
-        {/* All Content in Single Flow - Like SA Delivery */}
+        {/* Content - flows naturally with automatic page breaks */}
         <View>
-          <Text style={styles.title}>HOME & COMMUNITY VISIT RISK ASSESSMENT</Text>
-          
+          <Text style={styles.title}>Home & Visit Risk Assessment</Text>
+
           {/* Metadata Table */}
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { width: '33%' }]}>
-                Name: {getFieldValue('name')}
-              </Text>
-              <Text style={[styles.tableCell, { width: '33%' }]}>
-                NDIS Number: {getFieldValue('ndisNumber')}
-              </Text>
-              <Text style={[styles.tableCell, { width: '34%' }]}>
-                DOB: {getFieldValue('dob')}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { width: '100%' }]}>
-                Address: {getFieldValue('address')}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { width: '100%' }]}>
-                Date of completion of risk assessment: {getFieldValue('completionDate')}
-              </Text>
+          <View style={styles.metadataTable}>
+            <View style={[styles.metadataRow, { borderBottom: '1 solid #000000' }]}>
+              <View style={styles.metadataCell}>
+                <Text style={styles.labelText}>Name: </Text>
+                <Text>{getFieldValue('name')}</Text>
+              </View>
+              <View style={styles.metadataCell}>
+                <Text style={styles.labelText}>NDIS Number: </Text>
+                <Text>{getFieldValue('ndisNumber')}</Text>
+              </View>
+              <View style={styles.metadataCellLast}>
+                <Text style={styles.labelText}>DOB: </Text>
+                <Text>{getFieldValue('dob')}</Text>
+              </View>
+                      </View>
+            <View style={[styles.metadataRow, { borderBottom: '1 solid #000000' }]}>
+              <View style={styles.metadataCellFull}>
+                <Text style={styles.labelText}>Address: </Text>
+                <Text>{getFieldValue('address')}</Text>
+                  </View>
+                  </View>
+            <View style={styles.metadataRow}>
+              <View style={styles.metadataCellFull}>
+                <Text style={styles.labelText}>Date of completion of risk assessment: </Text>
+                <Text>{formatDate(getFieldValue('completionDate'))}</Text>
+              </View>
             </View>
           </View>
 
-          {/* Main Q&A Table */}
-          <View style={styles.table}>
-            {/* Table Header */}
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { width: '40%' }]}></Text>
-              <Text style={[styles.tableHeaderCell, { width: '7%' }]}>YES</Text>
-              <Text style={[styles.tableHeaderCell, { width: '7%' }]}>NO</Text>
-              <Text style={[styles.tableHeaderCell, { width: '46%' }]}>COMMENTS</Text>
+          {/* Q&A Table - All questions in continuous flow */}
+          <View style={styles.qaTable}>
+            <View style={styles.qaHeaderRow}>
+              <View style={[styles.qaHeaderCell, { width: '40%' }]}><Text>Question</Text></View>
+              <View style={[styles.qaHeaderCell, { width: '7%' }]}><Text>YES</Text></View>
+              <View style={[styles.qaHeaderCell, { width: '7%' }]}><Text>NO</Text></View>
+              <View style={[styles.qaHeaderCellLast, { width: '46%' }]}><Text>COMMENTS</Text></View>
             </View>
-
-            {/* CLIENT AND FAMILY Section */}
-            <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-              <Text style={[styles.tableCell, { width: '100%', fontWeight: 'bold' }]}>
-                CLIENT AND FAMILY
-              </Text>
-            </View>
-            
-            {/* All Q&A Rows */}
-            {[
-              { key: 'visitCompany', label: 'Will anyone else be present during the visit?' },
-              { key: 'aggressionHistory', label: 'Any history of verbal or physical aggression from the client or family?' },
-              { key: 'drugUseHistory', label: 'Any history of alcohol or drug use? (If yes, there can be no use of alcohol or use of drugs whilst the staff member is in home)' },
-              { key: 'careDirective', label: 'Is there an advanced care directive? (If yes, please add this information to risk assessment and care plan)' }
-            ].map((field, index) => (
-              <View key={field.key} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { width: '40%' }]}>{field.label}</Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'yes' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'no' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '46%' }]}>
-                  {getFieldValue(field.key + '_comments') || ''}
-                </Text>
-              </View>
-            ))}
-
-            {/* ENVIRONMENT Section */}
-            <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-              <Text style={[styles.tableCell, { width: '100%', fontWeight: 'bold' }]}>
-                ENVIRONMENT
-              </Text>
-            </View>
-            
-            {[
-              { key: 'petsRestrained', label: 'If there are any pets, has the client agreed to restrain them during the visit?' },
-              { key: 'weaponsInHome', label: 'Are there any weapons in the home? (If yes, please make sure they are stored appropriately during the visit.)' },
-              { key: 'smokingAgreement', label: 'If there are any smokers, have they agreed to refrain from smoking during the visit?' },
-              { key: 'smokeDetectors', label: 'Are there smoke detectors present and in working condition?' },
-              { key: 'fireHazards', label: 'Any apparent fire hazards?' }
-            ].map((field, index) => (
-              <View key={field.key} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { width: '40%' }]}>{field.label}</Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'yes' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'no' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '46%' }]}>
-                  {getFieldValue(field.key + '_comments') || ''}
-                </Text>
-              </View>
-            ))}
-
-            {/* GEOGRAPHICAL LOCATION Section */}
-            <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-              <Text style={[styles.tableCell, { width: '100%', fontWeight: 'bold' }]}>
-                GEOGRAPHICAL LOCATION
-              </Text>
-            </View>
-            
-            {[
-              { key: 'accessDifficulties', label: 'Are there any difficulties locating the address/access to the building?' },
-              { key: 'parking', label: 'Is there parking available?' },
-              { key: 'entryPoint', label: 'Is entry via the front door? If no, which door is used for entry?' },
-              { key: 'mobileReception', label: 'Are there any issues with mobile phone reception?' }
-            ].map((field, index) => (
-              <View key={field.key} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { width: '40%' }]}>{field.label}</Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'yes' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '7%', textAlign: 'center' }]}>
-                  {getFieldValue(field.key)?.toLowerCase?.() === 'no' ? '✔️' : ''}
-                </Text>
-                <Text style={[styles.tableCell, { width: '46%' }]}>
-                  {getFieldValue(field.key + '_comments') || ''}
-                </Text>
-              </View>
-            ))}
+            {allQuestions.map(renderQARow)}
           </View>
 
-          {/* Risk Assessment Descriptions */}
-          <Text style={[styles.sectionHeader, { textAlign: 'center', textDecoration: 'underline' }]}>
-            Risk Assessment Outcome – Proceed with Visit as follows:
-          </Text>
-          
-          <View style={{ marginBottom: 16 }}>
-            <Text style={styles.fieldLabel}>LOW GREEN</Text>
-            <Text style={styles.textareaValue}>Visit acceptable. Ensure control options are followed.</Text>
-            
-            <Text style={styles.fieldLabel}>MEDIUM YELLOW</Text>
-            <Text style={styles.textareaValue}>Visit should only proceed after consultation with Manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as Moderate Risk.</Text>
-            
-            <Text style={styles.fieldLabel}>MODERATE ORANGE</Text>
-            <Text style={styles.textareaValue}>Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.</Text>
-            
-            <Text style={styles.fieldLabel}>HIGH RED</Text>
-            <Text style={styles.textareaValue}>Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.</Text>
+          {/* Risk Matrix Image */}
+          <Image src={riskMatrixSrc} style={styles.riskMatrix} />
+
+          {/* Legend */}
+          <Text style={styles.legendTitle}>Risk Assessment Outcome – Proceed with Visit as follows:</Text>
+
+          <View style={styles.legendBlock}>
+            <Text style={[styles.legendBlockTitle, { color: '#065f46' }]}>LOW GREEN</Text>
+            <Text style={styles.legendBlockText}>
+              Visit acceptable. Ensure control options are followed.
+            </Text>
           </View>
 
-          {/* Risk Assessment Table - Only if has data */}
+          <View style={styles.legendBlock}>
+            <Text style={[styles.legendBlockTitle, { color: '#92400e' }]}>MEDIUM YELLOW</Text>
+            <Text style={styles.legendBlockText}>
+              Visit should only proceed after consultation with Manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as Moderate Risk.
+            </Text>
+          </View>
+
+          <View style={styles.legendBlock}>
+            <Text style={[styles.legendBlockTitle, { color: '#b45309' }]}>MODERATE ORANGE</Text>
+            <Text style={styles.legendBlockText}>
+              Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.
+            </Text>
+          </View>
+
+          <View style={styles.legendBlock}>
+            <Text style={[styles.legendBlockTitle, { color: '#991b1b' }]}>HIGH RED</Text>
+            <Text style={styles.legendBlockText}>
+              Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.
+                </Text>
+          </View>
+
+          {/* Risk Assessment Table - Only show if there are filled rows */}
           {filledRiskRows.length > 0 && (
-            <View style={styles.table}>
-              <View style={[styles.tableHeader, { backgroundColor: '#9ca3af' }]}>
-                <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Issue/Task</Text>
-                <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Risk Score</Text>
-                <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Control Measure</Text>
-                <Text style={[styles.tableHeaderCell, { width: '25%' }]}>Person Responsible</Text>
+            <View style={styles.riskTable}>
+              <View style={styles.riskHeaderRow}>
+                <View style={styles.riskHeaderCell}><Text>Issue/Task</Text></View>
+                <View style={styles.riskHeaderCell}><Text>Risk Score</Text></View>
+                <View style={styles.riskHeaderCell}><Text>Control Measure</Text></View>
+                <View style={styles.riskHeaderCellLast}><Text>Person Responsible</Text></View>
               </View>
               {filledRiskRows.map((row) => (
-                <View key={row} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { width: '25%' }]}>
-                    {getFieldValue(`issue${row}`) || ''}
-                  </Text>
-                  <Text style={[styles.tableCell, { width: '25%' }]}>
-                    {getFieldValue(`riskScore${row}`) || ''}
-                  </Text>
-                  <Text style={[styles.tableCell, { width: '25%' }]}>
-                    {getFieldValue(`control${row}`) || ''}
-                  </Text>
-                  <Text style={[styles.tableCell, { width: '25%' }]}>
-                    {getFieldValue(`responsible${row}`) || ''}
-                  </Text>
+                <View style={styles.riskRow} key={row}>
+                  <View style={styles.riskCell}>
+                    <Text>{getFieldValue(`issue${row}`)}</Text>
+                  </View>
+                  <View style={styles.riskCell}>
+                    <Text>{getFieldValue(`riskScore${row}`)}</Text>
+                  </View>
+                  <View style={styles.riskCell}>
+                    <Text>{getFieldValue(`control${row}`)}</Text>
+                  </View>
+                  <View style={styles.riskCellLast}>
+                    <Text>{getFieldValue(`responsible${row}`)}</Text>
+                  </View>
                 </View>
               ))}
             </View>
           )}
+
+          {/* Signature Section */}
+            <View style={styles.signatureGrid}>
+            <View style={styles.signatureField}>
+              <Text style={styles.signatureLabel}>Name:</Text>
+              <View style={styles.signatureBox}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{getFieldValue('name')}</Text>
+              </View>
+            </View>
+
+            <View style={styles.signatureField}>
+              <Text style={styles.signatureLabel}>Signature:</Text>
+                    <View style={styles.signatureBox}>
+                {getFieldValue('signature')?.startsWith('data:image') && (
+                  <Image src={getFieldValue('signature')} style={styles.signatureImage} />
+                      )}
+                    </View>
+            </View>
+
+            <View style={styles.signatureField}>
+              <Text style={styles.signatureLabel}>Designation:</Text>
+              <View style={styles.signatureBox}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{getFieldValue('designation')}</Text>
+                </View>
+            </View>
+          </View>
         </View>
 
-        {/* Fixed Footer on all pages - Like SA Delivery */}
+        {/* Fixed Footer on all pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+          <Text style={styles.footerText}>{footerWebsite ? `Website: ${footerWebsite}` : 'Website:'}</Text>
           <Text style={styles.footerText}>{footerId}</Text>
-          <Text style={styles.footerText}>Review Date: {footerDate}</Text>
+          <Text style={styles.footerText}>{footerDate ? `Review Date: ${footerDate}` : 'Review Date:'}</Text>
         </View>
       </Page>
     </Document>
