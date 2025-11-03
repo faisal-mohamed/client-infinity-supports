@@ -1,3 +1,4 @@
+"use client"
 
 import HomeVisitDynamic from "@/app/components/forms/home-visit-risk-assessment/HomeVisitDynamic"
 import { useEffect } from "react"

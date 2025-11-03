@@ -19,6 +19,14 @@ interface Section {
 // Dynamic Home Visit Risk Assessment View
 const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
   
+  // Log footer settings for debugging
+  useEffect(() => {
+    const footerWebsite = settings?.company_website || settings?.website || settings?.from_email || '';
+    const footerId = settings?.home_visit_form_id || 'HV001';
+    const footerDate = settings?.review_date || '';
+    console.log('🦶 [Web Footer] Home Visit Dynamic:', { footerWebsite, footerId, footerDate, settingsKeys: Object.keys(settings || {}) });
+  }, [settings]);
+  
   const formatDate = (value: string | undefined | null): string => {
     if (!value || typeof value !== 'string') return '';
     
@@ -631,8 +639,8 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
       
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 pt-2 border-t">
-        <span>{settings?.company_website ? `Website: ${settings.company_website}` : 'Website:'}</span>
-        <span>{settings?.home_visit_form_id || ''}</span>
+        <span>{(settings?.company_website || settings?.website || settings?.from_email) ? `Website: ${settings?.company_website || settings?.website || settings?.from_email}` : 'Website:'}</span>
+        <span>{settings?.home_visit_form_id || 'HV001'}</span>
         <span>{settings?.review_date ? `Review Date: ${formatDate(settings.review_date)}` : 'Review Date:'}</span>
       </div>
     </div>
@@ -910,9 +918,9 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
           <div className="flex justify-between text-xs text-gray-600 pt-2 border-t">
-            <span>Website:</span>
-            <span>ID</span>
-            <span>Review Date:</span>
+            <span>{(settings?.company_website || settings?.website || settings?.from_email) ? `Website: ${settings?.company_website || settings?.website || settings?.from_email}` : 'Website:'}</span>
+            <span>{settings?.home_visit_form_id || 'HV001'}</span>
+            <span>{settings?.review_date ? `Review Date: ${formatDate(settings?.review_date)}` : 'Review Date:'}</span>
           </div>
         </div>
 
