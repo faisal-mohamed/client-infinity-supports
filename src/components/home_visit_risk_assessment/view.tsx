@@ -1,5 +1,5 @@
 
-import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page"
+import HomeVisitDynamic from "@/app/components/forms/home-visit-risk-assessment/HomeVisitDynamic"
 import { useEffect } from "react"
 
 
@@ -9,7 +9,7 @@ const HomeRiskAssesmentView = ({ formKey, formData = {}, commonFieldsData , sett
   }, [settings, commonFieldsData])
   return (
     <div>
-        <HomeVisitRiskAssessment formKey={formKey} formData={formData} commonFieldsData={commonFieldsData} settings={settings}/>
+        <HomeVisitDynamic formKey={formKey} formData={formData} commonFieldsData={commonFieldsData} settings={settings}/>
     </div>
   )
 }
