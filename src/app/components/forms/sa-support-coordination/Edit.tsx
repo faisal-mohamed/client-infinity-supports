@@ -34,8 +34,12 @@ interface FormProps {
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
+  handleSaveForNext?: () => Promise<void>; // New: separate save for Next button
+  handleSaveForPrev?: () => Promise<void>; // New: separate save for Previous button
   handleSubmitForm?: () => Promise<void>;
-  saving?: boolean; // Loading state from parent
+  saving?: boolean; // Loading state from parent for Save button
+  navigatingNext?: boolean; // Loading state for Next button
+  navigatingPrev?: boolean; // Loading state for Previous button
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -126,7 +130,7 @@ const FORM_SECTIONS: any = [
     id: "page7",
     title: "Consent Form",
     description: "",
-    icon: "FaClipboardList",
+    icon: FaClipboardList,
     fields: [
       "consentMedia",
       "consentProfile",
@@ -140,7 +144,7 @@ const FORM_SECTIONS: any = [
     id: "signatures",
     title: "Consent Form",
     description: "",
-    icon: "FaClipboardList",
+    icon: FaClipboardList,
     fields: [
       "participantSignature",
       "participantDate",
@@ -188,8 +192,12 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
   fieldErrors = {},
   handleSave,
   handleSaveProgress,
+  handleSaveForNext,
+  handleSaveForPrev,
   handleSubmitForm,
-  saving = false, // Loading state from parent
+  saving = false, // Loading state from parent for Save button
+  navigatingNext = false, // Loading state for Next button
+  navigatingPrev = false, // Loading state for Previous button
   onCommonFieldsUpdated,
 }: any) => {
   // Helper function to get common field value
@@ -488,13 +496,16 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
   };
 
   const handleNextSequential = async () => {
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    if (handleSaveForNext) {
+      await handleSaveForNext();
     }
     handleNext();
   };
 
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
+    if (handleSaveForPrev) {
+      await handleSaveForPrev();
+    }
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
@@ -1388,14 +1399,14 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || navigatingPrev}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === 0
+                currentStep === 0 || navigatingPrev
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
               }`}
             >
-              <FaChevronLeft className="w-4 h-4" />
+              {navigatingPrev ? <span className="text-lg">⏳</span> : <FaChevronLeft className="w-4 h-4" />}
               <span>Previous</span>
             </button>
 
@@ -1404,17 +1415,19 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
               onClick={handleNextSequential}
               disabled={
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                navigatingNext
               }
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                navigatingNext
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
               }`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <span className="text-lg">⏳</span> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
@@ -1422,7 +1435,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
+              {saving ? <span className="text-lg">⏳</span> : <FaSave className="w-4 h-4" />}
               {saving ? "Saving..." : "Save Progress"}
             </button>
           </div>
@@ -1436,11 +1449,13 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
               }}
               disabled={saving || submitting}
             >
-              <FaCheck className="w-4 h-4" />
               {submitting ? (
-                <FaSpinner className="w-4 h-4 animate-spin" />
+                <span className="text-lg">⏳</span>
               ) : (
-                "Submit Form"
+                <>
+                  <FaCheck className="w-4 h-4" />
+                  <span>Submit Form</span>
+                </>
               )}
             </button>
           )}
