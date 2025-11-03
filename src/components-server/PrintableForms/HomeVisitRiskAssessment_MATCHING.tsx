@@ -281,6 +281,27 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   console.log('🖼️ [PDF] Images received:', Object.keys(images));
   console.log('🔧 [PDF] Common fields:', commonFieldsData);
 
+  // Helper function to remove duplicate consecutive text
+  const deduplicateText = (text: string): string => {
+    if (!text || text.length < 10) return text;
+    
+    // Remove patterns like "Comments: X Comments: X Comments: X"
+    // by finding the shortest repeating unit
+    const trimmed = text.trim();
+    
+    // Try to find if text is duplicated by looking for patterns
+    for (let len = Math.floor(trimmed.length / 2); len >= 20; len--) {
+      const pattern = trimmed.substring(0, len);
+      const regex = new RegExp(`^(${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})+`, 'g');
+      
+      if (regex.test(trimmed)) {
+        return pattern.trim();
+      }
+    }
+    
+    return trimmed;
+  };
+
   // Get field value helper - FIXED to match web view field mapping
   const getFieldValue = (key: string): string => {
     // Common field mappings - match web view exactly
@@ -306,6 +327,16 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       } catch {
         return rawValue;
       }
+    }
+
+    // 🔧 FIX: Clean up repetitive/duplicated text
+    if (typeof rawValue === 'string') {
+      // Remove "start" and "end" markers that might be added accidentally
+      rawValue = rawValue.replace(/^start\s*/i, '').replace(/\s*end$/i, '');
+      
+      // Remove duplicate consecutive text patterns
+      const cleanedValue = deduplicateText(rawValue);
+      return cleanedValue;
     }
 
     return rawValue ?? "";
@@ -418,13 +449,35 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   // Combine all questions for continuous flow
   const allQuestions = [...page1Questions, ...page2Questions];
 
-  // Filter filled risk assessment rows - only show rows with data
-  const filledRiskRows = [1, 2, 3, 4, 5].filter(row => {
+  // Filter filled risk assessment rows with deduplication and validation
+  const filledRiskRows = [1, 2, 3, 4, 5].filter((row, index, self) => {
     const issue = getFieldValue(`issue${row}`);
     const riskScore = getFieldValue(`riskScore${row}`);
     const control = getFieldValue(`control${row}`);
     const responsible = getFieldValue(`responsible${row}`);
-    return issue || riskScore || control || responsible;
+    
+    // Skip if row is empty
+    if (!issue && !riskScore && !control && !responsible) {
+      return false;
+    }
+    
+    // Skip if essential data is missing (issue must exist)
+    if (!issue || issue.trim() === '') {
+      return false;
+    }
+    
+    // 🔧 FIX: Check for duplicates - skip if same issue appears earlier
+    const isDuplicate = self.slice(0, index).some(prevRow => {
+      const prevIssue = getFieldValue(`issue${prevRow}`);
+      return prevIssue && issue && prevIssue.toLowerCase().trim() === issue.toLowerCase().trim();
+    });
+    
+    if (isDuplicate) {
+      console.warn(`⚠️ [PDF] Duplicate risk entry detected for row ${row}: "${issue}"`);
+      return false;
+    }
+    
+    return true;
   });
 
   return (

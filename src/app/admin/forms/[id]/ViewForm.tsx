@@ -192,7 +192,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <ClientIntakeFormDynamic formKey={form.formKey} settings={settings} formData={form.data} />
                 </>
               ) : form.formKey === "home_visit_risk_assessment" ? (
-                <HomeRiskAssesmentView formKey={form.formKey} settings={settings} />
+                <HomeRiskAssesmentView formKey={form.formKey} settings={settings} formData={form.data} commonFieldsData={form.commonFields} />
               ) : form.formKey === "person_centred_plan" ? (
                 <PersonCentredPlanView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "sa_delivery_of_supports" ? (

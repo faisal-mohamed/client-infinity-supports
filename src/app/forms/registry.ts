@@ -7,6 +7,7 @@ import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Ass
 import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
 import HomeVisitRiskAssessmentEdit from "../components/forms/home_visit_risk_assessment/Edit";
 import HomeVisitDynamic from "../components/forms/home-visit-risk-assessment/HomeVisitDynamic";
+import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view";
 import HomeVisitRiskAssessment_MATCHING from "../../components-server/PrintableForms/HomeVisitRiskAssessment_MATCHING";
 
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
@@ -84,7 +85,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",
     name: "Home & Visit Risk Assessment",
-    viewComponent: HomeVisitDynamic, // NEW: Dynamic view with auto-pagination
+    viewComponent: HomeRiskAssesmentView, // FIXED: Use proper wrapper component
     editComponent: HomeVisitRiskAssessmentEdit,
     pdfComponent: HomeVisitRiskAssessment_MATCHING, // NEW: Unified PDF download
     signatures: [
