@@ -343,8 +343,12 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
         );
 
       case 'list':
+        // Check if this is an indented sublist (ml-8 class indicates nested items)
+        const isIndented = block.meta?.className?.includes('ml-8');
+        const listStyle = isIndented ? { ...styles.list, marginLeft: 20 } : styles.list;
+        
         return (
-          <View key={index} style={styles.list}>
+          <View key={index} style={listStyle}>
             {block.items?.map((item, itemIndex) => (
               <Text key={itemIndex} style={styles.listItem}>
                 • {item}
@@ -405,6 +409,93 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
           </View>
         );
 
+      case 'checkmark_list':
+        console.log(`✓ [PDF] Rendering checkmark_list at index ${index} with ${block.items?.length || 0} items`);
+        return (
+          <View key={index} style={styles.list}>
+            {block.items?.map((item, itemIndex) => (
+              <Text key={itemIndex} style={styles.listItem}>
+                ✓ {item}
+              </Text>
+            ))}
+          </View>
+        );
+
+      case 'table':
+        console.log(`📊 [PDF] Rendering table at index ${index} with ${block.table?.rows.length || 0} rows`);
+        return (
+          <View key={index} style={{ marginBottom: 16 }}>
+            {/* Table Header */}
+            <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000' }}>
+              {block.table?.headers.map((header, hIndex) => (
+                <View key={hIndex} style={{ flex: 1, padding: 8, borderRight: hIndex < (block.table?.headers.length || 0) - 1 ? '1 solid #000' : 'none' }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{header}</Text>
+                </View>
+              ))}
+            </View>
+            {/* Table Rows */}
+            {block.table?.rows.map((row, rIndex) => (
+              <View key={rIndex} style={{ flexDirection: 'row', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000', borderBottom: rIndex === (block.table?.rows.length || 0) - 1 ? '1 solid #000' : 'none' }}>
+                {row.map((cell, cIndex) => (
+                  <View key={cIndex} style={{ flex: 1, padding: 8, borderRight: cIndex < row.length - 1 ? '1 solid #000' : 'none' }}>
+                    <Text style={{ fontSize: 8, fontWeight: cIndex === 1 ? 'bold' : 'normal', textAlign: cIndex === 1 ? 'center' : 'left' }}>
+                      {cell}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+        );
+
+      case 'contact_block':
+        console.log(`📞 [PDF] Rendering contact_block at index ${index} with ${block.contacts?.length || 0} contacts`);
+        return (
+          <View key={index} style={{ marginBottom: 16 }}>
+            {block.contacts?.map((contact, contactIndex) => (
+              <View key={contactIndex} style={{ marginBottom: 16 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 4 }}>{contact.title}</Text>
+                {contact.telephone && <Text style={{ fontSize: 9, marginBottom: 2 }}>Telephone: {contact.telephone}</Text>}
+                {contact.email && <Text style={{ fontSize: 9, marginBottom: 2 }}>Email: {contact.email}</Text>}
+                {contact.website && <Text style={{ fontSize: 9, marginBottom: 2 }}>Website: {contact.website}</Text>}
+              </View>
+            ))}
+          </View>
+        );
+
+      case 'agency_list':
+        console.log(`🏢 [PDF] Rendering agency_list at index ${index} with ${block.agencies?.length || 0} agencies`);
+        return (
+          <View key={index} style={{ marginBottom: 16 }}>
+            {block.agencies?.map((agency, agencyIndex) => (
+              <View key={agencyIndex} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <View style={{ width: 12, height: 12, borderRadius: 6, border: `2 solid ${agency.color}`, backgroundColor: '#ffffff', marginRight: 8 }}></View>
+                <View style={{ backgroundColor: agency.color, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 4, flex: 1 }}>
+                  <Text style={{ fontSize: 8, fontWeight: 'bold', color: agency.color === '#fed7aa' ? '#1f2937' : '#ffffff' }}>
+                    {agency.name}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        );
+
+      case 'data_category_bars':
+        console.log(`🎨 [PDF] Rendering data_category_bars at index ${index} with ${block.dataCategories?.length || 0} categories`);
+        return (
+          <View key={index} style={{ marginBottom: 16 }}>
+            {block.dataCategories?.map((category, catIndex) => (
+              <View key={catIndex} style={{ marginBottom: 4 }}>
+                <View style={{ backgroundColor: category.color, paddingHorizontal: 12, paddingVertical: 4, borderTopRightRadius: 4, borderBottomRightRadius: 4, maxWidth: category.maxWidth || 500 }}>
+                  <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#ffffff' }}>
+                    {category.text}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        );
+
       case 'acknowledgment_form':
         return (
           <View key={index}>
@@ -439,6 +530,7 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
         );
 
       default:
+        console.warn(`[WelcomeForm_MATCHING] Unknown block type: ${block.type}`);
         return null;
     }
   };

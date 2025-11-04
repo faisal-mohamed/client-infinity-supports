@@ -68,6 +68,14 @@ export const formSchema : any  = {
 
 
 const WelcomeForm = ({formData, commonFieldsData, settings, images} : any ) => {
+  // 🔍 DEBUG LOGS - Welcome Form PDF (HTML version)
+  console.log('📄 [Welcome Form PDF HTML] Generating PDF with:', {
+    formDataKeys: Object.keys(formData || {}),
+    commonFieldsKeys: Object.keys(commonFieldsData || {}),
+    settingsKeys: Object.keys(settings || {}),
+    imagesKeys: Object.keys(images || {}),
+  });
+  
   return (
     <div>
         <Page1 settings={settings} images={images}/> 

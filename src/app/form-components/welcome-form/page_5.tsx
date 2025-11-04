@@ -64,10 +64,17 @@ const Page5: React.FC<any> = ({settings} : any ) => {
             for you. With our diverse team we will ensure you have complete choice and control of the people you work
             with, so you are comfortable with them in your home.
           </p>
-          <p className="mb-4">
+          <p className="mb-2">
             Some of the services our support team can offer are:
-            <br />
+          </p>
+          <p className="mb-4">
             * Activities for daily living: such as showering, dressing, and other personal care activities
+            <br />
+            * Medication management
+            <br />
+            * Domestic support: such as cleaning, washing, cooking, and gardening
+            <br />
+            * Meal Prep
           </p>
         </div>
 

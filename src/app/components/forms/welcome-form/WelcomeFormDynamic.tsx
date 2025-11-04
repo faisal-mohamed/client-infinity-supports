@@ -7,6 +7,15 @@ import { welcomeFormSchema, WelcomeSchemaBlock, WELCOME_PAGE_BUDGET, WELCOME_BLO
 // Dynamic Welcome Form View - Multiple A4 pages with auto page breaks
 const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, settings, images }) => {
   
+  // 🔍 DEBUG LOGS - Welcome Form Dynamic (Schema-based)
+  console.log('🎯 [Welcome Form Dynamic] Rendering schema-based form with:', {
+    formDataKeys: Object.keys(formData || {}),
+    commonFieldsKeys: Object.keys(commonFieldsData || {}),
+    settingsKeys: Object.keys(settings || {}),
+    imagesKeys: Object.keys(images || {}),
+    totalBlocks: welcomeFormSchema.length,
+  });
+  
   const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const parsed = parseISO(value);
@@ -39,7 +48,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
 
   // Get field value helper function
   const getFieldValue = (key: string): string => {
-    let rawValue = commonFieldMapping[key]
+    const rawValue = commonFieldMapping[key]
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
 
@@ -66,6 +75,11 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
       case 'section_header': return 40;
       case 'paragraph': return Math.max(60, Math.ceil((block.content?.length || 0) / 80) * 20 + 20);
       case 'list': return Math.max(80, (block.items?.length || 0) * 25 + 20);
+      case 'checkmark_list': return Math.max(80, (block.items?.length || 0) * 30 + 20);
+      case 'table': return Math.max(150, (block.table?.rows.length || 0) * 50 + 60);
+      case 'contact_block': return Math.max(100, (block.contacts?.length || 0) * 80 + 20);
+      case 'agency_list': return Math.max(120, (block.agencies?.length || 0) * 28 + 20);
+      case 'data_category_bars': return Math.max(100, (block.dataCategories?.length || 0) * 30 + 20);
       case 'image': return (block.image?.height || 100) + 40;
       case 'values_section': return 300;
       case 'contact_info': return 350;
@@ -238,12 +252,34 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
         );
 
       case 'list':
+        const listClassName = block.meta?.className || '';
         return (
           <div key={index} className="mb-4">
-            <ul className="list-disc list-inside space-y-2 text-sm">
-              {block.items?.map((item, itemIndex) => (
-                <li key={itemIndex}>{item}</li>
-              ))}
+            <ul className={`list-disc list-inside space-y-2 text-sm ${listClassName}`}>
+              {block.items?.map((item, itemIndex) => {
+                // Check if item contains email or website that should be hyperlinked
+                const emailMatch = item.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+                const websiteMatch = item.match(/((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/);
+                
+                if (emailMatch || websiteMatch) {
+                  const parts = item.split(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/);
+                  return (
+                    <li key={itemIndex}>
+                      {parts.map((part, partIndex) => {
+                        if (part.includes('@')) {
+                          return <a key={partIndex} href={`mailto:${part}`} className="text-blue-700 underline">{part}</a>;
+                        } else if (part.match(/^(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/)) {
+                          const url = part.startsWith('http') ? part : `https://${part}`;
+                          return <a key={partIndex} href={url} className="text-blue-700 underline" target="_blank" rel="noopener noreferrer">{part}</a>;
+                        }
+                        return <span key={partIndex}>{part}</span>;
+                      })}
+                    </li>
+                  );
+                }
+                
+                return <li key={itemIndex}>{item}</li>;
+              })}
             </ul>
           </div>
         );
@@ -299,6 +335,148 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
                   </div>
                 );
               })}
+            </div>
+          </div>
+        );
+
+      case 'table':
+        console.log(`📊 [Welcome Form] Rendering table at index ${index} with ${block.table?.rows.length || 0} rows`);
+        const isComplaintTable = block.table?.headers.includes('Method');
+        return (
+          <div key={index} className="mb-6">
+            <table className="w-full border-collapse border border-black text-sm">
+              <thead>
+                <tr className="bg-gray-200">
+                  {block.table?.headers.map((header, hIndex) => (
+                    <th key={hIndex} className="border border-black p-2 text-left font-semibold">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.table?.rows.map((row, rIndex) => (
+                  <tr key={rIndex}>
+                    {row.map((cell, cIndex) => (
+                      <td key={cIndex} className={`border border-black p-2 align-top ${cIndex === 0 && isComplaintTable ? 'w-[110px] font-semibold' : ''} ${cIndex === 1 && !isComplaintTable ? 'font-bold text-center w-40' : ''}`}>
+                        {cell.split('\n').map((line, lineIndex) => (
+                          <React.Fragment key={lineIndex}>
+                            {line}
+                            {lineIndex < cell.split('\n').length - 1 && <br />}
+                          </React.Fragment>
+                        ))}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+
+      case 'checkmark_list':
+        return (
+          <div key={index} className="mb-4">
+            <ul className="space-y-3">
+              {block.items?.map((item, itemIndex) => (
+                <li key={itemIndex} className="flex items-start">
+                  <span className="mr-2 mt-1 text-black font-bold">✓</span>
+                  <span className="text-sm">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+
+      case 'contact_block':
+        return (
+          <div key={index} className="mb-6 space-y-4">
+            {block.contacts?.map((contact, contactIndex) => (
+              <div key={contactIndex} className="mb-6">
+                <p className="font-bold text-sm mb-2">{contact.title}</p>
+                <div className="text-sm space-y-1">
+                  {contact.telephone && (
+                    <p>
+                      <span className="inline-block w-[90px]">Telephone:</span> {contact.telephone}
+                    </p>
+                  )}
+                  {contact.email && (
+                    <p>
+                      <span className="inline-block w-[90px]">Email:</span> {contact.email}
+                    </p>
+                  )}
+                  {contact.website && (
+                    <p>
+                      <span className="inline-block w-[90px]">Website:</span> 
+                      <a href={contact.website.startsWith('http') ? contact.website : `https://${contact.website}`} 
+                         className="text-blue-700 underline" 
+                         target="_blank" 
+                         rel="noopener noreferrer">
+                        {contact.website}
+                      </a>
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'agency_list':
+        return (
+          <div key={index} className="mb-6 max-w-[400px]">
+            <div className="relative space-y-1">
+              {/* Connecting line through all circles */}
+              <div className="absolute left-[10px] top-[10px] bottom-[10px] w-[2px] bg-gray-300" style={{ height: `calc(100% - 20px)` }}></div>
+              
+              {block.agencies?.map((agency, agencyIndex) => {
+                // Determine text color based on background - light backgrounds need dark text
+                const isLightBackground = agency.color === '#fed7aa';
+                const textColor = isLightBackground ? '#1f2937' : '#ffffff';
+                
+                return (
+                  <div key={agencyIndex} className="relative flex items-center space-x-2">
+                    {/* Circle */}
+                    <div 
+                      className="w-5 h-5 rounded-full flex-shrink-0 bg-white z-10 relative"
+                      style={{ 
+                        border: `2px solid ${agency.color}`,
+                      }}
+                    ></div>
+                    {/* Colored bar with agency name */}
+                    <div 
+                      className="text-[10px] font-semibold px-3 py-1 rounded w-full"
+                      style={{ 
+                        backgroundColor: agency.color,
+                        color: textColor,
+                      }}
+                    >
+                      {agency.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+
+      case 'data_category_bars':
+        return (
+          <div key={index} className="mb-6">
+            <div className="space-y-1">
+              {block.dataCategories?.map((category, catIndex) => (
+                <div key={catIndex}>
+                  <div
+                    className="text-white text-xs font-semibold px-3 py-1 rounded-r-md"
+                    style={{
+                      backgroundColor: category.color,
+                      maxWidth: category.maxWidth ? `${category.maxWidth}px` : '100%'
+                    }}
+                  >
+                    {category.text}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -378,7 +556,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
 
         {/* Measure each block */}
         {welcomeFormSchema.map((block, index) => (
-          <div key={`measure-${index}`} ref={(el) => (measureRefs.current[index] = el)} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
+          <div key={`measure-${index}`} ref={(el) => { measureRefs.current[index] = el; }} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
             {renderBlock(block, index)}
           </div>
         ))}
