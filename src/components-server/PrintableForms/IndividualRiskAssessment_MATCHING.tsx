@@ -159,7 +159,7 @@ const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, com
 
         {/* Start the Risk Assessment on a new page */}
         <View break />
-        <Text style={styles.sectionBar}>Risk Assessment</Text>
+        <Text style={styles.sectionBar}>POTENTIAL RISK & CONTROL MEASURES</Text>
         {riskIndices.length > 0 && (
           <View style={styles.row}>
             <Text style={[styles.tableHeaderCell, { flexBasis: '35%' }]}>Risk Identified</Text>

@@ -291,7 +291,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   const RiskTable = () => (
     <div className="mb-4">
       {riskIndices.length > 0 && (
-        <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Risk Assessment</div>
+        <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
       )}
       {riskIndices.length > 0 && (
         <table className="w-full border border-black text-xs border-collapse">
@@ -389,7 +389,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
         <div className="mb-2">
           {riskIndices.length > 0 && (
             <>
-              <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Risk Assessment</div>
+              <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
               <table className="w-full border border-black text-xs border-collapse">
                 <thead>
                   <tr>
@@ -498,7 +498,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
               if (firstUnit?.kind === 'risk_row') {
                 rendered.push(
                   <div key={`repeat-risk-header-${p}`} className="mb-2">
-                    <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Risk Assessment</div>
+                    <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
                     <table className="w-full border border-black text-xs border-collapse">
                       <thead>
                         <tr>

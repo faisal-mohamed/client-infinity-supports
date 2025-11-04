@@ -92,7 +92,11 @@ const Page2: React.FC<Page2Props> = ({
 
         {/* Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className="w-full h-full table-fixed border border-black border-collapse text-[16px]">
+          {/* Title Bar */}
+          <div className="bg-gray-400 border border-black px-2 py-2 text-center font-bold text-[16px] mb-0">
+            POTENTIAL RISK & CONTROL MEASURES
+          </div>
+          <table className="w-full h-full table-fixed border border-black border-t-0 border-collapse text-[16px]">
             <thead className="bg-gray-200">
               <tr>
                 <th className="border border-black font-bold px-2 py-1 text-center w-1/4">Risk Identified</th>

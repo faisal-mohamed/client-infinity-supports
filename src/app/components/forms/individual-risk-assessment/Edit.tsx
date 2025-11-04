@@ -54,7 +54,7 @@ export const FORM_SECTIONS : any = [
   },
   {
     id: "riskAssessment",
-    title: "Risk Assessment Table",
+    title: "POTENTIAL RISK & CONTROL MEASURES",
     icon: FaExclamationTriangle,
     description: "Risk identification and controls",
     fields: [
