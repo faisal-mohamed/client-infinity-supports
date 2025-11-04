@@ -296,7 +296,7 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
 
   // Get field value helper function
   const getFieldValue = (key: string): string => {
-    let rawValue = commonFieldMapping[key]
+    const rawValue = commonFieldMapping[key]
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
 
@@ -358,20 +358,24 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
         );
 
       case 'image':
+        const imageSrc = block.image ? getImageSrc(block.image.src) : '';
+        // Skip rendering if image source is empty or invalid
+        if (!imageSrc || imageSrc === '') {
+          console.warn(`⚠️ [BROWSER] Skipping image block ${index} - invalid source`);
+          return null;
+        }
         return (
           <View key={index} style={{ alignItems: 'center', marginBottom: 16 }}>
-            {block.image && (
-              <Image 
-                src={getImageSrc(block.image.src)} 
-                style={[
-                  styles.centerImage, 
-                  { 
-                    width: block.image.width || 200, 
-                    height: block.image.height || 100 
-                  }
-                ]} 
-              />
-            )}
+            <Image 
+              src={imageSrc} 
+              style={[
+                styles.centerImage, 
+                { 
+                  width: block.image?.width || 200, 
+                  height: block.image?.height || 100 
+                }
+              ]} 
+            />
           </View>
         );
 
@@ -577,7 +581,9 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
       {coverPageBlock && (
         <Page size="A4" style={styles.coverPage}>
           <View style={{ alignItems: 'center', marginBottom: 40 }}>
-            <Image src={getImageSrc('/infinity_logo.png')} style={styles.coverLogo} />
+            {getImageSrc('/infinity_logo.png') && (
+              <Image src={getImageSrc('/infinity_logo.png')} style={styles.coverLogo} />
+            )}
           </View>
 
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -585,7 +591,7 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
             <Text style={styles.coverSubtitle}>{coverPageBlock.content}</Text>
 
             {/* Main Image */}
-            {coverPageBlock.image && (
+            {coverPageBlock.image && getImageSrc(coverPageBlock.image.src) && (
               <Image 
                 src={getImageSrc(coverPageBlock.image.src)} 
                 style={[styles.centerImage, { width: 200, height: 100, marginBottom: 80 }]}
@@ -595,13 +601,16 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
             {/* Flag Images */}
             {coverPageBlock.images && (
               <View style={styles.flagsContainer}>
-                {coverPageBlock.images.map((img, imgIndex) => (
-                  <Image
-                    key={imgIndex}
-                    src={getImageSrc(img.src)}
-                    style={styles.flagImage}
-                  />
-                ))}
+                {coverPageBlock.images.map((img, imgIndex) => {
+                  const imgSrc = getImageSrc(img.src);
+                  return imgSrc ? (
+                    <Image
+                      key={imgIndex}
+                      src={imgSrc}
+                      style={styles.flagImage}
+                    />
+                  ) : null;
+                })}
               </View>
             )}
           </View>
@@ -618,7 +627,9 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
+          {getImageSrc('/infinity_logo.png') && (
+            <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
+          )}
         </View>
 
         {/* Content - All blocks in one page with automatic page breaks */}

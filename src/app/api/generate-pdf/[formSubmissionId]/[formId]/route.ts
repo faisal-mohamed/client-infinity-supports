@@ -26,13 +26,28 @@ async function encodeImageToBase64(imagePath: string): Promise<string> {
       extension = urlParts[urlParts.length - 1].split("?")[0];
     } else {
       const fullPath = path.join(process.cwd(), "public", imagePath);
+      
+      // Check if file exists before reading
+      if (!fs.existsSync(fullPath)) {
+        console.error(`Image file not found: ${fullPath}`);
+        return "";
+      }
+      
       imageBuffer = fs.readFileSync(fullPath);
       extension = path.extname(imagePath).substring(1);
+      
+      // Validate that we got a valid buffer
+      if (!imageBuffer || imageBuffer.length === 0) {
+        console.error(`Image file is empty or invalid: ${fullPath}`);
+        return "";
+      }
     }
 
-    return `data:image/${extension};base64,${imageBuffer.toString("base64")}`;
+    const base64String = `data:image/${extension};base64,${imageBuffer.toString("base64")}`;
+    console.log(`✅ Successfully encoded image: ${imagePath} (${imageBuffer.length} bytes)`);
+    return base64String;
   } catch (error) {
-    console.error(`Error encoding image ${imagePath}:`, error);
+    console.error(`❌ Error encoding image ${imagePath}:`, error);
     return "";
   }
 }
