@@ -6,7 +6,17 @@ import {
   View,
   Image,
   StyleSheet,
+  Font,
 } from '@react-pdf/renderer';
+
+// Register DejaVuSans font for Unicode support (tick marks ✓)
+Font.register({
+  family: 'DejaVuSans',
+  fonts: [
+    { src: 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf' },
+    { src: 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf', fontWeight: 'bold' },
+  ]
+});
 
 // PDF generation - matches Model PDF structure exactly
 
@@ -17,7 +27,7 @@ const styles = StyleSheet.create({
     padding: 30,
     paddingTop: 120,
     paddingBottom: 50,
-    fontFamily: 'Helvetica',
+    fontFamily: 'DejaVuSans',
   },
   header: {
     position: 'absolute',
@@ -77,19 +87,21 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   checkbox: {
-    width: 10,
-    height: 10,
+    width: 12,
+    height: 12,
     border: '1 solid #666',
     marginRight: 6,
     marginTop: 2,
   },
   checkedBox: {
-    width: 10,
-    height: 10,
-    border: '1 solid #0066cc',
-    backgroundColor: '#0066cc',
+    width: 12,
+    height: 12,
+    border: '1 solid #2563eb',
+    backgroundColor: '#2563eb',
     marginRight: 6,
     marginTop: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   radioContainer: {
     marginBottom: 8,
@@ -105,19 +117,21 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   radioCircle: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    border: '1 solid #000000',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    border: '1 solid #666',
     marginRight: 4,
   },
   radioCircleSelected: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    border: '1 solid #0066cc',
-    backgroundColor: '#0066cc',
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    border: '1 solid #2563eb',
+    backgroundColor: '#2563eb',
     marginRight: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   signatureBox: {
     border: '0.5 solid #000000',
@@ -236,26 +250,6 @@ export default function SASupportCoordination({
                 <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Date of Birth:</Text>
                 <Text style={styles.tableCell}>{formatDate(commonFieldsData?.dob || getValue('dob'))}</Text>
               </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Address:</Text>
-                <Text style={styles.tableCell}>{commonFieldsData?.street || getValue('address')}</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>State:</Text>
-                <Text style={styles.tableCell}>{commonFieldsData?.state || getValue('state') || 'WA'}</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Postcode:</Text>
-                <Text style={styles.tableCell}>{commonFieldsData?.postCode || getValue('postcode')}</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Email:</Text>
-                <Text style={styles.tableCell}>{commonFieldsData?.email || getValue('email')}</Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Home Phone:</Text>
-                <Text style={styles.tableCell}>{commonFieldsData?.phone || getValue('homePhone')}</Text>
-              </View>
             </View>
 
             {/* Residential Address Details - Separate Bordered Block */}
@@ -291,11 +285,11 @@ export default function SASupportCoordination({
               <View style={{ flexDirection: 'row' }}>
                 <View style={{ flex: 1, borderRight: '0.5 solid #000', padding: 6 }}>
                   <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Home Phone No:</Text>
-                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.phone || getValue('homePhone')}</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{getValue('homePhone') || ''}</Text>
                 </View>
                 <View style={{ flex: 1, padding: 6 }}>
                   <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 2 }}>Mobile No:</Text>
-                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{commonFieldsData?.phone || getValue('mobile')}</Text>
+                  <Text style={{ fontSize: 9, borderBottom: '0.5 solid #000', paddingBottom: 4 }}>{getValue('mobile') || commonFieldsData?.phone || ''}</Text>
                 </View>
               </View>
             </View>
@@ -303,22 +297,28 @@ export default function SASupportCoordination({
 
           {/* 3 Checkboxes */}
           <View style={styles.section}>
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('noCopyRequested') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('noCopyRequested') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('noCopyRequested') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 Participant may wish not to receive a copy of this agreement. In this case, they shall tick the dedicated tick box at the end of the service agreement and sign the document.
               </Text>
             </View>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('planAttached') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('planAttached') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('planAttached') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 A copy of the Individual's plan is attached to this Service Agreement.
               </Text>
             </View>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('planNotAttached') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('planNotAttached') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('planNotAttached') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 Individual chooses not to attach their plan.
               </Text>
@@ -457,29 +457,37 @@ export default function SASupportCoordination({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>SERVICE PAYMENTS (NDIS)</Text>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('selfManaged') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('selfManaged') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('selfManaged') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 The Individual has chosen to self-manage the funding for NDIS supports provided under this Service Agreement. After providing those supports, <Text style={styles.redText}>Infinity Supports WA</Text> will send the Individual an invoice for those supports for the Individual to pay. The Individual will pay the invoice within 7 days.
               </Text>
             </View>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('nomineeManaged') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('nomineeManaged') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('nomineeManaged') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 The Individual's Nominee manages the funding for supports provided under this Service Agreement. After providing those supports, <Text style={styles.redText}>Infinity Supports WA</Text> will send the Individual's Nominee an invoice for those supports for the Individual's Nominee to pay. The Individual's Nominee will pay the invoice within 7 days.
               </Text>
             </View>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('ndiaManaged') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('ndiaManaged') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('ndiaManaged') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 The Individual has nominated the NDIA to manage the funding for supports provided under this Service Agreement. After providing those supports, <Text style={styles.redText}>Infinity Supports WA</Text> will claim payment for those supports from the NDIA.
               </Text>
             </View>
 
-            <View style={styles.checkboxContainer}>
-              <View style={isChecked('planManagerManaged') ? styles.checkedBox : styles.checkbox} />
+            <View style={styles.checkboxContainer} wrap={false}>
+              <View style={isChecked('planManagerManaged') ? styles.checkedBox : styles.checkbox}>
+                {isChecked('planManagerManaged') && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+              </View>
               <Text style={[styles.staticContent, { flex: 1 }]}>
                 The Individual has nominated the Plan Management Provider to manage the funding for NDIS supports provided under this Service Agreement. After providing those services, <Text style={styles.redText}>Infinity Supports WA</Text> will claim payment for those services from <Text style={{ textDecoration: 'underline' }}>Registered Plan Management Provider</Text>.
               </Text>
@@ -594,24 +602,49 @@ export default function SASupportCoordination({
             <Text style={styles.staticTitle}>Consent</Text>
             
             {/* Consent 1: Media */}
-            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }}>
+            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }} wrap={false}>
               <Text style={{ fontSize: 9, marginBottom: 6 }}>
                 Hereby give consent to Infinity Supports WA to obtain and use images and likeness of myself on media releases, including social media and promotion.
               </Text>
               <View style={{ flexDirection: 'row' }}>
                 <View style={styles.radioOption}>
-                  <View style={getValue('consentMedia') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentMedia') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentMedia') === 'Yes' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
                 <View style={[styles.radioOption, { marginLeft: 16 }]}>
-                  <View style={getValue('consentMedia') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentMedia') === 'No' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentMedia') === 'No' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>
             </View>
 
-            {/* Consent 2: Information Sharing */}
-            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }}>
+            {/* Consent 2: Photograph/Profile */}
+            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }} wrap={false}>
+              <Text style={{ fontSize: 9, marginBottom: 6 }}>
+                Hereby give consent to Infinity Supports WA to obtain and use my photograph for the purpose of creating a client profile (and other internal documents).
+              </Text>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={styles.radioOption}>
+                  <View style={getValue('consentProfile') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentProfile') === 'Yes' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
+                </View>
+                <View style={[styles.radioOption, { marginLeft: 16 }]}>
+                  <View style={getValue('consentProfile') === 'No' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentProfile') === 'No' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Consent 3: Information Sharing */}
+            <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }} wrap={false}>
               <Text style={{ fontSize: 9, marginBottom: 4 }}>
                 Hereby give consent to Infinity Supports WA to obtain & share relevant documented information regarding my service. This may include but not limited to:
               </Text>
@@ -622,28 +655,36 @@ export default function SASupportCoordination({
               <Text style={{ fontSize: 8, marginLeft: 12, marginBottom: 4 }}>• Others: {getValue('consentInfoShareOthers')}</Text>
               <View style={{ flexDirection: 'row', marginTop: 4 }}>
                 <View style={styles.radioOption}>
-                  <View style={getValue('consentInfoShare') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentInfoShare') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentInfoShare') === 'Yes' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
                 <View style={[styles.radioOption, { marginLeft: 16 }]}>
-                  <View style={getValue('consentInfoShare') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentInfoShare') === 'No' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentInfoShare') === 'No' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>
             </View>
 
-            {/* Consent 3: NDIS Audit */}
-            <View style={{ paddingVertical: 6, marginBottom: 8 }}>
+            {/* Consent 4: NDIS Audit */}
+            <View style={{ paddingVertical: 6, marginBottom: 8 }} wrap={false}>
               <Text style={{ fontSize: 9, marginBottom: 6 }}>
                 I consent to take part in a NDIS audit and my documents be reviewed as required.
               </Text>
               <View style={{ flexDirection: 'row' }}>
                 <View style={styles.radioOption}>
-                  <View style={getValue('consentAudit') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentAudit') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentAudit') === 'Yes' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
                 </View>
                 <View style={[styles.radioOption, { marginLeft: 16 }]}>
-                  <View style={getValue('consentAudit') === 'No' ? styles.radioCircleSelected : styles.radioCircle} />
+                  <View style={getValue('consentAudit') === 'No' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('consentAudit') === 'No' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
                   <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
                 </View>
               </View>

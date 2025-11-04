@@ -13,7 +13,7 @@ const BLOCK_SPACING = 16; // Space between blocks
   
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
-    surname: "name", 
+    surname: "surname", 
     address: "street",
     dob: "dob",
     disability: "disability",
@@ -23,9 +23,9 @@ const BLOCK_SPACING = 16; // Space between blocks
     postcode: "postCode",
     email: "email",
     phone: "phone",
-    homePhone: "phone",
     mobile: "phone",
     sex: "sex",
+    // Note: homePhone is intentionally NOT mapped to allow it to use formData.homePhone
   };
 
   // Get field value helper function
@@ -666,7 +666,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <p className="text-xs mb-2"><span className="font-bold text-red-600">Infinity Supports WA</span> agrees to:</p>
           <ul className="list-disc list-inside text-xs leading-relaxed space-y-1 ml-2">
             <li>Understand and use your NDIS plan to pursue your goals</li>
-            <li>Review the provision of <span className="underline">supports</span> with the Individual in line with the applicable requirements</li>
+            <li>Review the provision of supports with the Individual in line with the applicable requirements</li>
             <li>Connect you with providers, community, mainstream and the government services</li>
             <li>Source information regarding Allied Health professionals</li>
             <li>Build your confidence and skills to use and coordinate your supports</li>
@@ -677,7 +677,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <li>Listen to the Individual's feedback and resolve problems in a timely manner</li>
             <li>Give the Individual the required notice if <span className="font-bold text-red-600">Infinity Supports WA</span> needs to end the Service Agreement (see 'Ending this Service Agreement' below for more information)</li>
             <li>Protect the Individual's privacy and confidential information</li>
-            <li>Provide <span className="underline">supports</span> in a manner consistent with all relevant laws, including but not limited to, the National Disability Insurance Scheme Act 2013 and rules, and the Australian Consumer Law; keep accurate records on the supports provided to the Individuals</li>
+            <li>Provide supports in a manner consistent with all relevant laws, including but not limited to, the National Disability Insurance Scheme Act 2013 and rules, and the Australian Consumer Law; keep accurate records on the supports provided to the Individuals</li>
           </ul>
         </div>
       )
@@ -712,10 +712,10 @@ const BLOCK_SPACING = 16; // Space between blocks
         <div className="mb-4">
           <h3 className="font-bold text-sm mb-2 underline">FEEDBACK, COMPLAINTS AND DISPUTES</h3>
           <p className="text-xs leading-relaxed mb-3">
-            If the Individual wishes to give <span className="font-bold text-red-600">Infinity Supports WA</span> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to <span className="underline">Sharon Mays</span> Director or <span className="underline">Anand Sekar</span> Director 0493282661; Email: <span className="underline">admin@infinitysupportswa.org</span>.
+            If the Individual wishes to give <span className="font-bold text-red-600">Infinity Supports WA</span> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to Sharon Mays Director or Anand Sekar Director 0493282661; Email: <a href="mailto:admin@infinitysupportswa.org" className="text-blue-600 underline hover:text-blue-800">admin@infinitysupportswa.org</a>.
           </p>
           <p className="text-xs leading-relaxed">
-            If the <span className="underline">Individual</span> is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <span className="underline">www.ndis.gov.au</span> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <span className="underline">www.disability.wa.gov.au</span>
+            If the Individual is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <a href="https://www.ndis.gov.au" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">www.ndis.gov.au</a> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <a href="https://www.disability.wa.gov.au" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">www.disability.wa.gov.au</a>
           </p>
         </div>
       )

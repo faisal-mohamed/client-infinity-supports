@@ -430,16 +430,16 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
         return (
           <View key={index} style={{ marginBottom: 16 }}>
             {/* Table Header */}
-            <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000' }}>
+            <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000' }} wrap={false}>
               {block.table?.headers.map((header, hIndex) => (
                 <View key={hIndex} style={{ flex: 1, padding: 8, borderRight: hIndex < (block.table?.headers.length || 0) - 1 ? '1 solid #000' : 'none' }}>
                   <Text style={{ fontSize: 9, fontWeight: 'bold' }}>{header}</Text>
                 </View>
               ))}
             </View>
-            {/* Table Rows */}
+            {/* Table Rows - Each row is atomic (won't split across pages) */}
             {block.table?.rows.map((row, rIndex) => (
-              <View key={rIndex} style={{ flexDirection: 'row', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000', borderBottom: rIndex === (block.table?.rows.length || 0) - 1 ? '1 solid #000' : 'none' }}>
+              <View key={rIndex} wrap={false} style={{ flexDirection: 'row', borderTop: '1 solid #000', borderLeft: '1 solid #000', borderRight: '1 solid #000', borderBottom: rIndex === (block.table?.rows.length || 0) - 1 ? '1 solid #000' : 'none' }}>
                 {row.map((cell, cIndex) => (
                   <View key={cIndex} style={{ flex: 1, padding: 8, borderRight: cIndex < row.length - 1 ? '1 solid #000' : 'none' }}>
                     <Text style={{ fontSize: 8, fontWeight: cIndex === 1 ? 'bold' : 'normal', textAlign: cIndex === 1 ? 'center' : 'left' }}>
@@ -623,16 +623,18 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
         </Page>
       )}
 
-      {/* Single Content Page with Fixed Footer - Like SA Delivery */}
+      {/* Single Content Page with Fixed Header & Footer - Like SA Delivery */}
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          {getImageSrc('/infinity_logo.png') && (
-            <Image src={getImageSrc('/infinity_logo.png')} style={styles.headerLogo} />
-          )}
+        {/* Fixed Header on ALL pages */}
+        <View style={styles.header} fixed>
+          {(() => {
+            const logoSrc = getImageSrc('/infinity_logo.png');
+            console.log('🖼️ [PDF] Header logo source:', logoSrc ? 'VALID' : 'MISSING');
+            return logoSrc ? <Image src={logoSrc} style={styles.headerLogo} /> : null;
+          })()}
         </View>
 
-        {/* Content - All blocks in one page with automatic page breaks */}
+        {/* Content - All blocks flow naturally with automatic page breaks */}
         <View>
           {contentBlocks.map((block, blockIndex) => {
             console.log(`🎨 [WelcomeForm_MATCHING] Rendering block ${blockIndex}: ${block.type}`);
@@ -640,7 +642,7 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
           })}
         </View>
 
-        {/* Fixed Footer on all pages - Like SA Delivery */}
+        {/* Fixed Footer on ALL pages */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>Website: {footerWebsite}</Text>
           <Text style={styles.footerText}>{footerId}</Text>
