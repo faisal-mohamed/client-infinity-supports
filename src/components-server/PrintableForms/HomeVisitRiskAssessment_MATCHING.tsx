@@ -6,7 +6,17 @@ import {
   View,
   Image,
   StyleSheet,
+  Font,
 } from '@react-pdf/renderer';
+
+// Register Deja Vu Sans font which has full Unicode support including checkmarks
+Font.register({
+  family: 'DejaVuSans',
+  fonts: [
+    { src: 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf' },
+    { src: 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf', fontWeight: 'bold' },
+  ]
+});
 
 const styles = StyleSheet.create({
   page: {
@@ -15,7 +25,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 85,
     paddingBottom: 40,
-    fontFamily: 'Helvetica',
+    fontFamily: 'DejaVuSans',
   },
   header: {
     position: 'absolute',
@@ -125,16 +135,20 @@ const styles = StyleSheet.create({
   qaYesCell: {
     width: '7%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
+    color: '#2563eb',
+    fontWeight: 'bold',
   },
   qaNoCell: {
     width: '7%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
+    color: '#2563eb',
+    fontWeight: 'bold',
   },
   qaCommentsCell: {
     width: '46%',
@@ -247,13 +261,21 @@ const styles = StyleSheet.create({
     marginBottom: 1,
   },
   checkbox: {
-    width: 7,
-    height: 7,
-    border: '1 solid #000000',
+    width: 10,
+    height: 10,
+    border: '1 solid #2563eb',
     marginRight: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#000000',
+    backgroundColor: '#2563eb',
+  },
+  checkboxTick: {
+    color: '#ffffff',
+    fontSize: 9,
+    fontWeight: 'bold',
+    lineHeight: 1,
   },
   checkboxText: {
     fontSize: 7,
@@ -399,6 +421,9 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
 
     const value = getFieldValue(q.key);
     const comments = getFieldValue(`${q.key}_comments`);
+    
+    // Debug logging - safe for arrays
+    console.log(`[PDF DEBUG] Question: ${q.key}, Value: "${value}", Type: ${typeof value}`);
 
     // Handle checkbox type (entry point)
     if (q.type === 'checkbox') {
@@ -417,7 +442,13 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
             <View style={styles.checkboxGroup}>
               {entryOptions.map((opt: string) => (
                 <View style={styles.checkboxOption} key={opt}>
-                  <View style={selectedOptions.includes(opt) ? [styles.checkbox, styles.checkboxChecked] : styles.checkbox} />
+                  {selectedOptions.includes(opt) ? (
+                    <View style={[styles.checkbox, styles.checkboxChecked]}>
+                      <Text style={{ color: '#ffffff', fontSize: 8, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.checkbox}></View>
+                  )}
                   <Text style={styles.checkboxText}>{opt}</Text>
                 </View>
               ))}
@@ -428,16 +459,41 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       );
     }
 
+    // Ensure value is a string and normalize it
+    const normalizedValue = String(value || '').toLowerCase().trim();
+    let isYes = normalizedValue === 'yes';
+    let isNo = normalizedValue === 'no';
+    
+    // 🔧 FIX: Smart inference - if YES/NO is empty but comments exist, infer "Yes"
+    if (!isYes && !isNo && comments && comments.trim() !== '') {
+      console.log(`[PDF RENDER] ⚠️ ${q.key}: YES/NO empty but comments exist. Inferring YES.`);
+      isYes = true;
+      isNo = false;
+    }
+    
+    // Extensive debug logging
+    console.log(`[PDF RENDER] Key: ${q.key}`);
+    console.log(`[PDF RENDER] Raw value: "${value}"`);
+    console.log(`[PDF RENDER] Normalized: "${normalizedValue}"`);
+    console.log(`[PDF RENDER] Comments: "${comments}"`);
+    console.log(`[PDF RENDER] isYes: ${isYes}, isNo: ${isNo}`);
+    console.log(`[PDF RENDER] Will render YES tick: ${isYes ? 'YES ✓' : 'NO'}`);
+    console.log(`[PDF RENDER] Will render NO tick: ${isNo ? 'YES ✓' : 'NO'}`);
+    
+    // 🔧 FIX: Use same checkmark style as working checkbox (blue background + white tick)
+    console.log(`[PDF RENDER] Will render: YES=${isYes}, NO=${isNo}`);
+    console.log('---');
+    
     return (
       <View style={styles.qaRow} key={q.key}>
         <View style={styles.qaQuestionCell}>
           <Text>{q.label}</Text>
         </View>
         <View style={styles.qaYesCell}>
-          <Text>{value?.toLowerCase() === 'yes' ? '✔' : ''}</Text>
+          {isYes && <Text style={{ color: '#2563eb', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
         </View>
         <View style={styles.qaNoCell}>
-          <Text>{value?.toLowerCase() === 'no' ? '✔' : ''}</Text>
+          {isNo && <Text style={{ color: '#2563eb', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
         </View>
         <View style={styles.qaCommentsCell}>
           <Text>{comments || ''}</Text>

@@ -476,14 +476,25 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, images, s
                 );
               }
 
+              // 🔧 FIX: Smart inference - if YES/NO is empty but comments exist, infer "Yes"
+              let displayValue = value;
+              if (!value || (typeof value === 'string' && value.trim() === '')) {
+                if (comments && comments.trim() !== '') {
+                  displayValue = "Yes"; // Infer YES if comments exist
+                }
+              }
+              
+              const isYesChecked = displayValue?.toLowerCase() === "yes";
+              const isNoChecked = displayValue?.toLowerCase() === "no";
+
               return (
                 <tr key={field.key} className="page-break-inside-avoid">
                   <td className="border border-black p-2 align-top font-medium">{field.label}</td>
                   <td className="border border-black text-center align-top p-1">
-                    {value?.toLowerCase() === "yes" ? "✔️" : ""}
+                    {isYesChecked ? "✔️" : ""}
               </td>
                   <td className="border border-black text-center align-top p-1">
-                    {value?.toLowerCase() === "no" ? "✔️" : ""}
+                    {isNoChecked ? "✔️" : ""}
               </td>
                   <td className="border border-black p-2 align-top text-xs max-h-[150px] overflow-hidden">
                     <div className="line-clamp-6">{comments}</div>
