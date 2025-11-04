@@ -85,6 +85,24 @@ export async function POST(
       `🎯 Submit Status: assignmentId=${assignmentIdNum}, hasAllSignatures=${hasAllSignatures}, totalRequired=${signatureValidation.totalRequired}, newStatus=${newStatus}, canSubmit=${canSubmit}`
     );
 
+    // 🧹 Cleanup: Clear conditional fields based on their parent values
+    if (assignment.form.formKey === 'support_action_plan') {
+      // Clear capacityActions if capacityAssessmentRequired is not "Yes"
+      if (formData.capacityAssessmentRequired !== 'Yes') {
+        formData.capacityActions = '';
+      }
+      
+      // Clear assessmentActions1 if additionalAssessment1 is not "Yes"
+      if (formData.additionalAssessment1 !== 'Yes') {
+        formData.assessmentActions1 = '';
+      }
+      
+      // Clear assessmentActions2 if additionalAssessment2 is not "Yes"
+      if (formData.additionalAssessment2 !== 'Yes') {
+        formData.assessmentActions2 = '';
+      }
+    }
+
     // Update or create FormSubmission
     const formSubmission = await prisma.formSubmission.upsert({
       where: {

@@ -193,7 +193,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   };
 
   // Shared helper: Check if Yes
-  const isYes = (k: string) => !!formData?.[k];
+  const isYes = (k: string) => formData?.[k] === 'Yes';
   
   // Shared helper: Yes/No display component (shows both options)
   const YesNo = ({ k }: { k: string }) => {
@@ -245,8 +245,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <ConditionalField label="Alternative Providers 2" value={get('capacityAlternativeProviders2')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="capacityAgreementSigned" /></div>
           <ConditionalField label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} />
-          <ConditionalField label="Are additional assessments required?" value={get('capacityAssessmentRequired')} />
-          <ConditionalField label="If Yes - Actions" value={get('capacityActions')} />
+          <div className="font-bold mt-1">Are additional assessments required? <YesNo k="capacityAssessmentRequired" /></div>
+          {get('capacityAssessmentRequired') === 'Yes' && <ConditionalField label="If Yes - Actions" value={get('capacityActions')} />}
           <div className="font-bold mt-1">Discussion held with Plan Manager and budget approved? <YesNo k="capacityBudgetApproved" /></div>
         </div>
       </div>
@@ -288,8 +288,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <ConditionalField label="Alternative Providers 1" value={get('alternativeProviders1')} />
           <ConditionalField label="Alternative Providers 2" value={get('alternativeProvidersCapital2')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="serviceAgreement1" /></div>
-          <ConditionalField label="Are additional assessments required to access this support type?" value={get('additionalAssessment1')} />
-          <ConditionalField label="If Yes - Actions" value={get('assessmentActions1')} />
+          <div className="font-bold mt-1">Are additional assessments required to access this support type? <YesNo k="additionalAssessment1" /></div>
+          {get('additionalAssessment1') === 'Yes' && <ConditionalField label="If Yes - Actions" value={get('assessmentActions1')} />}
           <div className="font-bold mt-1">Discussion held with Plan Manager and budget approved? <YesNo k="planManagerDiscussion1" /></div>
         </div>
       </div>
@@ -308,8 +308,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <ConditionalField label="Alternative Providers 1" value={get('alternativeProviders2')} />
           <ConditionalField label="Alternative Providers 2" value={get('alternativeProvidersMainstream2')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="serviceAgreement2" /></div>
-          <ConditionalField label="Are additional assessments required to access this support type?" value={get('additionalAssessment2')} />
-          <ConditionalField label="If Yes - Actions" value={get('assessmentActions2')} />
+          <div className="font-bold mt-1">Are additional assessments required to access this support type? <YesNo k="additionalAssessment2" /></div>
+          {get('additionalAssessment2') === 'Yes' && <ConditionalField label="If Yes - Actions" value={get('assessmentActions2')} />}
           {/* Budget Approval question moved INSIDE MAINSTREAM section */}
           <div className="font-bold mt-1">Discussion held with Plan Manager and budget approved? <YesNo k="budgetApproval" /></div>
         </div>

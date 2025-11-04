@@ -142,7 +142,7 @@ const ConditionalProvider = ({ num, value }: { num: number; value: string }) => 
 
 // Helper: Yes/No row showing both options
 const YesNoRow = ({ label, k, formData }: { label: string; k: string; formData: any }) => {
-  const isYes = !!formData?.[k];
+  const isYes = formData?.[k] === 'Yes';
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
       <Text style={{ fontWeight: 'bold', fontSize: 8, marginRight: 6 }}>{label}</Text>
@@ -330,7 +330,7 @@ const renderSupportRequirements = (formData: any) => {
             <YesNoRow label="Service Agreement developed/signed?" k="capacityAgreementSigned" formData={formData} />
             <ConditionalText label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} />
             <YesNoRow label="Are additional assessments required to access this support type?" k="capacityAssessmentRequired" formData={formData} />
-            <ConditionalText label="If Yes - Actions" value={get('capacityActions')} />
+            {get('capacityAssessmentRequired') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('capacityActions')} />}
             <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="capacityBudgetApproved" formData={formData} />
           </View>
         )}
@@ -361,7 +361,7 @@ const renderCapitalSupports = (formData: any) => {
         <ConditionalProvider num={2} value={get('alternativeProvidersCapital2')} />
         <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement1" formData={formData} />
         <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment1" formData={formData} />
-        <ConditionalText label="If Yes - Actions" value={get('assessmentActions1')} />
+        {get('additionalAssessment1') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions1')} />}
         <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="planManagerDiscussion1" formData={formData} />
       </View>
     </View>
@@ -371,7 +371,7 @@ const renderCapitalSupports = (formData: any) => {
 // Mainstream Supports section
 const renderMainstreamSupports = (formData: any) => {
   const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
-  const isYes = !!formData?.['budgetApproval'];
+  const isYes = formData?.['budgetApproval'] === 'Yes';
   return (
     <View style={styles.fieldContainer}>
       <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
@@ -391,7 +391,7 @@ const renderMainstreamSupports = (formData: any) => {
         <ConditionalProvider num={2} value={get('alternativeProvidersMainstream2')} />
         <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement2" formData={formData} />
         <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment2" formData={formData} />
-        <ConditionalText label="If Yes - Actions" value={get('assessmentActions2')} />
+        {get('additionalAssessment2') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions2')} />}
         {/* Budget Approval question moved INSIDE MAINSTREAM section */}
         <View style={{ marginTop: 6 }}>
           <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="budgetApproval" formData={formData} />
@@ -403,7 +403,7 @@ const renderMainstreamSupports = (formData: any) => {
 
 // Budget Approval section
 const renderBudgetApproval = (formData: any) => {
-  const isYes = !!formData?.['budgetApproval'];
+  const isYes = formData?.['budgetApproval'] === 'Yes';
   return (
     <View style={styles.fieldContainer}>
       <View style={styles.tableRow}>

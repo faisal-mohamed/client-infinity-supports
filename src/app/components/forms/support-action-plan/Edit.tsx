@@ -385,6 +385,22 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     }
 
     const newValues = { ...localValues, [name]: newValue };
+    
+    // Clear capacityActions if capacityAssessmentRequired is changed to "No"
+    if (name === "capacityAssessmentRequired" && value === "No") {
+      newValues.capacityActions = "";
+    }
+    
+    // Clear assessmentActions1 if additionalAssessment1 is changed to "No"
+    if (name === "additionalAssessment1" && value === "No") {
+      newValues.assessmentActions1 = "";
+    }
+    
+    // Clear assessmentActions2 if additionalAssessment2 is changed to "No"
+    if (name === "additionalAssessment2" && value === "No") {
+      newValues.assessmentActions2 = "";
+    }
+    
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
@@ -1357,7 +1373,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     {renderDropdown("Service Agreement developed/signed?", "capacityAgreementSigned", yesNoOptions)}
     {renderInput("Supports in place at start of plan", "capacitySupportsInPlace")}
     {renderDropdown("Are additional assessments required?", "capacityAssessmentRequired", yesNoOptions)}
-    {renderInput("If Yes - Actions", "capacityActions")}
+    {localValues.capacityAssessmentRequired === "Yes" && renderInput("If Yes - Actions", "capacityActions")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "capacityBudgetApproved", yesNoOptions)}
   </div>
 
@@ -1391,7 +1407,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     {renderDropdown("Service Agreement developed/signed?", "serviceAgreement1", yesNoOptions)}
     {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment1", yesNoOptions)}
-    {renderInput("If Yes - Actions", "assessmentActions1")}
+    {localValues.additionalAssessment1 === "Yes" && renderInput("If Yes - Actions", "assessmentActions1")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "planManagerDiscussion1", yesNoOptions)}
   </div>
 
@@ -1425,7 +1441,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     {renderDropdown("Service Agreement developed/signed?", "serviceAgreement2", yesNoOptions)}
     {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment2", yesNoOptions)}
-    {renderInput("If Yes - Actions", "assessmentActions2")}
+    {localValues.additionalAssessment2 === "Yes" && renderInput("If Yes - Actions", "assessmentActions2")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "budgetApproval", yesNoOptions)}
   </div>)
 
