@@ -1142,6 +1142,7 @@ const supportLineItems = [
                     <input
                       type="number"
                       step="0.1"
+                      min="0"
                       name={`${item.code}_${isKmBased ? "totalKms" : "weeks"}`}
                       value={localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || ""}
                       onChange={handleChange}
@@ -1153,6 +1154,7 @@ const supportLineItems = [
                       <input
                         type="number"
                         step="0.1"
+                        min="0"
                         name={`${item.code}_totalHours`}
                         value={localValues[`${item.code}_totalHours`] || ""}
                         onChange={handleChange}
