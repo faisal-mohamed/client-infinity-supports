@@ -18,12 +18,19 @@ model Admin {
   resetTokenExpiry DateTime? // When the reset token expires
   createdAt        DateTime                     @default(now())
   updatedAt        DateTime                     @updatedAt
+  
+  // Client relations
   logs             FormActivityLog[] // Logs of all admin activities (creating clients, managing forms, etc.)
   clients          Client[] // Admin's clients (who they created)
   notifications    FormSubmissionNotification[] // Notifications for this admin
   appSettings      AppSettings[] // Admin-specific app settings (for email_settings)
-
   assignedFormAssignments FormAssignment[] @relation("AssignedForms")
+
+  // NEW: Staff relations
+  staff                      Staff[] // Admin's staff (who they created)
+  staffLogs                  StaffActivityLog[] @relation("StaffActivityLogs")
+  staffNotifications         StaffSubmissionNotification[] @relation("StaffNotifications")
+  staffAssignedFormAssignments StaffFormAssignment[] @relation("StaffAssignedForms")
 }
 
 model Client {
@@ -64,8 +71,19 @@ model Staff {
   linkExpiresAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  createdBy     Admin?    @relation(fields: [createdById], references: [id])
+  createdById   Int?
 
+  // NEW: Client-like relations
   submissions                StaffFormSubmission[]
+  commonFields               StaffCommonField[]
+  formAssignments            StaffFormAssignment[]
+  formBatches                StaffFormBatch[]
+  progress                   StaffFormProgress[]
+  logs                       StaffActivityLog[]
+  notifications              StaffSubmissionNotification[]
+
+  // OLD: Keep for backward compatibility (can be deprecated later)
   employmentDetails          StaffEmploymentDetails?
   employmentWelcomeAck       StaffEmploymentWelcomeAck?
   supportWorker              StaffSupportWorker?
@@ -74,20 +92,181 @@ model Staff {
   bullyingHarassmentTraining StaffBullyingHarassmentTraining?
   bullyingTraining           StaffBullyingTraining?
   ndisCodeOfConduct          StaffNdisCodeOfConduct?
+  conflictOfInterest         StaffConflictOfInterest?
+  documentationAck           StaffDocumentationAcknowledgement?
+  vehicleSafetyInspection    StaffVehicleSafetyInspection?
+  formDownloads              StaffFormDownload[]
 }
 
+// NEW: Unified form submission table (like client FormSubmission)
 model StaffFormSubmission {
   id          Int       @id @default(autoincrement())
-  staffId     Int
-  formKey     String
-  data        Json
+  staffId     Int       // Reference to Staff
+  formId      Int?      // Reference to MasterForm (optional for backward compatibility)
+  formVersion Int?      // Version of the form being submitted (optional for backward compatibility)
+  formKey     String?   // OLD: Keep for backward compatibility with existing data
+  data        Json      // JSON containing the form submission data
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
   updatedAt   DateTime  @updatedAt
 
+  // Admin workflow tracking
+  filledByAdmin   Boolean   @default(false) // Track if admin filled this form
+  adminFilledAt   DateTime? // When admin filled the form
+  
+  // Signature tracking
+  staffSignature String?   // Staff's signature for this specific form
+  staffSignedAt  DateTime? // When staff signed this form
+
+  staff            Staff                        @relation(fields: [staffId], references: [id])
+  form             MasterForm?                  @relation(fields: [formId], references: [id])
+  signatureBatches StaffSignatureBatchForm[]    // Which signature batches include this form
+  notifications    StaffSubmissionNotification[] // Notifications for this form submission
+
+  // Note: Removed unique constraint temporarily for migration
+}
+
+// NEW: Common fields extracted from staff forms (like client CommonField)
+model StaffCommonField {
+  id             Int      @id @default(autoincrement())
+  staffId        Int      // Reference to the staff
+  firstName      String?
+  surname        String?
+  email          String?
+  phone          String?
+  address        String?
+  suburb         String?
+  state          String?
+  postcode       String?
+  dob            String?
+  // Add any other common fields that appear across multiple staff forms
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  tfn            String?  // Tax File Number
+  abn            String?  // Australian Business Number
+  superannuation String?
+  bankDetails    String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   staff Staff @relation(fields: [staffId], references: [id])
 
-  @@unique([staffId, formKey])
+  // Ensures one entry per staff
+  @@unique([staffId])
+}
+
+// NEW: Form batch system for staff (like client FormBatch)
+model StaffFormBatch {
+  id         Int      @id @default(autoincrement())
+  staffId    Int
+  batchToken String   @unique // Unique token for accessing all forms in this batch
+  passcode   String?  // Passcode for the entire batch (can be null for signature-only access)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  // Signature-only access
+  isSignatureOnly Boolean @default(false)
+
+  // Completion tracking
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  // Admin notification
+  adminNotified Boolean @default(false)
+
+  staff            Staff                     @relation(fields: [staffId], references: [id])
+  assignments      StaffFormAssignment[]
+  signatureForms   StaffSignatureBatchForm[]
+}
+
+// NEW: Form assignment system for staff (like client FormAssignment)
+model StaffFormAssignment {
+  id          Int      @id @default(autoincrement())
+  staffId     Int      // Reference to Staff
+  formId      Int      // Reference to MasterForm
+  formVersion Int      // Version of the form being assigned
+  assignedAt  DateTime @default(now())
+
+  // Status tracking
+  currentStatus String @default("not_started") // "not_started", "in_progress", "completed"
+
+  isCompleted             Boolean @default(false)
+  isCommonFieldsCompleted Boolean @default(false)
+  displayOrder            Int     @default(0)
+  batchId                 Int     // Reference to StaffFormBatch (required)
+
+  staff        Staff          @relation(fields: [staffId], references: [id])
+  form         MasterForm     @relation(fields: [formId], references: [id])
+  batch        StaffFormBatch @relation(fields: [batchId], references: [id])
+
+  assignedById Int?
+  assignedBy   Admin? @relation("StaffAssignedForms", fields: [assignedById], references: [id])
+
+  // Ensure unique assignment for staff-form-version
+  @@unique([staffId, formId, formVersion])
+}
+
+// NEW: Form progress tracking for staff (like client FormProgress)
+model StaffFormProgress {
+  id             Int      @id @default(autoincrement())
+  staffId        Int
+  formId         Int
+  formVersion    Int      // Version of the form
+  currentSection String?  // Current section the staff is on
+  updatedAt      DateTime @updatedAt
+
+  staff Staff      @relation(fields: [staffId], references: [id])
+  form  MasterForm @relation(fields: [formId], references: [id])
+
+  // Ensure unique progress tracking for staff-form-version
+  @@unique([staffId, formId, formVersion])
+}
+
+// NEW: Signature batch form junction table (like client SignatureBatchForm)
+model StaffSignatureBatchForm {
+  id               Int      @id @default(autoincrement())
+  batchId          Int      // Reference to StaffFormBatch
+  formSubmissionId Int      // Reference to StaffFormSubmission
+  createdAt        DateTime @default(now())
+
+  batch          StaffFormBatch      @relation(fields: [batchId], references: [id])
+  formSubmission StaffFormSubmission @relation(fields: [formSubmissionId], references: [id])
+
+  @@unique([batchId, formSubmissionId])
+}
+
+// NEW: Activity logging for staff (like client FormActivityLog)
+model StaffActivityLog {
+  id        Int      @id @default(autoincrement())
+  staffId   Int?
+  adminId   Int?
+  logType   LogType  // CLIENT or ADMIN
+  action    String   // Action performed
+  metadata  Json?    // Extra metadata
+  createdAt DateTime @default(now())
+
+  staff Staff? @relation(fields: [staffId], references: [id])
+  admin Admin? @relation("StaffActivityLogs", fields: [adminId], references: [id])
+
+  @@index([staffId, adminId])
+}
+
+// NEW: Notification system for staff form submissions (like client FormSubmissionNotification)
+model StaffSubmissionNotification {
+  id               Int      @id @default(autoincrement())
+  adminId          Int      // Which admin to notify
+  staffId          Int      // Which staff submitted the form
+  formSubmissionId Int      // Which form submission triggered this notification
+  isRead           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  admin          Admin               @relation("StaffNotifications", fields: [adminId], references: [id])
+  staff          Staff               @relation(fields: [staffId], references: [id])
+  formSubmission StaffFormSubmission @relation(fields: [formSubmissionId], references: [id])
+
+  @@index([adminId, isRead])
+  @@index([createdAt])
 }
 
 // Specialized storage for Staff Employment Details
@@ -95,6 +274,7 @@ model StaffEmploymentDetails {
   id             Int       @id @default(autoincrement())
   staffId        Int       @unique
   data           Json
+  status         String?   // Keep for backward compatibility
   // Signature fields like client forms
   staffSignature String? // Staff's signature for this form
   staffSignedAt  DateTime? // When staff signed this form
@@ -202,6 +382,59 @@ model StaffNdisCodeOfConduct {
   staff Staff @relation(fields: [staffId], references: [id])
 }
 
+// OLD: Keep for backward compatibility - Conflict of Interest form
+model StaffConflictOfInterest {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// OLD: Keep for backward compatibility - Documentation Acknowledgement form
+model StaffDocumentationAcknowledgement {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// OLD: Keep for backward compatibility - Vehicle Safety Inspection form
+model StaffVehicleSafetyInspection {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+}
+
+// OLD: Keep for backward compatibility - Track form downloads
+model StaffFormDownload {
+  id          Int      @id @default(autoincrement())
+  staffId     Int
+  formKey     String
+  downloadedAt DateTime? 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  staff Staff @relation(fields: [staffId], references: [id])
+
+  @@index([staffId])
+}
+
 model MasterForm {
   id                Int      @id @default(autoincrement())
   formKey           String   @unique
@@ -212,12 +445,15 @@ model MasterForm {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  // Reverse relation for form submissions linked to this form
+  // Client relations
   formSubmissions FormSubmission[]
-
-  // Reverse relation for form progress linked to this form
   formProgress   FormProgress[]
   FormAssignment FormAssignment[]
+
+  // NEW: Staff relations
+  staffFormSubmissions StaffFormSubmission[]
+  staffFormProgress   StaffFormProgress[]
+  StaffFormAssignment StaffFormAssignment[]
 
   // Unique combination of formKey and version
   @@unique([formKey, version])

@@ -1,83 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chromium } from "playwright";
 import React from "react";
-import fs from "fs";
-import path from "path";
+import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { getStaffPDFComponent } from "@/components-server/staff/staffPDFRegistry";
+import fs from "fs";
+import path from "path";
 
-
-async function generateStaffHTML(formData: any, formType: string, staff: any) {
-  const ReactDOMServer = await import("react-dom/server");
-  const cssPath = path.resolve(process.cwd(), "public/tailwind-pdf.css");
-  const css = fs.readFileSync(cssPath, "utf8");
-
-  const StaffPDFComponent = getStaffPDFComponent(formType);
-  const element = React.createElement(StaffPDFComponent, { data: formData });
-
-  return `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <style>
-      ${css}
-      @page { 
-        size: A4; 
-        margin: 15mm 10mm 15mm 10mm; 
-      }
-      body { 
-        font-family: 'sans-serif', sans-serif; 
-        margin: 0; 
-        padding: 0; 
-        font-size: 12px; 
-        line-height: 1.4; 
-      }
-      .page { 
-        page-break-before: always; 
-        page-break-after: always; 
-        page-break-inside: avoid; 
-        width: 100%; 
-        min-height: 100vh; 
-        display: flex; 
-        flex-direction: column; 
-        background: white; 
-        padding: 20px;
-        box-sizing: border-box;
-      }
-      .page:first-child { 
-        page-break-before: auto; 
-      }
-      .footer {
-        margin-top: auto;
-        padding-top: 20px;
-        border-top: 1px solid #ddd;
-      }
-      img { 
-        max-width: 100%; 
-        height: auto; 
-      }
-      .signature-container img { 
-        max-height: 40px; 
-        max-width: 150px; 
-      }
-      h1, h2, h3, h4, h5, h6 { 
-        page-break-after: avoid; 
-      }
-      * { 
-        box-sizing: border-box; 
-      }
-      .shadow, .border-gray-300, .mx-auto, .mb-8 { 
-        box-shadow: none !important; 
-        margin: 0 !important; 
-      }
-    </style>
-  </head>
-  <body>
-    <div class="form">${ReactDOMServer.renderToString(element)}</div>
-  </body>
-</html>`;
-}
-
+/**
+ * Generate Staff PDF using @react-pdf/renderer
+ * - No browser needed!
+ * - Faster generation
+ * - Dynamic pages automatically
+ */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; formType: string }> }
@@ -144,28 +78,35 @@ export async function GET(
     // Add staff info to form data
     const dataWithStaff = { ...formData, staff };
 
-    const html = await generateStaffHTML(dataWithStaff, formType.replace('-', '_'), staff);
-
-    if (process.env.NODE_ENV === "development") {
-      fs.writeFileSync("staff-pdf-debug.html", html);
+    // Convert logo to base64 for React PDF
+    const logoPath = path.resolve(process.cwd(), 'public/infinity_logo.png');
+    let logoDataUrl = '';
+    try {
+      if (fs.existsSync(logoPath)) {
+        const logoBuffer = fs.readFileSync(logoPath);
+        logoDataUrl = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+      }
+    } catch (error) {
+      console.warn('Logo not found, skipping:', error);
     }
 
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "domcontentloaded" });
-    await page.evaluateHandle("document.fonts.ready");
+    // Add logo to data
+    const dataWithLogo = { ...dataWithStaff, logoDataUrl };
 
-    const pdfBuffer : any = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "15mm", bottom: "15mm", left: "10mm", right: "10mm" },
-      preferCSSPageSize: true,
-      displayHeaderFooter: false
-    });
+    // Get React PDF component
+    const StaffPDFComponent = getStaffPDFComponent(formType.replace('-', '_'));
+    
+    // Create PDF element
+    const pdfElement = React.createElement(StaffPDFComponent, { data: dataWithLogo });
 
-    await browser.close();
+    console.log('Generating PDF for staff:', staff.firstName, staff.surname);
+    
+    // Generate PDF buffer using React PDF (no browser!)
+    const pdfBuffer = await renderToBuffer(pdfElement);
 
     const filename = `${staff.firstName}_${staff.surname}_${formType}.pdf`;
+
+    console.log('PDF generated successfully:', filename);
 
     return new NextResponse(pdfBuffer, {
       headers: {
@@ -175,6 +116,7 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Error generating staff PDF:", error);
+    console.error("Error stack:", error.stack);
     return new NextResponse(`Error: ${error.message}`, { status: 500 });
   }
 }

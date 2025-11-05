@@ -1,5 +1,8 @@
 import type React from 'react';
-import EmployeeDetailsPDF from './EmployeeDetailsPDF';
+// NEW: React PDF version (dynamic pages!)
+import EmployeeDetailsPDF from './EmployeeDetailsPDF_ReactPDF';
+// OLD: Playwright version (keep for reference)
+// import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 
 export interface StaffPDFRegistryItem {
   key: string;
