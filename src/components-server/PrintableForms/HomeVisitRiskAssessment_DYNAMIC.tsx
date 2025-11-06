@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 7,
-    lineHeight: 1.3,
   },
   
   // Signature
@@ -341,7 +340,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
           {isNo && <Text>✓</Text>}
         </View>
         <View style={styles.commentsCell}>
-          <Text style={{ lineHeight: 1.4 }}>{comments}</Text>
+          <Text>{comments}</Text>
         </View>
       </View>
     );
@@ -461,7 +460,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
                     <Text>{getFieldValue(`riskScore${row}`)}</Text>
                   </View>
                   <View style={[styles.riskCell, { width: '50%' }]}>
-                    <Text style={{ lineHeight: 1.4 }}>{getFieldValue(`control${row}`)}</Text>
+                    <Text>{getFieldValue(`control${row}`)}</Text>
                   </View>
                   <View style={[styles.riskCellLast, { width: '16%' }]}>
                     <Text>{getFieldValue(`responsible${row}`)}</Text>
