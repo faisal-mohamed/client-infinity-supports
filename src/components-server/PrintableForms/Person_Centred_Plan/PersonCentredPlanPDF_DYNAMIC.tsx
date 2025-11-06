@@ -626,12 +626,12 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     // For sections without container boxes - just label and text
     const noBoxSections = [
       'My Story:',
-      'My Strengths:',
+      'Strengths:',
+      'Challenges:',
       'Allergies:',
-      'My Challenges:',
       'Health Conditions:',
       'Precautions:',
-      'Respiratory History:',
+      'History of Respiratory Depression:',
       'Companion Card:',
       'Ambulance Cover:',
       'Proactive & preventative healthcare prompts:'
@@ -802,13 +802,13 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
             {renderContainerWithPageBreak('My Story:', getValue('myStory'), true, 1)}
             {renderQuestionSpacing(true)}
             
-            {renderContainerWithPageBreak('My Strengths:', getValue('strengths') || 'No information provided', false, 2)}
+            {renderContainerWithPageBreak('Strengths:', getValue('strengths') || 'No information provided', false, 2)}
             {renderQuestionSpacing(true)}
             
-            {renderContainerWithPageBreak('Allergies:', getValue('allergies') || 'No information provided', false, 3)}
+            {renderContainerWithPageBreak('Challenges:', getValue('challenges') || 'No information provided', false, 3)}
             {renderQuestionSpacing(true)}
             
-            {renderContainerWithPageBreak('My Challenges:', getValue('challenges') || 'No information provided', false, 4)}
+            {renderContainerWithPageBreak('Allergies:', getValue('allergies') || 'No information provided', false, 4)}
           </View>
 
           {/* ========================================
@@ -818,8 +818,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>3. Health Information</Text>
             
-            {/* Question 1: Respiratory History */}
-            {renderContainerWithPageBreak('Respiratory History:', getValue('respiratoryHistory') || 'None specified', false, 1)}
+            {/* Question 1: History of Respiratory Depression */}
+            {renderContainerWithPageBreak('History of Respiratory Depression:', getValue('respiratoryHistory') || 'None specified', false, 1)}
             {renderQuestionSpacing(true)}
             
             {/* Question 2: Precautions */}

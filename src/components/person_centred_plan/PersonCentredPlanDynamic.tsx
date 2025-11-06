@@ -25,18 +25,18 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     { key: 'ndisNumber', label: '8) NDIS Number', type: 'text', section: 'Personal Information' },
     
     // About Me
-    { key: 'myStory', label: '1) My Story', type: 'longtext', section: 'About Me' },
-    { key: 'strengths', label: '2) My Strengths', type: 'longtext', section: 'About Me' },
-    { key: 'allergies', label: '3) Allergies', type: 'longtext', section: 'About Me' },
-    { key: 'challenges', label: '4) My Challenges', type: 'longtext', section: 'About Me' },
+    { key: 'myStory', label: 'My Story', type: 'longtext', section: 'About Me' },
+    { key: 'strengths', label: 'Strengths', type: 'longtext', section: 'About Me' },
+    { key: 'challenges', label: 'Challenges', type: 'longtext', section: 'About Me' },
+    { key: 'allergies', label: 'Allergies', type: 'longtext', section: 'About Me' },
     
     // Health Information
-    { key: 'respiratoryHistory', label: '1) History of Respiratory Depression', type: 'longtext', section: 'Health Information' },
-    { key: 'precautions', label: '2) Precautions', type: 'longtext', section: 'Health Information' },
-    { key: 'healthConditions', label: '3) Health Conditions', type: 'longtext', section: 'Health Information' },
-    { key: 'companionCard', label: '4) Does the participant have a Companion Card?', type: 'text', section: 'Health Information' },
-    { key: 'ambulanceCover', label: '5) Does the participant have Ambulance Cover?', type: 'text', section: 'Health Information' },
-    { key: 'healthcarePrompt', label: '6) Does the participant require support to organize regular medical & dental check ups? (If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)', type: 'text', section: 'Health Information' },
+    { key: 'respiratoryHistory', label: 'History of Respiratory Depression', type: 'longtext', section: 'Health Information' },
+    { key: 'precautions', label: 'Precautions', type: 'longtext', section: 'Health Information' },
+    { key: 'healthConditions', label: 'Health Conditions', type: 'longtext', section: 'Health Information' },
+    { key: 'companionCard', label: 'Companion Card', type: 'text', section: 'Health Information' },
+    { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text', section: 'Health Information' },
+    { key: 'healthcarePrompt', label: 'Proactive & preventative healthcare prompts', type: 'text', section: 'Health Information' },
     
     // Goals (1-10) - correct field names
     { key: 'goal1', label: 'Goal 1', type: 'longtext' },
