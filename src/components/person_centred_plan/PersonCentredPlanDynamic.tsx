@@ -578,7 +578,9 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       </A4Page>
       {pagesGrouped.map((pageItems, index) => (
         <A4Page key={index} pageNumber={index + 2}>
-          {pageItems.map((item: any) => renderItem(item))}
+          {pageItems.map((item: any) => (
+            <div key={item.key}>{renderItem(item)}</div>
+          ))}
         </A4Page>
       ))}
     </div>

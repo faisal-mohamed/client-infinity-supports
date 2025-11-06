@@ -377,7 +377,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           { key: 'healthConditions', label: 'Health Conditions', type: 'textarea' },
           { key: 'companionCard', label: 'Companion Card', type: 'text' },
           { key: 'ambulanceCover', label: 'Ambulance Cover', type: 'text' },
-          { key: 'healthcarePrompt', label: 'Proactive & preventative healthcare prompts', type: 'checkbox', options: ['Yes', 'No'] }
+          { key: 'healthcarePrompt', label: 'Proactive & preventative Proactive & preventative healthcare promptss', type: 'checkbox', options: ['Yes', 'No'] }
         ];
       } else if (section.id === 'goals') {
         // Goals table - add to all fields

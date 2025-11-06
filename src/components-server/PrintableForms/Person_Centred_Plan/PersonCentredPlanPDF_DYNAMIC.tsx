@@ -634,7 +634,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
       'Respiratory History:',
       'Companion Card:',
       'Ambulance Cover:',
-      'Healthcare Prompt:'
+      'Proactive & preventative healthcare prompts:'
     ];
     
     if (noBoxSections.includes(label)) {
@@ -838,8 +838,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
             {renderContainerWithPageBreak('Ambulance Cover:', getValue('ambulanceCover') || 'No', false, 5)}
             {renderQuestionSpacing(true)}
             
-            {/* Question 6: Healthcare Prompt (Last question - no spacing after) */}
-            {renderContainerWithPageBreak('Healthcare Prompt:', getValue('healthcarePrompt') || 'No', false, 6)}
+            {/* Question 6: Proactive & preventative healthcare prompts (Last question - no spacing after) */}
+            {renderContainerWithPageBreak('Proactive & preventative healthcare prompts:', getValue('healthcarePrompt') || 'No', false, 6)}
           </View>
 
           {/* ========================================
@@ -859,7 +859,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                   <View style={styles.goalCard}>
                     <View style={styles.goalHeader}>
                       <Text style={styles.goalTitle}>Goal {goal.number}</Text>
-                      <Text style={styles.outcomeRating}>{goal.rating}</Text>
+                      <Text style={styles.outcomeRating}>OUTCOME RATING: {goal.rating}</Text>
                     </View>
                     
                     <View style={styles.goalDescription}>
@@ -904,35 +904,35 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
               
               <View style={styles.supportTable}>
                 <View style={styles.supportTableRow}>
-                  <Text style={styles.supportTableLabel}>PBS Support Plan included?</Text>
+                  <Text style={styles.supportTableLabel}>1) Is a PBS Support Plan included?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('pbsSupportPlanIncluded') || 'No'}
                   </Text>
                 </View>
                 
                 <View style={styles.supportTableRow}>
-                  <Text style={styles.supportTableLabel}>Any Restrictive Practices?</Text>
+                  <Text style={styles.supportTableLabel}>2) Does the participant have any Restrictive Practices in their support plan?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('restrictivePractices') || 'No'}
                   </Text>
                 </View>
                 
                 <View style={styles.supportTableRow}>
-                  <Text style={styles.supportTableLabel}>Name of organization:</Text>
+                  <Text style={styles.supportTableLabel}>3) Name of organization providing support?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('organizationName') || 'Not specified'}
                   </Text>
                 </View>
                 
                 <View style={styles.supportTableRow}>
-                  <Text style={styles.supportTableLabel}>Contact person:</Text>
+                  <Text style={styles.supportTableLabel}>4) Contact person from the organization?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('contactPersonOrg') || 'Not specified'}
                   </Text>
                 </View>
                 
                 <View style={styles.supportTableRow}>
-                  <Text style={styles.supportTableLabel}>Contact number:</Text>
+                  <Text style={styles.supportTableLabel}>5) Contact number for the organization?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('contactNumberOrg') || 'Not specified'}
                   </Text>

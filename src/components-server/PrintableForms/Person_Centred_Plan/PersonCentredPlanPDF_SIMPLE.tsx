@@ -273,7 +273,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
             </View>
             
             <View style={styles.fieldRow}>
-              <Text style={styles.label}>Healthcare Prompt:</Text>
+              <Text style={styles.label}>Proactive & preventative healthcare prompts:</Text>
               <Text style={styles.value}>{getValue('healthcarePrompt') || 'No'}</Text>
             </View>
           </View>

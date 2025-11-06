@@ -31,7 +31,7 @@ const formSchema  : any = {
       { label: 'Companion Card', key: 'companionCard', type: 'text' },
       { label: 'Ambulance Cover', key: 'ambulanceCover', type: 'text' },
       {
-        label: 'Proactive & preventative healthcare prompts',
+        label: 'Proactive & preventative Proactive & preventative healthcare promptss',
         key: 'healthcarePrompt',
         type: 'checkbox',
         options: ['Yes', 'No'],
