@@ -12,6 +12,8 @@ import { prisma } from "@/lib/prisma";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -468,15 +470,28 @@ export async function GET(
       console.warn(`No common fields found for client ${clientId}`);
     }
 
-    // ✅ Fetch Form specific settings directly from database
+    // ✅ Fetch Form specific settings for the current admin
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+    
+    if (!adminId) {
+      console.warn('⚠️ No admin session found, PDF may have incorrect settings');
+    }
+    
     const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        ...(adminId && { adminId }) // Filter by adminId if available
+      },
       select: { key: true, value: true },
     });
 
     const settings: Record<string, any> = {};
     rawSettings.forEach(setting => {
-      settings[setting.key] = setting.value;
+      // Only use non-empty values, don't override with empty strings
+      if (setting.value && setting.value.trim() !== '') {
+        settings[setting.key] = setting.value;
+      }
     });
 
     // Overlay with form-specific settings API (same as web view) to avoid stale DB values

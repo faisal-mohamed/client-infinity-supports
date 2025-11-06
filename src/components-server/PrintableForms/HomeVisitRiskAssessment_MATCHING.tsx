@@ -75,19 +75,25 @@ const styles = StyleSheet.create({
     borderBottom: '1 solid #000000',
   },
   metadataCell: {
-    padding: 4,
+    padding: 5,
     fontSize: 8,
     borderRight: '1 solid #000000',
     flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
   },
   metadataCellLast: {
-    padding: 4,
+    padding: 5,
     fontSize: 8,
     flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
   },
   metadataCellFull: {
-    padding: 4,
+    padding: 5,
     fontSize: 8,
+    flexGrow: 1,
+    flexShrink: 1,
   },
   labelText: {
     fontWeight: 'bold',
@@ -128,14 +134,18 @@ const styles = StyleSheet.create({
     borderBottom: '1 solid #000000',
   },
   qaQuestionCell: {
-    width: '40%',
-    padding: 4,
+    flexBasis: '40%',
+    flexShrink: 0,
+    flexGrow: 0,
+    padding: 5,
     fontSize: 7,
     fontWeight: 'bold',
     borderRight: '1 solid #000000',
   },
   qaYesCell: {
-    width: '7%',
+    flexBasis: '7%',
+    flexShrink: 0,
+    flexGrow: 0,
     padding: 4,
     fontSize: 10,
     textAlign: 'center',
@@ -144,7 +154,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   qaNoCell: {
-    width: '7%',
+    flexBasis: '7%',
+    flexShrink: 0,
+    flexGrow: 0,
     padding: 4,
     fontSize: 10,
     textAlign: 'center',
@@ -153,8 +165,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   qaCommentsCell: {
-    width: '46%',
-    padding: 4,
+    flexBasis: '46%',
+    flexGrow: 1,
+    flexShrink: 1,
+    padding: 5,
     fontSize: 7,
   },
   // Risk assessment table
@@ -415,7 +429,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   const renderQARow = (q: any) => {
     if (q.section) {
       return (
-        <View style={styles.qaSectionRow} key={q.section}>
+        <View style={styles.qaSectionRow} key={q.section} wrap={false}>
           <Text style={styles.qaSectionCell}>{q.section}</Text>
         </View>
       );
@@ -434,7 +448,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       const selectedOptions: string[] = Array.isArray(rawValue) ? rawValue : [];
       
       return (
-        <View style={styles.qaRow} key={q.key}>
+        <View style={styles.qaRow} key={q.key} wrap={false}>
           <View style={styles.qaQuestionCell}>
             <Text>{q.label}</Text>
           </View>
@@ -455,7 +469,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
                 </View>
               ))}
             </View>
-            {comments && <Text style={{ fontSize: 8, marginTop: 4, fontStyle: 'italic' }}>{comments}</Text>}
+            {comments && <Text style={{ fontSize: 7, marginTop: 4, fontStyle: 'italic', lineHeight: 1.5 }}>{comments}</Text>}
           </View>
         </View>
       );
@@ -487,7 +501,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     console.log('---');
     
     return (
-      <View style={styles.qaRow} key={q.key}>
+      <View style={styles.qaRow} key={q.key} wrap={false}>
         <View style={styles.qaQuestionCell}>
           <Text>{q.label}</Text>
         </View>
@@ -498,7 +512,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
           {isNo && <Text style={{ color: '#2563eb', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
         </View>
         <View style={styles.qaCommentsCell}>
-          <Text>{comments || ''}</Text>
+          <Text style={{ fontSize: 7, lineHeight: 1.5 }}>{comments || ''}</Text>
         </View>
       </View>
     );
@@ -555,28 +569,32 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
           <View style={styles.metadataTable}>
             <View style={[styles.metadataRow, { borderBottom: '1 solid #000000' }]}>
               <View style={styles.metadataCell}>
-                <Text style={styles.labelText}>Name: </Text>
-                <Text>{getFieldValue('name')}</Text>
+                <Text style={[styles.labelText, { lineHeight: 1.4 }]}>Name: </Text>
+                <Text style={{ lineHeight: 1.4 }}>{getFieldValue('name')}</Text>
               </View>
               <View style={styles.metadataCell}>
-                <Text style={styles.labelText}>NDIS Number: </Text>
-                <Text>{getFieldValue('ndisNumber')}</Text>
+                <Text style={[styles.labelText, { lineHeight: 1.4 }]}>NDIS Number: </Text>
+                <Text style={{ lineHeight: 1.4 }}>{getFieldValue('ndisNumber')}</Text>
               </View>
               <View style={styles.metadataCellLast}>
-                <Text style={styles.labelText}>DOB: </Text>
-                <Text>{getFieldValue('dob')}</Text>
+                <Text style={[styles.labelText, { lineHeight: 1.4 }]}>DOB: </Text>
+                <Text style={{ lineHeight: 1.4 }}>{getFieldValue('dob')}</Text>
               </View>
-                      </View>
+            </View>
             <View style={[styles.metadataRow, { borderBottom: '1 solid #000000' }]}>
               <View style={styles.metadataCellFull}>
-                <Text style={styles.labelText}>Address: </Text>
-                <Text>{getFieldValue('address')}</Text>
-                  </View>
-                  </View>
+                <Text style={{ lineHeight: 1.4 }}>
+                  <Text style={styles.labelText}>Address: </Text>
+                  {getFieldValue('address')}
+                </Text>
+              </View>
+            </View>
             <View style={styles.metadataRow}>
               <View style={styles.metadataCellFull}>
-                <Text style={styles.labelText}>Date of completion of risk assessment: </Text>
-                <Text>{formatDate(getFieldValue('completionDate'))}</Text>
+                <Text style={{ lineHeight: 1.4 }}>
+                  <Text style={styles.labelText}>Date of completion of risk assessment: </Text>
+                  {formatDate(getFieldValue('completionDate'))}
+                </Text>
               </View>
             </View>
           </View>
@@ -584,10 +602,10 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
           {/* Q&A Table - All questions in continuous flow */}
           <View style={styles.qaTable}>
             <View style={styles.qaHeaderRow}>
-              <View style={[styles.qaHeaderCell, { width: '40%' }]}><Text>Question</Text></View>
-              <View style={[styles.qaHeaderCell, { width: '7%' }]}><Text>YES</Text></View>
-              <View style={[styles.qaHeaderCell, { width: '7%' }]}><Text>NO</Text></View>
-              <View style={[styles.qaHeaderCellLast, { width: '46%' }]}><Text>COMMENTS</Text></View>
+              <View style={[styles.qaHeaderCell, { flexBasis: '40%', flexGrow: 0, flexShrink: 0 }]}><Text>Question</Text></View>
+              <View style={[styles.qaHeaderCell, { flexBasis: '7%', flexGrow: 0, flexShrink: 0 }]}><Text>YES</Text></View>
+              <View style={[styles.qaHeaderCell, { flexBasis: '7%', flexGrow: 0, flexShrink: 0 }]}><Text>NO</Text></View>
+              <View style={[styles.qaHeaderCellLast, { flexBasis: '46%', flexGrow: 1, flexShrink: 1 }]}><Text>COMMENTS</Text></View>
             </View>
             {allQuestions.map(renderQARow)}
           </View>
@@ -636,7 +654,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
                 <View style={styles.riskHeaderCellLast}><Text>Person Responsible</Text></View>
               </View>
               {filledRiskRows.map((row) => (
-                <View style={styles.riskRow} key={row}>
+                <View style={styles.riskRow} key={row} wrap={false}>
                   <View style={styles.riskCell}>
                     <Text>{getFieldValue(`issue${row}`)}</Text>
                   </View>

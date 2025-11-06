@@ -6,6 +6,7 @@ import ClientIntakev2Natural from './ClientIntakev2_NATURAL'; // Natural flow ve
 import ClientIntakev2Matching from './ClientIntakev2_MATCHING'; // Matches web view design
 import HomeVisitRiskAssessment from './HomeVisitRiskAssessment';
 import HomeVisitRiskAssessment_MATCHING from './HomeVisitRiskAssessment_MATCHING';
+import HomeVisitRiskAssessment_DYNAMIC from './HomeVisitRiskAssessment_DYNAMIC'; // NEW: Exactly matches web view
 import PersonCentredPlan from './Person_Centred_Plan/page_FRESH'; // Using fresh version
 import SADeliverySupports from './SA-delivery-of-supports/page_FIXED';
 import SADeliverySupportsMatching from './SADeliverySupports_MATCHING'; // Dynamic PDF with auto page breaks
@@ -35,7 +36,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   },
   {
     formKey: 'home_visit_risk_assessment',
-    component: HomeVisitRiskAssessment_MATCHING, // NEW: Dynamic PDF matching SA Delivery pattern
+    component: HomeVisitRiskAssessment_DYNAMIC, // NEW: Exactly matches web view with dynamic blocks
     name: 'Home Visit Risk Assessment Form',
   },
   {

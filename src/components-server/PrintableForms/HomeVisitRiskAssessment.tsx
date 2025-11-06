@@ -40,6 +40,44 @@ const PDF_FONT_STYLES = `
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  /* Page break controls for PDF generation */
+  @media print {
+    .a4-page {
+      page-break-after: always;
+      page-break-inside: avoid;
+    }
+    
+    /* Prevent content blocks from breaking */
+    .border-l-4 {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    
+    /* Keep headings with their content */
+    h3, h4 {
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+    
+    /* CRITICAL: Keep table rows together */
+    table tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    
+    /* Keep section headers with next row */
+    table tr.bg-gray-300 {
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+  }
+  
+  /* Ensure blocks display properly in all scenarios */
+  .border-l-4 {
+    display: block !important;
+    overflow: visible !important;
+  }
 ` as const;
 
 // ===== STANDARDIZED LOGO CONFIGURATION =====
@@ -231,11 +269,6 @@ const homeVisitSchema: any = {
       ],
     },
   ],
-  footer: {
-    left: "Document Number: CF012",
-    center: "www.infinitysupportwa.org",
-    right: "DOR: 14/03/2026",
-  },
 };
 
 // --- A4 Page Wrapper Component ---
@@ -243,7 +276,7 @@ const A4Page = ({ children, className = "" }: any) => (
   <div
     className={`
     a4-page
-    w-[210mm] h-[297mm] 
+    w-[210mm] min-h-[297mm] 
     mx-auto mb-8 
     bg-white 
     shadow-lg 
@@ -251,6 +284,11 @@ const A4Page = ({ children, className = "" }: any) => (
     flex flex-col
     ${className}
   `}
+    style={{ 
+      overflow: 'visible',
+      pageBreakAfter: 'always',
+      pageBreakInside: 'avoid'
+    }}
   >
     {children}
   </div>
@@ -284,18 +322,22 @@ const Footer = ({ settings }: { settings: any }) => (
     className={`flex justify-between items-center ${A4_PDF_TYPOGRAPHY.footer} px-6 py-3 mt-auto border-t border-gray-200`}
   >
     <div>
-      <a
-        href={`https://${settings?.company_website}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 underline hover:text-blue-800"
-      >
-        {settings?.company_website}
-      </a>
+      {settings?.company_website ? (
+        <a
+          href={`https://${settings.company_website}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          Website: {settings.company_website}
+        </a>
+      ) : (
+        <span>Website: </span>
+      )}
     </div>
-    <div className="font-medium">{settings?.home_visit_form_id}</div>
+    <div className="font-medium">{settings?.home_visit_form_id || ''}</div>
     <div className="font-medium">
-      Review Date: {formatDate(settings?.review_date)}
+      Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}
     </div>
   </div>
 );
@@ -382,7 +424,7 @@ const Page1 = ({ homeVisitResponse, images, commonFields, settings }: any) => (
                 </td>
               </tr>
               {section.fields.map((field: any) => (
-                <tr key={field.key} className="align-top">
+                <tr key={field.key} className="align-top" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                   <td
                     className={`border border-black p-3 w-[40%] ${A4_PDF_TYPOGRAPHY.label}`}
                   >
@@ -501,7 +543,7 @@ const Page2 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
 
                   if (field.type === "checkboxGroup") {
                     return (
-                      <tr key={field.key}>
+                      <tr key={field.key} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                         <td
                           className={`border border-black p-3 align-top ${A4_PDF_TYPOGRAPHY.label}`}
                         >
@@ -543,7 +585,7 @@ const Page2 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
                   }
 
                   return (
-                    <tr key={field.key}>
+                    <tr key={field.key} style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                       <td
                         className={`border border-black p-3 align-top ${A4_PDF_TYPOGRAPHY.label}`}
                       >
@@ -616,47 +658,76 @@ const Page3 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
       <StandardHeader images={images} />
 
       {/* Content */}
-      <div className="flex-1 px-6 py-4">
+      <div className="flex-1 px-6 py-4" style={{ overflow: 'visible' }}>
         {/* Risk Assessment Image */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-4 flex justify-center" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
           <img
             src={images?.riskMatrix || page.image}
             alt="Risk Matrix"
             className="max-w-full h-auto border border-gray-300 rounded"
+            style={{ maxHeight: '400px', objectFit: 'contain' }}
           />
         </div>
 
-        {/* Risk Level Descriptions */}
+        {/* Risk Level Descriptions Heading */}
         {page.content.map((section: any, idx: number) => (
-          <div key={idx} className="space-y-4">
+          <div key={idx} className="mb-4">
             <h3
-              className={`${A4_PDF_TYPOGRAPHY.sectionHeader} underline text-center mb-4`}
+              className={`${A4_PDF_TYPOGRAPHY.sectionHeader} underline text-center mb-3`}
             >
               {section.heading}
             </h3>
-            <div className="space-y-3">
-              {section.blocks.map((block: any, i: number) => (
-                <div key={i} className="border-l-4 border-gray-300 pl-4">
-                  <h4 className={`${A4_PDF_TYPOGRAPHY.subHeader} mb-2`}>
-                    <span>{block.title.split(" ")[0]} </span>
-                    <span
-                      className={`
-                      ${block.color === "green" ? "text-green-600" : ""}
-                      ${block.color === "yellow" ? "text-yellow-600" : ""}
-                      ${block.color === "orange" ? "text-orange-600" : ""}
-                    `}
-                    >
-                      {block.title.split(" ")[1]}
-                    </span>
-                  </h4>
-                  <p
-                    className={`${A4_PDF_TYPOGRAPHY.body} leading-relaxed text-gray-700`}
+          </div>
+        ))}
+      </div>
+
+      <Footer settings={settings} />
+    </A4Page>
+  );
+};
+
+const Page3b = ({ homeVisitResponse, images, commonFields, settings }: any) => {
+  const page = homeVisitSchema.pages[2];
+
+  return (
+    <A4Page>
+      <StandardHeader images={images} />
+
+      {/* Risk Outcome Blocks */}
+      <div className="px-6 py-4" style={{ overflow: 'visible' }}>
+        {page.content.map((section: any, idx: number) => (
+          <div key={idx} className="space-y-3">
+            {section.blocks.map((block: any, i: number) => (
+              <div 
+                key={i} 
+                className="border-l-4 border-gray-300 pl-4 py-3 mb-4"
+                style={{ 
+                  pageBreakInside: 'avoid', 
+                  breakInside: 'avoid',
+                  display: 'block',
+                  overflow: 'visible'
+                }}
+              >
+                <h4 className={`${A4_PDF_TYPOGRAPHY.subHeader} mb-2`}>
+                  <span>{block.title.split(" ")[0]} </span>
+                  <span
+                    className={`
+                    ${block.color === "green" ? "text-green-600" : ""}
+                    ${block.color === "yellow" ? "text-yellow-600" : ""}
+                    ${block.color === "orange" ? "text-orange-600" : ""}
+                    ${block.color === "red" ? "text-red-600" : ""}
+                  `}
                   >
-                    {block.text}
-                  </p>
-                </div>
-              ))}
-            </div>
+                    {block.title.split(" ")[1]}
+                  </span>
+                </h4>
+                <p
+                  className={`${A4_PDF_TYPOGRAPHY.body} leading-relaxed text-gray-700`}
+                >
+                  {block.text}
+                </p>
+              </div>
+            ))}
           </div>
         ))}
       </div>
@@ -722,7 +793,7 @@ const Page4 = ({ homeVisitResponse, images, commonFields, settings }: any) => {
               </thead>
               <tbody>
                 {[1, 2, 3, 4, 5].map((row) => (
-                  <tr key={row} className="min-h-[80px]">
+                  <tr key={row} className="min-h-[80px]" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                     <td
                       className={`border border-black px-4 py-6 align-top ${A4_PDF_TYPOGRAPHY.tableCell}`}
                     >
@@ -838,6 +909,12 @@ const HomeVisitRiskAssessment = ({
       settings={settings}
     />
     <Page3
+      homeVisitResponse={formData}
+      images={images}
+      commonFields={commonFields}
+      settings={settings}
+    />
+    <Page3b
       homeVisitResponse={formData}
       images={images}
       commonFields={commonFields}

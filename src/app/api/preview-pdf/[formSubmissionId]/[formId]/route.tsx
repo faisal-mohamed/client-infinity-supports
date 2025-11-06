@@ -44,13 +44,28 @@ export async function GET(
       where: { clientId: formSubmission.clientId }
     });
 
-    // Fetch settings
+    // Fetch settings for the current admin
+    const { getServerSession } = await import("next-auth");
+    const { authOptions } = await import("@/lib/authOptions");
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+    
+    if (!adminId) {
+      console.warn('⚠️ No admin session found for preview, PDF may have incorrect settings');
+    }
+    
     const settings = await prisma.appSettings.findMany({
-      where: { isActive: true }
+      where: { 
+        isActive: true,
+        ...(adminId && { adminId }) // Filter by adminId if available
+      }
     });
 
     const settingsObj = settings.reduce((acc, setting) => {
-      acc[setting.key] = setting.value || "";
+      // Only use non-empty values
+      if (setting.value && setting.value.trim() !== '') {
+        acc[setting.key] = setting.value;
+      }
       return acc;
     }, {} as Record<string, string>);
 

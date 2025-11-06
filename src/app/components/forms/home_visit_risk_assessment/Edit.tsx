@@ -731,7 +731,7 @@ useEffect(() => {
     
     // Location
     accessDifficulties: { label: "Are there any difficulties locating the address/access to the building?", type: "dropdown", options: yesNoOptions, showComments: true },
-    parking: { label: "Is there parking available?", type: "dropdown", options: yesNoOptions, showComments: true },
+    parking: { label: "Is there parking available? Street? Paid ?", type: "dropdown", options: yesNoOptions, showComments: true },
     entryPoint: { label: "Which door is used for entry?", type: "checkbox", options: entryPointOptions, showComments: true },
     mobileReception: { label: "Are there any issues with mobile phone reception?", type: "dropdown", options: yesNoOptions, showComments: true },
     
