@@ -99,8 +99,8 @@ export const saDeliverySchema: SchemaBlock[] = [
   // Responsibilities of Infinity Supports WA (static list)
   { 
     type: 'section_with_list', 
-    label: 'Responsibilities of <red>Infinity Supports WA</red>',
-    content: '<red>Infinity Support WA</red> agrees to:',
+    label: 'Responsibilities of Infinity Supports WA',
+    content: 'Infinity Support WA agrees to:',
     items: [
       'Review the provision of supports with the Individual in line with the applicable requirements.',
       "Once agreed, provide supports that meet the Individual’s needs at the Individual’s preferred times.",
@@ -162,7 +162,7 @@ export const saDeliverySchema: SchemaBlock[] = [
   },
   {
     type: 'styled_paragraph',
-    content: 'If the Individual wishes to give <red>Infinity Supports WA</red> feedback or If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to <underline>Sharon Mays Director</underline> or <underline>Anand Sekar Director 0493282661</underline>.'
+    content: 'If the Individual wishes to give <red>Infinity Supports WA</red> feedback or If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to Sharon Mays Director or Anand Sekar Director 0493282661.'
   },
   {
     type: 'styled_paragraph',
