@@ -655,8 +655,8 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     },
 
-    // Block 21: Plan Manager Details
-    {
+    // Block 21: Plan Manager Details (only show if planManagerManaged is checked AND has data)
+    ...(formData?.planManagerManaged === true && (getFieldValue('planManagerName') || getFieldValue('planManagerEmail')) ? [{
       type: 'plan_manager_details',
       height: 70,
       content: () => (
@@ -673,7 +673,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             </tbody>
           </table>
       )
-    },
+    }] : []),
 
     // Block 22: GOODS AND SERVICES TAX (GST) / NDIS
     {
@@ -730,7 +730,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <li>Talk to <span className="font-bold text-red-600">Infinity Supports WA</span> if the Individual has any concerns about the services being provided</li>
             <li>Give <span className="font-bold text-red-600">Infinity Supports WA</span> the required notice if the Individual needs to end the Service Agreement (see 'Ending this Service Agreement' below for more information), and</li>
             <li>Let the <span className="font-bold text-red-600">Infinity Supports WA</span> know immediately if the Individual's plan/funding is suspended or replaced by a new plan or the Individual's funding ceases</li>
-            <li><span className="underline">Will update</span> <span className="font-bold text-red-600">Infinity Supports WA</span> of any changes in circumstances including any changes to living arrangements including addresses, medication, behaviour, contact details or health of the individual which may affect service provision</li>
+            <li>Will update <span className="font-bold text-red-600">Infinity Supports WA</span> of any changes in circumstances including any changes to living arrangements including addresses, medication, behaviour, contact details or health of the individual which may affect service provision</li>
             <li>The Individual's plan is expected to remain in effect during the period the services are provided; and will immediately notify <span className="font-bold text-red-600">Infinity Supports WA</span> if the Individual's Plan is replaced by a new plan or the Individual's funding ceases</li>
           </ul>
         </div>

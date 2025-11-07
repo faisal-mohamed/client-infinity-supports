@@ -508,7 +508,17 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
       newValue = (e.target as HTMLInputElement).checked;
     }
 
-    const newValues = { ...localValues, [name]: newValue };
+    let newValues = { ...localValues, [name]: newValue };
+    
+    // Clear Plan Manager fields when planManagerManaged is unchecked
+    if (name === 'planManagerManaged' && !newValue) {
+      newValues = {
+        ...newValues,
+        planManagerName: '',
+        planManagerEmail: ''
+      };
+    }
+    
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
@@ -588,9 +598,11 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => {
     const isCommon = isCommonField(name);
-    const displayValue = isCommon
+    const rawValue = isCommon
       ? getCommonFieldValue(name)
-      : localValues[name] || "";
+      : localValues[name];
+    // Ensure value is always a string to keep input controlled
+    const displayValue = rawValue ?? "";
     const isFieldReadOnly = readOnly || isCommon;
 
     return (
@@ -720,9 +732,11 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => {
     const isCommon = isCommonField(name);
-    const displayValue = isCommon
+    const rawValue = isCommon
       ? getCommonFieldValue(name)
-      : localValues[name] || "";
+      : localValues[name];
+    // Ensure value is always a string to keep select controlled
+    const displayValue = rawValue ?? "";
     const isFieldReadOnly = readOnly || isCommon;
 
     return (

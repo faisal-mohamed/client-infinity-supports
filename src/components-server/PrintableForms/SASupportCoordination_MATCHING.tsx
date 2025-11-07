@@ -168,12 +168,12 @@ interface SASupportCoordinationProps {
   logoDataUrl?: string;
 }
 
-export default function SASupportCoordination({
+const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
   formData,
   commonFieldsData,
   settings,
   logoDataUrl,
-}: SASupportCoordinationProps) {
+}) => {
   
   const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -517,17 +517,19 @@ export default function SASupportCoordination({
             </View>
           </View>
 
-          {/* Plan Manager Details - Bordered Table */}
-          <View style={{ border: '0.5 solid #000', marginBottom: 12 }} wrap={false}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Plan Manager Name:</Text>
-              <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerName')}</Text>
+          {/* Plan Manager Details - Bordered Table (only show if planManagerManaged is checked AND has data) */}
+          {isChecked('planManagerManaged') && (getValue('planManagerName') || getValue('planManagerEmail')) && (
+            <View style={{ border: '0.5 solid #000', marginBottom: 12 }} wrap={false}>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Plan Manager Name:</Text>
+                <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerName')}</Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Email:</Text>
+                <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerEmail')}</Text>
+              </View>
             </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.4 }]}>Email:</Text>
-              <Text style={[styles.tableCell, styles.inputField, { flex: 0.6 }]}>{getValue('planManagerEmail')}</Text>
-            </View>
-          </View>
+          )}
 
           {/* GOODS AND SERVICES TAX (GST) / NDIS */}
           <View style={styles.section}>
@@ -544,7 +546,7 @@ export default function SASupportCoordination({
               <Text style={styles.redText}>Infinity Supports WA</Text> agrees to:
             </Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Understand and use your NDIS plan to pursue your goals</Text>
-            <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Review the provision of <Text style={{ textDecoration: 'underline' }}>supports</Text> with the Individual in line with the applicable requirements</Text>
+            <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Review the provision of supports with the Individual in line with the applicable requirements</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Connect you with providers, community, mainstream and the government services</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Source information regarding Allied Health professionals</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Build your confidence and skills to use and coordinate your supports</Text>
@@ -555,7 +557,7 @@ export default function SASupportCoordination({
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Listen to the Individual's feedback and resolve problems in a timely manner</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Give the Individual the required notice if <Text style={styles.redText}>Infinity Supports WA</Text> needs to end the Service Agreement (see 'Ending this Service Agreement' below for more information)</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Protect the Individual's privacy and confidential information</Text>
-            <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Provide <Text style={{ textDecoration: 'underline' }}>supports</Text> in a manner consistent with all relevant laws, including but not limited to, the National Disability Insurance Scheme Act 2013 and rules, and the Australian Consumer Law; keep accurate records on the supports provided to the Individuals</Text>
+            <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Provide supports in a manner consistent with all relevant laws, including but not limited to, the National Disability Insurance Scheme Act 2013 and rules, and the Australian Consumer Law; keep accurate records on the supports provided to the Individuals</Text>
           </View>
 
           {/* RESPONSIBILITIES OF INDIVIDUAL */}
@@ -783,4 +785,6 @@ export default function SASupportCoordination({
       </Page>
     </Document>
   );
-}
+};
+
+export default SASupportCoordination;
