@@ -272,6 +272,33 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
       return;
     }
     
+    // Validate plan dates - end date must be after start date
+    if (name === 'planDatesTo' && value) {
+      const fromDate = localValues.planDatesFrom;
+      if (fromDate && value < fromDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan end date cannot be before the start date.",
+          duration: 4000,
+        });
+        return;
+      }
+    }
+    
+    if (name === 'planDatesFrom' && value) {
+      const toDate = localValues.planDatesTo;
+      if (toDate && value > toDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan start date cannot be after the end date.",
+          duration: 4000,
+        });
+        return;
+      }
+    }
+    
     let newValue : any = value;
     if (type === 'checkbox') {
       newValue = (e.target as HTMLInputElement).checked;
@@ -361,6 +388,11 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
     
+    // Add min date constraint for planDatesTo based on planDatesFrom
+    const minDate = (type === 'date' && name === 'planDatesTo' && localValues.planDatesFrom) 
+      ? localValues.planDatesFrom 
+      : undefined;
+    
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
@@ -374,6 +406,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
+          min={minDate}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
