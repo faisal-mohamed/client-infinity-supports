@@ -289,19 +289,33 @@ export async function GET(
 
 // Email handler functions (same as before)
 async function handleBatchCompletedEmail(data: EmailNotificationData, config: any, adminId: any ) {
+  console.log(`📨 [ADMIN EMAIL] Starting admin notification`, {
+    clientName: data.clientName,
+    batchId: data.batchId,
+    formsCount: data.completedForms?.length,
+    adminEmail: config.adminEmail
+  });
+
   const { clientName, batchId, completedForms, completedAt } = data;
 
   if (!clientName || !completedForms || completedForms.length === 0) {
+    console.error(`❌ [ADMIN EMAIL] Missing required data:`, {
+      clientName: clientName ? '✅' : '❌ MISSING',
+      completedForms: completedForms?.length || 0
+    });
     throw new Error("Client name and completed forms are required");
   }
 
+  console.log(`📝 [ADMIN EMAIL] Generating email HTML...`);
   const emailHtml = await generateBatchCompletionEmailSimple({
     clientName,
     batchId: batchId || 0,
     completedForms,
     completedAt: completedAt || new Date().toLocaleString()
   });
+  console.log(`✅ [ADMIN EMAIL] Email HTML generated`);
 
+  console.log(`📎 [ADMIN EMAIL] Generating ${completedForms.length} PDF(s)...`);
   const pdfResults = await generateMultiplePDFBuffers(completedForms);
 
   const attachments = pdfResults
@@ -312,8 +326,16 @@ async function handleBatchCompletedEmail(data: EmailNotificationData, config: an
       contentType: "application/pdf"
     }));
 
+  console.log(`✅ [ADMIN EMAIL] PDFs generated:`, {
+    requested: completedForms.length,
+    successful: attachments.length,
+    failed: pdfResults.filter(r => !r.success).length,
+    totalSize: `${(attachments.reduce((sum, a) => sum + a.content.length, 0) / 1024).toFixed(2)} KB`
+  });
+
   const subject = `Forms Completed - ${clientName} (${completedForms.length} forms)`;
 
+  console.log(`📧 [ADMIN EMAIL] Sending email to admin: ${config.adminEmail}`);
   const result = await sendEmail({
     to: config.adminEmail,
     subject,
@@ -321,6 +343,18 @@ async function handleBatchCompletedEmail(data: EmailNotificationData, config: an
     attachments,
     adminId: adminId
   });
+
+  if (result.success) {
+    console.log(`✅ [ADMIN EMAIL] Successfully sent to admin!`, {
+      to: config.adminEmail,
+      messageId: result.messageId
+    });
+  } else {
+    console.error(`❌ [ADMIN EMAIL] Failed to send to admin!`, {
+      to: config.adminEmail,
+      error: result.error
+    });
+  }
 
   return {
     ...result,
@@ -341,19 +375,33 @@ async function handleTestEmail(config: any, adminId: any) {
 }
 
 async function handleClientConfirmationEmail(data: EmailNotificationData, config: any, adminId: any ) {
+  console.log(`📨 [CLIENT EMAIL] Starting client confirmation`, {
+    clientName: data.clientName,
+    clientEmail: data.clientEmail,
+    formsCount: data.completedForms?.length
+  });
+
   const { clientName, clientEmail, completedForms, completedAt } = data;
 
   if (!clientName || !clientEmail || !completedForms || completedForms.length === 0) {
+    console.error(`❌ [CLIENT EMAIL] Missing required data:`, {
+      clientName: clientName ? '✅' : '❌ MISSING',
+      clientEmail: clientEmail ? '✅' : '❌ MISSING',
+      completedForms: completedForms?.length || 0
+    });
     throw new Error("Client name, email, and completed forms are required");
   }
 
+  console.log(`📝 [CLIENT EMAIL] Generating email HTML...`);
   const emailHtml = await generateClientConfirmationEmail({
     clientName,
     clientEmail,
     completedForms,
     completedAt: completedAt || new Date().toLocaleString()
   });
+  console.log(`✅ [CLIENT EMAIL] Email HTML generated`);
 
+  console.log(`📎 [CLIENT EMAIL] Generating ${completedForms.length} PDF(s)...`);
   const pdfResults = await generateMultiplePDFBuffers(completedForms);
 
   const attachments = pdfResults
@@ -364,8 +412,16 @@ async function handleClientConfirmationEmail(data: EmailNotificationData, config
       contentType: "application/pdf"
     }));
 
+  console.log(`✅ [CLIENT EMAIL] PDFs generated:`, {
+    requested: completedForms.length,
+    successful: attachments.length,
+    failed: pdfResults.filter(r => !r.success).length,
+    totalSize: `${(attachments.reduce((sum, a) => sum + a.content.length, 0) / 1024).toFixed(2)} KB`
+  });
+
   const subject = `Form Completion Confirmation - ${completedForms.length} form(s) completed`;
 
+  console.log(`📧 [CLIENT EMAIL] Sending email to client: ${clientEmail}`);
   const result = await sendEmail({
     to: clientEmail,
     subject,
@@ -373,6 +429,18 @@ async function handleClientConfirmationEmail(data: EmailNotificationData, config
     attachments,
     adminId: adminId
   });
+
+  if (result.success) {
+    console.log(`✅ [CLIENT EMAIL] Successfully sent to client!`, {
+      to: clientEmail,
+      messageId: result.messageId
+    });
+  } else {
+    console.error(`❌ [CLIENT EMAIL] Failed to send to client!`, {
+      to: clientEmail,
+      error: result.error
+    });
+  }
 
   return {
     ...result,
@@ -394,17 +462,43 @@ async function handleClientTestEmail(data: EmailNotificationData, config: any, a
 }
 
 async function handleDualNotificationEmail(data: EmailNotificationData, config: any, adminId: any) {
+  console.log(`📨📨 [DUAL EMAIL] Starting DUAL notification (Admin + Client)`, {
+    clientName: data.clientName,
+    clientEmail: data.clientEmail,
+    adminEmail: config.adminEmail,
+    formsCount: data.completedForms?.length
+  });
+
   const { clientName, clientEmail, completedForms } = data;
 
   if (!clientName || !clientEmail || !completedForms || completedForms.length === 0) {
+    console.error(`❌ [DUAL EMAIL] Missing required data:`, {
+      clientName: clientName ? '✅' : '❌ MISSING',
+      clientEmail: clientEmail ? '✅' : '❌ MISSING',
+      completedForms: completedForms?.length || 0
+    });
     throw new Error("Missing required data for dual notification");
   }
 
+  console.log(`📧 [DUAL EMAIL] Sending email to ADMIN (${config.adminEmail})...`);
   const adminResult = await handleBatchCompletedEmail(data, config, adminId);
+  console.log(`${adminResult.success ? '✅' : '❌'} [DUAL EMAIL] Admin email ${adminResult.success ? 'SUCCESS' : 'FAILED'}`);
+
+  console.log(`📧 [DUAL EMAIL] Sending email to CLIENT (${clientEmail})...`);
   const clientResult = await handleClientConfirmationEmail(data, config, adminId);
+  console.log(`${clientResult.success ? '✅' : '❌'} [DUAL EMAIL] Client email ${clientResult.success ? 'SUCCESS' : 'FAILED'}`);
+
+  const bothSuccess = adminResult.success && clientResult.success;
+  
+  console.log(`📊 [DUAL EMAIL] DUAL notification complete:`, {
+    overall: bothSuccess ? '✅ SUCCESS' : '⚠️ PARTIAL/FAILED',
+    admin: adminResult.success ? '✅ Sent' : '❌ Failed',
+    client: clientResult.success ? '✅ Sent' : '❌ Failed',
+    totalEmails: bothSuccess ? 2 : (adminResult.success || clientResult.success ? 1 : 0)
+  });
 
   return {
-    success: adminResult.success && clientResult.success,
+    success: bothSuccess,
     adminEmail: {
       success: adminResult.success,
       messageId: adminResult.messageId,

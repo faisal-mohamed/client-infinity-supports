@@ -232,7 +232,7 @@ bgColor: 'from-amber-500 to-amber-600',
                     <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-md`}>
                       {statusInfo.status}
                     </span>
-                    {assignment.form.requiresSignature && (
+                    {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 border-2 border-rose-300 shadow-md">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>

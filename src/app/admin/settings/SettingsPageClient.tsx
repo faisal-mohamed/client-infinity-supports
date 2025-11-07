@@ -179,10 +179,28 @@ export default function SettingsPageClient() {
     try {
       setSaving(true);
       
-      const settingsToUpdate = Object.entries(editedValues).map(([key, value]) => ({
-        key,
-        value
-      }));
+      // Track if any passwords had spaces removed
+      let passwordSpacesRemoved = false;
+      
+      const settingsToUpdate = Object.entries(editedValues).map(([key, value]) => {
+        let cleanedValue = value;
+        
+        // Auto-clean SMTP password: remove ALL spaces
+        if (key === 'smtp_password' && typeof value === 'string') {
+          const originalValue = value;
+          cleanedValue = value.replace(/\s/g, ''); // Remove all whitespace
+          
+          if (originalValue !== cleanedValue) {
+            passwordSpacesRemoved = true;
+            console.log(`🧹 [SETTINGS] Removed spaces from smtp_password: "${originalValue}" → "${cleanedValue}"`);
+          }
+        }
+        
+        return {
+          key,
+          value: cleanedValue
+        };
+      });
 
       const response = await fetch('/api/settings', {
         method: 'PUT',
@@ -197,6 +215,19 @@ export default function SettingsPageClient() {
       await loadSettings();
       setEditedValues({});
       setHasChanges(false);
+      
+      // Show enhanced success message if password was cleaned
+      if (passwordSpacesRemoved) {
+        showToast({
+          type: 'success',
+          title: '✅ Settings Saved',
+          message: '✨ SMTP App Password automatically cleaned (spaces removed)\n\n' +
+                   '💡 Gmail App Passwords must not contain spaces.\n' +
+                   'Your password has been saved correctly!',
+          duration: 6000,
+        });
+        return; // Skip the regular success message
+      }
 
       showToast({
         type: 'success',
@@ -259,31 +290,74 @@ export default function SettingsPageClient() {
         );
 
       case 'password':
+        const hasSpaces = setting.key === 'smtp_password' && typeof currentValue === 'string' && /\s/.test(currentValue);
+        
         return (
-          <div className="relative">
-            <div className="absolute left-4 top-4 p-2 rounded-lg bg-red-100 text-red-600">
-              <FaShieldAlt className="h-4 w-4" />
+          <div>
+            <div className="relative">
+              <div className="absolute left-4 top-4 p-2 rounded-lg bg-red-100 text-red-600">
+                <FaShieldAlt className="h-4 w-4" />
+              </div>
+              <input
+                type={showPasswords[setting.key] ? "text" : "password"}
+                value={currentValue}
+                onChange={(e) => handleValueChange(setting.key, e.target.value)}
+                placeholder={setting.defaultValue || 'Enter your secret app ID or API key'}
+                className={`${baseInputClasses} pl-16 pr-12 ${hasSpaces ? 'border-amber-400 bg-amber-50' : ''}`}
+                required={setting.isRequired}
+              />
+              <button
+                type="button"
+                onClick={() => togglePasswordVisibility(setting.key)}
+                className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 transition-colors duration-200"
+                title={showPasswords[setting.key] ? "Hide password" : "Show password"}
+              >
+                {showPasswords[setting.key] ? (
+                  <FaEyeSlash className="h-4 w-4" />
+                ) : (
+                  <FaEye className="h-4 w-4" />
+                )}
+              </button>
             </div>
-            <input
-              type={showPasswords[setting.key] ? "text" : "password"}
-              value={currentValue}
-              onChange={(e) => handleValueChange(setting.key, e.target.value)}
-              placeholder={setting.defaultValue || 'Enter your secret app ID or API key'}
-              className={`${baseInputClasses} pl-16 pr-12`}
-              required={setting.isRequired}
-            />
-            <button
-              type="button"
-              onClick={() => togglePasswordVisibility(setting.key)}
-              className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 transition-colors duration-200"
-              title={showPasswords[setting.key] ? "Hide password" : "Show password"}
-            >
-              {showPasswords[setting.key] ? (
-                <FaEyeSlash className="h-4 w-4" />
-              ) : (
-                <FaEye className="h-4 w-4" />
-              )}
-            </button>
+            
+            {/* Helper text for SMTP password */}
+            {setting.key === 'smtp_password' && (
+              <div className="mt-3">
+                {hasSpaces ? (
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+                    <FaExclamationTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-amber-800">
+                      <span className="font-bold">Spaces detected!</span> 
+                      <p className="mt-1">
+                        Gmail App Passwords should not contain spaces. When you save, spaces will be automatically removed.
+                      </p>
+                      <p className="mt-1 font-semibold">
+                        ✨ "{currentValue}" will become "{currentValue.replace(/\s/g, '')}"
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="text-blue-600 flex-shrink-0">ℹ️</div>
+                    <div className="text-xs text-blue-800">
+                      <span className="font-bold">Gmail App Password Help:</span>
+                      <p className="mt-1">
+                        • Must be 16 characters (no spaces)
+                      </p>
+                      <p className="mt-1">
+                        • Generate at: <a href="https://myaccount.google.com/apppasswords" target="_blank" className="underline hover:text-blue-600">myaccount.google.com/apppasswords</a>
+                      </p>
+                      <p className="mt-1">
+                        • Must match the "From Email" account
+                      </p>
+                      <p className="mt-1 font-semibold">
+                        💡 Spaces will be automatically removed when saving
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
         

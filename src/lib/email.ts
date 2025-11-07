@@ -26,7 +26,7 @@ import { authOptions } from "@/lib/authOptions";
 export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
   try {
   
-    console.log('Fetching email configuration from database...');
+    console.log(`🔧 [EMAIL CONFIG] Fetching email configuration for adminId: ${adminId}`);
     const emailSettings = await getMultipleSettingsFromDB([
       'smtp_host',
       'smtp_port', 
@@ -36,7 +36,14 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
       'app_name'
     ], adminId);
 
-    
+    console.log(`📋 [EMAIL CONFIG] Settings retrieved:`, {
+      smtp_host: emailSettings.smtp_host ? `✅ ${emailSettings.smtp_host}` : '❌ MISSING',
+      smtp_port: emailSettings.smtp_port || 'Not set (will default to 587)',
+      from_email: emailSettings.from_email ? `✅ ${emailSettings.from_email}` : '❌ MISSING',
+      smtp_password: emailSettings.smtp_password ? '✅ Set (***hidden***)' : '❌ MISSING - Need App Password for Gmail',
+      admin_email: emailSettings.admin_email ? `✅ ${emailSettings.admin_email}` : '❌ MISSING',
+      app_name: emailSettings.app_name || 'Not set (will use default "Infinity Support Portal")'
+    });
 
     const {
       smtp_host: host,
@@ -47,10 +54,23 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
       app_name: appName
     } = emailSettings;
 
-    if (!host) throw new Error('SMTP Host (smtp_host) is not configured');
-    if (!fromEmail) throw new Error('From Email (from_email) is not configured');
-    if (!password) throw new Error('SMTP Password (smtp_password) is not configured');
-    if (!adminEmail) throw new Error('Admin Email (admin_email) is not configured');
+    // Detailed validation with specific error messages
+    if (!host) {
+      console.error('❌ [EMAIL CONFIG] SMTP Host is MISSING!');
+      throw new Error('SMTP Host (smtp_host) is not configured. Set to: smtp.gmail.com');
+    }
+    if (!fromEmail) {
+      console.error('❌ [EMAIL CONFIG] From Email is MISSING!');
+      throw new Error('From Email (from_email) is not configured. Set to your Gmail address');
+    }
+    if (!password) {
+      console.error('❌ [EMAIL CONFIG] SMTP Password is MISSING!');
+      throw new Error('SMTP Password (smtp_password) is not configured. For Gmail, you MUST use App Password (not regular password). See: https://myaccount.google.com/apppasswords');
+    }
+    if (!adminEmail) {
+      console.error('❌ [EMAIL CONFIG] Admin Email is MISSING!');
+      throw new Error('Admin Email (admin_email) is not configured. Set where admin notifications should go');
+    }
 
     const config: EmailConfig = {
       host,
@@ -62,9 +82,18 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
       appName: appName || 'Infinity Support Portal'
     };
 
+    console.log(`✅ [EMAIL CONFIG] Configuration validated successfully for adminId ${adminId}:`, {
+      host: config.host,
+      port: config.port,
+      fromEmail: config.fromEmail,
+      adminEmail: config.adminEmail,
+      appName: config.appName,
+      secure: config.port === 465 ? 'SSL' : 'STARTTLS'
+    });
+
     return config;
   } catch (error) {
-    console.error('Failed to get email configuration:', error);
+    console.error(`❌ [EMAIL CONFIG] FAILED for adminId ${adminId}:`, error);
     throw new Error(`Email configuration error: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -74,7 +103,17 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
  * Create and configure Nodemailer transporter
  */
 export async function createEmailTransporter(adminId : number) {
+  console.log(`🔌 [EMAIL TRANSPORTER] Creating transporter for adminId: ${adminId}`);
+  
   const config = await getEmailConfig(adminId);
+
+  console.log(`📡 [EMAIL TRANSPORTER] Creating transporter with:`, {
+    host: config.host,
+    port: config.port,
+    secure: config.port === 465,
+    user: config.fromEmail,
+    auth_method: config.port === 465 ? 'SSL' : 'STARTTLS'
+  });
 
   const transporter = nodemailer.createTransport({
     host: config.host,
@@ -90,6 +129,7 @@ export async function createEmailTransporter(adminId : number) {
     }
   });
 
+  console.log(`✅ [EMAIL TRANSPORTER] Transporter created successfully for adminId: ${adminId}`);
   return transporter;
 }
 
@@ -134,28 +174,59 @@ export async function sendEmail({
   }>;
   adminId: any;
 }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const recipientList = Array.isArray(to) ? to.join(', ') : to;
+  
   try {
+    console.log(`📧 [SEND EMAIL] Starting email send for adminId: ${adminId}`);
+    console.log(`📧 [SEND EMAIL] Recipients: ${recipientList}`);
+    console.log(`📧 [SEND EMAIL] Subject: ${subject}`);
+    console.log(`📧 [SEND EMAIL] Attachments: ${attachments.length} file(s)`);
+    
     const config = await getEmailConfig(adminId);
+    console.log(`✅ [SEND EMAIL] Config loaded successfully`);
+    
     const transporter = await createEmailTransporter(adminId);
+    console.log(`✅ [SEND EMAIL] Transporter created successfully`);
 
     const mailOptions = {
       from: `"${config.appName}" <${config.fromEmail}>`,
-      to: Array.isArray(to) ? to.join(', ') : to,
+      to: recipientList,
       subject,
       html,
       attachments
     };
 
+    console.log(`📤 [SEND EMAIL] Sending email...`, {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      attachmentCount: attachments.length,
+      attachmentSizes: attachments.map(a => `${a.filename}: ${(a.content.length / 1024).toFixed(2)} KB`)
+    });
+
     const result = await transporter.sendMail(mailOptions);
 
-    console.log(`✅ Email sent successfully to ${mailOptions.to}:`, result.messageId);
+    console.log(`✅ [SEND EMAIL] Email sent successfully!`, {
+      to: recipientList,
+      messageId: result.messageId,
+      subject: subject
+    });
     
     return {
       success: true,
       messageId: result.messageId
     };
   } catch (error) {
-    console.error('❌ Failed to send email:', error);
+    console.error(`❌ [SEND EMAIL] FAILED to send email!`, {
+      to: recipientList,
+      subject: subject,
+      adminId: adminId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: (error as any)?.code,
+      errorCommand: (error as any)?.command,
+      errorResponse: (error as any)?.response
+    });
+    
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown email sending error'

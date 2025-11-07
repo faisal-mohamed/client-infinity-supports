@@ -1282,14 +1282,10 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
               <tr key={question.key}>
                 <td className="border border-black p-2 align-top">{question.questionNum}</td>
                 <td className="border border-black p-2 align-top">
-                  <div className="mb-2">{question.label.split('?')[0]}?</div>
-                  <div className="text-xs mt-1">
-                    {medOptions.map((med, idx) => (
-                      <div key={idx} className="inline-flex items-center mr-3">
-                        <input type="checkbox" checked={selectedMeds.includes(med)} readOnly className="mr-1 w-3 h-3" />
-                        {med}
-                      </div>
-                    ))}
+                  {/* Show question with medications in brackets - no checkboxes */}
+                  <div className="text-sm">
+                    Does the participant take any of the following medications that can cause Respiratory Depression? 
+                    <span className="text-black"> ({medOptions.join(', ')})</span>
                   </div>
                 </td>
                 <td className="border border-black p-2 align-top text-center">

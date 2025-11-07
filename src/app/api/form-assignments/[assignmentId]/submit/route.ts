@@ -291,14 +291,22 @@ export async function POST(
           );
 
           console.log(
-            `📊 Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
+            `📊 [BATCH CHECK] Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
           );
+          console.log(`📊 [BATCH CHECK] Completed form IDs:`, completedAssignments.map(a => a.id));
+          console.log(`📊 [BATCH CHECK] All form statuses:`, allAssignments.map(a => ({ 
+            id: a.id, 
+            title: a.form.title, 
+            status: a.currentStatus 
+          })));
 
           // If all forms in batch are completed, send email
           if (
             completedAssignments.length === allAssignments.length &&
             allAssignments.length > 0
           ) {
+            console.log(`🎉 [BATCH CHECK] ALL FORMS COMPLETED! Triggering email to admin + client...`);
+            console.log(`🎉 [BATCH CHECK] Batch ${batch.id}: ${allAssignments.length} forms all done!`);
             // console.log(
             //   `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
             // );
@@ -334,7 +342,24 @@ export async function POST(
 
 
 
+            // Check if email was already sent for this batch
+            const batchAlreadySent = batch.isCompleted && batch.completedAt;
+            
+            if (batchAlreadySent) {
+              console.log(`⚠️ [BATCH COMPLETE] Batch ${batch.id} was already completed at ${batch.completedAt}`);
+              console.log(`⚠️ [BATCH COMPLETE] Email may have already been sent. Skipping duplicate email.`);
+            }
+
             // Send dual notification email (admin + client)
+            console.log(`📧 [BATCH COMPLETE] All forms completed! Sending dual notification emails...`);
+            console.log(`📧 [BATCH COMPLETE] Batch info:`, {
+              batchId: batch.id,
+              clientName: batch.client.name,
+              clientEmail: batch.client.email,
+              formsCount: completedFormsData.length,
+              wasAlreadyCompleted: batchAlreadySent
+            });
+            
             try {
               const emailResponse = await fetch(
                 `${
@@ -360,7 +385,7 @@ export async function POST(
 
               if (emailResponse.ok) {
                 const emailResult = await emailResponse.json();
-                console.log(`✅ Dual notification emails sent successfully:`, {
+                console.log(`✅ [BATCH COMPLETE] Dual notification emails sent successfully:`, {
                   adminEmail: emailResult.adminEmail,
                   clientEmail: emailResult.clientEmail,
                   totalEmails: emailResult.totalEmails,
@@ -371,12 +396,12 @@ export async function POST(
               } else {
                 const emailError = await emailResponse.text();
                 console.error(
-                  `❌ Failed to send dual notification emails:`,
+                  `❌ [BATCH COMPLETE] Failed to send dual notification emails:`,
                   emailError
                 );
               }
             } catch (emailSendError) {
-              console.error("❌ Email sending error (non-blocking):", emailSendError);
+              console.error("❌ [BATCH COMPLETE] Email sending error (non-blocking):", emailSendError);
             }
 
 
