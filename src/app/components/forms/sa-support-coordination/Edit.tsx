@@ -420,6 +420,70 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
     };
   }, [localValues, onChange]);
 
+  // Clear conflict fields when user changes from "Yes" to "No"
+  useEffect(() => {
+    if (localValues.isConflictOfInterest === "No") {
+      const fieldsToCheck = ['conflictDeclaration', 'conflictOption1', 'conflictOption2', 'conflictOption3', 'signature', 'printName', 'signDate'];
+      const hasConflictData = fieldsToCheck.some(field => localValues[field] && localValues[field] !== '');
+      
+      if (hasConflictData) {
+        // Clear all conflict-related fields
+        setLocalValues((prev: any) => ({
+          ...prev,
+          conflictDeclaration: '',
+          conflictOption1: '',
+          conflictOption2: '',
+          conflictOption3: '',
+          signature: '',
+          printName: '',
+          signDate: ''
+        }));
+        
+        // Clear signature canvas
+        if (generalSignatureRef.current) {
+          generalSignatureRef.current.clear();
+        }
+      }
+    }
+  }, [localValues.isConflictOfInterest]);
+
+  // Clear signature fields when switching between Participant and Nominee
+  useEffect(() => {
+    const currentRole = localValues.signatureRole;
+    
+    if (currentRole === "Participant") {
+      // Clear Nominee fields if they have data
+      const nomineeHasData = localValues.nomineeSignature || localValues.nomineeSignatureDate || localValues.nomineeName;
+      if (nomineeHasData) {
+        setLocalValues((prev: any) => ({
+          ...prev,
+          nomineeSignature: '',
+          nomineeSignatureDate: '',
+          nomineeName: ''
+        }));
+        // Clear nominee signature canvas
+        if (nomineeSigCanvasRef.current) {
+          nomineeSigCanvasRef.current.clear();
+        }
+      }
+    } else if (currentRole === "Nominee") {
+      // Clear Participant fields if they have data
+      const participantHasData = localValues.participantSignature || localValues.participantSignatureDate || localValues.participantName;
+      if (participantHasData) {
+        setLocalValues((prev: any) => ({
+          ...prev,
+          participantSignature: '',
+          participantSignatureDate: '',
+          participantName: ''
+        }));
+        // Clear participant signature canvas
+        if (participantSigCanvasRef.current) {
+          participantSigCanvasRef.current.clear();
+        }
+      }
+    }
+  }, [localValues.signatureRole]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement

@@ -374,72 +374,95 @@ export default function SASupportCoordination({
               and dated by the Parties.
             </Text>
 
-            {/* Conflict of Interest */}
+            {/* Conflict of Interest Question - ALWAYS SHOW */}
             <Text style={[styles.staticTitle, { marginTop: 12, textDecoration: 'underline' }]}>CONFLICT OF INTEREST</Text>
-            <Text style={[styles.staticContent, { marginTop: 6 }]}>
-              I <Text style={{ borderBottom: '2 solid #000', paddingHorizontal: 4, fontWeight: 'bold' }}>{getValue('conflictDeclaration') || '____________________'}</Text> have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen. I have been given information on the following companies.
-            </Text>
-
-            {/* Conflict providers - conditional */}
-            {(getValue('conflictOption1') || getValue('conflictOption2') || getValue('conflictOption3')) && (
-              <>
-                <Text style={[styles.staticTitle, { marginTop: 12 }]}>Conflict of Interest - Providers Considered:</Text>
-                
-                {getValue('conflictOption1') && (
-                  <View style={{ marginBottom: 8 }}>
-                    <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>1. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
-                      <Text style={{ fontSize: 8 }}>{getValue('conflictOption1')}</Text>
-                    </View>
-            </View>
-                )}
-                
-                {getValue('conflictOption2') && (
-                  <View style={{ marginBottom: 8 }}>
-                    <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>2. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
-                      <Text style={{ fontSize: 8 }}>{getValue('conflictOption2')}</Text>
-                    </View>
+            <View style={{ marginTop: 6, marginBottom: 8 }}>
+              <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 6 }}>Is there a conflict of interest in provider selection?</Text>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={styles.radioOption}>
+                  <View style={getValue('isConflictOfInterest') === 'Yes' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('isConflictOfInterest') === 'Yes' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>Yes</Text>
+                </View>
+                <View style={[styles.radioOption, { marginLeft: 16 }]}>
+                  <View style={getValue('isConflictOfInterest') === 'No' ? styles.radioCircleSelected : styles.radioCircle}>
+                    {getValue('isConflictOfInterest') === 'No' && <Text style={{ color: '#ffffff', fontSize: 10, fontWeight: 'bold', fontFamily: 'DejaVuSans' }}>✓</Text>}
+                  </View>
+                  <Text style={{ fontSize: 9, marginLeft: 4 }}>No</Text>
+                </View>
               </View>
+            </View>
+
+            {/* Conflict details - Only show if conflict = "Yes" AND has data */}
+            {formData?.isConflictOfInterest === 'Yes' && getValue('conflictDeclaration') && (
+              <>
+                <Text style={[styles.staticContent, { marginTop: 6 }]}>
+                  I <Text style={{ borderBottom: '2 solid #000', paddingHorizontal: 4, fontWeight: 'bold' }}>{getValue('conflictDeclaration') || '____________________'}</Text> have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen. I have been given information on the following companies.
+                </Text>
+
+                {/* Conflict providers - conditional */}
+                {(getValue('conflictOption1') || getValue('conflictOption2') || getValue('conflictOption3')) && (
+                  <>
+                    <Text style={[styles.staticTitle, { marginTop: 12 }]}>Conflict of Interest - Providers Considered:</Text>
+                    
+                    {getValue('conflictOption1') && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>1. Providers Considered:</Text>
+                        <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
+                          <Text style={{ fontSize: 8 }}>{getValue('conflictOption1')}</Text>
+                        </View>
+                </View>
+                    )}
+                    
+                    {getValue('conflictOption2') && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>2. Providers Considered:</Text>
+                        <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
+                          <Text style={{ fontSize: 8 }}>{getValue('conflictOption2')}</Text>
+                        </View>
+                  </View>
+                    )}
+                    
+                    {getValue('conflictOption3') && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>3. Providers Considered:</Text>
+                        <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
+                          <Text style={{ fontSize: 8 }}>{getValue('conflictOption3')}</Text>
+                        </View>
+                      </View>
+                    )}
+                  </>
                 )}
-                
-                {getValue('conflictOption3') && (
-                  <View style={{ marginBottom: 8 }}>
-                    <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>3. Providers Considered:</Text>
-                    <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
-                      <Text style={{ fontSize: 8 }}>{getValue('conflictOption3')}</Text>
+
+                <Text style={[styles.staticContent, { marginTop: 8 }]}>
+                  I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery. 
+                  My choice will be recorded on the Conflict-of-Interest Register.
+                </Text>
+
+                {/* Signed/Print Name/Date Table - Bordered Block */}
+                <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }} wrap={false}>
+                  <View style={styles.tableRow}>
+                    <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Signed:</Text>
+                    <View style={[styles.tableCell, { alignItems: 'center', justifyContent: 'center', flex: 0.7 }]}>
+                      {getValue('signature') ? (
+                        <Image src={getValue('signature')} style={{ width: 150, height: 50, objectFit: 'contain' }} />
+                      ) : (
+                        <Text style={styles.inputField}></Text>
+                      )}
                     </View>
                   </View>
-                )}
+                  <View style={styles.tableRow}>
+                    <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Print Name:</Text>
+                    <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{getValue('printName')}</Text>
+                  </View>
+                  <View style={styles.tableRow}>
+                    <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Date:</Text>
+                    <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{formatDate(getValue('signDate'))}</Text>
+                  </View>
+                </View>
               </>
             )}
-
-            <Text style={[styles.staticContent, { marginTop: 8 }]}>
-              I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery. 
-              My choice will be recorded on the Conflict-of-Interest Register.
-            </Text>
-          </View>
-
-          {/* Signed/Print Name/Date Table - Bordered Block */}
-          <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }} wrap={false}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Signed:</Text>
-              <View style={[styles.tableCell, { alignItems: 'center', justifyContent: 'center', flex: 0.7 }]}>
-                {getValue('signature') ? (
-                  <Image src={getValue('signature')} style={{ width: 150, height: 50, objectFit: 'contain' }} />
-                ) : (
-                  <Text style={styles.inputField}></Text>
-                )}
-              </View>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Print Name:</Text>
-              <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{getValue('printName')}</Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { fontWeight: 'bold', flex: 0.3 }]}>Date:</Text>
-              <Text style={[styles.tableCell, styles.inputField, { flex: 0.7 }]}>{formatDate(getValue('signDate'))}</Text>
-            </View>
           </View>
 
           {/* ENDING THIS SERVICE AGREEMENT */}
@@ -693,8 +716,8 @@ export default function SASupportCoordination({
 
           {/* Signatures */}
           <View style={styles.section}>
-            {/* Participant Signature - CONDITIONAL (only if participant signed) */}
-            {getValue('participantSignature') && !getValue('nomineeSignature') && (
+            {/* Participant Signature - CONDITIONAL (only if signatureRole = "Participant" AND has signature) */}
+            {formData?.signatureRole === 'Participant' && getValue('participantSignature') && (
               <View style={styles.signatureBox} wrap={false}>
                 <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Participant Signature</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -714,8 +737,8 @@ export default function SASupportCoordination({
               </View>
             )}
 
-            {/* Nominee Signature - CONDITIONAL (only if nominee signed) */}
-            {getValue('nomineeSignature') && (
+            {/* Nominee Signature - CONDITIONAL (only if signatureRole = "Nominee" AND has signature) */}
+            {formData?.signatureRole === 'Nominee' && getValue('nomineeSignature') && (
               <View style={styles.signatureBox} wrap={false}>
                 <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>Nominee Signature</Text>
                 <Text style={{ fontSize: 9, fontStyle: 'italic', marginBottom: 6 }}>

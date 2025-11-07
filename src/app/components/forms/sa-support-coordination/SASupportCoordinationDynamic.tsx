@@ -423,22 +423,59 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     },
 
-    // Block 12: Conflict of Interest Declaration
+    // Block 12: Conflict of Interest Question (ALWAYS SHOW)
     {
+      type: 'conflict_question',
+      height: 50,
+      content: () => (
+        <div className="mb-4">
+          <p className="font-bold text-sm mb-2 underline">CONFLICT OF INTEREST</p>
+          <p className="text-xs font-semibold mb-2">Is there a conflict of interest in provider selection?</p>
+          <div className="flex items-center gap-4 mt-2">
+            {/* YES Option */}
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                formData?.isConflictOfInterest === 'Yes' 
+                  ? 'bg-blue-600 border-blue-600' 
+                  : 'border-blue-600'
+              }`}>
+                {formData?.isConflictOfInterest === 'Yes' && (
+                  <span className="text-white text-xs font-bold">✓</span>
+                )}
+              </div>
+              <span className="text-xs">Yes</span>
+            </div>
+            {/* NO Option */}
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                formData?.isConflictOfInterest === 'No' 
+                  ? 'bg-blue-600 border-blue-600' 
+                  : 'border-blue-600'
+              }`}>
+                {formData?.isConflictOfInterest === 'No' && (
+                  <span className="text-white text-xs font-bold">✓</span>
+                )}
+              </div>
+              <span className="text-xs">No</span>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    // Block 13-14: Conflict details (only show if conflict = "Yes" AND has data)
+    ...(formData?.isConflictOfInterest === 'Yes' && getFieldValue('conflictDeclaration') ? [{
       type: 'conflict_declaration',
       height: 60,
       content: () => (
         <div className="mb-4">
-          <p className="font-bold text-sm mb-2 underline">CONFLICT OF INTEREST</p>
           <p className="text-xs leading-relaxed">
             I <span className="border-b-2 border-black px-2 font-semibold">{getFieldValue('conflictDeclaration') || '____________________'}</span> have discussed my Support Coordination requirements and have been given options and full choice and control over the provider I have chosen. I have been given information on the following companies.
           </p>
-              </div>
+        </div>
       )
     },
-
-    // Block 13: Conflict providers header (only if ANY option has data)
-    ...(getFieldValue('conflictOption1') || getFieldValue('conflictOption2') || getFieldValue('conflictOption3') ? [{
+    {
       type: 'conflict_providers_header',
       height: 30,
       content: () => (
@@ -446,8 +483,8 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     }] : []),
 
-    // Block 14: Conflict provider option 1 (only if has data)
-    ...(getFieldValue('conflictOption1') ? [{
+    // Block 14-16: Conflict provider options (only if conflict = "Yes" AND has data)
+    ...(formData?.isConflictOfInterest === 'Yes' && getFieldValue('conflictOption1') ? [{
       type: 'conflict_provider_1',
       height: 70,
       content: () => (
@@ -460,8 +497,7 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     }] : []),
 
-    // Block 15: Conflict provider option 2 (only if has data)
-    ...(getFieldValue('conflictOption2') ? [{
+    ...(formData?.isConflictOfInterest === 'Yes' && getFieldValue('conflictOption2') ? [{
       type: 'conflict_provider_2',
       height: 70,
       content: () => (
@@ -474,8 +510,7 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     }] : []),
 
-    // Block 16: Conflict provider option 3 (only if has data)
-    ...(getFieldValue('conflictOption3') ? [{
+    ...(formData?.isConflictOfInterest === 'Yes' && getFieldValue('conflictOption3') ? [{
       type: 'conflict_provider_3',
       height: 70,
       content: () => (
@@ -488,8 +523,8 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     }] : []),
 
-    // Block 17: Conflict request paragraph
-    {
+    // Block 17-18: Conflict request and signature (only show if conflict = "Yes" AND has data)
+    ...(formData?.isConflictOfInterest === 'Yes' && getFieldValue('conflictDeclaration') ? [{
       type: 'conflict_request',
       height: 40,
       content: () => (
@@ -499,8 +534,6 @@ const BLOCK_SPACING = 16; // Space between blocks
         </p>
       )
     },
-
-    // Block 18: Signed/Print Name/Date Table
     {
       type: 'conflict_signature_table',
       height: 100,
@@ -538,7 +571,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           </table>
         );
       }
-    },
+    }] : []),
 
     // Block 19: ENDING THIS SERVICE AGREEMENT
     {
@@ -974,16 +1007,16 @@ const BLOCK_SPACING = 16; // Space between blocks
       )
     },
 
-    // Block 28: Participant Signature (CONDITIONAL - only if participant signed)
+    // Block 28: Participant Signature (CONDITIONAL - only if signatureRole = "Participant" AND has signature)
     {
       type: 'signature_participant',
       height: 140,
       content: () => {
         const participantSig = getFieldValue('participantSignature');
-        const nomineeSig = getFieldValue('nomineeSignature');
+        const signatureRole = formData?.signatureRole;
         
-        // Only show if participant signed (not nominee)
-        if (!participantSig || nomineeSig) return null;
+        // Only show if signatureRole is "Participant" AND has signature
+        if (signatureRole !== 'Participant' || !participantSig) return null;
         
         return (
           <div className="mb-4">
@@ -1021,15 +1054,16 @@ const BLOCK_SPACING = 16; // Space between blocks
       }
     },
 
-    // Block 29: Nominee Signature (CONDITIONAL - only if nominee signed)
+    // Block 29: Nominee Signature (CONDITIONAL - only if signatureRole = "Nominee" AND has signature)
     {
       type: 'signature_nominee',
       height: 150,
       content: () => {
         const nomineeSig = getFieldValue('nomineeSignature');
+        const signatureRole = formData?.signatureRole;
         
-        // Only show if nominee signed
-        if (!nomineeSig) return null;
+        // Only show if signatureRole is "Nominee" AND has signature
+        if (signatureRole !== 'Nominee' || !nomineeSig) return null;
         
         return (
           <div className="mb-4">
