@@ -57,8 +57,8 @@ const Page4 = ({ settings, images }: any) => {
 
   const footer = (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-2 text-gray-600`}>
-      <span>Website: {settings?.company_website || '''}</span>
-      <span>{settings?.welcome_form || '''}</span>
+      <span>Website: {settings?.company_website || ''}</span>
+      <span>{settings?.welcome_form || ''}</span>
       <span>Review Date: {formatDate(settings?.review_date)}</span>
     </div>
   );

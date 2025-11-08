@@ -104,8 +104,8 @@ const StandardFooter = ({ settings }: { settings: any }) => {
 
   return (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-1 text-gray-600`}>
-      <span>Website: {settings?.company_website || '''}</span>
-      <span>{settings?.client_intake_form_id || '''}</span>
+      <span>Website: {settings?.company_website || ''}</span>
+      <span>{settings?.client_intake_form_id || ''}</span>
       <span>Review Date: {formatDate(settings?.review_date)}</span>
     </div>
   );

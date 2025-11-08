@@ -228,7 +228,11 @@ const MDTEdit: React.FC<FormProps> = ({
   const handleNextSequential = async () => {
     // Validate current section before moving
     if (!isCurrentSectionComplete()) {
-      showToast("Please complete all required fields in this section before continuing.", "error");
+      showToast({
+        type: "error",
+        title: "Incomplete Section",
+        message: "Please complete all required fields in this section before continuing."
+      });
       return;
     }
     

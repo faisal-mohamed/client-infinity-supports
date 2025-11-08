@@ -223,7 +223,7 @@ const MDTDynamic: React.FC<Props> = ({ formData, settings, commonFieldsData }) =
 
             {/* Footer - Always at bottom */}
             <div className="mt-auto pt-3 text-[9px] text-gray-500 flex justify-between border-t border-gray-300">
-              <div>Website: {settings?.company_website || settings?.from_email || ''}</div>
+              <div>Website: {settings?.company_website || ''}</div>
               <div>{settings?.multi_disciplinary_meeting || ''}</div>
               <div>Review Date: {formatDate(settings?.review_date)}</div>
             </div>
