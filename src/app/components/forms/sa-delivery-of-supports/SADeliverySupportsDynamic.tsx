@@ -17,8 +17,6 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
     street: "street",
     postcode: "postCode",
     email: "email",
-    phone: "phone",
-    homePhone: "phone",
     sex: "sex",
   };
 
@@ -28,9 +26,9 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
 
-    // Fallbacks for legacy keys
-    if ((rawValue === undefined || rawValue === null || rawValue === "") && key === 'phone') {
-      rawValue = formData?.mobilePhone; // some submissions use mobilePhone
+    // Fallback for mobilePhone: use commonFields.phone if mobilePhone is empty
+    if ((rawValue === undefined || rawValue === null || rawValue === "") && key === 'mobilePhone') {
+      rawValue = commonFieldsData?.phone;
     }
 
     // Convert YYYY-MM-DD to DD-MM-YYYY if valid
@@ -211,7 +209,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
                 </td>
                 <td className="border border-black px-2 py-2 align-top" colSpan={2}>
                   <div className="font-bold text-xs">Mobile No:</div>
-                  <div className="text-xs">{getFieldValue('phone') || ''}</div>
+                  <div className="text-xs">{getFieldValue('mobilePhone') || ''}</div>
                 </td>
               </tr>
             </tbody>

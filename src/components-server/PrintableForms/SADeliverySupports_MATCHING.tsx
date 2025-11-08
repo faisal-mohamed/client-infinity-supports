@@ -195,8 +195,6 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
     street: 'street',
     postcode: 'postCode',
     email: 'email',
-    phone: 'phone',
-    homePhone: 'phone',
     sex: 'sex',
   };
 
@@ -206,9 +204,9 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
 
-    // Fallbacks for legacy keys
-    if ((rawValue === undefined || rawValue === null || String(rawValue) === '') && key === 'phone') {
-      rawValue = formData?.mobilePhone;
+    // Fallback for mobilePhone: use commonFields.phone if mobilePhone is empty
+    if ((rawValue === undefined || rawValue === null || String(rawValue) === '') && key === 'mobilePhone') {
+      rawValue = commonFieldsData?.phone;
     }
 
     // Convert YYYY-MM-DD to DD-MM-YYYY if valid
@@ -377,7 +375,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             </View>
             <View style={[styles.tableCellLast, { width: '50%' }]}>
               <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Mobile No:</Text>
-              <Text style={{ fontSize: 8 }}>{getFieldValue('phone') || ''}</Text>
+              <Text style={{ fontSize: 8 }}>{getFieldValue('mobilePhone') || ''}</Text>
             </View>
           </View>
         </View>
