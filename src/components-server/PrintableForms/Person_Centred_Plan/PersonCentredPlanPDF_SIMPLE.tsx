@@ -350,7 +350,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{settings?.from_email || ''}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
           <Text style={styles.footerText}>{settings?.person_centre_plan_form_id || ''}</Text>
           <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
         </View>

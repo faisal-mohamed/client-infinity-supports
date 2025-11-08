@@ -481,7 +481,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</span>
-        <span>{settings?.home_visit_form_id || 'HV001'}</span>
+        <span>{settings?.home_visit_form_id || ''}</span>
         <span>Review Date: {formatDate(settings?.review_date)}</span>
       </div>
     </div>

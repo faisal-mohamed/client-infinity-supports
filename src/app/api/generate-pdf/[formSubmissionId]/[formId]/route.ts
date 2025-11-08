@@ -597,7 +597,7 @@ export async function GET(
       
       if (form.formKey === 'participant_risk_assessment') {
         const website = settings?.company_website || settings?.website || settings?.from_email || '';
-        const formId = settings?.participant_risk_assessment || settings?.client_intake_form_id || 'C001';
+        const formId = settings?.participant_risk_assessment || settings?.client_intake_form_id || '';
         
         // Format review date as DD-MM-YYYY
         let reviewDate = '';

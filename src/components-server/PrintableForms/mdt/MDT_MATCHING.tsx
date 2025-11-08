@@ -168,7 +168,7 @@ const MDTMatching: React.FC<MDTMatchingProps> = ({
 
   const footerDate = formatDate(settings?.review_date || '');
   const footerWebsite = settings?.company_website || settings?.website || settings?.from_email || '';
-  const footerId = settings?.multi_disciplinary_meeting || 'MDT001';
+  const footerId = settings?.multi_disciplinary_meeting || '';
   
   // Debug footer values
   console.log('🔍 [MDT PDF DEBUG] Footer values:', {

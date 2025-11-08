@@ -222,8 +222,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centred_plan || ''}</Text>
           <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>
@@ -282,8 +282,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centred_plan || ''}</Text>
           <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>
@@ -367,8 +367,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centred_plan || ''}</Text>
           <Text style={styles.footerText}>Date: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>

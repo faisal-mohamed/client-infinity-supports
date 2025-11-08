@@ -20,7 +20,7 @@ const PRAFooter: React.FC<{ settings: any }> = ({ settings }) => {
   return (
     <div className="flex justify-between text-xs px-2">
       <div>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</div>
-      <div>{settings?.participant_risk_assessment || settings?.client_intake_form_id || 'PRA001'}</div>
+      <div>{settings?.participant_risk_assessment || settings?.client_intake_form_id || ''}</div>
       <div>Review Date: {formatDate(settings?.review_date)}</div>
     </div>
   );

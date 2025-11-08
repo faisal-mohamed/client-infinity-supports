@@ -639,7 +639,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
       <div className="pt-4 mt-auto">
         <div className="flex justify-between text-xs px-2 border-t border-gray-300 pt-2">
           <div>Website: {settings?.company_website || settings?.from_email || ''}</div>
-          <div>{settings?.participant_risk_assessment || 'PRA001'}</div>
+          <div>{settings?.participant_risk_assessment || ''}</div>
           <div>Review Date: {formatDate(settings?.review_date)}</div>
         </div>
       </div>

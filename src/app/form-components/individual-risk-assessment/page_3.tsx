@@ -30,21 +30,21 @@ const Page3: React.FC<Page3Props> = ({
     sex: 'sex'
   };
 
-   const getValue = (key: string) => {
-     const rawValue = commonFieldMapping?.[key]
-       ? commonFieldsData?.[commonFieldMapping?.[key]]
-       : data?.[key];
-   
-     // If value is in YYYY-MM-DD format, convert to DD-MM-YYYY
-     if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
-       const parsed = parseISO(rawValue);
-       if (isValid(parsed)) {
-         return format(parsed, "dd-MM-yyyy");
-       }
-     }
-   
-     return rawValue ?? '';
-   };
+  const getValue = (key: string) => {
+    const rawValue = commonFieldMapping?.[key]
+      ? commonFieldsData?.[commonFieldMapping?.[key]]
+      : data?.[key];
+
+    // If value is in YYYY-MM-DD format, convert to DD-MM-YYYY
+    if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+      const parsed = parseISO(rawValue);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+
+    return rawValue ?? '';
+  };
 
   return (
     <A4PageWrapper>
@@ -100,21 +100,21 @@ const Page3: React.FC<Page3Props> = ({
         </div>
 
         {/* Sticky Footer */}
-          <footer className="max-w-3xl mx-auto w-full px-4 pb-4 text-[12px] text-blue-700 flex justify-between">
+        <footer className="max-w-3xl mx-auto w-full px-4 pb-4 text-[12px] text-blue-700 flex justify-between">
           <a
             className="underline"
-            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
+            href={settings?.company_website || ''}
             target="_blank"
             rel="noreferrer"
           >
-            {settings?.company_website || 'https://www.infinitysupportswa.org'}
+            {settings?.company_website || ''}
           </a>
-<div>
-  Date of Review:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
+          <div>
+            Date of Review:{' '}
+            {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
+              ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
+              : 'N/A'}
+          </div>
         </footer>
       </div>
     </A4PageWrapper>

@@ -421,10 +421,10 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   };
 
   // Get email from settings
-  const getEmail = (): string => {
-    const email = settings?.from_email || settings?.email;
-    console.log('🔍 Person Centred Plan - Email found:', email);
-    return email || '';
+  const getWebsite = (): string => {
+    const website = settings?.company_website;
+    console.log('🔍 Person Centred Plan - Website found:', website);
+    return website || '';
   };
 
   return (
@@ -447,7 +447,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         
         {/* Footer */}
         <View style={styles.coverFooter}>
-          <Text style={styles.coverFooterText}>{getEmail()}</Text>
+          <Text style={styles.coverFooterText}>{getWebsite()}</Text>
           <Text style={styles.coverFooterText}>{getFormId()}</Text>
           <Text style={styles.coverFooterText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -501,7 +501,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -540,7 +540,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -584,7 +584,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -675,7 +675,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -753,7 +753,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>

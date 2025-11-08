@@ -263,7 +263,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>{settings?.from_email || ''}</span>
-        <span>{settings?.client_intake_form_id || 'CF001'}</span>
+        <span>{settings?.client_intake_form_id || ''}</span>
         <span>Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}</span>
       </div>
     </div>

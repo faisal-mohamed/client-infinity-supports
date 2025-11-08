@@ -809,8 +809,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
 
         {/* Footer - Fixed at bottom of cover page */}
         <View style={styles.coverFooter} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centred_plan || ''}</Text>
           <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>
@@ -979,8 +979,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
 
         {/* Footer - Fixed at bottom of every page */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>www.infinitysupportswa.org</Text>
-          <Text style={styles.footerText}>{settings?.person_centred_plan || 'PCP-001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
+          <Text style={styles.footerText}>{settings?.person_centred_plan || ''}</Text>
           <Text style={styles.footerText}>Date of Report: {formatDate(settings?.review_date)}</Text>
         </View>
       </Page>

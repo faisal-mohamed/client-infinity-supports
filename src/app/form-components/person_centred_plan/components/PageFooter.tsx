@@ -16,7 +16,7 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
         <div>
           <a
             className="text-gray-600 underline"
-            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
+            href={settings?.company_website || ''}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -25,7 +25,7 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
         </div>
         
         <div className="text-center">
-          <span>{settings?.person_centre_plan_form_id || 'PCP-001'}</span>
+          <span>{settings?.person_centre_plan_form_id || ''}</span>
         </div>
         
         <div className="text-right">

@@ -255,7 +255,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
   const riskMatrixSrc = images?.riskMatrix || '/home_risk_assessment.png';
   
   const footerWebsite = settings?.company_website || settings?.from_email || '';
-  const footerId = settings?.home_visit_form_id || 'HV001';
+  const footerId = settings?.home_visit_form_id || '';
   const footerDate = formatDate(settings?.review_date || '');
 
   // Question sections matching web view

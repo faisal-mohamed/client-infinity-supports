@@ -331,8 +331,8 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
 
         {/* Fixed Footer on all pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{settings?.from_email || ''}</Text>
-          <Text style={styles.footerText}>{settings?.client_intake_form_id || 'CF001'}</Text>
+          <Text style={styles.footerText}>{settings?.company_website || settings?.from_email || ''}</Text>
+          <Text style={styles.footerText}>{settings?.client_intake_form_id || ''}</Text>
           <Text style={styles.footerText}>Review Date: {settings?.review_date || ''}</Text>
         </View>
       </Page>

@@ -56,7 +56,7 @@ const Page3: React.FC<Page3Props> = ({
   // Define sticky footer content
   const footer = (
     <div className="flex justify-between text-sm px-2">
-      <div>{settings?.company_website || 'https://www.infinitysupportswa.org'}</div>
+      <div>{settings?.company_website || ''}</div>
 <div>
   Date of Review:{' '}
   {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)

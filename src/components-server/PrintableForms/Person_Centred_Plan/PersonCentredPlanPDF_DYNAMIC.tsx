@@ -565,12 +565,12 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
 
   // Get form ID
   const getFormId = (): string => {
-    return settings?.person_centre_plan_form_id || settings?.person_centred_plan || 'PCP-001';
+    return settings?.person_centre_plan_form_id || settings?.person_centred_plan || '';
   };
 
-  // Get email
-  const getEmail = (): string => {
-    return settings?.from_email || settings?.email || 'info@infinitysupportswa.org';
+  // Get website
+  const getWebsite = (): string => {
+    return settings?.company_website || '';
   };
 
   // ✅ QUESTION SPACING RULE IMPLEMENTATION
@@ -733,7 +733,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
         
         <View style={styles.coverFooter}>
-          <Text style={styles.coverFooterText}>{getEmail()}</Text>
+          <Text style={styles.coverFooterText}>{getWebsite()}</Text>
           <Text style={styles.coverFooterText}>{getFormId()}</Text>
           <Text style={styles.coverFooterText}>Date of Report: {getReportDate()}</Text>
         </View>
@@ -988,7 +988,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         
         {/* Fixed footer on all content pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
         </View>

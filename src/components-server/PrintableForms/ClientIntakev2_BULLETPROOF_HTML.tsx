@@ -69,12 +69,12 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
 
   // Get form ID
   const getFormId = (): string => {
-    return settings?.client_intake_form_id || settings?.client_intake_form || 'CF001';
+    return settings?.client_intake_form_id || settings?.client_intake_form || '';
   };
 
   // Get email
   const getEmail = (): string => {
-    return settings?.from_email || settings?.email || 'infinitysupportswa.org';
+    return settings?.from_email || settings?.email || '';
   };
 
   // Render checkbox
