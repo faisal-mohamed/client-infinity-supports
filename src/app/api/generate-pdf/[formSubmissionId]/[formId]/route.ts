@@ -227,9 +227,9 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
 
 
       case "multi_disciplinary_meeting":
+        console.log('🔍 [PDF DEBUG] Processing multi_disciplinary_meeting for HTML generation');
         images = {
           infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
-
         }
 
         componentProps = {
@@ -437,6 +437,7 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const returnBuffer = searchParams.get('buffer') === 'true';
     const attachmentName = searchParams.get('filename'); // Optional custom filename
+    const queryAdminId = searchParams.get('adminId'); // AdminId from query params for email PDFs
 
     if (!submissionId || !formIdInt) {
       return new NextResponse("Missing formSubmissionId or formId", { status: 400 });
@@ -471,11 +472,18 @@ export async function GET(
     }
 
     // ✅ Fetch Form specific settings for the current admin
+    // Priority: 1) Query param adminId (for email PDFs), 2) Session adminId (for direct downloads)
     const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+    let adminId: number | null = null;
     
-    if (!adminId) {
-      console.warn('⚠️ No admin session found, PDF may have incorrect settings');
+    if (queryAdminId) {
+      adminId = parseInt(queryAdminId);
+      console.log(`📧 [PDF Route] Using adminId from query params: ${adminId} (for email PDF)`);
+    } else if (session?.user?.id) {
+      adminId = parseInt(session.user.id);
+      console.log(`👤 [PDF Route] Using adminId from session: ${adminId} (for direct download)`);
+    } else {
+      console.warn('⚠️ No admin ID found (no query param or session), PDF may have default settings');
     }
     
     const rawSettings = await prisma.appSettings.findMany({
@@ -524,7 +532,7 @@ export async function GET(
     console.log('🔍 [PDF DEBUG] Submission ID:', submissionId);
 
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment') {
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment' || form.formKey === 'multi_disciplinary_meeting') {
       console.log('✅ [PDF DEBUG] Using @react-pdf/renderer for:', form.formKey);
       console.log('✅ [PDF DEBUG] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');

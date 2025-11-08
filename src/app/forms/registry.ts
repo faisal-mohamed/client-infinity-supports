@@ -37,6 +37,7 @@ import SupportActionPlanView from "../components/forms/support-action-plan/Suppo
 
 import MDTEdit from "../components/forms/mdt/Edit";
 import MDTView from "@/components/mdt/View";
+import MDT_PDF from "../../components-server/PrintableForms/mdt/page";
 
 import ScheduleForSupportView1 from "@/components/schedule-of-supports/View";
 import ScheduleForSupportEdit1 from "../components/forms/schedule-of-supports/Edit";
@@ -259,6 +260,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: "Multi Disciplinary Meeting",
     editComponent: MDTEdit,
     viewComponent: MDTView,
+    pdfComponent: MDT_PDF,
   },
 
   schedule_of_supports: {

@@ -88,6 +88,12 @@ async function main() {
       title: 'Service Agreement Support Co-Ordination',
       version: 1,
       requiresSignature: true 
+    },
+    {
+      formKey: 'multi_disciplinary_meeting',
+      title: 'Multi Disciplinary Meeting',
+      version: 1,
+      requiresSignature: false
     }
   ];
 

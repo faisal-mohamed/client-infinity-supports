@@ -15,7 +15,7 @@ import EmergencyDrill from './emergency-drill/page_strict_form'; // Using strict
 import IndividualRiskAssessmentMatching from './IndividualRiskAssessment_MATCHING';
 import WelcomeFormMatching from './WelcomeForm_MATCHING';
 import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
-import MDT from './mdt/page'
+import MDT from './mdt/page'  // Uses MDT_MATCHING.tsx internally
 import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
 import SASupportCoordination from './SASupportCoordination_MATCHING';
 

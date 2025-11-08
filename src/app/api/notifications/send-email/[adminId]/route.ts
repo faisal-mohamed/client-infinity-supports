@@ -315,8 +315,8 @@ async function handleBatchCompletedEmail(data: EmailNotificationData, config: an
   });
   console.log(`✅ [ADMIN EMAIL] Email HTML generated`);
 
-  console.log(`📎 [ADMIN EMAIL] Generating ${completedForms.length} PDF(s)...`);
-  const pdfResults = await generateMultiplePDFBuffers(completedForms);
+  console.log(`📎 [ADMIN EMAIL] Generating ${completedForms.length} PDF(s) with adminId: ${adminId}...`);
+  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId);
 
   const attachments = pdfResults
     .filter(result => result.success && result.buffer)
@@ -401,8 +401,8 @@ async function handleClientConfirmationEmail(data: EmailNotificationData, config
   });
   console.log(`✅ [CLIENT EMAIL] Email HTML generated`);
 
-  console.log(`📎 [CLIENT EMAIL] Generating ${completedForms.length} PDF(s)...`);
-  const pdfResults = await generateMultiplePDFBuffers(completedForms);
+  console.log(`📎 [CLIENT EMAIL] Generating ${completedForms.length} PDF(s) with adminId: ${adminId}...`);
+  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId);
 
   const attachments = pdfResults
     .filter(result => result.success && result.buffer)

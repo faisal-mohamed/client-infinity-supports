@@ -48,11 +48,11 @@ export async function sendOptimizedBatchEmail({
   };
 
   try {
-    console.log(`🚀 Starting optimized batch email for ${clientName} (${completedForms.length} forms)`);
+    console.log(`🚀 Starting optimized batch email for ${clientName} (${completedForms.length} forms, adminId: ${adminId})`);
 
     // Step 1: Generate PDFs with performance tracking
     const pdfStartTime = Date.now();
-    const pdfResults = await generateMultiplePDFBuffers(completedForms);
+    const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId);
     metrics.pdfGenerationTime = Date.now() - pdfStartTime;
 
     // Filter successful PDFs and calculate metrics

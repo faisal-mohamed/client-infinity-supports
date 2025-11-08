@@ -128,6 +128,8 @@ const MDTEdit: React.FC<FormProps> = ({
 
   // Loading states
   const [submitting, setSubmitting] = useState(false);
+  const [isSavingProgress, setIsSavingProgress] = useState(false);
+  const [navigatingNext, setNavigatingNext] = useState(false);
   // Note: 'saving' state comes from parent component via props
 
   // Track pending changes to common fields
@@ -224,11 +226,22 @@ const MDTEdit: React.FC<FormProps> = ({
   };
 
   const handleNextSequential = async () => {
-    // Save progress before moving to next section
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    // Validate current section before moving
+    if (!isCurrentSectionComplete()) {
+      showToast("Please complete all required fields in this section before continuing.", "error");
+      return;
     }
-    handleNext();
+    
+    setNavigatingNext(true);
+    try {
+      // Save progress before moving to next section
+      if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } finally {
+      setNavigatingNext(false);
+    }
   };
 
   const handlePreviousSequential = () => {
@@ -642,20 +655,29 @@ const MDTEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
-              onClick={() => handleSaveProgress && handleSaveProgress()}
-              disabled={saving || submitting}
+              onClick={async () => {
+                if (handleSaveProgress) {
+                  setIsSavingProgress(true);
+                  try {
+                    await handleSaveProgress();
+                  } finally {
+                    setIsSavingProgress(false);
+                  }
+                }
+              }}
+              disabled={isSavingProgress || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
-              {saving ? 'Saving...' : 'Save Progress'}
+              {isSavingProgress ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
+              {isSavingProgress ? 'Saving...' : 'Save Progress'}
             </button>
           </div>
 
@@ -666,9 +688,9 @@ const MDTEdit: React.FC<FormProps> = ({
                 e.preventDefault();
                 handleFormSubmitCheckValidation();
               }}
-              disabled={saving || submitting}
+              disabled={isSavingProgress || submitting}
             >
-              <FaCheck className="w-4 h-4" />
+              {submitting ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaCheck className="w-4 h-4" />}
               {submitting ? 'Submitting...' : 'Submit Form'}
             </button>
           )}
