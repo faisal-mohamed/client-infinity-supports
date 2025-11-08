@@ -37,8 +37,8 @@ const RiskTablePaginated: React.FC<{
   images: any;
 }> = ({ rows, renderHeader, renderRow, availableHeight, rowHeight, settings, images }) => {
   
-  const pages = [];
-  let currentRows = [];
+  const pages: any[][] = [];
+  let currentRows: any[] = [];
   let currentHeight = 60; // Header height
   
   rows.forEach((row, index) => {
@@ -525,7 +525,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     height: 160,
     content: () => {
       const selected = getSelectedRiskLevel();
-      if (!selected) return null;
+      if (!selected) return <div></div>;
       const level = selected;
       const meta: Record<string, any> = {
         Low: {

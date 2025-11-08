@@ -522,8 +522,8 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
   const answeredRiskQuestions = riskQuestions; // Show all questions like original
 
   // Create risk table sections
-  const riskTableSections = [];
-  let currentQuestions = [];
+  const riskTableSections: any[] = [];
+  let currentQuestions: any[] = [];
   let currentHeight = 0;
   const maxSectionHeight = 350; // Reduced from 400 for better page distribution
   const questionHeight = 50; // Reduced from 60 for more accurate calculation

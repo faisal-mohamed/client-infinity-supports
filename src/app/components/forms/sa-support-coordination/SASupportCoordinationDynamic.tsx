@@ -50,6 +50,13 @@ const BLOCK_SPACING = 16; // Space between blocks
     return rawValue ?? "";
   };
 
+  // Helper function to check boolean field values
+  const getBooleanFieldValue = (key: string): boolean => {
+    const value = getFieldValue(key);
+    const rawValue = formData?.[key];
+    return value === 'true' || rawValue === true;
+  };
+
   const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const parsed = parseISO(value);
@@ -274,7 +281,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('noCopyRequested') === true} 
+              checked={getBooleanFieldValue('noCopyRequested')} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="No copy requested"
@@ -296,7 +303,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('planAttached') === true} 
+              checked={getBooleanFieldValue('planAttached')} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="Plan attached"
@@ -318,7 +325,7 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-start">
             <input 
               type="checkbox" 
-              checked={getFieldValue('planNotAttached') === true} 
+              checked={getBooleanFieldValue('planNotAttached')} 
               readOnly 
               className="mr-2 w-4 h-4 accent-blue-600 mt-1"
               aria-label="Plan not attached"
@@ -602,7 +609,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('selfManaged') === true} 
+                checked={getBooleanFieldValue('selfManaged')} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Self-managed funding"
@@ -615,7 +622,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('nomineeManaged') === true} 
+                checked={getBooleanFieldValue('nomineeManaged')} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Nominee managed funding"
@@ -628,7 +635,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('ndiaManaged') === true} 
+                checked={getBooleanFieldValue('ndiaManaged')} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="NDIA managed funding"
@@ -641,7 +648,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="flex items-start">
               <input 
                 type="checkbox" 
-                checked={getFieldValue('planManagerManaged') === true} 
+                checked={getBooleanFieldValue('planManagerManaged')} 
                 readOnly 
                 className="mr-2 w-4 h-4 accent-blue-600 mt-1"
                 aria-label="Plan Manager managed funding"

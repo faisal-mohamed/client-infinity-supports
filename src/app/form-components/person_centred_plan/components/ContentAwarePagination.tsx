@@ -380,8 +380,8 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           { key: 'healthcarePrompt', label: 'Proactive & preventative Proactive & preventative healthcare promptss', type: 'checkbox', options: ['Yes', 'No'] }
         ];
       } else if (section.id === 'goals') {
-        // Goals table - add to all fields
-        allFields.push({ 
+        // Goals table - add to current page
+        currentPage.push({ 
           section, 
           field: { key: 'goals', type: 'goals_table' }, 
           showSectionTitle: !sectionsWithTitleShown.has(section.id),

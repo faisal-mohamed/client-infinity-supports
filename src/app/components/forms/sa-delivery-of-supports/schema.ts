@@ -1,6 +1,7 @@
 export type BlockType =
   | 'section_header'
   | 'paragraph'
+  | 'styled_paragraph'
   | 'list'
   | 'checkbox'
   | 'radio'

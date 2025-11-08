@@ -3,6 +3,14 @@
 import React from "react";
 import { format, parseISO, isValid } from "date-fns";
 
+interface ContentBlock {
+  type: string;
+  height: number;
+  content: () => React.ReactElement;
+  questionKey?: string;
+  riskRow?: any;
+}
+
 const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings }) => {
   
   const formatDate = (value: string | undefined | null): string => {
@@ -81,7 +89,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
   });
 
   // Content blocks for pagination - each question is a separate block
-  const contentBlocks = [
+  const contentBlocks: ContentBlock[] = [
     {
       type: 'metadata',
       height: 120,
@@ -396,8 +404,8 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
   const PAGE_HEIGHT = 800; // Conservative page height
   const BLOCK_SPACING = 10;
 
-  const pages = [];
-  let currentPage = [];
+  const pages: number[][] = [];
+  let currentPage: number[] = [];
   let currentHeight = 0;
 
   contentBlocks.forEach((block, index) => {

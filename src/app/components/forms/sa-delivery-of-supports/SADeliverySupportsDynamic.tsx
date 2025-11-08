@@ -923,7 +923,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
         </div>
 
         {units.map((u, i) => (
-          <div key={`measure-${i}`} ref={(el) => (measureRefs.current[i] = el)} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
+          <div key={`measure-${i}`} ref={(el) => { measureRefs.current[i] = el; }} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
             {u.kind === 'paragraph_part' ? (
               <p className="mb-2 text-sm leading-loose" style={{ fontSize: '14px' }}>
                 {paragraphPartsMap.get(u.blockIndex)?.[u.partIndex] || ''}
