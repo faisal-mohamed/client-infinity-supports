@@ -125,7 +125,7 @@ const getValue = (key: string) => {
             />
           </div>
 
-          {/* Risk Legend */}
+          {/* Risk Legend - Page 1 shows only LOW and MEDIUM */}
           <div className="max-w-3xl mx-auto text-[15px] space-y-4">
             <div>
               <span className="underline">LOW</span>{' '}
@@ -134,7 +134,7 @@ const getValue = (key: string) => {
             </div>
             <div>
               <span className="underline">MEDIUM</span>{' '}
-<span style={{ color: '#ca8a04', fontWeight: 'bold' }}>YELLOW</span>
+              <span style={{ color: '#ca8a04', fontWeight: 'bold' }}>YELLOW</span>
               <div>
                 Visit should only proceed after consultation with manager. The risks should be
                 reviewed to consider all the hazards involved. The risks must be reduced prior to the

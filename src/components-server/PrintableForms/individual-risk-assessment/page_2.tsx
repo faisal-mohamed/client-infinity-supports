@@ -73,8 +73,8 @@ const Page2: React.FC<Page2Props> = ({
           />
         </div>
 
-        {/* Guideline Section */}
-        <div className="px-6 mb-4">
+        {/* Guideline Section - keep together with table */}
+        <div className="px-6 mb-4 print:break-inside-avoid">
           <p className="mb-1 font-semibold underline">
             MODERATE <span style={{ color: '#f97316', fontWeight: 'bold' }}>ORANGE</span>
           </p>
@@ -90,8 +90,8 @@ const Page2: React.FC<Page2Props> = ({
         </div>
 
 
-        {/* Table */}
-        <div className="flex-1 flex flex-col px-6">
+        {/* Table - prevent breaking */}
+        <div className="flex-1 flex flex-col px-6 print:break-inside-avoid">
           {/* Title Bar */}
           <div className="bg-gray-400 border border-black px-2 py-2 text-center font-bold text-[16px] mb-0">
             POTENTIAL RISK & CONTROL MEASURES
