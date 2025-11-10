@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const staffId = parseInt(id);
@@ -19,20 +16,21 @@ export async function GET(
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    const employmentWelcome = await db.staffEmploymentWelcomeAck.findUnique({
+    const ndisCodeOfConduct = await db.staffNdisCodeOfConduct.findUnique({
       where: { staffId }
     });
 
-    if (!employmentWelcome) {
-      return NextResponse.json({ error: 'Employment welcome form not found' }, { status: 404 });
+    if (!ndisCodeOfConduct) {
+      return NextResponse.json({ error: 'NDIS code of conduct form not found' }, { status: 404 });
     }
 
     return NextResponse.json({
-      ...employmentWelcome,
+      ...ndisCodeOfConduct,
       staff
     });
   } catch (error: any) {
-    console.error('Error fetching employment welcome:', error);
-    return NextResponse.json({ error: 'Failed to fetch employment welcome' }, { status: 500 });
+    console.error('Error fetching NDIS code of conduct form:', error);
+    return NextResponse.json({ error: 'Failed to fetch NDIS code of conduct form' }, { status: 500 });
   }
 }
+

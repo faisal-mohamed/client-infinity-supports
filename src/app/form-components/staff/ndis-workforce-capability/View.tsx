@@ -1,128 +1,174 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import FormPage from '@/components/ui/FormPage';
 
-export default function NdisWorkforceCapabilityView({ excludeLastPage = false, children, data = {} }: { excludeLastPage?: boolean; children?: React.ReactNode; data?: any }) {
-  const pdfContainerRef = useRef<HTMLDivElement>(null);
-  const hasRenderedRef = useRef(false);
-  const [isRendering, setIsRendering] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function NdisWorkforceCapabilityView({ data: rawData, meta: metaProp }: { data?: any; meta?: { website?: string; version?: string; reviewDate?: string } }) {
+  const data = (rawData as any)?.data ? (rawData as any).data : rawData;
+  const staffSignature = (rawData as any)?.staffSignature;
+  const staffSignedAt = (rawData as any)?.staffSignedAt;
 
-  useEffect(() => {
-    // Render the PDF into canvases without the built-in viewer
-    const renderPdf = async () => {
-      if (hasRenderedRef.current) return;
-      hasRenderedRef.current = true;
-      setIsRendering(true);
-      try {
-        console.log('Starting PDF rendering for NDIS Workforce Capability Framework');
-        console.log('Injecting PDF.js scripts...');
-        await injectScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-        await injectScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');
-        const w: any = window as any;
-        console.log('Checking for pdfjsLib...');
-        if (!w['pdfjsLib']) throw new Error('pdfjsLib not available');
-        console.log('pdfjsLib found, setting worker source...');
-        w['pdfjsLib'].GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const meta = metaProp || { website: 'infinitysupportswa.org', version: 'NDIS Workforce Capability Framework', reviewDate: '01/03/2025' };
 
-        const url = '/stafForms/NDIS WORKFORCE CAPABILITY FRAMEWORK.pdf';
-        console.log('Loading PDF from:', url);
-        const loadingTask = w['pdfjsLib'].getDocument(url);
-        const pdf = await loadingTask.promise;
-        console.log('PDF loaded successfully, pages:', pdf.numPages);
-
-        const container = pdfContainerRef.current;
-        console.log('Container ref:', container);
-        if (!container) {
-          console.error('Container not available');
-          return;
-        }
-        container.innerHTML = '';
-        console.log('Container cleared, starting PDF rendering...');
-
-        const containerWidth = container.clientWidth || 794;
-        const devicePixelRatioValue = Math.max(window.devicePixelRatio || 1, 1);
-        const displayWidth = Math.min(containerWidth, 794);
-        const qualityMultiplier = 2; // render sharper, then downscale for crispness
-
-        const fragment = document.createDocumentFragment();
-
-        const lastPage = excludeLastPage ? (pdf.numPages - 1) : pdf.numPages;
-        for (let pageIndex = 1; pageIndex <= lastPage; pageIndex++) {
-          const page = await pdf.getPage(pageIndex);
-          const viewport = page.getViewport({ scale: 1 });
-          const scale = displayWidth / viewport.width;
-          const displayViewport = page.getViewport({ scale });
-
-          const pageWrapper = document.createElement('div');
-          pageWrapper.className = 'bg-white mx-auto border shadow p-0 print:p-0 mb-4';
-          pageWrapper.style.width = displayWidth + 'px';
-
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          if (!context) continue;
-
-          canvas.width = Math.floor(displayViewport.width * devicePixelRatioValue * qualityMultiplier);
-          canvas.height = Math.floor(displayViewport.height * devicePixelRatioValue * qualityMultiplier);
-          canvas.style.width = displayViewport.width + 'px';
-          canvas.style.height = displayViewport.height + 'px';
-          canvas.style.display = 'block';
-
-          context.scale(devicePixelRatioValue * qualityMultiplier, devicePixelRatioValue * qualityMultiplier);
-          await page.render({ canvasContext: context, viewport: displayViewport }).promise;
-
-          pageWrapper.appendChild(canvas);
-          fragment.appendChild(pageWrapper);
-        }
-
-        // Append all pages at once to avoid progressive layout shifts/scroll jumps
-        container.appendChild(fragment);
-      } catch (e: any) {
-        console.error('Error rendering PDF:', e);
-        setError(e?.message || 'Failed to render PDF');
-      } finally {
-        setIsRendering(false);
-      }
-    };
-
-    renderPdf();
-  }, []);
-
-  function injectScript(src: string) {
-    return new Promise<void>((resolve, reject) => {
-      const existing = document.querySelector(`script[src="${src}"]`);
-      if (existing) return resolve();
-      const s = document.createElement('script');
-      s.src = src;
-      s.async = true;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error('Failed to load ' + src));
-      document.body.appendChild(s);
-    });
-  }
+  const formatDateValue = (dateString?: string | null) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-AU');
+    } catch {
+      return dateString;
+    }
+  };
 
   return (
-    <div className="bg-slate-50 py-8">
-      <div className="bg-white w-full max-w-[900px] mx-auto rounded-xl shadow border p-4">
-        {isRendering && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading NDIS Workforce Capability Framework...</p>
+    <div className="bg-gray-100 py-8">
+      {/* Page 1 - Framework Overview */}
+      <FormPage meta={meta}>
+        <div className="space-y-4 text-sm w-full">
+          <div className="w-full">
+            <div className="border border-gray-300 rounded-lg p-6 w-full">
+              <div className="space-y-6">
+                {/* Header Section */}
+                <div>
+                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                    <h3 className="text-xl font-semibold">NDIS Workforce Capability Framework</h3>
+                  </div>
+                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                    <p className="text-gray-900 mb-4">
+                      This form documents the NDIS Workforce Capability Framework understanding and compliance for staff members.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Staff Information */}
+                <div>
+                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                    <h3 className="text-xl font-semibold">Staff Information</h3>
+                  </div>
+                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                    <div className="space-y-3">
+                      <Field label="Name" value={data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()} />
+                      <Field label="Position" value={data.position} />
+                      <Field label="Date" value={formatDateValue(data.date)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Framework Understanding */}
+                {data.frameworkUnderstanding && (
+                  <div>
+                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                      <h3 className="text-xl font-semibold">Framework Understanding</h3>
+                    </div>
+                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                      <p className="text-gray-900 whitespace-pre-wrap">{data.frameworkUnderstanding}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Competency Areas */}
+                {data.competencyAreas && Array.isArray(data.competencyAreas) && data.competencyAreas.length > 0 && (
+                  <div>
+                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                      <h3 className="text-xl font-semibold">Competency Areas</h3>
+                    </div>
+                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                      <div className="space-y-3">
+                        {data.competencyAreas.map((area: any, index: number) => (
+                          <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0">
+                            <div className="font-semibold text-gray-900 mb-2">{area.area || `Area ${index + 1}`}</div>
+                            <div className="text-gray-700 text-sm">{area.description || ''}</div>
+                            {area.status && (
+                              <div className="mt-2">
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                                  area.status === 'Competent' ? 'bg-green-100 text-green-800' :
+                                  area.status === 'Developing' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {area.status}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Training Completed */}
+                {data.trainingCompleted && (
+                  <div>
+                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                      <h3 className="text-xl font-semibold">Training Completed</h3>
+                    </div>
+                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                      <p className="text-gray-900 whitespace-pre-wrap">{data.trainingCompleted}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Comments */}
+                {data.comments && (
+                  <div>
+                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                      <h3 className="text-xl font-semibold">Additional Comments</h3>
+                    </div>
+                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                      <p className="text-gray-900 whitespace-pre-wrap">{data.comments}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Signature Section */}
+                <div>
+                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                    <h3 className="text-xl font-semibold">Staff Acknowledgement</h3>
+                  </div>
+                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Name:</label>
+                        <div className="border-b-2 border-gray-400 h-8">
+                          {data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Signature:</label>
+                          <div className="border-b-2 border-gray-400 h-8">
+                            {staffSignature ? (
+                              <img src={staffSignature} alt="Staff Signature" className="max-w-full max-h-full" />
+                            ) : (
+                              <span className="text-gray-400 text-sm"></span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
+                          <div className="border-b-2 border-gray-400 h-8 text-center text-gray-500">
+                            {formatDateValue(staffSignedAt)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
-        <div ref={pdfContainerRef} className="w-full" />
-        {children}
-        {error && (
-          <div className="text-sm text-red-600 mt-2">
-            <p>Error: {error}</p>
-            <p className="mt-2">Attempting to show PDF directly:</p>
-            <iframe 
-              src="/stafForms/NDIS WORKFORCE CAPABILITY FRAMEWORK.pdf" 
-              className="w-full h-96 border border-gray-300"
-              title="NDIS Workforce Capability Framework PDF"
-            />
-          </div>
-        )}
+        </div>
+      </FormPage>
+    </div>
+  );
+}
+
+function Field({ label, value }: { label: string; value?: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-xs font-medium text-gray-700 mb-1">{label}:</div>
+      <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
+        {value || ''}
       </div>
     </div>
   );

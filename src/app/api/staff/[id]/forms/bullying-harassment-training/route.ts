@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const staffId = parseInt(id);
-    
+
     const db: any = prisma as any;
     const staff = await db.staff.findUnique({
       where: { id: staffId },
@@ -19,20 +16,21 @@ export async function GET(
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    const employmentWelcome = await db.staffEmploymentWelcomeAck.findUnique({
+    const bullyingHarassmentTraining = await db.staffBullyingHarassmentTraining.findUnique({
       where: { staffId }
     });
 
-    if (!employmentWelcome) {
-      return NextResponse.json({ error: 'Employment welcome form not found' }, { status: 404 });
+    if (!bullyingHarassmentTraining) {
+      return NextResponse.json({ error: 'Bullying and Harassment Training form not found' }, { status: 404 });
     }
 
     return NextResponse.json({
-      ...employmentWelcome,
+      ...bullyingHarassmentTraining,
       staff
     });
   } catch (error: any) {
-    console.error('Error fetching employment welcome:', error);
-    return NextResponse.json({ error: 'Failed to fetch employment welcome' }, { status: 500 });
+    console.error('Error fetching bullying harassment training form:', error);
+    return NextResponse.json({ error: 'Failed to fetch bullying harassment training form' }, { status: 500 });
   }
 }
+

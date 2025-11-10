@@ -10,6 +10,7 @@ interface StaffForm {
   status: 'completed' | 'pending';
   completedAt?: string;
   hasSignature: boolean;
+  hasViewPage?: boolean;
 }
 
 export default function StaffFormsPage() {
@@ -71,13 +72,18 @@ export default function StaffFormsPage() {
                     </div>
                   </div>
                   
-                  {form.status === 'completed' && (
+                  {form.status === 'completed' && form.hasViewPage && (
                     <Link 
                       href={`/admin/staff/${id}/forms/${form.formType}`}
                       className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
                     >
                       View Details
                     </Link>
+                  )}
+                  {form.status === 'completed' && !form.hasViewPage && (
+                    <span className="px-4 py-2 bg-gray-200 text-gray-500 rounded-lg text-sm cursor-not-allowed">
+                      View Not Available
+                    </span>
                   )}
                 </div>
               ))}

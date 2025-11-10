@@ -48,7 +48,7 @@ export default function EmployeeDetailsView({ data, meta: metaProp }: { data?: a
             <div className="space-y-3 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <Field label="First Name" value={data?.data?.firstName} />
-                <Field label="Last Name" value={data?.data?.lastName} />
+                <Field label="Last Name" value={data?.data?.surname} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Start Date" value={data?.data?.startDate} />

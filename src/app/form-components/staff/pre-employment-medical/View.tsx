@@ -3,19 +3,34 @@
 import { useEffect, useState } from 'react';
 import FormPage from '@/components/ui/FormPage';
 import { fetchFormSpecificSettings } from '@/lib/settings';
-import { formData } from '../../individual-risk-assessment/page';
 
 interface PreEmploymentMedicalViewProps {
   data?: any;
   staffInfo?: any;
 }
 
-export default function PreEmploymentMedicalView({ data = {}, staffInfo = {} }: PreEmploymentMedicalViewProps) {
+export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo: staffInfoProp = {} }: PreEmploymentMedicalViewProps) {
+  const data: any = (rawData as any)?.data ? (rawData as any).data : rawData;
+  const staffInfo = (rawData as any)?.staff || staffInfoProp || {};
+  const signatureImage = (rawData as any)?.staffSignature || (data as any)?.signature;
+  const signatureDate = (rawData as any)?.staffSignedAt || (data as any)?.signatureDate;
+
   const [meta, setMeta] = useState<{ website: string; formId: string; reviewDate: string }>({
     website: 'infinitysupportswa.org',
     formId: 'SF014',
     reviewDate: '01/03/2025'
   });
+
+  useEffect(() => {
+    const metaFromData = (rawData as any)?.meta || (rawData as any)?.data?.meta;
+    if (metaFromData) {
+      setMeta((prev) => ({
+        website: metaFromData.website || prev.website,
+        formId: metaFromData.formId || prev.formId,
+        reviewDate: metaFromData.reviewDate || prev.reviewDate,
+      }));
+    }
+  }, [rawData]);
 
   useEffect(() => {
     // Load form-specific settings
@@ -241,8 +256,8 @@ export default function PreEmploymentMedicalView({ data = {}, staffInfo = {} }: 
                         <div className="flex-1 border-b border-black"></div>
                       </div>
                       <div className="h-16">
-                        {data.signature ? (
-                          <img src={data.signature} alt="Applicant Signature" className="max-w-full max-h-full" />
+                        {signatureImage ? (
+                          <img src={signatureImage} alt="Applicant Signature" className="max-w-full max-h-full" />
                         ) : (
                           <span className="text-gray-400 text-sm"></span>
                         )}
@@ -255,7 +270,7 @@ export default function PreEmploymentMedicalView({ data = {}, staffInfo = {} }: 
                       </div>
                       <div className="h-16 flex items-center">
                         <span className="text-gray-900 text-sm">
-                          {data.signatureDate || ''}
+                          {formatDateValue(signatureDate)}
                         </span>
                       </div>
                     </div>
@@ -323,7 +338,7 @@ export default function PreEmploymentMedicalView({ data = {}, staffInfo = {} }: 
                         </div>
                         <div className="h-16 flex items-center">
                           <span className="text-gray-900 text-sm">
-                            {data.declarationDate || ''}
+                            {formatDateValue(data.declarationDate)}
                           </span>
                         </div>
                       </div>
@@ -667,7 +682,7 @@ export default function PreEmploymentMedicalView({ data = {}, staffInfo = {} }: 
                           </div>
                           <div className="h-16 flex items-center">
                             <span className="text-gray-900 text-sm">
-                              {data.declarationDate || ''}
+                              {formatDateValue(data.declarationDate)}
                             </span>
                           </div>
                         </div>
@@ -711,4 +726,11 @@ function ConsentCheckbox({ label, value }: { label: string; value: boolean | nul
       <span className="text-sm text-gray-900 flex-1">{label}</span>
     </div>
   );
+}
+
+function formatDateValue(value?: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString();
 }

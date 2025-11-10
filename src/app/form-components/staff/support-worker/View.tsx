@@ -5,6 +5,11 @@ import FormPage from '@/components/ui/FormPage';
 
 export default function SupportWorkerView({ data, meta: metaProp }: { data?: any; meta?: { website?: string; version?: string; reviewDate?: string } }) {
   const meta = metaProp || { website: 'infinitysupportswa.org', version: 'PD- Support Worker Form', reviewDate: '01/03/2025' };
+  const formData = (data && data.data) ? data.data : data || {};
+  const staffInfo = data?.staff || {};
+  const staffName = formData.name || `${staffInfo.firstName || ''} ${staffInfo.surname || ''}`.trim();
+  const signature = data?.staffSignature || formData.signature;
+  const signatureDate = formatDate(data?.staffSignedAt || formData.signatureDate);
 
   return (
     <div className="bg-gray-100 py-8">
@@ -22,9 +27,9 @@ export default function SupportWorkerView({ data, meta: metaProp }: { data?: any
                   </div>
                   <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
                     <div className="space-y-3">
-                      <Field label="Position Title" value="Support Worker" />
-                      <Field label="Business Unit" value={data?.businessUnit} />
-                      <Field label="Reports To" value={data?.reportsTo} />
+                      <Field label="Position Title" value={formData.positionTitle || 'Support Worker'} />
+                      <Field label="Business Unit" value={formData.businessUnit} />
+                      <Field label="Reports To" value={formData.reportsTo} />
                     </div>
                   </div>
                 </div>
@@ -261,19 +266,10 @@ export default function SupportWorkerView({ data, meta: metaProp }: { data?: any
                   </div>
                   <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                        <div className="border-b-2 border-gray-400 h-8"></div>
-                      </div>
+                      <Field label="Name" value={staffName} />
                       <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Signature:</label>
-                          <div className="border-b-2 border-gray-400 h-8"></div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
-                          <div className="border-b-2 border-gray-400 h-8 text-center text-gray-500">/ /</div>
-                        </div>
+                        <SignatureField label="Signature" image={signature} />
+                        <Field label="Date" value={signatureDate} />
                       </div>
                     </div>
                   </div>
@@ -291,9 +287,31 @@ function Field({ label, value }: { label: string; value?: React.ReactNode }) {
   return (
     <div>
       <div className="text-xs font-medium text-gray-700 mb-1">{label}:</div>
-      <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
+      <div className="border border-gray-400 h-auto min-h-[2rem] rounded-sm px-2 py-1 flex items-center text-gray-900 bg-white">
         {value || ''}
       </div>
     </div>
   );
+}
+
+function SignatureField({ label, image }: { label: string; image?: string | null }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}:</label>
+      <div className="border border-gray-400 h-16 flex items-center justify-center bg-white rounded-sm">
+        {image ? (
+          <img src={image} alt={label} className="max-h-14 object-contain" />
+        ) : (
+          <span className="text-gray-400 text-sm">________________________</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatDate(date?: string | null) {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString();
 }
