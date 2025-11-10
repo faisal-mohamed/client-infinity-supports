@@ -13,6 +13,7 @@ export default function StaffEmploymentDetailsView() {
       apiEndpoint={`/api/staff/${id}/forms/employment-details`}
       pdfEndpoint={`/api/staff/${id}/forms/employee-details/pdf`}
       downloadFilename={(data) => `${data?.staff?.firstName}_${data?.staff?.surname}_employment_details.pdf`}
+      showAdminSection={true}
     />
   );
 }

@@ -46,10 +46,18 @@ export async function GET(
       {
         formType: 'employment-details',
         formName: 'Employee Details',
-        status: staff.employmentDetails ? 'completed' : 'pending',
+        status: staff.employmentDetails?.staffSignature && staff.employmentDetails?.adminSignature 
+          ? 'fully_completed' 
+          : staff.employmentDetails?.staffSignature 
+            ? 'awaiting_admin' 
+            : staff.employmentDetails 
+              ? 'in_progress' 
+              : 'pending',
         completedAt: staff.employmentDetails?.createdAt?.toLocaleDateString(),
         hasSignature: !!staff.employmentDetails?.staffSignature,
-        hasViewPage: true
+        hasAdminSignature: !!staff.employmentDetails?.adminSignature,
+        hasViewPage: true,
+        requiresAdmin: true
       },
       {
         formType: 'employment-welcome',

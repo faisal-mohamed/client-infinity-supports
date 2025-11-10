@@ -148,6 +148,15 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
             </View>
           </PDFPanel>
         </PDFSection>
+
+        {/* Admin Signature - Only show if admin has signed */}
+        {data?.adminSignature && (
+          <PDFSignatureBlock
+            label="Admin Signature"
+            image={data?.adminSignature}
+            date={data?.adminSignedAt}
+          />
+        )}
       </View>
     </BasePDFLayout>
   );

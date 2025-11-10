@@ -278,6 +278,9 @@ model StaffEmploymentDetails {
   // Signature fields like client forms
   staffSignature String? // Staff's signature for this form
   staffSignedAt  DateTime? // When staff signed this form
+  // Admin approval fields
+  adminSignature String? // Admin's signature for approval
+  adminSignedAt  DateTime? // When admin approved this form
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

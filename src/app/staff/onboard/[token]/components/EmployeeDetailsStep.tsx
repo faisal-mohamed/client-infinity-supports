@@ -291,25 +291,34 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
           </div>
         </div>
 
-        {/* Office Use Only box */}
+        {/* Office Use Only box - DISABLED FOR STAFF */}
         <div className="col-span-2 mt-4">
-          <div className="font-semibold">Office Use Only</div>
-          <div className="border border-gray-400 p-4 mt-2 rounded-sm">
-            <div className="text-xs font-semibold mb-3">Employee:</div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="font-semibold text-gray-700">Office Use Only</div>
+            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full border border-orange-300">
+              ⚠️ Admin Only - Do Not Edit
+            </span>
+          </div>
+          <fieldset disabled className="border border-gray-400 p-4 mt-2 rounded-sm bg-gray-50 opacity-60 cursor-not-allowed">
+            <legend className="text-xs text-gray-600 px-2">This section will be filled by office administrator</legend>
+            <div className="text-xs font-semibold mb-3 text-gray-500">Employee:</div>
             <div className="grid grid-cols-2 gap-6">
               {/* Status styled as checkboxes to match PDF visuals (exclusive selection logic) */}
               <div>
-                <div className="text-xs mb-1">Status:</div>
+                <div className="text-xs mb-1 text-gray-500">Status:</div>
                 <div className="flex flex-col gap-2 pl-1">
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={data.employmentStatus==='FullTime'} onChange={()=>set('employmentStatus','FullTime')} /> Full time</label>
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={data.employmentStatus==='PartTime'} onChange={()=>set('employmentStatus','PartTime')} /> Part time</label>
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={data.employmentStatus==='Casual'} onChange={()=>set('employmentStatus','Casual')} /> Casual</label>
+                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Full time</label>
+                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Part time</label>
+                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Casual</label>
                 </div>
               </div>
 
-              <Field label="SCHADS Level" value={data.schadsScore} onChange={(v)=>set('schadsScore', v)} />
+              <div className="flex items-center">
+                <label className="text-xs w-28 text-gray-500">SCHADS Level</label>
+                <div className="flex-1 border-b border-gray-400 px-1 py-1 bg-gray-100"></div>
+              </div>
             </div>
-          </div>
+          </fieldset>
         </div>
       </div>
       {/* Footer */}
