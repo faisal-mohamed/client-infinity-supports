@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import EmployeeDetailsStep, { EmployeeDetailsStepRef } from '../../components/EmployeeDetailsStep';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
+import FormButton from '@/components/ui/FormButton';
 
 export default function EmployeeDetailsFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -37,6 +38,21 @@ export default function EmployeeDetailsFormPage() {
 
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
+    
+    // Check if admin has approved this form
+    const hasAdminApproval = formData.adminSignature;
+    
+    if (hasAdminApproval && isSubmit) {
+      const confirmEdit = window.confirm(
+        '⚠️ WARNING: Admin Approval Will Be Cleared\n\n' +
+        'This form has been approved by an administrator. If you submit changes, the admin approval will be cleared and the form will need to be reviewed and approved again.\n\n' +
+        'Do you want to continue?'
+      );
+      
+      if (!confirmEdit) {
+        return;
+      }
+    }
     
     setSaving(true);
     try {
@@ -106,21 +122,23 @@ export default function EmployeeDetailsFormPage() {
           />
           
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-8 pt-6 border-t">
-            <button
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 pt-6 border-t">
+            <FormButton
               onClick={() => handleSave(false)}
-              disabled={saving}
-              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
+              variant="secondary"
+              loading={saving}
+              icon="save"
             >
-              {saving ? 'Saving...' : 'Save Draft'}
-            </button>
-            <button
+              Save Draft
+            </FormButton>
+            <FormButton
               onClick={() => handleSave(true)}
-              disabled={saving}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
+              variant="gradient"
+              loading={saving}
+              icon="submit"
             >
-              {saving ? 'Submitting...' : 'Submit & Continue'}
-            </button>
+              Submit & Continue
+            </FormButton>
           </div>
         </div>
       </div>

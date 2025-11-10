@@ -163,11 +163,39 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
   const save = async (submit: boolean = true) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/staff/onboard/${token}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formKey: 'employeeDetails', data, submit }) });
+      const res = await fetch(`/api/staff/onboard/${token}`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ formKey: 'employeeDetails', data, submit }) 
+      });
       const j = await res.json();
+      
       if (!res.ok) throw new Error(j.error || 'Failed');
+      
+      // Show warning if admin approval was cleared
+      if (j.adminApprovalCleared || j.signaturesCleared) {
+        alert(j.message);
+        
+        // Clear admin data from local state
+        setData((d: any) => {
+          const updated = { ...d };
+          delete updated.employmentStatus;
+          delete updated.payRate;
+          delete updated.schadsLevel;
+          delete updated.schadsScore;
+          delete updated.adminSignature;
+          delete updated.adminSignedAt;
+          if (j.signaturesCleared) {
+            delete updated.employeeSignature;
+            delete updated.employeeSignatureDate;
+          }
+          return updated;
+        });
+      }
+      
       return true;
-    } catch {
+    } catch (error: any) {
+      alert(error.message || 'Failed to save');
       return false;
     } finally {
       setLoading(false);
@@ -307,17 +335,54 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
               <div>
                 <div className="text-xs mb-1 text-gray-500">Status:</div>
                 <div className="flex flex-col gap-2 pl-1">
-                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Full time</label>
-                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Part time</label>
-                  <label className="inline-flex items-center gap-2 text-gray-500"><input type="checkbox" disabled /> Casual</label>
+                  <label className="inline-flex items-center gap-2 text-gray-500">
+                    <input type="checkbox" disabled checked={data.employmentStatus==='FullTime'} /> Full time
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-gray-500">
+                    <input type="checkbox" disabled checked={data.employmentStatus==='PartTime'} /> Part time
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-gray-500">
+                    <input type="checkbox" disabled checked={data.employmentStatus==='Casual'} /> Casual
+                  </label>
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <label className="text-xs w-28 text-gray-500">SCHADS Level</label>
-                <div className="flex-1 border-b border-gray-400 px-1 py-1 bg-gray-100"></div>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <label className="text-xs w-28 text-gray-500">Pay Rate</label>
+                  <div className="flex-1 border-b border-gray-400 px-1 py-1 bg-gray-100 text-xs text-gray-700">
+                    {data.payRate || ''}
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <label className="text-xs w-28 text-gray-500">SCHADS Level</label>
+                  <div className="flex-1 border-b border-gray-400 px-1 py-1 bg-gray-100 text-xs text-gray-700">
+                    {data.schadsLevel || data.schadsScore || ''}
+                  </div>
+                </div>
               </div>
             </div>
+            
+            {/* Show admin signature if exists */}
+            {data.adminSignature && (
+              <div className="mt-4 pt-4 border-t border-gray-300">
+                <div className="text-xs font-semibold mb-2 text-green-700">✅ Approved by Admin</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Admin Signature:</div>
+                    <div className="border border-gray-300 rounded p-2 bg-white flex items-center justify-center h-20">
+                      <img src={data.adminSignature} alt="Admin Signature" className="max-h-16 max-w-full" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Approved Date:</div>
+                    <div className="border-b border-gray-400 px-1 py-1 bg-white text-xs text-gray-700">
+                      {data.adminSignedAt ? new Date(data.adminSignedAt).toLocaleDateString() : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </fieldset>
         </div>
       </div>

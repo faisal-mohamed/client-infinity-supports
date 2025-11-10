@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkSignatureClearing } from '@/lib/staffFormUtils';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   try {
@@ -320,18 +321,50 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         staffSignedAt: employeeSignatureDate ? new Date(employeeSignatureDate) : new Date()
       } : {};
       
+      // Check if form exists and if data has changed
+      const existing = await prisma.staffEmploymentDetails.findUnique({
+        where: { staffId: staff.id }
+      });
+
+      // Use reusable utility function for signature clearing logic
+      const { shouldClearSignatures, shouldClearAdminApproval, cleanedFormData, message } = 
+        checkSignatureClearing(existing, formData, !!employeeSignature);
+
       saved = await prisma.staffEmploymentDetails.upsert({
         where: { staffId: staff.id },
         update: { 
-          data: formData,
-          ...signatureData
+          data: cleanedFormData,
+          ...signatureData,
+          // Clear signatures if data changed
+          ...(shouldClearSignatures ? {
+            staffSignature: null,
+            staffSignedAt: null,
+          } : {}),
+          // Clear admin approval if form data changed
+          ...(shouldClearAdminApproval ? {
+            adminSignature: null,
+            adminSignedAt: null,
+          } : {})
         },
         create: { 
           staffId: staff.id, 
-          data: formData,
+          data: cleanedFormData,
           ...signatureData
         },
       });
+
+      // Return warning if signatures were cleared
+      if (message) {
+        return NextResponse.json({ 
+          success: true,
+          message: message,
+          id: saved.id ?? 0, 
+          isSubmitted: !!submit,
+          action: submit ? 'submitted' : 'saved',
+          signaturesCleared: shouldClearSignatures,
+          adminApprovalCleared: shouldClearAdminApproval
+        });
+      }
     } else if (formKey === 'employee_welcome') {
       // Extract signature data if present
       const { signature, date, ...formData } = data;

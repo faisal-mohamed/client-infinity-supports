@@ -104,8 +104,8 @@ model StaffFormSubmission {
   staffId     Int       // Reference to Staff
   formId      Int?      // Reference to MasterForm (optional for backward compatibility)
   formVersion Int?      // Version of the form being submitted (optional for backward compatibility)
-  formKey     String?   // OLD: Keep for backward compatibility with existing data
-  data        Json      // JSON containing the form submission data
+  formKey     String?   // Form identifier (e.g., 'employeeDetails', 'support_worker')
+  data        Json      // JSON containing ALL form submission data
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
   updatedAt   DateTime  @updatedAt
@@ -114,16 +114,18 @@ model StaffFormSubmission {
   filledByAdmin   Boolean   @default(false) // Track if admin filled this form
   adminFilledAt   DateTime? // When admin filled the form
   
-  // Signature tracking
+  // Signature tracking (same as client forms)
   staffSignature String?   // Staff's signature for this specific form
   staffSignedAt  DateTime? // When staff signed this form
+  adminSignature String?   // Admin's signature for approval (NEW)
+  adminSignedAt  DateTime? // When admin approved this form (NEW)
 
   staff            Staff                        @relation(fields: [staffId], references: [id])
   form             MasterForm?                  @relation(fields: [formId], references: [id])
   signatureBatches StaffSignatureBatchForm[]    // Which signature batches include this form
   notifications    StaffSubmissionNotification[] // Notifications for this form submission
 
-  // Note: Removed unique constraint temporarily for migration
+  @@unique([staffId, formKey])
 }
 
 // NEW: Common fields extracted from staff forms (like client CommonField)

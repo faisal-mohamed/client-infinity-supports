@@ -19,12 +19,45 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const db: any = prisma as any;
     
-    // Check if employment details exist
-    const existing = await db.staffEmploymentDetails.findUnique({
+    // Try both approaches: dedicated table first, then fallback to generic table
+    let existing = await db.staffEmploymentDetails.findUnique({
       where: { staffId }
+    }).catch(() => null);
+
+    if (existing) {
+      // UPDATE DEDICATED TABLE APPROACH
+      const updated = await db.staffEmploymentDetails.update({
+        where: { staffId },
+        data: {
+          data: {
+            ...(existing.data || {}),
+            employmentStatus,
+            payRate,
+            schadsLevel,
+          },
+          adminSignature,
+          adminSignedAt: new Date(adminSignedAt),
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Admin section submitted successfully',
+        data: updated,
+      });
+    }
+
+    // FALLBACK: Use generic StaffFormSubmission table (like client forms)
+    const genericForm = await db.staffFormSubmission.findUnique({
+      where: { 
+        staffId_formKey: { 
+          staffId, 
+          formKey: 'employeeDetails' 
+        } 
+      }
     });
 
-    if (!existing) {
+    if (!genericForm) {
       return NextResponse.json({ 
         error: 'Employment details not found',
         message: 'Staff must complete their section first' 
@@ -32,19 +65,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     // Check if staff has signed
-    if (!existing.staffSignature) {
+    if (!genericForm.staffSignature) {
       return NextResponse.json({ 
         error: 'Staff signature required',
         message: 'Staff member must sign the form before admin approval' 
       }, { status: 400 });
     }
 
-    // Update with admin data
-    const updated = await db.staffEmploymentDetails.update({
-      where: { staffId },
+    // Update with admin data in generic table
+    const updated = await db.staffFormSubmission.update({
+      where: { 
+        staffId_formKey: { 
+          staffId, 
+          formKey: 'employeeDetails' 
+        } 
+      },
       data: {
         data: {
-          ...existing.data,
+          ...(genericForm.data || {}),
           employmentStatus,
           payRate,
           schadsLevel,

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SignaturePad from '@/app/components/forms/SignaturePad';
+import FormButton from '@/components/ui/FormButton';
 
 interface PDFFormViewProps {
   formType: string;
@@ -59,6 +60,7 @@ export default function PDFFormView({
     adminSignatureDate: new Date().toISOString().split('T')[0], // Default to today
   });
   const [submittingAdmin, setSubmittingAdmin] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const loadFormData = async () => {
@@ -191,6 +193,7 @@ export default function PDFFormView({
       return;
     }
 
+    setDownloading(true);
     try {
       // Add download=true parameter to trigger download
       const downloadUrl = `${pdfEndpoint}?download=true`;
@@ -209,6 +212,8 @@ export default function PDFFormView({
     } catch (error) {
       console.error('Error downloading PDF:', error);
       alert('Failed to download PDF. Please try again.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -539,17 +544,15 @@ export default function PDFFormView({
                   </div>
 
                   {/* Submit Button */}
-                  <button
+                  <FormButton
                     type="submit"
-                    disabled={submittingAdmin}
-                    className={`w-full py-3 rounded-lg font-semibold ${
-                      submittingAdmin
-                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                        : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
+                    variant="success"
+                    loading={submittingAdmin}
+                    icon="submit"
+                    fullWidth={true}
                   >
-                    {submittingAdmin ? 'Submitting...' : '✅ Submit Admin Section & Approve Form'}
-                  </button>
+                    Submit Admin Section & Approve Form
+                  </FormButton>
                 </form>
               </div>
             </div>
@@ -587,29 +590,21 @@ export default function PDFFormView({
             </div>
           )}
 
-          {/* Actions - Responsive Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 mt-4 sm:mt-6 border-t">
-            <button 
+          {/* Actions - Download Button Only */}
+          <div className="flex justify-center pt-4 sm:pt-6 mt-4 sm:mt-6 border-t">
+            <FormButton
               onClick={handleDownloadPDF}
+              variant="primary"
+              loading={downloading}
               disabled={!data.staffSignature || (showAdminSection && !data?.adminSignature)}
-              className={`w-full sm:w-auto px-4 py-2 sm:py-2 text-sm sm:text-base rounded-lg ${
-                data.staffSignature && (!showAdminSection || data?.adminSignature)
-                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+              icon="download"
             >
               {!data.staffSignature 
                 ? 'PDF Available After Staff Signs' 
                 : (showAdminSection && !data?.adminSignature)
                   ? 'Complete Admin Section to Download'
                   : 'Download PDF'}
-            </button>
-            <Link 
-              href={`/admin/staff/${id}/forms/${formType}/edit`}
-              className="w-full sm:w-auto px-4 py-2 sm:py-2 text-sm sm:text-base bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-center"
-            >
-              Edit Form
-            </Link>
+            </FormButton>
           </div>
         </div>
       </div>
