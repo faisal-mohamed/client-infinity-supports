@@ -569,8 +569,8 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
 
   console.log(`📚 [BROWSER] Total content pages: ${contentPages.length}`);
 
-  // Footer values (mirror settings API keys like SA Delivery)
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  // Footer values - no fallback
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.welcome_form || '';
   const footerDate = formatDate(settings?.review_date || '');
   console.log('[PDF Welcome Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) });

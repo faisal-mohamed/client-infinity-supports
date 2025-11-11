@@ -569,8 +569,8 @@ const SupportActionPlanMatchingPDF: React.FC<Props> = ({ formData, commonFieldsD
       }
     });
   } catch {}
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
-  const footerId = settings?.support_action_plan_id || settings?.support_action_plan || '';
+  const footerWebsite = settings?.company_website || '';
+  const footerId = settings?.support_action_plan || '';
   const footerDate = settings?.review_date || '';
 
   return (

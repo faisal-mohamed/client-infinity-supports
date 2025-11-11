@@ -535,11 +535,22 @@ export async function POST(
 
     const { dataKey, signedAtKey, signerName: signerNameKey } = signatureConfig;
 
+    // Auto-detect signatureRole for schedule_of_supports form
+    let autoDetectedRole = currentSubmission.data?.signatureRole || "";
+    if (formKey === "schedule_of_supports" && !autoDetectedRole) {
+      if (dataKey === "nomineeSignature") {
+        autoDetectedRole = "Nominee";
+      } else if (dataKey === "participantSignature") {
+        autoDetectedRole = "Participant";
+      }
+    }
+
     const updatedFormData = {
       ...currentSubmission.data,
       [dataKey!]: signature,
       ...(signedAtKey && { [signedAtKey]: signedAt }),
       ...(signerNameKey && { [signerNameKey]: signerName }),
+      ...(autoDetectedRole && { signatureRole: autoDetectedRole }),
     };
 
     await prisma.formSubmission.update({

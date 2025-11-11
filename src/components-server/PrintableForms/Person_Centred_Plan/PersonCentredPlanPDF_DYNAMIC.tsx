@@ -557,18 +557,18 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     }
   };
 
-  // Get report date
+  // Get report date - no fallback
   const getReportDate = (): string => {
-    const dateValue = settings?.review_date || settings?.person_centred_plan_date;
-    return dateValue ? formatDate(dateValue) : formatDate(new Date().toISOString());
+    const dateValue = settings?.review_date;
+    return dateValue ? formatDate(dateValue) : '';
   };
 
-  // Get form ID
+  // Get form ID - no fallback
   const getFormId = (): string => {
-    return settings?.person_centre_plan_form_id || settings?.person_centred_plan || '';
+    return settings?.person_centre_plan_form_id || '';
   };
 
-  // Get website
+  // Get website - no fallback
   const getWebsite = (): string => {
     return settings?.company_website || '';
   };

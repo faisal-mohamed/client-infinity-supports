@@ -232,7 +232,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
   representativeSignature: "",
   representativeSignatureDate: new Date().toISOString().split("T")[0],
-  represenativeName: ""
+  representativeName: ""
 };
 
 
@@ -911,7 +911,7 @@ const renderSignatureField = (
   }
 
   // Always required provider fields
-  ["representativeSignature", "representativeSignatureDate", "represenativeName"].forEach(field => {
+  ["representativeSignature", "representativeSignatureDate", "representativeName"].forEach(field => {
     if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
       missingFields.push(field);
     }
@@ -1141,7 +1141,7 @@ const supportLineItems = [
                       {renderSignatureField("Signature on behalf of Infinity Supports WA", "representativeSignature", providerSigCanvasRef, "Draw provider signature")}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {renderInput("Date of provider signature", "representativeSignatureDate", "date")}
-                        {renderInput("Name of provider representative", "represenativeName", "text", "Enter provider name")}
+                        {renderInput("Name of provider representative", "representativeName", "text", "Enter provider name")}
                       </div>
                     </div>
                   </div>

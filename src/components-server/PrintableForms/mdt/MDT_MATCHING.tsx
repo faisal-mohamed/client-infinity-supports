@@ -167,13 +167,12 @@ const MDTMatching: React.FC<MDTMatchingProps> = ({
   };
 
   const footerDate = formatDate(settings?.review_date || '');
-  const footerWebsite = settings?.company_website || settings?.website || settings?.from_email || '';
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.multi_disciplinary_meeting || '';
   
   // Debug footer values
   console.log('🔍 [MDT PDF DEBUG] Footer values:', {
     company_website: settings?.company_website,
-    from_email: settings?.from_email,
     footerWebsite,
     footerId,
     footerDate

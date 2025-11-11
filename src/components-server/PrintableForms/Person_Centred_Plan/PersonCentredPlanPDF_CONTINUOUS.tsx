@@ -149,10 +149,9 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     }
   };
 
-  // Get report date with fallback to current date
+  // Get report date - no fallback
   const getReportDate = (): string => {
-    // Try multiple possible settings keys
-    const dateValue = settings?.review_date || settings?.reviewDate || settings?.report_date || settings?.reportDate;
+    const dateValue = settings?.review_date || "";
     
     console.log('🔍 Person Centred Plan - Settings keys:', Object.keys(settings || {}));
     console.log('🔍 Person Centred Plan - Date value found:', dateValue);
@@ -165,10 +164,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
       }
     }
     
-    // Fallback to current date
-    const fallbackDate = new Date().toLocaleDateString();
-    console.log('⚠️ Person Centred Plan - Using fallback date:', fallbackDate);
-    return fallbackDate;
+    console.log('⚠️ Person Centred Plan - No date found, returning empty');
+    return '';
   };
 
   return (

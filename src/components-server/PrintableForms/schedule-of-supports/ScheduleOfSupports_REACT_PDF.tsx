@@ -124,6 +124,15 @@ export default function ScheduleOfSupports({
   logoDataUrl 
 }: ScheduleOfSupportsProps) {
 
+  // Auto-detect signatureRole if missing (for backward compatibility with old data)
+  if (!formData?.signatureRole) {
+    if (formData?.nomineeSignature) {
+      formData = { ...formData, signatureRole: "Nominee" };
+    } else if (formData?.participantSignature) {
+      formData = { ...formData, signatureRole: "Participant" };
+    }
+  }
+
   const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const date = new Date(value);
@@ -228,7 +237,7 @@ export default function ScheduleOfSupports({
         </View>
 
         <View style={styles.footer}>
-          <Text>Website: {settings?.company_website || settings?.from_email || ''}</Text>
+          <Text>Website: {settings?.company_website || ''}</Text>
           <Text>{settings?.schedule_of_supports}</Text>
           <Text>Review Date: {formatDate(settings?.review_date)}</Text>
         </View>
@@ -308,7 +317,7 @@ export default function ScheduleOfSupports({
         </View>
 
         <View style={styles.footer}>
-          <Text>Website: {settings?.company_website || settings?.from_email || ''}</Text>
+          <Text>Website: {settings?.company_website || ''}</Text>
           <Text>{settings?.schedule_of_supports}</Text>
           <Text>Review Date: {formatDate(settings?.review_date)}</Text>
         </View>
@@ -423,12 +432,12 @@ export default function ScheduleOfSupports({
                 <Text style={{ fontSize: 10 }}>{formatDate(formData?.representativeSignatureDate)}</Text>
               </View>
             </View>
-            <Text style={{ marginTop: 8 }}>Name: {formData?.represenativeName || ''}</Text>
+            <Text style={{ marginTop: 8 }}>Name: {formData?.representativeName || ''}</Text>
           </View>
         </View>
 
         <View style={styles.footer}>
-          <Text>Website: {settings?.company_website || settings?.from_email || ''}</Text>
+          <Text>Website: {settings?.company_website || ''}</Text>
           <Text>{settings?.schedule_of_supports}</Text>
           <Text>Review Date: {formatDate(settings?.review_date)}</Text>
         </View>

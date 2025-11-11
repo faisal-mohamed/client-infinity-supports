@@ -254,7 +254,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
   const logoSrc = images?.infinityLogo || '/infinity_logo.png';
   const riskMatrixSrc = images?.riskMatrix || '/home_risk_assessment.png';
   
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.home_visit_form_id || '';
   const footerDate = formatDate(settings?.review_date || '');
 

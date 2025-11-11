@@ -220,11 +220,11 @@ const ClientIntakev2FixedFinal: React.FC<ClientIntakeFormPDFProps> = ({
     }
   };
 
-  const getEmail = (): string => settings?.from_email || 'infinitysupport@wa.com';
-  const getFormId = (): string => settings?.client_intake_form_id || 'A003';
+  const getEmail = (): string => settings?.from_email || '';
+  const getFormId = (): string => settings?.client_intake_form_id || '';
   const getReportDate = (): string => {
     const dateValue = settings?.review_date;
-    return dateValue ? formatDate(dateValue) : formatDate(new Date().toISOString());
+    return dateValue ? formatDate(dateValue) : '';
   };
 
   const renderCheckbox = (isChecked: boolean) => (

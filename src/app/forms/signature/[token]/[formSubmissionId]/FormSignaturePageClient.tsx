@@ -81,6 +81,11 @@ export default function FormSignaturePageClient() {
   >({});
 
   const [signatureName, setSignatureName] = useState<string>("");
+  const [signatureDate, setSignatureDate] = useState<string>(() => {
+    // Initialize with today's date in YYYY-MM-DD format
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  });
 
   const [selectedGroupSignatureId, setSelectedGroupSignatureId] = useState<
     string | null
@@ -259,14 +264,19 @@ export default function FormSignaturePageClient() {
       return;
     }
 
+    if (!signatureDate) {
+      alert("Please select a signature date before submitting.");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
       const signatureDataURL = signatureRef.toDataURL();
-      const now = new Date();
-      const formattedDate = `${String(now.getDate()).padStart(2, "0")}-${String(
-        now.getMonth() + 1
-      ).padStart(2, "0")}-${now.getFullYear()}`;
+      
+      // Convert date from YYYY-MM-DD to DD-MM-YYYY format
+      const [year, month, day] = signatureDate.split('-');
+      const formattedDate = `${day}-${month}-${year}`;
 
       const response = await fetch(
         `/api/signature/${token}/${formSubmissionId}`,
@@ -293,6 +303,9 @@ export default function FormSignaturePageClient() {
       setCompletedSignatures(updatedCompleted);
 
       setSignatureName(""); // Reset name after submission
+      // Reset date to today for next signature
+      const today = new Date();
+      setSignatureDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
 
       const allComplete = requiredSignatures.every(
         (sig) => updatedCompleted[sig.id]
@@ -681,7 +694,6 @@ export default function FormSignaturePageClient() {
                       }
                     }}
                     value={selectedGroupSignatureId || ""}
-                    defaultValue=""
                   >
                     <option value="" disabled>
                       Select
@@ -714,6 +726,20 @@ export default function FormSignaturePageClient() {
                         />
                       </div>
                     )}
+
+                    {/* Date Input */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Signature Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={signatureDate}
+                        onChange={(e) => setSignatureDate(e.target.value)}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
 
                     {/* Signature Pad */}
                     <div>

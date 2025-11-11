@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { chromium } from "playwright";
+import chromiumPkg from "@sparticuz/chromium";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { renderToBuffer } from "@react-pdf/renderer";
@@ -551,10 +552,32 @@ export async function GET(
       }
 
       console.time('⏱️ Browser Launch');
-      const browser = await chromium.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-      });
+      
+      // Use @sparticuz/chromium for production (serverless), regular playwright for dev
+      const isProduction = process.env.NODE_ENV === 'production';
+      let browser;
+      
+      if (isProduction) {
+        console.log('🚀 Production mode: Using @sparticuz/chromium');
+        browser = await chromium.launch({
+          headless: true,
+          executablePath: await chromiumPkg.executablePath(),
+          args: [
+            ...chromiumPkg.args,
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+          ]
+        });
+      } else {
+        console.log('💻 Development mode: Using local Playwright chromium');
+        browser = await chromium.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+      }
+      
       console.timeEnd('⏱️ Browser Launch');
 
       console.time('⏱️ Page Creation');
@@ -596,8 +619,8 @@ export async function GET(
       };
       
       if (form.formKey === 'participant_risk_assessment') {
-        const website = settings?.company_website || settings?.website || settings?.from_email || '';
-        const formId = settings?.participant_risk_assessment || settings?.client_intake_form_id || '';
+        const website = settings?.company_website || '';
+        const formId = settings?.participant_risk_assessment || '';
         
         // Format review date as DD-MM-YYYY
         let reviewDate = '';

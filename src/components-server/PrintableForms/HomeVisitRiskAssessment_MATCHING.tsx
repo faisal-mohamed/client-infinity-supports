@@ -393,7 +393,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   };
 
   // Footer values - match web view exactly
-  const footerWebsite = settings?.company_website || settings?.website || settings?.from_email || '';
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.home_visit_form_id || '';
   const footerDate = formatDate(settings?.review_date || '');
   

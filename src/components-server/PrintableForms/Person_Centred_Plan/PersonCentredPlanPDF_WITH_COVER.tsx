@@ -392,10 +392,9 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     }
   };
 
-  // Get report date with fallback to current date
+  // Get report date - no fallback
   const getReportDate = (): string => {
-    // Try multiple possible settings keys
-    const dateValue = settings?.review_date || settings?.reviewDate || settings?.report_date || settings?.reportDate;
+    const dateValue = settings?.review_date || "";
     
     console.log('🔍 Person Centred Plan - Settings keys:', Object.keys(settings || {}));
     console.log('🔍 Person Centred Plan - Date value found:', dateValue);
@@ -408,19 +407,18 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
       }
     }
     
-    // Keep empty if no date found (no fallback)
     console.log('⚠️ Person Centred Plan - No date found in settings, keeping empty');
     return '';
   };
 
-  // Get form ID from settings
+  // Get form ID - no fallback
   const getFormId = (): string => {
-    const formId = settings?.person_centre_plan_form_id || settings?.person_centred_plan;
+    const formId = settings?.person_centre_plan_form_id;
     console.log('🔍 Person Centred Plan - Form ID found:', formId);
     return formId || '';
   };
 
-  // Get email from settings
+  // Get website - no fallback
   const getWebsite = (): string => {
     const website = settings?.company_website;
     console.log('🔍 Person Centred Plan - Website found:', website);

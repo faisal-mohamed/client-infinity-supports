@@ -199,7 +199,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
 
         {/* Fixed Footer */}
         <View style={styles.footer} fixed>
-          <Text>Website: {settings?.company_website || settings?.from_email || ''}</Text>
+          <Text>Website: {settings?.company_website || ''}</Text>
           <Text>{settings?.sa_support_coordination || ''}</Text>
           <Text>Review Date: {formatDate(settings?.review_date)}</Text>
         </View>

@@ -224,9 +224,9 @@ export async function PUT(
                 console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
                 updatedData.representativeSignatureDate = null;
               }
-                if (updatedData.represenativeName) {
+                if (updatedData.representativeName) {
                 console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
-                updatedData.represenativeName = null;
+                updatedData.representativeName = null;
               }
               break;
 

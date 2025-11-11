@@ -64,7 +64,7 @@ const formatDate = (value: string) => {
 };
 
 const IndividualRiskAssessment_MATCHING: React.FC<Props> = ({ formData = {}, commonFieldsData = {}, settings = {}, logoDataUrl, images = {} }) => {
-  const website = settings?.company_website || settings?.from_email || '';
+  const website = settings?.company_website || '';
   const id = settings?.individual_risk_assessment || '';
   const review = formatDate(settings?.review_date || '');
 

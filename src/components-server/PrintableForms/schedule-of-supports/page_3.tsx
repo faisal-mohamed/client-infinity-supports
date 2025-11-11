@@ -182,7 +182,7 @@ const Page3: React.FC<Page3Props> = ({
                 </div>
               </div>
               <p className="mt-2 font-medium">
-                Name: {getValue("represenativeName")}
+                Name: {getValue("representativeName")}
               </p>
             </div>
           </div>

@@ -208,7 +208,7 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
 
   // Get report date with fallback
   const getReportDate = (): string => {
-    const dateValue = settings?.review_date || settings?.reviewDate || settings?.report_date || settings?.reportDate;
+    const dateValue = settings?.review_date;
     
     if (dateValue) {
       const formatted = formatDate(dateValue);
@@ -220,15 +220,15 @@ const ClientIntakev2_BULLETPROOF: React.FC<ClientIntakePDFProps> = ({
     return '';
   };
 
-  // Get form ID from settings
+  // Get form ID - no fallback
   const getFormId = (): string => {
-    const formId = settings?.client_intake_form_id || settings?.client_intake_form;
+    const formId = settings?.client_intake_form_id;
     return formId || '';
   };
 
-  // Get email from settings
+  // Get email - no fallback
   const getEmail = (): string => {
-    const email = settings?.from_email || settings?.email;
+    const email = settings?.from_email;
     return email || '';
   };
 

@@ -178,7 +178,7 @@ received.
                   <p>{getValue("representativeSignatureDate")}</p>
                 </div>
               </div>
-              <p className="mt-2 font-medium">Name: {getValue("represenativeName")}</p>
+              <p className="mt-2 font-medium">Name: {getValue("representativeName")}</p>
             </div>
           </div>
         </div>

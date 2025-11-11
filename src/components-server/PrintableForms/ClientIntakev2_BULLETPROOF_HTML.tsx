@@ -63,18 +63,18 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
 
   // Get report date
   const getReportDate = (): string => {
-    const dateValue = settings?.review_date || settings?.reviewDate || settings?.report_date || settings?.reportDate;
+    const dateValue = settings?.review_date;
     return dateValue ? formatDate(dateValue) : '';
   };
 
-  // Get form ID
+  // Get form ID - no fallback
   const getFormId = (): string => {
-    return settings?.client_intake_form_id || settings?.client_intake_form || '';
+    return settings?.client_intake_form_id || '';
   };
 
   // Get email
   const getEmail = (): string => {
-    return settings?.from_email || settings?.email || '';
+    return settings?.from_email || '';
   };
 
   // Render checkbox

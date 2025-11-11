@@ -102,24 +102,24 @@ export async function POST(req: NextRequest) {
   // Form IDs
   {
     key: 'client_intake_form_id',
-    value: 'C001',
+    value: '',
     type: 'text',
     category: 'form_ids',
     label: 'Client Intake Form ID',
     description: 'Unique identifier for client intake forms',
     isRequired: true,
-    defaultValue: 'C001',
+    defaultValue: '',
     sortOrder: 1,
   },
   {
     key: 'home_visit_form_id',
-    value: 'HV001',
+    value: '',
     type: 'text',
     category: 'form_ids',
     label: 'Home Visit Risk Assessment ID',
     description: 'Unique identifier for home visit risk assessment forms',
     isRequired: true,
-    defaultValue: 'HV001',
+    defaultValue: '',
     sortOrder: 2,
   },
   {

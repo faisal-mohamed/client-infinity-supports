@@ -181,6 +181,15 @@ const formSchema = {
 
 
 const ScheduleOfSupports = ({formData, settings, commonFieldsData} : any ) => {
+  // Auto-detect signatureRole if missing (for backward compatibility with old data)
+  if (!formData?.signatureRole) {
+    if (formData?.nomineeSignature) {
+      formData = { ...formData, signatureRole: "Nominee" };
+    } else if (formData?.participantSignature) {
+      formData = { ...formData, signatureRole: "Participant" };
+    }
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
       {/* Fixed width container that will zoom out on mobile */}

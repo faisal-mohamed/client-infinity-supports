@@ -768,8 +768,8 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
     }
   };
 
-  // Footer values (mirror settings API keys)
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  // Footer values - no fallback
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.sa_delivery_of_supports || '';
   const footerDate = formatDate(settings?.review_date || '');
   try { console.log('[PDF SA Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) }); } catch {}
