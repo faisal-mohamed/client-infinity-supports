@@ -1195,7 +1195,6 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     if (heights.length === allSections.length) {
       setMeasuredHeights(heights);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allSections.length]);
 
   // Pack sections into A4 pages based on measured heights
@@ -1219,7 +1218,6 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     });
     if (current.length > 0) finalPages.push(current);
     setPages(finalPages);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measuredHeights]);
 
   // Group sections into pages with proper height budget (like Client Intake Form)
