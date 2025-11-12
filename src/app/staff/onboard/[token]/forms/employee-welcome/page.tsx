@@ -37,14 +37,8 @@ export default function EmployeeWelcomeFormPage() {
       }
     };
 
-
     if (token) loadData();
   }, [token]);
-
-
-  useEffect(() => {
-    console.log("formData: ", formData);
-  }, [formData])
 
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
@@ -77,12 +71,9 @@ export default function EmployeeWelcomeFormPage() {
     );
   }
 
-  console.log('🔵 [Employee Welcome Page] Rendering page with formData:', formData);
-
   const handleDownloadClick = () => {
     console.log('✅ [Employee Welcome Page] User clicked download button');
     setHasDownloaded(true);
-    // Show success toast
     setShowToast(true);
     setTimeout(() => setShowToast(false), 5000);
   };
@@ -129,7 +120,7 @@ export default function EmployeeWelcomeFormPage() {
           </div>
         </div>
 
-        {/* Download Section */}
+        {/* Download Section - FORCE download before form */}
         <div className={`bg-white rounded-lg shadow-lg p-8 mb-8 ${!hasDownloaded ? 'ring-4 ring-blue-400 ring-offset-2' : ''}`}>
           <div className="flex flex-col items-center">
             {!hasDownloaded && (
@@ -148,8 +139,8 @@ export default function EmployeeWelcomeFormPage() {
               📄 Please download and read the Employee Welcome Pack before completing the acknowledgement form below
             </p>
             <a
-              href="/stafForms/Employee Welcome Pack.pdf"
-              download="Employee_Welcome_Pack.pdf"
+              href={`/api/staff/${staff?.id}/forms/employee-welcome/pdf?blank=true`}
+              download={`Employee_Welcome_Pack_${staff?.firstName}_${staff?.surname}.pdf`}
               onClick={handleDownloadClick}
               className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg shadow transition-all duration-200 ${
                 hasDownloaded 
@@ -165,7 +156,7 @@ export default function EmployeeWelcomeFormPage() {
           </div>
         </div>
 
-        {/* Acknowledgement Form */}
+        {/* Acknowledgement Form - LOCKED until download */}
         <div 
           className={`bg-white rounded-lg shadow-lg p-6 relative ${!hasDownloaded ? 'opacity-50 pointer-events-none' : ''}`}
           onClick={handleFormClick}
