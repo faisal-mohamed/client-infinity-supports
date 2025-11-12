@@ -137,8 +137,8 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
                   <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
                     <div className="space-y-3">
                       <Field label="Position Title" value="Support Worker" />
-                      <Field label="Business Unit" value={data?.businessUnit} />
-                      <Field label="Reports To" value={data?.reportsTo} />
+                      <Field label="Business Unit" value="Service Delivery" />
+                      <Field label="Reports To" value="Co-ordinator / Director" />
                     </div>
                   </div>
                 </div>

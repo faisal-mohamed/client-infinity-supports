@@ -125,8 +125,10 @@ export default function AdminEmployeeWelcomeViewPage() {
           </div>
         </div>
 
-        {/* PDF Viewer - Clean display without container */}
-        <PDFViewerWrapper staffId={staffId} />
+        {/* Full Screen PDF Viewer */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <PDFViewerWrapper staffId={staffId} />
+        </div>
       </div>
     </div>
   );

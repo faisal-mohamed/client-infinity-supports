@@ -1,40 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
-    const staffId = parseInt(id, 10);
+    const staffId = parseInt(id);
 
-    if (!staffId) {
-      return NextResponse.json({ error: 'Invalid staff id' }, { status: 400 });
-    }
+    console.log('📥 [API] Fetching Support Worker form for staff:', staffId);
 
-    const db: any = prisma as any;
-
-    const staff = await db.staff.findUnique({
+    // Fetch staff data with submissions
+    const staff = await prisma.staff.findUnique({
       where: { id: staffId },
-      select: { id: true, firstName: true, surname: true, email: true },
+      include: {
+        submissions: {
+          where: { formKey: 'support_worker' }
+        }
+      }
     });
 
     if (!staff) {
-      return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Staff not found' },
+        { status: 404 }
+      );
     }
 
-    const supportWorker = await db.staffSupportWorker.findUnique({
-      where: { staffId },
-    });
-
-    if (!supportWorker) {
-      return NextResponse.json({ error: 'Support worker form not found' }, { status: 404 });
+    // Get form submission
+    const submission = staff.submissions.find(s => s.formKey === 'support_worker');
+    
+    if (!submission) {
+      return NextResponse.json(
+        { error: 'Form submission not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({
-      ...supportWorker,
-      staff,
-    });
+    const responseData = {
+      ...submission.data,
+      signature: submission.staffSignature,
+      signatureDate: submission.staffSignedAt,
+      staff: {
+        id: staff.id,
+        firstName: staff.firstName,
+        surname: staff.surname,
+        email: staff.email,
+        phone: staff.phone
+      }
+    };
+
+    console.log('✅ [API] Support Worker form data retrieved');
+
+    return NextResponse.json(responseData);
+
   } catch (error: any) {
-    console.error('Error fetching support worker form:', error);
-    return NextResponse.json({ error: 'Failed to fetch support worker form' }, { status: 500 });
+    console.error('❌ [API] Error fetching form:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch form data', details: error.message },
+      { status: 500 }
+    );
   }
 }
