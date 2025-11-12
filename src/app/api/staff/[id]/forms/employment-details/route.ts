@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const staffId = parseInt(params.id);
+    const { id } = await params;
+    const staffId = parseInt(id);
     
     const db: any = prisma as any;
     const staff = await db.staff.findUnique({
@@ -15,12 +16,38 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    const employmentDetails = await db.staffEmploymentDetails.findUnique({
+    // Try dedicated table first, then fallback to generic table (backward compatible)
+    let employmentDetails = await db.staffEmploymentDetails.findUnique({
       where: { staffId }
-    });
+    }).catch(() => null);
 
+    // Fallback to generic table
     if (!employmentDetails) {
-      return NextResponse.json({ error: 'Employment details not found' }, { status: 404 });
+      const submission = await db.staffFormSubmission.findUnique({
+        where: { 
+          staffId_formKey: { 
+            staffId, 
+            formKey: 'employeeDetails' 
+          } 
+        }
+      });
+      
+      if (!submission) {
+        return NextResponse.json({ error: 'Employment details not found' }, { status: 404 });
+      }
+
+      // Transform generic submission to match expected format
+      employmentDetails = {
+        id: submission.id,
+        staffId: submission.staffId,
+        data: submission.data,
+        staffSignature: submission.staffSignature,
+        staffSignedAt: submission.staffSignedAt,
+        adminSignature: submission.adminSignature,
+        adminSignedAt: submission.adminSignedAt,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt
+      };
     }
 
     return NextResponse.json({

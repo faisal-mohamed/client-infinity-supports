@@ -45,21 +45,27 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
   useEffect(() => {
     // Load saved data if any
     const loadData = async () => {
+      console.log('🔵 [EmployeeWelcomeAckForm] Loading data for token:', token);
       try {
         const response = await fetch(`/api/staff/onboard/${token}`);
         if (response.ok) {
           const result = await response.json();
+          console.log('🔵 [EmployeeWelcomeAckForm] API Response:', result);
           if (result.submissions?.employee_welcome) {
             const savedData = result.submissions.employee_welcome;
+            console.log('✅ [EmployeeWelcomeAckForm] Found saved data:', savedData);
             setData({
               readAcknowledgement: savedData.readAcknowledgement || false,
               fullName: savedData.fullName || '',
               signature: savedData.signature || '',
               date: savedData.date || ''
             });
+          } else {
+            console.log('⚠️ [EmployeeWelcomeAckForm] No saved data found');
           }
         }
       } catch (e) {
+        console.error('❌ [EmployeeWelcomeAckForm] Error loading data:', e);
         // ignore prefill errors
       }
     };
@@ -74,6 +80,7 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
   };
 
   const handleSubmit = async () => {
+    console.log('🔵 [EmployeeWelcomeAckForm] Submitting data:', data);
     setLoading(true);
     try {
       const res = await fetch(`/api/staff/onboard/${token}`, {
@@ -82,10 +89,12 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
         body: JSON.stringify({ formKey: 'employee_welcome', data, submit: true }),
       });
       const j = await res.json();
+      console.log('✅ [EmployeeWelcomeAckForm] Submit response:', j);
       if (!res.ok) throw new Error(j.error || 'Failed to submit');
       onSubmitted?.();
       return true;
     } catch (e: any) {
+      console.error('❌ [EmployeeWelcomeAckForm] Submit error:', e);
       alert(e.message || 'Failed');
       return false;
     } finally {
@@ -94,6 +103,7 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
   };
 
   const handleSave = async (submit: boolean) => {
+    console.log('🔵 [EmployeeWelcomeAckForm] Saving data:', data, 'submit:', submit);
     setLoading(true);
     try {
       const res = await fetch(`/api/staff/onboard/${token}`, {
@@ -102,10 +112,12 @@ function EmployeeWelcomeAckForm({ token, onValidityChange, onSubmitted }, ref) {
         body: JSON.stringify({ formKey: 'employee_welcome', data, submit }),
       });
       const j = await res.json();
+      console.log('✅ [EmployeeWelcomeAckForm] Save response:', j);
       if (!res.ok) throw new Error(j.error || 'Failed to save');
       if (submit) onSubmitted?.();
       return true;
     } catch (e: any) {
+      console.error('❌ [EmployeeWelcomeAckForm] Save error:', e);
       alert(e.message || 'Failed');
       return false;
     } finally {

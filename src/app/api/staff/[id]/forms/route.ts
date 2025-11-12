@@ -41,80 +41,67 @@ export async function GET(
       };
     };
 
+    // Helper to get form from generic table or dedicated table
+    const getFormData = (formKey: string, dedicatedTable: any) => {
+      // First check generic table
+      const genericForm = staff.submissions?.find((s: any) => s.formKey === formKey);
+      if (genericForm) return genericForm;
+      // Fallback to dedicated table
+      return dedicatedTable;
+    };
+
     const forms = [
       // Forms with dedicated tables and view pages
       {
         formType: 'employment-details',
         formName: 'Employee Details',
-        status: staff.employmentDetails?.staffSignature && staff.employmentDetails?.adminSignature 
-          ? 'fully_completed' 
-          : staff.employmentDetails?.staffSignature 
-            ? 'awaiting_admin' 
-            : staff.employmentDetails 
-              ? 'in_progress' 
-              : 'pending',
-        completedAt: staff.employmentDetails?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.employmentDetails?.staffSignature,
-        hasAdminSignature: !!staff.employmentDetails?.adminSignature,
+        get status() {
+          const form = getFormData('employeeDetails', staff.employmentDetails);
+          return form?.staffSignature && form?.adminSignature 
+            ? 'fully_completed' 
+            : form?.staffSignature 
+              ? 'awaiting_admin' 
+              : form 
+                ? 'in_progress' 
+                : 'pending';
+        },
+        get completedAt() {
+          const form = getFormData('employeeDetails', staff.employmentDetails);
+          return form?.createdAt?.toLocaleDateString();
+        },
+        get hasSignature() {
+          const form = getFormData('employeeDetails', staff.employmentDetails);
+          return !!form?.staffSignature;
+        },
+        get hasAdminSignature() {
+          const form = getFormData('employeeDetails', staff.employmentDetails);
+          return !!form?.adminSignature;
+        },
         hasViewPage: true,
         requiresAdmin: true
       },
-      {
-        formType: 'employment-welcome',
-        formName: 'Employee Welcome',
-        status: staff.employmentWelcomeAck ? 'completed' : 'pending',
-        completedAt: staff.employmentWelcomeAck?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.employmentWelcomeAck?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'support-worker',
-        formName: 'Support Worker',
-        status: staff.supportWorker ? 'completed' : 'pending',
-        completedAt: staff.supportWorker?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.supportWorker?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'pre-employment-medical',
-        formName: 'Pre-Employment Medical',
-        status: staff.preEmploymentMedical ? 'completed' : 'pending',
-        completedAt: staff.preEmploymentMedical?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.preEmploymentMedical?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'ndis-workforce-capability',
-        formName: 'NDIS Workforce Capability',
-        status: staff.ndisWorkforceCapability ? 'completed' : 'pending',
-        completedAt: staff.ndisWorkforceCapability?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.ndisWorkforceCapability?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'bullying-harassment-training',
-        formName: 'Bullying & Harassment Training',
-        status: staff.bullyingHarassmentTraining ? 'completed' : 'pending',
-        completedAt: staff.bullyingHarassmentTraining?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.bullyingHarassmentTraining?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'bullying-training',
-        formName: 'Bullying Training',
-        status: staff.bullyingTraining ? 'completed' : 'pending',
-        completedAt: staff.bullyingTraining?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.bullyingTraining?.staffSignature,
-        hasViewPage: true
-      },
-      {
-        formType: 'ndis-code-of-conduct',
-        formName: 'NDIS Code of Conduct',
-        status: staff.ndisCodeOfConduct ? 'completed' : 'pending',
-        completedAt: staff.ndisCodeOfConduct?.createdAt?.toLocaleDateString(),
-        hasSignature: !!staff.ndisCodeOfConduct?.staffSignature,
-        hasViewPage: true
-      },
+      ...['employee_welcome', 'support_worker', 'pre_employment_medical', 'ndis_workforce_capability', 
+          'bullying_harassment_training', 'bullying_training', 'ndis_code_of_conduct'].map((formKey, idx) => {
+        const formTypes = ['employment-welcome', 'support-worker', 'pre-employment-medical', 
+                          'ndis-workforce-capability', 'bullying-harassment-training', 
+                          'bullying-training', 'ndis-code-of-conduct'];
+        const formNames = ['Employee Welcome', 'Support Worker', 'Pre-Employment Medical',
+                          'NDIS Workforce Capability', 'Bullying & Harassment Training',
+                          'Bullying Training', 'NDIS Code of Conduct'];
+        const dedicatedTables = [staff.employmentWelcomeAck, staff.supportWorker, staff.preEmploymentMedical,
+                                staff.ndisWorkforceCapability, staff.bullyingHarassmentTraining,
+                                staff.bullyingTraining, staff.ndisCodeOfConduct];
+        
+        const form = getFormData(formKey, dedicatedTables[idx]);
+        return {
+          formType: formTypes[idx],
+          formName: formNames[idx],
+          status: form ? 'completed' : 'pending',
+          completedAt: form?.createdAt?.toLocaleDateString(),
+          hasSignature: !!form?.staffSignature,
+          hasViewPage: true
+        };
+      }),
       // Generic forms stored in submissions table (no view pages yet)
       {
         formType: 'fair-work-information',

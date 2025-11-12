@@ -110,20 +110,35 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       }, { status: 403 });
     }
     
-    // 🚀 OPTIMIZED: Process data from single query result
-    const dataByForm = Object.fromEntries(staff.submissions.map((s: any) => [s.formKey, s.data]));
+    // 🚀 NEW: Unified approach using StaffFormSubmission (like client forms)
+    const dataByForm: any = {};
     
+    // Process all submissions from generic table
+    staff.submissions.forEach((s: any) => {
+      dataByForm[s.formKey] = {
+        ...(s.data || {}),
+        // Add admin fields if present
+        ...(s.adminSignature ? {
+          adminSignature: s.adminSignature,
+          adminSignedAt: s.adminSignedAt?.toISOString().split('T')[0] || ''
+        } : {})
+      };
+    });
+    
+    // 🔄 BACKWARD COMPATIBILITY: Check dedicated tables for old data
     // Handle Employee Details form with signature
-    if (staff.employmentDetails) {
+    if (staff.employmentDetails && !dataByForm['employeeDetails']) {
       dataByForm['employeeDetails'] = {
         ...(staff.employmentDetails.data as any || {}),
         employeeSignature: staff.employmentDetails.staffSignature || '',
-        employeeSignatureDate: staff.employmentDetails.staffSignedAt?.toISOString().split('T')[0] || ''
+        employeeSignatureDate: staff.employmentDetails.staffSignedAt?.toISOString().split('T')[0] || '',
+        adminSignature: staff.employmentDetails.adminSignature || '',
+        adminSignedAt: staff.employmentDetails.adminSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
     // Handle Employee Welcome form with signature
-    if (staff.employmentWelcomeAck) {
+    if (staff.employmentWelcomeAck && !dataByForm['employee_welcome']) {
       dataByForm['employee_welcome'] = {
         ...(staff.employmentWelcomeAck.data as any || {}),
         signature: staff.employmentWelcomeAck.staffSignature || '',
@@ -131,8 +146,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle Support Worker form with signature
-    if (staff.supportWorker) {
+    // Handle Support Worker form
+    if (staff.supportWorker && !dataByForm['support_worker']) {
       dataByForm['support_worker'] = {
         ...(staff.supportWorker.data as any || {}),
         signature: staff.supportWorker.staffSignature || '',
@@ -140,8 +155,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle Pre-Employment Medical form with signature
-    if (staff.preEmploymentMedical) {
+    // Handle other dedicated tables similarly (backward compatibility)
+    if (staff.preEmploymentMedical && !dataByForm['pre_employment_medical']) {
       dataByForm['pre_employment_medical'] = {
         ...(staff.preEmploymentMedical.data as any || {}),
         signature: staff.preEmploymentMedical.staffSignature || '',
@@ -149,8 +164,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle NDIS Workforce Capability Framework form with signature
-    if (staff.ndisWorkforceCapability) {
+    if (staff.ndisWorkforceCapability && !dataByForm['ndis_workforce_capability']) {
       dataByForm['ndis_workforce_capability'] = {
         ...(staff.ndisWorkforceCapability.data as any || {}),
         signature: staff.ndisWorkforceCapability.staffSignature || '',
@@ -158,8 +172,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle Bullying and Harassment Training form with signature
-    if (staff.bullyingHarassmentTraining) {
+    if (staff.bullyingHarassmentTraining && !dataByForm['bullying_harassment_training']) {
       dataByForm['bullying_harassment_training'] = {
         ...(staff.bullyingHarassmentTraining.data as any || {}),
         signature: staff.bullyingHarassmentTraining.staffSignature || '',
@@ -167,8 +180,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle Bullying Training form with signature
-    if (staff.bullyingTraining) {
+    if (staff.bullyingTraining && !dataByForm['bullying_training']) {
       dataByForm['bullying_training'] = {
         ...(staff.bullyingTraining.data as any || {}),
         staffSignature: staff.bullyingTraining.staffSignature || '',
@@ -176,8 +188,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
 
-    // Handle NDIS Code of Conduct form with signature
-    if (staff.ndisCodeOfConduct) {
+    if (staff.ndisCodeOfConduct && !dataByForm['ndis_code_of_conduct']) {
       dataByForm['ndis_code_of_conduct'] = {
         ...(staff.ndisCodeOfConduct.data as any || {}),
         signature: staff.ndisCodeOfConduct.staffSignature || '',
@@ -310,9 +321,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
         code: 'ACCOUNT_DEACTIVATED'
       }, { status: 403 });
     }
-    // 🚀 OPTIMIZED: Use proper Prisma calls instead of dynamic access
+    // 🚀 NEW: Unified JSON storage (like client forms) - NO MORE DEDICATED TABLES!
     let saved: any;
     
+    // Special handling for forms with admin approval (e.g., employeeDetails)
     if (formKey === 'employeeDetails') {
       // Extract signature data if present
       const { employeeSignature, employeeSignatureDate, ...formData } = data;
@@ -365,246 +377,68 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           adminApprovalCleared: shouldClearAdminApproval
         });
       }
-    } else if (formKey === 'employee_welcome') {
-      // Extract signature data if present
-      const { signature, date, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: date ? new Date(date) : new Date()
-      } : {};
+    } else {
+      // 🆕 ALL OTHER FORMS: Use generic StaffFormSubmission table (like client forms!)
+      // Extract signature data based on formKey
+      let signatureData: any = {};
+      let formData = { ...data };
       
-      saved = await prisma.staffEmploymentWelcomeAck.upsert({
-        where: { staffId: staff.id },
-        update: { 
-          data: formData,
-          ...signatureData
-        },
-        create: { 
-          staffId: staff.id, 
-          data: formData,
-          ...signatureData
-        },
-      });
-    } else if (formKey === 'support_worker') {
-      // Extract signature data if present
-      const { signature, signatureDate, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
-      } : {};
-      
-      saved = await prisma.staffSupportWorker.upsert({
-        where: { staffId: staff.id },
-        update: { 
-          data: formData,
-          ...signatureData
-        },
-        create: { 
-          staffId: staff.id, 
-          data: formData,
-          ...signatureData
-        },
-      });
-    } else if (formKey === 'pre_employment_medical') {
-      // Extract signature data if present
-      const { signature, signatureDate, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
-      } : {};
-      
-      saved = await prisma.staffPreEmploymentMedical.upsert({
-        where: { staffId: staff.id },
-        update: { 
-          data: formData,
-          ...signatureData
-        },
-        create: { 
-          staffId: staff.id, 
-          data: formData,
-          ...signatureData
-        },
-      });
-    } else if (formKey === 'ndis_workforce_capability') {
-      // Extract signature data if present
-      const { signature, signatureDate, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
-      } : {};
-      
-      saved = await prisma.staffNdisWorkforceCapability.upsert({
-        where: { staffId: staff.id },
-        update: { 
-          data: formData,
-          ...signatureData
-        },
-        create: { 
-          staffId: staff.id, 
-          data: formData,
-          ...signatureData
-        },
-      });
-    } else if (formKey === 'bullying_harassment_training') {
-      // Extract signature data if present
-      const { signature, signatureDate, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
-      } : {};
-      
-      saved = await prisma.staffBullyingHarassmentTraining.upsert({
-        where: { staffId: staff.id },
-        update: { 
-          data: formData,
-          ...signatureData
-        },
-        create: { 
-          staffId: staff.id, 
-          data: formData,
-          ...signatureData
-        },
-      });
-    } else if (formKey === 'bullying_training') {
-      try {
-        // Extract signature data if present
-        const { staffSignature, staffSignedAt, ...formData } = data;
-        const signatureData = staffSignature ? {
-          staffSignature: staffSignature,
-          staffSignedAt: staffSignedAt ? new Date(staffSignedAt) : new Date()
-        } : {};
-        
-        saved = await prisma.staffBullyingTraining.upsert({
-          where: { staffId: staff.id },
-          update: { 
-            data: formData,
-            ...signatureData
-          },
-          create: { 
-            staffId: staff.id, 
-            data: formData,
-            ...signatureData
-          },
-        });
-      } catch (error: any) {
-        if (error.code === 'P2021') {
-          // Table doesn't exist - create it and retry
-          console.log('Creating missing StaffBullyingTraining table...');
-          
-          await prisma.$executeRawUnsafe(`
-            CREATE TABLE IF NOT EXISTS "StaffBullyingTraining" (
-              "id" SERIAL NOT NULL,
-              "staffId" INTEGER NOT NULL,
-              "data" JSONB NOT NULL,
-              "staffSignature" TEXT,
-              "staffSignedAt" TIMESTAMP(3),
-              "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              CONSTRAINT "StaffBullyingTraining_pkey" PRIMARY KEY ("id")
-            )
-          `);
-          
-          await prisma.$executeRawUnsafe(`
-            CREATE UNIQUE INDEX IF NOT EXISTS "StaffBullyingTraining_staffId_key" 
-            ON "StaffBullyingTraining"("staffId")
-          `);
-          
-          // Retry the operation
-          const { staffSignature, staffSignedAt, ...formData } = data;
-          const signatureData = staffSignature ? {
+      if (formKey === 'employee_welcome') {
+        const { signature, date, ...restData } = data;
+        formData = restData;
+        if (signature) {
+          signatureData = {
+            staffSignature: signature,
+            staffSignedAt: date ? new Date(date) : new Date()
+          };
+        }
+      } else if (formKey === 'support_worker' || formKey === 'pre_employment_medical' || 
+                 formKey === 'ndis_workforce_capability' || formKey === 'bullying_harassment_training') {
+        const { signature, signatureDate, ...restData } = data;
+        formData = restData;
+        if (signature) {
+          signatureData = {
+            staffSignature: signature,
+            staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+          };
+        }
+      } else if (formKey === 'bullying_training') {
+        const { staffSignature, staffSignedAt, ...restData } = data;
+        formData = restData;
+        if (staffSignature) {
+          signatureData = {
             staffSignature: staffSignature,
             staffSignedAt: staffSignedAt ? new Date(staffSignedAt) : new Date()
-          } : {};
-          
-          saved = await prisma.staffBullyingTraining.upsert({
-            where: { staffId: staff.id },
-            update: { 
-              data: formData,
-              ...signatureData
-            },
-            create: { 
-              staffId: staff.id, 
-              data: formData,
-              ...signatureData
-            },
-          });
-        } else {
-          throw error;
+          };
+        }
+      } else if (formKey === 'ndis_code_of_conduct') {
+        const { signature, date, ...restData } = data;
+        formData = restData;
+        if (signature) {
+          signatureData = {
+            staffSignature: signature,
+            staffSignedAt: date ? new Date(date) : new Date()
+          };
         }
       }
-    } else if (formKey === 'ndis_code_of_conduct') {
-      // Extract signature data if present
-      const { signature, date, position, ...formData } = data;
-      const signatureData = signature ? {
-        staffSignature: signature,
-        staffSignedAt: date ? new Date(date) : new Date()
-      } : {};
-      
-      try {
-        saved = await prisma.staffNdisCodeOfConduct.upsert({
-          where: { staffId: staff.id },
-          update: { 
-            data: { ...formData, position },
-            ...signatureData
-          },
-          create: { 
-            staffId: staff.id, 
-            data: { ...formData, position },
-            ...signatureData
-          },
-        });
-      } catch (error: any) {
-        if (error.code === 'P2021') {
-          // Table doesn't exist, create it and retry
-          console.log('Creating missing StaffNdisCodeOfConduct table...');
-          
-          await prisma.$executeRawUnsafe(`
-            CREATE TABLE IF NOT EXISTS "StaffNdisCodeOfConduct" (
-              "id" SERIAL NOT NULL,
-              "staffId" INTEGER NOT NULL,
-              "data" JSONB NOT NULL,
-              "staffSignature" TEXT,
-              "staffSignedAt" TIMESTAMP(3),
-              "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              CONSTRAINT "StaffNdisCodeOfConduct_pkey" PRIMARY KEY ("id")
-            )
-          `);
-          
-          await prisma.$executeRawUnsafe(`
-            CREATE UNIQUE INDEX IF NOT EXISTS "StaffNdisCodeOfConduct_staffId_key" 
-            ON "StaffNdisCodeOfConduct"("staffId")
-          `);
-          
-          await prisma.$executeRawUnsafe(`
-            ALTER TABLE "StaffNdisCodeOfConduct" 
-            ADD CONSTRAINT IF NOT EXISTS "StaffNdisCodeOfConduct_staffId_fkey" 
-            FOREIGN KEY ("staffId") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE
-          `);
-          
-          // Retry the operation
-          saved = await prisma.staffNdisCodeOfConduct.upsert({
-            where: { staffId: staff.id },
-            update: { 
-              data: { ...formData, position },
-              ...signatureData
-            },
-            create: { 
-              staffId: staff.id, 
-              data: { ...formData, position },
-              ...signatureData
-            },
-          });
-        } else {
-          throw error;
-        }
-      }
-    } else {
-      // Generic form submission
+
+      // Save to generic table (like client forms!)
       saved = await prisma.staffFormSubmission.upsert({
         where: { staffId_formKey: { staffId: staff.id, formKey } },
-        update: { data, isSubmitted: !!submit, submittedAt: submit ? new Date() : null },
-        create: { staffId: staff.id, formKey, data, isSubmitted: !!submit, submittedAt: submit ? new Date() : null },
+        update: { 
+          data: formData,
+          isSubmitted: !!submit,
+          submittedAt: submit ? new Date() : null,
+          ...signatureData
+        },
+        create: { 
+          staffId: staff.id,
+          formKey,
+          data: formData,
+          isSubmitted: !!submit,
+          submittedAt: submit ? new Date() : null,
+          ...signatureData
+        },
       });
     }
     
