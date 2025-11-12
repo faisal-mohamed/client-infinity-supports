@@ -161,6 +161,8 @@ interface ActionButtonsProps {
   onGenerateSignatureLink: () => void;
   sendEmailNotification: () => any;
   sendingEmail: boolean;
+  allFormsCompleted?: boolean;
+  onTriggerCompletionEmail?: () => void;
 }
 
 export default function ActionButtons({
@@ -171,7 +173,9 @@ export default function ActionButtons({
   onShowCommonFieldsWarning,
   onGenerateSignatureLink,
   sendEmailNotification,
-  sendingEmail
+  sendingEmail,
+  allFormsCompleted,
+  onTriggerCompletionEmail
 }: ActionButtonsProps) {
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
@@ -236,6 +240,25 @@ export default function ActionButtons({
                     <FaLink className="h-4 w-4" />
                   )}
                   {sendingEmail ? 'Sending...' : `Send Email (${selectedForms.length})`}
+                </button>
+              )}
+
+              {/* Send Completion Email - Only show if all forms completed */}
+              {allFormsCompleted && onTriggerCompletionEmail && (
+                <button
+                  onClick={onTriggerCompletionEmail}
+                  disabled={sendingEmail}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Send completion email to admin and client with all PDF attachments"
+                >
+                  {sendingEmail ? (
+                    <FaSpinner className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  {sendingEmail ? 'Sending...' : 'Send Completion Email'}
                 </button>
               )}
             </div>

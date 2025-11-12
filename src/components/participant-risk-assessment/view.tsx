@@ -1,15 +1,18 @@
+import ParticipantRiskAssessmentComplete from "@/app/form-components/participant-risk-assessment/ParticipantRiskAssessmentComplete"
 
-import ParticipantRiskAssessment from "@/app/form-components/participant-risk-assessment/page"
-
-const ParticipantRiskAssessmentView = ({ formKey, formData = {}, commonFieldsData , settings} : any) => {
+const ParticipantRiskAssessmentView = ({ formKey, formData = {}, commonFieldsData, settings, images } : any) => {
 
   return (
     <div>
-        <ParticipantRiskAssessment formKey={formKey} formData={formData} commonFieldsData={commonFieldsData} settings={settings}/>
+        <ParticipantRiskAssessmentComplete 
+          formKey={formKey} 
+          formData={formData} 
+          commonFieldsData={commonFieldsData} 
+          settings={settings}
+          images={images}
+        />
     </div>
   )
 }
-
-
 
 export default ParticipantRiskAssessmentView

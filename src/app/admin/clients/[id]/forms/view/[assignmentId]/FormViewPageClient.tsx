@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FaArrowLeft, FaEdit, FaSignature, FaDownload, FaUser, FaCalendarAlt, FaSpinner } from 'react-icons/fa';
+// Temporarily using placeholder icons to fix build issues
+const FaArrowLeft = ({ className }: { className?: string }) => <span className={className}>←</span>;
+const FaEdit = ({ className }: { className?: string }) => <span className={className}>✏️</span>;
+const FaSignature = ({ className }: { className?: string }) => <span className={className}>✍️</span>;
+const FaDownload = ({ className }: { className?: string }) => <span className={className}>⬇️</span>;
+const FaUser = ({ className }: { className?: string }) => <span className={className}>👤</span>;
+const FaCalendarAlt = ({ className }: { className?: string }) => <span className={className}>📅</span>;
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
 import { fetchFormSpecificSettings } from '@/lib/settings';
@@ -82,6 +89,17 @@ export default function FormViewPageClient() {
   }
 };
 
+
+  // Check if this is a person-centered plan form
+  const isPersonCenteredPlan = () => {
+    return assignment?.form?.formKey === 'person_centred_plan' || 
+           assignment?.form?.title?.toLowerCase().includes('person cent');
+  };
+
+  // Handle download button click
+  const handleDownloadButtonClick = () => {
+    handleDownloadPDF();
+  };
 
   // Download PDF function
   const handleDownloadPDF = async () => {
@@ -296,7 +314,7 @@ export default function FormViewPageClient() {
 
         {/* Download PDF Button */}
         <button
-          onClick={handleDownloadPDF}
+          onClick={handleDownloadButtonClick}
           disabled={downloadingPDF}
           className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white font-medium rounded-lg hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
           title="Download PDF"
@@ -339,6 +357,7 @@ export default function FormViewPageClient() {
             isAdminView={true}
             commonFieldsData={commonFields}
             settings={settings}
+            mode="pdf"
           />
         </div>
       </div>

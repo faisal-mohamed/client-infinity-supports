@@ -18,7 +18,7 @@ import {
   FaPhone,
   FaFileAlt,
 } from "react-icons/fa";
-import { createClient } from "@/lib/api";
+import { createClient, checkClientEmailExists } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
 
@@ -35,6 +35,8 @@ export default function CreateClientPage() {
   const [error, setError] = useState("");
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  let emailCheckTimer: any;
 
   // Function to clear specific field error
   const clearFieldError = (fieldName: string) => {
@@ -230,8 +232,28 @@ export default function CreateClientPage() {
         }
       }, 100);
     } catch (err: any) {
-      console.error("Error creating client:", err);
-      setError(err.message || "Failed to create client");
+      // Do not log handled validation errors to console
+      const fieldErrors = err?.fieldErrors || {};
+      if (err?.status === 409 && fieldErrors.email) {
+        setErrors((prev) => ({ ...prev, email: fieldErrors.email }));
+        setError(fieldErrors.email);
+        showToast({
+          type: "error",
+          title: "Email already in use",
+          message: fieldErrors.email,
+          duration: 4000,
+        });
+      } else {
+        console.error("Error creating client:", err);
+        const msg = err?.message || "Failed to create client";
+        setError(msg);
+        showToast({
+          type: "error",
+          title: "Error Creating Client",
+          message: msg,
+          duration: 4000,
+        });
+      }
       setLoading(false);
     }
   };
@@ -448,25 +470,43 @@ export default function CreateClientPage() {
                   <label className="block text-sm font-bold text-gray-700">
                     Email Address <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <FaMailBulk className="text-gray-400 h-5 w-5" />
+                  <div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <FaMailBulk className="text-gray-400 h-5 w-5" />
+                      </div>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          const next = e.target.value.toLowerCase();
+                          setEmail(next);
+                          clearFieldError("email");
+                          // debounce check
+                          if (emailCheckTimer) clearTimeout(emailCheckTimer);
+                          emailCheckTimer = setTimeout(async () => {
+                            const val = next.trim();
+                            if (!val) return;
+                            setCheckingEmail(true);
+                            try {
+                              const res = await checkClientEmailExists(val);
+                              if (res?.exists) {
+                                setErrors((prev) => ({ ...prev, email: "A client with this email already exists." }));
+                              }
+                            } finally {
+                              setCheckingEmail(false);
+                            }
+                          }, 400);
+                        }}
+                        className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
+                          errors.email
+                            ? "border-red-300 bg-red-50 ring-2 ring-red-200"
+                            : "border-gray-300 hover:border-indigo-300"
+                        }`}
+                        placeholder="client@example.com"
+                        required
+                      />
                     </div>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        clearFieldError("email");
-                      }}
-                      className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
-                        errors.email
-                          ? "border-red-300 bg-red-50 ring-2 ring-red-200"
-                          : "border-gray-300 hover:border-indigo-300"
-                      }`}
-                      placeholder="client@example.com"
-                      required
-                    />
                     {errors.email && (
                       <p className="text-red-600 text-sm mt-2 font-medium flex items-center gap-2">
                         <svg
@@ -677,6 +717,7 @@ export default function CreateClientPage() {
                           setSex(e.target.value);
                           clearFieldError("sex");
                         }}
+                        aria-label="Gender"
                         className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-200 shadow-sm hover:shadow-md ${
                           errors.sex
                             ? "border-red-300 bg-red-50 ring-2 ring-red-200"
@@ -764,6 +805,7 @@ export default function CreateClientPage() {
                           setState(e.target.value);
                           clearFieldError("state");
                         }}
+                        aria-label="State"
                         className={`w-full border rounded-xl px-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none transition-all duration-200 shadow-sm hover:shadow-md ${
                           errors.state
                             ? "border-red-300 bg-red-50 ring-2 ring-red-200"

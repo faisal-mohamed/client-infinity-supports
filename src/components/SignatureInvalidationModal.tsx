@@ -61,6 +61,7 @@ export default function SignatureInvalidationModal({
             onClick={onClose}
             disabled={isProcessing}
             className="p-2 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50"
+            aria-label="Close modal"
           >
             <FaTimes className="h-5 w-5 text-red-500" />
           </button>

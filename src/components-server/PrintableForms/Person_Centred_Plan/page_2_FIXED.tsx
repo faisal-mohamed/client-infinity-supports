@@ -47,9 +47,9 @@ const Footer = ({ settings }: { settings: any }) => {
 
   return (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-1 text-gray-600`}>
-      <span>Website: {settings?.company_website}</span>
-      <span>{settings?.person_centre_plan_form_id}</span>
-      <span>Review Date: {formatDate(settings?.review_date)}</span>
+      <span>{settings?.from_email || ''}</span>
+      <span>{settings?.person_centre_plan_form_id || ''}</span>
+      <span>Date of Report: {formatDate(settings?.review_date) || ''}</span>
     </div>
   );
 };

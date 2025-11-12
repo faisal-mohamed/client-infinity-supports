@@ -2,8 +2,11 @@ import React from 'react';
 import A4PageWrapper from './A4PageWrapper';
 
 const Page2: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
-
-
+  // Debug logging for view form
+  console.log('🔍 Emergency Drill Page2 VIEW - Settings received:', settings);
+  console.log('🔍 Emergency Drill Page2 VIEW - Email:', settings?.from_email);
+  console.log('🔍 Emergency Drill Page2 VIEW - Form ID:', settings?.emergency_drill);
+  console.log('🔍 Emergency Drill Page2 VIEW - Date:', settings?.review_date);
 
   const commonFieldMapping: Record<string, string> = {
     clientName: 'name',
@@ -114,17 +117,10 @@ const Page2: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
 
 
         {/* Footer */}
-        <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between text-xs text-blue-800">
-           <a
-            className="underline"
-            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {settings?.company_website || 'www.infinitysupportswa.org'}
-          </a>
-          <div>{settings?.emergency_drill}</div>
-          <div>DOR: {settings?.review_date}</div>
+        <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between text-xs text-gray-600">
+          <span>{settings?.from_email || ''}</span>
+          <span>{settings?.emergency_drill || ''}</span>
+          <span>Date of Report: {settings?.review_date || ''}</span>
         </div>
       </div>
     </A4PageWrapper>

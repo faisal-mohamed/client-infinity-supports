@@ -4,7 +4,7 @@ import Page2 from './page_2'
 import Page3 from './page_3'
 
 
-export const formSchema = {
+const formSchema = {
   page1: {
       tableRows :  [
   { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },
@@ -181,6 +181,15 @@ export const formSchema = {
 
 
 const ScheduleOfSupports = ({formData, settings, commonFieldsData} : any ) => {
+  // Auto-detect signatureRole if missing (for backward compatibility with old data)
+  if (!formData?.signatureRole) {
+    if (formData?.nomineeSignature) {
+      formData = { ...formData, signatureRole: "Nominee" };
+    } else if (formData?.participantSignature) {
+      formData = { ...formData, signatureRole: "Participant" };
+    }
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
       {/* Fixed width container that will zoom out on mobile */}

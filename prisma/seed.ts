@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 async function main() {
   // 🔐 Seed Admin
   const email = "faisal@admin.com";
-  const password = "admin123";
+  // Password meets requirements: 15+ chars, uppercase, number, special char
+  const password = "Faisal@admin123";
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const admin = await prisma.admin.upsert({
@@ -87,6 +88,12 @@ async function main() {
       title: 'Service Agreement Support Co-Ordination',
       version: 1,
       requiresSignature: true 
+    },
+    {
+      formKey: 'multi_disciplinary_meeting',
+      title: 'Multi Disciplinary Meeting',
+      version: 1,
+      requiresSignature: false
     }
   ];
 

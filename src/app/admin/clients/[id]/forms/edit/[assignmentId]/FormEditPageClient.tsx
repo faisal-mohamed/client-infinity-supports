@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
+import StaffNotSubmittedModal from '@/components/ui/StaffNotSubmittedModal';
 
 
 // Types
@@ -14,6 +15,8 @@ interface FormAssignmentData {
   clientId: number;
   formId: number;
   formVersion: number;
+  filledByAdmin: boolean; // Check if filled by admin vs client
+  hasSubmission: boolean; // NEW: Check if submission data exists
   form: {
     formKey: string;
     title: string;
@@ -30,6 +33,7 @@ export default function FormEditPageClient() {
   const params = useParams();
   const router = useRouter();
   const { showToast } = useToast();
+  const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
   
   const clientId = parseInt(params.id as string);
   const assignmentId = parseInt(params.assignmentId as string);
@@ -39,6 +43,8 @@ export default function FormEditPageClient() {
   const [commonFieldsData, setCommonFieldsData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [navigatingNext, setNavigatingNext] = useState(false); // For Next button only
+  const [navigatingPrev, setNavigatingPrev] = useState(false); // For Previous button only
 
   // Load assignment and existing data
   useEffect(() => {
@@ -55,6 +61,9 @@ export default function FormEditPageClient() {
       
       const data = await response.json();
       console.log('Loaded assignment data:', data);
+      console.log('hasSubmission:', data.assignment?.hasSubmission);
+      console.log('filledByAdmin:', data.assignment?.filledByAdmin);
+      console.log('staffSignature exists:', !!data.existingData?.supportWorkerSignature);
       setAssignment(data.assignment);
       setFormData(data.existingData || {});
       setCommonFieldsData(data.commonFields || {});
@@ -72,33 +81,49 @@ export default function FormEditPageClient() {
     }
   };
 
-  const handleFormChange = (values: any, field?: string, isCommon?: boolean) => {
+  const handleFormChange = (values: any, field?: string, isCommon?: boolean, fullReplace?: boolean) => {
     if (isCommon) {
       setCommonFieldsData((prev : any)  => ({ ...prev, ...values }));
     } else {
+      // If fullReplace is true, replace the entire formData instead of merging
+      if (fullReplace) {
+        setFormData(values);
+    } else {
       setFormData((prev : any) => ({ ...prev, ...values }));
+      }
     }
   };
 
-  // 🎯 SEPARATE SAVE PROGRESS FUNCTION
-  const handleSaveProgress = async () => {
+  // 🎯 SEPARATE SAVE PROGRESS FUNCTION (for Save Progress button)
+  const handleSaveProgress = async (overrideFormData?: any, overrideCommonFields?: any) => {
     if (!assignment) return;
     try {
       setSaving(true);
 
+      // Use override values if provided, otherwise use state values
+      const dataToSave = {
+        formData: overrideFormData || formData,
+        commonFieldsData: overrideCommonFields || commonFieldsData,
+      };
+
       const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          formData,
-          commonFieldsData,
-        }),
+        body: JSON.stringify(dataToSave),
       });
 
       if (!response.ok) throw new Error('Failed to save form data');
       
       const result = await response.json();
       console.log('Save progress result:', result);
+
+      // Update local state if override data was provided
+      if (overrideFormData) {
+        setFormData(overrideFormData);
+      }
+      if (overrideCommonFields) {
+        setCommonFieldsData(overrideCommonFields);
+      }
 
       showToast({
         type: 'success',
@@ -118,6 +143,72 @@ export default function FormEditPageClient() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 🎯 SAVE FOR NEXT BUTTON
+  const handleSaveForNext = async () => {
+    if (!assignment) return;
+    try {
+      setNavigatingNext(true);
+
+      const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save form data');
+      
+      const result = await response.json();
+      console.log('Save for next result:', result);
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: 'Failed to save progress',
+        duration: 3000,
+      });
+    } finally {
+      setNavigatingNext(false);
+    }
+  };
+
+  // 🎯 SAVE FOR PREVIOUS BUTTON
+  const handleSaveForPrev = async () => {
+    if (!assignment) return;
+    try {
+      setNavigatingPrev(true);
+
+      const response = await fetch(`/api/form-assignments/${assignmentId}/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          commonFieldsData,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save form data');
+      
+      const result = await response.json();
+      console.log('Save for previous result:', result);
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: 'Failed to save progress',
+        duration: 3000,
+      });
+    } finally {
+      setNavigatingPrev(false);
     }
   };
 
@@ -228,6 +319,52 @@ export default function FormEditPageClient() {
     );
   }
 
+  // NEW: Check if we need to block admin from editing
+  // Block if: form sent via link (filledByAdmin=false) AND staff hasn't submitted their portion yet
+  // ONLY for Emergency Drill: check if support worker signature exists - if yes, staff submitted
+  const staffHasSubmitted = formData?.supportWorkerSignature || formData?.clientSignature;
+  const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
+                            !assignment.filledByAdmin && 
+                            assignment.hasSubmission && 
+                            !staffHasSubmitted;
+  
+  if (isWaitingForStaff) {
+    // Show modal and block access - signature link sent but staff hasn't submitted
+    return (
+      <>
+        <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Link 
+                  href={`/admin/clients/${clientId}/forms`}
+                  className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
+                >
+                  <FaArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Forms
+                </Link>
+                <div className="border-l border-gray-300 pl-4">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    Edit: {assignment?.form.title}
+                  </h1>
+                  <p className="text-sm text-gray-600">
+                    {assignment?.client.name} • {assignment?.client.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <StaffNotSubmittedModal
+          isOpen={true}
+          onClose={() => router.push(`/admin/clients/${clientId}/forms`)}
+          formTitle={assignment.form.title}
+        />
+      </>
+    );
+  }
+
   // Get the appropriate form component from registry
   let FormEditComponent;
   try {
@@ -250,6 +387,10 @@ export default function FormEditPageClient() {
       </div>
     );
   }
+
+  // Calculate props once to avoid re-executing on every render
+  const filledByClient = assignment ? (assignment.form.formKey === 'emergency_drill' && assignment.hasSubmission && (formData?.supportWorkerSignature || formData?.clientSignature)) : false;
+  const readOnly = assignment ? (assignment.form.formKey === 'emergency_drill' && assignment.hasSubmission && (formData?.supportWorkerSignature || formData?.clientSignature)) : false;
 
   return (
     <>
@@ -274,15 +415,6 @@ export default function FormEditPageClient() {
                 </p>
               </div>
             </div>
-            
-            {/* <button
-              onClick={() => handleSave(true)}
-              disabled={saving}
-              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <FaSave className="mr-2 h-4 w-4" />
-              {saving ? 'Saving...' : 'Save Form'}
-            </button> */}
           </div>
         </div>
       </div>
@@ -295,13 +427,20 @@ export default function FormEditPageClient() {
             commonFieldsData={commonFieldsData}
             onChange={handleFormChange}
             onSubmit={handleFormSubmit}
-            handleSave={handleSave} // Legacy function for backward compatibility
-            handleSaveProgress={handleSaveProgress} // New: separate save function
-            handleSubmitForm={handleSubmitForm} // New: separate submit function
-            readOnly={false}
+            handleSave={handleSave}
+            handleSaveProgress={handleSaveProgress}
+            handleSaveForNext={handleSaveForNext}
+            handleSaveForPrev={handleSaveForPrev}
+            handleSubmitForm={handleSubmitForm}
+            saving={saving}
+            navigatingNext={navigatingNext}
+            navigatingPrev={navigatingPrev}
+            filledByClient={filledByClient}
+            isSignatureLink={false}
+            readOnly={readOnly}
             fieldErrors={{}}
             onCommonFieldsUpdated={() => {
-              
+              // Empty handler
             }}
           />
         </div>

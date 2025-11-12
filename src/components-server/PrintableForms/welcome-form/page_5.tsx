@@ -60,8 +60,12 @@ const Page5 = ({ settings, images }: any) => (
           for you. With our diverse team we will ensure you have complete choice and control of the people you work
           with, so you are comfortable with them in your home.
         </p>
+        <p className="mb-2">Some of the services our support team can offer are:</p>
         <ul className="mb-3 pl-4 list-disc">
           <li>Activities for daily living: such as showering, dressing, and other personal care activities</li>
+          <li>Medication management</li>
+          <li>Domestic support: such as cleaning, washing, cooking, and gardening</li>
+          <li>Meal Prep</li>
         </ul>
       </div>
 

@@ -88,6 +88,9 @@ export async function POST(
       }
     });
 
+    console.log(`🗑️ [CLEAR SIGNATURES] Clearing ${signaturesCleared} signature(s) from ${formKey}`);
+    console.log(`🗑️ [CLEAR SIGNATURES] Cleared fields:`, clearedSignatures);
+
     // Update the form submission in database
     const updatedSubmission = await prisma.formSubmission.update({
       where: { id: submissionId },
@@ -95,18 +98,23 @@ export async function POST(
         data: formData, // Update the 'data' field
         clientSignature: "false", // Reset signature status
         clientSignedAt: null,     // Clear signature timestamp
+        isSubmitted: false,       // Mark as not submitted
+        submittedAt: null,        // Clear submission timestamp
       }
     });
 
-    // Also update the form assignment status
+    console.log(`✅ [CLEAR SIGNATURES] FormSubmission updated - signatures cleared`);
+
+    // Also update the form assignment status to IN_PROGRESS
     await prisma.formAssignment.update({
-      where: { id: formAssignment.id }, // Use the ID of the found assignment
+      where: { id: formAssignment.id },
       data: {
-        isCompleted: false, // Assuming clearing signatures means it's no longer completed
-        // clientSignature: "false", // These fields don't exist on FormAssignment model based on your schema
-        // clientSignedAt: null,     // These fields don't exist on FormAssignment model based on your schema
+        isCompleted: false,          // No longer completed
+        currentStatus: "in_progress", // Set back to in_progress (was "completed")
       }
     });
+
+    console.log(`✅ [CLEAR SIGNATURES] FormAssignment status updated: completed → in_progress`);
 
     return NextResponse.json({
       success: true,

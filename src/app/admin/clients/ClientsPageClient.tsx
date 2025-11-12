@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
 import {
   FaPlus,
@@ -19,9 +19,10 @@ import {
   FaUserPlus,
   FaChevronLeft,
   FaChevronRight,
-  FaEllipsisV
+  FaEllipsisV,
+  FaChevronDown
 } from "react-icons/fa";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { Menu, MenuButton, MenuItem, MenuItems, Listbox, Transition } from "@headlessui/react";
 import { getClients, deleteClient } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/ui/Confirm";
@@ -70,8 +71,8 @@ export default function ClientsPageClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [sortField, setSortField] = useState<string>("createdAt");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortField, setSortField] = useState<string>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
@@ -96,8 +97,91 @@ export default function ClientsPageClient() {
   });
 
   // Available states for filter
-  const states = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
+  const stateMapping = {
+    "ACT": "Australian Capital Territory",
+    "NSW": "New South Wales", 
+    "NT": "Northern Territory",
+    "QLD": "Queensland",
+    "SA": "South Australia",
+    "TAS": "Tasmania",
+    "VIC": "Victoria",
+    "WA": "Western Australia"
+  };
+  const states = Object.keys(stateMapping);
   const sexOptions = ["Male", "Female", "Other", "Prefer not to say"];
+
+  type Option = { value: string; label: string };
+  const stateOptions: Option[] = [
+    { value: "", label: "All States" },
+    ...states.map((state) => ({
+      value: state,
+      label: stateMapping[state as keyof typeof stateMapping],
+    })),
+  ];
+  const sexOptionsList: Option[] = [
+    { value: "", label: "All" },
+    ...sexOptions.map((o) => ({ value: o, label: o })),
+  ];
+  const yesNoOptions: Option[] = [
+    { value: "", label: "All" },
+    { value: "yes", label: "Yes" },
+    { value: "no", label: "No" },
+  ];
+
+  function FilterSelect({
+    ariaLabel,
+    value,
+    onChange,
+    options,
+  }: {
+    ariaLabel: string;
+    value: string;
+    onChange: (v: string) => void;
+    options: Option[];
+  }) {
+    const selected = options.find((o) => o.value === value) || options[0];
+    return (
+      <div className="relative">
+        <Listbox value={value} onChange={onChange}>
+          <Listbox.Button
+            aria-label={ariaLabel}
+            className="w-full bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200 px-4 py-3.5 pr-12 text-gray-700 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all duration-200"
+          >
+            <span className="block truncate text-left">{selected.label}</span>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-rose-500">
+              <FaChevronDown className="h-4 w-4" />
+            </span>
+          </Listbox.Button>
+          <Transition
+            as={Fragment}
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 text-sm shadow-xl focus:outline-none">
+              {options.map((opt) => (
+                <Listbox.Option
+                  key={opt.value + opt.label}
+                  value={opt.value}
+                  className={({ active, selected }) =>
+                    `cursor-pointer select-none px-4 py-2 ${
+                      selected
+                        ? "bg-rose-50 text-rose-700 font-semibold"
+                        : active
+                        ? "bg-gray-50 text-gray-900"
+                        : "text-gray-700"
+                    }`
+                  }
+                >
+                  {opt.label}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Transition>
+        </Listbox>
+      </div>
+    );
+  }
 
   // Load clients with pagination
   const loadClients = async () => {
@@ -123,6 +207,8 @@ export default function ClientsPageClient() {
 
       setClients(data.clients);
       console.log("data.clients: ", data.clients);
+      console.log("First client structure: ", data.clients[0]);
+      console.log("First client commonFields: ", data.clients[0]?.commonFields);
       setPagination(data.pagination);
       setError("");
     } catch (err) {
@@ -394,7 +480,7 @@ export default function ClientsPageClient() {
               </div>
               <input
                 type="text"
-                placeholder="Search clients by name, email or phone..."
+                placeholder="Search clients by name, email, phone, NDIS number, state..."
                 className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -462,75 +548,57 @@ export default function ClientsPageClient() {
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     State
                   </label>
-                  <select
+                  <FilterSelect
+                    ariaLabel="Filter by state"
                     value={filters.state}
-                    onChange={(e) => {
-                      setFilters({ ...filters, state: e.target.value });
+                    onChange={(v) => {
+                      setFilters({ ...filters, state: v });
                       setPagination({ ...pagination, page: 1 });
                     }}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  >
-                    <option value="">All States</option>
-                    {states.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
+                    options={stateOptions}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     Gender
                   </label>
-                  <select
+                  <FilterSelect
+                    ariaLabel="Filter by gender"
                     value={filters.sex}
-                    onChange={(e) => {
-                      setFilters({ ...filters, sex: e.target.value });
+                    onChange={(v) => {
+                      setFilters({ ...filters, sex: v });
                       setPagination({ ...pagination, page: 1 });
                     }}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  >
-                    <option value="">All</option>
-                    {sexOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    options={sexOptionsList}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     Has NDIS Number
                   </label>
-                  <select
+                  <FilterSelect
+                    ariaLabel="Filter by NDIS availability"
                     value={filters.hasNdis}
-                    onChange={(e) => {
-                      setFilters({ ...filters, hasNdis: e.target.value });
+                    onChange={(v) => {
+                      setFilters({ ...filters, hasNdis: v });
                       setPagination({ ...pagination, page: 1 });
                     }}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  >
-                    <option value="">All</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
+                    options={yesNoOptions}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     Has Disability
                   </label>
-                  <select
+                  <FilterSelect
+                    ariaLabel="Filter by disability"
                     value={filters.hasDisability}
-                    onChange={(e) => {
-                      setFilters({ ...filters, hasDisability: e.target.value });
+                    onChange={(v) => {
+                      setFilters({ ...filters, hasDisability: v });
                       setPagination({ ...pagination, page: 1 });
                     }}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm hover:shadow-md transition-shadow duration-200"
-                  >
-                    <option value="">All</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
+                    options={yesNoOptions}
+                  />
                 </div>
               </div>
             </div>
@@ -649,7 +717,7 @@ export default function ClientsPageClient() {
                     </thead>
 
                     <tbody className="divide-y divide-gray-100">
-                      {clients.length === 0 ? (
+                      {sortedClients.length === 0 ? (
                         <tr>
                           <td
                             colSpan={6}
@@ -659,7 +727,7 @@ export default function ClientsPageClient() {
                           </td>
                         </tr>
                       ) : (
-                        clients.map((client: any, index: any) => (
+                        sortedClients.map((client: any, index: any) => (
                           <tr
                             key={client.id}
                             className="hover:bg-rose-50 transition"
@@ -688,15 +756,22 @@ export default function ClientsPageClient() {
                               )}
                             </td>
                             <td className="px-6 py-4">
-                              {client?.commonFields[0]?.state ? (
-                                <span className="inline-block text-xs font-medium bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
-                                  {client?.commonFields[0]?.state}
-                                </span>
-                              ) : (
-                                <span className="text-sm text-gray-400 italic">
-                                  N/A
-                                </span>
-                              )}
+                              {(() => {
+                                // Handle both array and object structures for commonFields
+                                const state = Array.isArray(client?.commonFields) 
+                                  ? client?.commonFields[0]?.state 
+                                  : client?.commonFields?.state;
+                                
+                                return state ? (
+                                  <span className="inline-block text-xs font-medium bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
+                                    {stateMapping[state as keyof typeof stateMapping] || state}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-gray-400 italic">
+                                    N/A
+                                  </span>
+                                );
+                              })()}
                             </td>
                             <td className="px-6 py-4 text-gray-700">
                               <div>

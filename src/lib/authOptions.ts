@@ -7,6 +7,7 @@ import type { NextAuthOptions } from 'next-auth';
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || 'your-development-secret-key-change-in-production',
   providers: [
     CredentialsProvider({
       name: "Credentials",

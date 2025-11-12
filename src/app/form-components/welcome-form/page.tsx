@@ -26,7 +26,7 @@ import Page24 from './page_24';
 import Page25 from './page_25';
 import Page26 from './page_26';
 
-export const formSchema : any  = {
+const formSchema : any  = {
   title: 'Welcome Pack Receipt Acknowledgement',
   fields: [
     {
@@ -68,6 +68,13 @@ export const formSchema : any  = {
 
 
 const WelcomeForm = ({formData, commonFieldsData, settings} : any ) => {
+  // 🔍 DEBUG LOGS - Welcome Form View
+  console.log('🎯 [Welcome Form View] Rendering with:', {
+    formDataKeys: Object.keys(formData || {}),
+    commonFieldsKeys: Object.keys(commonFieldsData || {}),
+    settingsKeys: Object.keys(settings || {}),
+  });
+  
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
       {/* Fixed width container that will zoom out on mobile */}

@@ -42,6 +42,11 @@ const getFieldValue = (
     value = formData?.[fieldKey];
   }
 
+  // Debug logging for Others fields
+  if (fieldKey.includes('Others')) {
+    console.log(`🔍 Others field "${fieldKey}" = "${value}"`);
+  }
+
   // ✅ Reformat YYYY-MM-DD to DD-MM-YYYY
   if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
     const parsed = parseISO(value);
@@ -554,7 +559,7 @@ const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
-            <div>Website: {settings?.company_website}</div>
+            <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
   Review Date:{' '}
@@ -684,7 +689,7 @@ const Page2 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
-                <div>Website: {settings?.company_website}</div>
+                <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
             <div>
   Review Date:{' '}
@@ -846,7 +851,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
-              <div>Website: {settings?.company_website}</div>
+              <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
   Review Date:{' '}
@@ -968,7 +973,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         {/* Footer */}
         {pageSchema.footer && (
           <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
-            <div>Website: {settings?.company_website}</div>
+            <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
   Review Date:{' '}
@@ -1077,7 +1082,7 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
-          <div>Website: {settings?.company_website}</div>
+          <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
   Review Date:{' '}
@@ -1183,7 +1188,7 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
-          <div>Website: infinitysupportswa.org</div>
+          <div>{settings?.from_email || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
   Review Date:{' '}

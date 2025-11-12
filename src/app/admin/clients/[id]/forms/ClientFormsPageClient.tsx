@@ -366,25 +366,50 @@ const adminId : any  = session?.user?.id;
       })
     });
 
-    if (!response.ok) throw new Error('Failed to send email');
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.details || errorData.error || 'Unknown error';
+      
+      // Use centralized error parser
+      const { parseEmailError, extractErrorDetails } = await import('@/utils/emailErrorHandler');
+      const errorDetails = extractErrorDetails(errorData);
+      const errorInfo = parseEmailError(errorDetails);
+      
+      showToast({
+        type: errorInfo.type,
+        title: errorInfo.title,
+        message: errorInfo.message,
+        duration: errorInfo.duration,
+      });
+      return;
+    }
 
     const data = await response.json();
 
+    // Use centralized success message
+    const { getEmailSuccessMessage } = await import('@/utils/emailErrorHandler');
+    const successInfo = getEmailSuccessMessage('client', client?.email, selectedForms.length);
+
     showToast({
       type: 'success',
-      title: 'Email Sent',
-      message: data.message || 'Client confirmation email sent successfully',
-      duration: 3000,
+      title: successInfo.title,
+      message: successInfo.message,
+      duration: successInfo.duration,
     });
 
     setSelectedForms([]);
   } catch (error) {
     console.error('Error sending email:', error);
+    
+    // Use centralized error parser for network/unexpected errors
+    const { parseEmailError } = await import('@/utils/emailErrorHandler');
+    const errorInfo = parseEmailError(error instanceof Error ? error.message : 'Network error');
+    
     showToast({
-      type: 'error',
-      title: 'Error',
-      message: 'Failed to send client confirmation email',
-      duration: 3000,
+      type: errorInfo.type,
+      title: errorInfo.title,
+      message: errorInfo.message,
+      duration: errorInfo.duration,
     })
   
   }
@@ -392,6 +417,54 @@ const adminId : any  = session?.user?.id;
       setSendingEmail(false)
     }
 };
+
+  // Trigger completion email for all completed forms
+  const triggerCompletionEmail = async () => {
+    try {
+      setSendingEmail(true);
+      
+      console.log(`📧 [MANUAL TRIGGER] Triggering completion email for client ${clientId}...`);
+      
+      const response = await fetch(`/api/clients/${clientId}/trigger-completion-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to send email');
+      }
+
+      const data = await response.json();
+      
+      console.log(`✅ [MANUAL TRIGGER] Email sent successfully:`, data);
+
+      showToast({
+        type: 'success',
+        title: '✅ Completion Email Sent!',
+        message: `📧 Email sent to both admin and client\n\n` +
+                 `✉️ Admin: ${data.recipients?.admin ? '✅ Sent' : '❌ Failed'}\n` +
+                 `✉️ Client: ${data.recipients?.client ? '✅ Sent' : '❌ Failed'}\n` +
+                 `📎 Attachments: ${data.completedForms} PDF(s)`,
+        duration: 6000,
+      });
+
+    } catch (error: any) {
+      console.error('❌ [MANUAL TRIGGER] Error:', error);
+      
+      const { parseEmailError } = await import('@/utils/emailErrorHandler');
+      const errorInfo = parseEmailError(error.message || 'Failed to send completion email');
+      
+      showToast({
+        type: errorInfo.type,
+        title: errorInfo.title,
+        message: errorInfo.message,
+        duration: errorInfo.duration,
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
 
   // Wrapper function for warning modal downloads
@@ -418,7 +491,7 @@ const adminId : any  = session?.user?.id;
     
     if (client) {
       // Use commonFields if available, otherwise initialize with basic client info
-      const commonFieldsData = client.commonFields[0] || {};
+      const commonFieldsData = client.commonFields || {};
       
       const fieldsData = {
         clientId: clientId,
@@ -704,6 +777,8 @@ const adminId : any  = session?.user?.id;
         onGenerateSignatureLink={generateSignatureLink}
         sendEmailNotification={generateEmail}
         sendingEmail={sendingEmail}
+        allFormsCompleted={stats.completed === stats.total && stats.total > 0}
+        onTriggerCompletionEmail={triggerCompletionEmail}
       />
 
       {/* Stats Cards */}

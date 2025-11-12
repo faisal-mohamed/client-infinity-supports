@@ -88,9 +88,9 @@ export async function GET(req: Request) {
         client.name || "",
         client.email || "",
         client.phone || "",
-        client.commonFields[0]?.ndis || "",
-        client.commonFields[0]?.state || "",
-        client.commonFields[0]?.sex || "",
+        client.commonFields?.ndis || "",
+        client.commonFields?.state || "",
+        client.commonFields?.sex || "",
         new Date(client.createdAt).toLocaleDateString(),
       ]);
 

@@ -11,13 +11,17 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
-  FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
 import { Label } from "@headlessui/react";
+
+// Hourglass spinner to match Client Intake form
+const FaSpinner = ({ className }: { className?: string }) => (
+  <span className={className}>⏳</span>
+);
 
 interface FormProps {
   formData: any;
@@ -28,7 +32,12 @@ interface FormProps {
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
+  handleSaveForNext?: () => Promise<void>;
+  handleSaveForPrev?: () => Promise<void>;
   handleSubmitForm?: () => Promise<void>;
+  saving?: boolean; // Loading state from parent
+  navigatingNext?: boolean;
+  navigatingPrev?: boolean;
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -201,7 +210,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   fieldErrors = {},
   handleSave,
   handleSaveProgress,
+  handleSaveForNext,
+  handleSaveForPrev,
   handleSubmitForm,
+  saving = false, // Loading state from parent
+  navigatingNext = false,
+  navigatingPrev = false,
   onCommonFieldsUpdated,
 }: any) => {
   // Helper function to get common field value
@@ -217,6 +231,11 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
+  const [nextLocalLoading, setNextLocalLoading] = useState(false);
+  const [prevLocalLoading, setPrevLocalLoading] = useState(false);
+  const [localEmailErrors, setLocalEmailErrors] = useState<Record<string, string>>({});
+  const isNextLoading = !!(navigatingNext || nextLocalLoading);
+  const isPrevLoading = !!(navigatingPrev || prevLocalLoading);
 
   // Signature canvas refs
   const participantSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
@@ -328,8 +347,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   };
 
   // Loading states
-  const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Note: 'saving' state comes from parent component via props
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -366,6 +385,22 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     }
 
     const newValues = { ...localValues, [name]: newValue };
+    
+    // Clear capacityActions if capacityAssessmentRequired is changed to "No"
+    if (name === "capacityAssessmentRequired" && value === "No") {
+      newValues.capacityActions = "";
+    }
+    
+    // Clear assessmentActions1 if additionalAssessment1 is changed to "No"
+    if (name === "additionalAssessment1" && value === "No") {
+      newValues.assessmentActions1 = "";
+    }
+    
+    // Clear assessmentActions2 if additionalAssessment2 is changed to "No"
+    if (name === "additionalAssessment2" && value === "No") {
+      newValues.assessmentActions2 = "";
+    }
+    
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
@@ -417,15 +452,30 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   };
 
   const handleNextSequential = async () => {
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    try {
+      setNextLocalLoading(true);
+      if (handleSaveForNext) {
+        await handleSaveForNext();
+      } else if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } finally {
+      setNextLocalLoading(false);
     }
-    handleNext();
   };
 
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      try {
+        setPrevLocalLoading(true);
+        if (handleSaveForPrev) {
+          await handleSaveForPrev();
+        }
+        setCurrentStep(currentStep - 1);
+      } finally {
+        setPrevLocalLoading(false);
+      }
     }
   };
 
@@ -442,6 +492,65 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       ? getCommonFieldValue(name)
       : localValues[name] || "";
     const isFieldReadOnly = readOnly || isCommon;
+    const isPhoneField = /phone|mobile$/i.test(name) || ["phone", "contactPhone"].includes(name);
+    const isEmailField = /email$/i.test(name) || ["email", "contactEmail"].includes(name);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+    const handlePhoneBeforeInput = (e: any) => {
+      if (isFieldReadOnly) return;
+      const data = e.data as string;
+      if (!data) return; // non-insert events
+      const input = e.target as HTMLInputElement;
+      const selStart = input.selectionStart ?? 0;
+      const selEnd = input.selectionEnd ?? selStart;
+      const current = String(input.value || "");
+      const next = current.slice(0, selStart) + data + current.slice(selEnd);
+      if (!/^\+?\d*$/.test(next)) {
+        e.preventDefault();
+      }
+    };
+
+    const handlePhoneKeyDown = (e: any) => {
+      if (isFieldReadOnly) return;
+      const allowedKeys = [
+        "Backspace",
+        "Delete",
+        "ArrowLeft",
+        "ArrowRight",
+        "Tab",
+        "Home",
+        "End",
+      ];
+      if (allowedKeys.includes(e.key)) return;
+      if (e.ctrlKey || e.metaKey) return; // allow copy/paste/select all
+      if (e.key >= "0" && e.key <= "9") return;
+      if (e.key === "+") {
+        const input = e.currentTarget as HTMLInputElement;
+        const hasPlus = (input.value || "").includes("+");
+        const caretAtStart = (input.selectionStart ?? 0) === 0;
+        if (!hasPlus && caretAtStart) return;
+      }
+      e.preventDefault();
+    };
+
+    const handlePhonePaste = (e: any) => {
+      if (isFieldReadOnly) return;
+      const text = (e.clipboardData?.getData("text") || "").trim();
+      const sanitized = text.replace(/[^\d+]/g, "");
+      // Keep only a single leading +
+      const normalized = sanitized.replace(/\+/g, "").replace(/^/, text.startsWith("+") ? "+" : "");
+      e.preventDefault();
+      const input = e.currentTarget as HTMLInputElement;
+      const selStart = input.selectionStart ?? 0;
+      const selEnd = input.selectionEnd ?? selStart;
+      const current = String(input.value || "");
+      const next = current.slice(0, selStart) + normalized + current.slice(selEnd);
+      input.value = next;
+      const newValues = { ...localValues, [name]: next };
+      setLocalValues(newValues);
+      const isCommon = !!commonFieldsMapping[name];
+      onChange(newValues, name, isCommon);
+    };
 
     return (
       <div className="flex flex-col gap-1">
@@ -450,22 +559,57 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <input
-          type={type}
+          type={isPhoneField ? "tel" : isEmailField ? "email" : type}
           name={name}
           value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
+          onChange={isCommon ? undefined : (e) => {
+            handleChange(e as any);
+            if (isEmailField) {
+              const v = (e.target as HTMLInputElement).value.trim();
+              setLocalEmailErrors((prev) => {
+                const next = { ...prev };
+                if (v && !emailRegex.test(v)) {
+                  next[name] = "Enter a valid email address";
+                } else {
+                  delete next[name];
+                }
+                return next;
+              });
+            }
+          }}
+          onBlur={isEmailField ? (e) => {
+            const v = (e.target as HTMLInputElement).value.trim();
+            setLocalEmailErrors((prev) => {
+              const next = { ...prev };
+              if (v && !emailRegex.test(v)) {
+                next[name] = "Enter a valid email address";
+              } else {
+                delete next[name];
+              }
+              return next;
+            });
+          } : undefined}
+          onBeforeInput={isPhoneField ? handlePhoneBeforeInput : undefined}
+          onKeyDown={isPhoneField ? handlePhoneKeyDown : undefined}
+          onPaste={isPhoneField ? handlePhonePaste : undefined}
+          inputMode={isPhoneField ? "tel" : isEmailField ? "email" : undefined}
+          pattern={isPhoneField ? "^\\+?\\d*$" : undefined}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
+            fieldErrors[name] || localEmailErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
               : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          aria-invalid={fieldErrors[name] || localEmailErrors[name] ? 'true' : undefined}
         />
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+        {!fieldErrors[name] && localEmailErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{localEmailErrors[name]}</p>
         )}
       </div>
     );
@@ -554,14 +698,17 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       ? getCommonFieldValue(name)
       : localValues[name] || "";
     const isFieldReadOnly = readOnly || isCommon;
+    const selectId = `select-${name}`;
 
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
+        <label htmlFor={selectId} className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <select
+          id={selectId}
+          aria-label={label}
           name={name}
           value={displayValue}
           onChange={isCommon ? undefined : handleChange}
@@ -1226,7 +1373,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     {renderDropdown("Service Agreement developed/signed?", "capacityAgreementSigned", yesNoOptions)}
     {renderInput("Supports in place at start of plan", "capacitySupportsInPlace")}
     {renderDropdown("Are additional assessments required?", "capacityAssessmentRequired", yesNoOptions)}
-    {renderInput("If Yes - Actions", "capacityActions")}
+    {localValues.capacityAssessmentRequired === "Yes" && renderInput("If Yes - Actions", "capacityActions")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "capacityBudgetApproved", yesNoOptions)}
   </div>
 
@@ -1260,7 +1407,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     {renderDropdown("Service Agreement developed/signed?", "serviceAgreement1", yesNoOptions)}
     {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment1", yesNoOptions)}
-    {renderInput("If Yes - Actions", "assessmentActions1")}
+    {localValues.additionalAssessment1 === "Yes" && renderInput("If Yes - Actions", "assessmentActions1")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "planManagerDiscussion1", yesNoOptions)}
   </div>
 
@@ -1294,7 +1441,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     {renderDropdown("Service Agreement developed/signed?", "serviceAgreement2", yesNoOptions)}
     {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment2", yesNoOptions)}
-    {renderInput("If Yes - Actions", "assessmentActions2")}
+    {localValues.additionalAssessment2 === "Yes" && renderInput("If Yes - Actions", "assessmentActions2")}
     {renderDropdown("Discussion held with Plan Manager and budget approved?", "budgetApproval", yesNoOptions)}
   </div>)
 
@@ -1393,14 +1540,14 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || isPrevLoading}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === 0
+                currentStep === 0 || navigatingPrev
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
               }`}
             >
-              <FaChevronLeft className="w-4 h-4" />
+              {isPrevLoading ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
               <span>Previous</span>
             </button>
 
@@ -1409,17 +1556,19 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               onClick={handleNextSequential}
               disabled={
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                isNextLoading
               }
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
                 currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete()
+                !isCurrentSectionComplete() ||
+                isNextLoading
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                   : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
               }`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {isNextLoading ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
@@ -1427,7 +1576,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
+              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? "Saving..." : "Save Progress"}
             </button>
           </div>

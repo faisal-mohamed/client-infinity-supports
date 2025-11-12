@@ -40,7 +40,7 @@ const Footer = ({ settings }: { settings: any }) => {
 
   return (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-1 text-gray-600`}>
-      <span>{settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
+      <span>{settings?.company_website || ''}</span>
       <span>Date of Review: {formatDate(settings?.review_date) || 'N/A'}</span>
     </div>
   );
@@ -83,7 +83,7 @@ const Page2: React.FC<Page2Props> = ({
 
   const footer = (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-2 text-gray-600`}>
-      <span>{settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
+      <span>{settings?.company_website || ''}</span>
       <span>Date of Review: {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date) ? format(parseISO(settings.review_date), 'dd-MM-yyyy') : 'N/A'}</span>
     </div>
   );
@@ -121,7 +121,11 @@ const Page2: React.FC<Page2Props> = ({
 
         {/* Risk Assessment Table */}
         <div className="flex-1 flex flex-col px-6">
-          <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell} h-full`}>
+          {/* Title Bar */}
+          <div className="bg-gray-400 border border-black px-2 py-2 text-center font-bold mb-0">
+            POTENTIAL RISK & CONTROL MEASURES
+          </div>
+          <table className={`table-fixed border border-black border-t-0 w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell} h-full`}>
             <thead className="bg-gray-200">
               <tr>
                 <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-1/4`}>

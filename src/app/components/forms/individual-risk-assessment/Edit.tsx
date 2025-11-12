@@ -20,6 +20,9 @@ import { useToast } from "@/components/ui/Toast";
 
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
+// Match Client Intake form's custom spinner (hourglass emoji) so it always renders
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
+
 interface FormProps {
   formData: any;
   commonFieldsData: any;
@@ -30,6 +33,7 @@ interface FormProps {
   handleSave: (submit: boolean) => void; // Keep for backward compatibility
   handleSaveProgress?: () => Promise<void>; // New: separate save function
   handleSubmitForm?: () => Promise<void>; // New: separate submit function
+  saving?: boolean; // Loading state from parent
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -50,7 +54,7 @@ export const FORM_SECTIONS : any = [
   },
   {
     id: "riskAssessment",
-    title: "Risk Assessment Table",
+    title: "POTENTIAL RISK & CONTROL MEASURES",
     icon: FaExclamationTriangle,
     description: "Risk identification and controls",
     fields: [
@@ -112,6 +116,7 @@ const IndividualRiskAssessmentEdit: React.FC<FormProps> = ({
   handleSave, // Legacy function
   handleSaveProgress, // New: separate save function
   handleSubmitForm, // New: separate submit function
+  saving = false,
   onCommonFieldsUpdated,
 }: any ) => {
 
@@ -186,9 +191,11 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { showToast } = useToast();
 
-  // 🎯 SEPARATE LOADING STATES
-  const [saving, setSaving] = useState(false); // For save progress
+  // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
+  // Local action lock to mirror Client Intake UX (prevents double-clicks and shows per-button spinner)
+  const [uiBusyAction, setUiBusyAction] = useState<null | 'save' | 'next' | 'submit'>(null);
+  const buttonsLocked = submitting || saving || uiBusyAction !== null;
 
   // Track pending changes to common fields (simplified since common fields are now read-only)
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -288,9 +295,15 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   };
 
   const handleNextSequential = async () => {
-    // Save progress before moving to next section
-    await handleSaveProgress();
-    handleNext();
+    if (buttonsLocked) return;
+    setUiBusyAction('next');
+    try {
+      // Save progress before moving to next section
+      await handleSaveProgress();
+      handleNext();
+    } finally {
+      setUiBusyAction(null);
+    }
   };
 
   const handlePreviousSequential = () => {
@@ -399,6 +412,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
+        aria-label={label}
         className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
           fieldErrors[name]
             ? "border-red-300 bg-red-50"
@@ -580,6 +594,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   const handleFormSubmitCheckValidation = async () => {
   try {
     console.log("form submitted")
+    if (buttonsLocked) return;
+    setUiBusyAction('submit');
     setSubmitting(true);
     const validationResult = validateRequiredFields();
 
@@ -601,6 +617,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     });
   } finally {
     setSubmitting(false);
+    setUiBusyAction(null);
   }
 };
 
@@ -836,7 +853,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || buttonsLocked}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
             >
               <FaChevronLeft className="w-4 h-4" />
@@ -846,20 +863,24 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || buttonsLocked}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || buttonsLocked) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
-              <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {uiBusyAction === 'next' ? <FaSpinner className="w-4 h-4 animate-spin" /> : <span>Next</span>}
+              {uiBusyAction === 'next' ? null : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
-              onClick={() => handleSaveProgress()}
-              disabled={saving || submitting}
+              onClick={async () => {
+                if (buttonsLocked) return;
+                setUiBusyAction('save');
+                try { await handleSaveProgress(); } finally { setUiBusyAction(null); }
+              }}
+              disabled={buttonsLocked}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save Progress'}
+              {(uiBusyAction === 'save') || (saving && uiBusyAction === null) ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
+              {(uiBusyAction === 'save') || (saving && uiBusyAction === null) ? 'Saving...' : 'Save Progress'}
             </button>
           </div>
 
@@ -870,10 +891,10 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
                 e.preventDefault();
                 handleFormSubmitCheckValidation();
               }}
-              disabled={saving || submitting}
+              disabled={buttonsLocked}
             >
-              <FaCheck className="w-4 h-4" />
-              {submitting ? 'Submitting...' : 'Submit Form'}
+              {uiBusyAction === 'submit' || submitting ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaCheck className="w-4 h-4" />}
+              {uiBusyAction === 'submit' || submitting ? 'Submitting...' : 'Submit Form'}
             </button>
           )}
         </footer>

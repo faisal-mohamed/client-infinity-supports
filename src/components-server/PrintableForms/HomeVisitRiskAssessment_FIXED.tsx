@@ -189,11 +189,6 @@ const homeVisitSchema: any = {
       ]
     },
   ],
-  footer: {
-    left: "Document Number: CF012",
-    center: "www.infinitysupportwa.org",
-    right: "DOR: 14/03/2026"
-  }
 };
 
 // --- A4 Page Wrapper Component ---

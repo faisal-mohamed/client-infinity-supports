@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import FormRenderer from "@/components/clients-intake-form/FormRenderer";
+import ClientIntakeFormDynamic from "@/app/components/forms/client_intake_form/ClientIntakeFormDynamic";
 import Link from "next/link";
 import {
   FaArrowLeft,
@@ -15,7 +16,7 @@ import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view"
 import { fetchFormSpecificSettings } from "@/lib/settings";
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
-import ParticipantRiskAssessment from "@/app/form-components/participant-risk-assessment/page";
+import ParticipantRiskAssessmentView from "@/components/participant-risk-assessment/view";
 import EmergencyDrill from "@/app/form-components/emergency-drill/page";
 import IndividualRiskAssessment from "@/app/form-components/individual-risk-assessment/page";
 import WelcomeFormView from "@/components/welcome-form/View";
@@ -185,15 +186,19 @@ export default function ViewFormClient({ formId }: { formId: string }) {
           <div className="p-8">
             <div className="p-8 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50">
               {form.formKey === "client_intake_form" ? (
-                <FormRenderer formKey={form.formKey} formSchema={form.schema} settings={settings} />
+                <>
+                  {console.log("ViewForm DEBUG - form.data:", form.data)}
+                  {console.log("ViewForm DEBUG - settings:", settings)}
+                  <ClientIntakeFormDynamic formKey={form.formKey} settings={settings} formData={form.data} />
+                </>
               ) : form.formKey === "home_visit_risk_assessment" ? (
-                <HomeRiskAssesmentView formKey={form.formKey} settings={settings} />
+                <HomeRiskAssesmentView formKey={form.formKey} settings={settings} formData={form.data} commonFieldsData={form.commonFields} />
               ) : form.formKey === "person_centred_plan" ? (
                 <PersonCentredPlanView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "sa_delivery_of_supports" ? (
                 <SADeliverySupports formKey={form.formKey} settings={settings} />
               ) : form.formKey === "participant_risk_assessment" ? (
-                <ParticipantRiskAssessment formKey={form.formKey} settings={settings} />
+                <ParticipantRiskAssessmentView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "individual_risk_assessment" ? (
                 <IndividualRiskAssessment formKey={form.formKey} settings={settings} />
               ) : form.formKey === "emergency_drill" ? (

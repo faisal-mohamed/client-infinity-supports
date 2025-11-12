@@ -11,20 +11,29 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
-  FaSpinner,
+  FaPlus,
+  FaTimes,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
+
+// Match Client Intake form's custom spinner (hourglass emoji)
+const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 
 interface FormProps {
   formData: any;
   commonFieldsData: any;
-  onChange: (values: any, field?: string, isCommon?: boolean) => void;
+  onChange: (values: any, field?: string, isCommon?: boolean, fullReplace?: boolean) => void;
   onSubmit?: (values: any) => void;
   readOnly?: boolean;
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
+  handleSaveForNext?: () => Promise<void>;
+  handleSaveForPrev?: () => Promise<void>;
   handleSubmitForm?: () => Promise<void>;
+  saving?: boolean;
+  navigatingNext?: boolean;
+  navigatingPrev?: boolean;
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -115,7 +124,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   fieldErrors = {},
   handleSave,
   handleSaveProgress,
+  handleSaveForNext,
+  handleSaveForPrev,
   handleSubmitForm,
+  saving = false,
+  navigatingNext = false,
+  navigatingPrev = false,
   onCommonFieldsUpdated,
 }: any) => {
 
@@ -132,6 +146,33 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
+  const [numberOfGoals, setNumberOfGoals] = useState(1); // Start with 1 goal by default
+  const hasInitializedGoals = useRef(false);
+
+  // Detect existing goals when form loads (only once on mount)
+  useEffect(() => {
+    if (formData && !hasInitializedGoals.current) {
+      let maxGoalNum = 0;
+      // Check up to 20 goals to find the highest goal number with data
+      for (let i = 1; i <= 20; i++) {
+        const hasGoal = 
+          formData[`goal${i}`] || 
+          formData[`rating${i}`] || 
+          formData[`actions${i}`] || 
+          formData[`byWhom${i}`] || 
+          formData[`byWhen${i}`] || 
+          formData[`reviewDate${i}`];
+        if (hasGoal) {
+          maxGoalNum = i;
+        }
+      }
+      // Set numberOfGoals to at least 1, or the number of goals found
+      if (maxGoalNum > 0) {
+        setNumberOfGoals(maxGoalNum);
+      }
+      hasInitializedGoals.current = true;
+    }
+  }, [formData]); // Run when formData changes
 
   const initialValues = {
     // Personal Information - these will be overridden by common fields if available
@@ -213,8 +254,8 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   const { showToast } = useToast();
 
   // Loading states
-  const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Note: 'saving' and 'navigatingNext' states come from parent component via props
 
   // Track pending changes to common fields
   const [pendingCommonFieldChanges, setPendingCommonFieldChanges] = useState<Record<string, any>>({});
@@ -265,6 +306,95 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     onChange(newValues, name, isCommon);
   };
 
+  const handleRemoveGoal = (goalNumToRemove: number) => {
+    // Prevent removing the last remaining goal
+    if (numberOfGoals <= 1) {
+      showToast({
+        type: "warning",
+        title: "Cannot Remove Goal",
+        message: "At least one goal is required. You cannot remove the last goal.",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Check if goal has any data
+    const hasData = 
+      localValues[`goal${goalNumToRemove}`] || 
+      localValues[`rating${goalNumToRemove}`] || 
+      localValues[`actions${goalNumToRemove}`] || 
+      localValues[`byWhom${goalNumToRemove}`] || 
+      localValues[`byWhen${goalNumToRemove}`] || 
+      localValues[`reviewDate${goalNumToRemove}`];
+
+    if (hasData) {
+      // Show confirmation dialog
+      const confirmRemove = window.confirm(
+        `Are you sure you want to remove Goal ${goalNumToRemove}? This will permanently delete all data for this goal.\n\nThis action cannot be undone.`
+      );
+
+      if (!confirmRemove) {
+        return; // User cancelled
+      }
+    }
+
+    // Proceed with removal
+    const newValues = { ...localValues };
+    
+    // Delete the selected goal's fields
+    const fieldsToRemove = [
+      `goal${goalNumToRemove}`,
+      `rating${goalNumToRemove}`,
+      `actions${goalNumToRemove}`,
+      `byWhom${goalNumToRemove}`,
+      `byWhen${goalNumToRemove}`,
+      `reviewDate${goalNumToRemove}`
+    ];
+    
+    // Remove these fields from newValues
+    fieldsToRemove.forEach(field => {
+      delete newValues[field];
+    });
+    
+    // Rename goals after the removed one
+    // If we removed goal 2, then goal3→goal2, goal4→goal3, etc.
+    for (let i = goalNumToRemove + 1; i <= numberOfGoals; i++) {
+      const fieldsToRename = [
+        { old: `goal${i}`, new: `goal${i - 1}` },
+        { old: `rating${i}`, new: `rating${i - 1}` },
+        { old: `actions${i}`, new: `actions${i - 1}` },
+        { old: `byWhom${i}`, new: `byWhom${i - 1}` },
+        { old: `byWhen${i}`, new: `byWhen${i - 1}` },
+        { old: `reviewDate${i}`, new: `reviewDate${i - 1}` }
+      ];
+      
+      fieldsToRename.forEach(({ old, new: newName }) => {
+        if (newValues[old] !== undefined) {
+          newValues[newName] = newValues[old];
+          delete newValues[old];
+        }
+      });
+    }
+    
+    // Update local state (already has deleted fields removed)
+    setLocalValues(newValues);
+    
+    // Update parent state - force full replacement to remove deleted fields
+    // Pass newValues directly as full replacement (not merged)
+    onChange(newValues, undefined, false, true);
+    
+    // Show success message
+    showToast({
+      type: "success",
+      title: "Goal Removed",
+      message: "The goal has been removed from the form.",
+      duration: 3000,
+    });
+    
+    // Decrease the number of goals
+    setNumberOfGoals(numberOfGoals - 1);
+  };
+
   const handleNext = () => {
     if (currentStep < FORM_SECTIONS.length - 1) {
       setCompletedSteps((prev) => new Set([...prev, currentStep]));
@@ -311,10 +441,23 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
 
   const handleNextSequential = async () => {
     // Save progress before moving to next section
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    try {
+      // Use handleSaveForNext if available (parent manages loading state)
+      if (handleSaveForNext) {
+        await handleSaveForNext();
+      } else if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } catch (error) {
+      console.error("Error saving progress:", error);
+      showToast({
+        type: "error",
+        title: "Error",
+        message: "Failed to save progress. Please try again.",
+        duration: 3000,
+      });
     }
-    handleNext();
   };
 
   const handlePreviousSequential = () => {
@@ -409,11 +552,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
+      <label htmlFor={name} className="text-xs font-medium text-gray-700 mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <select
+        id={name}
         name={name}
         value={localValues[name] || ""}
         onChange={handleChange}
@@ -641,37 +785,77 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
               {FORM_SECTIONS[currentStep].id === "goals" ? (
                 // Special layout for goals section
                 <div className="space-y-6">
-                  {[1, 2, 3].map((num) => (
-                    <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-800">Goal {num}</h3>
+                  {Array.from({ length: numberOfGoals }, (_, i) => i + 1).map((num) => (
+                    <div key={`goal-${num}`} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-800">Goal {num}</h3>
+                        {/* Only show remove button if there's more than 1 goal */}
+                        {numberOfGoals > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGoal(num)}
+                            className="text-red-500 hover:text-red-700 transition-colors duration-200 p-1 rounded hover:bg-red-50"
+                            title="Remove this goal"
+                          >
+                            <FaTimes className="text-lg" />
+                          </button>
+                        )}
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[`goal${num}`, `rating${num}`, `actions${num}`, `byWhom${num}`, `byWhen${num}`, `reviewDate${num}`].map((field) => {
-                          const meta = FIELD_METADATA[field] || { label: field, type: "text" };
-                          const required = isFieldRequired(field);
+                        {[
+                          { key: `goal${num}`, label: `Goal ${num}`, type: "textarea", rows: 3, placeholder: "Describe your goal", span: 2 },
+                          { key: `rating${num}`, label: `Outcome Rating ${num}`, type: "dropdown", options: outcomeRatingOptions, span: 1 },
+                          { key: `actions${num}`, label: `Actions & Resources ${num}`, type: "textarea", rows: 3, placeholder: "What actions are needed?", span: 2 },
+                          { key: `byWhom${num}`, label: `By Whom ${num}`, type: "text", placeholder: "Who is responsible?", span: 1 },
+                          { key: `byWhen${num}`, label: `By When ${num}`, type: "date", span: 1 },
+                          { key: `reviewDate${num}`, label: `Review Date ${num}`, type: "date", span: 2 }
+                        ].map((field) => {
+                          const meta = FIELD_METADATA[field.key] || {};
+                          const required = isFieldRequired(field.key);
+                          const spanClass = field.span === 2 ? "md:col-span-2" : "";
                           
-                          if (meta.type === "textarea") {
+                          // Use field properties with meta as fallback
+                          const label = field.label;
+                          const fieldType = field.type || meta.type || "text";
+                          const options = field.options || meta.options || [];
+                          const rows = field.rows || meta.rows || 3;
+                          const placeholder = field.placeholder || meta.placeholder;
+                          
+                          if (fieldType === "textarea") {
                             return (
-                              <div key={field} className="md:col-span-2">
-                                {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
+                              <div key={field.key} className={spanClass}>
+                                {renderTextArea(label, field.key, rows, placeholder, required)}
                               </div>
                             );
                           }
-                          if (meta.type === "dropdown") {
+                          if (fieldType === "dropdown") {
                             return (
-                              <div key={field}>
-                                {renderDropdown(meta.label, field, meta.options || [], required)}
+                              <div key={field.key} className={spanClass}>
+                                {renderDropdown(label, field.key, options, required)}
                               </div>
                             );
                           }
                           return (
-                            <div key={field}>
-                              {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+                            <div key={field.key} className={spanClass}>
+                              {renderInput(label, field.key, fieldType, placeholder, required)}
                             </div>
                           );
                         })}
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Add Goal Button */}
+                  <div className="flex justify-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setNumberOfGoals(numberOfGoals + 1)}
+                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-md hover:shadow-lg"
+                    >
+                      <FaPlus className="text-sm" />
+                      Add Goal {numberOfGoals + 1}
+                    </button>
+                  </div>
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "supportInfo" ? (
                 // Special layout for support info section
@@ -781,11 +965,11 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
@@ -793,7 +977,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
+              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? 'Saving...' : 'Save Progress'}
             </button>
           </div>

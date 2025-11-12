@@ -346,6 +346,24 @@ export async function POST(
 
     const newStatus = "in_progress";
 
+    // 🧹 Cleanup: Clear conditional fields based on their parent values
+    if (formKey === 'support_action_plan') {
+      // Clear capacityActions if capacityAssessmentRequired is not "Yes"
+      if (formData.capacityAssessmentRequired !== 'Yes') {
+        formData.capacityActions = '';
+      }
+      
+      // Clear assessmentActions1 if additionalAssessment1 is not "Yes"
+      if (formData.additionalAssessment1 !== 'Yes') {
+        formData.assessmentActions1 = '';
+      }
+      
+      // Clear assessmentActions2 if additionalAssessment2 is not "Yes"
+      if (formData.additionalAssessment2 !== 'Yes') {
+        formData.assessmentActions2 = '';
+      }
+    }
+
     const formSubmission = await prisma.formSubmission.upsert({
       where: {
         clientId_formId_formVersion: {

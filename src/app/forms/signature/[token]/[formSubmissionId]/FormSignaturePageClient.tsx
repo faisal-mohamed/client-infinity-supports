@@ -18,6 +18,7 @@ import {
   getFormSignatures,
   type SignatureRequirement,
 } from "@/app/forms/registry";
+import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
@@ -59,6 +60,13 @@ export default function FormSignaturePageClient() {
   const [error, setError] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const { showToast } = useToast();
+  const [editedFormValues, setEditedFormValues] = useState<any | null>(null);
+  
+  // Button-specific loading states
+  const [saving, setSaving] = useState(false); // For Save Progress button
+  const [navigatingNext, setNavigatingNext] = useState(false); // For Next button
+  const [navigatingPrev, setNavigatingPrev] = useState(false); // For Previous button
 
   // Multi-signature state
   const [requiredSignatures, setRequiredSignatures] = useState<
@@ -73,6 +81,11 @@ export default function FormSignaturePageClient() {
   >({});
 
   const [signatureName, setSignatureName] = useState<string>("");
+  const [signatureDate, setSignatureDate] = useState<string>(() => {
+    // Initialize with today's date in YYYY-MM-DD format
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  });
 
   const [selectedGroupSignatureId, setSelectedGroupSignatureId] = useState<
     string | null
@@ -87,6 +100,10 @@ export default function FormSignaturePageClient() {
   const activeSignatureId = isGroupAny
     ? selectedGroupSignatureId
     : currentSig?.id;
+
+  const needsName = isGroupAny
+    ? !!sameGroupSigs.find((sig) => sig.id === activeSignatureId)?.signerName
+    : !!currentSig?.signerName;
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL LOGIC
   useEffect(() => {
@@ -206,6 +223,7 @@ export default function FormSignaturePageClient() {
 
       const data = await response.json();
       setFormData(data);
+      setEditedFormValues(data?.formSubmission?.data || {});
       console.log("Form data loaded:", data);
     } catch (error: any) {
       console.error("Error loading form data:", error);
@@ -241,8 +259,13 @@ export default function FormSignaturePageClient() {
       return;
     }
 
-    if (!signatureName.trim()) {
+    if (needsName && !signatureName.trim()) {
       alert("Please enter your name before submitting.");
+      return;
+    }
+
+    if (!signatureDate) {
+      alert("Please select a signature date before submitting.");
       return;
     }
 
@@ -250,10 +273,10 @@ export default function FormSignaturePageClient() {
       setSubmitting(true);
 
       const signatureDataURL = signatureRef.toDataURL();
-      const now = new Date();
-      const formattedDate = `${String(now.getDate()).padStart(2, "0")}-${String(
-        now.getMonth() + 1
-      ).padStart(2, "0")}-${now.getFullYear()}`;
+      
+      // Convert date from YYYY-MM-DD to DD-MM-YYYY format
+      const [year, month, day] = signatureDate.split('-');
+      const formattedDate = `${day}-${month}-${year}`;
 
       const response = await fetch(
         `/api/signature/${token}/${formSubmissionId}`,
@@ -280,6 +303,9 @@ export default function FormSignaturePageClient() {
       setCompletedSignatures(updatedCompleted);
 
       setSignatureName(""); // Reset name after submission
+      // Reset date to today for next signature
+      const today = new Date();
+      setSignatureDate(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`);
 
       const allComplete = requiredSignatures.every(
         (sig) => updatedCompleted[sig.id]
@@ -387,11 +413,18 @@ export default function FormSignaturePageClient() {
 
   // Get the appropriate form component from registry
   let FormViewComponent;
+  let FormEditComponent: any = null;
   try {
     FormViewComponent = getFormComponent(
       formData.formSubmission.form.formKey,
       "view"
     );
+    if (formData.formSubmission.form.formKey === "emergency_drill") {
+      FormEditComponent = getFormComponent(
+        formData.formSubmission.form.formKey,
+        "edit"
+      );
+    }
   } catch (error) {
     console.log("error : ", error);
     return (
@@ -416,6 +449,7 @@ export default function FormSignaturePageClient() {
   }
 
   const requiresSignature = formData.formSubmission.form.requiresSignature;
+  const isEmergencyDrill = formData.formSubmission.form.formKey === "emergency_drill";
   
   const allSignaturesComplete = requiredSignatures.length === 0;
 
@@ -497,22 +531,110 @@ export default function FormSignaturePageClient() {
 
         {/* Form Content */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
-          <FormViewComponent
-            formSchemas={formData.formSubmission.form.schema}
-            formData={formData.formSubmission.data}
-            showSignature={allSignaturesComplete}
-            existingSignature={formData.formSubmission.data?.signature} // Get signature from form data
-            isClientView={true}
-            commonFieldsData={formData.client.commonFields[0] || {}}
-            settings={formSettings}
-          />
+          {isEmergencyDrill && FormEditComponent ? (
+            <FormEditComponent
+              formData={editedFormValues}
+              commonFieldsData={formData.client.commonFields?.[0] || formData.client || {}}
+              onChange={(values: any) => setEditedFormValues(values)}
+              readOnly={false}
+              isSignatureLink={true}
+              handleSaveProgress={async () => {
+                try {
+                  setSaving(true);
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                  showToast({ type: "success", title: "Saved", message: "Progress saved", duration: 2000 });
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              handleSaveForNext={async () => {
+                try {
+                  setNavigatingNext(true);
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setNavigatingNext(false);
+                }
+              }}
+              handleSaveForPrev={async () => {
+                try {
+                  setNavigatingPrev(true);
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data: editedFormValues }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                } finally {
+                  setNavigatingPrev(false);
+                }
+              }}
+              handleSubmitForm={async () => {
+                try {
+                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                      data: editedFormValues,
+                      isSubmitted: true // Mark as final submission
+                    }),
+                  });
+                  if (!res.ok) throw new Error("Failed to save");
+                  
+                  // Show success message and redirect to forms list
+                  showToast({ 
+                    type: "success", 
+                    title: "Form Submitted Successfully", 
+                    message: "Thank you! Your form has been submitted and will be reviewed by your supervisor.", 
+                    duration: 3000 
+                  });
+                  
+                  // Redirect to forms list after a short delay
+                  setTimeout(() => {
+                    router.push(`/forms/signature/${token}`);
+                  }, 2000);
+                } catch (e: any) {
+                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                }
+              }}
+              saving={saving}
+              navigatingNext={navigatingNext}
+              navigatingPrev={navigatingPrev}
+              settings={formSettings}
+            />
+          ) : (
+            <FormViewComponent
+              formSchemas={formData.formSubmission.form.schema}
+              formData={formData.formSubmission.data}
+              showSignature={allSignaturesComplete}
+              existingSignature={formData.formSubmission.data?.signature}
+              isClientView={true}
+              commonFieldsData={formData.client.commonFields[0] || {}}
+              settings={formSettings}
+            />
+          )}
         </div>
 
         {/* Signature Requirements Overview */}
         {/* {renderSignatureStatus()} */}
 
-        {/* Action Section - Only show for forms requiring signature */}
-        {requiresSignature && !showSignaturePad && !allSignaturesComplete && (
+        {/* Action Section - Only show for forms requiring signature (hidden for emergency_drill) */}
+        {requiresSignature && !isEmergencyDrill && !showSignaturePad && !allSignaturesComplete && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Review Complete
@@ -537,6 +659,7 @@ export default function FormSignaturePageClient() {
         )}
 
         {requiresSignature &&
+          !isEmergencyDrill &&
           showSignaturePad &&
           !allSignaturesComplete &&
           requiredSignatures.length > 0 && (
@@ -557,6 +680,7 @@ export default function FormSignaturePageClient() {
                     Select Signature Type
                   </label>
                   <select
+                    title="Select signature type"
                     className="w-full border border-gray-300 rounded px-3 py-2"
                     onChange={(e) => {
                       const selectedId = e.target.value;
@@ -570,7 +694,6 @@ export default function FormSignaturePageClient() {
                       }
                     }}
                     value={selectedGroupSignatureId || ""}
-                    defaultValue=""
                   >
                     <option value="" disabled>
                       Select
@@ -588,17 +711,33 @@ export default function FormSignaturePageClient() {
               {activeSignatureId && (
                 <div className="mb-8">
                   <div className="max-w-2xl mx-auto space-y-6">
-                    {/* Name Input */}
+                    {/* Name Input (only if required by config) */}
+                    {needsName && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Your Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          placeholder="Enter your full name"
+                          value={signatureName}
+                          onChange={(e) => setSignatureName(e.target.value)}
+                        />
+                      </div>
+                    )}
+
+                    {/* Date Input */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Your Name <span className="text-red-500">*</span>
+                        Signature Date <span className="text-red-500">*</span>
                       </label>
                       <input
-                        type="text"
+                        type="date"
                         className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Enter your full name"
-                        value={signatureName}
-                        onChange={(e) => setSignatureName(e.target.value)}
+                        value={signatureDate}
+                        onChange={(e) => setSignatureDate(e.target.value)}
+                        max={new Date().toISOString().split('T')[0]}
                       />
                     </div>
 

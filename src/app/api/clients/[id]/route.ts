@@ -224,9 +224,9 @@ export async function PUT(
                 console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
                 updatedData.representativeSignatureDate = null;
               }
-                if (updatedData.represenativeName) {
+                if (updatedData.representativeName) {
                 console.log(`🗑️ Clearing providerSignatureDate field from ${formKey}`);
-                updatedData.represenativeName = null;
+                updatedData.representativeName = null;
               }
               break;
 
@@ -527,7 +527,7 @@ export async function DELETE(
       });
       
       console.log(`✅ Client ${clientId} and all related data deleted successfully`);
-    });
+    }, { maxWait: 15000, timeout: 120000, isolationLevel: 'ReadCommitted' });
 
     return NextResponse.json({ 
       success: true, 
@@ -541,6 +541,13 @@ export async function DELETE(
       return NextResponse.json(
         { error: "Client not found" },
         { status: 404 }
+      );
+    }
+
+    if (error.code === 'P2028') {
+      return NextResponse.json(
+        { error: "Delete operation timed out or transaction was closed. Please retry." },
+        { status: 504 }
       );
     }
 

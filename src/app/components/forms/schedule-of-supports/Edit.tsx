@@ -11,10 +11,14 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
-  FaSpinner,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
+
+// Hourglass spinner to match Client Intake form
+const FaSpinner = ({ className }: { className?: string }) => (
+  <span className={className}>⏳</span>
+);
 
 interface FormProps {
   formData: any;
@@ -25,7 +29,12 @@ interface FormProps {
   fieldErrors?: Record<string, string>;
   handleSave: (submit: boolean) => void;
   handleSaveProgress?: () => Promise<void>;
+  handleSaveForNext?: () => Promise<void>;
+  handleSaveForPrev?: () => Promise<void>;
   handleSubmitForm?: () => Promise<void>;
+  saving?: boolean; // Loading state from parent
+  navigatingNext?: boolean;
+  navigatingPrev?: boolean;
   onCommonFieldsUpdated?: () => void;
 }
 
@@ -123,7 +132,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   fieldErrors = {},
   handleSave,
   handleSaveProgress,
+  handleSaveForNext,
+  handleSaveForPrev,
   handleSubmitForm,
+  saving = false, // Loading state from parent
+  navigatingNext = false,
+  navigatingPrev = false,
   onCommonFieldsUpdated,
 }: any) => {
 
@@ -145,6 +159,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   const participantSigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
   const nomineeSigCanvasRef  : any = useRef<SignatureCanvasRef | null>(null);
   const providerSigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
+  const prevSignatureRoleRef = useRef<string>("");
 
   const initialValues: Record<string, string> = {
 
@@ -217,7 +232,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
   representativeSignature: "",
   representativeSignatureDate: new Date().toISOString().split("T")[0],
-  represenativeName: ""
+  representativeName: ""
 };
 
 
@@ -226,8 +241,8 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   const { showToast } = useToast();
 
   // Loading states
-  const [saving, setSaving] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Note: 'saving' state comes from parent component via props
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -255,6 +270,33 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
         duration: 3000,
       });
       return;
+    }
+    
+    // Validate plan dates - end date must be after start date
+    if (name === 'planDatesTo' && value) {
+      const fromDate = localValues.planDatesFrom;
+      if (fromDate && value < fromDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan end date cannot be before the start date.",
+          duration: 4000,
+        });
+        return;
+      }
+    }
+    
+    if (name === 'planDatesFrom' && value) {
+      const toDate = localValues.planDatesTo;
+      if (toDate && value > toDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan start date cannot be after the end date.",
+          duration: 4000,
+        });
+        return;
+      }
     }
     
     let newValue : any = value;
@@ -309,15 +351,28 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   };
 
   const handleNextSequential = async () => {
-    if (handleSaveProgress) {
-      await handleSaveProgress();
+    try {
+      if (handleSaveForNext) {
+        await handleSaveForNext();
+      } else if (handleSaveProgress) {
+        await handleSaveProgress();
+      }
+      handleNext();
+    } catch (error) {
+      console.error('Error in handleNextSequential:', error);
     }
-    handleNext();
   };
 
-  const handlePreviousSequential = () => {
+  const handlePreviousSequential = async () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      try {
+        if (handleSaveForPrev) {
+          await handleSaveForPrev();
+        }
+        setCurrentStep(currentStep - 1);
+      } catch (error) {
+        console.error('Error in handlePreviousSequential:', error);
+      }
     }
   };
 
@@ -333,6 +388,11 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
     
+    // Add min date constraint for planDatesTo based on planDatesFrom
+    const minDate = (type === 'date' && name === 'planDatesTo' && localValues.planDatesFrom) 
+      ? localValues.planDatesFrom 
+      : undefined;
+    
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
@@ -346,6 +406,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
+          min={minDate}
           className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
@@ -470,15 +531,61 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   };
 
 
+  // Clear transport fields when transportOption changes
   useEffect(() => {
-  localValues["transportValue1"] = "";
-  localValues["transportOver1"] = "";
-}, [localValues["transportOption1"]]);
+    if (localValues["transportOption1"] !== "Yes") {
+      const updated = { ...localValues, transportValue1: "", transportOver1: "" };
+      setLocalValues(updated);
+    }
+  }, [localValues["transportOption1"]]);
 
- useEffect(() => {
-  localValues["transportValue2"] = "";
-  localValues["transportOver2"] = "";
-}, [localValues["transportOption2"]]);
+  useEffect(() => {
+    if (localValues["transportOption2"] !== "Yes") {
+      const updated = { ...localValues, transportValue2: "", transportOver2: "" };
+      setLocalValues(updated);
+    }
+  }, [localValues["transportOption2"]]);
+
+  // Clear signature fields when signatureRole changes
+  useEffect(() => {
+    const currentRole = localValues["signatureRole"];
+    const prevRole = prevSignatureRoleRef.current;
+    
+    // Only clear fields if role actually changed
+    if (currentRole !== prevRole && prevRole !== "") {
+      let updated = { ...localValues };
+      let hasChanges = false;
+      
+      if (currentRole === "Participant") {
+        // Clear Nominee fields and canvas
+        if (localValues["nomineeSignature"] || localValues["nomineeSignatureDate"] || localValues["nomineeName"]) {
+          updated = { ...updated, nomineeSignature: "", nomineeSignatureDate: "", nomineeName: "" };
+          hasChanges = true;
+        }
+        // Clear the Nominee signature canvas visually
+        if (nomineeSigCanvasRef.current) {
+          nomineeSigCanvasRef.current.clear();
+        }
+      } else if (currentRole === "Nominee") {
+        // Clear Participant fields and canvas
+        if (localValues["participantSignature"] || localValues["participantSignatureDate"] || localValues["participantName"]) {
+          updated = { ...updated, participantSignature: "", participantSignatureDate: "", participantName: "" };
+          hasChanges = true;
+        }
+        // Clear the Participant signature canvas visually
+        if (participantSigCanvasRef.current) {
+          participantSigCanvasRef.current.clear();
+        }
+      }
+      
+      if (hasChanges) {
+        setLocalValues(updated);
+      }
+    }
+    
+    // Update the ref for next comparison
+    prevSignatureRoleRef.current = currentRole;
+  }, [localValues["signatureRole"]]);
 
 
 const renderSignatureField = (
@@ -804,7 +911,7 @@ const renderSignatureField = (
   }
 
   // Always required provider fields
-  ["representativeSignature", "representativeSignatureDate", "represenativeName"].forEach(field => {
+  ["representativeSignature", "representativeSignatureDate", "representativeName"].forEach(field => {
     if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
       missingFields.push(field);
     }
@@ -1034,7 +1141,7 @@ const supportLineItems = [
                       {renderSignatureField("Signature on behalf of Infinity Supports WA", "representativeSignature", providerSigCanvasRef, "Draw provider signature")}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {renderInput("Date of provider signature", "representativeSignatureDate", "date")}
-                        {renderInput("Name of provider representative", "represenativeName", "text", "Enter provider name")}
+                        {renderInput("Name of provider representative", "representativeName", "text", "Enter provider name")}
                       </div>
                     </div>
                   </div>
@@ -1068,6 +1175,7 @@ const supportLineItems = [
                     <input
                       type="number"
                       step="0.1"
+                      min="0"
                       name={`${item.code}_${isKmBased ? "totalKms" : "weeks"}`}
                       value={localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || ""}
                       onChange={handleChange}
@@ -1079,6 +1187,7 @@ const supportLineItems = [
                       <input
                         type="number"
                         step="0.1"
+                        min="0"
                         name={`${item.code}_totalHours`}
                         value={localValues[`${item.code}_totalHours`] || ""}
                         onChange={handleChange}
@@ -1234,21 +1343,21 @@ const supportLineItems = [
             <button
               type="button"
               onClick={handlePreviousSequential}
-              disabled={currentStep === 0}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
+              disabled={currentStep === 0 || navigatingPrev}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"}`}
             >
-              <FaChevronLeft className="w-4 h-4" />
+              {navigatingPrev ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
               <span>Previous</span>
             </button>
 
             <button
               type="button"
               onClick={handleNextSequential}
-              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
+              disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"}`}
             >
               <span>Next</span>
-              <FaChevronRight className="w-4 h-4" />
+              {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
             </button>
 
             <button
@@ -1256,7 +1365,7 @@ const supportLineItems = [
               disabled={saving || submitting}
               className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
-              <FaSave className="w-4 h-4" />
+              {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? 'Saving...' : 'Save Progress'}
             </button>
           </div>

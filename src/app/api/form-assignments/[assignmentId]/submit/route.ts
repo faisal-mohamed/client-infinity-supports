@@ -85,6 +85,24 @@ export async function POST(
       `🎯 Submit Status: assignmentId=${assignmentIdNum}, hasAllSignatures=${hasAllSignatures}, totalRequired=${signatureValidation.totalRequired}, newStatus=${newStatus}, canSubmit=${canSubmit}`
     );
 
+    // 🧹 Cleanup: Clear conditional fields based on their parent values
+    if (assignment.form.formKey === 'support_action_plan') {
+      // Clear capacityActions if capacityAssessmentRequired is not "Yes"
+      if (formData.capacityAssessmentRequired !== 'Yes') {
+        formData.capacityActions = '';
+      }
+      
+      // Clear assessmentActions1 if additionalAssessment1 is not "Yes"
+      if (formData.additionalAssessment1 !== 'Yes') {
+        formData.assessmentActions1 = '';
+      }
+      
+      // Clear assessmentActions2 if additionalAssessment2 is not "Yes"
+      if (formData.additionalAssessment2 !== 'Yes') {
+        formData.assessmentActions2 = '';
+      }
+    }
+
     // Update or create FormSubmission
     const formSubmission = await prisma.formSubmission.upsert({
       where: {
@@ -273,14 +291,22 @@ export async function POST(
           );
 
           console.log(
-            `📊 Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
+            `📊 [BATCH CHECK] Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
           );
+          console.log(`📊 [BATCH CHECK] Completed form IDs:`, completedAssignments.map(a => a.id));
+          console.log(`📊 [BATCH CHECK] All form statuses:`, allAssignments.map(a => ({ 
+            id: a.id, 
+            title: a.form.title, 
+            status: a.currentStatus 
+          })));
 
           // If all forms in batch are completed, send email
           if (
             completedAssignments.length === allAssignments.length &&
             allAssignments.length > 0
           ) {
+            console.log(`🎉 [BATCH CHECK] ALL FORMS COMPLETED! Triggering email to admin + client...`);
+            console.log(`🎉 [BATCH CHECK] Batch ${batch.id}: ${allAssignments.length} forms all done!`);
             // console.log(
             //   `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
             // );
@@ -316,48 +342,67 @@ export async function POST(
 
 
 
-            // Send dual notification email (admin + client)
-
+            // Check if email was already sent for this batch
+            const batchAlreadySent = batch.isCompleted && batch.completedAt;
             
-            // const emailResponse = await fetch(
-            //   `${
-            //     process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
-            //   }/api/notifications/send-email/${adminId}`,
-            //   {
-            //     method: "POST",
-            //     headers: {
-            //       "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify({
-            //       type: "dual_notification",
-            //       adminId, // 💡 add this
-            //       clientId: batch.clientId,
-            //       clientName: batch.client.name,
-            //       clientEmail: batch.client.email,
-            //       batchId: batch.id,FS
-            //       completedForms: completedFormsData,
-            //       completedAt: new Date().toLocaleString(),
-            //     }),
-            //   }
-            // );
+            if (batchAlreadySent) {
+              console.log(`⚠️ [BATCH COMPLETE] Batch ${batch.id} was already completed at ${batch.completedAt}`);
+              console.log(`⚠️ [BATCH COMPLETE] Email may have already been sent. Skipping duplicate email.`);
+            }
 
-            // if (emailResponse.ok) {
-            //   const emailResult = await emailResponse.json();
-            //   console.log(`✅ Dual notification emails sent successfully:`, {
-            //     adminEmail: emailResult.adminEmail,
-            //     clientEmail: emailResult.clientEmail,
-            //     totalEmails: emailResult.totalEmails,
-            //     client: batch.client.name,
-            //     batchId: batch.id,
-            //     totalForms: completedFormsData.length,
-            //   });
-            // } else {
-            //   const emailError = await emailResponse.text();
-            //   console.error(
-            //     `❌ Failed to send dual notification emails:`,
-            //     emailError
-            //   );
-            // }
+            // Send dual notification email (admin + client)
+            console.log(`📧 [BATCH COMPLETE] All forms completed! Sending dual notification emails...`);
+            console.log(`📧 [BATCH COMPLETE] Batch info:`, {
+              batchId: batch.id,
+              clientName: batch.client.name,
+              clientEmail: batch.client.email,
+              formsCount: completedFormsData.length,
+              wasAlreadyCompleted: batchAlreadySent
+            });
+            
+            try {
+              const emailResponse = await fetch(
+                `${
+                  process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
+                }/api/notifications/send-email/${adminId}`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    type: "dual_notification",
+                    adminId,
+                    clientId: batch.clientId,
+                    clientName: batch.client.name,
+                    clientEmail: batch.client.email,
+                    batchId: batch.id,
+                    completedForms: completedFormsData,
+                    completedAt: new Date().toLocaleString(),
+                  }),
+                }
+              );
+
+              if (emailResponse.ok) {
+                const emailResult = await emailResponse.json();
+                console.log(`✅ [BATCH COMPLETE] Dual notification emails sent successfully:`, {
+                  adminEmail: emailResult.adminEmail,
+                  clientEmail: emailResult.clientEmail,
+                  totalEmails: emailResult.totalEmails,
+                  client: batch.client.name,
+                  batchId: batch.id,
+                  totalForms: completedFormsData.length,
+                });
+              } else {
+                const emailError = await emailResponse.text();
+                console.error(
+                  `❌ [BATCH COMPLETE] Failed to send dual notification emails:`,
+                  emailError
+                );
+              }
+            } catch (emailSendError) {
+              console.error("❌ [BATCH COMPLETE] Email sending error (non-blocking):", emailSendError);
+            }
 
 
 

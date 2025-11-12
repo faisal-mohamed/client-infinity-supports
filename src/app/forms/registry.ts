@@ -1,17 +1,25 @@
 import ClientIntakeFormEnhanced from "../components/forms/client_intake_form/ClientIntakeFormEnhanced";
+import ClientIntakeFormEdit from "../components/forms/client_intake_form/ClientIntakeFormEdit"; // NEW: Unified edit wrapper
+import ClientIntakeFormView from "../components/forms/client_intake_form/ClientIntakeFormView"; // NEW: Unified view wrapper
+import ClientIntakeFormPDF from "../../components/client-intake-form/ClientIntakeFormPDF"; // NEW: Improved HTML-based PDF renderer
 import FormRenderer from "@/components/clients-intake-form/FormRenderer"; // Assuming this is the form renderer component
 
 import HomeVisitRiskAssessment from "@/app/form-components/home_visit/page";
 import HomeVisitRiskAssessmentEdit from "../components/forms/home_visit_risk_assessment/Edit";
+import HomeVisitDynamic from "../components/forms/home-visit-risk-assessment/HomeVisitDynamic";
+import HomeRiskAssesmentView from "@/components/home_visit_risk_assessment/view";
+import HomeVisitRiskAssessmentPDF from "../../components-server/PrintableForms/HomeVisitRiskAssessment_MATCHING";
 
 import PersonCentredPlanView from "@/components/person_centred_plan/view";
 import PersonCentredPlanEdit from "@/app/components/forms/person_centred_plan/Edit";
 
 import SADeliverySupports from "@/app/form-components/SA-delivery-of-supports/page";
+import SADeliverySupportsView from "../components/forms/sa-delivery-of-supports/SADeliverySupportsView";
 import SADeliverySupportsEdit from "../components/forms/sa-delivery-of-supports/Edit";
 
 import ParticipantRiskAssessmentView from "@/components/participant-risk-assessment/view";
 import ParticipantRiskAssessmentEdit from "../components/forms/participant-risk-assessment/Edit_2";
+import ParticipantRiskAssessmentPDF from "@/components/participant-risk-assessment/ParticipantRiskAssessmentPDF";
 
 import EmergencyDrillEdit from "../components/forms/emergency-drill/Edit";
 import EmergencyDrill from "@/components/emergency-drill/View"; // Assuming this is
@@ -20,13 +28,16 @@ import IndividualRiskAssessmentView from "@/components/individual-risk-assessmen
 import IndividualRiskAssessmentEdit from "../components/forms/individual-risk-assessment/Edit";
 
 import WelcomeFormView from "@/components/welcome-form/View";
+import WelcomeFormDynamic from "../components/forms/welcome-form/WelcomeFormDynamic";
 import WelcomeFormEdit from "../components/forms/welcome-form/Edit";
+import WelcomeForm_MATCHING from "../../components-server/PrintableForms/WelcomeForm_MATCHING";
 
 import ScheduleForSupportEdit from "../components/forms/support-action-plan/Edit";
-import ScheduleForSupportView from "@/components/support-action-plan/View";
+import SupportActionPlanView from "../components/forms/support-action-plan/SupportActionPlanView";
 
 import MDTEdit from "../components/forms/mdt/Edit";
 import MDTView from "@/components/mdt/View";
+import MDT_PDF from "../../components-server/PrintableForms/mdt/page";
 
 import ScheduleForSupportView1 from "@/components/schedule-of-supports/View";
 import ScheduleForSupportEdit1 from "../components/forms/schedule-of-supports/Edit";
@@ -59,6 +70,7 @@ interface FormRegistryItem {
   name: string;
   editComponent: React.ComponentType<any>;
   viewComponent: React.ComponentType<any>;
+  pdfComponent?: React.ComponentType<any>; // NEW: PDF component for downloads
   signatures?: SignatureRequirement[]; // NEW: Signature configuration
 }
 
@@ -66,22 +78,26 @@ const formRegistry: Record<string, FormRegistryItem> = {
   client_intake_form: {
     key: "client_intake_form",
     name: "Client Intake Form",
-    editComponent: ClientIntakeFormEnhanced,
-    viewComponent: FormRenderer,
+    // NEW: Using unified component via wrappers
+    editComponent: ClientIntakeFormEdit,
+    viewComponent: ClientIntakeFormView,
+    pdfComponent: ClientIntakeFormPDF, // NEW: Improved HTML-based PDF renderer
   },
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",
     name: "Home & Visit Risk Assessment",
-    viewComponent: HomeVisitRiskAssessment,
+    viewComponent: HomeRiskAssesmentView,
     editComponent: HomeVisitRiskAssessmentEdit,
+    pdfComponent: HomeVisitRiskAssessmentPDF,
     signatures: [
       {
-        id: "client_signature",
-        label: "Client Signature",
-        description:
-          "I acknowledge that this risk assessment has been completed and I understand the safety considerations outlined above.",
+        id: "assessor_signature",
+        label: "Assessor Signature",
+        description: "Signature of the Risk Assessment Assessor",
         required: true,
-        dataKey: "signature", // Maps to formData.signature field where the actual signature is stored
+        dataKey: "assessorSignature",
+        signedAtKey: "completionDate",
+        signerName: "assessorName",
       },
     ],
   },
@@ -95,7 +111,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   sa_delivery_of_supports: {
     key: "sa_delivery_of_supports",
     name: "SA Delivery of Supports",
-    viewComponent: SADeliverySupports,
+    viewComponent: SADeliverySupportsView,
     editComponent: SADeliverySupportsEdit,
     signatures: [
       {
@@ -137,6 +153,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: "Participant Risk Assessment",
     viewComponent: ParticipantRiskAssessmentView,
     editComponent: ParticipantRiskAssessmentEdit,
+    pdfComponent: ParticipantRiskAssessmentPDF,
     signatures: [
       {
         id: "staff_signature",
@@ -199,8 +216,9 @@ const formRegistry: Record<string, FormRegistryItem> = {
   welcome_form: {
     key: "welcome_form",
     name: "Welcome Form",
-    viewComponent: WelcomeFormView,
+    viewComponent: WelcomeFormDynamic, // NEW: Dynamic view with auto-pagination
     editComponent: WelcomeFormEdit,
+    pdfComponent: WelcomeForm_MATCHING, // NEW: Unified PDF download
     signatures: [
       {
         id: "client_signature",
@@ -216,7 +234,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   support_action_plan: {
     key: "support_action_plan",
     name: "Support Action Plan",
-    viewComponent: ScheduleForSupportView,
+    viewComponent: SupportActionPlanView,
     editComponent: ScheduleForSupportEdit,
     signatures: [
       {
@@ -242,6 +260,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: "Multi Disciplinary Meeting",
     editComponent: MDTEdit,
     viewComponent: MDTView,
+    pdfComponent: MDT_PDF,
   },
 
   schedule_of_supports: {
@@ -357,6 +376,11 @@ export const getFormSignatures = (formKey: string): SignatureRequirement[] => {
 export const hasSignatureRequirement = (formKey: string): boolean => {
   const signatures = getFormSignatures(formKey);
   return signatures.length > 0;
+};
+
+export const getPDFComponent = (formKey: string) => {
+  const formConfig = formRegistry[formKey];
+  return formConfig?.pdfComponent;
 };
 
 export const getAllForms = () => {

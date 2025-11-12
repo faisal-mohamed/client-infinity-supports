@@ -165,20 +165,25 @@ export async function POST(
     );
 
     if (!notificationResponse.ok) {
-      const errText = await notificationResponse.text();
-      console.error('Failed to send internal email:', errText);
-      return NextResponse.json({ error: 'Email send failed' }, { status: 500 });
+      const errorData = await notificationResponse.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('❌ Failed to send internal email:', errorData);
+      
+      // Return detailed error for frontend to parse
+      return NextResponse.json({ 
+        error: 'Failed to send email', 
+        details: errorData.details || errorData.error || 'Email sending failed'
+      }, { status: 500 });
     }
 
     const result = await notificationResponse.json();
 
     return NextResponse.json({
       success: true,
-      message: 'Client confirmation email sent',
+      message: `Email sent successfully to ${client.email} with ${completedForms.length} PDF attachment(s)`,
       emailResult: result
     });
   } catch (error: any) {
-    console.error('Error sending confirmation email:', error);
+    console.error('❌ Error sending confirmation email:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error.message },
       { status: 500 }

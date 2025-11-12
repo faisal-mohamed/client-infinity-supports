@@ -1,1146 +1,960 @@
-const formSchema : any = {
-    "formKey": "client_intake_form",
-    "title": "Client Intake Form",
-    "schema": {
-  "clientIntakeSchema": {
-    "pageTitle": "Client Intake Form",
-    "logo": {
-      "src": "/infinity_logo.png",
-      "alt": "Infinity Supports WA logo with text below",
-      "width": 200,
-      "height": 60
-    },
-    "fields": [
-      { "type": "sectionHeader", "label": "Participant Details", "colSpan": 2 },
-      { "label": "Date:", "key": "date", "type": "text", "colSpan": 2 },
-      { "label": "NDIS Number:", "key": "ndisNumber", "type": "text", "colSpan": 2 },
-      { "label": "Given name(s):", "key": "givenName", "type": "text", "width": "50%" },
-      { "label": "Surname:", "key": "surname", "type": "text", "width": "25%" },
-      {
-        "label": "Sex:",
-        "key": "sex",
-        "type": "checkboxGroup",
-        "width": "25%",
-        "options": ["Male", "Female", "Prefer not to say"],
-        "otherKey": "sexOther"
-      },
-      { "label": "Pronoun:", "key": "pronoun", "type": "text", "colSpan": 3 },
-      {
-        "label": "Are you an Aboriginal or Torres Strait Island descent?",
-        "key": "aboriginalTorres",
-        "type": "checkboxGroup",
-        "colSpan": 1,
-        "options": ["Yes", "No"],
-        "width": "auto"
-      },
-      { "label": "Preferred name:", "key": "preferredName", "type": "text", "colSpan": 2 },
-      { "label": "Date of Birth:", "key": "dateOfBirth", "type": "text", "width": "auto" },
-      { "type": "sectionHeader", "label": "Residential Address Details", "colSpan": 3 },
-      { "label": "Number / Street:", "key": "addressNumberStreet", "type": "text", "colSpan": 3 },
-      { "label": "State:", "key": "state", "type": "text", "width": "50%" },
-      { "label": "Postcode:", "key": "postcode", "type": "text", "colSpan": 2, "width": "50%" },
-      { "type": "sectionHeader", "label": "Participant Contact Details", "colSpan": 3 },
-      { "label": "Email address:", "key": "email", "type": "text", "colSpan": 3 },
-      { "label": "Home Phone No:", "key": "homePhone", "type": "text", "width": "50%" },
-      { "label": "Mobile No:", "key": "mobile", "type": "text", "colSpan": 2, "width": "50%" },
-      { "type": "sectionHeader", "label": "Disability Conditions/Disability type(s)", "colSpan": 3 },
-      {
-        "label": "",
-        "key": "disabilityConditions",
-        "type": "textarea",
-        "colSpan": 3,
-        "height": 150
-      }
-    ],
-    "footer": true
+import React from 'react';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  Font
+} from '@react-pdf/renderer';
+
+// Define styles with proper @react-pdf/renderer syntax
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    paddingTop: 40,
+    paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    fontFamily: 'Helvetica',
+    fontSize: 11,
+    lineHeight: 1.4,
+    marginBottom: 10, // Gap between pages
   },
-  "gpMedicalSupportSchema": {
-    "logo": {
-      "src": "/infinity_logo.png",
-      "alt": "Infinity Supports WA logo with infinity symbol and text Achieving Goals and Beyond",
-      "width": 150,
-      "height": 60
-    },
-    "fields": [
-      { "type": "sectionHeader", "label": "GP Medical Contact", "colSpan": 2 },
-      { "label": "Medical Centre Name:", "key": "medicalCentreName", "type": "text", "colSpan": 2 },
-      { "label": "Phone:", "key": "medicalPhone", "type": "text", "colSpan": 2 },
-      { "type": "sectionHeader", "label": "Support Coordinator", "colSpan": 2, "bgColor": "bg-gray-100" },
-      { "label": "Name:", "key": "supportCoordinatorName", "type": "text", "width": "50%" },
-      { "label": "Email Address:", "key": "supportCoordinatorEmail", "type": "text", "width": "50%" },
-      { "label": "Company:", "key": "supportCoordinatorCompany", "type": "text", "width": "50%" },
-      { "label": "Contact number:", "key": "supportCoordinatorContact", "type": "text", "width": "50%" },
-      {
-        "type": "sectionHeader",
-        "label": "What other supports including mainstream health services you receive at present",
-        "colSpan": 2,
-        "bgColor": "bg-gray-300"
-      },
-      {
-        "label": "",
-        "key": "otherSupports",
-        "type": "textarea",
-        "colSpan": 2,
-        "height": 256
-      }
-    ],
-    "footer": true
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingBottom: 10,
+    marginBottom: 15,
+    height: 40,
   },
-  "allAboutMeSchema": {
-    "logo": {
-      "src": "/infinity_logo.png",
-      "alt": "Infinity Supports WA logo with infinity symbol and text Achieving Goals and Beyond",
-      "width": 150,
-      "height": 60
-    },
-    "sections": {
-      "allAboutMe": {
-        "title": "All About Me"
-      },
-      "advocateDetails": {
-        "title": "Advocate/representative details (if applicable)",
-        "fields": {
-          "name": "Name:",
-          "relationship": "Relationship with the participant:",
-          "phone": "Phone No:",
-          "mobile": "Mobile No:",
-          "email": "Email:",
-          "address": "Address Details:",
-          "postalAddress": "Postal Address Details:",
-          "otherInfo": "Other Information:"
-        }
-      },
-      "personalSituation": {
-        "title": "Personal Situation",
-        "fields": {
-          "barriers": {
-            "label": "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?",
-            "options": ["Yes", "No"],
-            "followUp": "If yes, please indicate below:",
-            "key": "barriers"
-          },
-          "interpreter": {
-            "label": "Verbal communication or spoken language - Is an interpreter needed?",
-            "options": ["Yes", "No"],
-            "key": "interpreter"
-          },
-          "language": { "label": "Language", "key": "language" },
-          "culturalValues": { "label": "Cultural values/ beliefs or assumptions", "key":"culturalValues" },
-          "culturalBehaviours": { "label": "Cultural behaviours", "key": "culturalBehaviours" },
-          "writtenCommunication": { "label": "Written communication/literacy", "key": "writtenCommunication" },
-          "countryOfBirth": { "label": "Country of birth", "key": "countryOfBirth" }
-        }
-      }
-    }
+  headerLogo: {
+    width: 220,
+    height: 70,
   },
-  "contactsLivingTravelSchema": {
-    "pageTitle": "Contacts, Living and Travel",
-    "logo": {
-      "src": "/infinity_logo.png",
-      "alt": "Infinity Supports WA logo with pink infinity symbol and text below",
-      "width": 150,
-      "height": 70
-    },
-    "fields": [
-      { "type": "contactHeader", "label": "Primary Contact" },
-      {
-        "type": "contactRow",
-        "columns": [
-          { "label": "Contact Name:", "key": "primaryContactName" },
-          { "label": "Relationship:", "key": "primaryContactRelationship" }
-        ]
-      },
-      {
-        "type": "contactRow",
-        "columns": [
-          { "label": "Home Phone No:", "key": "primaryContactHomePhone" },
-          { "label": "Mobile No:", "key": "primaryContactMobile" }
-        ]
-      },
-      { "type": "contactHeader", "label": "Secondary Contact" },
-      {
-        "type": "contactRow",
-        "columns": [
-          { "label": "Contact Name:", "key": "secondaryContactName" },
-          { "label": "Relationship:", "key": "secondaryContactRelationship" }
-        ]
-      },
-      {
-        "type": "contactRow",
-        "columns": [
-          { "label": "Home Phone No:", "key": "secondaryContactHomePhone" },
-          { "label": "Mobile No:", "key": "secondaryContactMobile" }
-        ]
-      },
-      {
-        "type": "boxSection",
-        "heading": "Living and support arrangements",
-        "question": "What is your current living arrangement? (Please tick the appropriate box)",
-        "key": "livingArrangements",
-        "options": [
-          "Live with Parent/Family/Support Person",
-          "Live in private rental arrangement with others",
-          "Live in private rental arrangement alone",
-          "Owns own home.",
-          "Aged Care Facility",
-          "Mental Health Facility",
-          "Lives in public housing",
-          "Short Term Crisis/Respite",
-          "Staff Supported Group Home",
-          "Hostel/SRS Private Accommodation",
-          "Other"
-        ],
-        "otherKey": "livingArrangementsOther"
-      },
-      {
-        "type": "boxSection",
-        "heading": "Travel",
-        "question": "How do you travel to work or to your day service? (Please tick the appropriate box)",
-        "key": "travelArrangements",
-        "options": [
-          "Taxi",
-          "Pick up/ drop off by Parent/Family/Support Person",
-          "Transport by a provider",
-          "Independently use Public Transport",
-          "Walk",
-          "Assisted Public Transport",
-          "Drive own car.",
-          "Other"
-        ],
-        "otherKey": "travelArrangementsOther"
-      }
-    ],
-    "footer": true
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    backgroundColor: '#ffffff',
+    paddingTop: 10,
+    fontSize: 10,
+    height: 30,
   },
-  "medicationInfoSchema": {
-    "logo": {
-      "src": "/infinity_logo.png",
-      "alt": "Infinity Supports WA logo with infinity symbol in red above text",
-      "width": 120,
-      "height": 50
-    },
-    "title": "Medication Information/Diagnosis/Health Concerns",
-    "fields": [
-      {
-        "key": "medicationChart",
-        "label": "Does the Participant require a Medication Chart?",
-        "yesDetail": "If yes, is this medication taken on a regular basis and for what purpose, ensure to complete Medication Chart and Participant risk assessment"
-      },
-      {
-        "key": "mealtimeManagement",
-        "label": "Does the Participant require Mealtime Management?",
-        "yesDetail": "If yes, refer to Mealtime Management Plan Form"
-      },
-      {
-        "key": "bowelCare",
-        "label": "Does the participant require Bowel Care Management?",
-        "yesDetail": "If yes, refer to Complex Bowel Care Plan and Monitoring Form and indicate what assistance is required with bowel care."
-      },
-      {
-        "key": "menstrualIssues",
-        "label": "Are there any issues with a menstrual cycle or is assistance needed with female hygiene",
-        "yesDetail": "If yes, please specify:"
-      },
-      {
-        "key": "epilepsy",
-        "label": "Does the Participant have Epilepsy?",
-        "yesDetail": "If yes, ensure Participant’s Doctor completes an Epilepsy Plan"
-      },
-      {
-        "key": "asthmatic",
-        "label": "Is the Participant an Asthmatic?",
-        "yesDetail": "If yes, ensure Participant’s Doctor completes an Asthma Plan"
-      },
-      {
-        "key": "allergies",
-        "label": "Does the Participant have any allergies?",
-        "yesDetail": "If yes, ensure to have an Allergy Plan from Participant’s Doctor"
-      },
-      {
-        "key": "anaphylactic",
-        "label": "Is the Participant anaphylactic?",
-        "yesDetail": "If yes, ensure to have an anaphylaxis Plan from the Participant’s Doctor"
-      },
-      {
-        "key": "minorInjury",
-        "label": "Do you give permission for our company’s staff to administer band-aids in cases of a minor injury?"
-      },
-      {
-        "key": "training",
-        "label": "Does this participant require specific training",
-        "yesDetail": "If yes, ensure to provide information such as implementing a positive behaviour support plan."
-      },
-      {
-        "key": "othermedical",
-        "label": "Are there any other medication conditions that will be relevant to the care provided to this Participant?",
-        "yesDetail": "If yes, Please specify"
-      },
-      {
-        "key": "trigger",
-        "label": "Is there any specific trigger for community activities?",
-        "yesDetail": "If yes, please specify and complete the Risk assessment for participants."
-      }
-    ]
+  footerText: {
+    fontSize: 10,
+    color: '#666666',
   },
-  "safetyConsiderationSchema": {
-  "title": "Safety Considerations",
-  "logo": {
-    "src": "/infinity_logo.png",
-    "alt": "Infinity Supports WA logo with infinity symbol in red above text",
-    "width": 120,
-    "height": 50
+  content: {
+    flex: 1,
+    paddingHorizontal: 0,
   },
-  "fields": [
-    {
-      "key": "absconding",
-      "label": "Does the Participant show signs or a history of unexpectedly leaving (absconding)?",
-      "yesDetail": "If yes, please specify."
-    },
-    {
-      "key": "historyOfFalls",
-      "label": "Is this participant prone to falls or have a history of falls?"
-    },
-    {
-      "key": "behaviourConcern",
-      "label": "Are there any behaviours of concern? E.g.:.kicking, biting",
-      "yesDetail": "If yes, please specify."
-    },
-    {
-      "key": "positiveBehaviour",
-      "label": "Is there a current Positive Behaviour Support Plan in place",
-      "yesDetail": "If yes, refer to High Risk Participant Register."
-    },
-    {
-      "key": "communicationAssistance",
-      "label": "If yes, refer to the mode of communication reflected in Participant Risk Assessment and disaster management plan",
-      "yesDetail": "If yes, ensure Participant’s Doctor completes an Epilepsy Plan"
-    },
-    {
-      "key": "physicalAssistance",
-      "label": "Is there any physical assistance or physical assistance preference for this Participant?",
-      "yesDetail": "If yes, specify"
-    },
-    {
-      "key": "languageConcern",
-      "label": "Does the Participant have any expressive language concerns?",
-      "yesDetail": "If yes, refer to Participant Risk Assessment and disaster management plan under OH&S Assessments and Mode of Communication"
-    },
-    {
-      "key": "personalGoals",
-      "label": "Does this Participant have any personal preferences & personal goals?",
-      "yesDetail": "If yes, refer to form Support Plan"
-    }
-  ]
-},
-    }
-  }
-// ✅ Shared for all pages
-const commonFieldMapping: Record<string, string> = {
-  givenName: "name",
-  dateOfBirth: "dob",
-  ndisNumber: "ndis",
-  sex: "sex",
-  addressNumberStreet: "street",
-  state: "state",
-  postcode: "postCode",
-  mobile: "phone",
-  email: "email",
-  disabilityConditions: "disability",
-  surname: 'surname',
-};
+  section: {
+    marginBottom: 25,
+    breakInside: 'avoid', // Prevents sections from breaking across pages
+    pageBreakInside: 'avoid', // Alternative syntax
+  },
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#000000', // Changed to black
+    backgroundColor: '#e5e7eb',
+    padding: 4,
+  },
+  fieldRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    alignItems: 'flex-start',
+    breakInside: 'avoid',
+    pageBreakInside: 'avoid',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  label: {
+    width: 140,
+    fontWeight: 'bold',
+    fontSize: 9,
+    color: '#374151',
+    paddingRight: 8,
+  },
+  fullWidthLabel: {
+    width: '100%',
+    fontWeight: 'bold',
+    fontSize: 9,
+    color: '#374151',
+    paddingRight: 8,
+  },
+  singleBox: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 8,
+    border: '1 solid #000000',
+    backgroundColor: '#ffffff',
+  },
+  questionText: {
+    fontWeight: 'bold',
+    fontSize: 9,
+    color: '#374151',
+    flex: 1,
+    marginRight: 10,
+  },
+  value: {
+    flex: 1,
+    fontSize: 9,
+    color: '#111827',
+    paddingRight: 16,
+    borderBottom: '1 solid #000000',
+    paddingBottom: 4,
+    minHeight: 16,
+  },
+  longAnswer: {
+    marginBottom: 10,
+    breakInside: 'avoid', // Prevents breaking inside the answer box
+    pageBreakInside: 'avoid', // Alternative syntax for some versions
+  },
+  longAnswerLabel: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+    fontSize: 9,
+    color: '#374151',
+  },
+  longAnswerValue: {
+    border: '1 solid #000000',
+    padding: 8,
+    minHeight: 20, // Minimal height for border visibility
+    fontSize: 10,
+    color: '#111827',
+    lineHeight: 1.4,
+    breakInside: 'auto',
+    pageBreakInside: 'auto',
+    backgroundColor: '#ffffff',
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    gap: 15,
+    flexWrap: 'wrap',
+  },
+  verticalRadioGroup: {
+    flexDirection: 'column',
+    gap: 5,
+  },
+  radioItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    fontSize: 9,
+    marginBottom: 2,
+  },
+  checkbox: {
+    width: 10,
+    height: 10,
+    border: '1 solid #000000',
+    marginRight: 4,
+    backgroundColor: '#ffffff',
+  },
+  checkboxChecked: {
+    width: 10,
+    height: 10,
+    border: '1 solid #000000',
+    marginRight: 4,
+    backgroundColor: '#87ceeb',
+  },
+  tickMark: {
+    fontSize: 10,
+    color: '#2563eb',
+    fontWeight: 'bold',
+  },
+  pageBreak: {
+    breakBefore: 'page',
+  },
+  pageGap: {
+    marginBottom: 20,
+    height: 20,
+  },
+});
 
-import { format, parseISO, isValid } from "date-fns";
+interface ClientIntakePDFProps {
+  formData: any;
+  commonFieldsData: any;
+  settings: any;
+  logoDataUrl: string;
+}
 
-// Helper function to check if a field is a common field
-const isCommonField = (fieldKey: string): boolean => {
-  return Object.keys(commonFieldMapping).includes(fieldKey);
-};
-// Helper function to get the appropriate value (from commonFields or formData)
-// 
-const getFieldValue = (
-  key: string,
-  formData: Record<string, any>,
-  commonFields: Record<string, any>
-) => {
-  const rawValue = key in commonFieldMapping
-    ? commonFields?.[commonFieldMapping[key]] ?? ""
-    : formData?.[key] ?? "";
-
-  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
-    const parsed = parseISO(rawValue);
-    if (isValid(parsed)) {
-      return format(parsed, "dd-MM-yyyy");
-    }
-  }
-
-  return rawValue;
-};
-
-
-
-const extractPersonalSituationData = (fields: any, formData: any) => {
-  const result: Record<string, any> = {};
-  for (const key in fields) {
-    const fieldKey = fields[key].key;
-    result[fieldKey] = formData[fieldKey] ?? "";
-  }
-  return result;
-};
-
-
-const A4Page = ({ children, className = "" }: any) => (
-  <div
-    className={`bg-white mx-auto shadow-md flex flex-col ${className}`}
-    style={{
-      width: "794px",  // A4 width in px
-      height: "1123px", // A4 height in px
-      boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-      pageBreakAfter: "always",
-    }}
-  >
-    {children}
-  </div>
-);
-  
-const Page1 = ({ formSchema, formData = {}, commonFields = {}, images,  settings}: any) => {
-  const pageSchema = formSchema.schema.clientIntakeSchema;
-  const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: any = "") => (
-    <div className="space-y-1 text-xs">
-      {options.map((opt: any) => (
-        <div key={opt} className="flex  space-x-1">
-          <span className="w-4 h-4 border border-black flex justify-center ">
-            {selected?.includes(opt) ? "✔" : ""}
-          </span>
-          <span>{opt}</span>
-        </div>
-      ))}
-      {otherValue && (
-        <div className="flex  space-x-1">
-          <span className="w-4 h-4 border border-black flex justify-center ">✔</span>
-          <span>{otherValue}</span>
-        </div>
-      )}
-    </div>
-  );
-  return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px", // px-6 py-4 in px
-        }}
-      >
-        {/* Header */}
-        <div className="flex justify-center mb-4 shrink-0">
-          <img
-            alt={pageSchema.logo.alt}
-            src={images.infinityLogo}
-            width={pageSchema.logo.width}
-            height={pageSchema.logo.height}
-            className="object-contain"
-          />
-        </div>
-        {/* Main content */}
-        <div className="flex-1 flex flex-col justify-stretch">
-          <table className="w-full h-full border-collapse border border-black text-xs" style={{ tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
-              {pageSchema.fields.map((field: any, idx: any) => {
-                const value = getFieldValue(field.key, formData, commonFields);
-                if (field.type === "sectionHeader") {
-                  return (
-                    <tr key={idx} className="bg-gray-300 font-semibold text-xs">
-                      <td className="border border-black px-1 py-0.5" colSpan={2}>
-                        {field.label}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "textarea") {
-                  return (
-                    <tr key={idx}>
-                      <td
-                        className="border border-black px-1 py-0.5 align-top"
-                        colSpan={2}
-                        style={{ height: field.height || 100 }}
-                      >
-                        {value}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "checkboxGroup") {
-                  return (
-                    <tr key={idx}>
-                      <td
-                        className="border border-black px-1 py-0.5 font-semibold align-top"
-                        style={{ width: field.width || "auto" }}
-                      >
-                        {field.label}
-                      </td>
-                      <td className="border border-black px-1 py-0.5">
-                        {displayCheckboxGroup(
-                          field.options,
-                          value,
-                          field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : ""
-                        )}
-                      </td>
-                    </tr>
-                  );
-                }
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black px-1 py-0.5 font-semibold" style={{ width: field.width || "auto" }}>
-                      {field.label}
-                    </td>
-                    <td className="border border-black px-1 py-0.5">
-                      {value}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        {/* Footer pinned at bottom */}
-        {pageSchema.footer && (
-          <div className="flex justify-between text-[10px] text-gray-600 mt-2 shrink-0">
-              <div>Website: {settings?.company_website}</div>
-            <div>{settings?.client_intake_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-          </div>
-        )}
-      </div>
-    </A4Page>
-  );
-};
-const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
-  const pageSchema = formSchema.schema.gpMedicalSupportSchema;
-  const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: any = "") => (
-    <div className="space-y-1 text-xs">
-      {options.map((opt: any) => (
-        <div key={opt} className="flex  space-x-1">
-          <span className="w-4 h-4 border border-black flex justify-center ">
-            {selected?.includes(opt) ? "✔" : ""}
-          </span>
-          <span>{opt}</span>
-        </div>
-      ))}
-      {otherValue && (
-        <div className="flex  space-x-1">
-          <span className="w-4 h-4 border border-black flex justify-center ">✔</span>
-          <span>{otherValue}</span>
-        </div>
-      )}
-    </div>
-  );
-  return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
-        </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full flex-1 border-collapse border border-black text-[13px]">
-            <tbody>
-              {pageSchema.fields.map((field: any, idx: any) => {
-                const value = getFieldValue(field.key, formData, commonFields);
-                if (field.type === "sectionHeader") {
-                  return (
-                    <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
-                      <td className="border border-black px-2 py-1" colSpan={field.colSpan || 2}>
-                        {field.label}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "textarea") {
-                  return (
-                    <tr key={idx}>
-                      <td className="border border-black align-top p-2" colSpan={field.colSpan || 2} style={{ height: field.height || 256 }}>
-                        {value}
-                      </td>
-                    </tr>
-                  );
-                }
-                if (field.type === "checkboxGroup") {
-                  return (
-                    <tr key={idx}>
-                      <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }} colSpan={field.colSpan || 1}>
-                        {field.label}
-                      </td>
-                      <td className="border border-black px-2 py-1">
-                        {displayCheckboxGroup(field.options, value, field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : "")}
-                      </td>
-                    </tr>
-                  );
-                }
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black px-2 py-1 font-semibold" style={{ width: field.width || "auto" }}>
-                      {field.label}
-                    </td>
-                    <td className="border border-black px-2 py-1">
-                      {value}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {pageSchema.footer && (
-            <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1 shrink-0">
-                <div>Website: {settings?.company_website}</div>
-            <div>{settings?.client_intake_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-            </div>
-          )}
-        </div>
-      </div>
-    </A4Page>
-  );
-};
-const Page3 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
-  const pageSchema = formSchema.schema.allAboutMeSchema;
-  const renderPersonalSituation = (psSchema: any, psData: any = {}) => (
-    <div className="space-y-1 text-[11px]">
-      <div>
-        <span className="font-bold">{psSchema.barriers.label}</span>
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex  justify-center">
-          {psData.barriers === "Yes" ? "✔" : ""}
-        </span>
-        {psSchema.barriers.options[0]}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex  justify-center">
-          {psData.barriers === "No" ? "✔" : ""}
-        </span>
-        {psSchema.barriers.options[1]}
-        <span className="ml-2">{psSchema.barriers.followUp}</span>
-      </div>
-      <div>
-        {psSchema.interpreter.label}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex  justify-center">
-          {psData.interpreter === "Yes" ? "✔" : ""}
-        </span>
-        {psSchema.interpreter.options[0]}
-        <span className="ml-1 mr-1 w-4 h-4 border border-black inline-flex  justify-center">
-          {psData.interpreter === "No" ? "✔" : ""}
-        </span>
-        {psSchema.interpreter.options[1]}
-      </div>
-      <div>  <strong>{psSchema.language.label} : </strong> {psData.language || ""}</div>
-      <div> <strong>{psSchema.culturalValues.label} : </strong> {psData.culturalValues || ""}</div>
-      <div>  <strong>{psSchema.culturalBehaviours.label} : </strong> {psData.culturalBehaviours || ""}</div>
-      <div> <strong>{psSchema.writtenCommunication.label} : </strong> {psData.writtenCommunication || ""}</div>
-      <div> <strong>{psSchema.countryOfBirth.label} : </strong> {psData.countryOfBirth || ""}</div>
-    </div>
-  );
-  return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        {/* Header */}
-        <div className="flex justify-center py-4 shrink-0">
-          <img alt={pageSchema.logo.alt} height={pageSchema.logo.height} src={images.infinityLogo} width={pageSchema.logo.width} className="object-contain" />
-        </div>
-        {/* Main content */}
-        <div className="flex-1 min-h-0 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[11px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.allAboutMe.title}
-                </th>
-              </tr>
-              <tr style={{ height: "18%" }}>
-                <td className="border border-black align-top px-1 py-0.5" colSpan={2}>
-                  {getFieldValue("aboutMe", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.title}
-                </th>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.name} {getFieldValue("advocateName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.relationship} {getFieldValue("advocateRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.phone} {getFieldValue("advocatePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-1 py-0.5">
-                  {pageSchema.sections.advocateDetails.fields.mobile} {getFieldValue("advocateMobile", formData, commonFields)}<br />
-                  {pageSchema.sections.advocateDetails.fields.email} {getFieldValue("advocateEmail", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.address} {getFieldValue("advocateAddress", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.postalAddress} {getFieldValue("advocatePostalAddress", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
-                  {pageSchema.sections.advocateDetails.fields.otherInfo} {getFieldValue("advocateOtherInfo", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "7%" }}>
-                <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
-                  {pageSchema.sections.personalSituation.title}
-                </th>
-              </tr>
-              <tr style={{ height: "26%" }}>
-                <td className="border border-black px-1 py-0.5" colSpan={2}>
- {renderPersonalSituation(
-  pageSchema.sections.personalSituation.fields,
-  extractPersonalSituationData(pageSchema.sections.personalSituation.fields, formData)
-)
-}                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        {/* Footer pinned at bottom */}
-        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2 shrink-0">
-            <div>Website: {settings?.company_website}</div>
-            <div>{settings?.client_intake_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-        </div>
-      </div>
-    </A4Page>
-  );
-};
-const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
-  const pageSchema = formSchema.schema.contactsLivingTravelSchema;
-  const renderCheckboxList = (options: any, selected: any[] = [], otherValue = "") => (
-    <ul className="list-none ml-4 space-y-0.5">
-      {options.map((opt: any) => (
-        <li key={opt} className="flex  space-x-2">
-          <label className="inline-flex  flex-shrink-0 space-x-2">
-            <span className="w-4 h-4 border border-black flex  justify-center mr-2">
-              {selected?.includes(opt) ? "✔" : ""}
-            </span>
-            <span>{opt === "Other" ? "Other:" : opt}</span>
-          </label>
-          {opt === "Other" && (
-            <span className="border-b border-black flex-grow h-[1px] min-w-[60px] ml-2">
-              {otherValue ? <span>{otherValue}</span> : null}
-            </span>
-          )}
-        </li>
-      ))}
-    </ul>
-  );
-  return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        <div className="flex justify-center py-4 shrink-0">
-          <img
-            alt={pageSchema.logo?.alt || "Logo"}
-            height={pageSchema.logo?.height || 80}
-            src={images.infinityLogo}
-            width={pageSchema.logo?.width || 200}
-            className="object-contain"
-          />
-        </div>
-        <div className="px-0 flex-1 flex flex-col">
-          <table className="w-full h-full border border-black border-collapse text-[13px]" style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}>
-            <tbody style={{ height: "100%" }}>
-              {/* Primary Contact Header */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1 bg-gray-300 font-bold text-[13px]" colSpan={2}>Primary Contact</td>
-              </tr>
-              {/* Primary Contact Rows */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Contact Name: {getFieldValue("primaryContactName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Relationship: {getFieldValue("primaryContactRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Home Phone No: {getFieldValue("primaryContactHomePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Mobile No: {getFieldValue("primaryContactMobile", formData, commonFields)}
-                </td>
-              </tr>
-              {/* Secondary Contact Header */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1 bg-gray-300 font-bold text-[13px]" colSpan={2}>Secondary Contact</td>
-              </tr>
-              {/* Secondary Contact Rows */}
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Contact Name: {getFieldValue("secondaryContactName", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Relationship: {getFieldValue("secondaryContactRelationship", formData, commonFields)}
-                </td>
-              </tr>
-              <tr style={{ height: "8%" }}>
-                <td className="border border-black px-2 py-1">
-                  Home Phone No: {getFieldValue("secondaryContactHomePhone", formData, commonFields)}
-                </td>
-                <td className="border border-black px-2 py-1">
-                  Mobile No: {getFieldValue("secondaryContactMobile", formData, commonFields)}
-                </td>
-              </tr>
-              {/* Living and support arrangements */}
-              <tr style={{ height: "25%" }}>
-                <td className="border border-black mt-6 p-3 text-[13px]" colSpan={2}>
-                  <p className="font-bold mb-2">Living and support arrangements</p>
-                  <p className="mb-2">What is your current living arrangement? (Please tick the appropriate box)</p>
-                  {renderCheckboxList(
-                    pageSchema.fields.find((f: any) => f.key === "livingArrangements").options,
-                    getFieldValue("livingArrangements", formData, commonFields) || [],
-                    getFieldValue("livingArrangementsOther", formData, commonFields) || ""
-                  )}
-                </td>
-              </tr>
-              {/* Travel */}
-              <tr style={{ height: "25%" }}>
-                <td className="border border-black mt-6 p-3 text-[13px]" colSpan={2}>
-                  <p className="font-bold mb-2">Travel</p>
-                  <p className="mb-2">How do you travel to work or to your day service? (Please tick the appropriate box)</p>
-                  {renderCheckboxList(
-                    pageSchema.fields.find((f: any) => f.key === "travelArrangements").options,
-                    getFieldValue("travelArrangements", formData, commonFields) || [],
-                    getFieldValue("travelArrangementsOther", formData, commonFields) || ""
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          {pageSchema.footer && (
-            <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2 shrink-0">
-                <div>Website: {settings?.company_website}</div>
-            <div>{settings?.client_intake_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-            </div>
-          )}
-        </div>
-      </div>
-    </A4Page>
-  );
-};
-
-
-const Page5 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
-  const pageSchema = formSchema.schema.medicationInfoSchema;
-
-  const getFieldValue = (key: string) => {
-    return formData?.[key] ?? commonFields?.[key] ?? "";
+const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
+  formData,
+  commonFieldsData,
+  settings,
+  logoDataUrl
+}) => {
+  console.log('🔍 ClientIntakev2.tsx (@react-pdf/renderer) is being used for PDF generation');
+  console.log('📊 Form data keys:', Object.keys(formData || {}));
+  // Data mapping for common fields
+  const commonFieldMapping: Record<string, string> = {
+    clientName: 'name',
+    address: 'street',
+    dob: 'dob',
+    disability: 'disability',
+    phoneNumber: 'phone',
+    ndisNumber: 'ndis',
+    state: 'state',
+    street: 'street',
+    postcode: 'postCode',
+    email: 'email',
+    homePhone: 'phone',
+    sex: 'sex'
   };
 
-  return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        {/* Logo */}
-        <div className="flex justify-center py-4 shrink-0">
-          <img
-            alt={pageSchema.logo.alt}
-            src={images.infinityLogo}
-            width={pageSchema.logo.width}
-            height={pageSchema.logo.height}
-            className="object-contain"
-          />
-        </div>
+  // Safe data extraction with fallbacks
+  const getValue = (key: string): string => {
+    try {
+      let value = '';
 
-        {/* Table */}
-        <div className="px-0 flex-1 flex flex-col">
-          <table
-            className="w-full h-full border border-black border-collapse text-[12px]"
-            style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}
-          >
-            <thead>
-              <tr className="bg-gray-300">
-                <th
-                  className="border border-black p-1 text-left font-semibold"
-                  colSpan={3}
-                >
-                  {pageSchema.title}
-                </th>
-              </tr>
-            </thead>
-            <tbody style={{ height: "100%" }}>
-              {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key);
-                const otherValue = getFieldValue(`${field.key}Others`);
+      if (commonFieldMapping?.[key]) {
+        value = commonFieldsData?.[commonFieldMapping[key]];
+      } else {
+        value = formData?.[key];
+      }
 
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px] font-medium">
-                      {field.label}
-                    </td>
-
-                    <td className="border border-black p-1 align-top text-[11px] w-[180px]">
-                      <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">
-                          {value === "Yes" ? "✔" : ""}
-                        </span>
-                        <span>Yes</span>
-                      </div>
-
-                      {value === "Yes" && (
-                        <>
-                          {field.yesDetail && (
-                            <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                          )}
-                          {otherValue && (
-                            <div className="mt-1 text-[11px]">
-                              <span className="font-semibold">Details:</span> {otherValue}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </td>
-
-                    <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">
-                        {value === "No" ? "✔" : ""}
-                      </span>
-                      <span className="m-1">No</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* Footer */}
-          <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: {settings?.company_website}</div>
-            <div>{settings?.client_intake_form_id}</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-          </div>
-        </div>
-      </div>
-    </A4Page>
-  );
-};
-
-
-const Page6 = ({ formSchema, formData = {}, commonFields = {}, images, settings }: any) => {
-  const pageSchema = formSchema.schema.safetyConsiderationSchema;
-
-  const getFieldValue = (key: string) => {
-    return formData?.[key] ?? commonFields?.[key] ?? "";
+      return value ? String(value) : '';
+    } catch (error) {
+      console.warn(`Error getting value for key ${key}:`, error);
+      return '';
+    }
   };
 
+  // Safe date formatting
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return String(dateString);
+      }
+      return date.toLocaleDateString();
+    } catch {
+      return String(dateString);
+    }
+  };
+
+  // Get report date - no fallback
+  const getReportDate = (): string => {
+    const dateValue = settings?.review_date;
+
+    if (dateValue) {
+      const formatted = formatDate(dateValue);
+      if (formatted) {
+        return formatted;
+      }
+    }
+
+    return '';
+  };
+
+  // Get form ID - no fallback
+  const getFormId = (): string => {
+    const formId = settings?.client_intake_form_id ;
+    return formId || '';
+  };
+
+  // Get email - no fallback
+  const getEmail = (): string => {
+    const email = settings?.from_email;
+    return email || '';
+  };
+
+  // Render checkbox component
+  const renderCheckbox = (isChecked: boolean) => (
+    <View style={isChecked ? styles.checkboxChecked : styles.checkbox} />
+  );
+
+  // Render radio group
+  const renderRadioGroup = (fieldName: string, options: string[]) => (
+    <View style={styles.radioGroup}>
+      {options.map((option) => (
+        <View key={option} style={styles.radioItem}>
+          {renderCheckbox(getValue(fieldName) === option)}
+          <Text>{option}</Text>
+        </View>
+      ))}
+    </View>
+  );
+
+  // Helper function to calculate dynamic height for long text
+  const calculateTextHeight = (text: string, maxHeight: number = 200): number => {
+    if (!text) return 50;
+
+    const lines = text.split('\n').length;
+    const estimatedHeight = Math.max(50, lines * 12 + 20); // 12px per line + padding
+
+    return Math.min(estimatedHeight, maxHeight); // Cap at maxHeight
+  };
+
+  // Helper function to calculate dynamic height for "All About Me" based on content length
+  const calculateDynamicAboutMeHeight = (content: string, maxWords: number = 1000): number => {
+    if (!content || content.trim() === '') return 100; // Minimum height for empty content
+
+    const wordCount = content.trim().split(/\s+/).length;
+    const characterCount = content.length;
+
+    // Base height for minimum content
+    const baseHeight = 120;
+
+    // Calculate height based on content length (up to maxWords)
+    const contentRatio = Math.min(wordCount / maxWords, 1); // Cap at 1.0 for maxWords
+    const maxHeight = 800; // Maximum height for 1000 words
+    const minHeight = 120;  // Minimum height
+
+    // Calculate dynamic height based on both word count and character count
+    const wordBasedHeight = minHeight + (contentRatio * (maxHeight - minHeight));
+    const characterBasedHeight = Math.max(120, (characterCount / 50) * 20); // ~20px per 50 characters
+
+    // Use the larger of the two calculations to ensure content fits
+    const dynamicHeight = Math.max(wordBasedHeight, characterBasedHeight);
+
+    // Ensure minimum height for any content
+    return Math.max(dynamicHeight, baseHeight);
+  };
+
+  // Helper function to calculate dynamic height for "otherSupports" (500 words)
+  const calculateOtherSupportsHeight = (content: string, maxWords: number = 500): number => {
+    if (!content || content.trim() === '') return 40; // Very small height for empty content
+
+    const wordCount = content.trim().split(/\s+/).length;
+    const characterCount = content.length;
+
+    // Base height for minimum content - very small for truly empty content
+    const baseHeight = 40;
+
+    // Calculate height based on content length (up to maxWords)
+    const contentRatio = Math.min(wordCount / maxWords, 1); // Cap at 1.0 for maxWords
+    const maxHeight = 400; // Maximum height for 500 words
+    const minHeight = 40;  // Very small minimum height
+
+    // Calculate dynamic height based on both word count and character count
+    const wordBasedHeight = minHeight + (contentRatio * (maxHeight - minHeight));
+    const characterBasedHeight = Math.max(40, (characterCount / 50) * 20); // ~20px per 50 characters, minimum 40px
+
+    // Use the larger of the two calculations to ensure content fits
+    const dynamicHeight = Math.max(wordBasedHeight, characterBasedHeight);
+
+    // Ensure minimum height for any content
+    return Math.max(dynamicHeight, baseHeight);
+  };
+
+  // Helper function to get content stats for "All About Me"
+  const getAboutMeStats = (content: string) => {
+    if (!content || content.trim() === '') return { words: 0, characters: 0, percentage: 0 };
+
+    const words = content.trim().split(/\s+/).length;
+    const characters = content.trim().length;
+    const percentage = Math.min((words / 1000) * 100, 100);
+
+    return { words, characters, percentage };
+  };
+
+  // Helper function to render Yes/No with details
+  const renderYesNoWithDetails = (fieldKey: string, label: string, detailsField?: string) => (
+    <View style={styles.longAnswer}>
+      <Text style={styles.longAnswerLabel}>{label}</Text>
+      <View style={styles.radioGroup}>
+        <View style={styles.radioItem}>
+          {renderCheckbox(getValue(fieldKey) === "Yes")}
+          <Text>Yes</Text>
+        </View>
+        <View style={styles.radioItem}>
+          {renderCheckbox(getValue(fieldKey) === "No")}
+          <Text>No</Text>
+        </View>
+      </View>
+      {getValue(fieldKey) === "Yes" && detailsField && getValue(detailsField) && (
+        <View style={[styles.longAnswerValue, {
+          marginTop: 4,
+          flexGrow: 1,
+          flexShrink: 1
+        }]}>
+          <Text>Details: {getValue(detailsField)}</Text>
+        </View>
+      )}
+    </View>
+  );
+
   return (
-    <A4Page>
-      <div
-        className="w-full h-full flex flex-col"
-        style={{
-          height: "100%",
-          boxSizing: "border-box",
-          padding: "24px 16px",
-        }}
-      >
-        {/* Logo */}
-        <div className="flex justify-center py-4 shrink-0">
-          <img
-            alt={pageSchema.logo.alt}
-            src={images.infinityLogo}
-            width={pageSchema.logo.width}
-            height={pageSchema.logo.height}
-            className="object-contain"
-          />
-        </div>
+    <Document>
+      {/* PAGE 1: Personal Information */}
+      <Page size="A4" style={styles.page}>
+        {/* Header - Fixed at top of every page */}
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
 
-        {/* Table */}
-        <div className="px-0 flex-1 flex flex-col">
-          <table
-            className="w-full h-full border border-black border-collapse text-[12px]"
-            style={{ width: "210mm", tableLayout: "fixed", height: "100%" }}
-          >
-            <thead>
-              <tr className="bg-gray-300">
-                <th
-                  className="border border-black p-1 text-left font-semibold"
-                  colSpan={3}
-                >
-                  {pageSchema.title}
-                </th>
-              </tr>
-            </thead>
-            <tbody style={{ height: "100%" }}>
-              {pageSchema.fields.map((field: any, idx: number) => {
-                const value = getFieldValue(field.key);
-                const otherValue = getFieldValue(`${field.key}Others`);
+        {/* Content */}
+        <View style={styles.content}>
+          {/* Section 1: Participant Details - Matching Image Structure */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Participant Details</Text>
 
-                return (
-                  <tr key={idx}>
-                    <td className="border border-black p-1 align-top w-[320px] font-medium">
-                      {field.label}
-                    </td>
-                    <td className="border border-black p-1 align-top text-[11px] w-[180px]">
-                      <div className="inline-flex items-start space-x-1">
-                        <span className="w-4 h-4 border border-black flex justify-center mt-1">
-                          {value === "Yes" ? "✔" : ""}
-                        </span>
-                        <span>Yes</span>
-                      </div>
-                      {value === "Yes" && (
-                        <>
-                          {field.yesDetail && (
-                            <div className="mt-1 leading-tight">{field.yesDetail}</div>
-                          )}
-                          {otherValue && (
-                            <div className="mt-1 text-[11px]">
-                              <span className="font-semibold">Details:</span> {otherValue}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </td>
-                    <td className="border border-black p-1 text-center align-top w-[60px]">
-                      <span className="w-4 h-4 border border-black flex justify-center">
-                        {value === "No" ? "✔" : ""}
-                      </span>
-                      <span className="m-1">No</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            {/* Date - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Date:</Text>
+              <Text style={styles.value}>{getValue('date') || ' '}</Text>
+            </View>
 
-          {/* Footer */}
-          <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1 shrink-0">
-            <div>Website: {settings?.company_website}</div>
-            <div>CF001</div>
-<div>
-  Review Date:{' '}
-  {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
-    ? format(parseISO(settings.review_date), 'dd-MM-yyyy')
-    : 'N/A'}
-</div>
-          </div>
-        </div>
-      </div>
-    </A4Page>
+            {/* NDIS Number - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>NDIS Number:</Text>
+              <Text style={styles.value}>{getValue('ndisNumber') || ' '}</Text>
+            </View>
+
+            {/* Given Names - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Given name(s):</Text>
+              <Text style={styles.value}>{getValue('givenName') || ' '}</Text>
+            </View>
+
+            {/* Surname - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Surname:</Text>
+              <Text style={styles.value}>{getValue('surname') || ' '}</Text>
+            </View>
+
+            {/* Sex Field - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Sex:</Text>
+              <View style={styles.radioGroup}>
+                <View style={styles.radioItem}>
+                  {renderCheckbox(getValue('sex') === 'Male')}
+                  <Text>Male</Text>
+                </View>
+                <View style={styles.radioItem}>
+                  {renderCheckbox(getValue('sex') === 'Female')}
+                  <Text>Female</Text>
+                </View>
+                <View style={styles.radioItem}>
+                  {renderCheckbox(getValue('sex') === 'Prefer not to say')}
+                  <Text>Prefer not to say</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Pronoun Field - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Pronoun:</Text>
+              <Text style={styles.value}>{getValue('pronoun') || ' '}</Text>
+            </View>
+
+            {/* Aboriginal/Torres Strait Island - Single Box with Horizontal Checkboxes */}
+            <View style={styles.fieldRow}>
+              <View style={styles.singleBox}>
+                <Text style={styles.questionText}>Are you an Aboriginal or Torres Strait Island descent?</Text>
+                <View style={styles.radioGroup}>
+                  <View style={styles.radioItem}>
+                    {renderCheckbox(getValue('aboriginalTorres') === 'Yes')}
+                    <Text>Yes</Text>
+                  </View>
+                  <View style={styles.radioItem}>
+                    {renderCheckbox(getValue('aboriginalTorres') === 'No')}
+                    <Text>No</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Preferred Name - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Preferred name:</Text>
+              <Text style={styles.value}>{getValue('preferredName') || ' '}</Text>
+            </View>
+
+            {/* Date of Birth - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Date of Birth:</Text>
+              <Text style={styles.value}>{getValue('dateOfBirth') || ' '}</Text>
+            </View>
+          </View>
+
+          {/* Section 2: Residential Address Details - Matching Image Structure */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Residential Address Details</Text>
+
+            {/* Number / Street - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Number / Street:</Text>
+              <Text style={styles.value}>{getValue('addressNumberStreet') || ' '}</Text>
+            </View>
+
+            {/* State - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>State:</Text>
+              <Text style={styles.value}>{getValue('state') || ' '}</Text>
+            </View>
+
+            {/* Postcode - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Postcode:</Text>
+              <Text style={styles.value}>{getValue('postcode') || ' '}</Text>
+            </View>
+          </View>
+
+          {/* Section 3: Participant Contact Details - Matching Image Structure */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Participant Contact Details</Text>
+
+            {/* Email Address - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Email address:</Text>
+              <Text style={styles.value}>{getValue('email') || ' '}</Text>
+            </View>
+
+            {/* Home Phone No - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Home Phone No:</Text>
+              <Text style={styles.value}>{getValue('homePhone') || ' '}</Text>
+            </View>
+
+            {/* Mobile No - Single Row */}
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Mobile No:</Text>
+              <Text style={styles.value}>{getValue('mobile') || ' '}</Text>
+            </View>
+          </View>
+
+          {/* Section 4: Disability Conditions - FULL BOX CONTAINER */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Disability Conditions/Disability type(s)</Text>
+            <View style={[styles.longAnswer, {
+              minHeight: 200 // Ensure full container size
+            }]}>
+              <View style={[styles.longAnswerValue, {
+                width: '100%', // Full width container
+                border: '1 solid #000000', // Clear border
+                backgroundColor: '#ffffff', // White background
+                padding: 10, // More padding for better appearance
+                flexGrow: 1,
+                flexShrink: 1
+              }]}>
+                <Text style={{
+                  fontSize: 10,
+                  lineHeight: 1.4,
+                  
+                  
+                }}>
+                  {getValue('disabilityConditions') || ' '}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Footer - Fixed at bottom of every page */}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 2: Medical Contact & Support Coordinator */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          {/* Section 1: GP Medical Contact - Compact Design */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { padding: 0, fontSize: 8, height: 5 }]}>GP Medical Contact</Text>
+
+            {/* Medical Centre Name - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Medical Centre Name:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('medicalCentreName')}</Text>
+            </View>
+
+            {/* Phone - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Phone:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('medicalPhone')}</Text>
+            </View>
+          </View>
+
+          {/* Section 2: Support Coordinator - Compact Design */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { padding: 0, fontSize: 8, height: 5 }]}>Support Coordinator</Text>
+
+            {/* Name - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Name:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('supportCoordinatorName')}</Text>
+            </View>
+
+            {/* Email Address - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Email Address:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('supportCoordinatorEmail')}</Text>
+            </View>
+
+            {/* Company - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Company:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('supportCoordinatorCompany')}</Text>
+            </View>
+
+            {/* Contact Number - Ultra Compact */}
+            <View style={[styles.fieldRow, { height: 5, marginBottom: 1 }]}>
+              <Text style={[styles.label, { fontSize: 8 }]}>Contact number:</Text>
+              <Text style={[styles.value, { fontSize: 8, minHeight: 5 }]}>{getValue('supportCoordinatorContact')}</Text>
+            </View>
+          </View>
+
+          {/* Section 3: Other Supports - Simplified Structure */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>What other supports including mainstream health services you receive at present</Text>
+            <View style={[styles.longAnswerValue, {
+              minHeight: 20, // Minimal height - just enough for border visibility
+              border: '1 solid #000000',
+              padding: 8,
+              backgroundColor: '#ffffff',
+              fontSize: 10,
+              color: '#111827',
+              lineHeight: 1.4,
+              breakInside: 'auto',
+              pageBreakInside: 'auto',
+              flexGrow: 1,
+              flexShrink: 1
+            }]}>
+              <Text style={{
+                fontSize: 10,
+                lineHeight: 1.4,
+                
+                
+                flexShrink: 1
+              }}>
+                {getValue('otherSupports') || ' '}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 3: All About Me - Dynamic Sizing */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>All About Me</Text>
+            <View style={styles.longAnswer}>
+              <View style={[styles.longAnswerValue, {
+                minHeight: 120, // Minimum height for any content
+                flexGrow: 1,
+                flexShrink: 1
+              }]}>
+                <Text style={{
+                  fontSize: 10,
+                  lineHeight: 1.4,
+                  
+                  
+                }}>
+                  {getValue('aboutMe') || ' '}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 4: Advocate Details */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Advocate/representative details (if applicable)</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Name:</Text>
+              <Text style={styles.value}>{getValue('advocateName')}</Text>
+              <Text style={styles.label}>Relationship with the participant:</Text>
+              <Text style={styles.value}>{getValue('advocateRelationship')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Phone No:</Text>
+              <Text style={styles.value}>{getValue('advocatePhone')}</Text>
+              <Text style={styles.label}>Mobile No:</Text>
+              <Text style={styles.value}>{getValue('advocateMobile')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Email:</Text>
+              <Text style={styles.value}>{getValue('advocateEmail')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Address Details:</Text>
+              <Text style={styles.value}>{getValue('advocateAddress')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Postal Address Details:</Text>
+              <Text style={styles.value}>{getValue('advocatePostalAddress')}</Text>
+            </View>
+
+            <View style={styles.longAnswer}>
+              <Text style={styles.longAnswerLabel}>Other Information:</Text>
+              <View style={styles.longAnswerValue}>
+                <Text>{getValue('advocateOtherInfo')}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 5: Personal Situation */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Personal Situation</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services?</Text>
+              {renderRadioGroup('barriers', ['Yes', 'No'])}
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Verbal communication or spoken language - Is an interpreter needed?</Text>
+              {renderRadioGroup('interpreter', ['Yes', 'No'])}
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Language:</Text>
+              <Text style={styles.value}>{getValue('language')}</Text>
+              <Text style={styles.label}>Country of birth:</Text>
+              <Text style={styles.value}>{getValue('countryOfBirth')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Cultural values/ beliefs or assumptions:</Text>
+              <Text style={styles.value}>{getValue('culturalValues')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Cultural behaviours:</Text>
+              <Text style={styles.value}>{getValue('culturalBehaviours')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Written communication/literacy:</Text>
+              <Text style={styles.value}>{getValue('writtenCommunication')}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 6: Contact Details & Living Arrangements */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          {/* Primary Contact */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Primary Contact</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Contact Name:</Text>
+              <Text style={styles.value}>{getValue('primaryContactName')}</Text>
+              <Text style={styles.label}>Relationship:</Text>
+              <Text style={styles.value}>{getValue('primaryContactRelationship')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Home Phone No:</Text>
+              <Text style={styles.value}>{getValue('primaryContactHomePhone')}</Text>
+              <Text style={styles.label}>Mobile No:</Text>
+              <Text style={styles.value}>{getValue('primaryContactMobile')}</Text>
+            </View>
+          </View>
+
+          {/* Secondary Contact */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Secondary Contact</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Contact Name:</Text>
+              <Text style={styles.value}>{getValue('secondaryContactName')}</Text>
+              <Text style={styles.label}>Relationship:</Text>
+              <Text style={styles.value}>{getValue('secondaryContactRelationship')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>Home Phone No:</Text>
+              <Text style={styles.value}>{getValue('secondaryContactHomePhone')}</Text>
+              <Text style={styles.label}>Mobile No:</Text>
+              <Text style={styles.value}>{getValue('secondaryContactMobile')}</Text>
+            </View>
+          </View>
+
+          {/* Living and support arrangements */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Living and support arrangements</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>What is your current living arrangement? (Please tick the appropriate box)</Text>
+            </View>
+
+            <View style={styles.longAnswer}>
+              <Text style={styles.longAnswerLabel}>Options:</Text>
+              <View style={styles.longAnswerValue}>
+                <Text>Live with Parent/Family/Support Person</Text>
+                <Text>Live in private rental arrangement with others</Text>
+                <Text>Live in private rental arrangement alone</Text>
+                <Text>Owns own home.</Text>
+                <Text>Aged Care Facility</Text>
+                <Text>Mental Health Facility</Text>
+                <Text>Lives in public housing</Text>
+                <Text>Short Term Crisis/Respite</Text>
+                <Text>Staff Supported Group Home</Text>
+                <Text>Hostel/SRS Private Accommodation</Text>
+                <Text>Other: {getValue('livingArrangementsOther')}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Travel */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Travel</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.label}>How do you travel to work or to your day service? (Please tick the appropriate box)</Text>
+            </View>
+
+            <View style={styles.longAnswer}>
+              <Text style={styles.longAnswerLabel}>Options:</Text>
+              <View style={styles.longAnswerValue}>
+                <Text>Taxi</Text>
+                <Text>Pick up/ drop off by Parent/Family/Support Person</Text>
+                <Text>Transport by a provider</Text>
+                <Text>Independently use Public Transport</Text>
+                <Text>Walk</Text>
+                <Text>Assisted Public Transport</Text>
+                <Text>Drive own car.</Text>
+                <Text>Other: {getValue('travelArrangementsOther')}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 7: Medical Information */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Medication Information/Diagnosis/Health Concerns</Text>
+
+            {renderYesNoWithDetails('medicationChart', 'Does the Participant require a Medication Chart?', 'medicationChartOthers')}
+            {renderYesNoWithDetails('mealtimeManagement', 'Does the Participant require Mealtime Management?')}
+            {renderYesNoWithDetails('bowelCare', 'Does the participant require Bowel Care Management?', 'bowelCareOthers')}
+            {renderYesNoWithDetails('menstrualIssues', 'Are there any issues with a menstrual cycle or is assistance needed with female hygiene', 'menstrualIssuesOthers')}
+            {renderYesNoWithDetails('epilepsy', 'Does the Participant have Epilepsy?', 'epilepsyOthers')}
+            {renderYesNoWithDetails('asthmatic', 'Is the Participant an Asthmatic?', 'asthmaticOthers')}
+            {renderYesNoWithDetails('allergies', 'Does the Participant have any allergies?', 'allergiesOthers')}
+            {renderYesNoWithDetails('anaphylactic', 'Is the Participant anaphylactic?', 'anaphylacticOthers')}
+            {renderYesNoWithDetails('minorInjury', 'Do you give permission for our company\'s staff to administer band-aids in cases of a minor injury?')}
+            {renderYesNoWithDetails('training', 'Does this participant require specific training?', 'trainingOthers')}
+            {renderYesNoWithDetails('othermedical', 'Are there any other medication conditions that will be relevant to the care provided to this Participant?', 'othermedicalOthers')}
+            {renderYesNoWithDetails('trigger', 'Is there any specific trigger for community activities?', 'triggerOthers')}
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+
+      {/* PAGE 8: Safety Considerations */}
+      <Page size="A4" style={[styles.page, styles.pageBreak]}>
+        <View style={styles.header} fixed>
+          <Image src={logoDataUrl} style={styles.headerLogo} />
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Safety Considerations</Text>
+
+            {renderYesNoWithDetails('absconding', 'Does the Participant show signs or a history of unexpectedly leaving (absconding)?', 'abscondingOthers')}
+            {renderYesNoWithDetails('historyOfFalls', 'Is this participant prone to falls or have a history of falls?')}
+            {renderYesNoWithDetails('behaviourConcern', 'Are there any behaviours of concern? E.g.: kicking, biting', 'behaviourConcernOthers')}
+            {renderYesNoWithDetails('positiveBehaviour', 'Is there a current Positive Behaviour Support Plan in place', 'positiveBehaviourOthers')}
+            {renderYesNoWithDetails('communicationAssistance', 'Does the participant require communication assistance?', 'communicationAssistanceOthers')}
+            {renderYesNoWithDetails('physicalAssistance', 'Is there any physical assistance or physical assistance preference for this Participant?', 'physicalAssistanceOthers')}
+            {renderYesNoWithDetails('languageConcern', 'Does the Participant have any expressive language concerns?', 'languageConcernOthers')}
+            {renderYesNoWithDetails('personalGoals', 'Does this Participant have any personal preferences & personal goals?')}
+          </View>
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
+        </View>
+      </Page>
+    </Document>
   );
 };
 
-
-const FormRenderer = ({  formData = {}, formKey,  commonFields, images, settings } : any) => {
-    return (
-      <div className="print:p-0 
-     ">
-        <Page1
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-          settings={settings}
-        />
-        <Page2
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-                    settings={settings}
-
-        />
-        <Page3
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-                    settings={settings}
-
-        />
-        <Page4
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-                    settings={settings}
-
-        />
-        <Page5
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-                    settings={settings}
-
-        />
-        <Page6
-          formSchema={formSchema}
-          formData={formData}
-          commonFields={commonFields}
-          images={images}
-                    settings={settings}
-
-        />
-      </div>
-    );
-};
-export default FormRenderer;
+export default ClientIntakev2;

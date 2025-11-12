@@ -4,7 +4,7 @@ import Page2 from './page_2'
 import Page3 from './page_3'
 import Page4 from './page_4';
 
-export const formSchema : any = {
+const formSchema : any = {
   page1: {
     title: "Support Coordination Action Plan",
   sections: [
@@ -207,6 +207,7 @@ export const formSchema : any = {
 
 
 const ScheduleForSupport = ({ settings, commonFieldsData, formData} : any ) => {
+  try { console.log('[SAP Legacy PDF/View] schedule-for-support page.tsx rendered'); } catch {}
   return (
     <div className="bg-gray-100 min-h-screen print:bg-white print:py-0">
       {/* Fixed width container that will zoom out on mobile */}

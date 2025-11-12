@@ -46,7 +46,7 @@ const getValue = (key: string): string => {
 
   return (
     <A4PageWrapper>
-      <div className="h-full flex flex-col px-6 py-10 font-sans" style={{ fontSize: '12px' }}>
+      <div className="h-full flex flex-col px-8 py-10 font-sans" style={{ fontSize: '12px' }}>
         {/* Logo */}
         <div className="flex justify-center mb-10">
           <img
@@ -64,7 +64,7 @@ const getValue = (key: string): string => {
             <p>
               <input
                 type="checkbox"
-                className="mr-2"
+                className="mr-2 accent-blue-600"
                 checked={isChecked("providerTravelAgreement")}
                 readOnly
                 style={{verticalAlign: 'middle'}}
@@ -97,57 +97,71 @@ received.
           </div>
 
           {/* Signature Boxes */}
-          <div className="border border-black p-4 space-y-4">
-            {/* Participant */}
-            <div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex flex-col">
-                  <p className="mb-1 font-medium">Signature of participant:</p>
-                  {getValue("participantSignature") && (
-                    <img
-                      src={getValue("participantSignature")}
-                      alt="Signature of the Participant"
-                      className="h-[60px] w-auto max-w-[200px] object-contain border border-gray-300"
-                    />
-                  )}
-                </div>
+          <div className="space-y-4">
+            {/* Conditional: Show only Participant OR Nominee based on signatureRole */}
+            {getValue("signatureRole") === "Participant" && (
+              <div className="border border-black p-4">
+                <p className="font-bold mb-3">Participant Signature</p>
+                {/* Participant */}
                 <div>
-                  <p className="mb-1 font-medium">Date:</p>
-                  <p>{getValue("participantSignatureDate")}</p>
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col">
+                      <p className="mb-1 font-medium">Signature of participant:</p>
+                      {getValue("participantSignature") && (
+                        <img
+                          src={getValue("participantSignature")}
+                          alt="Signature of the Participant"
+                          className="h-[60px] w-auto max-w-[200px] object-contain border border-gray-300"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <p className="mb-1 font-medium">Date:</p>
+                      <p>{getValue("participantSignatureDate")}</p>
+                    </div>
+                  </div>
+                  <p className="mt-2 font-medium">Name: {getValue("participantName")}</p>
                 </div>
+                <p className="mt-3 text-sm italic">
+                  I confirm that this agreement has been explained to the person
+                  receiving the services (participant) and that they agree to this.
+                </p>
               </div>
-              <p className="mt-2 font-medium">Name: {getValue("participantName")}</p>
-            </div>
+            )}
 
-            <p>
-              I confirm that this agreement has been explained to the person
-              receiving the services (participant) and that they agree to this:
-              [If signed by a Nominee:]
-            </p>
-
-            {/* Nominee */}
-            <div>
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex flex-col">
-                  <p className="mb-1 font-medium">Signature of Nominee:</p>
-                  {getValue("nomineeSignature") && (
-                    <img
-                      src={getValue("nomineeSignature")}
-                      alt="Nominee Signature"
-                      className="h-[60px] w-auto max-w-[200px] object-contain border border-gray-300"
-                    />
-                  )}
-                </div>
+            {getValue("signatureRole") === "Nominee" && (
+              <div className="border border-black p-4">
+                <p className="font-bold mb-3">Nominee Signature</p>
+                {/* Nominee */}
                 <div>
-                  <p className="mb-1 font-medium">Date:</p>
-                  <p>{getValue("nomineeSignatureDate")}</p>
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col">
+                      <p className="mb-1 font-medium">Signature of Nominee:</p>
+                      {getValue("nomineeSignature") && (
+                        <img
+                          src={getValue("nomineeSignature")}
+                          alt="Nominee Signature"
+                          className="h-[60px] w-auto max-w-[200px] object-contain border border-gray-300"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <p className="mb-1 font-medium">Date:</p>
+                      <p>{getValue("nomineeSignatureDate")}</p>
+                    </div>
+                  </div>
+                  <p className="mt-2 font-medium">Name: {getValue("nomineeName")}</p>
                 </div>
+                <p className="mt-3 text-sm italic">
+                  I confirm that this agreement has been explained to the person
+                  receiving the services (participant) and that they agree to this: [If signed by a Nominee:]
+                </p>
               </div>
-              <p className="mt-2 font-medium">Name: {getValue("nomineeName")}</p>
-            </div>
+            )}
 
             {/* Representative */}
-            <div className="border border-black p-4 mt-6">
+            <div className="border border-black p-4">
+              <p className="font-bold mb-3">Provider Signature</p>
               <div className="flex justify-between items-start gap-4">
                 <div className="flex flex-col">
                   <p className="mb-1 font-medium">Signature on behalf of Infinity Support WA:</p>
@@ -164,15 +178,14 @@ received.
                   <p>{getValue("representativeSignatureDate")}</p>
                 </div>
               </div>
-              <p className="mt-2 font-medium">Name: {getValue("represenativeName")}</p>
-
+              <p className="mt-2 font-medium">Name: {getValue("representativeName")}</p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <footer className="flex justify-between text-[10px] mt-auto px-1 pt-6">
-           <span>Website: {settings?.company_website}</span>
+           <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>
         </footer>

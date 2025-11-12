@@ -29,22 +29,6 @@ export async function GET(
         id: true,
         name: true,
         email: true,
-        commonFields: {
-          select: {
-            name: true,
-            age: true,
-            email: true,
-            sex: true,
-            street: true,
-            state: true,
-            postCode: true,
-            dob: true,
-            ndis: true,
-            disability: true,
-            address: true,
-            phone: true,
-          },
-        },
       },
     },
     signatureForms: {
@@ -101,9 +85,17 @@ export async function GET(
 
 console.log(result);
 
+    // Fetch commonFields separately (same as admin API for consistency)
+    const commonFields = await prisma.commonField.findUnique({
+      where: { clientId: batch.client.id },
+    });
+
     return NextResponse.json({
       formSubmission: result.formSubmission,
-      client: batch.client,
+      client: {
+        ...batch.client,
+        commonFields: commonFields ? [commonFields] : [], // Wrap in array for backward compatibility
+      },
       batchToken: batch.batchToken,
       isExpired: batch.expiresAt < new Date(),
     });
@@ -543,11 +535,22 @@ export async function POST(
 
     const { dataKey, signedAtKey, signerName: signerNameKey } = signatureConfig;
 
+    // Auto-detect signatureRole for schedule_of_supports form
+    let autoDetectedRole = currentSubmission.data?.signatureRole || "";
+    if (formKey === "schedule_of_supports" && !autoDetectedRole) {
+      if (dataKey === "nomineeSignature") {
+        autoDetectedRole = "Nominee";
+      } else if (dataKey === "participantSignature") {
+        autoDetectedRole = "Participant";
+      }
+    }
+
     const updatedFormData = {
       ...currentSubmission.data,
       [dataKey!]: signature,
       ...(signedAtKey && { [signedAtKey]: signedAt }),
       ...(signerNameKey && { [signerNameKey]: signerName }),
+      ...(autoDetectedRole && { signatureRole: autoDetectedRole }),
     };
 
     await prisma.formSubmission.update({
@@ -699,6 +702,58 @@ export async function POST(
     console.error("Error in signature POST:", error);
     return NextResponse.json(
       { error: "Failed to submit signature", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// Save in-progress form data for a signature link
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ token: string; formSubmissionId: string }> }
+) {
+  try {
+    const { token, formSubmissionId } = await params;
+    const formSubmissionIdInt = parseInt(formSubmissionId);
+    const { data, isSubmitted } = await req.json();
+
+    if (!token || !formSubmissionIdInt) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Validate signature batch and that this submission is part of it
+    const batch = await prisma.formBatch.findUnique({
+      where: { batchToken: token, isSignatureOnly: true },
+      include: {
+        signatureForms: { select: { formSubmissionId: true } },
+      },
+    });
+
+    if (!batch) return NextResponse.json({ error: "Signature link not found" }, { status: 404 });
+    if (batch.expiresAt < new Date()) return NextResponse.json({ error: "Signature link expired" }, { status: 410 });
+
+    const inBatch = batch.signatureForms.some((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
+    if (!inBatch) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
+
+    // Update submission data and mark as submitted if this is the final submission
+    const updated = await prisma.formSubmission.update({
+      where: { id: formSubmissionIdInt },
+      data: {
+        data,
+        updatedAt: new Date(),
+        ...(isSubmitted && {
+          isSubmitted: true,
+          submittedAt: new Date(),
+        }),
+      },
+      select: { id: true },
+    });
+
+    return NextResponse.json({ success: true, formSubmissionId: updated.id });
+  } catch (error: any) {
+    console.error("Error saving form via signature token:", error);
+    return NextResponse.json(
+      { error: "Failed to save form data", details: error.message },
       { status: 500 }
     );
   }

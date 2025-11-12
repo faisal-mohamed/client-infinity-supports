@@ -1,0 +1,394 @@
+/* ---- CONFIG (mm => stable on A4) --------------------------------------- */
+:root {
+  /* logo on pages 2+ */
+  --rest-logo-h: 18mm;
+  --rest-gap: 6mm;
+  /* further reduced */
+
+  /* page-1 stack (title+subtitle+logo total) */
+  --first-header-h: 22mm;
+  /* much more compact */
+
+  /* footer height (DB footer) */
+  --footer-h: 18mm;
+
+  /* horizontal content margin */
+  --x-pad: 14mm;
+  /* ~40px */
+}
+
+/* ---- Page Setup ---- */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  color: #111;
+  background: white;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---- FIXED HEADER & FOOTER (appear on every page) --------------------- */
+.page-header-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--rest-logo-h) + var(--rest-gap));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #fff;
+  z-index: 999;
+  padding-top: 2mm;
+  /* minimal padding */
+}
+
+.page-header-fixed img {
+  height: var(--rest-logo-h);
+  width: auto;
+  object-fit: contain;
+}
+
+/* This inline first-page header sits in flow and is shown only once */
+.header-first-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: var(--first-header-h);
+  margin: 0 var(--x-pad);
+  background: #fff;
+  padding-top: 2mm;
+  /* minimal top padding */
+}
+
+.header-first-page h1 {
+  margin: 0 0 1mm 0;
+  /* minimal gap below title */
+  font-size: 14pt;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  line-height: 1.2;
+  /* tighter line height */
+}
+
+.header-first-page p {
+  margin: 0;
+  font-size: 10pt;
+  color: #333;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.2;
+  /* tighter line height */
+}
+
+/* Fixed footer, aligned L/C/R exactly like the web view */
+.pdf-footer-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--x-pad);
+  font-size: 10pt;
+  background: #fff;
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+/* ---- CONTENT AREA: reserve space once, then add first-page delta ------ */
+/* Reserve fixed header+footer for ALL pages */
+.pdf-body {
+  padding: calc(var(--rest-logo-h) + var(--rest-gap) + 8mm) var(--x-pad) calc(var(--footer-h) + 12mm);
+  /* +12mm bottom buffer to prevent content from getting too close to footer */
+  margin: 0;
+  box-sizing: border-box;
+  font: 11pt/1.4 "Inter", "Segoe UI", Arial, sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  min-height: calc(100vh - var(--rest-logo-h) - var(--rest-gap) - var(--footer-h) - 20mm);
+}
+
+/* Page-1 needs EXTRA space (title+subtitle). We add a one-time spacer node. */
+.page-1-spacer {
+  height: calc(var(--first-header-h) - (var(--rest-logo-h) + var(--rest-gap)) + 2mm);
+  /* minimal safety margin to prevent title overlap */
+  page-break-after: avoid;
+}
+
+/* ---- BREAKING RULES: allow natural page flow ---------- */
+.field-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  column-gap: 6mm;
+  row-gap: 2.5mm;
+  margin-bottom: 2.5mm;
+  break-inside: auto;
+  page-break-inside: auto;
+  /* Allow natural page breaks */
+}
+
+.field-row label {
+  font-weight: 600;
+  font-size: 11pt;
+  margin: 0;
+}
+
+.field-row .value,
+.field-row p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.long-answer,
+.long-answer p,
+.long-answer pre,
+.card,
+.section-box {
+  border-radius: 4px;
+  break-inside: auto;
+  page-break-inside: auto;
+  /* allow natural split for long content */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  overflow: visible !important;
+}
+
+/* Keep labels with their content - prevent orphan labels */
+.long-answer label {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+/* Field row labels should stay with their values */
+.field-row {
+  page-break-inside: avoid;
+  /* Keep label+value together */
+  break-inside: avoid;
+}
+
+/* Allow long content to break naturally */
+.long-answer {
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+/* Prevent widows and orphans in long text */
+.long-answer p {
+  orphans: 2;
+  widows: 2;
+  page-break-inside: auto;
+  break-inside: auto;
+}
+
+.long-answer {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.long-answer label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11pt;
+}
+
+.long-answer p {
+  border: 0.5px solid #cfd2d7;
+  border-radius: 4px;
+  background: #fff;
+  min-height: 24px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.signature-block {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 20px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  /* Keep signature block together */
+}
+
+.signature-section {
+  flex: 1;
+  text-align: left;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  /* Keep each signature with its label */
+}
+
+.signature-img {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.signature-section label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12pt;
+}
+
+.signature-img {
+  width: 220px;
+  height: 80px;
+  object-fit: contain;
+  border: 1px solid #cfd2d7;
+  border-radius: 4px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.signature-date {
+  font-size: 11pt;
+  color: #333;
+  margin: 0;
+}
+
+/* Make checklists and tables printable without overflow */
+table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+th,
+td {
+  border: .5px solid #cfd2d7;
+  padding: 2mm;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Form Structure */
+.pdf-form section {
+  margin-bottom: 20px;
+  page-break-inside: auto;
+  /* Allow sections to break across pages */
+  break-inside: auto;
+}
+
+.pdf-form h2 {
+  font-size: 12pt;
+  font-weight: 700;
+  color: #000;
+  margin: 16px 0 10px 0;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #cfd2d7;
+  page-break-after: avoid;
+  /* Keep section title with first content */
+  break-after: avoid;
+}
+
+.pdf-form h3 {
+  font-size: 11.5pt;
+  font-weight: 600;
+  color: #000;
+  margin: 14px 0 8px 0;
+}
+
+/* Radio/Checkbox groups */
+.radio-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.radio-item {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11pt;
+}
+
+.radio-item input[type="checkbox"] {
+  margin-right: 4px;
+  width: 11pt;
+  height: 11pt;
+}
+
+/* Lists */
+.value-list,
+.long-answer ul {
+  margin: 0 0 8px 0;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+.value-list li,
+.long-answer li {
+  margin: 0 0 6px 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Safety: never clip children */
+* {
+  overflow: visible !important;
+}
+
+/* Ensure proper content flow and prevent overlapping */
+.pdf-form {
+  position: relative;
+  z-index: 1;
+}
+
+/* Force page breaks when content would overlap */
+.page-break-before {
+  page-break-before: always;
+  break-before: page;
+}
+
+.page-break-after {
+  page-break-after: always;
+  break-after: page;
+}
+
+/* Ensure content doesn't get hidden behind fixed elements */
+.pdf-body>* {
+  position: relative;
+  z-index: 2;
+}
+
+/* Better handling of radio groups */
+.radio-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Screen/View Helpers */
+@media screen {
+  .pdf-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+}

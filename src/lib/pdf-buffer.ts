@@ -4,6 +4,7 @@ interface PDFBufferOptions {
   formSubmissionId: number;
   formId: number;
   filename?: string;
+  adminId?: number;
 }
 
 interface PDFBufferResult {
@@ -19,11 +20,20 @@ interface PDFBufferResult {
 export async function generatePDFBuffer({
   formSubmissionId,
   formId,
-  filename
+  filename,
+  adminId
 }: PDFBufferOptions): Promise<PDFBufferResult> {
   try {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const url = `${baseUrl}/api/generate-pdf/${formSubmissionId}/${formId}?buffer=true${filename ? `&filename=${encodeURIComponent(filename)}` : ''}`;
+    let url = `${baseUrl}/api/generate-pdf/${formSubmissionId}/${formId}?buffer=true`;
+    
+    if (filename) {
+      url += `&filename=${encodeURIComponent(filename)}`;
+    }
+    
+    if (adminId) {
+      url += `&adminId=${adminId}`;
+    }
     
     console.log(`📄 Generating PDF buffer from: ${url}`);
     
@@ -60,25 +70,27 @@ export async function generateMultiplePDFBuffers(
     id: number; // This is the formSubmissionId
     formId: number;
     title: string;
-  }>
+  }>,
+  adminId?: number
 ): Promise<Array<{
   success: boolean;
   filename: string;
   buffer?: Buffer;
   error?: string;
 }>> {
-  console.log(`📄 Generating ${forms.length} PDF buffers for batch email`);
+  console.log(`📄 Generating ${forms.length} PDF buffers for batch email (adminId: ${adminId})`);
   
   const results = await Promise.allSettled(
     forms.map(async (form) => {
       const filename = `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`;
       
-      console.log(`📄 Generating PDF for: ${form.title} (submissionId: ${form.id}, formId: ${form.formId})`);
+      console.log(`📄 Generating PDF for: ${form.title} (submissionId: ${form.id}, formId: ${form.formId}, adminId: ${adminId})`);
       
       const result = await generatePDFBuffer({
         formSubmissionId: form.id, // Use 'id' as formSubmissionId
         formId: form.formId,
-        filename
+        filename,
+        adminId
       });
       
       return {

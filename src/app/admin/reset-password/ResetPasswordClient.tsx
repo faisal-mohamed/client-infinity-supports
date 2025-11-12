@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function ResetPasswordClient() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function ResetPasswordClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (emailFromQuery) {
@@ -73,13 +76,28 @@ export default function ResetPasswordClient() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
 
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+    if (newPassword.length < 15) {
+      setError('Password must be at least 15 characters long');
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      setError('Password must contain at least one number');
+      return;
+    }
+
+    if (!/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(newPassword)) {
+      setError('Password must contain at least one special character (!@#$%^&*_-+=[]{}|;:,.<>?)');
       return;
     }
 
@@ -232,33 +250,63 @@ export default function ResetPasswordClient() {
           <form onSubmit={handleResetPassword} className="space-y-6">
             <div>
               <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
-              <input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
-                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters long</p>
+              <div className="relative">
+                <input
+                  id="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={15}
+                  className="mt-1 w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200"
+                  title={showPassword ? "Hide password" : "Show password"}
+                  disabled={isLoading}
+                >
+                  {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                </button>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 space-y-1">
+                <p>Password must contain:</p>
+                <ul className="list-disc list-inside space-y-1 ml-1">
+                  <li>At least 15 characters</li>
+                  <li>At least one uppercase letter (A-Z)</li>
+                  <li>At least one number (0-9)</li>
+                  <li>At least one special character: !@#$%^&amp;*_-+=[]{}|;:,.</li>
+                </ul>
+              </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
-                className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={15}
+                  className="mt-1 w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200"
+                  title={showConfirmPassword ? "Hide password" : "Show password"}
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button

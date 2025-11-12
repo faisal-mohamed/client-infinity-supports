@@ -65,7 +65,7 @@ const homeVisitSchema : any = {
           title: "GEOGRAPHICAL LOCATION",
           fields: [
             { label: "Are there any difficulties locating the address/access to the building?", key: "accessDifficulties" },
-            { label: "Is there parking available?", key: "parking" },
+            { label: "Is there parking available? Street? Paid ?", key: "parking" },
             {
               label: "Is entry via the front door? If no, which door is used for entry?",
               key: "entryPoint",

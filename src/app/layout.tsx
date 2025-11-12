@@ -9,7 +9,12 @@ const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' });
 
 const inter = Inter({ subsets: ['latin'] });
 
-const Monst = Montserrat({subsets: ['latin']})
+const Monst = Montserrat({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial']
+})
 
 export const metadata: Metadata = {
   title: 'Infinity Support Portal',
@@ -30,6 +35,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            body { 
+              font-family: ${Monst.style.fontFamily}, system-ui, -apple-system, sans-serif;
+            }
+          `
+        }} />
+      </head>
       <body className={Monst.className}>
         <Providers>{children}</Providers>
       </body>

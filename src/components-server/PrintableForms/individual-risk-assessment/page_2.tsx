@@ -50,7 +50,7 @@ const Page2: React.FC<Page2Props> = ({
   // Define sticky footer content
   const footer = (
     <div className="flex justify-between text-sm px-2">
-      <div>{settings?.company_website || 'https://www.infinitysupportswa.org'}</div>
+      <div>{settings?.company_website || ''}</div>
       <div>
   Date of Review:{' '}
   {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date)
@@ -73,8 +73,8 @@ const Page2: React.FC<Page2Props> = ({
           />
         </div>
 
-        {/* Guideline Section */}
-        <div className="px-6 mb-4">
+        {/* Guideline Section - keep together with table */}
+        <div className="px-6 mb-4 print:break-inside-avoid">
   <p className="mb-1 font-semibold underline">
     MODERATE <span style={{ color: '#f97316', fontWeight: 'bold' }}>ORANGE</span>
   </p>
@@ -90,9 +90,13 @@ const Page2: React.FC<Page2Props> = ({
 </div>
 
 
-        {/* Table */}
-        <div className="flex-1 flex flex-col px-6">
-          <table className="w-full h-full table-fixed border border-black border-collapse text-[16px]">
+        {/* Table - prevent breaking */}
+        <div className="flex-1 flex flex-col px-6 print:break-inside-avoid">
+          {/* Title Bar */}
+          <div className="bg-gray-400 border border-black px-2 py-2 text-center font-bold text-[16px] mb-0">
+            POTENTIAL RISK & CONTROL MEASURES
+          </div>
+          <table className="w-full h-full table-fixed border border-black border-t-0 border-collapse text-[16px]">
             <thead className="bg-gray-200">
               <tr>
                 <th className="border border-black font-bold px-2 py-1 text-center w-1/4">Risk Identified</th>

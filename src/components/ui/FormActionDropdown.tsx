@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { FaEdit, FaEye, FaDownload, FaSpinner, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaEye, FaDownload, FaSpinner, FaTrash, FaLink } from 'react-icons/fa';
 import Dropdown from './Dropdown';
 
 interface FormActionDropdownProps {
@@ -15,6 +15,10 @@ interface FormActionDropdownProps {
   onDownloadPDF: () => void;
   downloadingPDF: boolean;
   onDeleteClick:  any
+  // Optional emergency-drill specific action
+  onGenerateLinkClick?: () => void;
+  showGenerateLink?: boolean;
+  generatingLink?: boolean;
 }
 
 export default function FormActionDropdown({
@@ -27,7 +31,10 @@ export default function FormActionDropdown({
   hasSubmission,
   onDownloadPDF,
   downloadingPDF,
-  onDeleteClick
+  onDeleteClick,
+  onGenerateLinkClick,
+  showGenerateLink,
+  generatingLink
 }: FormActionDropdownProps) {
   const handleEditClick = () => {
     onEditClick();
@@ -41,6 +48,11 @@ export default function FormActionDropdown({
 
   const handleDownloadClick = () => {
     onDownloadPDF();
+    onClose();
+  };
+
+  const handleGenerateLinkClick = () => {
+    if (onGenerateLinkClick) onGenerateLinkClick();
     onClose();
   };
 
@@ -89,6 +101,23 @@ export default function FormActionDropdown({
             <span>{downloadingPDF ? 'Generating PDF...' : 'Download PDF'}</span>
           </button>
         </>
+      )}
+
+      {showGenerateLink && (
+        <button
+          onClick={handleGenerateLinkClick}
+          disabled={!!generatingLink}
+          className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-rose-50 hover:to-rose-100 hover:text-rose-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2"
+        >
+          <div className="p-2 rounded-lg bg-rose-100 text-rose-600">
+            {generatingLink ? (
+              <FaSpinner className="h-4 w-4 animate-spin" />
+            ) : (
+              <FaLink className="h-4 w-4" />
+            )}
+          </div>
+          <span>{generatingLink ? 'Generating Link...' : 'Generate Link'}</span>
+        </button>
       )}
 
       <button

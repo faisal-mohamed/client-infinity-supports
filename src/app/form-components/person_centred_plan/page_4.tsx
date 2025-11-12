@@ -135,9 +135,9 @@ const Page4: React.FC<Page4Props> = ({
       {/* Footer - Fixed desktop layout */}
       <div className="flex justify-between items-center text-xs font-bold px-6 py-3 mt-auto border-t border-gray-200">
         <div>
-          Website: {settings?.company_website || "infinitysupportswa.org"}
+          Website: {settings?.company_website || ""}
         </div>
-        <div>{settings?.person_centre_plan_form_id || "CF014"}</div>
+        <div>{settings?.person_centre_plan_form_id || ""}</div>
         <div>
           Review Date:{" "}
           {settings?.review_date &&

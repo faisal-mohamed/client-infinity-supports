@@ -50,6 +50,7 @@ const Page1: React.FC<any> = ({
   images,
 }) => {
   const commonFieldMapping: Record<string, string> = {
+    surname: "surname",
     givenNames: "name",
     address: "street",
     dob: "dob",
@@ -62,6 +63,7 @@ const Page1: React.FC<any> = ({
     email: "email",
     mobile: "phone",
     sex: "sex",
+    // Note: homePhone is intentionally NOT mapped to allow it to use data.homePhone
   };
 
   const getValue = (key: string): string => {

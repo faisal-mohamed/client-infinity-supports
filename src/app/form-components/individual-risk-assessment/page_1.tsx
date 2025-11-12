@@ -113,11 +113,11 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
         <footer className="max-w-3xl mx-auto w-full px-4 pb-4 text-[12px] text-blue-700 flex justify-between">
           <a
             className="underline"
-            href={settings?.company_website || 'https://www.infinitysupportswa.org'}
+            href={settings?.company_website || ''}
             target="_blank"
             rel="noreferrer"
           >
-            {settings?.company_website || 'https://www.infinitysupportswa.org'}
+            {settings?.company_website || ''}
           </a>
           <div>
   Date of Review:{' '}

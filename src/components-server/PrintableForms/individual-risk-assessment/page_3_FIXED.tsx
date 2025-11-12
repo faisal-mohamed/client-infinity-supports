@@ -38,7 +38,7 @@ const Footer = ({ settings }: { settings: any }) => {
 
   return (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-1 text-gray-600`}>
-      <span>{settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
+      <span>{settings?.company_website || ''}</span>
       <span>Date of Review: {formatDate(settings?.review_date) || 'N/A'}</span>
     </div>
   );
@@ -100,7 +100,7 @@ const Page3: React.FC<Page3Props> = ({
 
   const footer = (
     <div className={`flex justify-between ${A4_PDF_TYPOGRAPHY.footer} px-2 text-gray-600`}>
-      <span>{settings?.company_website || 'https://www.infinitysupportswa.org'}</span>
+      <span>{settings?.company_website || ''}</span>
       <span>Date of Review: {settings?.review_date && /^\d{4}-\d{2}-\d{2}$/.test(settings.review_date) ? format(parseISO(settings.review_date), 'dd-MM-yyyy') : 'N/A'}</span>
     </div>
   );

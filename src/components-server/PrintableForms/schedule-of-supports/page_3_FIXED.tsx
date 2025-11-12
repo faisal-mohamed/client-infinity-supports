@@ -278,7 +278,7 @@ const Page3: React.FC<Page3Props> = ({
               >
                 Name:{" "}
                 <span className={A4_PDF_TYPOGRAPHY.signatureContent}>
-                  {getValue("represenativeName")}
+                  {getValue("representativeName")}
                 </span>
               </p>
             </div>

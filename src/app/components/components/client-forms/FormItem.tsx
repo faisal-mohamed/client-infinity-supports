@@ -14,9 +14,11 @@ import {
 import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
 import EditWarningModal from '@/components/ui/EditWarningModal';
+import StaffNotSubmittedModal from '@/components/ui/StaffNotSubmittedModal';
 import FormActionDropdown from '@/components/ui/FormActionDropdown';
 import { useConfirm } from '@/components/ui/Confirm';
 import { useToast } from '@/components/ui/Toast';
+import SignatureLinkModal from '@/app/components/components/client-forms/SignatureLinkModal';
 
 interface FormItemProps {
   assignment: FormAssignmentWithDetails;
@@ -38,12 +40,35 @@ export default function FormItem({
   const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
   const [showEditWarningModal, setShowEditWarningModal] = useState(false);
+  const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
   const dropdownTriggerRef : any = useRef<HTMLButtonElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const confirm = useConfirm();
   const { showToast } = useToast();
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<{
+    url: string;
+    token: string;
+    formsCount: number;
+    forms: { formTitle: string; formKey: string }[];
+    expiresAt: string;
+  } | null>(null);
 
   const handleEditClick = () => {
+    // Check if form was sent via signature link but staff hasn't submitted yet
+    // ONLY apply this restriction to Emergency Drill form
+    const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
+                              !assignment.filledByAdmin && 
+                              !assignment.hasSubmission;
+    
+    if (isWaitingForStaff) {
+      // Show "waiting for staff" modal
+      setShowStaffNotSubmittedModal(true);
+      return;
+    }
+    
+    // Check if editing will invalidate signatures
     const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
     if (requiresSignatures && assignment.currentStatus === 'completed') {
       setShowEditWarningModal(true);
@@ -87,6 +112,57 @@ export default function FormItem({
     }
   };
 
+  const generateEmergencyDrillLink = async () => {
+    try {
+      setGeneratingLink(true);
+      // Generate a signature link for only this assignment
+      const response = await fetch(`/api/clients/${clientId}/generate-signature-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formAssignmentIds: [assignment.id] })
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'Failed to generate signature link');
+      }
+
+      const data = await response.json();
+      setGeneratedLink({
+        url: data.signatureUrl,
+        token: data.token,
+        formsCount: data.formsCount,
+        forms: data.forms,
+        expiresAt: data.expiresAt,
+      });
+      setShowLinkModal(true);
+    } catch (err: any) {
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: err?.message || 'Failed to generate link',
+        duration: 3500,
+      });
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
+  const copyLinkToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast({ type: 'success', title: 'Link Copied', message: 'Signature link copied to clipboard', duration: 2000 });
+    } catch (e) {
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast({ type: 'success', title: 'Link Copied', message: 'Signature link copied to clipboard', duration: 2000 });
+    }
+  };
+
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
     const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     const status = assignment.currentStatus;
@@ -123,12 +199,17 @@ bgColor: 'from-amber-500 to-amber-600',
 
   return (
     <>
-      <div className={`p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${
+      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${
         isSelected ? 'bg-gradient-to-r from-rose-50 to-rose-100 border-l-4 border-rose-500' : 'bg-white'
       } border border-gray-100 rounded-2xl`}>
+        {generatingLink && (
+          <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin" />
+          </div>
+        )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.filledByAdmin ? (
+            {assignment.filledByAdmin || assignment.form.formKey === 'emergency_drill' ? (
               <input
                 type="checkbox"
                 checked={isSelected}
@@ -151,7 +232,7 @@ bgColor: 'from-amber-500 to-amber-600',
                     <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-md`}>
                       {statusInfo.status}
                     </span>
-                    {assignment.form.requiresSignature && (
+                    {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 border-2 border-rose-300 shadow-md">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>
@@ -206,6 +287,7 @@ bgColor: 'from-amber-500 to-amber-600',
                 setActiveActionMenu(!activeActionMenu);
               }}
               className="p-3 text-slate-400 hover:text-rose-600 hover:bg-white hover:shadow-md rounded-xl transition-all group-hover:bg-white"
+              title="Form actions"
             >
               <FaCog className="h-5 w-5 hover:rotate-90 transition-transform duration-300" />
             </button>
@@ -221,10 +303,24 @@ bgColor: 'from-amber-500 to-amber-600',
               onDownloadPDF={() => onDownloadPDF(assignment)}
               downloadingPDF={downloadingPDF === assignment.id}
               onDeleteClick={handleDeleteFormAssignment}
+              // Show Generate Link only for emergency_drill
+              showGenerateLink={assignment.form.formKey === 'emergency_drill'}
+              onGenerateLinkClick={generateEmergencyDrillLink}
+              generatingLink={generatingLink}
             />
           </div>
         </div>
       </div>
+
+      {/* Signature Link Modal for emergency_drill quick action */}
+      <SignatureLinkModal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        clientName={undefined}
+        clientId={clientId}
+        generatedLink={generatedLink}
+        onCopyLink={copyLinkToClipboard}
+      />
 
       <EditWarningModal
         isOpen={showEditWarningModal}
@@ -232,6 +328,19 @@ bgColor: 'from-amber-500 to-amber-600',
         onConfirm={handleEditConfirm}
         formTitle={assignment.form.title}
         onDownload={() => onDownloadPDF(assignment)}
+      />
+
+      <StaffNotSubmittedModal
+        isOpen={showStaffNotSubmittedModal}
+        onClose={() => setShowStaffNotSubmittedModal(false)}
+        formTitle={assignment.form.title}
+        onResendLink={() => {
+          setShowStaffNotSubmittedModal(false);
+          // Trigger resend link action if needed
+          if (assignment.form.formKey === 'emergency_drill') {
+            generateEmergencyDrillLink();
+          }
+        }}
       />
     </>
   );
