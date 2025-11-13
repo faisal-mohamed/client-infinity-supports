@@ -25,12 +25,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { staffId },
     });
 
-    if (!preEmploymentMedical) {
-      return NextResponse.json({ error: 'Pre-Employment Medical form not found' }, { status: 404 });
-    }
-
+    // Return empty data if form doesn't exist yet (for viewing empty form)
     return NextResponse.json({
-      ...preEmploymentMedical,
+      ...(preEmploymentMedical || { data: {}, staffSignature: null, staffSignedAt: null }),
       staff,
     });
   } catch (error: any) {

@@ -115,7 +115,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     
     // Process all submissions from generic table
     staff.submissions.forEach((s: any) => {
-      dataByForm[s.formKey] = {
+      const formData: any = {
         ...(s.data || {}),
         // Add admin fields if present
         ...(s.adminSignature ? {
@@ -123,6 +123,36 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
           adminSignedAt: s.adminSignedAt?.toISOString().split('T')[0] || ''
         } : {})
       };
+      
+      // Merge signature fields back into data for forms that use them
+      if (s.formKey === 'pre_employment_medical' || s.formKey === 'support_worker' || 
+          s.formKey === 'ndis_workforce_capability' || s.formKey === 'bullying_harassment_training') {
+        // Merge staffSignature and staffSignedAt back into data as signature and signatureDate
+        if (s.staffSignature) {
+          formData.signature = s.staffSignature;
+        }
+        if (s.staffSignedAt) {
+          formData.signatureDate = s.staffSignedAt.toISOString().split('T')[0];
+        }
+      } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_code_of_conduct') {
+        // Merge staffSignature and staffSignedAt back into data as signature and date
+        if (s.staffSignature) {
+          formData.signature = s.staffSignature;
+        }
+        if (s.staffSignedAt) {
+          formData.date = s.staffSignedAt.toISOString().split('T')[0];
+        }
+      } else if (s.formKey === 'bullying_training') {
+        // Merge staffSignature and staffSignedAt back into data
+        if (s.staffSignature) {
+          formData.staffSignature = s.staffSignature;
+        }
+        if (s.staffSignedAt) {
+          formData.staffSignedAt = s.staffSignedAt.toISOString();
+        }
+      }
+      
+      dataByForm[s.formKey] = formData;
     });
     
     // 🔄 BACKWARD COMPATIBILITY: Check dedicated tables for old data

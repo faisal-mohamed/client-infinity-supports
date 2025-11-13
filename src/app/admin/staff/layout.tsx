@@ -31,7 +31,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     <div className={`min-h-screen bg-white text-black ${montserrat.className}`}>
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 text-white flex items-center justify-between px-4 shadow z-30">
         <div className="flex items-center gap-3">
-          <Image src="/client_logo.png" alt="Logo" width={40} height={30} />
+          <Image src="/client_logo.png" alt="Logo" width={40} height={30} style={{ height: 'auto' }} />
           <span className="font-semibold text-sm" style={{ color: white }}>Infinity Support WA</span>
         </div>
         <button onClick={() => setMobileMenuOpen(true)} aria-label="Open menu" title="Open menu">
@@ -45,7 +45,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           <aside className="relative w-64 bg-slate-900 text-white h-full shadow-xl z-50 flex flex-col">
             <div className="flex items-center justify-between px-4 py-4 border-b border-slate-700">
               <div className="flex items-center gap-2">
-                <Image src="/client_logo.png" alt="Client Logo" width={40} height={30} />
+                <Image src="/client_logo.png" alt="Client Logo" width={40} height={30} style={{ height: 'auto' }} />
                 <span className="font-semibold text-sm" style={{ color: white }}>Infinity Support WA</span>
               </div>
               <button onClick={() => setMobileMenuOpen(false)} aria-label="Close menu" title="Close menu">
@@ -85,7 +85,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         <aside className="hidden lg:flex lg:w-72 flex-col fixed inset-y-0 bg-slate-900 text-white border-r border-slate-800 shadow-xl">
           <div className="h-20 flex items-center justify-center bg-slate-800 border-b border-slate-700">
             <div className="flex flex-col items-center">
-              <Image src="/client_logo.png" alt="Client Logo" width={70} height={40} />
+              <Image src="/client_logo.png" alt="Client Logo" width={70} height={40} style={{ height: 'auto' }} />
               <span className="text-sm font-semibold" style={{ color: white }}>Infinity Support WA</span>
             </div>
           </div>
