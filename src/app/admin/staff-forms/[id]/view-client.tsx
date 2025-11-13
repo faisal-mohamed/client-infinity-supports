@@ -40,11 +40,25 @@ export default function StaffFormViewClient({ formKey }: { formKey: string }) {
   };
 
   const Component = getStaffFormComponent(formKey, 'view');
-  const meta = {
-    website: getSettingValue('company_website') || 'infinitysupportswa.org',
-    version: getSettingValue('employee_details_form_id') || 'SF004',
-    reviewDate: getSettingValue('review_date') || '2025-03-01',
+  
+  // Get form-specific settings based on formKey
+  const getFormMeta = () => {
+    if (formKey === 'ndis_workforce_capability') {
+      return {
+        website: getSettingValue('company_website') || getSettingValue('website') || '',
+        formId: getSettingValue('ndis_workforce_capability_form_id') || '',
+        reviewDate: getSettingValue('ndis_workforce_capability_review_date') || getSettingValue('review_date') || '',
+      };
+    }
+    // Default meta for other forms (backward compatibility)
+    return {
+      website: getSettingValue('company_website') || getSettingValue('website') || '',
+      version: getSettingValue('employee_details_form_id') || '',
+      reviewDate: getSettingValue('review_date') || '',
+    };
   };
+  
+  const meta = getFormMeta();
 
   return (
     <div className="bg-slate-50 min-h-screen">

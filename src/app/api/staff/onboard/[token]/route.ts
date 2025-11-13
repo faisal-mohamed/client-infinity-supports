@@ -126,7 +126,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       
       // Merge signature fields back into data for forms that use them
       if (s.formKey === 'pre_employment_medical' || s.formKey === 'support_worker' || 
-          s.formKey === 'ndis_workforce_capability' || s.formKey === 'bullying_harassment_training') {
+          s.formKey === 'bullying_harassment_training') {
         // Merge staffSignature and staffSignedAt back into data as signature and signatureDate
         if (s.staffSignature) {
           formData.signature = s.staffSignature;
@@ -134,7 +134,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         if (s.staffSignedAt) {
           formData.signatureDate = s.staffSignedAt.toISOString().split('T')[0];
         }
-      } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_code_of_conduct') {
+      } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_workforce_capability' || s.formKey === 'ndis_code_of_conduct') {
         // Merge staffSignature and staffSignedAt back into data as signature and date
         if (s.staffSignature) {
           formData.signature = s.staffSignature;
@@ -198,7 +198,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       dataByForm['ndis_workforce_capability'] = {
         ...(staff.ndisWorkforceCapability.data as any || {}),
         signature: staff.ndisWorkforceCapability.staffSignature || '',
-        signatureDate: staff.ndisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
+        date: staff.ndisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
       };
     }
     
@@ -413,7 +413,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       let signatureData: any = {};
       let formData = { ...data };
       
-      if (formKey === 'employee_welcome') {
+      if (formKey === 'employee_welcome' || formKey === 'ndis_workforce_capability') {
         const { signature, date, ...restData } = data;
         formData = restData;
         if (signature) {
@@ -423,7 +423,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           };
         }
       } else if (formKey === 'support_worker' || formKey === 'pre_employment_medical' || 
-                 formKey === 'ndis_workforce_capability' || formKey === 'bullying_harassment_training') {
+                 formKey === 'bullying_harassment_training') {
         const { signature, signatureDate, ...restData } = data;
         formData = restData;
         if (signature) {

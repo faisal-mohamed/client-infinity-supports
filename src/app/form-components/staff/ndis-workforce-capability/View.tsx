@@ -1,174 +1,99 @@
 "use client";
 
-import React from 'react';
-import FormPage from '@/components/ui/FormPage';
+import React, { useEffect } from "react";
 
-export default function NdisWorkforceCapabilityView({ data: rawData, meta: metaProp }: { data?: any; meta?: { website?: string; version?: string; reviewDate?: string } }) {
-  const data = (rawData as any)?.data ? (rawData as any).data : rawData;
-  const staffSignature = (rawData as any)?.staffSignature;
-  const staffSignedAt = (rawData as any)?.staffSignedAt;
+export default function NdisWorkforceCapabilityView({
+  data = {},
+  meta = { website: "", formId: "", reviewDate: "" },
+}: {
+  data?: any
+  meta?: { website?: string; formId?: string; reviewDate?: string };
+}) {
 
-  const meta = metaProp || { website: 'infinitysupportswa.org', version: 'NDIS Workforce Capability Framework', reviewDate: '01/03/2025' };
-
-  const formatDateValue = (dateString?: string | null) => {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-AU');
-    } catch {
-      return dateString;
-    }
-  };
-
+  useEffect(() => {
+    console.log("data: ", data)
+  }, [data])
+  
   return (
-    <div className="bg-gray-100 py-8">
-      {/* Page 1 - Framework Overview */}
-      <FormPage meta={meta}>
-        <div className="space-y-4 text-sm w-full">
-          <div className="w-full">
-            <div className="border border-gray-300 rounded-lg p-6 w-full">
-              <div className="space-y-6">
-                {/* Header Section */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">NDIS Workforce Capability Framework</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <p className="text-gray-900 mb-4">
-                      This form documents the NDIS Workforce Capability Framework understanding and compliance for staff members.
-                    </p>
-                  </div>
-                </div>
+    <div className="w-full flex justify-center">
+      <div className="bg-white w-full max-w-[794px] min-h-[1123px] border shadow relative px-[96px] pt-12 pb-[112px] a4-ack">
+        {/* Header with logo */}
+        <div className="flex justify-center mt-2 mb-6">
+          <img src="/client_full_logo.jpg" alt="Company Logo" className="h-16 object-contain" />
+        </div>
 
-                {/* Staff Information */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">Staff Information</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <div className="space-y-3">
-                      <Field label="Name" value={data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()} />
-                      <Field label="Position" value={data.position} />
-                      <Field label="Date" value={formatDateValue(data.date)} />
-                    </div>
-                  </div>
-                </div>
+        <h2 className="text-center font-semibold mb-6 text-[12pt]">
+          NDIS Workforce Capability Framework Acknowledgement Form
+        </h2>
 
-                {/* Framework Understanding */}
-                {data.frameworkUnderstanding && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Framework Understanding</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <p className="text-gray-900 whitespace-pre-wrap">{data.frameworkUnderstanding}</p>
-                    </div>
-                  </div>
-                )}
+        <p className="mb-4">
+          I confirm I have received the NDIS Workforce Capability Framework from Infinity Supports and have read and
+          understood the content.
+        </p>
+        <p className="mb-8">
+          A printed version of this framework is also available. If you would like a printed version,
+          please contact us.
+        </p>
 
-                {/* Competency Areas */}
-                {data.competencyAreas && Array.isArray(data.competencyAreas) && data.competencyAreas.length > 0 && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Competency Areas</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="space-y-3">
-                        {data.competencyAreas.map((area: any, index: number) => (
-                          <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0">
-                            <div className="font-semibold text-gray-900 mb-2">{area.area || `Area ${index + 1}`}</div>
-                            <div className="text-gray-700 text-sm">{area.description || ''}</div>
-                            {area.status && (
-                              <div className="mt-2">
-                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                                  area.status === 'Competent' ? 'bg-green-100 text-green-800' :
-                                  area.status === 'Developing' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {area.status}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+        <div className="space-y-6">
+          {/* Acknowledgement Checkbox (read-only display) */}
+          <div className="flex items-start gap-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
+            <input
+              id="readAcknowledgement"
+              type="checkbox"
+              checked={data?.readAcknowledgement || false}
+              readOnly
+              className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded"
+            />
+            <label htmlFor="readAcknowledgement" className="text-[12pt] leading-relaxed">
+              <strong>I acknowledge that:</strong>
+              <br />• I have received the NDIS Workforce Capability Framework from Infinity Supports
+              <br />• I have read and understood the content
+              <br />• I agree to comply with all policies and procedures outlined in the framework
+            </label>
+          </div>
 
-                {/* Training Completed */}
-                {data.trainingCompleted && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Training Completed</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <p className="text-gray-900 whitespace-pre-wrap">{data.trainingCompleted}</p>
-                    </div>
-                  </div>
-                )}
+          {/* Name */}
+          <div>
+            <label className="block text-[12pt] mb-1">Name</label>
+            <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
+              {data?.fullName || (data?.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '') || <span className="text-gray-400 italic">—</span>}
+            </div>
+          </div>
 
-                {/* Comments */}
-                {data.comments && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Additional Comments</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <p className="text-gray-900 whitespace-pre-wrap">{data.comments}</p>
-                    </div>
-                  </div>
-                )}
+          {/* Signature */}
+          <div className="mb-8">
+            <label className="block text-[12pt] mb-2">Signature</label>
+            {data?.signature || data?.staffSignature ? (
+              <img
+                src={data?.signature || data?.staffSignature}
+                alt="Employee Signature"
+                className="border max-h-20 bg-white"
+              />
+            ) : (
+              <div className="text-gray-400 italic">No signature provided</div>
+            )}
+          </div>
 
-                {/* Signature Section */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">Staff Acknowledgement</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                        <div className="border-b-2 border-gray-400 h-8">
-                          {data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Signature:</label>
-                          <div className="border-b-2 border-gray-400 h-8">
-                            {staffSignature ? (
-                              <img src={staffSignature} alt="Staff Signature" className="max-w-full max-h-full" />
-                            ) : (
-                              <span className="text-gray-400 text-sm"></span>
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
-                          <div className="border-b-2 border-gray-400 h-8 text-center text-gray-500">
-                            {formatDateValue(staffSignedAt)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Date */}
+          <div className="mb-6">
+            <label className="block text-[12pt] mb-1">Date</label>
+            <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
+              {data?.date || (data?.staffSignedAt
+                ? new Date(data?.staffSignedAt).toLocaleDateString("en-AU")
+                : <span className="text-gray-400 italic">—</span>)}
             </div>
           </div>
         </div>
-      </FormPage>
-    </div>
-  );
-}
 
-function Field({ label, value }: { label: string; value?: React.ReactNode }) {
-  return (
-    <div>
-      <div className="text-xs font-medium text-gray-700 mb-1">{label}:</div>
-      <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
-        {value || ''}
+        {/* Footer - Only show if settings exist */}
+        {(meta.website || meta.formId || meta.reviewDate) && (
+          <div className="absolute bottom-6 left-[96px] right-[96px] text-[10pt] text-gray-600 flex items-center justify-between">
+            {meta.website && <div>Website: {meta.website}</div>}
+            {meta.formId && <div>{meta.formId}</div>}
+            {meta.reviewDate && <div>Review Date: {meta.reviewDate}</div>}
+          </div>
+        )}
       </div>
     </div>
   );

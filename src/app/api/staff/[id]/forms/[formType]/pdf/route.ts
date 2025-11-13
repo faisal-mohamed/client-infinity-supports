@@ -63,7 +63,7 @@ export async function GET(
           where: { staffId }
         });
         break;
-      case 'ndis-workforce':
+      case 'ndis-workforce-capability':
         formData = await (prisma as any).staffNdisWorkforceCapability.findUnique({
           where: { staffId }
         });
@@ -85,11 +85,6 @@ export async function GET(
         break;
       case 'ndis-code-of-conduct':
         formData = await (prisma as any).staffNdisCodeOfConduct.findUnique({
-          where: { staffId }
-        });
-        break;
-      case 'ndis-workforce-capability':
-        formData = await (prisma as any).staffNdisWorkforceCapability.findUnique({
           where: { staffId }
         });
         break;

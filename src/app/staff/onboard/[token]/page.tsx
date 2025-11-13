@@ -17,7 +17,7 @@ const FORM_SEQUENCE = [
   { key: 'employee_welcome', name: 'Employee Welcome Pack', route: 'employee-welcome' },
   { key: 'support_worker', name: 'Position Description', route: 'support-worker' },
   { key: 'pre_employment_medical', name: 'Pre-Employment Medical', route: 'pre-employment-medical' },
-  { key: 'ndis_workforce_capability', name: 'NDIS Workforce Capability', route: 'ndis-workforce' },
+  { key: 'ndis_workforce_capability', name: 'NDIS Workforce Capability Framework', route: 'ndis-workforce-capability' },
   { key: 'bullying_harassment_training', name: 'Bullying & Harassment Training', route: 'bullying-harassment' },
   { key: 'bullying_training', name: 'Bullying Training', route: 'bullying-training' },
   { key: 'ndis_code_of_conduct', name: 'NDIS Code of Conduct', route: 'ndis-code-of-conduct' },

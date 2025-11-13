@@ -80,16 +80,16 @@ export async function GET(
         hasViewPage: true,
         requiresAdmin: true
       },
-      ...['employee_welcome', 'support_worker', 'pre_employment_medical', 'ndis_workforce_capability', 
+      ...['employee_welcome', 'support_worker', 'pre_employment_medical', 'ndis_workforce_capability',
           'bullying_harassment_training', 'bullying_training', 'ndis_code_of_conduct'].map((formKey, idx) => {
-        const formTypes = ['employment-welcome', 'support-worker', 'pre-employment-medical', 
-                          'ndis-workforce-capability', 'bullying-harassment-training', 
+        const formTypes = ['employment-welcome', 'support-worker', 'pre-employment-medical', 'ndis-workforce-capability',
+                          'bullying-harassment-training', 
                           'bullying-training', 'ndis-code-of-conduct'];
-        const formNames = ['Employee Welcome Pack', 'Position Description', 'Pre-Employment Medical',
-                          'NDIS Workforce Capability', 'Bullying & Harassment Training',
+        const formNames = ['Employee Welcome Pack', 'Position Description', 'Pre-Employment Medical', 'NDIS Workforce Capability Framework',
+                          'Bullying & Harassment Training',
                           'Bullying Training', 'NDIS Code of Conduct'];
-        const dedicatedTables = [staff.employmentWelcomeAck, staff.supportWorker, staff.preEmploymentMedical,
-                                staff.ndisWorkforceCapability, staff.bullyingHarassmentTraining,
+        const dedicatedTables = [staff.employmentWelcomeAck, staff.supportWorker, staff.preEmploymentMedical, staff.ndisWorkforceCapability,
+                                staff.bullyingHarassmentTraining,
                                 staff.bullyingTraining, staff.ndisCodeOfConduct];
         
         const form = getFormData(formKey, dedicatedTables[idx]);
