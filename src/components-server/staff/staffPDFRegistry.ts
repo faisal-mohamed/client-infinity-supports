@@ -28,22 +28,22 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
   },
   'employment-welcome': {
     key: 'employment-welcome',
-    name: 'Employee Welcome Acknowledgment',
+    name: 'Employee Welcome Pack Acknowledgment',
     component: EmployeeWelcomePDF,
   },
   'employment_welcome': {
     key: 'employment_welcome',
-    name: 'Employee Welcome Acknowledgment',
+    name: 'Employee Welcome Pack Acknowledgment',
     component: EmployeeWelcomePDF,
   },
   'support-worker': {
     key: 'support-worker',
-    name: 'Support Worker Form',
+    name: 'Position Description Form',
     component: SupportWorkerPDF,
   },
   'support_worker': {
     key: 'support_worker',
-    name: 'Support Worker Form',
+    name: 'Position Description Form',
     component: SupportWorkerPDF,
   },
   'pre-employment-medical': {

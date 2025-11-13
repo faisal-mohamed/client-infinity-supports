@@ -44,7 +44,7 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const showBlank = searchParams.get('blank') === 'true';
 
-    console.log('📥 [PDF API] Generating Support Worker PDF for staff:', staffId, '| Blank page 4:', showBlank);
+    console.log('📥 [PDF API] Generating Position Description PDF for staff:', staffId, '| Blank page 5:', showBlank);
 
     // Fetch staff data
     const staff = await prisma.staff.findUnique({
@@ -123,7 +123,7 @@ export async function GET(
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="Support_Worker_${staff.firstName}_${staff.surname}.pdf"`,
+        'Content-Disposition': `inline; filename="Position_Description_${staff.firstName}_${staff.surname}.pdf"`,
       },
     });
 

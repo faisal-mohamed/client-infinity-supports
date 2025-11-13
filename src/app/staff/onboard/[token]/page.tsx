@@ -14,8 +14,8 @@ interface FormStatus {
 
 const FORM_SEQUENCE = [
   { key: 'employeeDetails', name: 'Employee Details', route: 'employee-details' },
-  { key: 'employee_welcome', name: 'Employee Welcome', route: 'employee-welcome' },
-  { key: 'support_worker', name: 'Support Worker', route: 'support-worker' },
+  { key: 'employee_welcome', name: 'Employee Welcome Pack', route: 'employee-welcome' },
+  { key: 'support_worker', name: 'Position Description', route: 'support-worker' },
   { key: 'pre_employment_medical', name: 'Pre-Employment Medical', route: 'pre-employment-medical' },
   { key: 'ndis_workforce_capability', name: 'NDIS Workforce Capability', route: 'ndis-workforce' },
   { key: 'bullying_harassment_training', name: 'Bullying & Harassment Training', route: 'bullying-harassment' },

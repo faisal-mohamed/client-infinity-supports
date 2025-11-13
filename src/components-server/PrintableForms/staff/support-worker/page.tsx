@@ -65,7 +65,7 @@ const SupportWorkerPDF: React.FC<SupportWorkerPDFProps> = ({
   images = {},
   showBlankAcknowledgement = false
 }) => {
-  console.log('🔍 [PDF] Support Worker - Generating PDF');
+  console.log('🔍 [PDF] Position Description - Generating PDF');
 
   // Footer data from settings ONLY - no hardcoded defaults
   const footerWebsite = settings?.website;

@@ -42,12 +42,12 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
   },
   employee_welcome: {
     key: 'employee_welcome',
-    name: 'Employee Welcome',
+    name: 'Employee Welcome Pack',
     viewComponent: EmployeeWelcomeView,
   },
   support_worker: {
     key: 'support_worker',
-    name: 'Support Worker',
+    name: 'Position Description',
     viewComponent: SupportWorkerView,
     editComponent: SupportWorkerEdit,
   },

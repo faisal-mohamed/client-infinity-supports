@@ -85,7 +85,7 @@ export async function GET(
         const formTypes = ['employment-welcome', 'support-worker', 'pre-employment-medical', 
                           'ndis-workforce-capability', 'bullying-harassment-training', 
                           'bullying-training', 'ndis-code-of-conduct'];
-        const formNames = ['Employee Welcome', 'Support Worker', 'Pre-Employment Medical',
+        const formNames = ['Employee Welcome Pack', 'Position Description', 'Pre-Employment Medical',
                           'NDIS Workforce Capability', 'Bullying & Harassment Training',
                           'Bullying Training', 'NDIS Code of Conduct'];
         const dedicatedTables = [staff.employmentWelcomeAck, staff.supportWorker, staff.preEmploymentMedical,

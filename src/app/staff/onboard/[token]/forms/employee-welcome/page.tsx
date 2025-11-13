@@ -17,20 +17,20 @@ export default function EmployeeWelcomeFormPage() {
 
   useEffect(() => {
     const loadData = async () => {
-      console.log('🔵 [Employee Welcome Page] Loading data for token:', token);
+      console.log('🔵 [Employee Welcome Pack Page] Loading data for token:', token);
       try {
         const res = await fetch(`/api/staff/onboard/${token}`);
         const data = await res.json();
-        console.log('🔵 [Employee Welcome Page] API Response:', data);
+        console.log('🔵 [Employee Welcome Pack Page] API Response:', data);
         
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
         const welcomeData = data.submissions['employee_welcome'] || {};
-        console.log('✅ [Employee Welcome Page] Loaded form data:', welcomeData);
+        console.log('✅ [Employee Welcome Pack Page] Loaded form data:', welcomeData);
         setFormData(welcomeData);
       } catch (error: any) {
-        console.error('❌ [Employee Welcome Page] Error loading data:', error);
+        console.error('❌ [Employee Welcome Pack Page] Error loading data:', error);
         alert(error.message);
       } finally {
         setLoading(false);
@@ -43,14 +43,14 @@ export default function EmployeeWelcomeFormPage() {
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
     
-    console.log('🔵 [Employee Welcome Page] Saving form... isSubmit:', isSubmit);
+    console.log('🔵 [Employee Welcome Pack Page] Saving form... isSubmit:', isSubmit);
     setSaving(true);
     try {
       const success = await formRef.current.save(isSubmit);
-      console.log('✅ [Employee Welcome Page] Save result:', success);
+      console.log('✅ [Employee Welcome Pack Page] Save result:', success);
       
       if (success && isSubmit) {
-        console.log('🔵 [Employee Welcome Page] Redirecting to main forms page...');
+        console.log('🔵 [Employee Welcome Pack Page] Redirecting to main forms page...');
         router.push(`/staff/onboard/${token}`);
       } else if (success) {
         alert('Draft saved successfully!');

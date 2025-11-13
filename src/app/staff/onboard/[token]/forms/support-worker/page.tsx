@@ -66,7 +66,7 @@ export default function SupportWorkerFormPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Support Worker</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Position Description</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button

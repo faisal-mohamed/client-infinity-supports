@@ -15,7 +15,7 @@ export default function AdminSupportWorkerViewPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('🔵 [Admin View] Loading Support Worker data for staff:', staffId);
+        console.log('🔵 [Admin View] Loading Position Description data for staff:', staffId);
         
         // Fetch form submission (includes staff data)
         const formRes = await fetch(`/api/staff/${staffId}/forms/support-worker`);
@@ -89,7 +89,7 @@ export default function AdminSupportWorkerViewPage() {
       <div className="bg-white shadow-md p-4 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Support Worker Position Description</h1>
+            <h1 className="text-xl font-bold text-gray-900">Position Description</h1>
             <p className="text-sm text-gray-600">
               {staff?.firstName} {staff?.surname} ({staff?.email})
               {formData?.signatureDate && (
@@ -130,7 +130,7 @@ export default function AdminSupportWorkerViewPage() {
             display: 'block',
             minHeight: '900px',
           }}
-          title="Support Worker PDF"
+          title="Position Description PDF"
         />
       </div>
     </div>

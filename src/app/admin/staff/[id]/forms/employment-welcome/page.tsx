@@ -17,7 +17,7 @@ export default function AdminEmployeeWelcomeViewPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('🔵 [Admin View] Loading Employee Welcome data for staff:', staffId);
+        console.log('🔵 [Admin View] Loading Employee Welcome Pack data for staff:', staffId);
         
         // Fetch form submission (includes staff data)
         const formRes = await fetch(`/api/staff/${staffId}/forms/employment-welcome`);
