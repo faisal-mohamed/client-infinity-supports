@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import NdisWorkforceCapabilityAckForm, { NdisWorkforceCapabilityAckFormRef } from '../../components/NdisWorkforceCapabilityAckForm';
+import { useToast } from '@/components/ui/Toast';
 
 export default function NdisWorkforceCapabilityFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -12,8 +13,8 @@ export default function NdisWorkforceCapabilityFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const formRef = useRef<NdisWorkforceCapabilityAckFormRef>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,7 +32,12 @@ export default function NdisWorkforceCapabilityFormPage() {
         setFormData(ndisData);
       } catch (error: any) {
         console.error('❌ [NDIS Workforce Capability Page] Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Error Loading Form',
+          message: error.message || 'Failed to load form data',
+          duration: 4000,
+        });
       } finally {
         setLoading(false);
       }
@@ -51,13 +57,31 @@ export default function NdisWorkforceCapabilityFormPage() {
       
       if (success && isSubmit) {
         console.log('🔵 [NDIS Workforce Capability Page] Redirecting to main forms page...');
-        router.push(`/staff/onboard/${token}`);
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Form submitted successfully!',
+          duration: 3000,
+        });
+        setTimeout(() => {
+          router.push(`/staff/onboard/${token}`);
+        }, 1000);
       } else if (success) {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Draft saved successfully!',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('❌ [NDIS Workforce Capability Page] Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form',
+        duration: 4000,
+      });
     } finally {
       setSaving(false);
     }
@@ -74,35 +98,30 @@ export default function NdisWorkforceCapabilityFormPage() {
   const handleDownloadClick = () => {
     console.log('✅ [NDIS Workforce Capability Page] User clicked download button');
     setHasDownloaded(true);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 5000);
+    showToast({
+      type: 'success',
+      title: 'Download Started',
+      message: 'You can now complete the acknowledgement form below',
+      duration: 5000,
+    });
   };
 
   const handleFormClick = (e: React.MouseEvent) => {
     if (!hasDownloaded) {
       e.preventDefault();
       e.stopPropagation();
-      alert('⚠️ Please download and read the NDIS Workforce Capability Framework before completing this form.');
+      showToast({
+        type: 'warning',
+        title: 'Form Locked',
+        message: 'Please download and read the NDIS Workforce Capability Framework before completing this form.',
+        duration: 5000,
+      });
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Toast Notification */}
-        {showToast && (
-          <div className="fixed top-4 right-4 z-50 animate-slide-in">
-            <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <p className="font-semibold">Download Started!</p>
-                <p className="text-sm">You can now complete the acknowledgement form below</p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -199,21 +218,6 @@ export default function NdisWorkforceCapabilityFormPage() {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

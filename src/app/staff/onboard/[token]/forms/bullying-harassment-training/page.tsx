@@ -2,10 +2,10 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import EmployeeWelcomeAckForm, { EmployeeWelcomeAckFormRef } from '../../components/EmployeeWelcomeAckForm';
+import BullyingHarassmentTrainingAckForm, { BullyingHarassmentTrainingAckFormRef } from '../../components/BullyingHarassmentTrainingAckForm';
 import { useToast } from '@/components/ui/Toast';
 
-export default function EmployeeWelcomeFormPage() {
+export default function BullyingHarassmentTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const [staff, setStaff] = useState<any>(null);
@@ -13,25 +13,26 @@ export default function EmployeeWelcomeFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
-  const formRef = useRef<EmployeeWelcomeAckFormRef>(null);
+  const [showDownloadToast, setShowDownloadToast] = useState(false);
+  const formRef = useRef<BullyingHarassmentTrainingAckFormRef>(null);
   const { showToast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
-      console.log('🔵 [Employee Welcome Pack Page] Loading data for token:', token);
+      console.log('🔵 [Bullying & Harassment Training Page] Loading data for token:', token);
       try {
         const res = await fetch(`/api/staff/onboard/${token}`);
         const data = await res.json();
-        console.log('🔵 [Employee Welcome Pack Page] API Response:', data);
+        console.log('🔵 [Bullying & Harassment Training Page] API Response:', data);
         
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
-        const welcomeData = data.submissions['employee_welcome'] || {};
-        console.log('✅ [Employee Welcome Pack Page] Loaded form data:', welcomeData);
-        setFormData(welcomeData);
+        const trainingData = data.submissions['bullying_harassment_training'] || {};
+        console.log('✅ [Bullying & Harassment Training Page] Loaded form data:', trainingData);
+        setFormData(trainingData);
       } catch (error: any) {
-        console.error('❌ [Employee Welcome Pack Page] Error loading data:', error);
+        console.error('❌ [Bullying & Harassment Training Page] Error loading data:', error);
         showToast({
           type: 'error',
           title: 'Error Loading Form',
@@ -49,14 +50,14 @@ export default function EmployeeWelcomeFormPage() {
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
     
-    console.log('🔵 [Employee Welcome Pack Page] Saving form... isSubmit:', isSubmit);
+    console.log('🔵 [Bullying & Harassment Training Page] Saving form... isSubmit:', isSubmit);
     setSaving(true);
     try {
       const success = await formRef.current.save(isSubmit);
-      console.log('✅ [Employee Welcome Pack Page] Save result:', success);
+      console.log('✅ [Bullying & Harassment Training Page] Save result:', success);
       
       if (success && isSubmit) {
-        console.log('🔵 [Employee Welcome Pack Page] Redirecting to main forms page...');
+        console.log('🔵 [Bullying & Harassment Training Page] Redirecting to main forms page...');
         showToast({
           type: 'success',
           title: 'Form Submitted',
@@ -75,7 +76,7 @@ export default function EmployeeWelcomeFormPage() {
         });
       }
     } catch (error: any) {
-      console.error('❌ [Employee Welcome Page] Error saving:', error);
+      console.error('❌ [Bullying & Harassment Training Page] Error saving:', error);
       showToast({
         type: 'error',
         title: 'Save Failed',
@@ -96,14 +97,16 @@ export default function EmployeeWelcomeFormPage() {
   }
 
   const handleDownloadClick = () => {
-    console.log('✅ [Employee Welcome Page] User clicked download button');
+    console.log('✅ [Bullying & Harassment Training Page] User clicked download button');
     setHasDownloaded(true);
+    setShowDownloadToast(true);
     showToast({
       type: 'success',
       title: 'Download Started',
       message: 'You can now complete the acknowledgement form below',
       duration: 5000,
     });
+    setTimeout(() => setShowDownloadToast(false), 5000);
   };
 
   const handleFormClick = (e: React.MouseEvent) => {
@@ -113,7 +116,7 @@ export default function EmployeeWelcomeFormPage() {
       showToast({
         type: 'warning',
         title: 'Form Locked',
-        message: 'Please download and read the Employee Welcome Pack before completing this form.',
+        message: 'Please download and read the Bullying & Harassment Training document before completing this form.',
         duration: 5000,
       });
     }
@@ -127,7 +130,7 @@ export default function EmployeeWelcomeFormPage() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Employee Welcome</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Bullying & Harassment Training</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
@@ -155,11 +158,11 @@ export default function EmployeeWelcomeFormPage() {
               </div>
             )}
             <p className="text-gray-700 text-center mb-4">
-              📄 Please download and read the Employee Welcome Pack before completing the acknowledgement form below
+              📄 Please download and read the Bullying & Harassment Training document before completing the acknowledgement form below
             </p>
             <a
-              href={`/api/staff/${staff?.id}/forms/employee-welcome/pdf?blank=true`}
-              download={`Employee_Welcome_Pack_${staff?.firstName}_${staff?.surname}.pdf`}
+              href="/stafForms/Bullying and Harassment Training 2023.pdf"
+              download="Bullying_and_Harassment_Training_2023.pdf"
               onClick={handleDownloadClick}
               className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg shadow transition-all duration-200 ${
                 hasDownloaded 
@@ -170,7 +173,7 @@ export default function EmployeeWelcomeFormPage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              {hasDownloaded ? '✓ Downloaded - Click to Download Again' : 'Download Employee Welcome Pack'}
+              {hasDownloaded ? '✓ Downloaded - Click to Download Again' : 'Download Bullying & Harassment Training 2023'}
             </a>
           </div>
         </div>
@@ -188,12 +191,12 @@ export default function EmployeeWelcomeFormPage() {
                 </svg>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Form Locked</h3>
                 <p className="text-gray-600">
-                  Please download the Employee Welcome Pack above before filling out this acknowledgement form.
+                  Please download the Bullying & Harassment Training document above before filling out this acknowledgement form.
                 </p>
               </div>
             </div>
           )}
-          <EmployeeWelcomeAckForm 
+          <BullyingHarassmentTrainingAckForm 
             ref={formRef}
             token={token}
           />
@@ -221,3 +224,7 @@ export default function EmployeeWelcomeFormPage() {
     </div>
   );
 }
+
+
+
+

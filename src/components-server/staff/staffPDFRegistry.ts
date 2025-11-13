@@ -5,7 +5,7 @@ import EmployeeWelcomePDF from './EmployeeWelcomePDF_ReactPDF';
 import SupportWorkerPDF from './SupportWorkerPDF_ReactPDF';
 import PreEmploymentMedicalPDF from './PreEmploymentMedicalPDF_ReactPDF';
 import NdisWorkforceCapabilityPDF from '../PrintableForms/staff/ndis-workforce-capability/page';
-import BullyingHarassmentTrainingPDF from './BullyingHarassmentTrainingPDF_ReactPDF';
+import BullyingHarassmentTrainingPDF from '../PrintableForms/staff/bullying-harassment-training/page';
 // OLD: Playwright version (keep for reference)
 // import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 

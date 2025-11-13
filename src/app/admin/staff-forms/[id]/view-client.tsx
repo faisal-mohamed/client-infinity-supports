@@ -50,6 +50,14 @@ export default function StaffFormViewClient({ formKey }: { formKey: string }) {
         reviewDate: getSettingValue('ndis_workforce_capability_review_date') || getSettingValue('review_date') || '',
       };
     }
+    if (formKey === 'bullying_harassment_training') {
+      return {
+        website: getSettingValue('company_website') || getSettingValue('website') || null,
+        formId: getSettingValue('bullying_harassment_training_form_id') || null,
+        // Only use form-specific review date, no fallback to general review_date
+        reviewDate: getSettingValue('bullying_harassment_training_review_date') || null,
+      };
+    }
     // Default meta for other forms (backward compatibility)
     return {
       website: getSettingValue('company_website') || getSettingValue('website') || '',

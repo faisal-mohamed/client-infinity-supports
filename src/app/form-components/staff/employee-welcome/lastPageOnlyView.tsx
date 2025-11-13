@@ -41,9 +41,9 @@ export default function EmployeeWelcomeAckView({
             <input
               id="readAcknowledgement"
               type="checkbox"
-              checked={!data?.readAcknowledgement}
+              checked={data?.readAcknowledgement || false}
               readOnly
-              className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded"
+              className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 cursor-default"
             />
             <label htmlFor="readAcknowledgement" className="text-[12pt] leading-relaxed">
               <strong>I acknowledge that:</strong>

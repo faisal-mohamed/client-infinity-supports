@@ -1,190 +1,101 @@
 "use client";
 
-import React from 'react';
-import FormPage from '@/components/ui/FormPage';
+import React, { useEffect } from "react";
 
-export default function BullyingHarassmentTrainingView({ data: rawData, meta: metaProp }: { data?: any; meta?: { website?: string; version?: string; reviewDate?: string } }) {
-  const data = (rawData as any)?.data ? (rawData as any).data : rawData;
-  const staffSignature = (rawData as any)?.staffSignature;
-  const staffSignedAt = (rawData as any)?.staffSignedAt;
+export default function BullyingHarassmentTrainingView({
+  data = {},
+  meta = { website: "", formId: "", reviewDate: "" },
+}: {
+  data?: any
+  meta?: { website?: string; formId?: string; reviewDate?: string };
+}) {
 
-  const meta = metaProp || { website: 'infinitysupportswa.org', version: 'Bullying and Harassment Training 2023', reviewDate: '01/03/2025' };
-
-  const formatDateValue = (dateString?: string | null) => {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-AU');
-    } catch {
-      return dateString;
-    }
-  };
-
+  useEffect(() => {
+    console.log("data: ", data)
+  }, [data])
+  
   return (
-    <div className="bg-gray-100 py-8">
-      {/* Page 1 - Training Overview */}
-      <FormPage meta={meta}>
-        <div className="space-y-4 text-sm w-full">
-          <div className="w-full">
-            <div className="border border-gray-300 rounded-lg p-6 w-full">
-              <div className="space-y-6">
-                {/* Header Section */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">Bullying and Harassment Training 2023</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <p className="text-gray-900 mb-4">
-                      This training provides staff with knowledge and understanding of bullying and harassment in the workplace, including prevention, identification, and appropriate response procedures.
-                    </p>
-                  </div>
-                </div>
+    <div className="w-full flex justify-center">
+      <div className="bg-white w-full max-w-[794px] min-h-[1123px] border shadow relative px-[96px] pt-12 pb-[112px] a4-ack">
+        {/* Header with logo */}
+        <div className="flex justify-center mt-2 mb-6">
+          <img src="/client_full_logo.jpg" alt="Company Logo" className="h-16 object-contain" />
+        </div>
 
-                {/* Staff Information */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">Participant Information</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <div className="space-y-3">
-                      <Field label="Name" value={data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()} />
-                      <Field label="Position" value={data.position} />
-                      <Field label="Department" value={data.department} />
-                      <Field label="Training Date" value={formatDateValue(data.trainingDate)} />
-                    </div>
-                  </div>
-                </div>
+        <h2 className="text-center font-semibold mb-6 text-[12pt]">
+          Bullying & Harassment Training Acknowledgement Form
+        </h2>
 
-                {/* Training Modules Completed */}
-                {data.modulesCompleted && Array.isArray(data.modulesCompleted) && data.modulesCompleted.length > 0 && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Training Modules Completed</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <ul className="list-disc list-inside space-y-2 text-gray-900">
-                        {data.modulesCompleted.map((module: string, index: number) => (
-                          <li key={index}>{module}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
+        <p className="mb-4">
+          I acknowledge that I have received, read, and understood the Bullying & Harassment Training materials provided to me.
+        </p>
 
-                {/* Understanding Questions */}
-                {data.understandingQuestions && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Understanding Check</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="space-y-4">
-                        {Object.entries(data.understandingQuestions).map(([question, answer], index) => (
-                          <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0">
-                            <div className="font-semibold text-gray-900 mb-2">{question}</div>
-                            <div className="text-gray-700 text-sm">{String(answer)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
+        <div className="space-y-6">
+          {/* Acknowledgement Checkbox (read-only display) */}
+          <div className="flex items-start gap-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
+            <input
+              id="readAcknowledgement"
+              type="checkbox"
+              checked={data?.readAcknowledgement || false}
+              readOnly
+              className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 cursor-default"
+            />
+            <label htmlFor="readAcknowledgement" className="text-[12pt] leading-relaxed">
+              <strong>I acknowledge that:</strong>
+              <br />• I have completed the Bullying & Harassment Training
+              <br />• I understand the key concepts and procedures covered in the training
+              <br />• I will apply this knowledge in my work environment
+              <br />• I am aware of the complaint procedures and support available
+            </label>
+          </div>
 
-                {/* Key Learnings */}
-                {data.keyLearnings && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Key Learnings</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <p className="text-gray-900 whitespace-pre-wrap">{data.keyLearnings}</p>
-                    </div>
-                  </div>
-                )}
+          {/* Name */}
+          <div>
+            <label className="block text-[12pt] mb-1">Name</label>
+            <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
+              {data?.fullName || (data?.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '') || <span className="text-gray-400 italic">—</span>}
+            </div>
+          </div>
 
-                {/* Assessment Results */}
-                {data.assessmentScore && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Assessment Results</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="space-y-3">
-                        <Field label="Score" value={`${data.assessmentScore}%`} />
-                        <Field label="Status" value={data.assessmentStatus} />
-                        {data.assessmentDate && (
-                          <Field label="Assessment Date" value={formatDateValue(data.assessmentDate)} />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {/* Signature */}
+          <div className="mb-8">
+            <label className="block text-[12pt] mb-2">Signature</label>
+            {data?.signature || data?.staffSignature ? (
+              <img
+                src={data?.signature || data?.staffSignature}
+                alt="Employee Signature"
+                className="border max-h-20 bg-white"
+              />
+            ) : (
+              <div className="text-gray-400 italic">No signature provided</div>
+            )}
+          </div>
 
-                {/* Comments */}
-                {data.comments && (
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Additional Comments</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <p className="text-gray-900 whitespace-pre-wrap">{data.comments}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Signature Section */}
-                <div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                    <h3 className="text-xl font-semibold">Training Acknowledgement</h3>
-                  </div>
-                  <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                    <div className="space-y-4">
-                      <p className="text-gray-900 text-sm">
-                        I acknowledge that I have completed the Bullying and Harassment Training and understand the key concepts and procedures covered.
-                      </p>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Name:</label>
-                        <div className="border-b-2 border-gray-400 h-8">
-                          {data.name || `${rawData.staff?.firstName || ''} ${rawData.staff?.surname || ''}`.trim()}
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Signature:</label>
-                          <div className="border-b-2 border-gray-400 h-8">
-                            {staffSignature ? (
-                              <img src={staffSignature} alt="Staff Signature" className="max-w-full max-h-full" />
-                            ) : (
-                              <span className="text-gray-400 text-sm"></span>
-                            )}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
-                          <div className="border-b-2 border-gray-400 h-8 text-center text-gray-500">
-                            {formatDateValue(staffSignedAt)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Date */}
+          <div className="mb-6">
+            <label className="block text-[12pt] mb-1">Date</label>
+            <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
+              {data?.date || (data?.staffSignedAt
+                ? new Date(data?.staffSignedAt).toLocaleDateString("en-AU")
+                : <span className="text-gray-400 italic">—</span>)}
             </div>
           </div>
         </div>
-      </FormPage>
-    </div>
-  );
-}
 
-function Field({ label, value }: { label: string; value?: React.ReactNode }) {
-  return (
-    <div>
-      <div className="text-xs font-medium text-gray-700 mb-1">{label}:</div>
-      <div className="border border-gray-400 h-8 rounded-sm px-2 flex items-center text-gray-900 bg-white">
-        {value || ''}
+        {/* Footer - Only show if settings exist */}
+        {(meta.website || meta.formId || meta.reviewDate) && (
+          <div className="absolute bottom-6 left-[96px] right-[96px] text-[10pt] text-gray-600 flex items-center justify-between">
+            {meta.website && <div>Website: {meta.website}</div>}
+            {meta.formId && <div>{meta.formId}</div>}
+            {meta.reviewDate && <div>Review Date: {meta.reviewDate}</div>}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+
+
+
+

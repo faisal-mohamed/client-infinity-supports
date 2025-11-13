@@ -3,6 +3,7 @@
 import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from 'react';
 import { fetchFormSpecificSettings } from '@/lib/settings';
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
+import { useToast } from '@/components/ui/Toast';
 
 export interface NdisWorkforceCapabilityAckFormRef { 
   submit: () => Promise<boolean>;
@@ -16,6 +17,7 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState<{ website: string; formId: string; reviewDate: string }>({ website: '', formId: '', reviewDate: '' });
   const sigRef = useRef<SignatureCanvasRef | null>(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -104,7 +106,12 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
       return true;
     } catch (e: any) {
       console.error('❌ [NdisWorkforceCapabilityAckForm] Submit error:', e);
-      alert(e.message || 'Failed');
+      showToast({
+        type: 'error',
+        title: 'Submit Failed',
+        message: e.message || 'Failed to submit form',
+        duration: 4000,
+      });
       return false;
     } finally {
       setLoading(false);
@@ -127,7 +134,12 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
       return true;
     } catch (e: any) {
       console.error('❌ [NdisWorkforceCapabilityAckForm] Save error:', e);
-      alert(e.message || 'Failed');
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: e.message || 'Failed to save form',
+        duration: 4000,
+      });
       return false;
     } finally {
       setLoading(false);
@@ -187,7 +199,7 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
               type="checkbox"
               checked={data.readAcknowledgement}
               onChange={(e) => handleChange('readAcknowledgement', e.target.checked)}
-              className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
+              className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer"
             />
             <label htmlFor="readAcknowledgement" className="text-[12pt] leading-relaxed">
               <strong>I acknowledge that:</strong><br />

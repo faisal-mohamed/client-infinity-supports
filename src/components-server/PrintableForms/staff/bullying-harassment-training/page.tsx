@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface NdisWorkforceCapabilityPDFProps {
+interface BullyingHarassmentTrainingPDFProps {
   data?: any;
   staff?: any;
   settings?: any;
@@ -131,14 +131,14 @@ interface NdisWorkforceCapabilityPDFProps {
   showBlankForm?: boolean;
 }
 
-const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
+const BullyingHarassmentTrainingPDF: React.FC<BullyingHarassmentTrainingPDFProps> = ({
   data = {},
   staff = {},
   settings = {},
   images = {},
   showBlankForm = false,
 }) => {
-  console.log('🔍 [PDF] NDIS Workforce Capability - Generating acknowledgement PDF');
+  console.log('🔍 [PDF] Bullying & Harassment Training - Generating acknowledgement PDF');
 
   // Helper to format date
   const formatDate = (dateStr: string): string => {
@@ -164,8 +164,9 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
   // Render footer - using form settings API like other staff forms
   const renderFooter = () => {
     const footerWebsite = settings?.website || settings?.company_website;
-    const footerId = settings?.ndis_workforce_capability_form_id;
-    const footerDate = settings?.ndis_workforce_capability_review_date || settings?.review_date;
+    const footerId = settings?.bullying_harassment_training_form_id;
+    // Only use form-specific review date, no fallback to general review_date
+    const footerDate = settings?.bullying_harassment_training_review_date;
 
     // Only show footer if at least one value exists
     if (!footerWebsite && !footerId && !footerDate) return null;
@@ -184,16 +185,10 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
       <Page size="A4" style={styles.page}>
         {renderHeader()}
         
-        <Text style={styles.title}>NDIS Workforce Capability Framework Acknowledgement Form</Text>
+        <Text style={styles.title}>Bullying & Harassment Training Acknowledgement Form</Text>
         
         <Text style={styles.paragraph}>
-          I confirm I have received the NDIS Workforce Capability Framework from Infinity Supports and have read and 
-          understood the content.
-        </Text>
-        
-        <Text style={styles.paragraph}>
-          A printed version of this framework is also available. If you would like a printed version, 
-          please contact us.
+          I acknowledge that I have received, read, and understood the Bullying & Harassment Training materials provided to me.
         </Text>
 
         {/* Acknowledgement Checkbox */}
@@ -206,9 +201,10 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
             </View>
             <Text style={styles.checkboxText}>
               <Text style={{ fontWeight: 'bold' }}>I acknowledge that:</Text>{'\n'}
-              • I have received the NDIS Workforce Capability Framework from Infinity Supports{'\n'}
-              • I have read and understood the content{'\n'}
-              • I agree to comply with all policies and procedures outlined in the framework
+              • I have completed the Bullying & Harassment Training{'\n'}
+              • I understand the key concepts and procedures covered in the training{'\n'}
+              • I will apply this knowledge in my work environment{'\n'}
+              • I am aware of the complaint procedures and support available
             </Text>
           </View>
         </View>
@@ -251,5 +247,9 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
   );
 };
 
-export default NdisWorkforceCapabilityPDF;
+export default BullyingHarassmentTrainingPDF;
+
+
+
+
 
