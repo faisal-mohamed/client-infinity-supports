@@ -58,6 +58,13 @@ export default function StaffFormViewClient({ formKey }: { formKey: string }) {
         reviewDate: getSettingValue('bullying_harassment_training_review_date') || null,
       };
     }
+    if (formKey === 'bullying_training') {
+      return {
+        website: getSettingValue('company_website') || getSettingValue('website') || null,
+        formId: getSettingValue('bullying_training_form_id') || null,
+        reviewDate: getSettingValue('bullying_training_review_date') || null,
+      };
+    }
     // Default meta for other forms (backward compatibility)
     return {
       website: getSettingValue('company_website') || getSettingValue('website') || '',

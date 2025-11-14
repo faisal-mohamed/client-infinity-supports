@@ -79,9 +79,33 @@ export async function GET(
         });
         break;
       case 'bullying-training':
-        formData = await (prisma as any).staffBullyingTraining.findUnique({
-          where: { staffId }
+        // Check generic submissions table first
+        const bullyingSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'bullying_training'
+            }
+          }
         });
+        if (bullyingSubmission) {
+          formData = {
+            data: bullyingSubmission.data || {},
+            staffSignature: bullyingSubmission.staffSignature,
+            staffSignedAt: bullyingSubmission.staffSignedAt,
+            createdAt: bullyingSubmission.createdAt,
+            updatedAt: bullyingSubmission.updatedAt,
+          };
+        } else {
+          // Fallback to dedicated table
+          try {
+            formData = await (prisma as any).staffBullyingTraining.findUnique({
+              where: { staffId }
+            });
+          } catch (e) {
+            // Table might not exist
+          }
+        }
         break;
       case 'ndis-code-of-conduct':
         formData = await (prisma as any).staffNdisCodeOfConduct.findUnique({
@@ -96,8 +120,19 @@ export async function GET(
       return new NextResponse("Form data not found", { status: 404 });
     }
 
+    // Extract data from formData (handle both direct data and nested data)
+    let formDataObj = formData;
+    if (formData?.data && typeof formData.data === 'object') {
+      formDataObj = {
+        ...formData.data,
+        staffSignature: formData.staffSignature,
+        staffSignedAt: formData.staffSignedAt,
+        date: formData.staffSignedAt ? new Date(formData.staffSignedAt).toISOString().split('T')[0] : '',
+      };
+    }
+
     // Add staff info to form data
-    const dataWithStaff = { ...formData, staff };
+    const dataWithStaff = { ...formDataObj, staff };
 
     // Convert logo to base64 for React PDF
     const logoPath = path.resolve(process.cwd(), 'public/infinity_logo.png');
@@ -111,8 +146,11 @@ export async function GET(
       console.warn('Logo not found, skipping:', error);
     }
 
-    // Add logo to data
-    const dataWithLogo = { ...dataWithStaff, logoDataUrl };
+    // Add logo and settings to data
+    const dataWithLogo = { 
+      data: dataWithStaff,
+      settings: { logoDataUrl }
+    };
 
     // Get React PDF component
     const StaffPDFComponent = getStaffPDFComponent(formType.replace(/-/g, '_'));

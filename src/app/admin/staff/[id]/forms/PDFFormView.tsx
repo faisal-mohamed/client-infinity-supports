@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import SignaturePad from '@/app/components/forms/SignaturePad';
+import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
 
 interface PDFFormViewProps {
@@ -500,32 +500,21 @@ export default function PDFFormView({
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           Admin Signature: <span className="text-red-500">*</span>
                         </label>
-                        {adminFormData.adminSignature ? (
-                          <div className="border-2 border-green-400 rounded-lg p-4 bg-green-50">
-                            <img src={adminFormData.adminSignature} alt="Admin Signature" className="max-h-32 mx-auto" />
-                            <button
-                              type="button"
-                              onClick={() => setAdminFormData({...adminFormData, adminSignature: ''})}
-                              className="mt-2 w-full px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
-                            >
-                              Clear Signature
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <SignaturePad
-                              onEnd={(dataUrl) => {
-                                if (dataUrl && dataUrl.length > 100) {
-                                  setAdminFormData({...adminFormData, adminSignature: dataUrl});
-                                }
-                              }}
-                              readOnly={false}
-                            />
-                            <p className="text-xs text-gray-500 text-center mt-2">
-                              Sign above using your mouse, stylus, or finger
-                            </p>
-                          </div>
-                        )}
+                        <div className="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-200">
+                          <SignatureCanvas
+                            existingSignature={adminFormData.adminSignature || undefined}
+                            onSignatureEnd={(dataUrl) => {
+                              if (dataUrl && dataUrl.length > 100) {
+                                setAdminFormData({ ...adminFormData, adminSignature: dataUrl });
+                              }
+                            }}
+                            onSignatureClear={() =>
+                              setAdminFormData({ ...adminFormData, adminSignature: '' })
+                            }
+                            clearButtonText="Clear Signature"
+                            className="items-center"
+                          />
+                        </div>
                       </div>
 
                       {/* Date - Editable */}

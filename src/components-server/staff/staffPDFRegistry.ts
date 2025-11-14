@@ -6,6 +6,7 @@ import SupportWorkerPDF from './SupportWorkerPDF_ReactPDF';
 import PreEmploymentMedicalPDF from './PreEmploymentMedicalPDF_ReactPDF';
 import NdisWorkforceCapabilityPDF from '../PrintableForms/staff/ndis-workforce-capability/page';
 import BullyingHarassmentTrainingPDF from '../PrintableForms/staff/bullying-harassment-training/page';
+import BullyingTrainingPDF from '../PrintableForms/staff/bullying-training/page';
 // OLD: Playwright version (keep for reference)
 // import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 
@@ -75,6 +76,16 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
     key: 'bullying_harassment_training',
     name: 'Bullying and Harassment Training',
     component: BullyingHarassmentTrainingPDF,
+  },
+  'bullying-training': {
+    key: 'bullying-training',
+    name: 'Bullying Training',
+    component: BullyingTrainingPDF,
+  },
+  'bullying_training': {
+    key: 'bullying_training',
+    name: 'Bullying Training',
+    component: BullyingTrainingPDF,
   },
 };
 

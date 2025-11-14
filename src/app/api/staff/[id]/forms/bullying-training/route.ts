@@ -16,9 +16,38 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    const bullyingTraining = await db.staffBullyingTraining.findUnique({
-      where: { staffId }
+    // Check generic submissions table first (current approach)
+    const submission = await prisma.staffFormSubmission.findUnique({
+      where: {
+        staffId_formKey: {
+          staffId,
+          formKey: 'bullying_training'
+        }
+      }
     });
+
+    // Fallback to dedicated table for backward compatibility
+    let bullyingTraining = null;
+    if (submission) {
+      bullyingTraining = {
+        data: submission.data || {},
+        staffSignature: submission.staffSignature,
+        staffSignedAt: submission.staffSignedAt,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt,
+      };
+    } else {
+      try {
+        const dedicated = await db.staffBullyingTraining.findUnique({
+          where: { staffId }
+        });
+        if (dedicated) {
+          bullyingTraining = dedicated;
+        }
+      } catch (e) {
+        // Table might not exist, that's okay
+      }
+    }
 
     if (!bullyingTraining) {
       return NextResponse.json({ error: 'Bullying training form not found' }, { status: 404 });

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 
-export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const staffId = parseInt(id, 10);
@@ -18,8 +18,12 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
       select: { id: true, linkToken: true, linkExpiresAt: true, firstName: true, surname: true, email: true },
     });
 
-    const urlBase = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    const link = `${urlBase}/staff/onboard/${updated.linkToken}`;
+    // Get the correct base URL from the request (same as client signature links)
+    const protocol = req.headers.get('x-forwarded-proto') || 'http';
+    const host = req.headers.get('host') || 'localhost:3000';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const link = `${baseUrl}/staff/onboard/${updated.linkToken}`;
     return NextResponse.json({ link, expiresAt: updated.linkExpiresAt });
   } catch (error: any) {
     console.error('Error generating staff link:', error);

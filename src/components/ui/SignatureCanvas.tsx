@@ -102,17 +102,22 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
 
   // Load existing signature when component mounts or signature value changes
   useEffect(() => {
-    if (existingSignature && sigCanvasRef.current) {
-      const img = new window.Image();
-      img.src = existingSignature;
-      img.onload = () => {
-        const ctx = sigCanvasRef.current?.getCanvas().getContext("2d");
-        if (ctx) {
-          ctx.clearRect(0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width, height);
-        }
-      };
+    if (!existingSignature || !sigCanvasRef.current) return;
+
+    const canvasInstance = sigCanvasRef.current;
+    if (!canvasInstance.isEmpty()) {
+      return;
     }
+
+    const img = new window.Image();
+    img.src = existingSignature;
+    img.onload = () => {
+      const ctx = canvasInstance.getCanvas()?.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+      }
+    };
   }, [existingSignature, width, height]);
 
   return (

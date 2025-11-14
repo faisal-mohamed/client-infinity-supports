@@ -7,18 +7,25 @@ interface FormPageProps {
   title?: string;
   showTitle?: boolean;
   meta?: {
-    website?: string;
-    version?: string;
-    reviewDate?: string;
+    website?: string | null;
+    version?: string | null;
+    reviewDate?: string | null;
   };
 }
 
 export default function FormPage({ children, title, showTitle = true, meta }: FormPageProps) {
-  const finalMeta = {
-    website: meta?.website || 'infinitysupportswa.org',
-    version: meta?.version || 'S1004',
-    reviewDate: meta?.reviewDate || '01/03/2005'
-  };
+  const usingCustomMeta = !!meta;
+  const finalMeta = usingCustomMeta
+    ? {
+        website: meta?.website ?? '',
+        version: meta?.version ?? '',
+        reviewDate: meta?.reviewDate ?? '',
+      }
+    : {
+        website: 'infinitysupportswa.org',
+        version: 'S1004',
+        reviewDate: '01/03/2005',
+      }
 
   const formatDate = (date: string) => {
     try {
@@ -27,6 +34,9 @@ export default function FormPage({ children, title, showTitle = true, meta }: Fo
       return date;
     }
   };
+
+  const shouldRenderFooter =
+    usingCustomMeta ? !!(finalMeta.website || finalMeta.version || finalMeta.reviewDate) : true;
 
   return (
     <div className="bg-white w-full max-w-[794px] mx-auto min-h-[1123px] border shadow p-8 print:p-6 flex flex-col">
@@ -46,11 +56,15 @@ export default function FormPage({ children, title, showTitle = true, meta }: Fo
       </div>
 
       {/* Footer - Fixed at bottom */}
-      <div className="mt-auto pt-4 text-[10px] text-gray-600 grid grid-cols-3">
-        <div>Website: {finalMeta.website}</div>
-        <div className="text-center">{finalMeta.version}</div>
-        <div className="text-right">Review Date: {formatDate(finalMeta.reviewDate)}</div>
-      </div>
+      {shouldRenderFooter && (
+        <div className="mt-auto pt-4 text-[10px] text-gray-600 grid grid-cols-3">
+          <div>{finalMeta.website ? `Website: ${finalMeta.website}` : ''}</div>
+          <div className="text-center">{finalMeta.version || ''}</div>
+          <div className="text-right">
+            {finalMeta.reviewDate ? `Review Date: ${formatDate(finalMeta.reviewDate)}` : ''}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

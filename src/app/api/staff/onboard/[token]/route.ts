@@ -148,6 +148,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         }
         if (s.staffSignedAt) {
           formData.staffSignedAt = s.staffSignedAt.toISOString();
+          formData.date = s.staffSignedAt.toISOString().split('T')[0];
         }
       }
       
