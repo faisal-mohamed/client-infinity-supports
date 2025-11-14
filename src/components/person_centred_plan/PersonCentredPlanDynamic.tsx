@@ -547,7 +547,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>{settings?.from_email || ''}</span>
+        <span>{settings?.company_website || ''}</span>
         <span>{settings?.person_centre_plan_form_id || ''}</span>
         <span>Date of Report: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString('en-GB') : ''}</span>
       </div>

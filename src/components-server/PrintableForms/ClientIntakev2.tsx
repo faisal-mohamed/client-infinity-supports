@@ -265,10 +265,10 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
     return formId || '';
   };
 
-  // Get email - no fallback
-  const getEmail = (): string => {
-    const email = settings?.from_email;
-    return email || '';
+  // Get website - no fallback
+  const getWebsite = (): string => {
+    const website = settings?.company_website;
+    return website || '';
   };
 
   // Render checkbox component
@@ -556,7 +556,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
 
         {/* Footer - Fixed at bottom of every page */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -645,7 +645,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -680,7 +680,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -735,7 +735,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -786,7 +786,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -888,7 +888,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -920,7 +920,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>
@@ -948,7 +948,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>

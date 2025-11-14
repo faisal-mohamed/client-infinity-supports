@@ -86,7 +86,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 text-xs flex justify-between">
-          <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
+          <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>

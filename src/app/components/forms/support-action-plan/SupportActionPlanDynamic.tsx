@@ -771,7 +771,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       <div className="flex-1 overflow-hidden">{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>{settings?.company_website || settings?.from_email || ''}</span>
+        <span>{settings?.company_website || ''}</span>
         <span>{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span>
         <span>Review Date: {settings?.review_date || ''}</span>
       </div>

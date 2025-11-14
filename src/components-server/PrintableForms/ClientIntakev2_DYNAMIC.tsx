@@ -241,7 +241,7 @@ const ClientIntakev2Dynamic: React.FC<ClientIntakeFormPDFProps> = ({
   };
 
   // Get settings values
-  const getEmail = (): string => settings?.from_email || '';
+  const getWebsite = (): string => settings?.company_website || '';
   const getFormId = (): string => settings?.client_intake_form_id || '';
   const getReportDate = (): string => {
     const dateValue = settings?.review_date;
@@ -525,7 +525,7 @@ const ClientIntakev2Dynamic: React.FC<ClientIntakeFormPDFProps> = ({
 
         {/* Fixed Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()}</Text>
           <Text style={styles.footerText}>Review Date: {getReportDate()}</Text>
         </View>

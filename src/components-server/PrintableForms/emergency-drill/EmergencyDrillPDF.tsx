@@ -457,7 +457,7 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text>Website: {settings?.from_email || ''}</Text>
+          <Text>Website: {settings?.company_website || ''}</Text>
           <Text>{settings?.emergency_drill || ''}</Text>
           <Text>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</Text>
         </View>

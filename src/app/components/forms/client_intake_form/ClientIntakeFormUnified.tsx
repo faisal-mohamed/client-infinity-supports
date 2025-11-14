@@ -1792,7 +1792,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
 
     return (
       <div className="flex justify-between text-xs px-1 text-gray-600 mt-4">
-        <span>{settings?.from_email || ''}</span>
+        <span>{settings?.company_website || ''}</span>
         <span>{settings?.client_intake_form_id || ''}</span>
         <span>Review Date: {formatDate(settings?.review_date)}</span>
       </div>

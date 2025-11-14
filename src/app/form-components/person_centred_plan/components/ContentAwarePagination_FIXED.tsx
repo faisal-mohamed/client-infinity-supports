@@ -16,7 +16,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
 }) => {
   // Debug logging for view form
   console.log('🔍 Person Centred Plan ContentAwarePagination - Settings received:', settings);
-  console.log('🔍 Person Centred Plan ContentAwarePagination - Email:', settings?.from_email);
+  console.log('🔍 Person Centred Plan ContentAwarePagination - Website:', settings?.company_website);
   console.log('🔍 Person Centred Plan ContentAwarePagination - Form ID:', settings?.person_centre_plan_form_id);
   console.log('🔍 Person Centred Plan ContentAwarePagination - Date:', settings?.review_date);
   
@@ -845,7 +845,7 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
           <div className="mt-auto pt-4 pb-[20mm] px-[20mm]" style={{ minHeight: '60px' }}>
             <div className="flex justify-between items-center text-xs text-gray-700 w-full max-w-full overflow-hidden">
               <div className="flex-shrink-0 max-w-[30%] overflow-hidden">
-                <span className="truncate block">{settings?.from_email || ''}</span>
+                <span className="truncate block">{settings?.company_website || ''}</span>
               </div>
               <div className="text-center flex-shrink-0 px-2">
                 <span>{settings?.person_centre_plan_form_id || ''}</span>

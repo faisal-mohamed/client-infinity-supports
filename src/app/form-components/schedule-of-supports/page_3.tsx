@@ -185,7 +185,7 @@ received.
 
         {/* Footer */}
         <footer className="flex justify-between text-[10px] mt-auto px-1 pt-6">
-           <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
+          <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>
         </footer>

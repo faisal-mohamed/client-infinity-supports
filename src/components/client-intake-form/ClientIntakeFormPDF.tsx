@@ -55,7 +55,7 @@ const A4Page = ({ children, pageNumber, settings }: { children: React.ReactNode;
       paddingTop: '10px',
       color: '#666'
     }}>
-      {settings?.from_email || ''} | {settings?.client_intake_form_id || 'CIF-001'} | Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}
+      {settings?.company_website || ''} | {settings?.client_intake_form_id || 'CIF-001'} | Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}
     </div>
   </div>
 );

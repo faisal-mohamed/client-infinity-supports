@@ -9,7 +9,7 @@ const PersonCentredPlanView: React.FC<any> = ({
 }) => {
   // Debug logging for view form
   console.log('🔍 Person Centred Plan VIEW - Settings received:', settings);
-  console.log('🔍 Person Centred Plan VIEW - Email:', settings?.from_email);
+  console.log('🔍 Person Centred Plan VIEW - Website:', settings?.company_website);
   console.log('🔍 Person Centred Plan VIEW - Form ID:', settings?.person_centre_plan_form_id);
   console.log('🔍 Person Centred Plan VIEW - Date:', settings?.review_date);
   // Simple getValue function
@@ -39,7 +39,7 @@ const PersonCentredPlanView: React.FC<any> = ({
     <PdfPageLayout
       logoDataUrl={logoDataUrl || "/infinity_logo.png"}
       footerData={{
-        email: settings?.from_email || '',
+        website: settings?.company_website || '',
         formId: settings?.person_centre_plan_form_id || '',
         date: settings?.review_date || ''
       }}
