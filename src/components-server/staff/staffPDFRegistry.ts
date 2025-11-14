@@ -5,6 +5,7 @@ import EmployeeWelcomePDF from './EmployeeWelcomePDF_ReactPDF';
 import SupportWorkerPDF from './SupportWorkerPDF_ReactPDF';
 import PreEmploymentMedicalPDF from './PreEmploymentMedicalPDF_ReactPDF';
 import NdisWorkforceCapabilityPDF from '../PrintableForms/staff/ndis-workforce-capability/page';
+import NdisCodeOfConductPDF from '../PrintableForms/staff/ndis-code-of-conduct/page';
 import BullyingHarassmentTrainingPDF from '../PrintableForms/staff/bullying-harassment-training/page';
 import BullyingTrainingPDF from '../PrintableForms/staff/bullying-training/page';
 // OLD: Playwright version (keep for reference)
@@ -61,6 +62,16 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
     key: 'ndis-workforce-capability',
     name: 'NDIS Workforce Capability Framework',
     component: NdisWorkforceCapabilityPDF,
+  },
+  'ndis-code-of-conduct': {
+    key: 'ndis-code-of-conduct',
+    name: 'NDIS Code of Conduct',
+    component: NdisCodeOfConductPDF,
+  },
+  'ndis_code_of_conduct': {
+    key: 'ndis_code_of_conduct',
+    name: 'NDIS Code of Conduct',
+    component: NdisCodeOfConductPDF,
   },
   'ndis_workforce_capability': {
     key: 'ndis_workforce_capability',

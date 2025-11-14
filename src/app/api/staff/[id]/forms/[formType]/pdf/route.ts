@@ -108,9 +108,29 @@ export async function GET(
         }
         break;
       case 'ndis-code-of-conduct':
-        formData = await (prisma as any).staffNdisCodeOfConduct.findUnique({
-          where: { staffId }
-        });
+        {
+          const ndisSubmission = await prisma.staffFormSubmission.findUnique({
+            where: {
+              staffId_formKey: {
+                staffId,
+                formKey: 'ndis_code_of_conduct',
+              },
+            },
+          });
+          if (ndisSubmission) {
+            formData = {
+              data: ndisSubmission.data || {},
+              staffSignature: ndisSubmission.staffSignature,
+              staffSignedAt: ndisSubmission.staffSignedAt,
+              createdAt: ndisSubmission.createdAt,
+              updatedAt: ndisSubmission.updatedAt,
+            };
+          } else {
+            formData = await (prisma as any).staffNdisCodeOfConduct.findUnique({
+              where: { staffId },
+            });
+          }
+        }
         break;
       default:
         return new NextResponse("Invalid form type", { status: 400 });

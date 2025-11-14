@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import SignatureCanvas from "@/components/ui/SignatureCanvas";
-// import { useToast } from "@/components/ui/Toast";
+import { useToast } from "@/components/ui/Toast";
 import FormPage from "@/components/ui/FormPage";
 
 interface NDISCodeOfConductEditProps {
@@ -17,12 +17,23 @@ export interface NDISCodeOfConductEditRef {
 
 const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfConductEditProps>(
   ({ token, staff, onSubmitted }, ref) => {
-    // const { showToast } = useToast();
+    const { showToast } = useToast();
     const [signature, setSignature] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [position, setPosition] = useState('');
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
+    const defaultVersionDate = '2024-01-10';
+    const [versionDate, setVersionDate] = useState(defaultVersionDate);
+
+    const formatVersionDate = (value: string) => {
+      if (!value) return '';
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return value;
+    };
 
     // Load existing data
     useEffect(() => {
@@ -43,6 +54,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
             setSignature(formData.staffSignature || '');
             setDate(formData.date || new Date().toISOString().split('T')[0]);
             setPosition(formData.position || '');
+            setVersionDate(formData.versionDate || defaultVersionDate);
           }
           
           console.log('Form Loaded: NDIS Code of Conduct form loaded successfully');
@@ -59,17 +71,38 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
 
     const validateForm = () => {
       if (!signature) {
-        alert('Please provide your signature to acknowledge the NDIS Code of Conduct.');
+        showToast({
+          type: 'warning',
+          title: 'Signature Required',
+          message: 'Please provide your signature to acknowledge the NDIS Code of Conduct.',
+        });
         return false;
       }
       
       if (!date) {
-        alert('Please provide the date of acknowledgment.');
+        showToast({
+          type: 'warning',
+          title: 'Date Required',
+          message: 'Please provide the date of acknowledgment.',
+        });
         return false;
       }
       
       if (!position) {
-        alert('Please provide your position/title.');
+        showToast({
+          type: 'warning',
+          title: 'Position Required',
+          message: 'Please provide your position/title.',
+        });
+        return false;
+      }
+
+      if (!versionDate) {
+        showToast({
+          type: 'warning',
+          title: 'Version Date Required',
+          message: 'Please select the version date.',
+        });
         return false;
       }
       
@@ -77,7 +110,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
     };
 
     const save = async (isSubmit = false) => {
-      if (isSubmit && !validateForm()) {
+      if (!validateForm()) {
         return;
       }
 
@@ -87,6 +120,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
           signature,
           date,
           position,
+          versionDate,
           staffName: staff ? `${staff.firstName} ${staff.surname}` : '',
           submittedAt: new Date().toISOString()
         };
@@ -105,12 +139,20 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
         
         if (!res.ok) {
           const errorMessage = result.message || result.error || 'Failed to save form';
-          alert('Save Error: ' + errorMessage);
+          showToast({
+            type: 'error',
+            title: 'Save Error',
+            message: errorMessage,
+          });
           return;
         }
 
         const action = isSubmit ? 'submitted' : 'saved';
-        alert(`NDIS Code of Conduct form has been ${action} successfully.`);
+        showToast({
+          type: 'success',
+          title: `Form ${action === 'submitted' ? 'Submitted' : 'Saved'}`,
+          message: `NDIS Code of Conduct form has been ${action} successfully.`,
+        });
 
         if (isSubmit && onSubmitted) {
           setTimeout(() => {
@@ -119,7 +161,11 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
         }
       } catch (error) {
         console.error('Error saving form:', error);
-        alert('Connection Error: Failed to connect to server.');
+        showToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: 'Failed to connect to server.',
+        });
       } finally {
         setSaving(false);
       }
@@ -174,7 +220,18 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
                 <strong>Version No:</strong> 01
               </div>
               <div className="w-1/4 p-3 text-gray-600">
-                <strong>Version Date:</strong> 10/01/2024
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600 mb-1">
+                  Version Date
+                </label>
+                <input
+                  type="date"
+                  value={versionDate}
+                  onChange={(e) => setVersionDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-rose-500 focus:ring-rose-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Current: {formatVersionDate(versionDate)}
+                </p>
               </div>
             </div>
 
@@ -275,7 +332,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
                 <strong>Version No:</strong> 01
               </div>
               <div className="w-1/4 p-3 text-gray-600">
-                <strong>Version Date:</strong> 10/01/2024
+                <strong>Version Date:</strong> {formatVersionDate(versionDate)}
               </div>
             </div>
 
@@ -283,15 +340,15 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
             <div className="px-8 py-6">
               <div className="mt-16">
                 {/* Signature Fields - Direct on Page */}
-                <div className="flex justify-between items-start gap-8">
-                  <div className="flex-1">
+                <div className="flex flex-col gap-10">
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Signature <span className="text-red-500">*</span></label>
                     <div className="border-b-2 border-gray-400 bg-transparent">
                       <SignatureCanvas
                         onSignatureEnd={setSignature}
                         existingSignature={signature}
-                        width={250}
-                        height={60}
+                        width={700}
+                        height={140}
                         penColor="#000000"
                         backgroundColor="transparent"
                         className="w-full"
@@ -300,7 +357,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
                     </div>
                   </div>
                   
-                  <div className="flex-1">
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
                     <input
                       type="date"
@@ -311,7 +368,7 @@ const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfCon
                     />
                   </div>
                   
-                  <div className="flex-1">
+                  <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Position <span className="text-red-500">*</span></label>
                     <input
                       type="text"

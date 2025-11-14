@@ -8,11 +8,21 @@ interface NDISCodeOfConductViewProps {
   children?: React.ReactNode;
 }
 
+const formatVersionDate = (value?: string) => {
+  if (!value) return '10/01/2024';
+  const parts = value.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return value;
+};
+
 export default function NDISCodeOfConductView({ 
   data = {}, 
   excludeLastPage = false, 
   children 
 }: NDISCodeOfConductViewProps) {
+  const versionDateDisplay = formatVersionDate(data?.versionDate);
   return (
     <div className="bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto">
@@ -43,7 +53,7 @@ export default function NDISCodeOfConductView({
               <strong>Version No:</strong> 01
             </div>
             <div className="w-1/4 p-3 text-gray-600">
-              <strong>Version Date:</strong> 10/01/2024
+              <strong>Version Date:</strong> {versionDateDisplay}
             </div>
           </div>
 
@@ -144,7 +154,7 @@ export default function NDISCodeOfConductView({
               <strong>Version No:</strong> 01
             </div>
             <div className="w-1/4 p-3 text-gray-600">
-              <strong>Version Date:</strong> 10/01/2024
+              <strong>Version Date:</strong> {versionDateDisplay}
             </div>
           </div>
 

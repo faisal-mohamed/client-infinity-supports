@@ -16,9 +16,36 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    const ndisCodeOfConduct = await db.staffNdisCodeOfConduct.findUnique({
-      where: { staffId }
+    // Check generic submissions table first (current storage)
+    const submission = await prisma.staffFormSubmission.findUnique({
+      where: {
+        staffId_formKey: {
+          staffId,
+          formKey: 'ndis_code_of_conduct',
+        },
+      },
     });
+
+    let ndisCodeOfConduct: any = null;
+    if (submission) {
+      ndisCodeOfConduct = {
+        data: submission.data || {},
+        staffSignature: submission.staffSignature,
+        staffSignedAt: submission.staffSignedAt,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt,
+      };
+    } else {
+      // Fallback to dedicated table for backward compatibility
+      try {
+        ndisCodeOfConduct = await db.staffNdisCodeOfConduct.findUnique({
+          where: { staffId },
+        });
+      } catch (error) {
+        // Table might not exist, ignore
+        console.warn('NDIS Code of Conduct legacy table lookup failed:', error);
+      }
+    }
 
     if (!ndisCodeOfConduct) {
       return NextResponse.json({ error: 'NDIS code of conduct form not found' }, { status: 404 });
