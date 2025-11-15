@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import PDFViewerWrapper from './PDFViewerWrapper';
+import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 
 export default function AdminEmployeeWelcomeViewPage() {
   const params = useParams();
@@ -126,9 +126,7 @@ export default function AdminEmployeeWelcomeViewPage() {
         </div>
 
         {/* Full Screen PDF Viewer */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <PDFViewerWrapper staffId={staffId} />
-        </div>
+        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/employee-welcome/pdf`} />
       </div>
     </div>
   );

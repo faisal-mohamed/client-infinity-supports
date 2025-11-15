@@ -4,23 +4,22 @@ import React from "react";
 import FairWorkInformationView from "./View";
 
 interface FairWorkInformationEditProps {
-  token: string;
-  staff?: { firstName: string; surname: string };
-  onSubmitted?: () => void;
+  data?: any;
 }
 
-export interface FairWorkInformationEditRef {
-  save: () => Promise<void>;
-}
+export interface FairWorkInformationEditRef {}
 
-const FairWorkInformationEdit = React.forwardRef<FairWorkInformationEditRef, FairWorkInformationEditProps>(
-  ({ token, staff, onSubmitted }, ref) => {
-    // This is a read-only form, so we just use the View component
-    // The actual save/submit logic is handled by the page component
-    return <FairWorkInformationView />;
-  }
-);
+const FairWorkInformationEdit = React.forwardRef<
+  FairWorkInformationEditRef,
+  FairWorkInformationEditProps
+>(function FairWorkInformationEdit(_props, _ref) {
+  return (
+    <FairWorkInformationView acknowledgementMode="editable" />
+  );
+});
 
-FairWorkInformationEdit.displayName = 'FairWorkInformationEdit';
+FairWorkInformationEdit.displayName = "FairWorkInformationEdit";
 
 export default FairWorkInformationEdit;
+
+

@@ -105,19 +105,11 @@ export async function GET(
       // Generic forms stored in submissions table (no view pages yet)
       {
         formType: 'fair-work-information',
-        formName: 'Fair Work Information Statement',
+        formName: 'Fairwork Information Statements',
         status: getGenericFormStatus('fair_work_information').exists ? 'completed' : 'pending',
         completedAt: getGenericFormStatus('fair_work_information').completedAt,
         hasSignature: false,
-        hasViewPage: false
-      },
-      {
-        formType: 'casual-employment-information',
-        formName: 'Casual Employment Information Statement',
-        status: getGenericFormStatus('casual_employment_information').exists ? 'completed' : 'pending',
-        completedAt: getGenericFormStatus('casual_employment_information').completedAt,
-        hasSignature: false,
-        hasViewPage: false
+        hasViewPage: true
       },
       {
         formType: 'orientation',

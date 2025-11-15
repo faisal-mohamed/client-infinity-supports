@@ -13,8 +13,6 @@ import NDISCodeOfConductView from '../form-components/staff/code_of_conduct/View
 import NDISCodeOfConductEdit from '../form-components/staff/code_of_conduct/Edit';
 import FairWorkInformationView from '../form-components/staff/fair-work-information/View';
 import FairWorkInformationEdit from '../form-components/staff/fair-work-information/Edit';
-import CasualEmploymentInformationView from '../form-components/staff/casual-employment-information/View';
-import CasualEmploymentInformationEdit from '../form-components/staff/casual-employment-information/Edit';
 import OrientationView from '../form-components/staff/orientation/View';
 import OrientationEdit from '../form-components/staff/orientation/Edit';
 import VehicleSafetyInspectionView from '../form-components/staff/vehicle-safety-inspection/View';
@@ -79,15 +77,9 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
   },
   fair_work_information: {
     key: 'fair_work_information',
-    name: 'Fair Work Information Statement',
+    name: 'Fairwork Information Statements',
     viewComponent: FairWorkInformationView,
     editComponent: FairWorkInformationEdit,
-  },
-  casual_employment_information: {
-    key: 'casual_employment_information',
-    name: 'Casual Employment Information Statement',
-    viewComponent: CasualEmploymentInformationView,
-    editComponent: CasualEmploymentInformationEdit,
   },
   orientation: {
     key: 'orientation',

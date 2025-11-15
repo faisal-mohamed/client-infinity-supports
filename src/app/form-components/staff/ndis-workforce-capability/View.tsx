@@ -2,12 +2,21 @@
 
 import React, { useEffect } from "react";
 
+interface NdisWorkforceMeta {
+  website?: string | null;
+  formId?: string | null;
+  reviewDate?: string | null;
+  footerLeft?: string | null;
+  footerCenter?: string | null;
+  footerRight?: string | null;
+}
+
 export default function NdisWorkforceCapabilityView({
   data = {},
-  meta = { website: "", formId: "", reviewDate: "" },
+  meta = {},
 }: {
-  data?: any
-  meta?: { website?: string; formId?: string; reviewDate?: string };
+  data?: any;
+  meta?: NdisWorkforceMeta;
 }) {
 
   useEffect(() => {
@@ -86,12 +95,20 @@ export default function NdisWorkforceCapabilityView({
           </div>
         </div>
 
-        {/* Footer - Only show if settings exist */}
-        {(meta.website || meta.formId || meta.reviewDate) && (
+        {/* Footer - Only show if metadata provided */}
+        {(meta?.website ||
+          meta?.formId ||
+          meta?.reviewDate ||
+          meta?.footerLeft ||
+          meta?.footerCenter ||
+          meta?.footerRight) && (
           <div className="absolute bottom-6 left-[96px] right-[96px] text-[10pt] text-gray-600 flex items-center justify-between">
-            {meta.website && <div>Website: {meta.website}</div>}
-            {meta.formId && <div>{meta.formId}</div>}
-            {meta.reviewDate && <div>Review Date: {meta.reviewDate}</div>}
+            <div>{meta?.footerLeft ?? meta?.website ?? ""}</div>
+            <div>{meta?.footerCenter ?? meta?.formId ?? ""}</div>
+            <div>
+              {meta?.footerRight ??
+                (meta?.reviewDate ? `Review Date: ${meta.reviewDate}` : "")}
+            </div>
           </div>
         )}
       </div>

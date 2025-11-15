@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 
 export default function StaffNdisWorkforceCapabilityView() {
   const { id } = useParams<{ id: string }>();
@@ -56,8 +57,6 @@ export default function StaffNdisWorkforceCapabilityView() {
     );
   }
 
-  const pdfUrl = `/api/staff/${id}/forms/ndis-workforce-capability/pdf#view=FitH&toolbar=0`;
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -90,14 +89,7 @@ export default function StaffNdisWorkforceCapabilityView() {
 
       {/* PDF Viewer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <iframe
-            src={pdfUrl}
-            className="w-full"
-            style={{ height: 'calc(100vh - 200px)', minHeight: '900px' }}
-            title="NDIS Workforce Capability Framework PDF"
-          />
-        </div>
+        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${id}/forms/ndis-workforce-capability/pdf`} />
       </div>
     </div>
   );

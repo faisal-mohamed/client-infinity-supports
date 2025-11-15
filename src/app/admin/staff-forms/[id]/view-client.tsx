@@ -43,6 +43,16 @@ export default function StaffFormViewClient({ formKey }: { formKey: string }) {
   
   // Get form-specific settings based on formKey
   const getFormMeta = () => {
+    if (formKey === 'fair_work_information') {
+      const website = getSettingValue('company_website') || getSettingValue('website') || '';
+      const formId = getSettingValue('fair_work_information_form_id') || getSettingValue('employee_details_form_id') || '';
+      const reviewDate = getSettingValue('fair_work_information_review_date') || getSettingValue('review_date') || '';
+      return {
+        website,
+        formId,
+        reviewDate,
+      };
+    }
     if (formKey === 'ndis_workforce_capability') {
       return {
         website: getSettingValue('company_website') || getSettingValue('website') || '',

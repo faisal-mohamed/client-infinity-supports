@@ -132,6 +132,29 @@ export async function GET(
           }
         }
         break;
+      case 'fair-work-information':
+      case 'fair_work_information': {
+        const fairworkSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'fair_work_information',
+            },
+          },
+        });
+        if (fairworkSubmission) {
+          formData = {
+            data: fairworkSubmission.data || {},
+            staffSignature: fairworkSubmission.staffSignature,
+            staffSignedAt: fairworkSubmission.staffSignedAt,
+            createdAt: fairworkSubmission.createdAt,
+            updatedAt: fairworkSubmission.updatedAt,
+          };
+        } else {
+          formData = { data: {}, staffSignature: null, staffSignedAt: null };
+        }
+        break;
+      }
       default:
         return new NextResponse("Invalid form type", { status: 400 });
     }
@@ -143,11 +166,18 @@ export async function GET(
     // Extract data from formData (handle both direct data and nested data)
     let formDataObj = formData;
     if (formData?.data && typeof formData.data === 'object') {
+      const baseDate =
+        formData.data.date ||
+        formData.data.acknowledgedAt ||
+        formData.data.staffSignedAt ||
+        '';
       formDataObj = {
         ...formData.data,
         staffSignature: formData.staffSignature,
         staffSignedAt: formData.staffSignedAt,
-        date: formData.staffSignedAt ? new Date(formData.staffSignedAt).toISOString().split('T')[0] : '',
+        date: formData.staffSignedAt
+          ? new Date(formData.staffSignedAt).toISOString().split('T')[0]
+          : baseDate,
       };
     }
 

@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 
 export default function AdminPreEmploymentMedicalViewPage() {
   const params = useParams();
@@ -77,8 +78,6 @@ export default function AdminPreEmploymentMedicalViewPage() {
     );
   }
 
-  const pdfUrl = `/api/staff/${staffId}/forms/pre-employment-medical/pdf#view=FitH&toolbar=0`;
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header Bar - Compact at top */}
@@ -116,18 +115,8 @@ export default function AdminPreEmploymentMedicalViewPage() {
       </div>
 
       {/* Full Screen PDF Viewer */}
-      <div className="bg-white">
-        <iframe
-          src={pdfUrl}
-          className="w-full"
-          style={{
-            height: 'calc(100vh - 100px)',
-            border: 'none',
-            display: 'block',
-            minHeight: '900px',
-          }}
-          title="Pre-Employment Medical PDF"
-        />
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
+        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/pre-employment-medical/pdf`} />
       </div>
     </div>
   );

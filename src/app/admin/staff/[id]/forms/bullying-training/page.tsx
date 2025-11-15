@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
+import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 
 interface BullyingTrainingData {
   staff?: { firstName: string; surname: string; email: string };
@@ -32,7 +33,7 @@ export default function StaffBullyingTrainingView() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const pdfUrl = useMemo(
-    () => `/api/staff/${id}/forms/bullying-training/pdf#view=FitH&toolbar=0&cache=${refreshKey}`,
+    () => `/api/staff/${id}/forms/bullying-training/pdf?cache=${refreshKey}`,
     [id, refreshKey]
   );
 
@@ -262,15 +263,7 @@ export default function StaffBullyingTrainingView() {
         </div>
 
         {/* PDF Viewer */}
-        <div className="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden">
-          <iframe
-            key={refreshKey}
-            src={pdfUrl}
-            title="Bullying Training PDF"
-            className="w-full"
-            style={{ height: 'calc(100vh - 200px)', minHeight: '800px', border: 'none' }}
-          />
-        </div>
+        <AdminPDFCanvasViewer pdfUrl={pdfUrl} key={refreshKey} />
 
         {/* Manager Section */}
         <div className="bg-white rounded-2xl shadow border border-gray-100 p-6 space-y-6">
