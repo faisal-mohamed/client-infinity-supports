@@ -11,6 +11,7 @@ export default function GovtTaxFormPage() {
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -61,6 +62,36 @@ export default function GovtTaxFormPage() {
     }
   };
 
+  const handleDownload = async () => {
+    if (!formData || Object.keys(formData).length === 0) {
+      alert('Fill out the form before downloading.');
+      return;
+    }
+    setDownloading(true);
+    try {
+      const res = await fetch('/api/generate-pdf/tax-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error('Failed to generate PDF');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `TFN_Declaration_${staff?.firstName || ''}_${staff?.surname || ''}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error: any) {
+      console.error('Download error:', error);
+      alert(error.message || 'Failed to download form.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -90,7 +121,7 @@ export default function GovtTaxFormPage() {
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Government Tax Form</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">TFN Declaration</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
@@ -109,10 +140,11 @@ export default function GovtTaxFormPage() {
               initialData={formData}
               onDataChange={setFormData}
               showButtons={false}
+              lockSectionB
             />
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
+          <div className="flex flex-col lg:flex-row flex-wrap gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
             <button
               onClick={() => handleSave(false)}
               disabled={saving}
@@ -126,6 +158,13 @@ export default function GovtTaxFormPage() {
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Submitting...' : 'Submit & Continue'}
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 w-full sm:w-auto"
+            >
+              {downloading ? 'Preparing PDF...' : 'Download PDF'}
             </button>
           </div>
         </div>

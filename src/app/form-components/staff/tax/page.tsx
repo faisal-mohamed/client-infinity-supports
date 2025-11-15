@@ -17,6 +17,7 @@ interface OverlayCharInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  readOnly?: boolean;
 }
 
 function OverlayCharInput({
@@ -29,6 +30,7 @@ function OverlayCharInput({
   totalWidth,
   value,
   onChange,
+  readOnly = false,
 }: OverlayCharInputProps) {
   const [values, setValues] = useState<string[]>(() =>
     Array.from({ length }, (_, i) => value[i] || "")
@@ -48,6 +50,7 @@ function OverlayCharInput({
   }, [values]);
 
   const handleChange = (val: string, idx: number) => {
+    if (readOnly) return;
     const newValues = [...values];
     newValues[idx] = val.slice(-1);
     setValues(newValues);
@@ -55,6 +58,7 @@ function OverlayCharInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
+    if (readOnly) return;
     if (e.key === "Backspace" && !values[idx] && idx > 0) {
       inputsRef.current[idx - 1]?.focus();
     }
@@ -69,10 +73,12 @@ function OverlayCharInput({
           type="text"
           maxLength={1}
           value={values[i]}
-          onChange={(e) => handleChange(e.target.value, i)}
-          onKeyDown={(e) => handleKeyDown(e, i)}
-          className="char-input border border-gray-400 text-center text-sm"
+          onChange={!readOnly ? (e) => handleChange(e.target.value, i) : undefined}
+          onKeyDown={!readOnly ? (e) => handleKeyDown(e, i) : undefined}
+          className={`char-input border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           style={{ width: effectiveBoxWidth, height: boxHeight }}
+          readOnly={readOnly}
+          disabled={readOnly}
         />
       ))}
     </div>
@@ -88,6 +94,7 @@ interface OverlayCheckboxProps {
   onChange: (val: boolean) => void;
   boxWidth?: number;
   boxHeight?: number;
+  readOnly?: boolean;
 }
 
 function OverlayCheckbox({
@@ -98,18 +105,20 @@ function OverlayCheckbox({
   onChange,
   boxWidth = 16,
   boxHeight = 16,
+  readOnly = false,
 }: OverlayCheckboxProps) {
   return (
     <label className="absolute flex items-center space-x-2 text-sm" style={{ top, left }}>
       <input
         type="checkbox"
         checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={!readOnly ? (e) => onChange(e.target.checked) : undefined}
         className="border border-gray-400"
         style={{
           transform: `scale(${boxWidth / 16})`, // scales relative to default
           transformOrigin: "top left",
         }}
+        disabled={readOnly}
       />
       {label && <span>{label}</span>}
     </label>
@@ -130,6 +139,7 @@ interface OverlayDateCharInputProps {
   boxHeight?: number;
   value: string; // format: DD/MM/YYYY
   onChange: (val: string) => void;
+  readOnly?: boolean;
 }
 
 function OverlayDateCharInput({
@@ -143,6 +153,7 @@ function OverlayDateCharInput({
   boxHeight = 28,
   value,
   onChange,
+  readOnly = false,
 }: OverlayDateCharInputProps) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const digits = value.replace(/\D/g, "").padEnd(8, "");
@@ -159,6 +170,7 @@ function OverlayDateCharInput({
   }, [value]);
 
   const handleChange = (val: string, section: number, idx: number) => {
+    if (readOnly) return;
     const updated = [...values];
     const sectionLen = section === 2 ? 4 : 2;
     let chars = updated[section].split("");
@@ -179,6 +191,7 @@ function OverlayDateCharInput({
     section: number,
     idx: number
   ) => {
+    if (readOnly) return;
     if (e.key === "Backspace") {
       const globalIndex =
         section === 0 ? idx : section === 1 ? 2 + idx : 4 + idx;
@@ -198,10 +211,12 @@ function OverlayDateCharInput({
           type="text"
           maxLength={1}
           value={prefill[i] || ""}
-          onChange={(e) => handleChange(e.target.value, section, i)}
-          onKeyDown={(e) => handleKeyDown(e, section, i)}
-          className="border border-gray-400 text-center text-sm"
+          onChange={!readOnly ? (e) => handleChange(e.target.value, section, i) : undefined}
+          onKeyDown={!readOnly ? (e) => handleKeyDown(e, section, i) : undefined}
+          className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
           style={{ width: boxWidth, height: boxHeight }}
+          readOnly={readOnly}
+          disabled={readOnly}
         />
       );
     });
@@ -239,6 +254,7 @@ interface OverlayMultiRowCharInputProps {
   boxHeight?: number;
   value: string;
   onChange: (val: string) => void;
+  readOnly?: boolean;
 }
 
 function OverlayMultiRowCharInput({
@@ -252,6 +268,7 @@ function OverlayMultiRowCharInput({
   boxHeight = 28,
   value,
   onChange,
+  readOnly = false,
 }: OverlayMultiRowCharInputProps) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const maxChars = rows * cols;
@@ -269,6 +286,7 @@ function OverlayMultiRowCharInput({
   }, [value]);
 
   const handleChange = (val: string, index: number) => {
+    if (readOnly) return;
     const newChars = [...chars];
     newChars[index] = val.slice(-1);
     setChars(newChars);
@@ -280,6 +298,7 @@ function OverlayMultiRowCharInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (readOnly) return;
     if (e.key === "Backspace" && !chars[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
@@ -302,10 +321,12 @@ function OverlayMultiRowCharInput({
                 type="text"
                 maxLength={1}
                 value={chars[idx]}
-                onChange={(e) => handleChange(e.target.value, idx)}
-                onKeyDown={(e) => handleKeyDown(e, idx)}
-                className="border border-gray-400 text-center text-sm"
+                onChange={!readOnly ? (e) => handleChange(e.target.value, idx) : undefined}
+                onKeyDown={!readOnly ? (e) => handleKeyDown(e, idx) : undefined}
+                className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 style={{ width: boxWidth, height: boxHeight, marginRight: gap }}
+                readOnly={readOnly}
+                disabled={readOnly}
               />
             );
           })}
@@ -324,6 +345,7 @@ function OverlayGroupedCharInput({
   boxHeight = 28,
   value,
   onChange,
+  readOnly = false,
 }: any) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const totalLength = groups.reduce((acc, g) => acc + g.length, 0);
@@ -341,6 +363,7 @@ function OverlayGroupedCharInput({
   }, [value]);
 
   const handleChange = (val: string, index: number) => {
+    if (readOnly) return;
     const newChars = [...chars];
     newChars[index] = val.slice(-1);
     setChars(newChars);
@@ -352,6 +375,7 @@ function OverlayGroupedCharInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (readOnly) return;
     if (e.key === "Backspace" && !chars[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
     }
@@ -371,15 +395,17 @@ function OverlayGroupedCharInput({
               type="text"
               maxLength={1}
               value={chars[idx]}
-              onChange={(e) => handleChange(e.target.value, idx)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-              className="border border-gray-400 text-center text-sm absolute"
+              onChange={!readOnly ? (e) => handleChange(e.target.value, idx) : undefined}
+              onKeyDown={!readOnly ? (e) => handleKeyDown(e, idx) : undefined}
+              className={`border border-gray-400 text-center text-sm absolute ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
               style={{
                 top: group.top,
                 left: group.left + i * (boxWidth + 2), // offset horizontally
                 width: boxWidth,
                 height: boxHeight,
               }}
+              readOnly={readOnly}
+              disabled={readOnly}
             />
           );
         });
@@ -396,6 +422,7 @@ interface OverlaySquareRadioGroupProps {
   value: string;
   onChange: (val: string) => void;
   boxSize?: number;
+  readOnly?: boolean;
 }
 
 function OverlaySquareRadioGroup({
@@ -404,6 +431,7 @@ function OverlaySquareRadioGroup({
   value,
   onChange,
   boxSize = 18,
+  readOnly = false,
 }: OverlaySquareRadioGroupProps) {
   return (
     <>
@@ -420,7 +448,9 @@ function OverlaySquareRadioGroup({
               height: boxSize,
               backgroundColor: value === opt.value ? "#2563eb20" : "white", // light blue background if selected
             }}
-            onClick={() => onChange(opt.value)}
+            onClick={() => {
+              if (!readOnly) onChange(opt.value);
+            }}
           >
             {value === opt.value && (
               <span className="text-black text-xs font-bold">✔</span>
@@ -433,6 +463,7 @@ function OverlaySquareRadioGroup({
             checked={value === opt.value}
             onChange={() => onChange(opt.value)}
             className="hidden"
+            disabled={readOnly}
           />
           <span>{opt.label}</span>
         </label>
@@ -449,6 +480,7 @@ interface OverlaySquareRadioGroupProps {
   onChange: (val: string) => void;
   boxSize?: number;
   tickColor?: string;
+  readOnly?: boolean;
 }
 
 function OverlaySquareRadioGroupFour({
@@ -458,6 +490,7 @@ function OverlaySquareRadioGroupFour({
   onChange,
   boxSize = 18,
   tickColor = "black",
+  readOnly = false,
 }: OverlaySquareRadioGroupProps) {
   return (
     <>
@@ -466,7 +499,9 @@ function OverlaySquareRadioGroupFour({
           key={idx}
           className="absolute flex items-center space-x-1 text-sm cursor-pointer"
           style={{ top: opt.top, left: opt.left }}
-          onClick={() => onChange(opt.value)}
+          onClick={() => {
+            if (!readOnly) onChange(opt.value);
+          }}
         >
           <div
             className="flex items-center justify-center border border-gray-600"
@@ -492,6 +527,7 @@ function OverlaySquareRadioGroupFour({
             checked={value === opt.value}
             onChange={() => onChange(opt.value)}
             className="hidden"
+            disabled={readOnly}
           />
           <span>{opt.label}</span>
         </label>
@@ -512,15 +548,24 @@ interface TFNOverlayFormProps {
   onDataChange?: (data: any) => void;
   readOnly?: boolean;
   showButtons?: boolean;
+  lockSectionB?: boolean;
 }
 
 export default function TFNOverlayForm({ 
   initialData = {}, 
   onDataChange, 
   readOnly = false, 
-  showButtons = true 
+  showButtons = true,
+  lockSectionB = false,
 }: TFNOverlayFormProps = {}) {
-  const [tfn, setTfn] = useState(initialData.tfn || "123456789");
+  const sectionBLocked = readOnly || lockSectionB;
+  const sanitizeDate = (value?: string | null) => {
+    if (!value) return "";
+    const trimmed = value.trim();
+    const placeholderDates = ["10/10/1000", "01/01/1900", "00/00/0000", "0/0/0000"];
+    return placeholderDates.includes(trimmed) ? "" : trimmed;
+  };
+  const [tfn, setTfn] = useState(initialData.tfn || "");
   const [surname, setSurname] = useState(initialData.surname || "");
   const [firstName, setFirstName] = useState(initialData.firstName || "");
   const [otherName, setOtherName] = useState(initialData.otherName || "");
@@ -538,18 +583,18 @@ export default function TFNOverlayForm({
   const [check6, setCheck6] = useState(initialData.check6 || false);
   const [check7, setCheck7] = useState(initialData.check7 || false);
   const [check8, setCheck8] = useState(initialData.check8 || false);
-  const [subscribe, setSubscribe] = useState(initialData.subscribe || true);
+  const [subscribe, setSubscribe] = useState(!!initialData.subscribe);
 
-  const [dob, setDob] = useState(initialData.dob || "10/10/1000");
+  const [dob, setDob] = useState(sanitizeDate(initialData.dob));
   const [address, setAddress] = useState(initialData.address || "");
 
-  const [abnno, setAbnNo] = useState(initialData.abnno || "12345678901");
-  const [branchNo, setBranchNo] = useState(initialData.branchNo || "123");
+  const [abnno, setAbnNo] = useState(initialData.abnno || "");
+  const [branchNo, setBranchNo] = useState(initialData.branchNo || "");
   const [haveAbn, setHaveAbn] = useState(initialData.haveAbn || "");
   const [legalName, setLegalName] = useState(initialData.legalName || "");
 
-  const [payerSignatureAt, setPayerSignatureAt] = useState(initialData.payerSignatureAt || "10/10/1000");
-  const [payeeSignatureAt, setPayeeSignatureAt] = useState(initialData.payeeSignatureAt || "10/10/1000");
+const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialData.payerSignatureAt));
+  const [payeeSignatureAt, setPayeeSignatureAt] = useState(sanitizeDate(initialData.payeeSignatureAt));
 
   const [austrailanResident, setAustrailanResident] = useState(initialData.austrailanResident || "");
   const [claimTaxFree, setClaimTaxFree] = useState(initialData.claimTaxFree || "");
@@ -641,49 +686,52 @@ export default function TFNOverlayForm({
   }
 
   const handleClear = () => {
-  setTfn("");
-  setSurname("");
-  setFirstName("");
-  setOtherName("");
-  setAnotherName("");
-  setTown("");
-  setState("");
-  setPostcode("");
-  setCheck1(false);
-  setCheck2(false);
-  setCheck3(false);
-  setCheck4(false);
-  setCheck5(false);
-  setCheck6(false);
-  setCheck7(false);
-  setCheck8(false);
-  setSubscribe(false);
-  setDob("");
-  setAddress("");
-  setAbnNo("");
-  setBranchNo("");
-  setHaveAbn("");
-  setLegalName("");
-  setPayerSignatureAt("");
-  setPayeeSignatureAt("");
-  setAustrailanResident("");
-  setClaimTaxFree("");
-  setSeniorPensioner("");
-  setOverseasForces("");
-  setTsldebt("");
-  setFinancialDebt("");
-  setBussinessAddress("");
-  setBussinessTown("");
-  setBussinessState("");
-  setBussinessPostcode("");
-  setContactPerson("");
-  setBussinessPhoneNo("");
-  setSelectedOption("");
-  setPayerSignature(null);
-  setPayeeSignature(null);
+    setTfn("");
+    setSurname("");
+    setFirstName("");
+    setOtherName("");
+    setAnotherName("");
+    setTown("");
+    setState("");
+    setPostcode("");
+    setCheck1(false);
+    setCheck2(false);
+    setCheck3(false);
+    setCheck4(false);
+    setCheck5(false);
+    setCheck6(false);
+    setCheck7(false);
+    setSubscribe(false);
+    setDob("");
+    setAddress("");
+    setPayeeSignatureAt("");
+    setAustrailanResident("");
+    setClaimTaxFree("");
+    setSeniorPensioner("");
+    setOverseasForces("");
+    setTsldebt("");
+    setFinancialDebt("");
+    setSelectedOption("");
+    setPayeeSignature(null);
 
-  alert("Form cleared ✅");
-};
+    if (!sectionBLocked) {
+      setCheck8(false);
+      setAbnNo("");
+      setBranchNo("");
+      setHaveAbn("");
+      setLegalName("");
+      setPayerSignatureAt("");
+      setBussinessAddress("");
+      setBussinessTown("");
+      setBussinessState("");
+      setBussinessPostcode("");
+      setContactPerson("");
+      setBussinessPhoneNo("");
+      setPayerSignature(null);
+    }
+
+    alert("Form cleared ✅");
+  };
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const handleDownloadPDF = async () => {
@@ -732,24 +780,24 @@ export default function TFNOverlayForm({
       <img src="/tax-3img.jpg" className="absolute inset-0 w-full h-full" alt="Form" />
 
       {/* 🔹 TFN */}
-      <OverlayCharInput top={120} left={147} length={9} totalWidth={250} boxHeight={25} value={tfn} onChange={setTfn} />
+      <OverlayCharInput top={120} left={147} length={9} totalWidth={250} boxHeight={25} value={tfn} onChange={setTfn} readOnly={readOnly} />
 
-      <OverlayCheckbox top={153} left={372} checked={check1} onChange={setCheck1} boxWidth={30} boxHeight={30} />
-      <OverlayCheckbox top={185} left={372} checked={check2} onChange={setCheck2} boxWidth={30} boxHeight={30} />
-      <OverlayCheckbox top={216} left={372} checked={check3} onChange={setCheck3} boxWidth={30} boxHeight={30} />
+      <OverlayCheckbox top={153} left={372} checked={check1} onChange={setCheck1} boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={185} left={372} checked={check2} onChange={setCheck2} boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={216} left={372} checked={check3} onChange={setCheck3} boxWidth={30} boxHeight={30} readOnly={readOnly} />
 
 
-      <OverlayCheckbox top={250} left={200} checked={check4} onChange={setCheck4}  boxWidth={30} boxHeight={30} />
-      <OverlayCheckbox top={250} left={255} checked={check5} onChange={setCheck5}  boxWidth={30} boxHeight={30} />
-      <OverlayCheckbox top={250} left={315} checked={check6} onChange={setCheck6} boxWidth={30} boxHeight={30}  />
-      <OverlayCheckbox top={250} left={372} checked={check7} onChange={setCheck7} boxWidth={30} boxHeight={30}  />
+      <OverlayCheckbox top={250} left={200} checked={check4} onChange={setCheck4}  boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={250} left={255} checked={check5} onChange={setCheck5}  boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={250} left={315} checked={check6} onChange={setCheck6} boxWidth={30} boxHeight={30} readOnly={readOnly}  />
+      <OverlayCheckbox top={250} left={372} checked={check7} onChange={setCheck7} boxWidth={30} boxHeight={30} readOnly={readOnly}  />
 
       
-      <OverlayCharInput top={283} left={30} length={19} totalWidth={370} boxHeight={25} value={surname} onChange={setSurname} />
+      <OverlayCharInput top={283} left={30} length={19} totalWidth={370} boxHeight={25} value={surname} onChange={setSurname} readOnly={readOnly} />
 
-      <OverlayCharInput top={320} left={30} length={19} totalWidth={370} boxHeight={25} value={firstName} onChange={setFirstName} />
-      <OverlayCharInput top={355} left={30} length={19} totalWidth={370} boxHeight={25} value={otherName} onChange={setOtherName} />
-      <OverlayCharInput top={415} left={30} length={19} totalWidth={370} boxHeight={25} value={anotherName} onChange={setAnotherName} />
+      <OverlayCharInput top={320} left={30} length={19} totalWidth={370} boxHeight={25} value={firstName} onChange={setFirstName} readOnly={readOnly} />
+      <OverlayCharInput top={355} left={30} length={19} totalWidth={370} boxHeight={25} value={otherName} onChange={setOtherName} readOnly={readOnly} />
+      <OverlayCharInput top={415} left={30} length={19} totalWidth={370} boxHeight={25} value={anotherName} onChange={setAnotherName} readOnly={readOnly} />
 
     {/* DOB */}
     <OverlayDateCharInput
@@ -763,6 +811,7 @@ export default function TFNOverlayForm({
   boxHeight={28}
   value={dob}
   onChange={setDob}
+  readOnly={readOnly}
 
 />
 
@@ -775,15 +824,25 @@ export default function TFNOverlayForm({
   boxHeight={28}
   value={address}
   onChange={setAddress}
+  readOnly={readOnly}
 />
 
 
-      <OverlayCharInput top={570} left={30} length={19} totalWidth={370} boxHeight={25} value={town} onChange={setTown} />
-      <OverlayCharInput top={605} left={30} length={3} totalWidth={70} boxHeight={25} value={state} onChange={setState} />
-      <OverlayCharInput top={605} left={125} length={4} totalWidth={77} boxHeight={25} value={postcode} onChange={setPostcode} />
+      <OverlayCharInput top={570} left={30} length={19} totalWidth={370} boxHeight={25} value={town} onChange={setTown} readOnly={readOnly} />
+      <OverlayCharInput top={605} left={30} length={3} totalWidth={70} boxHeight={25} value={state} onChange={setState} readOnly={readOnly} />
+      <OverlayCharInput top={605} left={125} length={4} totalWidth={77} boxHeight={25} value={postcode} onChange={setPostcode} readOnly={readOnly} />
 
 
-            <OverlayCharInput top={708} left={320} length={3} totalWidth={70} boxHeight={25} value={branchNo} onChange={setBranchNo} />
+      <OverlayCharInput
+        top={708}
+        left={320}
+        length={3}
+        totalWidth={70}
+        boxHeight={25}
+        value={branchNo}
+        onChange={setBranchNo}
+        readOnly={sectionBLocked}
+      />
 
           <OverlayGroupedCharInput
   groups={[
@@ -794,8 +853,9 @@ export default function TFNOverlayForm({
   ]}
   boxWidth={23}
   boxHeight={28}
-  value={abnno}
-  onChange={setAbnNo}
+          value={abnno}
+          onChange={setAbnNo}
+          readOnly={sectionBLocked}
 />
 
 <OverlaySquareRadioGroup
@@ -807,6 +867,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 768, left: 100 },
   ]}
   boxSize={20}
+  readOnly={sectionBLocked}
 />
 
 
@@ -819,6 +880,7 @@ export default function TFNOverlayForm({
   boxHeight={28}
   value={legalName}
   onChange={setLegalName}
+  readOnly={sectionBLocked}
 />
 
 
@@ -833,6 +895,7 @@ export default function TFNOverlayForm({
   boxHeight={28}
   value={payerSignatureAt}
   onChange={setPayerSignatureAt}
+  readOnly={sectionBLocked}
 
 />
 
@@ -846,6 +909,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 165, left: 765 },
   ]}
   boxSize={20}
+  readOnly={readOnly}
 />
 
 
@@ -858,6 +922,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 255, left: 493 },
   ]}
   boxSize={21}
+  readOnly={readOnly}
 />
 
 <OverlaySquareRadioGroup
@@ -869,6 +934,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 321, left: 765 },
   ]}
   boxSize={22}
+  readOnly={readOnly}
 />
 
 <OverlaySquareRadioGroup
@@ -880,6 +946,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 390, left: 765 },
   ]}
   boxSize={22}
+  readOnly={readOnly}
 />
 
 <OverlaySquareRadioGroup
@@ -891,6 +958,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 451, left: 765 },
   ]}
   boxSize={22}
+  readOnly={readOnly}
 />
 
 <OverlaySquareRadioGroup
@@ -902,6 +970,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 451, left: 765 },
   ]}
   boxSize={22}
+  readOnly={readOnly}
 />
 
 <OverlaySquareRadioGroup
@@ -913,6 +982,7 @@ export default function TFNOverlayForm({
     { label: "", value: "no", top: 495, left: 765 },
   ]}
   boxSize={22}
+  readOnly={readOnly}
 />
 
  <OverlayDateCharInput
@@ -938,6 +1008,7 @@ export default function TFNOverlayForm({
   boxHeight={28}
   value={bussinessAddress}
   onChange={setBussinessAddress}
+  readOnly={sectionBLocked}
 />
 
 <OverlayMultiRowCharInput
@@ -949,6 +1020,7 @@ export default function TFNOverlayForm({
   boxHeight={25}
   value={bussinessTown}
   onChange={setBussinessTown}
+  readOnly={sectionBLocked}
 />
 
 <OverlayMultiRowCharInput
@@ -960,6 +1032,7 @@ export default function TFNOverlayForm({
   boxHeight={25}
   value={bussinessState}
   onChange={setBussinessState}
+  readOnly={sectionBLocked}
 />
 
 <OverlayMultiRowCharInput
@@ -971,6 +1044,7 @@ export default function TFNOverlayForm({
   boxHeight={25}
   value={bussinessPostcode}
   onChange={setBussinessPostcode}
+  readOnly={sectionBLocked}
 />
 
 
@@ -983,6 +1057,7 @@ export default function TFNOverlayForm({
   boxHeight={25}
   value={contactPerson}
   onChange={setContactPerson}
+  readOnly={sectionBLocked}
 />
 
 <OverlayMultiRowCharInput
@@ -994,9 +1069,18 @@ export default function TFNOverlayForm({
   boxHeight={25}
   value={bussinessPhoneNo}
   onChange={setBussinessPhoneNo}
+  readOnly={sectionBLocked}
 />
 
-      <OverlayCheckbox top={905} left={745} checked={check8} onChange={setCheck8} boxWidth={30} boxHeight={30}  />
+      <OverlayCheckbox
+        top={905}
+        left={745}
+        checked={check8}
+        onChange={setCheck8}
+        boxWidth={30}
+        boxHeight={30}
+        readOnly={sectionBLocked}
+      />
 
 
       <OverlaySquareRadioGroupFour
@@ -1012,6 +1096,7 @@ export default function TFNOverlayForm({
   ]}
   boxSize={19}
   tickColor="black"
+  readOnly={readOnly}
 />
 
 
@@ -1030,6 +1115,7 @@ export default function TFNOverlayForm({
         value={payerSignature}
         onChange={setPayerSignature}
         label=""
+        readOnly={sectionBLocked}
       />
 
       {/* Payee signature positioned on form */}
@@ -1041,6 +1127,7 @@ export default function TFNOverlayForm({
         value={payeeSignature}
         onChange={setPayeeSignature}
         label=""
+        readOnly={readOnly}
       />
       
        {showButtons && (

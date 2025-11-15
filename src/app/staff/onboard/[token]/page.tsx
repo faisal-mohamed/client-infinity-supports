@@ -23,7 +23,7 @@ const FORM_SEQUENCE = [
   { key: 'ndis_code_of_conduct', name: 'NDIS Code of Conduct', route: 'ndis-code-of-conduct' },
   { key: 'fair_work_information', name: 'Fairwork Information Statements', route: 'fair-work-information' },
   { key: 'orientation', name: 'Staff Orientation', route: 'orientation' },
-  { key: 'govt_tax', name: 'Government Tax', route: 'govt-tax' },
+  { key: 'govt_tax', name: 'TFN Declaration', route: 'govt-tax' },
   { key: 'super_choice_form', name: 'Superannuation Standard Choice Form', route: 'super-choice-form' },
   { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
   { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }

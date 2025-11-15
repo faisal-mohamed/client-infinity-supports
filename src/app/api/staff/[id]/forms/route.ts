@@ -121,11 +121,11 @@ export async function GET(
       },
       {
         formType: 'govt-tax',
-        formName: 'Government Tax',
+        formName: 'TFN Declaration',
         status: getGenericFormStatus('govt_tax').exists ? 'completed' : 'pending',
         completedAt: getGenericFormStatus('govt_tax').completedAt,
         hasSignature: false,
-        hasViewPage: false
+        hasViewPage: true
       },
       {
         formType: 'super-choice-form',

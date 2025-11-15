@@ -89,7 +89,7 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
   },
   govt_tax: {
     key: 'govt_tax',
-    name: 'Government Tax',
+    name: 'TFN Declaration',
     viewComponent: GovtTax,
     editComponent: GovtTaxEdit,
   },
