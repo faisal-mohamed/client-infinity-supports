@@ -9,6 +9,7 @@ import NdisCodeOfConductPDF from '../PrintableForms/staff/ndis-code-of-conduct/p
 import BullyingHarassmentTrainingPDF from '../PrintableForms/staff/bullying-harassment-training/page';
 import BullyingTrainingPDF from '../PrintableForms/staff/bullying-training/page';
 import FairworkInformationPDF from '../PrintableForms/staff/fairwork-information-statements/page';
+import OrientationPDF from '../PrintableForms/staff/orientation/page';
 // OLD: Playwright version (keep for reference)
 // import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 
@@ -88,6 +89,11 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
     key: 'fair-work-information',
     name: 'Fairwork Information Statements',
     component: FairworkInformationPDF,
+  },
+  orientation: {
+    key: 'orientation',
+    name: 'Staff Orientation',
+    component: OrientationPDF,
   },
   'bullying-harassment-training': {
     key: 'bullying-harassment-training',

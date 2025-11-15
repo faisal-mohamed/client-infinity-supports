@@ -155,6 +155,28 @@ export async function GET(
         }
         break;
       }
+      case 'orientation': {
+        const orientationSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'orientation',
+            },
+          },
+        });
+        if (orientationSubmission) {
+          formData = {
+            data: orientationSubmission.data || {},
+            staffSignature: orientationSubmission.staffSignature,
+            staffSignedAt: orientationSubmission.staffSignedAt,
+            createdAt: orientationSubmission.createdAt,
+            updatedAt: orientationSubmission.updatedAt,
+          };
+        } else {
+          formData = { data: {}, staffSignature: null, staffSignedAt: null };
+        }
+        break;
+      }
       default:
         return new NextResponse("Invalid form type", { status: 400 });
     }

@@ -117,7 +117,7 @@ export async function GET(
         status: getGenericFormStatus('orientation').exists ? 'completed' : 'pending',
         completedAt: getGenericFormStatus('orientation').completedAt,
         hasSignature: false,
-        hasViewPage: false
+        hasViewPage: true
       },
       {
         formType: 'govt-tax',

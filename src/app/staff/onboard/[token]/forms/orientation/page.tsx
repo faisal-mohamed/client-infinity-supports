@@ -1,14 +1,18 @@
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 
 export default function OrientationFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const [staff, setStaff] = useState<any>(null);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    staffName: '',
+    acknowledged: false,
+    date: new Date().toISOString().split('T')[0],
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -21,7 +25,15 @@ export default function OrientationFormPage() {
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
-        setFormData(data.submissions['orientation'] || {});
+        const defaultData = {
+          staffName: `${data.staff?.firstName ?? ''} ${data.staff?.surname ?? ''}`.trim(),
+          acknowledged: false,
+          date: new Date().toISOString().split('T')[0],
+        };
+        setFormData({
+          ...defaultData,
+          ...(data.submissions['orientation'] || {}),
+        });
       } catch (error: any) {
         console.error('Error loading data:', error);
         alert(error.message);
@@ -37,13 +49,57 @@ export default function OrientationFormPage() {
     console.log("formData: ", formData);
   }, [formData])
 
+  const handleAcknowledgementChange = (updates: Record<string, any>) => {
+    setFormData((prev: any) => ({ ...prev, ...updates }));
+  };
+
+  const derivedAcknowledged = useMemo(
+    () => formData?.acknowledged || formData?.orientationAcknowledged || formData?.readOrientation,
+    [formData]
+  );
+  const derivedSignature = useMemo(
+    () => formData?.signature || formData?.staffSignature || formData?.orientationSignature,
+    [formData]
+  );
+  const derivedDate = useMemo(
+    () => formData?.date || formData?.acknowledgedAt || formData?.staffSignedAt,
+    [formData]
+  );
+  const derivedStaffName = useMemo(
+    () => formData?.staffName || formData?.employeeName || '',
+    [formData]
+  );
+
   const handleSave = async (isSubmit: boolean) => {
     setSaving(true);
     try {
+      if (isSubmit) {
+        const nameFilled = !!derivedStaffName?.trim();
+        const signatureFilled = !!derivedSignature;
+        const dateFilled = !!derivedDate;
+        const acknowledgedChecked = !!derivedAcknowledged;
+
+        if (!nameFilled || !signatureFilled || !dateFilled || !acknowledgedChecked) {
+          alert(
+            [
+              'Complete the Staff Orientation acknowledgement:',
+              !acknowledgedChecked && '• Tick the acknowledgement checkbox',
+              !nameFilled && '• Enter your full name',
+              !signatureFilled && '• Provide your signature',
+              !dateFilled && '• Select the acknowledgement date',
+            ]
+              .filter(Boolean)
+              .join('\n')
+          );
+          setSaving(false);
+          return;
+        }
+      }
+
       const res = await fetch(`/api/staff/onboard/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ formKey: 'orientation', data: {}, submit: isSubmit }),
+        body: JSON.stringify({ formKey: 'orientation', data: formData, submit: isSubmit }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || 'Failed to save');
@@ -105,7 +161,11 @@ export default function OrientationFormPage() {
         {/* View Component */}
         <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
           <div className="view-component-wrapper w-full">
-            <OrientationView data={formData} />
+            <OrientationView
+              data={formData}
+              acknowledgementMode="editable"
+              onAcknowledgementChange={handleAcknowledgementChange}
+            />
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
