@@ -40,8 +40,17 @@ export async function POST(request: NextRequest) {
     // Convert buffer to base64
     const base64Image = `data:image/png;base64,${screenshot.toString('base64')}`;
     
-    // Add image to PDF
+    // Add first page (filled form)
     pdf.addImage(base64Image, 'PNG', 0, 0, 800, 1100);
+    
+    // Append official page 2 reference if available
+    const pageTwoPath = path.join(process.cwd(), 'public', '7.TFN_declaration_form_page2_image.jpg');
+    if (fs.existsSync(pageTwoPath)) {
+      const pageTwoBuffer = fs.readFileSync(pageTwoPath);
+      const base64PageTwo = `data:image/jpeg;base64,${pageTwoBuffer.toString('base64')}`;
+      pdf.addPage();
+      pdf.addImage(base64PageTwo, 'JPEG', 0, 0, 800, 1100);
+    }
     
     // Get PDF buffer
     const pdfBuffer = Buffer.from(pdf.output('arraybuffer'));

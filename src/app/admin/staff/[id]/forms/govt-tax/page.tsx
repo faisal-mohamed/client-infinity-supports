@@ -111,7 +111,7 @@ export default function StaffGovtTaxView() {
             No TFN declaration has been submitted for this staff member yet.
           </div>
         ) : (
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-2 md:p-6">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-2 md:p-6 space-y-8">
             <TFNOverlayForm
               initialData={formData}
               onDataChange={() => {}}
@@ -119,6 +119,15 @@ export default function StaffGovtTaxView() {
               lockSectionB
               showButtons={false}
             />
+            <div className="w-full flex justify-center">
+              <div className="border rounded-xl overflow-hidden shadow-inner w-full max-w-[820px]">
+                <img
+                  src="/7.TFN_declaration_form_page2_image.jpg"
+                  alt="TFN Declaration - Payer Information"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

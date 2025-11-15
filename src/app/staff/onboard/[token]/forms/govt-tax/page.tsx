@@ -134,7 +134,7 @@ export default function GovtTaxFormPage() {
         </div>
 
         {/* View Component */}
-        <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
+        <div className="bg-white rounded-lg shadow-lg p-2 md:p-6 space-y-8">
           <div className="view-component-wrapper w-full">
             <GovtTaxView 
               initialData={formData}
@@ -142,6 +142,16 @@ export default function GovtTaxFormPage() {
               showButtons={false}
               lockSectionB
             />
+          </div>
+
+          <div className="w-full flex justify-center">
+            <div className="border rounded-xl overflow-hidden shadow-inner w-full max-w-[820px]">
+              <img
+                src="/7.TFN_declaration_form_page2_image.jpg"
+                alt="TFN Declaration - Payer Information"
+                className="w-full h-auto"
+              />
+            </div>
           </div>
           
           <div className="flex flex-col lg:flex-row flex-wrap gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
