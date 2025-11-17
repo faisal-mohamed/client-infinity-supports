@@ -81,29 +81,39 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Get form submissions
-    const completedFormSubmissions = await prisma.formSubmission.findMany({
-      where: {
-        clientId: clientId,
-        formId: { in: allAssignments.map((a) => a.formId) },
-        formVersion: { in: allAssignments.map((a) => a.formVersion) },
-        isSubmitted: true,
-      },
-      include: {
-        form: {
-          select: {
-            id: true,
-            title: true,
+    // Get form submissions for ALL completed assignments (not just submitted ones)
+    // Match each completed assignment with its corresponding FormSubmission
+    const completedFormSubmissions = await Promise.all(
+      completedAssignments.map(async (assignment) => {
+        const submission = await prisma.formSubmission.findUnique({
+          where: {
+            clientId_formId_formVersion: {
+              clientId: assignment.clientId,
+              formId: assignment.formId,
+              formVersion: assignment.formVersion,
+            },
           },
-        },
-      },
-    });
+          include: {
+            form: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        });
+        return submission;
+      })
+    );
 
-    const completedFormsData = completedFormSubmissions.map((submission) => ({
-      id: submission.id,
-      formId: submission.formId,
-      title: submission.form.title,
-    }));
+    // Filter out null submissions and map to required format
+    const completedFormsData = completedFormSubmissions
+      .filter((submission): submission is NonNullable<typeof submission> => submission !== null)
+      .map((submission) => ({
+        id: submission.id,
+        formId: submission.formId,
+        title: submission.form.title,
+      }));
 
     console.log(`📎 [MANUAL EMAIL TRIGGER] Found ${completedFormsData.length} completed submissions`);
 
