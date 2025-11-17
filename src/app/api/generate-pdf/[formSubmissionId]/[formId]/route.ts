@@ -487,19 +487,35 @@ export async function GET(
       console.warn('⚠️ No admin ID found (no query param or session), PDF may have default settings');
     }
     
+    // Fetch settings: admin-specific first, then global (adminId: null) as fallback
     const rawSettings = await prisma.appSettings.findMany({
       where: { 
         isActive: true,
-        ...(adminId && { adminId }) // Filter by adminId if available
+        ...(adminId ? {
+          OR: [
+            { adminId: adminId },  // Admin-specific settings
+            { adminId: null }      // Global settings as fallback
+          ]
+        } : { adminId: null })  // If no adminId, only get global settings
       },
-      select: { key: true, value: true },
+      select: { key: true, value: true, adminId: true },
+      orderBy: [
+        { adminId: 'desc' }  // Global (null) first, then admin-specific (numbers) - so admin-specific can override
+      ]
     });
 
     const settings: Record<string, any> = {};
+    // Process settings: admin-specific override global, only use non-empty values
+    // With DESC ordering: global (null) comes first, then admin-specific (numbers)
+    // So global settings are set first, then admin-specific override them
     rawSettings.forEach(setting => {
-      // Only use non-empty values, don't override with empty strings
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
+      // Admin-specific settings (adminId !== null) always override
+      // Global settings (adminId === null) only set if key not already set
+      if (setting.adminId !== null || !settings[setting.key]) {
+        // Only use non-empty values, don't override with empty strings
+        if (setting.value && setting.value.trim() !== '') {
+          settings[setting.key] = setting.value;
+        }
       }
     });
 
@@ -507,7 +523,15 @@ export async function GET(
     try {
       const origin = new URL(req.url).origin;
       const cookieHeader = req.headers.get('cookie') || '';
-      const formsResp = await fetch(`${origin}/api/settings?forms=true`, {
+      let settingsUrl = `${origin}/api/settings?forms=true`;
+      
+      // Add adminId to query if available (critical for email PDFs)
+      if (adminId) {
+        settingsUrl += `&adminId=${adminId}`;
+        console.log(`📋 [PDF Route] Fetching settings with adminId: ${adminId}`);
+      }
+      
+      const formsResp = await fetch(settingsUrl, {
         cache: 'no-store',
         headers: { cookie: cookieHeader }
       });
@@ -515,7 +539,10 @@ export async function GET(
         const formsData = await formsResp.json();
         const formSettings = formsData?.settings || {};
         console.log('[PDF Route] Overlay form settings from API:', formSettings);
+        console.log('[PDF Route] Settings keys received:', Object.keys(formSettings));
         Object.assign(settings, formSettings);
+      } else {
+        console.warn(`[PDF Route] Settings API returned status: ${formsResp.status}`);
       }
     } catch (e) {
       console.warn('[PDF Route] Could not overlay form settings from API:', e);

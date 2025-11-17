@@ -5,7 +5,7 @@ import {
   FaSave, FaSpinner, FaCog, FaBuilding, FaFileAlt, 
   FaEnvelope, FaShieldAlt, FaGlobe, FaCalendarAlt,
   FaCheck, FaTimes, FaExclamationTriangle, FaPlus,
-  FaEdit, FaTrash, FaEye, FaEyeSlash, FaFilePdf, FaPlug,
+  FaEdit, FaTrash, FaEye, FaEyeSlash, FaFilePdf,
   FaArrowLeft
 } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
