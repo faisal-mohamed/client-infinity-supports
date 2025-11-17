@@ -27,6 +27,8 @@ export async function GET(req: NextRequest) {
       console.log(`📋 [Settings API] Using default adminId: ${adminId}`);
     }
 
+    console.log(`🔍 [SETTINGS DEBUG] Starting GET request with adminId: ${adminId}, queryAdminId: ${queryAdminId}, sessionUserId: ${session?.user?.id}`);
+
     if (!adminId) {
       return NextResponse.json(
         { error: "Unauthorized: Admin ID not found" },
@@ -92,7 +94,7 @@ export async function GET(req: NextRequest) {
         { key: 'multi_disciplinary_meeting', type: 'text', category: 'form_ids', label: 'Multi Disciplinary Meeting ID', description: 'Unique identifier for Multi Disciplinary Meeting form', isRequired: true, defaultValue: '', sortOrder: 9 },
         { key: 'support_action_plan', type: 'text', category: 'form_ids', label: 'Support Co-ordination Action Plan ID', description: 'Unique identifier for Support Co-ordination Action Plan form', isRequired: true, defaultValue: '', sortOrder: 10 },
         { key: 'schedule_of_supports', type: 'text', category: 'form_ids', label: 'Schedule of Supports Form ID', description: 'Unique identifier for Schedule of Supports form', isRequired: true, defaultValue: '', sortOrder: 11 },
-        { key: 'sa_support_coordination', type: 'text', category: 'form_ids', label: 'Service Agreement Support Co-ordination ID', description: 'Unique identifier for Service Agreement Support Co-ordination forms', isRequired: true, defaultValue: '', sortOrder: 12 },
+        { key: 'sa_support_coordination', type: 'text', category: 'form_ids', label: 'Service Agreement Support Co-Ordination ID', description: 'Unique identifier for Service Agreement Support Co-Ordination forms', isRequired: true, defaultValue: '', sortOrder: 12 },
       ];
 
       // Get existing setting keys for this admin
@@ -124,6 +126,76 @@ export async function GET(req: NextRequest) {
         await prisma.appSettings.createMany({ data: settingsToAdd });
         console.log(`✅ Auto-added ${missingSettings.length} missing settings: ${missingSettings.map(s => s.key).join(', ')}`);
       }
+
+      // Special check: Ensure sa_support_coordination setting exists and is up-to-date
+      const saSupportCoordinationSetting = defaultSettings.find(s => s.key === 'sa_support_coordination');
+      console.log(`🔍 [SETTINGS DEBUG] Looking for sa_support_coordination in defaultSettings:`, saSupportCoordinationSetting ? 'FOUND' : 'NOT FOUND');
+      
+      if (saSupportCoordinationSetting) {
+        const existingSASetting = await prisma.appSettings.findFirst({
+          where: {
+            key: 'sa_support_coordination',
+            adminId: adminId,
+          },
+        });
+
+        console.log(`🔍 [SETTINGS DEBUG] Existing sa_support_coordination setting:`, existingSASetting ? {
+          id: existingSASetting.id,
+          key: existingSASetting.key,
+          label: existingSASetting.label,
+          isActive: existingSASetting.isActive,
+          adminId: existingSASetting.adminId,
+        } : 'NOT FOUND');
+
+        if (!existingSASetting) {
+          // Create if it doesn't exist
+          const created = await prisma.appSettings.create({
+            data: {
+              key: 'sa_support_coordination',
+              value: saSupportCoordinationSetting.defaultValue ?? '',
+              type: saSupportCoordinationSetting.type,
+              category: saSupportCoordinationSetting.category,
+              label: saSupportCoordinationSetting.label,
+              description: saSupportCoordinationSetting.description,
+              isRequired: saSupportCoordinationSetting.isRequired,
+              defaultValue: saSupportCoordinationSetting.defaultValue,
+              sortOrder: saSupportCoordinationSetting.sortOrder,
+              isActive: true,
+              adminId: adminId,
+            },
+          });
+          console.log(`✅ [SETTINGS DEBUG] Created missing sa_support_coordination setting:`, {
+            id: created.id,
+            key: created.key,
+            label: created.label,
+            isActive: created.isActive,
+            adminId: created.adminId,
+          });
+        } else if (existingSASetting.label !== saSupportCoordinationSetting.label || 
+                   existingSASetting.description !== saSupportCoordinationSetting.description ||
+                   existingSASetting.sortOrder !== saSupportCoordinationSetting.sortOrder ||
+                   existingSASetting.isActive !== true) {
+          // Update if label, description, sortOrder, or isActive changed
+          const updated = await prisma.appSettings.update({
+            where: { id: existingSASetting.id },
+            data: {
+              label: saSupportCoordinationSetting.label,
+              description: saSupportCoordinationSetting.description,
+              sortOrder: saSupportCoordinationSetting.sortOrder,
+              isActive: true,
+            },
+          });
+          console.log(`✅ [SETTINGS DEBUG] Updated sa_support_coordination setting:`, {
+            id: updated.id,
+            key: updated.key,
+            label: updated.label,
+            isActive: updated.isActive,
+            adminId: updated.adminId,
+          });
+        } else {
+          console.log(`ℹ️ [SETTINGS DEBUG] sa_support_coordination setting already up-to-date`);
+        }
+      }
     }
 
     // Step 3: Build the filter for current admin settings
@@ -136,6 +208,8 @@ export async function GET(req: NextRequest) {
       whereClause.category = category;
     }
 
+    console.log(`🔍 [SETTINGS DEBUG] Fetching settings with whereClause:`, JSON.stringify(whereClause, null, 2));
+
     const settings = await prisma.appSettings.findMany({
       where: whereClause,
       orderBy: [
@@ -144,6 +218,21 @@ export async function GET(req: NextRequest) {
         { label: "asc" },
       ],
     });
+
+    console.log(`🔍 [SETTINGS DEBUG] Total settings found: ${settings.length}`);
+    const saSetting = settings.find(s => s.key === 'sa_support_coordination');
+    console.log(`🔍 [SETTINGS DEBUG] sa_support_coordination in results:`, saSetting ? {
+      id: saSetting.id,
+      key: saSetting.key,
+      label: saSetting.label,
+      category: saSetting.category,
+      isActive: saSetting.isActive,
+      sortOrder: saSetting.sortOrder,
+    } : 'NOT FOUND');
+    
+    const formIdsSettings = settings.filter(s => s.category === 'form_ids');
+    console.log(`🔍 [SETTINGS DEBUG] Form IDs settings count: ${formIdsSettings.length}`);
+    console.log(`🔍 [SETTINGS DEBUG] Form IDs keys:`, formIdsSettings.map(s => s.key).join(', '));
 
     if (flat) {
       const flatSettings: Record<string, any> = {};
