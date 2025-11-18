@@ -3,10 +3,10 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import TFNOverlayForm from "@/app/form-components/staff/tax/page";
+import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
 
-export default function StaffGovtTaxView() {
+export default function StaffSuperChoiceFormView() {
   const { id } = useParams<{ id: string }>();
   const staffId = parseInt(id, 10);
   const { showToast } = useToast();
@@ -19,18 +19,24 @@ export default function StaffGovtTaxView() {
     if (!staffId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/staff/${staffId}/forms/govt-tax`);
-      if (!res.ok) throw new Error("Failed to load TFN declaration");
+      const res = await fetch(`/api/staff/${staffId}/forms/super-choice-form`);
+      if (!res.ok) throw new Error("Failed to load Superannuation Standard Choice Form");
       const data = await res.json();
       setStaff(data.staff);
       setFormData(data.data);
-    } catch (error) {
-      console.error("Error loading TFN declaration:", error);
+    } catch (error: any) {
+      console.error("Error loading Superannuation Standard Choice Form:", error);
+      showToast({
+        type: 'error',
+        title: 'Error Loading Form',
+        message: error.message || 'Failed to load form data',
+        duration: 4000,
+      });
       setFormData(null);
     } finally {
       setLoading(false);
     }
-  }, [staffId]);
+  }, [staffId, showToast]);
 
   useEffect(() => {
     fetchData();
@@ -40,7 +46,7 @@ export default function StaffGovtTaxView() {
     if (!formData) return;
     setDownloading(true);
     try {
-      const res = await fetch("/api/generate-pdf/tax-form", {
+      const res = await fetch("/api/generate-pdf/super-choice-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -50,7 +56,7 @@ export default function StaffGovtTaxView() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `TFN_Declaration_${staff?.firstName || ""}_${staff?.surname || ""}.pdf`;
+      a.download = `Superannuation_Standard_Choice_Form_${staff?.firstName || ""}_${staff?.surname || ""}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -83,13 +89,15 @@ export default function StaffGovtTaxView() {
     );
   }
 
+  const SuperChoiceFormView = getStaffFormComponent('super_choice_form', 'view');
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">TFN Declaration</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Superannuation Standard Choice Form</h1>
               <p className="text-sm text-gray-600 mt-1">
                 {staff?.firstName} {staff?.surname}
               </p>
@@ -122,25 +130,17 @@ export default function StaffGovtTaxView() {
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
         {!formData ? (
           <div className="bg-white rounded-2xl shadow-md border border-dashed border-gray-200 p-8 text-center text-gray-500">
-            No TFN declaration has been submitted for this staff member yet.
+            No Superannuation Standard Choice Form has been submitted for this staff member yet.
           </div>
         ) : (
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-2 md:p-6 space-y-8">
-            <TFNOverlayForm
-              initialData={formData}
-              onDataChange={() => {}}
-              readOnly
-              lockSectionB
-              showButtons={false}
-            />
-            <div className="w-full flex justify-center">
-              <div className="border rounded-xl overflow-hidden shadow-inner w-full max-w-[820px]">
-                <img
-                  src="/7.TFN_declaration_form_page2_image.jpg"
-                  alt="TFN Declaration - Payer Information"
-                  className="w-full h-auto"
-                />
-              </div>
+            <div className="w-full">
+              <SuperChoiceFormView
+                initialData={formData}
+                onDataChange={() => {}}
+                readOnly
+                showButtons={false}
+              />
             </div>
           </div>
         )}

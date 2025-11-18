@@ -1,286 +1,303 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { chromium } from 'playwright';
-import { jsPDF } from 'jspdf';
+import { NextRequest, NextResponse } from "next/server";
+import { chromium } from "playwright";
+import { jsPDF } from "jspdf";
+import fs from "fs";
+import path from "path";
 
 export async function POST(request: NextRequest) {
   try {
-    const { formData } = await request.json();
-
-    if (!formData) {
+    const formData = await request.json();
+    
+    if (!formData || Object.keys(formData).length === 0) {
       return NextResponse.json({ error: 'Form data is required' }, { status: 400 });
     }
 
-    // Launch browser
+    // Generate HTML content for all pages
+    const htmlContent = generateSuperChoiceFormHTML(formData);
+    
+    // Launch Playwright browser
     const browser = await chromium.launch();
     const page = await browser.newPage();
-
-    // Set viewport size
-    await page.setViewportSize({ width: 1200, height: 1600 });
-
-    // Create HTML content for the form
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Superannuation Standard Choice Form</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 20px;
-              background: white;
-            }
-            .form-page {
-              width: 100%;
-              max-width: 800px;
-              margin: 0 auto;
-              page-break-after: always;
-            }
-            .form-page:last-child {
-              page-break-after: avoid;
-            }
-            .field-overlay {
-              position: absolute;
-              background: white;
-              border: 1px solid #ccc;
-              padding: 2px;
-              font-size: 12px;
-              min-height: 20px;
-            }
-            .signature-overlay {
-              position: absolute;
-              background: white;
-              border: 1px solid #ccc;
-              min-height: 60px;
-            }
-            .checkbox-overlay {
-              position: absolute;
-              width: 15px;
-              height: 15px;
-              border: 1px solid #000;
-              background: ${formData.hasComplianceLetter ? 'black' : 'white'};
-            }
-            .radio-overlay {
-              position: absolute;
-              width: 15px;
-              height: 15px;
-              border: 1px solid #000;
-              border-radius: 50%;
-              background: white;
-            }
-            .radio-overlay.checked {
-              background: black;
-            }
-            .date-field {
-              display: inline-block;
-              width: 30px;
-              text-align: center;
-              border-bottom: 1px solid #000;
-              margin: 0 5px;
-            }
-          </style>
-        </head>
-        <body>
-          <!-- Page 1 -->
-          <div class="form-page" style="position: relative;">
-            <img src="/stafForms/super choice form-page1.jpg" style="width: 100%; height: auto;" />
-            
-            <!-- Section A Fields -->
-            <div class="field-overlay" style="top: 280px; left: 400px; width: 300px;">
-              ${formData.fullName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 320px; left: 400px; width: 220px;">
-              ${formData.employeeNumber || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 360px; left: 400px; width: 180px;">
-              ${formData.tfn || ''}
-            </div>
-            
-            <!-- Fund Choice Radio Buttons -->
-            <div class="radio-overlay ${formData.fundChoice === 'existing' ? 'checked' : ''}" 
-                 style="top: 450px; left: 50px;"></div>
-            <div class="radio-overlay ${formData.fundChoice === 'default' ? 'checked' : ''}" 
-                 style="top: 500px; left: 50px;"></div>
-            <div class="radio-overlay ${formData.fundChoice === 'smsf' ? 'checked' : ''}" 
-                 style="top: 550px; left: 50px;"></div>
-          </div>
-
-          <!-- Page 2 -->
-          <div class="form-page" style="position: relative;">
-            <img src="/stafForms/super choice form-page2.jpg" style="width: 100%; height: auto;" />
-            
-            <!-- Section B Fields -->
-            <div class="field-overlay" style="top: 200px; left: 300px; width: 400px;">
-              ${formData.superFundName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 250px; left: 300px; width: 220px;">
-              ${formData.superFundABN || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 300px; left: 300px; width: 220px;">
-              ${formData.superFundUSI || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 350px; left: 300px; width: 320px;">
-              ${formData.memberAccountNumber || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 400px; left: 300px; width: 400px;">
-              ${formData.accountName || ''}
-            </div>
-            
-            <div class="checkbox-overlay" style="top: 500px; left: 50px;"></div>
-            
-            <div class="signature-overlay" style="top: 600px; left: 300px; width: 300px;">
-              ${formData.sectionBSignature ? '<img src="' + formData.sectionBSignature + '" style="width: 100%; height: 100%; object-fit: contain;" />' : ''}
-            </div>
-            
-            <div style="position: absolute; top: 700px; left: 300px;">
-              <span class="date-field">${formData.sectionBDate?.day || ''}</span>/
-              <span class="date-field">${formData.sectionBDate?.month || ''}</span>/
-              <span class="date-field">${formData.sectionBDate?.year || ''}</span>
-            </div>
-          </div>
-
-          <!-- Page 3 -->
-          <div class="form-page" style="position: relative;">
-            <img src="/stafForms/super choice form-page3.jpg" style="width: 100%; height: auto;" />
-            
-            <!-- Section C Fields -->
-            <div class="field-overlay" style="top: 200px; left: 300px; width: 400px;">
-              ${formData.businessName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 250px; left: 300px; width: 220px;">
-              ${formData.businessABN || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 300px; left: 300px; width: 400px;">
-              ${formData.defaultSuperFundName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 350px; left: 300px; width: 220px;">
-              ${formData.defaultSuperFundABN || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 400px; left: 300px; width: 220px;">
-              ${formData.defaultSuperFundUSI || ''}
-            </div>
-            
-            <div class="checkbox-overlay" style="top: 500px; left: 50px; background: ${formData.chooseDefaultFund ? 'black' : 'white'};"></div>
-            
-            <div class="signature-overlay" style="top: 600px; left: 300px; width: 300px;">
-              ${formData.sectionCSignature ? '<img src="' + formData.sectionCSignature + '" style="width: 100%; height: 100%; object-fit: contain;" />' : ''}
-            </div>
-            
-            <div style="position: absolute; top: 700px; left: 300px;">
-              <span class="date-field">${formData.sectionCDate?.day || ''}</span>/
-              <span class="date-field">${formData.sectionCDate?.month || ''}</span>/
-              <span class="date-field">${formData.sectionCDate?.year || ''}</span>
-            </div>
-          </div>
-
-          <!-- Page 4 -->
-          <div class="form-page" style="position: relative;">
-            <img src="/stafForms/super choice form-page4.jpg" style="width: 100%; height: auto;" />
-            
-            <!-- Section D Fields -->
-            <div class="field-overlay" style="top: 200px; left: 300px; width: 400px;">
-              ${formData.smsfName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 250px; left: 300px; width: 220px;">
-              ${formData.smsfABN || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 300px; left: 300px; width: 400px;">
-              ${formData.smsfESA || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 350px; left: 300px; width: 400px;">
-              ${formData.smsfAccountName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 450px; left: 300px; width: 400px;">
-              ${formData.bankAccountName || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 500px; left: 300px; width: 120px;">
-              ${formData.bsbCode || ''}
-            </div>
-            
-            <div class="field-overlay" style="top: 550px; left: 300px; width: 180px;">
-              ${formData.accountNumber || ''}
-            </div>
-            
-            <div class="checkbox-overlay" style="top: 650px; left: 50px; background: ${formData.hasSMSFEvidence ? 'black' : 'white'};"></div>
-            
-            <div class="signature-overlay" style="top: 750px; left: 300px; width: 300px;">
-              ${formData.sectionDSignature ? '<img src="' + formData.sectionDSignature + '" style="width: 100%; height: 100%; object-fit: contain;" />' : ''}
-            </div>
-            
-            <div style="position: absolute; top: 850px; left: 300px;">
-              <span class="date-field">${formData.sectionDDate?.day || ''}</span>/
-              <span class="date-field">${formData.sectionDDate?.month || ''}</span>/
-              <span class="date-field">${formData.sectionDDate?.year || ''}</span>
-            </div>
-          </div>
-
-          <!-- Page 5 -->
-          <div class="form-page" style="position: relative;">
-            <img src="/stafForms/super choice form-page5.jpg" style="width: 100%; height: auto;" />
-          </div>
-        </body>
-      </html>
-    `;
-
+    
+    // Set viewport to match form dimensions (800x1000 per page)
+    await page.setViewportSize({ width: 800, height: 1000 });
+    
     // Set content and wait for images to load
-    await page.setContent(htmlContent);
-    await page.waitForLoadState('networkidle');
-
+    await page.setContent(htmlContent, { waitUntil: 'networkidle' });
+    
     // Take screenshots of each page
     const screenshots = [];
     const pages = await page.locator('.form-page').all();
     
     for (let i = 0; i < pages.length; i++) {
-      const screenshot = await pages[i].screenshot({ type: 'png' });
+      const screenshot = await pages[i].screenshot({
+        type: 'png',
+        clip: { x: 0, y: 0, width: 800, height: 1000 }
+      });
       screenshots.push(screenshot);
     }
-
+    
     await browser.close();
-
-    // Create PDF from screenshots
+    
+    // Create PDF from screenshots (same format as tax form)
     const pdf = new jsPDF({
       orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
+      unit: 'px',
+      format: [800, 1000]
     });
-
+    
     for (let i = 0; i < screenshots.length; i++) {
       if (i > 0) {
-        pdf.addPage();
+        pdf.addPage([800, 1000]);
       }
       
-      const imgData = `data:image/png;base64,${screenshots[i].toString('base64')}`;
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297); // A4 size in mm
+      const base64Image = `data:image/png;base64,${screenshots[i].toString('base64')}`;
+      pdf.addImage(base64Image, 'PNG', 0, 0, 800, 1000);
     }
-
-    // Generate PDF buffer
+    
+    // Get PDF buffer
     const pdfBuffer = Buffer.from(pdf.output('arraybuffer'));
-
+    
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="superannuation-standard-choice-form.pdf"',
-      },
+        'Content-Disposition': 'attachment; filename="superannuation-standard-choice-form.pdf"'
+      }
     });
-
+    
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('PDF generation error:', error);
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
   }
+}
+
+function generateSuperChoiceFormHTML(data: any): string {
+  // Read background images and convert to base64
+  const page1Path = path.join(process.cwd(), 'public', 'stafForms', 'super choice form-page1.jpg');
+  const page2Path = path.join(process.cwd(), 'public', 'stafForms', 'super choice form-page2.jpg');
+  const page3Path = path.join(process.cwd(), 'public', 'stafForms', 'super choice form-page3.jpg');
+  const page4Path = path.join(process.cwd(), 'public', 'stafForms', 'super choice form-page4.jpg');
+  const page5Path = path.join(process.cwd(), 'public', 'stafForms', 'super choice form-page5.jpg');
+  
+  const page1Image = fs.existsSync(page1Path) ? fs.readFileSync(page1Path).toString('base64') : '';
+  const page2Image = fs.existsSync(page2Path) ? fs.readFileSync(page2Path).toString('base64') : '';
+  const page3Image = fs.existsSync(page3Path) ? fs.readFileSync(page3Path).toString('base64') : '';
+  const page4Image = fs.existsSync(page4Path) ? fs.readFileSync(page4Path).toString('base64') : '';
+  const page5Image = fs.existsSync(page5Path) ? fs.readFileSync(page5Path).toString('base64') : '';
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        .form-page { position: relative; width: 800px; height: 1000px; margin-bottom: 20px; }
+        .background-image { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .overlay-input { position: absolute; display: flex; gap: 0px; }
+        .char-box { 
+          width: 20px; height: 25px; border: 1px solid #666; 
+          text-align: center; font-size: 12px; line-height: 25px;
+          background: white; margin: 0;
+        }
+        .char-box-small { 
+          width: 19px; height: 21px; border: 1px solid #666; 
+          text-align: center; font-size: 11px; line-height: 21px;
+          background: white; margin: 0;
+        }
+        .text-input {
+          position: absolute;
+          background: white;
+          border: 1px solid #666;
+          padding: 2px 4px;
+          font-size: 15px;
+          color: black;
+        }
+        .checkbox { 
+          width: 20px; height: 20px; border: 1px solid #666;
+          background: white; position: relative;
+        }
+        .checkbox.checked::after {
+          content: '✔'; position: absolute; top: 50%; left: 50%;
+          transform: translate(-50%, -50%); font-size: 16px;
+        }
+        .signature-img {
+          position: absolute;
+          background: white;
+          border: 1px solid #ccc;
+        }
+      </style>
+    </head>
+    <body>
+      <!-- Page 1 -->
+      <div class="form-page">
+        <img src="data:image/jpeg;base64,${page1Image}" class="background-image" alt="Page 1" />
+        
+        <!-- Full Name -->
+        <div class="text-input" style="top: 470px; left: 400px; width: 398px;">
+          ${data.fullName || ''}
+        </div>
+        
+        <!-- Employee Number - 16 character boxes -->
+        <div class="overlay-input" style="top: 514px; left: 410px;">
+          ${generateCharBoxes(data.employeeNumber || '', 16)}
+        </div>
+        
+        <!-- TFN - 9 boxes with 3-3-3 grouping -->
+        <div style="position: absolute; top: 560px; left: 410px;">
+          ${generateTFNBoxes(data.tfn || '')}
+        </div>
+        
+        <!-- Fund Choice Checkboxes -->
+        <div class="checkbox ${data.fundChoice === 'existing' ? 'checked' : ''}" style="position: absolute; top: 704px; left: 422px;"></div>
+        <div class="checkbox ${data.fundChoice === 'default' ? 'checked' : ''}" style="position: absolute; top: 790px; left: 422px;"></div>
+        <div class="checkbox ${data.fundChoice === 'smsf' ? 'checked' : ''}" style="position: absolute; top: 875px; left: 422px;"></div>
+      </div>
+
+      <!-- Page 2 -->
+      <div class="form-page">
+        <img src="data:image/jpeg;base64,${page2Image}" class="background-image" alt="Page 2" />
+        
+        <!-- Super Fund Name -->
+        <div class="text-input" style="top: 195px; left: 30px; width: 730px;">
+          ${data.superFundName || ''}
+        </div>
+        
+        <!-- Super Fund ABN - 11 boxes with 2-3-3-3 grouping -->
+        <div style="position: absolute; top: 242px; left: 38px;">
+          ${generateABNBoxes(data.superFundABN || '', 19)}
+        </div>
+        
+        <!-- USI - 11 character boxes -->
+        <div class="overlay-input" style="top: 287px; left: 30px;">
+          ${generateCharBoxesWithWidth(data.superFundUSI || '', 11, 330, 21)}
+        </div>
+        
+        <!-- Member Account Number - 16 character boxes -->
+        <div class="overlay-input" style="top: 372px; left: 30px;">
+          ${generateCharBoxesWithWidth(data.memberAccountNumber || '', 16, 480, 22)}
+        </div>
+        
+        <!-- Account Name -->
+        <div class="text-input" style="top: 455px; left: 30px; width: 730px;">
+          ${data.accountName || ''}
+        </div>
+        
+        <!-- Compliance Letter Checkbox -->
+        <div class="checkbox ${data.hasComplianceLetter ? 'checked' : ''}" style="position: absolute; top: 608px; left: 35px;"></div>
+        
+        <!-- Signature -->
+        ${data.sectionBSignature ? `<img src="${data.sectionBSignature}" class="signature-img" style="top: 718px; left: 30px; width: 490px; height: 60px;" />` : ''}
+        
+        <!-- Date -->
+        ${generateDateBoxes(data.sectionBDate || {}, 760, 565)}
+      </div>
+
+      <!-- Page 3 -->
+      <div class="form-page">
+        <img src="data:image/jpeg;base64,${page3Image}" class="background-image" alt="Page 3" />
+        <!-- Page 3 is read-only, no fields to fill -->
+      </div>
+
+      <!-- Page 4 -->
+      <div class="form-page">
+        <img src="data:image/jpeg;base64,${page4Image}" class="background-image" alt="Page 4" />
+        <!-- Page 4 is read-only, no fields to fill -->
+      </div>
+
+      <!-- Page 5 -->
+      <div class="form-page">
+        <img src="data:image/jpeg;base64,${page5Image}" class="background-image" alt="Page 5" />
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateCharBoxes(value: string, length: number): string {
+  return Array.from({ length }, (_, i) => 
+    `<div class="char-box">${value[i] || ''}</div>`
+  ).join('');
+}
+
+function generateCharBoxesWithWidth(value: string, length: number, totalWidth: number, boxHeight: number = 25): string {
+  const boxWidth = Math.floor(totalWidth / length);
+  const heightClass = boxHeight === 21 ? 'char-box-small' : 'char-box';
+  return Array.from({ length }, (_, i) => 
+    `<div class="${heightClass}" style="width: ${boxWidth}px; height: ${boxHeight}px;">${value[i] || ''}</div>`
+  ).join('');
+}
+
+function generateTFNBoxes(value: string): string {
+  const digits = value.replace(/\D/g, '').padEnd(9, '');
+  let html = '';
+  let currentLeft = 0;
+  
+  for (let i = 0; i < 9; i++) {
+    if (i === 3) currentLeft = 80; // Gap after 3rd digit
+    if (i === 6) currentLeft = 160; // Gap after 6th digit
+    
+    html += `<div class="char-box" style="position: absolute; left: ${currentLeft}px;">${digits[i] || ''}</div>`;
+    currentLeft += 20; // boxWidth
+  }
+  
+  return html;
+}
+
+function generateABNBoxes(value: string, boxWidth: number = 19): string {
+  const digits = value.replace(/\D/g, '').padEnd(11, '');
+  let html = '';
+  let currentLeft = 0;
+  const gap = 18; // Gap between groups
+  
+  for (let i = 0; i < 11; i++) {
+    // 2-3-3-3 grouping pattern
+    if (i === 2) {
+      currentLeft += gap; // Gap after first 2 digits
+    } else if (i === 5) {
+      currentLeft += gap; // Gap after next 3 digits
+    } else if (i === 8) {
+      currentLeft += gap; // Gap after next 3 digits
+    }
+    
+    html += `<div class="char-box-small" style="position: absolute; left: ${currentLeft}px; width: ${boxWidth}px;">${digits[i] || ''}</div>`;
+    currentLeft += boxWidth;
+  }
+  
+  return html;
+}
+
+function generateDateBoxes(date: { day?: string; month?: string; year?: string } | string, top: number, left: number): string {
+  let day = '', month = '', year = '';
+  
+  if (typeof date === 'string') {
+    const digits = date.replace(/\D/g, '').padEnd(8, '');
+    day = digits.slice(0, 2);
+    month = digits.slice(2, 4);
+    year = digits.slice(4, 8);
+  } else {
+    day = (date.day || '').padStart(2, '0');
+    month = (date.month || '').padStart(2, '0');
+    year = date.year || '';
+  }
+  
+  // Date format: DD/MM/YYYY
+  // Day: 2 boxes, Month: 2 boxes, Year: 4 boxes
+  const dayLeft = left;
+  const monthLeft = left + 50;
+  const yearLeft = left + 100;
+  
+  return `
+    <div class="overlay-input" style="top: ${top}px; left: ${dayLeft}px;">
+      ${generateCharBoxes(day, 2)}
+    </div>
+    <span style="position: absolute; top: ${top + 1}px; left: ${dayLeft + 45}px; font-size: 14px; font-weight: bold;">/</span>
+    <div class="overlay-input" style="top: ${top}px; left: ${monthLeft}px;">
+      ${generateCharBoxes(month, 2)}
+    </div>
+    <span style="position: absolute; top: ${top + 1}px; left: ${monthLeft + 45}px; font-size: 14px; font-weight: bold;">/</span>
+    <div class="overlay-input" style="top: ${top}px; left: ${yearLeft}px;">
+      ${generateCharBoxes(year, 4)}
+    </div>
+  `;
 }

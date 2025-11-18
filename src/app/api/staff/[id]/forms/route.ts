@@ -133,7 +133,7 @@ export async function GET(
         status: getGenericFormStatus('super_choice_form').exists ? 'completed' : 'pending',
         completedAt: getGenericFormStatus('super_choice_form').completedAt,
         hasSignature: false,
-        hasViewPage: false
+        hasViewPage: true
       },
       {
         formType: 'vehicle-safety-inspection',

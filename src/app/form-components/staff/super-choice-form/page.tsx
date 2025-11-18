@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
+import React, { useState, useEffect, useRef } from "react";
+import SignatureCanvas, { SignatureCanvasRef } from "@/components/ui/SignatureCanvas";
 
-// Overlay Components
+// Overlay Components - Updated to match Tax form approach for better alignment
 const CharacterInput = ({ 
   value, 
   onChange, 
@@ -11,9 +11,11 @@ const CharacterInput = ({
   top, 
   left, 
   gap = 2, 
-  boxWidth = 20, 
+  boxWidth, 
   boxHeight = 25,
+  totalWidth, // Auto-fit width for all boxes combined (like Tax form)
   readOnly = false,
+  numbersOnly = false, // New: restrict to numbers only
   onUpArrow,
   onDownArrow,
   inputRefs
@@ -26,7 +28,9 @@ const CharacterInput = ({
   gap?: number;
   boxWidth?: number;
   boxHeight?: number;
+  totalWidth?: number; // New: auto-fit option
   readOnly?: boolean;
+  numbersOnly?: boolean; // New: numbers only option
   onUpArrow?: () => void;
   onDownArrow?: () => void;
   inputRefs?: React.MutableRefObject<(HTMLInputElement | null)[]>;
@@ -34,8 +38,19 @@ const CharacterInput = ({
   const localRefs = React.useRef<(HTMLInputElement | null)[]>([]);
   const refs = inputRefs || localRefs;
 
+  // Calculate effective box width (use totalWidth if provided, otherwise use boxWidth)
+  const effectiveBoxWidth = totalWidth
+    ? Math.floor(totalWidth / length)
+    : boxWidth || 20;
+
   const handleChange = (index: number, char: string) => {
     if (readOnly) return;
+    
+    // Filter to numbers only if numbersOnly is true
+    if (numbersOnly && char && !/^\d$/.test(char)) {
+      return; // Ignore non-numeric input
+    }
+    
     const newValue = value.padEnd(length, ' ').split('');
     newValue[index] = char;
     onChange(newValue.join('').trimEnd());
@@ -70,7 +85,13 @@ const CharacterInput = ({
   const handlePaste = (e: React.ClipboardEvent) => {
     if (readOnly) return;
     e.preventDefault();
-    const pastedText = e.clipboardData.getData('text').slice(0, length);
+    let pastedText = e.clipboardData.getData('text').slice(0, length);
+    
+    // Filter to numbers only if numbersOnly is true
+    if (numbersOnly) {
+      pastedText = pastedText.replace(/\D/g, '').slice(0, length);
+    }
+    
     const newValue = pastedText.padEnd(length, ' ').split('');
     onChange(newValue.join('').trimEnd());
     
@@ -79,31 +100,58 @@ const CharacterInput = ({
     refs.current[nextEmptyIndex]?.focus();
   };
 
+  // Special handling for TFN (9 digits with 3-3-3 grouping) and ABN (11 digits with 2-3-3-3 grouping)
+  const getMarginRight = (i: number) => {
+    if (i >= length - 1) return 0;
+    if (length === 9) {
+      // TFN: 3-3-3 grouping with larger gaps
+      if (i === 2 || i === 5) return 20;
+      return gap;
+    }
+    if (length === 11) {
+      // ABN: 2-3-3-3 grouping with larger gaps after positions 1, 4, and 7
+      if (i === 1 || i === 4 || i === 7) return 18; // Larger gap for clear visual separation (2-3-3-3 pattern)
+      return gap;
+    }
+    return gap;
+  };
+
+  // Check if we need custom spacing (for TFN or ABN grouping)
+  const needsCustomSpacing = (length === 9 || length === 11) && !totalWidth;
+  
   return (
-    <div className="absolute" style={{ top, left }}>
+    <div 
+      className="absolute flex" 
+      style={{ 
+        top, 
+        left, 
+        gap: (totalWidth || needsCustomSpacing) ? 0 : gap // Don't use flex gap if we need custom spacing
+      }}
+    >
       {Array.from({ length }, (_, i) => (
         <input
           key={i}
-          ref={(el) => (refs.current[i] = el)}
-          type="text"
+          ref={(el) => { refs.current[i] = el; }}
+          type={numbersOnly ? "tel" : "text"}
+          inputMode={numbersOnly ? "numeric" : "text"}
           maxLength={1}
           value={value[i] || ''}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className="border border-black text-center bg-white text-black"
+          className={`border border-gray-400 text-center text-sm text-black ${
+            readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+          }`}
           style={{
-            width: boxWidth,
+            width: effectiveBoxWidth,
             height: boxHeight,
-            marginRight: i < length - 1 ? (
-              length === 9 ? (i === 2 ? 20 : i === 5 ? 24 : gap) : // TFN: 3-3-3 grouping
-              gap // All other fields (including employee number) use normal gap
-            ) : 0,
+            marginRight: (totalWidth || !needsCustomSpacing) ? 0 : getMarginRight(i), // Use margin for custom spacing
             fontSize: '12px',
             padding: 0,
             color: 'black'
           }}
           readOnly={readOnly}
+          disabled={readOnly}
         />
       ))}
     </div>
@@ -150,7 +198,9 @@ const TextInput = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       onKeyDown={handleKeyDown}
-      className="absolute border border-black bg-white px-1 text-black"
+      className={`absolute border border-black px-1 text-black ${
+        readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+      }`}
       style={{ 
         top, 
         left, 
@@ -160,6 +210,7 @@ const TextInput = ({
         color: 'black'
       }}
       readOnly={readOnly}
+      disabled={readOnly}
     />
   );
 };
@@ -186,8 +237,16 @@ const Checkbox = ({
     checked={checked}
     onChange={(e) => onChange(e.target.checked)}
     className="absolute"
-    style={{ top, left, width, height }}
+    style={{ 
+      top, 
+      left, 
+      width, 
+      height,
+      cursor: readOnly ? 'not-allowed' : 'pointer',
+      opacity: readOnly ? 0.5 : 1
+    }}
     readOnly={readOnly}
+    disabled={readOnly}
   />
 );
 
@@ -209,94 +268,109 @@ const SignaturePad = ({
   height: number;
   readOnly?: boolean;
 }) => {
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
+  const sigRef = useRef<SignatureCanvasRef | null>(null);
 
+  // Initialize hasSignature when modal opens
   useEffect(() => {
-      if (value && canvasRef.current) {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const img = new (window as any).Image();
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, width, height);
-          };
-          img.src = value;
-        }
+    if (isOpen) {
+      // If there's an existing signature, mark as having signature
+      if (value) {
+        setHasSignature(true);
+      } else {
+        setHasSignature(false);
       }
-  }, [value, width, height]);
+    }
+  }, [isOpen, value]);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (readOnly) return;
-    setIsDrawing(true);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.beginPath();
-        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-      }
+  const handleSave = () => {
+    if (sigRef.current && !sigRef.current.isEmpty()) {
+      const dataUrl = sigRef.current.toDataURL();
+      onChange(dataUrl);
+      setIsOpen(false);
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || readOnly) return;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-        ctx.stroke();
-      }
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+  const handleClear = () => {
+    if (sigRef.current) {
+      sigRef.current.clear();
+      setHasSignature(false);
     }
   };
 
-  const stopDrawing = () => {
-    if (readOnly) return;
-    setIsDrawing(false);
-    const canvas = canvasRef.current;
-    if (canvas) {
-      onChange(canvas.toDataURL());
-    }
-  };
-
-  const clearSignature = () => {
-    if (readOnly) return;
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, width, height);
-        onChange('');
-      }
+  const handleSignatureEnd = () => {
+    if (sigRef.current) {
+      setHasSignature(!sigRef.current.isEmpty());
     }
   };
 
   return (
-    <div className="absolute" style={{ top, left }}>
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-        className="border border-gray-300 bg-white cursor-crosshair"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        style={{ cursor: readOnly ? 'default' : 'crosshair' }}
-      />
-      {!readOnly && (
-        <button
-          type="button"
-          onClick={clearSignature}
-          className="absolute -top-6 left-0 text-xs text-blue-600 hover:text-blue-800"
-        >
-          Clear
-        </button>
+    <>
+      {/* Signature preview box */}
+      <div
+        className={`absolute border border-gray-400 bg-white flex flex-col items-center justify-center ${readOnly ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+        style={{ top, left, width, height }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        {value ? (
+          <img
+            src={value}
+            alt="Signature"
+            className="object-contain w-full h-full"
+          />
+        ) : (
+          <span className="text-xs text-gray-400">Click to sign</span>
+        )}
+      </div>
+
+      {/* Modal for drawing signature */}
+      {isOpen && !readOnly && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-4 rounded shadow-lg w-[500px]">
+            <h2 className="text-lg font-bold mb-2">Draw Your Signature</h2>
+
+            <SignatureCanvas 
+              ref={sigRef} 
+              width={450} 
+              height={180}
+              existingSignature={value || undefined}
+              onSignatureEnd={handleSignatureEnd}
+            />
+
+            <div className="flex justify-between items-center mt-3">
+              <button
+                onClick={handleClear}
+                className="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Clear
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCancel}
+                  className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={!hasSignature && (!value || value === '')}
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -313,39 +387,163 @@ const DateInput = ({
   left: number;
   readOnly?: boolean;
 }) => {
-  const handleChange = (field: 'day' | 'month' | 'year', val: string) => {
-    onChange({ ...value, [field]: val });
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+
+  // Convert DD/MM/YYYY to YYYY-MM-DD for date input
+  const formatDateForInput = (day: string, month: string, year: string): string => {
+    if (!day || !month || !year || day.length !== 2 || month.length !== 2 || year.length !== 4) {
+      return '';
+    }
+    const d = day.padStart(2, '0');
+    const m = month.padStart(2, '0');
+    const y = year;
+    return `${y}-${m}-${d}`;
   };
 
+  // Convert YYYY-MM-DD to DD/MM/YYYY
+  const formatDateFromInput = (dateStr: string): { day: string; month: string; year: string } => {
+    if (!dateStr) return { day: '', month: '', year: '' };
+    const [y, m, d] = dateStr.split('-');
+    return {
+      day: d || '',
+      month: m || '',
+      year: y || ''
+    };
+  };
+
+  // Initialize selectedDate when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const dateStr = formatDateForInput(value.day, value.month, value.year);
+      setSelectedDate(dateStr);
+    }
+  }, [isOpen, value]);
+
+  const handleSave = () => {
+    if (selectedDate) {
+      const formatted = formatDateFromInput(selectedDate);
+      // Ensure proper formatting with leading zeros
+      onChange({
+        day: formatted.day.padStart(2, '0'),
+        month: formatted.month.padStart(2, '0'),
+        year: formatted.year
+      });
+      setIsOpen(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+  // Calculate positions for each part
+  const dayLeft = 0;
+  const slash1Left = 50; // After 2 boxes (2 * 22px + gap)
+  const monthLeft = 60; // After slash
+  const slash2Left = 110; // After month boxes
+  const yearLeft = 120; // After second slash
+
+  // Format display value
+  const displayValue = value.day && value.month && value.year 
+    ? `${value.day.padStart(2, '0')}/${value.month.padStart(2, '0')}/${value.year}`
+    : '';
+
   return (
-    <div className="absolute" style={{ top, left }}>
-      <CharacterInput
-        value={value.day}
-        onChange={(val) => handleChange('day', val)}
-        length={2}
-        top={0}
-        left={0}
-        readOnly={readOnly}
-      />
-      <span className="absolute top-1 left-12 text-sm">/</span>
-      <CharacterInput
-        value={value.month}
-        onChange={(val) => handleChange('month', val)}
-        length={2}
-        top={0}
-        left={20}
-        readOnly={readOnly}
-      />
-      <span className="absolute top-1 left-32 text-sm">/</span>
-      <CharacterInput
-        value={value.year}
-        onChange={(val) => handleChange('year', val)}
-        length={4}
-        top={0}
-        left={40}
-        readOnly={readOnly}
-      />
-    </div>
+    <>
+      {/* Date boxes - clickable to open date picker */}
+      <div 
+        className="absolute"
+        style={{ top, left }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        {/* Clickable overlay */}
+        <div 
+          className={`absolute inset-0 ${readOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          style={{ zIndex: 1 }}
+        />
+        
+        {/* Day - 2 boxes */}
+        <CharacterInput
+          value={value.day}
+          onChange={() => {}}
+          length={2}
+          top={0}
+          left={dayLeft}
+          boxWidth={22}
+          boxHeight={22}
+          gap={2}
+          readOnly={true}
+        />
+        {/* First slash separator */}
+        <span className="absolute top-1" style={{ left: slash1Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
+        {/* Month - 2 boxes */}
+        <CharacterInput
+          value={value.month}
+          onChange={() => {}}
+          length={2}
+          top={0}
+          left={monthLeft}
+          boxWidth={22}
+          boxHeight={22}
+          gap={2}
+          readOnly={true}
+        />
+        {/* Second slash separator */}
+        <span className="absolute top-1" style={{ left: slash2Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
+        {/* Year - 4 boxes */}
+        <CharacterInput
+          value={value.year}
+          onChange={() => {}}
+          length={4}
+          top={0}
+          left={yearLeft}
+          boxWidth={22}
+          boxHeight={22}
+          gap={2}
+          readOnly={true}
+        />
+      </div>
+
+      {/* Modal for date picker */}
+      {isOpen && !readOnly && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-4 rounded shadow-lg w-[400px]">
+            <h2 className="text-lg font-bold mb-4">Select Date</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Date (DD/MM/YYYY)
+              </label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!selectedDate}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -366,6 +564,7 @@ export default function SuperChoiceForm({
   const fullNameRef = React.useRef<HTMLInputElement>(null);
   const employeeNumberRefs = React.useRef<(HTMLInputElement | null)[]>([]);
   const tfnRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+  
   // Page 1 - Section A: Your details
   const [fullName, setFullName] = useState(initialData.fullName || "");
   const [employeeNumber, setEmployeeNumber] = useState(initialData.employeeNumber || "");
@@ -453,21 +652,19 @@ export default function SuperChoiceForm({
   ]);
 
   const renderPage1 = () => (
-    <div className="relative">
-      <Image
-        src="/stafForms/super choice form-page1.jpg"
+    <div className="relative w-[800px] h-[1000px] mx-auto border shadow">
+      <img 
+        src="/stafForms/super choice form-page1.jpg" 
+        className="absolute inset-0 w-full h-full" 
         alt="Superannuation Standard Choice Form - Page 1"
-        width={800}
-        height={1000}
-        className="w-full h-auto"
       />
       
       {/* Section A: Your details */}
       <TextInput
         value={fullName}
         onChange={setFullName}
-        top={598}
-        left={462}
+        top={470}
+        left={400}
         width={398}
         readOnly={readOnly}
         onDownArrow={() => employeeNumberRefs.current[0]?.focus()}
@@ -477,155 +674,170 @@ export default function SuperChoiceForm({
         value={employeeNumber}
         onChange={setEmployeeNumber}
         length={16}
-        top={657}
-        left={460}
+        top={514}
+        left={410}
         readOnly={readOnly}
         onUpArrow={() => fullNameRef.current?.focus()}
         onDownArrow={() => tfnRefs.current[0]?.focus()}
         inputRefs={employeeNumberRefs}
       />
       
+      {/* Tax File Number (TFN) - 9 boxes with 3-3-3 grouping */}
       <CharacterInput
         value={tfn}
         onChange={setTfn}
         length={9}
-        top={715}
-        left={462}
-        gap={2}
+        top={560}
+        left={410}
+        gap={0}
         boxWidth={20}
         readOnly={readOnly}
         onUpArrow={() => employeeNumberRefs.current[0]?.focus()}
         inputRefs={tfnRefs}
       />
       
-      {/* Fund choice selection */}
-      <div className="absolute" style={{ top: 892, left: 471 }}>
-        <Checkbox
-          checked={fundChoice === "existing"}
-          onChange={(checked) => setFundChoice(checked ? "existing" : "")}
-          top={0}
-          left={5}
-          width={25}
-          height={29}
-          readOnly={readOnly}
-        />
-        <Checkbox
-          checked={fundChoice === "default"}
-          onChange={(checked) => setFundChoice(checked ? "default" : "")}
-          top={109}
-          left={5}
-          width={25}
-          height={29}
-          readOnly={readOnly}
-        />
-        <Checkbox
-          checked={fundChoice === "smsf"}
-          onChange={(checked) => setFundChoice(checked ? "smsf" : "")}
-          top={219}
-          left={5}
-          width={25}
-          height={29}
-          readOnly={readOnly}
-        />
-      </div>
+      {/* Fund choice selection - checkboxes positioned directly */}
+      {/* Only Section B (existing super fund) is enabled - others are frozen */}
+      <Checkbox
+        checked={fundChoice === "existing"}
+        onChange={(checked) => setFundChoice(checked ? "existing" : "")}
+        top={704}
+        left={422}
+        width={20}
+        height={20}
+        readOnly={readOnly}
+      />
+      <Checkbox
+        checked={fundChoice === "default"}
+        onChange={(checked) => setFundChoice(checked ? "default" : "")}
+        top={790}
+        left={422}
+        width={20}
+        height={20}
+        readOnly={true}
+      />
+      <Checkbox
+        checked={fundChoice === "smsf"}
+        onChange={(checked) => setFundChoice(checked ? "smsf" : "")}
+        top={875}
+        left={422}
+        width={20}
+        height={20}
+        readOnly={true}
+      />
     </div>
   );
 
   const renderPage2 = () => (
-    <div className="relative">
-      <Image
-        src="/stafForms/super choice form-page2.jpg"
+    <div className="relative w-[800px] h-[1000px] mx-auto border shadow">
+      <img 
+        src="/stafForms/super choice form-page2.jpg" 
+        className="absolute inset-0 w-full h-full" 
         alt="Superannuation Standard Choice Form - Page 2"
-        width={800}
-        height={1000}
-        className="w-full h-auto"
       />
       
       {/* Section B: My existing super fund */}
+      {/* Super fund name - text input field */}
       <TextInput
         value={superFundName}
         onChange={setSuperFundName}
-        top={250}
-        left={300}
-        width={400}
+        top={195}
+        left={30}
+        width={730}
         readOnly={readOnly}
       />
       
+      {/* Super fund ABN - 11 character boxes with 2-3-3-3 grouping (numbers only) */}
       <CharacterInput
         value={superFundABN}
         onChange={setSuperFundABN}
         length={11}
-        top={300}
-        left={300}
+        top={242}
+        left={38}
+        boxWidth={19}
+        boxHeight={21}
+        gap={0}
+        numbersOnly={true}
         readOnly={readOnly}
       />
       
+      {/* USI - 11 character boxes */}
       <CharacterInput
         value={superFundUSI}
         onChange={setSuperFundUSI}
         length={11}
-        top={350}
-        left={300}
+        top={287}
+        left={30}
+        totalWidth={330}
+        boxHeight={21}
         readOnly={readOnly}
       />
       
+      {/* Member account number - 16 character boxes */}
       <CharacterInput
         value={memberAccountNumber}
         onChange={setMemberAccountNumber}
         length={16}
-        top={400}
-        left={300}
+        top={372}
+        left={30}
+        totalWidth={480}
+        boxHeight={22}
         readOnly={readOnly}
       />
       
+      {/* Account name - text input field */}
       <TextInput
         value={accountName}
         onChange={setAccountName}
-        top={450}
-        left={300}
-        width={400}
+        top={455}
+        left={30}
+        width={730}
         readOnly={readOnly}
       />
       
+      {/* Compliance letter checkbox */}
       <Checkbox
         checked={hasComplianceLetter}
         onChange={setHasComplianceLetter}
-        top={550}
-        left={50}
+        top={608}
+        left={35}
+        width={20}
+        height={20}
         readOnly={readOnly}
       />
       
+      {/* Signature pad in declaration section */}
       <SignaturePad
         value={sectionBSignature}
         onChange={setSectionBSignature}
-        top={650}
-        left={300}
-        width={300}
-        height={80}
+        top={718}
+        left={30}
+        width={490}
+        height={60}
         readOnly={readOnly}
       />
       
+      {/* Date input in declaration section */}
       <DateInput
         value={sectionBDate}
         onChange={setSectionBDate}
-        top={750}
-        left={300}
+        top={760}
+        left={565}
         readOnly={readOnly}
       />
     </div>
   );
 
   const renderPage3 = () => (
-    <div className="relative">
-      <Image
-        src="/stafForms/super choice form-page3.jpg"
+    <div className="relative w-[800px] h-[1000px] mx-auto border shadow">
+      <img 
+        src="/stafForms/super choice form-page3.jpg" 
+        className="absolute inset-0 w-full h-full" 
         alt="Superannuation Standard Choice Form - Page 3"
-        width={800}
-        height={1000}
-        className="w-full h-auto"
       />
       
-      {/* Section C: My employer's default super fund */}
+      {/* Section C: My employer's default super fund - Layout commented out, showing image only */}
+      {/* 
       <TextInput
         value={businessName}
         onChange={setBusinessName}
@@ -696,20 +908,20 @@ export default function SuperChoiceForm({
         left={300}
         readOnly={readOnly}
       />
+      */}
     </div>
   );
 
   const renderPage4 = () => (
-    <div className="relative">
-      <Image
-        src="/stafForms/super choice form-page4.jpg"
+    <div className="relative w-[800px] h-[1000px] mx-auto border shadow">
+      <img 
+        src="/stafForms/super choice form-page4.jpg" 
+        className="absolute inset-0 w-full h-full" 
         alt="Superannuation Standard Choice Form - Page 4"
-        width={800}
-        height={1000}
-        className="w-full h-auto"
       />
       
-      {/* Section D: My private self-managed super fund (SMSF) */}
+      {/* Section D: My private self-managed super fund (SMSF) - Layout commented out, showing image only */}
+      {/* 
       <TextInput
         value={smsfName}
         onChange={setSmsfName}
@@ -798,80 +1010,34 @@ export default function SuperChoiceForm({
         left={300}
         readOnly={readOnly}
       />
+      */}
     </div>
   );
 
   const renderPage5 = () => (
-    <div className="relative">
-      <Image
-        src="/stafForms/super choice form-page5.jpg"
+    <div className="relative w-[800px] h-[1000px] mx-auto border shadow">
+      <img 
+        src="/stafForms/super choice form-page5.jpg" 
+        className="absolute inset-0 w-full h-full" 
         alt="Superannuation Standard Choice Form - Page 5"
-        width={800}
-        height={1000}
-        className="w-full h-auto"
       />
     </div>
   );
 
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 1: return renderPage1();
-      case 2: return renderPage2();
-      case 3: return renderPage3();
-      case 4: return renderPage4();
-      case 5: return renderPage5();
-      default: return renderPage1();
-    }
-  };
-
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      {/* Page Navigation */}
-      <div className="flex justify-center mb-4">
-        <div className="flex space-x-2">
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`px-3 py-1 rounded text-sm ${
-                currentPage === page
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-              disabled={readOnly}
-            >
-              Page {page}
-            </button>
-          ))}
-        </div>
+    <div className="w-full">
+      {/* Scrollable container with all pages */}
+      <div className="space-y-4 pb-8">
+        {renderPage1()}
+        {renderPage2()}
+        {renderPage3()}
+        {renderPage4()}
+        {renderPage5()}
       </div>
-
-      {/* Current Page Content */}
-      {renderCurrentPage()}
-
-      {/* Navigation Buttons */}
-      {!readOnly && (
-        <div className="flex justify-between mt-4">
-          <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-500 text-white rounded disabled:bg-gray-300"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => setCurrentPage(Math.min(5, currentPage + 1))}
-            disabled={currentPage === 5}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-          >
-            Next
-          </button>
-        </div>
-      )}
 
       {/* Action Buttons */}
       {showButtons && (
-        <div className="flex gap-4 mt-6 justify-center">
+        <div className="flex gap-4 mt-6 justify-center sticky bottom-4">
           <button className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
             Save Draft
           </button>
