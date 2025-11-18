@@ -653,10 +653,11 @@ export async function POST(
       where: { id: formSubmissionIdInt },
       select: { data: true },
     });
-    console.log('[Signature API Debug] After save - participantSignature exists:', !!savedSubmission?.data?.participantSignature);
-    console.log('[Signature API Debug] After save - authorSignature exists:', !!savedSubmission?.data?.authorSignature);
+    const savedData = savedSubmission?.data as any;
+    console.log('[Signature API Debug] After save - participantSignature exists:', !!savedData?.participantSignature);
+    console.log('[Signature API Debug] After save - authorSignature exists:', !!savedData?.authorSignature);
     console.log('[Signature API Debug] After save - Are they the same?', 
-      savedSubmission?.data?.participantSignature === savedSubmission?.data?.authorSignature);
+      savedData?.participantSignature === savedData?.authorSignature);
 
     // update form assignment
     const formAssignment = await prisma.formAssignment.findFirst({
