@@ -141,7 +141,7 @@ export async function GET(
         status: getGenericFormStatus('vehicle_safety_inspection').exists ? 'completed' : 'pending',
         completedAt: getGenericFormStatus('vehicle_safety_inspection').completedAt,
         hasSignature: false,
-        hasViewPage: false
+        hasViewPage: true
       },
       {
         formType: 'conflict-of-interest',

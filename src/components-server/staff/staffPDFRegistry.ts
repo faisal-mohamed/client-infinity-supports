@@ -10,6 +10,7 @@ import BullyingHarassmentTrainingPDF from '../PrintableForms/staff/bullying-hara
 import BullyingTrainingPDF from '../PrintableForms/staff/bullying-training/page';
 import FairworkInformationPDF from '../PrintableForms/staff/fairwork-information-statements/page';
 import OrientationPDF from '../PrintableForms/staff/orientation/page';
+import VehicleSafetyInspectionPDF from '../PrintableForms/staff/vehicle-safety-inspection/page';
 // OLD: Playwright version (keep for reference)
 // import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 
@@ -114,6 +115,16 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
     key: 'bullying_training',
     name: 'Bullying Training',
     component: BullyingTrainingPDF,
+  },
+  'vehicle-safety-inspection': {
+    key: 'vehicle-safety-inspection',
+    name: 'Vehicle Safety Inspection Checklist',
+    component: VehicleSafetyInspectionPDF,
+  },
+  'vehicle_safety_inspection': {
+    key: 'vehicle_safety_inspection',
+    name: 'Vehicle Safety Inspection Checklist',
+    component: VehicleSafetyInspectionPDF,
   },
 };
 
