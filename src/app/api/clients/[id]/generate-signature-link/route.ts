@@ -78,22 +78,32 @@ export async function POST(
           select: {
             id: true,
             filledByAdmin: true,
+            data: true, // Include data to check if form has content
           },
         });
         return {
           assignmentId: assignment.id,
           submissionId: submission?.id,
           filledByAdmin: submission?.filledByAdmin || false,
+          hasData: submission?.data && Object.keys(submission.data).length > 0,
           formTitle: assignment.form.title,
           formKey: assignment.form.formKey,
         };
       })
     );
 
-    // For emergency_drill and participant_risk_assessment: create FormSubmission if it doesn't exist
+    // Forms that can have signature links even without admin filling
+    const formsAllowedWithoutAdminFill = [
+      'emergency_drill', 
+      'participant_risk_assessment',
+      'support_action_plan', // Support Action Plan can be signed by client
+      'schedule_of_supports', // Schedule of Supports can be signed by client
+    ];
+
+    // Create FormSubmission if it doesn't exist for allowed forms
     const processedSubmissions = await Promise.all(
       formSubmissions.map(async (sub) => {
-        if (!sub.submissionId && (sub.formKey === 'emergency_drill' || sub.formKey === 'participant_risk_assessment')) {
+        if (!sub.submissionId && formsAllowedWithoutAdminFill.includes(sub.formKey)) {
           // Create FormSubmission for these forms
           const newSubmission = await prisma.formSubmission.create({
             data: {
@@ -109,21 +119,39 @@ export async function POST(
             ...sub,
             submissionId: newSubmission.id,
             filledByAdmin: false,
+            hasData: false,
           };
         }
         return sub;
       })
     );
 
-    // Filter out assignments that don't have admin-filled submissions
-    // Special-case: allow emergency_drill and participant_risk_assessment even if not admin-filled
+    // Filter valid submissions:
+    // 1. Must have a submission ID
+    // 2. Either filled by admin OR form is in allowed list OR has data (meaning it was worked on)
     const validSubmissions = processedSubmissions.filter(sub => 
-      sub.submissionId && (sub.filledByAdmin || sub.formKey === 'emergency_drill' || sub.formKey === 'participant_risk_assessment')
+      sub.submissionId && (
+        sub.filledByAdmin || 
+        formsAllowedWithoutAdminFill.includes(sub.formKey) ||
+        sub.hasData
+      )
     );
 
     if (validSubmissions.length === 0) {
+      const missingSubmissions = processedSubmissions.filter(sub => !sub.submissionId);
+      const noDataSubmissions = processedSubmissions.filter(sub => sub.submissionId && !sub.filledByAdmin && !sub.hasData && !formsAllowedWithoutAdminFill.includes(sub.formKey));
+      
+      let errorMessage = "Cannot generate signature link: ";
+      if (missingSubmissions.length > 0) {
+        errorMessage += `Some forms don't have submissions yet. Please save the forms first.`;
+      } else if (noDataSubmissions.length > 0) {
+        errorMessage += `Some forms are empty. Please fill in the forms before generating a signature link.`;
+      } else {
+        errorMessage += "No valid forms found for the selected assignments.";
+      }
+      
       return NextResponse.json(
-        { error: "No admin-filled forms found for the selected assignments" },
+        { error: errorMessage },
         { status: 400 }
       );
     }

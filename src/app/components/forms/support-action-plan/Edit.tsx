@@ -694,9 +694,17 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => {
     const isCommon = isCommonField(name);
-    const displayValue = isCommon
+    const rawValue = isCommon
       ? getCommonFieldValue(name)
       : localValues[name] || "";
+    // Ensure value is always a string (handle arrays, objects, null, undefined)
+    const displayValue = typeof rawValue === 'string' 
+      ? rawValue 
+      : Array.isArray(rawValue) 
+        ? rawValue[0] || "" 
+        : rawValue != null 
+          ? String(rawValue) 
+          : "";
     const isFieldReadOnly = readOnly || isCommon;
     const selectId = `select-${name}`;
 

@@ -90,6 +90,26 @@ console.log(result);
       where: { clientId: batch.client.id },
     });
 
+    // DEBUG: Log form data being sent to frontend
+    console.group(`[Signature API GET Debug] Loading form data for ${result.formSubmission?.form?.formKey}`);
+    console.log('Form submission ID:', result.formSubmission?.id);
+    console.log('Form data keys:', result.formSubmission?.data ? Object.keys(result.formSubmission.data) : 'NO DATA');
+    console.log('participantSignature exists:', !!result.formSubmission?.data?.participantSignature);
+    console.log('authorSignature exists:', !!result.formSubmission?.data?.authorSignature);
+    if (result.formSubmission?.data?.participantSignature) {
+      console.log('participantSignature type:', typeof result.formSubmission.data.participantSignature);
+      console.log('participantSignature length:', result.formSubmission.data.participantSignature.length);
+      console.log('participantSignature preview:', result.formSubmission.data.participantSignature.substring(0, 50) + '...');
+    }
+    if (result.formSubmission?.data?.authorSignature) {
+      console.log('authorSignature type:', typeof result.formSubmission.data.authorSignature);
+      console.log('authorSignature length:', result.formSubmission.data.authorSignature.length);
+      console.log('authorSignature preview:', result.formSubmission.data.authorSignature.substring(0, 50) + '...');
+    }
+    console.log('Are they the same?', 
+      result.formSubmission?.data?.participantSignature === result.formSubmission?.data?.authorSignature);
+    console.groupEnd();
+
     return NextResponse.json({
       formSubmission: result.formSubmission,
       client: {
@@ -535,9 +555,12 @@ export async function POST(
 
     const { dataKey, signedAtKey, signerName: signerNameKey } = signatureConfig;
 
-    // Auto-detect signatureRole for schedule_of_supports form
-    let autoDetectedRole = currentSubmission.data?.signatureRole || "";
-    if (formKey === "schedule_of_supports" && !autoDetectedRole) {
+    // Auto-detect signatureRole for forms with participant/nominee signatures
+    // Always update based on which signature is actually submitted through the link
+    // This ensures the signature link selection takes precedence over edit form selection
+    let autoDetectedRole = "";
+    const formsWithSignatureRole = ["schedule_of_supports", "sa_delivery_of_supports", "sa_support_coordination"];
+    if (formsWithSignatureRole.includes(formKey)) {
       if (dataKey === "nomineeSignature") {
         autoDetectedRole = "Nominee";
       } else if (dataKey === "participantSignature") {
@@ -545,13 +568,76 @@ export async function POST(
       }
     }
 
-    const updatedFormData = {
+    // DEBUG: Log signature submission details
+    console.group(`[Signature API Debug] Submitting signature for ${formKey}`);
+    console.log('signatureId:', signatureId);
+    console.log('dataKey:', dataKey);
+    console.log('signedAtKey:', signedAtKey);
+    console.log('signerNameKey:', signerNameKey);
+    console.log('Current submission data keys:', Object.keys(currentSubmission.data || {}));
+    console.log('Current participantSignature exists:', !!currentSubmission.data?.participantSignature);
+    console.log('Current authorSignature exists:', !!currentSubmission.data?.authorSignature);
+    console.log('Signature being saved to:', dataKey);
+    console.log('Signature length:', signature ? signature.length : 0);
+    console.log('Signature preview:', signature ? signature.substring(0, 50) + '...' : 'EMPTY');
+    
+    // CRITICAL: For support_action_plan, ensure we only update the correct signature field
+    // Prevent accidentally copying signature to wrong field
+    const updatedFormData: any = {
       ...currentSubmission.data,
-      [dataKey!]: signature,
-      ...(signedAtKey && { [signedAtKey]: signedAt }),
-      ...(signerNameKey && { [signerNameKey]: signerName }),
-      ...(autoDetectedRole && { signatureRole: autoDetectedRole }),
     };
+    
+    // Only update the specific signature field that was signed
+    if (formKey === 'support_action_plan') {
+      if (dataKey === 'authorSignature') {
+        // Only update authorSignature - do NOT touch participantSignature
+        updatedFormData.authorSignature = signature;
+        if (signedAtKey) updatedFormData[signedAtKey] = signedAt;
+        if (signerNameKey) updatedFormData[signerNameKey] = signerName;
+        // Ensure participantSignature is NOT affected
+        if (!updatedFormData.participantSignature) {
+          updatedFormData.participantSignature = '';
+        }
+        console.log('[API Debug] Saving authorSignature only, participantSignature preserved as:', 
+          updatedFormData.participantSignature ? 'EXISTS' : 'EMPTY');
+      } else if (dataKey === 'participantSignature') {
+        // Only update participantSignature - do NOT touch authorSignature
+        updatedFormData.participantSignature = signature;
+        if (signedAtKey) updatedFormData[signedAtKey] = signedAt;
+        if (signerNameKey) updatedFormData[signerNameKey] = signerName;
+        // Ensure authorSignature is NOT affected
+        if (!updatedFormData.authorSignature) {
+          updatedFormData.authorSignature = '';
+        }
+        console.log('[API Debug] Saving participantSignature only, authorSignature preserved as:', 
+          updatedFormData.authorSignature ? 'EXISTS' : 'EMPTY');
+      } else {
+        // Fallback for other fields
+        updatedFormData[dataKey!] = signature;
+        if (signedAtKey) updatedFormData[signedAtKey] = signedAt;
+        if (signerNameKey) updatedFormData[signerNameKey] = signerName;
+      }
+    } else {
+      // For other forms, use standard update
+      updatedFormData[dataKey!] = signature;
+      if (signedAtKey) updatedFormData[signedAtKey] = signedAt;
+      if (signerNameKey) updatedFormData[signerNameKey] = signerName;
+    }
+    
+    if (autoDetectedRole) {
+      updatedFormData.signatureRole = autoDetectedRole;
+    }
+    
+    console.log('Updated formData keys:', Object.keys(updatedFormData));
+    console.log('Updated participantSignature exists:', !!updatedFormData.participantSignature);
+    console.log('Updated authorSignature exists:', !!updatedFormData.authorSignature);
+    console.log('Updated participantSignature === authorSignature?', 
+      updatedFormData.participantSignature === updatedFormData.authorSignature);
+    console.log('Updated participantSignature value:', 
+      updatedFormData.participantSignature ? updatedFormData.participantSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.log('Updated authorSignature value:', 
+      updatedFormData.authorSignature ? updatedFormData.authorSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.groupEnd();
 
     await prisma.formSubmission.update({
       where: { id: formSubmissionIdInt },
@@ -561,6 +647,16 @@ export async function POST(
         data: updatedFormData,
       },
     });
+    
+    // DEBUG: Verify what was saved
+    const savedSubmission = await prisma.formSubmission.findUnique({
+      where: { id: formSubmissionIdInt },
+      select: { data: true },
+    });
+    console.log('[Signature API Debug] After save - participantSignature exists:', !!savedSubmission?.data?.participantSignature);
+    console.log('[Signature API Debug] After save - authorSignature exists:', !!savedSubmission?.data?.authorSignature);
+    console.log('[Signature API Debug] After save - Are they the same?', 
+      savedSubmission?.data?.participantSignature === savedSubmission?.data?.authorSignature);
 
     // update form assignment
     const formAssignment = await prisma.formAssignment.findFirst({

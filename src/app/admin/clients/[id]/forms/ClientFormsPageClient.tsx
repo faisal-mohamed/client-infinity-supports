@@ -310,7 +310,18 @@ const adminId : any  = session?.user?.id;
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate signature link');
+      if (!response.ok) {
+        // Try to extract error message from response
+        let errorMessage = 'Failed to generate signature link';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (e) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
       
       const data = await response.json();
       
@@ -332,13 +343,13 @@ const adminId : any  = session?.user?.id;
         loadClientForms();
       }, 1000);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating signature link:', error);
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Failed to generate signature link',
-        duration: 3000,
+        message: error?.message || 'Failed to generate signature link',
+        duration: 5000,
       });
     } finally {
       setGeneratingLink(false);
