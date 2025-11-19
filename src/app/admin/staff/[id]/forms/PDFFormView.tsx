@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
+import { useToast } from '@/components/ui/Toast';
 
 interface PDFFormViewProps {
   formType: string;
@@ -43,6 +44,7 @@ export default function PDFFormView({
   showAdminSection = false 
 }: PDFFormViewProps) {
   const { id } = useParams<{ id: string }>();
+  const { showToast } = useToast();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [pdfUrl, setPdfUrl] = useState<string>('');
@@ -189,7 +191,12 @@ export default function PDFFormView({
   const handleDownloadPDF = async () => {
     // Check if admin section is required and not completed
     if (showAdminSection && !data?.adminSignature) {
-      alert('⚠️ Admin section must be completed before downloading.\n\nPlease fill and sign the "Office Use Only" section below.');
+      showToast({
+        type: 'warning',
+        title: 'Admin Section Required',
+        message: 'Admin section must be completed before downloading. Please fill and sign the "Office Use Only" section below.',
+        duration: 5000,
+      });
       return;
     }
 
@@ -209,9 +216,21 @@ export default function PDFFormView({
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
     } finally {
       setDownloading(false);
     }
@@ -222,19 +241,39 @@ export default function PDFFormView({
     
     // Validate admin form
     if (!adminFormData.employmentStatus) {
-      alert('Please select employment status');
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please select employment status',
+        duration: 4000,
+      });
       return;
     }
     if (!adminFormData.payRate) {
-      alert('Please enter pay rate');
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please enter pay rate',
+        duration: 4000,
+      });
       return;
     }
     if (!adminFormData.schadsLevel) {
-      alert('Please enter SCHADS level');
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please enter SCHADS level',
+        duration: 4000,
+      });
       return;
     }
     if (!adminFormData.adminSignature) {
-      alert('Please add your signature');
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please add your signature',
+        duration: 4000,
+      });
       return;
     }
 
@@ -262,7 +301,12 @@ export default function PDFFormView({
       const refreshedData = await refreshRes.json();
       setData(refreshedData);
       
-      alert('✅ Admin section submitted successfully! You can now download the PDF.');
+      showToast({
+        type: 'success',
+        title: 'Admin Section Submitted',
+        message: 'Admin section submitted successfully! You can now download the PDF.',
+        duration: 4000,
+      });
       
       // Reload PDF to show admin signature
       setPdfUrl(''); // Clear
@@ -270,7 +314,12 @@ export default function PDFFormView({
       
     } catch (error) {
       console.error('Error submitting admin section:', error);
-      alert('Failed to submit admin section. Please try again.');
+      showToast({
+        type: 'error',
+        title: 'Submit Failed',
+        message: 'Failed to submit admin section. Please try again.',
+        duration: 5000,
+      });
     } finally {
       setSubmittingAdmin(false);
     }

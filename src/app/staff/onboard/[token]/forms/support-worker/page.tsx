@@ -3,10 +3,12 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import SupportWorkerForm, { SupportWorkerFormRef } from '../../components/SupportWorkerForm';
+import { useToast } from '@/components/ui/Toast';
 
 export default function SupportWorkerFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,14 +25,19 @@ export default function SupportWorkerFormPage() {
         setStaff(data.staff);
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Failed to Load Form',
+          message: error.message || 'Unable to load form data. Please refresh the page.',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     if (token) loadData();
-  }, [token]);
+  }, [token, showToast]);
 
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
@@ -40,13 +47,31 @@ export default function SupportWorkerFormPage() {
       const success = await formRef.current.save(isSubmit);
       
       if (success && isSubmit) {
-        router.push(`/staff/onboard/${token}`);
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Form has been submitted successfully.',
+          duration: 4000,
+        });
+        setTimeout(() => {
+          router.push(`/staff/onboard/${token}`);
+        }, 1500);
       } else if (success) {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your progress has been saved.',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form. Please try again.',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }

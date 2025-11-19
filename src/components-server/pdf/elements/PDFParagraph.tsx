@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 interface PDFParagraphProps {
   label: string;
@@ -20,29 +21,33 @@ const PDFParagraph: React.FC<PDFParagraphProps> = ({ label, value, bordered = tr
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 10,
+    marginBottom: PDF_SPACING.fieldMarginBottom,
   },
   label: {
-    fontSize: 9,
+    fontSize: PDF_FONT_SIZES.label,
     fontWeight: 'bold',
-    color: '#374151',
-    marginBottom: 4,
+    fontFamily: PDF_FONT_FAMILY_BOLD,
+    color: PDF_COLORS.textSecondary,
+    marginBottom: PDF_SPACING.labelMarginBottom,
+    lineHeight: PDF_LINE_HEIGHTS.label,
   },
   bordered: {
-    fontSize: 9,
-    color: '#111827',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    border: '1 solid #d1d5db',
+    fontSize: PDF_FONT_SIZES.body,
+    fontFamily: PDF_FONT_FAMILY,
+    color: PDF_COLORS.text,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    border: `1 solid ${PDF_COLORS.border}`,
     borderRadius: 4,
-    backgroundColor: '#f9fafb',
-    minHeight: 36,
-    lineHeight: 1.4,
+    backgroundColor: PDF_COLORS.backgroundLight,
+    minHeight: 40,
+    lineHeight: PDF_LINE_HEIGHTS.body,
   },
   plain: {
-    fontSize: 9,
-    color: '#111827',
-    lineHeight: 1.6,
+    fontSize: PDF_FONT_SIZES.body,
+    fontFamily: PDF_FONT_FAMILY,
+    color: PDF_COLORS.text,
+    lineHeight: PDF_LINE_HEIGHTS.body,
   },
 });
 

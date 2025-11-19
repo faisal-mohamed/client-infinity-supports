@@ -218,10 +218,28 @@ export async function GET(
       console.warn('Logo not found, skipping:', error);
     }
 
+    // Get app settings for footer (like other staff forms)
+    const rawSettings = await (prisma as any).appSettings.findMany({
+      where: { isActive: true },
+      select: { key: true, value: true },
+    });
+
+    const settings: Record<string, any> = {};
+    rawSettings.forEach((setting: any) => {
+      if (setting.value && setting.value.trim() !== '') {
+        settings[setting.key] = setting.value;
+      }
+    });
+
     // Add logo and settings to data
     const dataWithLogo = { 
       data: dataWithStaff,
-      settings: { logoDataUrl }
+      logoDataUrl,
+      settings,
+      staffSignature: formData.staffSignature,
+      staffSignedAt: formData.staffSignedAt,
+      adminSignature: formData.adminSignature,
+      adminSignedAt: formData.adminSignedAt,
     };
 
     // Get React PDF component

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 interface PDFPanelProps {
   title?: string;
@@ -7,8 +8,8 @@ interface PDFPanelProps {
   padding?: number;
 }
 
-const PDFPanel: React.FC<PDFPanelProps> = ({ title, children, padding = 10 }) => (
-  <View style={[styles.panel, { padding }]}> 
+const PDFPanel: React.FC<PDFPanelProps> = ({ title, children, padding }) => (
+  <View style={[styles.panel, padding ? { padding } : {}]}> 
     {title && <Text style={styles.title}>{title}</Text>}
     <View style={styles.body}>{children}</View>
   </View>
@@ -16,15 +17,19 @@ const PDFPanel: React.FC<PDFPanelProps> = ({ title, children, padding = 10 }) =>
 
 const styles = StyleSheet.create({
   panel: {
-    border: '1 solid #d1d5db',
+    border: `1 solid ${PDF_COLORS.border}`,
     borderRadius: 4,
-    marginTop: 8,
-    marginBottom: 8,
+    marginTop: PDF_SPACING.panelMargin,
+    marginBottom: PDF_SPACING.panelMargin,
+    padding: PDF_SPACING.panelPadding,
   },
   title: {
-    fontSize: 10,
+    fontSize: PDF_FONT_SIZES.label,
     fontWeight: 'bold',
-    marginBottom: 6,
+    fontFamily: PDF_FONT_FAMILY_BOLD,
+    marginBottom: 8,
+    color: PDF_COLORS.text,
+    lineHeight: PDF_LINE_HEIGHTS.label,
   },
   body: {
     width: '100%',

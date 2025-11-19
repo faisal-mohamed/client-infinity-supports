@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { employeeDetailsSchema as schema } from '../../[token]/schema';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import { fetchFormSpecificSettings } from '@/lib/settings';
+import { useToast } from '@/components/ui/Toast';
 
 export interface EmployeeDetailsStepRef { 
   save: (submit?: boolean) => Promise<boolean>; 
@@ -13,6 +14,7 @@ export interface EmployeeDetailsStepRef {
 }
 
 export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityChange?: (v: boolean)=>void }>(function EmployeeDetailsStep({ token, onValidityChange }, ref) {
+  const { showToast } = useToast();
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState<{ website: string; formId: string; reviewDate: string }>({ website: 'infinitysupportswa.org', formId: 'SF004', reviewDate: new Date().toISOString().slice(0,10) });
@@ -174,7 +176,12 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
       
       // Show warning if admin approval was cleared
       if (j.adminApprovalCleared || j.signaturesCleared) {
-        alert(j.message);
+        showToast({
+          type: 'warning',
+          title: 'Admin Approval Cleared',
+          message: j.message || 'Admin approval has been cleared. The form will need to be reviewed again.',
+          duration: 5000,
+        });
         
         // Clear admin data from local state
         setData((d: any) => {
@@ -195,7 +202,12 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
       
       return true;
     } catch (error: any) {
-      alert(error.message || 'Failed to save');
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form. Please try again.',
+        duration: 5000,
+      });
       return false;
     } finally {
       setLoading(false);

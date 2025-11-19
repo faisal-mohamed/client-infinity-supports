@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 interface PDFSignatureBlockProps {
   label: string;
@@ -39,13 +40,16 @@ const formatDate = (date?: string | null) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
-    marginBottom: 12,
+    marginTop: 18,
+    marginBottom: PDF_SPACING.sectionMarginBottom,
   },
   label: {
-    fontSize: 11,
+    fontSize: PDF_FONT_SIZES.label,
     fontWeight: 'bold',
-    marginBottom: 6,
+    fontFamily: PDF_FONT_FAMILY_BOLD,
+    marginBottom: 8,
+    color: PDF_COLORS.text,
+    lineHeight: PDF_LINE_HEIGHTS.label,
   },
   row: {
     flexDirection: 'row',
@@ -53,37 +57,46 @@ const styles = StyleSheet.create({
   },
   signatureBox: {
     flex: 1,
-    border: '1 solid #d1d5db',
+    border: `1 solid ${PDF_COLORS.border}`,
     borderRadius: 4,
-    height: 55,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: PDF_COLORS.background,
   },
   signatureImage: {
-    maxHeight: 50,
+    maxHeight: 55,
     maxWidth: 150,
     objectFit: 'contain',
   },
   placeholder: {
-    fontSize: 8,
-    color: '#9ca3af',
+    fontSize: PDF_FONT_SIZES.small,
+    color: PDF_COLORS.textMuted,
     fontStyle: 'italic',
+    lineHeight: PDF_LINE_HEIGHTS.small,
   },
   dateBox: {
     width: '30%',
     justifyContent: 'center',
   },
   dateLabel: {
-    fontSize: 9,
+    fontSize: PDF_FONT_SIZES.label,
     fontWeight: 'bold',
-    marginBottom: 4,
+    fontFamily: PDF_FONT_FAMILY_BOLD,
+    marginBottom: PDF_SPACING.labelMarginBottom,
+    color: PDF_COLORS.textSecondary,
+    lineHeight: PDF_LINE_HEIGHTS.label,
   },
   dateValue: {
-    fontSize: 9,
-    borderBottom: '1 solid #d1d5db',
-    paddingBottom: 3,
+    fontSize: PDF_FONT_SIZES.body,
+    fontFamily: PDF_FONT_FAMILY,
+    color: PDF_COLORS.text,
+    borderBottom: `1 solid ${PDF_COLORS.border}`,
+    paddingBottom: 4,
     paddingLeft: 4,
+    paddingTop: 2,
+    lineHeight: PDF_LINE_HEIGHTS.body,
+    minHeight: 18,
   },
 });
 

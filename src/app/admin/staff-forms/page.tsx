@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getAllStaffForms } from '@/app/forms/staff-registry';
+import { FaFileAlt, FaUser } from 'react-icons/fa';
 
 export default function StaffFormsHomePage() {
   const [forms, setForms] = useState<any[]>([]);
@@ -33,12 +34,15 @@ export default function StaffFormsHomePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {forms.map((f)=> (
+                {forms.map((f)=> {
+                  // Use FaUser icon for Employee Details, FaFileAlt for others
+                  const IconComponent = f.key === 'employee_details' ? FaUser : FaFileAlt;
+                  return (
                   <tr key={f.key} className="hover:bg-gradient-to-r hover:from-rose-50 hover:to-slate-50 transition-all duration-200">
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-4">
                         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center shadow-md">
-                          <span className="text-white text-xs">SF</span>
+                          <IconComponent className="text-white h-5 w-5" />
                         </div>
                         <div className="font-semibold text-slate-800 text-sm sm:text-base">{f.name}</div>
                       </div>
@@ -47,7 +51,8 @@ export default function StaffFormsHomePage() {
                       <Link href={`/admin/staff-forms/${f.key}`} className="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white px-4 py-2 rounded-xl text-sm shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105">View</Link>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

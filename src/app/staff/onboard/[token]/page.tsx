@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/Toast';
 
 interface FormStatus {
   key: string;
@@ -32,6 +33,7 @@ const FORM_SEQUENCE = [
 
 export default function StaffOnboardingPage() {
   const { token } = useParams<{ token: string }>();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [forms, setForms] = useState<FormStatus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +74,12 @@ export default function StaffOnboardingPage() {
         setForms(formStatuses);
       } catch (error: any) {
         console.error('Error loading staff data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Failed to Load',
+          message: error.message || 'Unable to load onboarding data. Please refresh the page.',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }

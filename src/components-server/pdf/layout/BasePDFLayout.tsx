@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, View, Text, StyleSheet, Image } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 export interface PDFMeta {
   website: string;
@@ -10,11 +11,14 @@ export interface PDFMeta {
 interface BasePDFLayoutProps {
   title: string;
   logo?: string | null;
-  meta: PDFMeta;
+  meta?: PDFMeta;
   children: React.ReactNode;
 }
 
 const BasePDFLayout: React.FC<BasePDFLayoutProps> = ({ title, logo, meta, children }) => {
+  // Only show footer if meta data exists (from settings API)
+  const hasFooterData = meta && (meta.website || meta.version || meta.reviewDate);
+  
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -31,15 +35,17 @@ const BasePDFLayout: React.FC<BasePDFLayoutProps> = ({ title, logo, meta, childr
 
         <View style={styles.content}>{children}</View>
 
-        <View style={styles.footer} fixed>
-          <View style={styles.footerRow}>
-            <Text style={styles.footerText}>{meta.website}</Text>
-            <Text style={styles.footerText}>{meta.version}</Text>
-            {meta.reviewDate && (
-              <Text style={styles.footerText}>Review Date: {meta.reviewDate}</Text>
-            )}
+        {hasFooterData && (
+          <View style={styles.footer} fixed>
+            <View style={styles.footerRow}>
+              {meta.website && <Text style={styles.footerText}>Website: {meta.website}</Text>}
+              {meta.version && <Text style={styles.footerText}>{meta.version}</Text>}
+              {meta.reviewDate && (
+                <Text style={styles.footerText}>Review Date: {meta.reviewDate}</Text>
+              )}
+            </View>
           </View>
-        </View>
+        )}
       </Page>
     </Document>
   );
@@ -48,18 +54,19 @@ const BasePDFLayout: React.FC<BasePDFLayoutProps> = ({ title, logo, meta, childr
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
-    backgroundColor: '#ffffff',
-    padding: 30,
-    paddingTop: 110,
-    paddingBottom: 70,
-    fontFamily: 'Helvetica',
-    fontSize: 10,
+    backgroundColor: PDF_COLORS.background,
+    padding: PDF_SPACING.pagePadding,
+    paddingTop: PDF_SPACING.pagePaddingTop,
+    paddingBottom: PDF_SPACING.pagePaddingBottom,
+    fontFamily: PDF_FONT_FAMILY,
+    fontSize: PDF_FONT_SIZES.body,
+    lineHeight: PDF_LINE_HEIGHTS.body,
   },
   header: {
     position: 'absolute',
     top: 15,
-    left: 30,
-    right: 30,
+    left: PDF_SPACING.pagePadding,
+    right: PDF_SPACING.pagePadding,
     borderBottom: '2 solid #333',
     paddingBottom: 10,
   },
@@ -74,14 +81,17 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
   },
   logoFallback: {
-    fontSize: 14,
+    fontSize: PDF_FONT_SIZES.title,
     fontWeight: 'bold',
+    fontFamily: PDF_FONT_FAMILY_BOLD,
   },
   title: {
-    fontSize: 14,
+    fontSize: PDF_FONT_SIZES.title,
     fontWeight: 'bold',
+    fontFamily: PDF_FONT_FAMILY_BOLD,
     textAlign: 'center',
-    color: '#1a1a1a',
+    color: PDF_COLORS.text,
+    lineHeight: PDF_LINE_HEIGHTS.title,
   },
   content: {
     flex: 1,
@@ -89,8 +99,8 @@ const styles = StyleSheet.create({
   footer: {
     position: 'absolute',
     bottom: 15,
-    left: 30,
-    right: 30,
+    left: PDF_SPACING.pagePadding,
+    right: PDF_SPACING.pagePadding,
     borderTop: '2 solid #333',
     paddingTop: 8,
   },
@@ -100,13 +110,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   footerText: {
-    fontSize: 8,
-    color: '#4b5563',
+    fontSize: PDF_FONT_SIZES.footer,
+    color: PDF_COLORS.textMuted,
+    lineHeight: PDF_LINE_HEIGHTS.small,
   },
   pageNumber: {
-    fontSize: 8,
+    fontSize: PDF_FONT_SIZES.footer,
     textAlign: 'center',
-    color: '#666',
+    color: PDF_COLORS.textMuted,
   },
 });
 

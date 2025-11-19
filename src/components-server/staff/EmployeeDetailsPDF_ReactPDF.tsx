@@ -13,16 +13,44 @@ interface EmployeeDetailsPDFProps {
 }
 
 const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
-  const meta: PDFMeta = {
-    website: 'infinitysupportswa.org',
-    version: 'SF004',
-    reviewDate: '2025-03-01',
-  };
+  // Get meta from settings (passed via data.settings), no hardcoded defaults
+  const settings = data?.settings || {};
+  const meta: PDFMeta | undefined = (settings?.website || settings?.employee_details_form_id || settings?.employee_details_review_date) ? {
+    website: settings?.website,
+    version: settings?.employee_details_form_id,
+    reviewDate: settings?.employee_details_review_date,
+  } : undefined;
 
   const logoUrl = data?.logoDataUrl || '/infinity_logo.png';
 
-  const getValue = (key: string): string => data?.data?.[key] || '';
-  const getCheckboxValue = (key: string) => data?.data?.[key];
+  // Get value with fallback for field name variations
+  const getValue = (key: string): string => {
+    // Handle lastName/surname field name mismatch
+    if (key === 'surname') {
+      return data?.data?.surname || data?.data?.lastName || data?.lastName || '';
+    }
+    // Check both data.data and direct data for other fields
+    return data?.data?.[key] || data?.[key] || '';
+  };
+  
+  // Normalize checkbox values to ensure proper rendering
+  const getCheckboxValue = (key: string) => {
+    const value = data?.data?.[key];
+    // Handle boolean values
+    if (value === true || value === false) return value;
+    // Handle string values
+    if (typeof value === 'string') {
+      const lower = value.toLowerCase().trim();
+      if (lower === 'true' || lower === 'yes' || lower === '1') return true;
+      if (lower === 'false' || lower === 'no' || lower === '0') return false;
+    }
+    // Handle number values
+    if (typeof value === 'number') {
+      if (value === 1) return true;
+      if (value === 0) return false;
+    }
+    return value;
+  };
 
   const employmentStatus = (getValue('employmentStatus') || '').toString().toLowerCase();
 
@@ -56,9 +84,8 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           </PDFFieldRow>
           <PDFFieldRow>
             <PDFField label="Mobile" value={getValue('mobile')} />
-            <PDFField label="Work Phone" value={getValue('workPhone')} />
+            <PDFField label="Email Address" value={getValue('email')} />
           </PDFFieldRow>
-          <PDFFieldFullWidth label="Email Address" value={getValue('email')} />
         </PDFSection>
 
         <PDFSection title="Tax & Banking Information">
@@ -143,7 +170,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
               </View>
               <View style={styles.officeRight}>
                 <PDFFieldFullWidth label="Pay rate" value={getValue('payRate')} />
-                <PDFFieldFullWidth label="SCHADS Level" value={getValue('schadsScore')} />
+                <PDFFieldFullWidth label="SCHADS Level" value={getValue('schadsScore') || getValue('schadsLevel')} />
               </View>
             </View>
           </PDFPanel>

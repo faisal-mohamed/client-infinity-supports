@@ -5,10 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import EmployeeDetailsStep, { EmployeeDetailsStepRef } from '../../components/EmployeeDetailsStep';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import FormButton from '@/components/ui/FormButton';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 
 export default function EmployeeDetailsFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -27,14 +31,19 @@ export default function EmployeeDetailsFormPage() {
         setFormData(data.submissions['employeeDetails'] || {});
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Failed to Load Form',
+          message: error.message || 'Unable to load form data. Please refresh the page and try again.',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     if (token) loadData();
-  }, [token]);
+  }, [token, showToast]);
 
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
@@ -43,13 +52,14 @@ export default function EmployeeDetailsFormPage() {
     const hasAdminApproval = formData.adminSignature;
     
     if (hasAdminApproval && isSubmit) {
-      const confirmEdit = window.confirm(
-        '⚠️ WARNING: Admin Approval Will Be Cleared\n\n' +
-        'This form has been approved by an administrator. If you submit changes, the admin approval will be cleared and the form will need to be reviewed and approved again.\n\n' +
-        'Do you want to continue?'
-      );
+      const confirmed = await confirm.confirm({
+        title: '⚠️ WARNING: Admin Approval Will Be Cleared',
+        message: 'This form has been approved by an administrator. If you submit changes, the admin approval will be cleared and the form will need to be reviewed and approved again.\n\nDo you want to continue?',
+        confirmText: 'Continue',
+        cancelText: 'Cancel',
+      });
       
-      if (!confirmEdit) {
+      if (!confirmed) {
         return;
       }
     }
@@ -59,13 +69,31 @@ export default function EmployeeDetailsFormPage() {
       const success = await formRef.current.save(isSubmit);
       
       if (success && isSubmit) {
-        router.push(`/staff/onboard/${token}`);
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Employee Details form has been submitted successfully.',
+          duration: 4000,
+        });
+        setTimeout(() => {
+          router.push(`/staff/onboard/${token}`);
+        }, 1500);
       } else if (success) {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your progress has been saved.',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form. Please try again.',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }

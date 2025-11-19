@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 interface PDFSectionProps {
   title: string;
@@ -8,9 +9,9 @@ interface PDFSectionProps {
   marginBottom?: number;
 }
 
-const PDFSection: React.FC<PDFSectionProps> = ({ title, wrap = true, children, marginBottom = 12 }) => {
+const PDFSection: React.FC<PDFSectionProps> = ({ title, wrap = true, children, marginBottom }) => {
   return (
-    <View style={[styles.section, { marginBottom }]} wrap={wrap}>
+    <View style={[styles.section, marginBottom ? { marginBottom } : {}]} wrap={wrap}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View>{children}</View>
     </View>
@@ -20,15 +21,18 @@ const PDFSection: React.FC<PDFSectionProps> = ({ title, wrap = true, children, m
 const styles = StyleSheet.create({
   section: {
     width: '100%',
+    marginBottom: PDF_SPACING.sectionMarginBottom,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: PDF_FONT_SIZES.sectionTitle,
     fontWeight: 'bold',
+    fontFamily: PDF_FONT_FAMILY_BOLD,
     marginBottom: 10,
-    color: '#1a1a1a',
-    backgroundColor: '#f3f4f6',
-    padding: 6,
-    borderBottom: '1 solid #d1d5db',
+    color: PDF_COLORS.text,
+    backgroundColor: PDF_COLORS.backgroundSection,
+    padding: 8,
+    borderBottom: `1 solid ${PDF_COLORS.border}`,
+    lineHeight: PDF_LINE_HEIGHTS.sectionTitle,
   },
 });
 

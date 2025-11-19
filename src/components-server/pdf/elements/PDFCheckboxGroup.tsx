@@ -1,17 +1,33 @@
 import React from 'react';
 import { View, Text, StyleSheet, Svg, Rect, Path } from '@react-pdf/renderer';
+import { PDF_FONT_SIZES, PDF_SPACING, PDF_LINE_HEIGHTS, PDF_COLORS, PDF_FONT_FAMILY, PDF_FONT_FAMILY_BOLD } from '../styles/commonPDFStyles';
 
 interface PDFCheckboxGroupProps {
   label: string;
-  value?: string | boolean | null;
+  value?: string | boolean | number | null;
   trueLabel?: string;
   falseLabel?: string;
 }
 
-const normalizeValue = (value?: string | boolean | null) => {
-  if (typeof value === 'string') return value.toLowerCase();
+const normalizeValue = (value?: string | boolean | number | null) => {
+  // Handle boolean
   if (value === true) return 'true';
   if (value === false) return 'false';
+  
+  // Handle string
+  if (typeof value === 'string') {
+    const lower = value.toLowerCase().trim();
+    if (lower === 'true' || lower === 'yes' || lower === '1') return 'true';
+    if (lower === 'false' || lower === 'no' || lower === '0') return 'false';
+    return lower; // Return lowercase for other strings
+  }
+  
+  // Handle number
+  if (typeof value === 'number') {
+    if (value === 1) return 'true';
+    if (value === 0) return 'false';
+  }
+  
   return '';
 };
 
@@ -70,13 +86,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 16,
-    marginBottom: 6,
+    marginBottom: PDF_SPACING.fieldMarginBottom,
   },
   label: {
-    fontSize: 9,
+    fontSize: PDF_FONT_SIZES.label,
     fontWeight: 'bold',
-    color: '#111827',
+    fontFamily: PDF_FONT_FAMILY_BOLD,
+    color: PDF_COLORS.text,
     flexShrink: 0,
+    lineHeight: PDF_LINE_HEIGHTS.label,
   },
   options: {
     flexDirection: 'row',
@@ -92,8 +110,10 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   optionLabel: {
-    fontSize: 9,
-    color: '#0f172a',
+    fontSize: PDF_FONT_SIZES.body,
+    fontFamily: PDF_FONT_FAMILY,
+    color: PDF_COLORS.text,
+    lineHeight: PDF_LINE_HEIGHTS.body,
   },
 });
 
