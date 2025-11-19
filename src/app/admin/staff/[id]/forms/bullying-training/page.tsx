@@ -6,6 +6,7 @@ import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 interface BullyingTrainingData {
   staff?: { firstName: string; surname: string; email: string };
@@ -193,36 +194,23 @@ export default function StaffBullyingTrainingView() {
 
   const staffSigned = !!data.staffSignature;
   const managerCompleted = !!(data.data?.managerSignature || data.adminSignature);
+  const staffName = data.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '';
+  const staffEmail = data.staff?.email || '';
 
   return (
-    <div className="bg-gray-50 min-h-screen py-6 px-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow border border-gray-100 p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-[0.3em]">Staff Form</p>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Bullying Training Acknowledgment</h1>
-            <p className="text-sm text-gray-600">
-              {data.staff?.firstName} {data.staff?.surname} · {data.staff?.email}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <FormButton
-              icon="back"
-              onClick={() => router.push(`/admin/staff/${id}`)}
-            >
-              Back to Staff
-            </FormButton>
-            <FormButton
-              icon="download"
-              variant="primary"
-              loading={downloading}
-              onClick={handleDownload}
-            >
-              Download Signed PDF
-            </FormButton>
-          </div>
-        </div>
+    <div className="bg-gradient-to-br from-indigo-50 via-white to-cyan-50 min-h-screen">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={id as string}
+        formTitle="Bullying Training Acknowledgment"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownload}
+        downloading={downloading}
+        showDownload={!!staffSigned}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         {/* Status Card */}
         <div className="bg-white rounded-2xl shadow border border-gray-100 p-6">

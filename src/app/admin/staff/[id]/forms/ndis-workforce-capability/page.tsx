@@ -4,6 +4,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import { useToast } from '@/components/ui/Toast';
 
 export default function StaffNdisWorkforceCapabilityView() {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +30,11 @@ export default function StaffNdisWorkforceCapabilityView() {
     if (id) loadStaff();
   }, [id]);
 
+  const { showToast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
   const handleDownloadPDF = async () => {
+    setDownloading(true);
     try {
       // Use merge=true to get the framework PDF + signed acknowledgement form
       const response = await fetch(`/api/staff/${id}/forms/ndis-workforce-capability/pdf?merge=true`);
@@ -43,9 +49,23 @@ export default function StaffNdisWorkforceCapabilityView() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF');
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -57,35 +77,21 @@ export default function StaffNdisWorkforceCapabilityView() {
     );
   }
 
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">NDIS Workforce Capability Framework</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                {staff?.firstName} {staff?.surname}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Download PDF
-              </button>
-              <Link
-                href={`/admin/staff/${id}`}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                ← Back to Staff
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={id as string}
+        formTitle="NDIS Workforce Capability Framework"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={true}
+      />
 
       {/* PDF Viewer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

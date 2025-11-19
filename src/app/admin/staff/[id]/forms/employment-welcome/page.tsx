@@ -3,6 +3,8 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminEmployeeWelcomeViewPage() {
   const params = useParams();
@@ -54,13 +56,18 @@ export default function AdminEmployeeWelcomeViewPage() {
     if (staffId) loadData();
   }, [staffId]);
 
+  const { showToast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
   const handleDownloadPDF = async () => {
-    console.log('📥 [Admin View] Downloading PDF for staff:', staffId);
+    setDownloading(true);
     try {
       const pdfUrl = `/api/staff/${staffId}/forms/employee-welcome/pdf`;
       
       // Fetch the PDF
       const response = await fetch(pdfUrl);
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      
       const blob = await response.blob();
       
       // Create a download link
@@ -74,9 +81,23 @@ export default function AdminEmployeeWelcomeViewPage() {
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF');
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -88,42 +109,24 @@ export default function AdminEmployeeWelcomeViewPage() {
     );
   }
 
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
+  const hasSignature = formData?.signature || formData?.staffSignature;
+
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-[1400px] mx-auto px-4">
-        {/* Header with Download Button */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Employee Welcome Pack</h1>
-              <p className="text-gray-600">
-                {staff?.firstName} {staff?.surname} ({staff?.email})
-              </p>
-              {formData?.staffSignedAt && (
-                <p className="text-sm text-green-600">
-                  ✓ Submitted on {new Date(formData.staffSignedAt).toLocaleDateString('en-AU')}
-                </p>
-              )}
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download PDF
-              </button>
-              <button
-                onClick={() => router.push(`/admin/staff/${staffId}`)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                ← Back to Staff
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={staffId.toString()}
+        formTitle="Employee Welcome Pack"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={!!hasSignature}
+      />
+
+      <div className="max-w-[1400px] mx-auto px-4 py-8">
 
         {/* Full Screen PDF Viewer */}
         <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/employee-welcome/pdf`} />

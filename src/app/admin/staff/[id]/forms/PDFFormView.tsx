@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 interface PDFFormViewProps {
   formType: string;
@@ -345,23 +346,24 @@ export default function PDFFormView({
     );
   }
 
+  const staffName = data.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '';
+  const staffEmail = data.staff?.email || '';
+
   return (
     <div className="bg-white min-h-screen">
-      {/* Header - Responsive */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold">{formTitle}</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">{data.staff?.firstName} {data.staff?.surname}</p>
-          </div>
-          <Link href={`/admin/staff/${id}`} className="text-xs sm:text-sm text-rose-600 hover:underline whitespace-nowrap">
-            Back to Forms
-          </Link>
-        </div>
-      </div>
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={id}
+        formTitle={formTitle}
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={!!data.staffSignature}
+      />
 
       {/* Main Content - Responsive Container */}
-      <div className="w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-3 sm:p-4 lg:p-6">
           
           {/* Form Status - Responsive with proper status logic */}
@@ -627,23 +629,6 @@ export default function PDFFormView({
               </div>
             </div>
           )}
-
-          {/* Actions - Download Button Only */}
-          <div className="flex justify-center pt-4 sm:pt-6 mt-4 sm:mt-6 border-t">
-            <FormButton
-              onClick={handleDownloadPDF}
-              variant="primary"
-              loading={downloading}
-              disabled={!data.staffSignature || (showAdminSection && !data?.adminSignature)}
-              icon="download"
-            >
-              {!data.staffSignature 
-                ? 'PDF Available After Staff Signs' 
-                : (showAdminSection && !data?.adminSignature)
-                  ? 'Complete Admin Section to Download'
-                  : 'Download PDF'}
-            </FormButton>
-          </div>
         </div>
       </div>
     </div>

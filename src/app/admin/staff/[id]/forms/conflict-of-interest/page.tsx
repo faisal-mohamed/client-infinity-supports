@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 export default function AdminConflictOfInterestViewPage() {
   const params = useParams();
@@ -326,29 +327,23 @@ export default function AdminConflictOfInterestViewPage() {
   const hasEmployeeSignature = formData?.employeeSignature;
   const hasAdminSignature = formData?.reviewerSignature;
 
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
+
   return (
-    <div className="min-h-screen bg-gray-100 py-4 md:py-8">
-      <div className="w-full max-w-7xl mx-auto px-2 md:px-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Conflict of Interest Disclosure Form</h1>
-              <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
-              {hasEmployeeSignature && (
-                <p className="text-sm text-green-600 mt-1">
-                  ✓ Staff submitted on {formData?.createdAt ? new Date(formData.createdAt).toLocaleDateString('en-AU') : ''}
-                </p>
-              )}
-            </div>
-            <button 
-              onClick={() => router.push(`/admin/staff/${staffId}`)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
-            >
-              ← Back to Staff
-            </button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={staffId.toString()}
+        formTitle="Conflict of Interest Disclosure Form"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={!!hasEmployeeSignature}
+      />
+
+      <div className="w-full max-w-7xl mx-auto px-2 md:px-6 py-4 md:py-8">
 
         {/* Warning if staff hasn't signed */}
         {!hasEmployeeSignature && (

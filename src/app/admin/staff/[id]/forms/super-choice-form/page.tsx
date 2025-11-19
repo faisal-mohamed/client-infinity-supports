@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 export default function StaffSuperChoiceFormView() {
   const { id } = useParams<{ id: string }>();
@@ -90,44 +91,23 @@ export default function StaffSuperChoiceFormView() {
   }
 
   const SuperChoiceFormView = getStaffFormComponent('super_choice_form', 'view');
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Superannuation Standard Choice Form</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                {staff?.firstName} {staff?.surname}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleDownload}
-                disabled={!formData || downloading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                {downloading ? "Downloading..." : "Download PDF"}
-              </button>
-              <button
-                onClick={fetchData}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-              >
-                Refresh View
-              </button>
-              <Link
-                href={`/admin/staff/${staffId}`}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                ← Back to Staff
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={staffId.toString()}
+        formTitle="Superannuation Standard Choice Form"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownload}
+        downloading={downloading}
+        showDownload={!!formData}
+      />
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!formData ? (
           <div className="bg-white rounded-2xl shadow-md border border-dashed border-gray-200 p-8 text-center text-gray-500">
             No Superannuation Standard Choice Form has been submitted for this staff member yet.

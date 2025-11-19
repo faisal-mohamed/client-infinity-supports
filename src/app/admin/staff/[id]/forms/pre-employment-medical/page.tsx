@@ -3,6 +3,8 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminPreEmploymentMedicalViewPage() {
   const params = useParams();
@@ -44,13 +46,18 @@ export default function AdminPreEmploymentMedicalViewPage() {
     if (staffId) loadData();
   }, [staffId]);
 
+  const { showToast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
   const handleDownloadPDF = async () => {
-    console.log('📥 [Admin View] Downloading PDF for staff:', staffId);
+    setDownloading(true);
     try {
       const pdfUrl = `/api/staff/${staffId}/forms/pre-employment-medical/pdf`;
       
       // Fetch the PDF
       const response = await fetch(pdfUrl);
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      
       const blob = await response.blob();
       
       // Create a download link
@@ -64,9 +71,23 @@ export default function AdminPreEmploymentMedicalViewPage() {
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF');
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -78,41 +99,22 @@ export default function AdminPreEmploymentMedicalViewPage() {
     );
   }
 
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
+  const hasSignature = formData?.signature || formData?.staffSignature;
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header Bar - Compact at top */}
-      <div className="bg-white shadow-md p-4 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">Pre-Employment Medical</h1>
-            <p className="text-sm text-gray-600">
-              {staff?.firstName} {staff?.surname} ({staff?.email})
-              {formData?.signatureDate && (
-                <span className="ml-3 text-green-600">
-                  ✓ Submitted {new Date(formData.signatureDate).toLocaleDateString('en-AU')}
-                </span>
-              )}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={handleDownloadPDF}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Download PDF
-            </button>
-            <button
-              onClick={() => router.push(`/admin/staff/${staffId}`)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={staffId.toString()}
+        formTitle="Pre-Employment Medical"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={!!hasSignature}
+      />
 
       {/* Full Screen PDF Viewer */}
       <div className="px-4 sm:px-6 lg:px-8 py-8">
