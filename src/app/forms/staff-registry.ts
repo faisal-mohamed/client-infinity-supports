@@ -22,8 +22,10 @@ import GovtTaxEdit from '@/app/form-components/staff/tax/Edit'
 import SuperChoiceForm from '@/app/form-components/staff/super-choice-form/page'
 import SuperChoiceFormEdit from '@/app/form-components/staff/super-choice-form/Edit'
 
-import ConflictFormMain from '../form-components/staff/conflict-of-interest/page';
-import DocumentationAcknowledgement from '../form-components/staff/acknowledgement/page';
+import ConflictOfInterestView from '../form-components/staff/conflict-of-interest/View';
+import ConflictOfInterestEdit from '../form-components/staff/conflict-of-interest/Edit';
+import DocumentationAcknowledgementView from '../form-components/staff/documentation-acknowledgement/View';
+import DocumentationAcknowledgementEdit from '../form-components/staff/documentation-acknowledgement/Edit';
 
 export interface StaffFormRegistryItem {
   key: string;
@@ -108,12 +110,14 @@ const staffFormRegistry: Record<string, StaffFormRegistryItem> = {
   conflict_of_interest: {
     key: 'conflict_of_interest',
     name: 'Conflict of Interest Disclosure Form',
-    viewComponent: ConflictFormMain,
+    viewComponent: ConflictOfInterestView,
+    editComponent: ConflictOfInterestEdit,
   },
   documentation_acknowledgement: {
     key: 'documentation_acknowledgement',
     name: 'Documentation Acknowledgement',
-    viewComponent: DocumentationAcknowledgement,
+    viewComponent: DocumentationAcknowledgementView,
+    editComponent: DocumentationAcknowledgementEdit,
   }
 };
 

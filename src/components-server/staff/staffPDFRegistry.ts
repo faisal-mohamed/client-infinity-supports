@@ -11,6 +11,8 @@ import BullyingTrainingPDF from '../PrintableForms/staff/bullying-training/page'
 import FairworkInformationPDF from '../PrintableForms/staff/fairwork-information-statements/page';
 import OrientationPDF from '../PrintableForms/staff/orientation/page';
 import VehicleSafetyInspectionPDF from '../PrintableForms/staff/vehicle-safety-inspection/page';
+import ConflictOfInterestPDF from '../PrintableForms/staff/conflict-of-interest/page';
+import DocumentationAcknowledgementPDF from '../PrintableForms/staff/documentation-acknowledgement/page';
 // OLD: Playwright version (keep for reference)
 // import EmployeeDetailsPDF from './EmployeeDetailsPDF';
 
@@ -125,6 +127,26 @@ const staffPDFRegistry: Record<string, StaffPDFRegistryItem> = {
     key: 'vehicle_safety_inspection',
     name: 'Vehicle Safety Inspection Checklist',
     component: VehicleSafetyInspectionPDF,
+  },
+  'conflict-of-interest': {
+    key: 'conflict-of-interest',
+    name: 'Conflict of Interest Disclosure Form',
+    component: ConflictOfInterestPDF,
+  },
+  'conflict_of_interest': {
+    key: 'conflict_of_interest',
+    name: 'Conflict of Interest Disclosure Form',
+    component: ConflictOfInterestPDF,
+  },
+  'documentation-acknowledgement': {
+    key: 'documentation-acknowledgement',
+    name: 'Documentation Acknowledgement',
+    component: DocumentationAcknowledgementPDF,
+  },
+  'documentation_acknowledgement': {
+    key: 'documentation_acknowledgement',
+    name: 'Documentation Acknowledgement',
+    component: DocumentationAcknowledgementPDF,
   },
 };
 

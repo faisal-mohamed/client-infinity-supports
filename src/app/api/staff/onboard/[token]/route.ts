@@ -133,7 +133,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         if (s.staffSignedAt) {
           formData.signatureDate = s.staffSignedAt.toISOString().split('T')[0];
         }
-      } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_workforce_capability' || s.formKey === 'ndis_code_of_conduct' || s.formKey === 'bullying_harassment_training') {
+      } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_workforce_capability' || s.formKey === 'ndis_code_of_conduct' || s.formKey === 'bullying_harassment_training' || s.formKey === 'documentation_acknowledgement') {
         // Merge staffSignature and staffSignedAt back into data as signature and date
         if (s.staffSignature) {
           formData.signature = s.staffSignature;
@@ -441,6 +441,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           };
         }
       } else if (formKey === 'ndis_code_of_conduct') {
+        const { signature, date, ...restData } = data;
+        formData = restData;
+        if (signature) {
+          signatureData = {
+            staffSignature: signature,
+            staffSignedAt: date ? new Date(date) : new Date()
+          };
+        }
+      } else if (formKey === 'conflict_of_interest') {
+        // For conflict_of_interest, extract employeeSignature and employeeDate
+        const { employeeSignature, employeeDate, ...restData } = data;
+        formData = restData;
+        if (employeeSignature) {
+          signatureData = {
+            staffSignature: employeeSignature,
+            staffSignedAt: employeeDate ? new Date(employeeDate) : new Date()
+          };
+        }
+      } else if (formKey === 'documentation_acknowledgement') {
+        // For documentation_acknowledgement, extract signature and date
         const { signature, date, ...restData } = data;
         formData = restData;
         if (signature) {

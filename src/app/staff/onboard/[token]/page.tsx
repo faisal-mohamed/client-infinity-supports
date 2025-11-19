@@ -26,7 +26,8 @@ const FORM_SEQUENCE = [
   { key: 'govt_tax', name: 'TFN Declaration', route: 'govt-tax' },
   { key: 'super_choice_form', name: 'Superannuation Standard Choice Form', route: 'super-choice-form' },
   { key: 'vehicle_safety_inspection', name: 'Vehicle Safety Inspection Checklist', route: 'vehicle-safety-inspection' },
-  { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' }
+  { key: 'conflict_of_interest', name: 'Conflict of Interest Disclosure', route: 'conflict-of-interest' },
+  { key: 'documentation_acknowledgement', name: 'Documentation Acknowledgement', route: 'documentation-acknowledgement' }
 ];
 
 export default function StaffOnboardingPage() {

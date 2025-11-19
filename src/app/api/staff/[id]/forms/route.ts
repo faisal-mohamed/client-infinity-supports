@@ -146,10 +146,61 @@ export async function GET(
       {
         formType: 'conflict-of-interest',
         formName: 'Conflict of Interest Disclosure',
-        status: getGenericFormStatus('conflict_of_interest').exists ? 'completed' : 'pending',
-        completedAt: getGenericFormStatus('conflict_of_interest').completedAt,
-        hasSignature: false,
-        hasViewPage: false
+        get status() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'conflict_of_interest');
+          if (!submission) return 'pending';
+          const formData = submission.data || {};
+          // Check if admin has signed (form is fully completed)
+          if (formData.reviewerSignature && submission.isSubmitted) {
+            return 'fully_completed';
+          }
+          // Check if staff has signed (waiting for admin)
+          if (formData.employeeSignature) {
+            return 'awaiting_admin';
+          }
+          // Form exists but not signed
+          return 'in_progress';
+        },
+        get completedAt() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'conflict_of_interest');
+          return submission?.createdAt?.toLocaleDateString();
+        },
+        get hasSignature() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'conflict_of_interest');
+          const formData = submission?.data || {};
+          return !!formData.employeeSignature;
+        },
+        get hasAdminSignature() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'conflict_of_interest');
+          const formData = submission?.data || {};
+          return !!formData.reviewerSignature;
+        },
+        hasViewPage: true,
+        requiresAdmin: true
+      },
+      {
+        formType: 'documentation-acknowledgement',
+        formName: 'Documentation Acknowledgement',
+        get status() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'documentation_acknowledgement');
+          if (!submission) return 'pending';
+          // Form is completed if staff has signed
+          if (submission.staffSignature || submission.data?.signature) {
+            return 'completed';
+          }
+          // Form exists but not signed
+          return 'in_progress';
+        },
+        get completedAt() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'documentation_acknowledgement');
+          return submission?.createdAt?.toLocaleDateString();
+        },
+        get hasSignature() {
+          const submission = staff.submissions?.find((s: any) => s.formKey === 'documentation_acknowledgement');
+          return !!(submission?.staffSignature || submission?.data?.signature);
+        },
+        hasViewPage: true,
+        requiresAdmin: false
       }
     ];
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
 
-export default function ConflictOfInterestFormPage() {
+export default function DocumentationAcknowledgementFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const { showToast } = useToast();
@@ -15,7 +15,6 @@ export default function ConflictOfInterestFormPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,8 +35,8 @@ export default function ConflictOfInterestFormPage() {
         const staffData = await response.json();
         setStaff(staffData);
 
-        // Get the conflict_of_interest submission (submissions is an object keyed by formKey)
-        const formSubmission = staffData.submissions?.['conflict_of_interest'] || {};
+        // Get the documentation_acknowledgement submission
+        const formSubmission = staffData.submissions?.['documentation_acknowledgement'] || {};
         setInitialFormData(formSubmission);
         setFormData(formSubmission);
       } catch (error: any) {
@@ -58,50 +57,17 @@ export default function ConflictOfInterestFormPage() {
     }
   }, [token, showToast]);
 
-  // Validation function - defined first (only validates staff-required fields, not admin fields)
+  // Validation function
   const validateForm = useCallback((data: any): { isValid: boolean; missing: string[] } => {
     const missing: string[] = [];
 
-    // Employee Information - Always required for staff
-    if (!data.name?.trim()) missing.push('Name');
-    if (!data.position?.trim()) missing.push('Position');
-    if (!data.department?.trim()) missing.push('Department');
-    if (!data.date) missing.push('Date');
-
-    // Section 1: Conflict of Interest
-    if (!data.hasConflict || (data.hasConflict !== 'yes' && data.hasConflict !== 'no')) {
-      missing.push('Section 1: Conflict of Interest response');
+    if (!data.staffName?.trim()) missing.push('Staff Name');
+    if (!data.signature || typeof data.signature !== 'string' || !data.signature.startsWith('data:image/')) {
+      missing.push('Signature');
     }
-    if (data.hasConflict === 'yes' && !data.conflictDescription?.trim()) {
-      missing.push('Section 1: Conflict Description');
+    if (!data.date) {
+      missing.push('Date');
     }
-
-    // Section 2: Vendor Relationships
-    if (!data.hasVendorRelationship || (data.hasVendorRelationship !== 'yes' && data.hasVendorRelationship !== 'no')) {
-      missing.push('Section 2: Vendor Relationship response');
-    }
-    if (data.hasVendorRelationship === 'yes' && !data.vendorDetails?.trim()) {
-      missing.push('Section 2: Vendor Relationship Details');
-    }
-
-    // Section 3: Outside Employment
-    if (!data.hasOutsideEmployment || (data.hasOutsideEmployment !== 'yes' && data.hasOutsideEmployment !== 'no')) {
-      missing.push('Section 3: Outside Employment response');
-    }
-    if (data.hasOutsideEmployment === 'yes' && !data.employmentDetails?.trim()) {
-      missing.push('Section 3: Outside Employment Details');
-    }
-
-    // Section 4: Signature and Date (staff only, not admin fields)
-    if (!data.employeeSignature || typeof data.employeeSignature !== 'string' || !data.employeeSignature.startsWith('data:image/')) {
-      missing.push('Employee Signature');
-    }
-    if (!data.employeeDate) {
-      missing.push('Employee Signature Date');
-    }
-
-    // Note: Admin/HR fields (reviewedBy, reviewerTitle, reviewDate, hrDecision, reviewerSignature, reviewerDate) 
-    // are NOT validated here because staff users don't fill those fields
 
     return {
       isValid: missing.length === 0,
@@ -112,7 +78,6 @@ export default function ConflictOfInterestFormPage() {
   // Memoize the onDataChange callback to prevent infinite loops
   const handleDataChange = useCallback((data: any) => {
     setFormData(data);
-    // Validation will happen automatically via useEffect when formData changes
   }, []);
 
   // Validate form data whenever it changes
@@ -121,14 +86,13 @@ export default function ConflictOfInterestFormPage() {
       const validation = validateForm(formData);
       setValidationErrors(validation.missing);
     } else {
-      // If formData is empty, show all required fields as missing
       const validation = validateForm({});
       setValidationErrors(validation.missing);
     }
   }, [formData, validateForm]);
 
   const handleSave = async (isSubmit: boolean) => {
-    // Validate required fields before submission (only staff fields, not admin fields)
+    // Validate required fields before submission
     if (isSubmit) {
       const validation = validateForm(formData);
       if (!validation.isValid) {
@@ -150,7 +114,7 @@ export default function ConflictOfInterestFormPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          formKey: 'conflict_of_interest',
+          formKey: 'documentation_acknowledgement',
           data: formData,
           submit: isSubmit,
         }),
@@ -159,58 +123,42 @@ export default function ConflictOfInterestFormPage() {
       const result = await response.json();
 
       if (response.ok) {
-        const action = isSubmit ? 'submitted' : 'saved';
-        showToast({
-          type: 'success',
-          title: `Form ${action === 'submitted' ? 'Submitted' : 'Saved'}`,
-          message: `Your Conflict of Interest Disclosure Form has been ${action} successfully.`,
-          duration: 4000,
-        });
-
         if (isSubmit) {
+          showToast({
+            type: 'success',
+            title: 'Form Submitted',
+            message: 'Documentation Acknowledgement form has been submitted successfully.',
+            duration: 4000,
+          });
+
+          // Navigate to next form or dashboard
           setTimeout(() => {
             router.push(`/staff/onboard/${token}`);
-          }, 1000);
+          }, 1500);
+        } else {
+          showToast({
+            type: 'success',
+            title: 'Draft Saved',
+            message: 'Your progress has been saved.',
+            duration: 3000,
+          });
         }
       } else {
-        const errorMessage = result.message || result.error || 'Failed to save form';
-        let title = 'Save Failed';
-
-        if (result.code === 'DUPLICATE_ENTRY') {
-          title = 'Already Submitted';
-        } else if (result.code === 'LINK_EXPIRED') {
-          title = 'Access Link Expired';
-        } else if (result.code === 'DATABASE_CONNECTION_ERROR') {
-          title = 'Connection Error';
-        } else if (result.code === 'DATA_TOO_LONG') {
-          title = 'Validation Error';
-        }
-
         showToast({
           type: 'error',
-          title,
-          message: errorMessage,
+          title: 'Save Failed',
+          message: result.message || result.error || 'Failed to save form. Please try again.',
           duration: 5000,
         });
       }
     } catch (error: any) {
       console.error('Error saving form:', error);
-
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        showToast({
-          type: 'error',
-          title: 'Network Error',
-          message: 'Unable to connect to the server. Please check your internet connection and try again.',
-          duration: 5000,
-        });
-      } else {
-        showToast({
-          type: 'error',
-          title: 'Unexpected Error',
-          message: 'An unexpected error occurred while saving. Please try again.',
-          duration: 5000,
-        });
-      }
+      showToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please check your internet connection and try again.',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }
@@ -227,49 +175,31 @@ export default function ConflictOfInterestFormPage() {
     );
   }
 
-  const ConflictOfInterestEdit = getStaffFormComponent('conflict_of_interest', 'edit');
+  const DocumentationAcknowledgementEdit = getStaffFormComponent('documentation_acknowledgement', 'edit');
 
   return (
     <div className="min-h-screen bg-gray-100 py-4 md:py-8">
-      <style jsx>{`
-        .view-component-wrapper {
-          min-height: 600px;
-        }
-        @media (max-width: 768px) {
-          .view-component-wrapper {
-            min-height: 400px;
-          }
-        }
-      `}</style>
-      
       <div className="w-full max-w-7xl mx-auto px-2 md:px-6">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Conflict of Interest Disclosure Form</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Documentation Acknowledgement</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
-            <button 
-              onClick={() => router.push(`/staff/onboard/${token}`)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
-            >
-              ← Back to Forms
-            </button>
           </div>
         </div>
 
-        {/* Edit Component */}
         <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
           <div className="view-component-wrapper w-full">
-            <ConflictOfInterestEdit
+            <DocumentationAcknowledgementEdit
               initialData={initialFormData}
               onDataChange={handleDataChange}
               showButtons={false}
             />
           </div>
 
-          {/* Validation Errors Summary - Only show if there are missing fields */}
+          {/* Validation Errors Summary */}
           {validationErrors.length > 0 && (
             <div className="mt-4 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
               <h3 className="text-sm font-semibold text-yellow-900 mb-2">
@@ -285,7 +215,7 @@ export default function ConflictOfInterestFormPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
-            <button 
+            <button
               onClick={() => handleSave(false)}
               disabled={saving}
               className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 w-full sm:w-auto"
@@ -305,3 +235,4 @@ export default function ConflictOfInterestFormPage() {
     </div>
   );
 }
+
