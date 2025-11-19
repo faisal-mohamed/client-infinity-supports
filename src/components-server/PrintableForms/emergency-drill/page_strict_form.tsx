@@ -4,7 +4,7 @@ import PdfPageLayout from '../pdf/PdfPageLayout';
 const EmergencyDrillStrictForm: React.FC<any> = ({ formData, commonFieldsData, settings, logoDataUrl }) => {
   // Debug logging for view form
   console.log('🔍 Emergency Drill VIEW - Settings received:', settings);
-  console.log('🔍 Emergency Drill VIEW - Email:', settings?.from_email);
+  console.log('🔍 Emergency Drill VIEW - Website:', settings?.company_website);
   console.log('🔍 Emergency Drill VIEW - Form ID:', settings?.emergency_drill);
   console.log('🔍 Emergency Drill VIEW - Date:', settings?.review_date);
   const commonFieldMapping: Record<string, string> = {
@@ -62,7 +62,7 @@ const EmergencyDrillStrictForm: React.FC<any> = ({ formData, commonFieldsData, s
     <PdfPageLayout
       logoDataUrl={logoDataUrl || '/infinity_logo.png'}
       footerData={{
-        email: settings?.from_email || '',
+        website: settings?.company_website || '',
         formId: settings?.emergency_drill || '',
         date: settings?.review_date || ''
       }}

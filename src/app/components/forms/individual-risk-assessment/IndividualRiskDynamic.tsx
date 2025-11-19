@@ -449,7 +449,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
       <div className="flex-1 overflow-hidden">{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
-        <span>Website: {settings?.company_website || settings?.website || settings?.from_email || ''}</span>
+        <span>Website: {settings?.company_website || settings?.website || ''}</span>
         <span>{settings?.individual_risk_assessment || ''}</span>
         <span>
           Review Date:{' '}

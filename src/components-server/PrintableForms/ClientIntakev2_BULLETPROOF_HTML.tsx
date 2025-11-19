@@ -72,9 +72,9 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
     return settings?.client_intake_form_id || '';
   };
 
-  // Get email
-  const getEmail = (): string => {
-    return settings?.from_email || '';
+  // Get website
+  const getWebsite = (): string => {
+    return settings?.company_website || '';
   };
 
   // Render checkbox
@@ -469,7 +469,7 @@ const ClientIntakeBulletProofHTML: React.FC<ClientIntakeBulletProofHTMLProps> = 
 
         {/* Fixed Footer */}
         <div className="pdf-footer">
-          <span>{getEmail()}</span>
+          <span>{getWebsite()}</span>
           <span>{getFormId()}</span>
           <span>Review Date: {getReportDate()}</span>
         </div>

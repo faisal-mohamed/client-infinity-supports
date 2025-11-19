@@ -69,6 +69,7 @@ export default function ClientsPageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<string>("name");
@@ -199,32 +200,51 @@ export default function ClientsPageClient() {
       };
 
       const data = await getClients({
-        search: searchTerm,
+        search: debouncedSearchTerm,
         filters: apiFilters,
         page: pagination.page,
         pageSize: pagination.pageSize,
       });
 
+      // Validate response data
+      if (!data || !Array.isArray(data.clients)) {
+        throw new Error("Invalid response format from server");
+      }
+
       setClients(data.clients);
-      console.log("data.clients: ", data.clients);
-      console.log("First client structure: ", data.clients[0]);
-      console.log("First client commonFields: ", data.clients[0]?.commonFields);
-      setPagination(data.pagination);
+      setPagination(data.pagination || pagination);
       setError("");
-    } catch (err) {
-      setError("Failed to load clients");
-      console.error(err);
+    } catch (err: any) {
+      const errorMessage = err?.message || "Failed to load clients";
+      setError(errorMessage);
+      // Only log errors in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error loading clients:", err);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Load clients when page, pageSize, search, or filters change
+  // Debounce search term to avoid API calls on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      // Reset to first page when search changes
+      if (searchTerm !== debouncedSearchTerm) {
+        setPagination({ ...pagination, page: 1 });
+      }
+    }, 400); // 400ms debounce delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Load clients when page, pageSize, debounced search, or filters change
   useEffect(() => {
     loadClients();
-  }, [pagination.page, pagination.pageSize, searchTerm, filters]);
+  }, [pagination.page, pagination.pageSize, debouncedSearchTerm, filters]);
 
-  // Handle sort
+  // Handle sort - Note: API already sorts by name, but we allow client-side sorting for other fields
   const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -234,41 +254,47 @@ export default function ClientsPageClient() {
     }
   };
 
-  // Apply sorting to clients
-  const sortedClients = [...clients].sort((a: any, b: any) => {
-    let aValue: any = a[sortField as keyof Client];
-    let bValue: any = b[sortField as keyof Client];
+  // Apply sorting to clients (only if not sorting by name, since API already sorts by name)
+  // For name field, API handles sorting, so we just use clients as-is
+  const sortedClients = sortField === "name" 
+    ? clients // API already sorted by name, no need to sort again
+    : [...clients].sort((a: any, b: any) => {
+        let aValue: any = a[sortField as keyof Client];
+        let bValue: any = b[sortField as keyof Client];
 
-    // Handle nested fields
-    if (sortField.includes(".")) {
-      const [parent, child] = sortField.split(".");
-      aValue = a[parent as keyof Client]?.[child as any] || "";
-      bValue = b[parent as keyof Client]?.[child as any] || "";
-    }
+        // Handle nested fields
+        if (sortField.includes(".")) {
+          const [parent, child] = sortField.split(".");
+          aValue = a[parent as keyof Client]?.[child as any] || "";
+          bValue = b[parent as keyof Client]?.[child as any] || "";
+        }
 
-    // Handle null values
-    if (aValue === null) aValue = "";
-    if (bValue === null) bValue = "";
+        // Handle null values
+        if (aValue === null) aValue = "";
+        if (bValue === null) bValue = "";
 
-    // Compare values
-    if (typeof aValue === "string") {
-      return sortDirection === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    } else {
-      return sortDirection === "asc"
-        ? aValue > bValue
-          ? 1
-          : -1
-        : bValue > aValue
-        ? 1
-        : -1;
-    }
-  });
-
-  useEffect(() => {
-    console.log("Sorted Clients:", sortedClients);
-  }, [sortedClients]);
+        try {
+          // Compare values
+          if (typeof aValue === "string") {
+            // Use case-insensitive comparison with locale support
+            const comparison = aValue.localeCompare(bValue, 'en-AU', { 
+              sensitivity: 'base',
+              numeric: true
+            });
+            return sortDirection === "asc" ? comparison : -comparison;
+          } else {
+            return sortDirection === "asc"
+              ? aValue > bValue ? 1 : -1
+              : bValue > aValue ? 1 : -1;
+          }
+        } catch (error) {
+          // Fallback to simple comparison if localeCompare fails
+          const aStr = String(aValue || "").toLowerCase();
+          const bStr = String(bValue || "").toLowerCase();
+          const comparison = aStr.localeCompare(bStr);
+          return sortDirection === "asc" ? comparison : -comparison;
+        }
+      });
 
   const handleDeleteClient = async (id: number) => {
     if (isDeleting) return;
@@ -687,24 +713,64 @@ export default function ClientsPageClient() {
                         <th
                           className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider border-b-2 border-slate-500 cursor-pointer hover:bg-rose-50 transition"
                           onClick={() => handleSort("name")}
+                          aria-sort={sortField === "name" ? (sortDirection === "asc" ? "ascending" : "descending") : undefined}
+                          aria-label={sortField === "name" ? `Sort by name, currently ${sortDirection === "asc" ? "ascending" : "descending"}` : "Sort by name"}
+                          role="columnheader"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleSort("name");
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-2">Name</div>
                         </th>
                         <th
                           className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider border-b-2 border-slate-500 cursor-pointer hover:bg-rose-50 transition"
                           onClick={() => handleSort("phone")}
+                          aria-sort={sortField === "phone" ? (sortDirection === "asc" ? "ascending" : "descending") : undefined}
+                          aria-label={sortField === "phone" ? `Sort by phone, currently ${sortDirection === "asc" ? "ascending" : "descending"}` : "Sort by phone"}
+                          role="columnheader"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleSort("phone");
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-2">Phone</div>
                         </th>
                         <th
                           className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider border-b-2 border-slate-500 cursor-pointer hover:bg-rose-50 transition"
                           onClick={() => handleSort("commonFields.state")}
+                          aria-sort={sortField === "commonFields.state" ? (sortDirection === "asc" ? "ascending" : "descending") : undefined}
+                          aria-label={sortField === "commonFields.state" ? `Sort by state, currently ${sortDirection === "asc" ? "ascending" : "descending"}` : "Sort by state"}
+                          role="columnheader"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleSort("commonFields.state");
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-2">State</div>
                         </th>
                         <th
                           className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider border-b-2 border-slate-500 cursor-pointer hover:bg-rose-50 transition"
                           onClick={() => handleSort("createdAt")}
+                          aria-sort={sortField === "createdAt" ? (sortDirection === "asc" ? "ascending" : "descending") : undefined}
+                          aria-label={sortField === "createdAt" ? `Sort by created date, currently ${sortDirection === "asc" ? "ascending" : "descending"}` : "Sort by created date"}
+                          role="columnheader"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleSort("createdAt");
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-2">
                             Created At
@@ -743,9 +809,21 @@ export default function ClientsPageClient() {
                             <td className="px-6 py-4 font-semibold text-gray-900">
                               <div className="flex items-center gap-3">
                                 <div className="w-9 h-9 flex items-center justify-center bg-rose-100 text-rose-600 rounded-lg font-bold">
-                                  {client.name?.charAt(0)}
+                                  {(() => {
+                                    // Get the first letter from full name or fallback to client.name
+                                    const fullName = client?.commonFields?.name && client?.commonFields?.surname
+                                      ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+                                      : client?.name || '';
+                                    return fullName.charAt(0).toUpperCase();
+                                  })()}
                                 </div>
-                                {client.name}
+                                {(() => {
+                                  // Display full name (name + surname) if available, otherwise client.name
+                                  const fullName = client?.commonFields?.name && client?.commonFields?.surname
+                                    ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+                                    : client?.name || 'Unknown Client';
+                                  return fullName;
+                                })()}
                               </div>
                             </td>
                             <td className="px-6 py-4 text-gray-700">

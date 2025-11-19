@@ -220,7 +220,7 @@ const ClientIntakev2FixedFinal: React.FC<ClientIntakeFormPDFProps> = ({
     }
   };
 
-  const getEmail = (): string => settings?.from_email || '';
+  const getWebsite = (): string => settings?.company_website || '';
   const getFormId = (): string => settings?.client_intake_form_id || '';
   const getReportDate = (): string => {
     const dateValue = settings?.review_date;
@@ -483,7 +483,7 @@ const ClientIntakev2FixedFinal: React.FC<ClientIntakeFormPDFProps> = ({
         </View>
 
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getEmail()}</Text>
+          <Text style={styles.footerText}>{getWebsite()}</Text>
           <Text style={styles.footerText}>{getFormId()} Review Date: {getReportDate()}</Text>
         </View>
         

@@ -5,7 +5,38 @@ import { supportActionPlanSchema, SchemaBlock } from "./schema";
 
 // Dynamic Support Action Plan view with measured pagination, header/footer, and spacing controls
 const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
-  try { console.log('[SAP View] Using SupportActionPlanDynamic.tsx'); } catch {}
+  try { 
+    console.log('[SAP View] Using SupportActionPlanDynamic.tsx');
+    // DEBUG: Log initial formData received
+    console.group('[SAP Component Debug] Component initialized');
+    console.log('formData is:', formData);
+    console.log('formData type:', typeof formData);
+    console.log('formData keys:', formData ? Object.keys(formData) : 'formData is null/undefined');
+    console.log('participantSignature in formData:', formData?.participantSignature ? 'EXISTS' : 'MISSING');
+    console.log('authorSignature in formData:', formData?.authorSignature ? 'EXISTS' : 'MISSING');
+    if (formData?.participantSignature) {
+      console.log('participantSignature type:', typeof formData.participantSignature);
+      console.log('participantSignature length:', formData.participantSignature.length);
+    }
+    if (formData?.authorSignature) {
+      console.log('authorSignature type:', typeof formData.authorSignature);
+      console.log('authorSignature length:', formData.authorSignature.length);
+    }
+    console.log('Are signatures the same?', formData?.participantSignature === formData?.authorSignature);
+    console.groupEnd();
+  } catch {}
+
+  // DEBUG: Log whenever formData changes
+  useEffect(() => {
+    console.group('[SAP Component Debug] formData changed');
+    console.log('formData:', formData);
+    console.log('participantSignature:', formData?.participantSignature ? formData.participantSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.log('authorSignature:', formData?.authorSignature ? formData.authorSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.log('Are they the same?', formData?.participantSignature === formData?.authorSignature);
+    console.log('participantSignature type:', typeof formData?.participantSignature);
+    console.log('authorSignature type:', typeof formData?.authorSignature);
+    console.groupEnd();
+  }, [formData?.participantSignature, formData?.authorSignature]);
 
   const commonFieldMapping: Record<string, string> = {
     participantName: "name",
@@ -456,7 +487,86 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
 
   const renderSignatureGroup = (block: SchemaBlock) => {
     const meta = block.meta || {};
-    const sigValue = getFieldValue(meta.signatureKey || '');
+    const signatureKey = meta.signatureKey || '';
+    const title = meta.title || 'Unknown';
+    
+    // DEBUG: Log all signature-related data
+    console.group(`[SAP Signature Debug] Rendering ${title} (key: ${signatureKey})`);
+    console.log('formData keys:', formData ? Object.keys(formData) : 'formData is null/undefined');
+    console.log('formData.participantSignature type:', typeof formData?.participantSignature);
+    console.log('formData.participantSignature value:', formData?.participantSignature ? formData.participantSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.log('formData.authorSignature type:', typeof formData?.authorSignature);
+    console.log('formData.authorSignature value:', formData?.authorSignature ? formData.authorSignature.substring(0, 50) + '...' : 'EMPTY');
+    console.log('signatureKey being used:', signatureKey);
+    console.log('meta:', meta);
+    
+    // CRITICAL: Get signature value directly from formData using the EXACT signatureKey
+    // Do NOT use getFieldValue() as it might cause cross-contamination
+    // Ensure we're getting the correct field for this specific signature group
+    // Use explicit field access to prevent any React closure or state issues
+    let sigValue = '';
+    if (signatureKey === 'participantSignature') {
+      // CRITICAL: Participant field should ONLY show participantSignature
+      // If it's empty or same as authorSignature, show empty (user hasn't signed yet)
+      const participantSig = (formData && typeof formData.participantSignature === 'string' && formData.participantSignature.trim() !== '') 
+        ? formData.participantSignature 
+        : '';
+      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '') 
+        ? formData.authorSignature 
+        : '';
+      
+      console.log('[Participant Field] participantSig exists:', !!participantSig);
+      console.log('[Participant Field] authorSig exists:', !!authorSig);
+      console.log('[Participant Field] Are they the same?', participantSig === authorSig);
+      console.log('[Participant Field] participantSig length:', participantSig ? participantSig.length : 0);
+      console.log('[Participant Field] authorSig length:', authorSig ? authorSig.length : 0);
+      
+      // Only show participant signature if:
+      // 1. It exists AND
+      // 2. It's different from author signature (prevents showing author sig in participant field)
+      if (participantSig && participantSig !== authorSig) {
+        sigValue = participantSig;
+        console.log('[Participant Field] ✅ Showing participant signature');
+      } else {
+        // Show empty - either not signed yet, or data corruption (same as author)
+        sigValue = '';
+        if (participantSig && participantSig === authorSig) {
+          console.warn('[Participant Field] ⚠️ WARNING: participantSig === authorSig (data corruption detected)');
+        } else {
+          console.log('[Participant Field] ✅ Showing empty (not signed yet)');
+        }
+      }
+    } else if (signatureKey === 'authorSignature') {
+      // Author field should ONLY show authorSignature
+      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '') 
+        ? formData.authorSignature 
+        : '';
+      
+      console.log('[Author Field] authorSig exists:', !!authorSig);
+      console.log('[Author Field] authorSig length:', authorSig ? authorSig.length : 0);
+      
+      // Show author signature if it exists
+      sigValue = authorSig;
+      if (authorSig) {
+        console.log('[Author Field] ✅ Showing author signature');
+      } else {
+        console.log('[Author Field] ✅ Showing empty (not signed yet)');
+      }
+    } else {
+      // Fallback to direct access with type check
+      const fallbackValue = formData?.[signatureKey];
+      console.log('[Fallback] signatureKey:', signatureKey);
+      console.log('[Fallback] fallbackValue type:', typeof fallbackValue);
+      console.log('[Fallback] fallbackValue exists:', !!fallbackValue);
+      sigValue = (formData && typeof formData[signatureKey] === 'string') 
+        ? formData[signatureKey] 
+        : '';
+    }
+    
+    console.log('[Final] sigValue for', title, ':', sigValue ? sigValue.substring(0, 50) + '...' : 'EMPTY');
+    console.log('[Final] sigValue length:', sigValue ? sigValue.length : 0);
+    console.groupEnd();
+    
     // Get date directly from formData - check both old and new field names
     const dateKey = meta.dateKey || '';
     let dateValue = formData?.[dateKey] || '';
@@ -472,8 +582,12 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     }
     
     const formattedDate = formatDateValue(dateValue);
+    
+    // Use a unique key that includes both title and signatureKey to ensure React treats them as separate
+    const uniqueKey = `sig-${signatureKey}-${meta.title || 'signature'}`;
+    
     return (
-      <div key={meta.title || 'signature'} className="mb-4">
+      <div key={uniqueKey} className="mb-4">
         {meta.title && (
           <div className="mb-2">
             <h4 className="font-bold text-sm">{meta.title}</h4>
@@ -486,8 +600,13 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
                 <div className="flex">
                   <div className="w-1/2">
                     <strong>{meta.signatureLabel || 'Signature'}:</strong><br />
-                    {sigValue?.startsWith('data:image') ? (
-                      <img src={sigValue} alt="Signature" className="h-10 mt-1" />
+                    {sigValue && sigValue.startsWith('data:image') ? (
+                      <img 
+                        src={sigValue} 
+                        alt={`${meta.title} Signature`} 
+                        className="h-10 mt-1"
+                        key={`img-${signatureKey}-${sigValue.substring(0, 20)}`} // Unique key for image to force re-render
+                      />
                     ) : (
                       '__________________'
                     )}
@@ -771,7 +890,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       <div className="flex-1 overflow-hidden">{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>{settings?.company_website || settings?.from_email || ''}</span>
+        <span>{settings?.company_website || ''}</span>
         <span>{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span>
         <span>Review Date: {settings?.review_date || ''}</span>
       </div>

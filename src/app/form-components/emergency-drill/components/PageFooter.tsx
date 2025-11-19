@@ -14,7 +14,7 @@ const PageFooter: React.FC<PageFooterProps> = ({ settings, pageNumber, totalPage
       {/* Simplified footer content */}
       <div className="flex justify-between items-center text-xs text-gray-600">
         <div>
-          <span>{settings?.from_email || ''}</span>
+          <span>{settings?.company_website || ''}</span>
         </div>
         
         <div className="text-center">

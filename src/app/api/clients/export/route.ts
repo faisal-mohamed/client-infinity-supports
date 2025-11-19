@@ -32,10 +32,47 @@ export async function GET(req: Request) {
       whereClause.commonFields = { some: commonFieldsFilter };
     }
 
-    const clients = await prisma.client.findMany({
+    // Fetch all clients matching filters
+    const allClients = await prisma.client.findMany({
       where: whereClause,
       include: { commonFields: true },
-      orderBy: { createdAt: "desc" },
+    });
+
+    // Sort clients case-insensitively by name (nulls last) - same logic as main API
+    const clients = allClients.sort((a, b) => {
+      try {
+        // Get the name to sort by (prefer commonFields name + surname if available)
+        const aName = a?.commonFields?.name && a?.commonFields?.surname
+          ? `${a.commonFields.name} ${a.commonFields.surname}`.trim().toLowerCase()
+          : (a.name || '').toLowerCase();
+        const bName = b?.commonFields?.name && b?.commonFields?.surname
+          ? `${b.commonFields.name} ${b.commonFields.surname}`.trim().toLowerCase()
+          : (b.name || '').toLowerCase();
+        
+        // Put empty names last (nulls last)
+        if (!aName && bName) return 1;
+        if (aName && !bName) return -1;
+        if (!aName && !bName) return 0;
+        
+        // Case-insensitive comparison with locale support
+        const nameComparison = aName.localeCompare(bName, 'en-AU', { 
+          sensitivity: 'base',
+          numeric: true 
+        });
+        if (nameComparison !== 0) return nameComparison;
+        
+        // If names are equal, sort by createdAt desc as tiebreaker
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } catch (error) {
+        // Fallback to simple comparison if localeCompare fails
+        const aName = (a?.commonFields?.name && a?.commonFields?.surname
+          ? `${a.commonFields.name} ${a.commonFields.surname}`.trim()
+          : (a.name || '')).toLowerCase();
+        const bName = (b?.commonFields?.name && b?.commonFields?.surname
+          ? `${b.commonFields.name} ${b.commonFields.surname}`.trim()
+          : (b.name || '')).toLowerCase();
+        return aName.localeCompare(bName);
+      }
     });
 
     const workbook = new ExcelJS.Workbook();
@@ -83,9 +120,14 @@ export async function GET(req: Request) {
     });
 
     // === Data Rows ===
-    clients.forEach((client: any, index: number) => {
+    clients.forEach((client, index) => {
+      // Use full name (name + surname) if available, otherwise client.name
+      const fullName = client?.commonFields?.name && client?.commonFields?.surname
+        ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
+        : client.name || "";
+      
       const row = worksheet.addRow([
-        client.name || "",
+        fullName,
         client.email || "",
         client.phone || "",
         client.commonFields?.ndis || "",

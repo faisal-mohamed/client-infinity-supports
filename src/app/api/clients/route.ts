@@ -137,20 +137,22 @@ export async function GET(req: NextRequest) {
     const whereClause: any = {};
 
     // Search functionality - improved to search across both client and commonFields
+    // Normalize search term to lowercase for case-insensitive search
     if (search) {
+      const normalizedSearch = search.trim().toLowerCase();
       whereClause.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search, mode: 'insensitive' } },
+        { name: { contains: normalizedSearch, mode: 'insensitive' } },
+        { email: { contains: normalizedSearch, mode: 'insensitive' } },
+        { phone: { contains: normalizedSearch, mode: 'insensitive' } },
         {
           commonFields: {
             OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { surname: { contains: search, mode: 'insensitive' } },
-              { email: { contains: search, mode: 'insensitive' } },
-              { phone: { contains: search, mode: 'insensitive' } },
-              { ndis: { contains: search, mode: 'insensitive' } },
-              { state: { contains: search, mode: 'insensitive' } }
+              { name: { contains: normalizedSearch, mode: 'insensitive' } },
+              { surname: { contains: normalizedSearch, mode: 'insensitive' } },
+              { email: { contains: normalizedSearch, mode: 'insensitive' } },
+              { phone: { contains: normalizedSearch, mode: 'insensitive' } },
+              { ndis: { contains: normalizedSearch, mode: 'insensitive' } },
+              { state: { contains: normalizedSearch, mode: 'insensitive' } }
             ]
           }
         }
@@ -174,8 +176,10 @@ export async function GET(req: NextRequest) {
     // Get total count
     const totalCount = await prisma.client.count({ where: whereClause });
 
-    // Get clients with pagination
-    const clients = await prisma.client.findMany({
+    // Fetch filtered clients and sort case-insensitively
+    // Using database filtering + in-memory sorting for case-insensitive name sorting
+    // (Prisma doesn't support case-insensitive orderBy directly, so we sort filtered results)
+    const allFilteredClients = await prisma.client.findMany({
       where: whereClause,
       include: {
         commonFields: true,
@@ -183,11 +187,48 @@ export async function GET(req: NextRequest) {
           orderBy: { createdAt: 'desc' },
           take: 3
         }
-      },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: pageSize
+      }
     });
+
+    // Sort filtered clients case-insensitively by name (nulls last, with locale support)
+    const sortedClients = allFilteredClients.sort((a, b) => {
+      try {
+        // Get the name to sort by (prefer commonFields name + surname if available)
+        const aName = a?.commonFields?.name && a?.commonFields?.surname
+          ? `${a.commonFields.name} ${a.commonFields.surname}`.trim().toLowerCase()
+          : (a.name || '').toLowerCase();
+        const bName = b?.commonFields?.name && b?.commonFields?.surname
+          ? `${b.commonFields.name} ${b.commonFields.surname}`.trim().toLowerCase()
+          : (b.name || '').toLowerCase();
+        
+        // Put empty names last (nulls last)
+        if (!aName && bName) return 1;
+        if (aName && !bName) return -1;
+        if (!aName && !bName) return 0;
+        
+        // Case-insensitive comparison with locale support
+        const nameComparison = aName.localeCompare(bName, 'en-AU', { 
+          sensitivity: 'base',
+          numeric: true 
+        });
+        if (nameComparison !== 0) return nameComparison;
+        
+        // If names are equal (case-insensitive), sort by createdAt desc as tiebreaker
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      } catch (error) {
+        // Fallback to simple comparison if localeCompare fails
+        const aName = (a?.commonFields?.name && a?.commonFields?.surname
+          ? `${a.commonFields.name} ${a.commonFields.surname}`.trim()
+          : (a.name || '')).toLowerCase();
+        const bName = (b?.commonFields?.name && b?.commonFields?.surname
+          ? `${b.commonFields.name} ${b.commonFields.surname}`.trim()
+          : (b.name || '')).toLowerCase();
+        return aName.localeCompare(bName);
+      }
+    });
+
+    // Apply pagination after sorting
+    const clients = sortedClients.slice(skip, skip + pageSize);
 
     // Calculate pagination info
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -195,7 +236,7 @@ export async function GET(req: NextRequest) {
     const hasPreviousPage = page > 1;
 
     // Serialize response
-    const serializedClients = clients.map(client => ({
+    const serializedClients = (clients as any[]).map((client: any) => ({
       ...client,
       logs: client.logs.map((log: any) => ({
         id: log.id,

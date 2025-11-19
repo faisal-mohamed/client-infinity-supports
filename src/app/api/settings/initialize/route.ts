@@ -221,6 +221,17 @@ export async function POST(req: NextRequest) {
     defaultValue: '',
     sortOrder: 11,
   },
+  {
+    key: 'sa_support_coordination',
+    value: '',
+    type: 'text',
+    category: 'form_ids',
+    label: 'Service Agreement Support Co-Ordination ID',
+    description: 'Unique identifier for Service Agreement Support Co-Ordination forms',
+    isRequired: true,
+    defaultValue: '',
+    sortOrder: 12,
+  },
 ];
 
     const upsertPromises = defaultSettings.map((setting : any ) =>

@@ -4,7 +4,7 @@ import A4PageWrapper from './A4PageWrapper';
 const Page1: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
   // Debug logging for view form
   console.log('🔍 Emergency Drill Page1 VIEW - Settings received:', settings);
-  console.log('🔍 Emergency Drill Page1 VIEW - Email:', settings?.from_email);
+  console.log('🔍 Emergency Drill Page1 VIEW - Website:', settings?.company_website);
   console.log('🔍 Emergency Drill Page1 VIEW - Form ID:', settings?.emergency_drill);
   console.log('🔍 Emergency Drill Page1 VIEW - Date:', settings?.review_date);
 
@@ -151,7 +151,7 @@ const Page1: React.FC<any> = ({ schema, data, commonFieldsData, settings }) => {
 
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-gray-300 flex justify-between text-xs text-gray-600">
-          <span>{settings?.from_email || ''}</span>
+          <span>{settings?.company_website || ''}</span>
           <span>{settings?.emergency_drill || ''}</span>
           <span>Date of Report: {settings?.review_date || ''}</span>
         </div>

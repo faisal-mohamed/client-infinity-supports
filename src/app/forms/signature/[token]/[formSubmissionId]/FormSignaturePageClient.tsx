@@ -222,6 +222,27 @@ export default function FormSignaturePageClient() {
       }
 
       const data = await response.json();
+      
+      // DEBUG: Log form data received from API
+      console.group('[Frontend Debug] Form data loaded from API');
+      console.log('Full response:', data);
+      console.log('Form submission data keys:', data?.formSubmission?.data ? Object.keys(data.formSubmission.data) : 'NO DATA');
+      console.log('participantSignature exists:', !!data?.formSubmission?.data?.participantSignature);
+      console.log('authorSignature exists:', !!data?.formSubmission?.data?.authorSignature);
+      if (data?.formSubmission?.data?.participantSignature) {
+        console.log('participantSignature type:', typeof data.formSubmission.data.participantSignature);
+        console.log('participantSignature length:', data.formSubmission.data.participantSignature.length);
+        console.log('participantSignature preview:', data.formSubmission.data.participantSignature.substring(0, 50) + '...');
+      }
+      if (data?.formSubmission?.data?.authorSignature) {
+        console.log('authorSignature type:', typeof data.formSubmission.data.authorSignature);
+        console.log('authorSignature length:', data.formSubmission.data.authorSignature.length);
+        console.log('authorSignature preview:', data.formSubmission.data.authorSignature.substring(0, 50) + '...');
+      }
+      console.log('Are they the same?', 
+        data?.formSubmission?.data?.participantSignature === data?.formSubmission?.data?.authorSignature);
+      console.groupEnd();
+      
       setFormData(data);
       setEditedFormValues(data?.formSubmission?.data || {});
       console.log("Form data loaded:", data);
@@ -298,7 +319,16 @@ export default function FormSignaturePageClient() {
 
       const result = await response.json();
 
-      // Update completed signatures
+      // DEBUG: Log signature submission result
+      console.group('[Frontend Debug] Signature submitted');
+      console.log('signatureId submitted:', signatureId);
+      console.log('result from API:', result);
+      console.groupEnd();
+
+      // Reload form data to get updated signatures
+      await loadFormData();
+
+      // Update completed signatures based on updated form data
       const updatedCompleted = { ...completedSignatures, [signatureId]: true };
       setCompletedSignatures(updatedCompleted);
 

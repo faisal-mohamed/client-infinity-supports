@@ -15,13 +15,10 @@
 //   return <FormViewPage clientId={clientId} formSubmission={formSubmission} />;
 // }
 
+import React from 'react';
 
-import React from 'react'
-
-const page = () => {
+export default function ViewFormPage() {
   return (
-    <div>page</div>
-  )
+    <div>Form View Page</div>
+  );
 }
-
-export default page

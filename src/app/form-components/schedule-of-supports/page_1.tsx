@@ -132,7 +132,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* Footer - always sticks to bottom */}
         <div className="flex justify-between text-xs px-2 text-gray-600">
-          <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
+          <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
 <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>

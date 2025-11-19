@@ -5,7 +5,7 @@ import {
   FaSave, FaSpinner, FaCog, FaBuilding, FaFileAlt, 
   FaEnvelope, FaShieldAlt, FaGlobe, FaCalendarAlt,
   FaCheck, FaTimes, FaExclamationTriangle, FaPlus,
-  FaEdit, FaTrash, FaEye, FaEyeSlash, FaFilePdf, FaPlug,
+  FaEdit, FaTrash, FaEye, FaEyeSlash, FaFilePdf,
   FaArrowLeft
 } from 'react-icons/fa';
 import { useToast } from '@/components/ui/Toast';
@@ -89,7 +89,25 @@ export default function SettingsPageClient() {
       }
 
       const data = await response.json();
+      console.log('🔍 [UI DEBUG] Settings API response:', {
+        total: data.total,
+        categories: Object.keys(data.settings || {}),
+        formIdsCount: data.settings?.form_ids?.length || 0,
+        formIdsKeys: data.settings?.form_ids?.map((s: any) => s.key).join(', ') || 'none',
+        hasSaSupportCoordination: data.settings?.form_ids?.some((s: any) => s.key === 'sa_support_coordination') || false,
+      });
+      
       setSettings(data.settings || {});
+      
+      // Debug: Check if sa_support_coordination is in form_ids
+      if (data.settings?.form_ids) {
+        const saSetting = data.settings.form_ids.find((s: any) => s.key === 'sa_support_coordination');
+        console.log('🔍 [UI DEBUG] sa_support_coordination in form_ids:', saSetting ? {
+          key: saSetting.key,
+          label: saSetting.label,
+          isActive: saSetting.isActive,
+        } : 'NOT FOUND');
+      }
       
       // If no settings exist, automatically initialize them
       if (Object.keys(data.settings).length === 0) {

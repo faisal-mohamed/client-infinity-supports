@@ -27,7 +27,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
   };
 
   // Footer values (mirror settings API keys like SA Delivery)
-  const footerWebsite = settings?.company_website || settings?.from_email || '';
+  const footerWebsite = settings?.company_website || '';
   const footerId = settings?.welcome_form || '';
   const footerDate = formatDate(settings?.review_date || '');
   console.log('[View Welcome Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) });

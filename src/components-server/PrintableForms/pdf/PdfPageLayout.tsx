@@ -9,14 +9,14 @@ export default function PdfPageLayout({
   footerData: { 
     documentRef?: string; 
     date?: string;
-    email?: string;
+    website?: string;
     formId?: string;
   };
   children: React.ReactNode;
 }) {
   // Debug logging for PdfPageLayout
   console.log('🔍 PdfPageLayout - Footer data received:', footerData);
-  console.log('🔍 PdfPageLayout - Email:', footerData?.email);
+  console.log('🔍 PdfPageLayout - Website:', footerData?.website);
   console.log('🔍 PdfPageLayout - Form ID:', footerData?.formId);
   console.log('🔍 PdfPageLayout - Date:', footerData?.date);
   
@@ -31,7 +31,7 @@ export default function PdfPageLayout({
 
       {/* fixed footer for ALL pages */}
       <footer className="pdf-footer-fixed" aria-hidden="true">
-        <span>{footerData?.email || ''}</span>
+        <span>{footerData?.website || ''}</span>
         <span>{footerData?.formId || ''}</span>
         <span>Review Date: {formattedDate}</span>
       </footer>

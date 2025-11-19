@@ -209,7 +209,7 @@ bgColor: 'from-amber-500 to-amber-600',
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.filledByAdmin || assignment.form.formKey === 'emergency_drill' ? (
+            {assignment.adminFilledAt || assignment.form.formKey === 'emergency_drill' ? (
               <input
                 type="checkbox"
                 checked={isSelected}

@@ -1279,7 +1279,7 @@ const BLOCK_SPACING = 16; // Space between blocks
       
       {/* Footer - in normal flow like SA Delivery */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>Website: {settings?.company_website || settings?.from_email || ''}</span>
+        <span>Website: {settings?.company_website || ''}</span>
         <span>{settings?.sa_support_coordination || ''}</span>
         <span>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</span>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import A4PageWrapper from "./A4PageWrapper";
 import { format, parseISO, isValid } from "date-fns";
 
@@ -36,6 +36,23 @@ interface FormField {
   isMeta?: boolean;
   isDateWithTemplate?: boolean;
 }
+
+type Block =
+  | {
+      key: string;
+      type: 'meta';
+      estimatedHeight: number;
+      items: Section[];
+    }
+  | {
+      key: string;
+      type: 'section';
+      label: string;
+      value: string;
+      partIndex: number;
+      totalParts: number;
+      estimatedHeight: number;
+    };
 
 // Define form fields
 const formFields: FormField[] = [
@@ -109,79 +126,174 @@ const MDTDynamic: React.FC<Props> = ({ formData, settings, commonFieldsData }) =
     }).filter(section => section.value); // Only include sections with values
   }, [formData, commonFieldsData]);
 
-  // Paginate content based on estimated character capacity
-  const pages = useMemo(() => {
-    const pagesArray: { meta: Section[]; content: Section[] }[] = [];
-    
-    // Page capacity estimation
-    const HEADER_HEIGHT = 120; // Logo + title + margins
-    const FOOTER_HEIGHT = 50;  // Footer with border
-    const PAGE_HEIGHT = 1123;  // A4 page height in px
-    const AVAILABLE_HEIGHT = PAGE_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT; // ~953px
-    
-    // Character estimates (rough but effective)
-    const CHARS_PER_LINE = 80;
-    const LINE_HEIGHT = 20; // px
-    const META_CHARS_PER_PAGE = 400; // Meta section is compact
-    const SECTION_HEADER_HEIGHT = 25;
-    
-    const metaSections = allSections.filter(s => s.isMeta);
-    const contentSections = allSections.filter(s => !s.isMeta);
-    
-    let currentPage: Section[] = [];
-    let currentHeight = 0;
-    
-    // First page includes metadata
-    const metaHeight = metaSections.length * 22; // Each meta field ~22px
-    currentHeight += metaHeight + 30; // Add spacing
-    
-    console.log('🔍 [MDT View DEBUG] Starting pagination calculation');
-    console.log('🔍 [MDT View DEBUG] Available height per page:', AVAILABLE_HEIGHT);
-    console.log('🔍 [MDT View DEBUG] Meta sections:', metaSections.length);
-    console.log('🔍 [MDT View DEBUG] Content sections:', contentSections.length);
-    
-    // Distribute content sections across pages
-    contentSections.forEach((section, idx) => {
-      const charCount = section.value.length;
-      const lines = Math.ceil(charCount / CHARS_PER_LINE);
-      const sectionHeight = SECTION_HEADER_HEIGHT + (lines * LINE_HEIGHT) + 15; // +15 for margins
-      
-      console.log(`🔍 [MDT View DEBUG] Section "${section.label}": ${charCount} chars, ~${lines} lines, ~${sectionHeight}px`);
-      
-      // If adding this section would exceed page height, start new page
-      if (currentHeight + sectionHeight > AVAILABLE_HEIGHT && currentPage.length > 0) {
-        console.log(`🔍 [MDT View DEBUG] Page ${pagesArray.length + 1} full (${currentHeight}px), starting new page`);
-        pagesArray.push({
-          meta: pagesArray.length === 0 ? metaSections : [],
-          content: [...currentPage]
-        });
-        currentPage = [section];
-        currentHeight = sectionHeight;
+  const PAGE_HEIGHT = 1123;
+  const HEADER_HEIGHT = 140;
+  const FOOTER_HEIGHT = 90;
+  const CONTENT_PADDING = 60;
+  const MAX_PAGE_CONTENT_HEIGHT =
+    PAGE_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT - CONTENT_PADDING;
+  const LINE_HEIGHT = 20;
+  const CHARS_PER_LINE = 75;
+
+  const estimateTextHeight = (text: string): number => {
+    if (!text) return 60;
+    const lines = Math.max(2, Math.ceil(text.length / CHARS_PER_LINE));
+    const base = 70;
+    return base + lines * LINE_HEIGHT;
+  };
+
+  const estimateMetaBlockHeight = (items: Section[]) => {
+    if (!items.length) return 0;
+    const base = 24;
+    const perRow = 24;
+    return base + items.length * perRow;
+  };
+
+  const splitSectionContent = (section: Section) => {
+    const text = section.value.trim();
+    const estimatedHeight = estimateTextHeight(text);
+    if (estimatedHeight <= MAX_PAGE_CONTENT_HEIGHT) {
+      return [
+        {
+          key: section.key,
+          label: section.label,
+          value: text,
+          partIndex: 0,
+          totalParts: 1,
+          estimatedHeight,
+        },
+      ];
+    }
+
+    const CHUNK_LINE_LIMIT = Math.max(
+      8,
+      Math.floor((MAX_PAGE_CONTENT_HEIGHT - 70) / LINE_HEIGHT)
+    );
+    const CHARS_PER_CHUNK = CHUNK_LINE_LIMIT * CHARS_PER_LINE;
+    const words = text.split(/\s+/);
+    const chunks: string[] = [];
+    let current = "";
+
+    words.forEach((word) => {
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length > CHARS_PER_CHUNK && current) {
+        chunks.push(current.trim());
+        current = word;
+      } else if (candidate.length > CHARS_PER_CHUNK) {
+        chunks.push(candidate.trim());
+        current = "";
       } else {
-        currentPage.push(section);
-        currentHeight += sectionHeight;
+        current = candidate;
       }
     });
-    
-    // Add last page
-    if (currentPage.length > 0 || pagesArray.length === 0) {
-      pagesArray.push({
-        meta: pagesArray.length === 0 ? metaSections : [],
-        content: currentPage
-      });
+
+    if (current.trim()) {
+      chunks.push(current.trim());
     }
-    
-    console.log(`🔍 [MDT View DEBUG] Total pages created: ${pagesArray.length}`);
-    pagesArray.forEach((page, idx) => {
-      console.log(`🔍 [MDT View DEBUG] Page ${idx + 1}: ${page.meta.length} meta + ${page.content.length} sections`);
+
+    return chunks.map((chunk, idx) => ({
+      key: `${section.key}-${idx}`,
+      label: section.label,
+      value: chunk,
+      partIndex: idx,
+      totalParts: chunks.length,
+      estimatedHeight: estimateTextHeight(chunk),
+    }));
+  };
+
+  const metaBlock = useMemo(() => {
+    const metaSections = allSections.filter((section) => section.isMeta);
+    const filled = metaSections.filter((item) => item.value);
+    if (!filled.length) return null;
+    return {
+      key: "meta-block",
+      type: "meta" as const,
+      estimatedHeight: Math.min(
+        estimateMetaBlockHeight(filled),
+        MAX_PAGE_CONTENT_HEIGHT
+      ),
+      items: filled,
+    };
+  }, [allSections, MAX_PAGE_CONTENT_HEIGHT]);
+
+  const contentBlocks = useMemo(() => {
+    const contentSections = allSections.filter(
+      (section) => !section.isMeta && section.value
+    );
+    return contentSections.flatMap((section) => splitSectionContent(section));
+  }, [allSections, MAX_PAGE_CONTENT_HEIGHT]);
+
+  const blocks: Block[] = useMemo(() => {
+    if (metaBlock) {
+      return [
+        metaBlock,
+        ...contentBlocks.map((chunk) => ({ type: "section" as const, ...chunk })),
+      ];
+    }
+    return contentBlocks.map((chunk) => ({ type: "section" as const, ...chunk }));
+  }, [metaBlock, contentBlocks]);
+  const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
+  const [measureVersion, setMeasureVersion] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => setMeasureVersion((prev) => prev + 1);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useLayoutEffect(() => {
+    const pending: Record<string, number> = {};
+    let changed = false;
+
+    blocks.forEach((block) => {
+      const el = blockRefs.current[block.key];
+      if (!el) return;
+      const height = el.scrollHeight || el.offsetHeight;
+      if (!height) return;
+      if (measuredHeights[block.key] !== height) {
+        pending[block.key] = height;
+        changed = true;
+      }
     });
-    
-    return pagesArray;
-  }, [allSections]);
+
+    if (changed) {
+      setMeasuredHeights((prev) => ({ ...prev, ...pending }));
+    }
+  }, [blocks, measureVersion, measuredHeights]);
+
+  const getBlockHeight = (block: Block) => {
+    const measured = measuredHeights[block.key] ?? block.estimatedHeight;
+    return Math.min(measured + 16, MAX_PAGE_CONTENT_HEIGHT);
+  };
+
+  const pages = useMemo(() => {
+    const pageBuckets: Block[][] = [];
+    let current: Block[] = [];
+    let height = 0;
+
+    blocks.forEach((block) => {
+      const blockHeight = getBlockHeight(block);
+      if (current.length > 0 && height + blockHeight > MAX_PAGE_CONTENT_HEIGHT) {
+        pageBuckets.push(current);
+        current = [block];
+        height = blockHeight;
+      } else {
+        current.push(block);
+        height += blockHeight;
+      }
+    });
+
+    if (current.length) {
+      pageBuckets.push(current);
+    }
+
+    return pageBuckets;
+  }, [blocks, MAX_PAGE_CONTENT_HEIGHT, measuredHeights]);
 
   return (
     <div className="space-y-8 bg-gray-100 py-8 flex flex-col items-center">
-      {pages.map((page, pageIndex) => (
+      {pages.map((pageBlocks, pageIndex) => (
         <A4PageWrapper key={pageIndex}>
           <div className="h-full flex flex-col text-black font-sans p-6">
             {/* Logo */}
@@ -198,33 +310,65 @@ const MDTDynamic: React.FC<Props> = ({ formData, settings, commonFieldsData }) =
               Multi-Disciplinary Meeting
             </h2>
 
-            {/* Content Area - Uses flex-1 to fill available space */}
-            <div className="flex-1 flex flex-col text-[11px] leading-[1.6] space-y-2 overflow-hidden">
-              {/* Meta fields on first page only */}
-              {page.meta.length > 0 && (
-                <div className="mb-3 space-y-1">
-                  {page.meta.map((section, idx) => (
-                    <p key={idx} className="text-[11px]">
-                      <span className="font-bold">{section.label}:</span>{" "}
-                      <span>{section.value}</span>
-                    </p>
-                  ))}
-                </div>
-              )}
+            {/* Content Area */}
+            <div className="flex-1 flex flex-col text-[11px] leading-[1.6] space-y-3 overflow-hidden">
+              {pageBlocks.map((block, idx) => {
+                if (block.type === "meta") {
+                  return (
+                    <div
+                      key={`${pageIndex}-meta`}
+                      className="space-y-1"
+                      ref={(el) => {
+                        if (el) {
+                          blockRefs.current[block.key] = el;
+                        } else {
+                          delete blockRefs.current[block.key];
+                        }
+                      }}
+                    >
+                      {block.items.map((section, metaIdx) => (
+                        <p key={metaIdx} className="text-[11px]">
+                          <span className="font-bold">{section.label}:</span>{" "}
+                          <span>{section.value}</span>
+                        </p>
+                      ))}
+                    </div>
+                  );
+                }
 
-              {/* Section fields */}
-              {page.content.map((section, idx) => (
-                <div key={idx} className="mb-3">
-                  <p className="font-bold text-[12px] underline mb-1">{section.label}</p>
-                  <p className="whitespace-pre-wrap text-[11px] leading-[1.6] text-justify">{section.value}</p>
-                </div>
-              ))}
+                const continued =
+                  block.totalParts > 1 && block.partIndex > 0
+                    ? ` (continued ${block.partIndex + 1}/${block.totalParts})`
+                    : "";
+
+                return (
+                  <div
+                    key={`${block.key}-${idx}`}
+                    className="mb-1"
+                    ref={(el) => {
+                      if (el) {
+                        blockRefs.current[block.key] = el;
+                      } else {
+                        delete blockRefs.current[block.key];
+                      }
+                    }}
+                  >
+                    <p className="font-bold text-[12px] underline mb-1">
+                      {block.label}
+                      {continued}
+                    </p>
+                    <p className="whitespace-pre-wrap text-[11px] leading-[1.6] text-justify">
+                      {block.value}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Footer - Always at bottom */}
             <div className="mt-auto pt-3 text-[9px] text-gray-500 flex justify-between border-t border-gray-300">
-              <div>Website: {settings?.company_website || ''}</div>
-              <div>{settings?.multi_disciplinary_meeting || ''}</div>
+              <div>Website: {settings?.company_website || ""}</div>
+              <div>{settings?.multi_disciplinary_meeting || ""}</div>
               <div>Review Date: {formatDate(settings?.review_date)}</div>
             </div>
           </div>
