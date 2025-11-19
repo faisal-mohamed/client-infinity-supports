@@ -236,9 +236,9 @@ export async function GET(req: NextRequest) {
     const hasPreviousPage = page > 1;
 
     // Serialize response
-    const serializedClients = (clients as any[]).map(client => ({
+    const serializedClients = (clients as any[]).map((client: any) => ({
       ...client,
-      logs: client.logs.map(log => ({
+      logs: client.logs.map((log: any) => ({
         id: log.id,
         action: log.action,
         createdAt: log.createdAt,
