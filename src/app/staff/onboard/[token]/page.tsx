@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 interface FormStatus {
   key: string;
@@ -129,11 +130,7 @@ export default function StaffOnboardingPage() {
   }, [token]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Staff Forms" message="Please wait..." />;
   }
 
   if (!staff) {

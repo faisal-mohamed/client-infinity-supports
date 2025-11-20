@@ -5,50 +5,53 @@ const styles = StyleSheet.create({
   section: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 8,
-    marginTop: 12,
+    marginBottom: 4,
+    marginTop: 4,
   },
   subsection: {
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 6,
-    marginTop: 8,
+    marginBottom: 2,
+    marginTop: 4,
   },
   paragraph: {
     fontSize: 11,
-    lineHeight: 1.6,
-    marginBottom: 10,
+    lineHeight: 1.4,
+    marginBottom: 4,
     textAlign: 'justify',
   },
   contactItem: {
     fontSize: 11,
-    lineHeight: 1.6,
-    marginBottom: 4,
-    paddingLeft: 15,
+    lineHeight: 1.3,
+    marginBottom: 2,
+    paddingLeft: 10,
+  },
+  divider: {
+    borderBottom: '1 solid #9ca3af',
+    marginVertical: 4,
   },
 });
 
 const Page36: React.FC = () => {
   return (
-    <View>
-      <Text style={styles.paragraph}>
-        If you bring a complaint of bullying or harassment you will not be victimised for having brought 
-        the complaint.
+    <View wrap={false}>
+      {/* Continue 11.5 General Notes from page 35 */}
+      <Text style={[styles.paragraph, { marginTop: 0 }]}>
+        If the report concludes that the allegation is well-founded, we will invoke the appropriate action against the bully or harasser.
       </Text>
       
       <Text style={styles.paragraph}>
-        However, if the report concludes that the complaint is both untrue and has been brought with 
-        malicious intent, appropriate action will be taken against you. Appropriate action in relation to 
-        an employee will include disciplinary action in accordance with the Employer's disciplinary and 
-        disciplinary termination procedure. For other workers, appropriate action may include termination 
-        of their engagement with the Employer.
+        If you bring a complaint of bullying or harassment you will not be victimised for having brought the complaint.
       </Text>
       
-      <Text style={styles.section}>Important Contacts</Text>
+      <Text style={styles.paragraph}>
+        However, if the report concludes that the complaint is both untrue and has been brought with malicious intent, appropriate action will be taken against you. Appropriate action in relation to an employee will include disciplinary action in accordance with the Employer's disciplinary and disciplinary termination procedure. For other workers, appropriate action may include termination of their engagement with the Employer.
+      </Text>
+      
+      <Text style={[styles.section, { marginTop: 6 }]}>Important Contacts</Text>
       
       <Text style={styles.paragraph}>
-        Infinity Supports WA is not an emergency service. We are unable to answer phone calls outside of 
-        our normal working hours (8.30 am to 4.30 pm Monday to Friday).
+        Infinity Supports WA is not an emergency service. We are unable to answer phone calls outside of our normal working hours (8.30 am to 4.30 pm Monday to Friday).
       </Text>
       
       <Text style={styles.subsection}>Emergency</Text>
@@ -67,7 +70,7 @@ const Page36: React.FC = () => {
       <Text style={styles.contactItem}>Health Direct (24 hours health advice): 1800 022 222</Text>
       <Text style={styles.contactItem}>Poisons Information Line: 131 126</Text>
       
-      <Text style={{ borderBottom: '1 solid #9ca3af', marginVertical: 8 }} />
+      <View style={styles.divider} />
       
       <Text style={styles.subsection}>Company Contact</Text>
       <Text style={styles.contactItem}>Email: admin@infinitysupportswa.org</Text>

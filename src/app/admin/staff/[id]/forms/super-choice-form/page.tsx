@@ -83,11 +83,7 @@ export default function StaffSuperChoiceFormView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Super Choice Form" message="Please wait..." />;
   }
 
   const SuperChoiceFormView = getStaffFormComponent('super_choice_form', 'view');

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 interface PDFFormViewProps {
@@ -327,13 +328,7 @@ export default function PDFFormView({
   };
 
   if (loading) {
-    return (
-      <div className="bg-white min-h-screen">
-        <div className="p-8 flex items-center justify-center">
-          <div className="text-gray-600">Loading...</div>
-        </div>
-      </div>
-    );
+    return <LoadingView title="Loading View Form" message="Please wait..." />;
   }
 
   if (!data) {

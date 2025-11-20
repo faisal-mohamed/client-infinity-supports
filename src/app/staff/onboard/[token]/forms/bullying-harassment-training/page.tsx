@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import BullyingHarassmentTrainingAckForm, { BullyingHarassmentTrainingAckFormRef } from '../../components/BullyingHarassmentTrainingAckForm';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function BullyingHarassmentTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -89,11 +90,7 @@ export default function BullyingHarassmentTrainingFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Bullying Harassment Training Form" message="Please wait..." />;
   }
 
   const handleDownloadClick = () => {

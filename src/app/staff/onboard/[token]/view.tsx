@@ -52,7 +52,7 @@ export default function OnboardClient() {
     if (submit) alert('Submitted successfully'); else alert('Saved');
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
+  if (loading) return <LoadingView title="Loading Staff Forms" message="Please wait..." />;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
 
   return (

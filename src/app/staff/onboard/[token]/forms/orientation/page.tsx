@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function OrientationFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -118,11 +119,7 @@ export default function OrientationFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Orientation Form" message="Please wait..." />;
   }
 
   const OrientationView = getStaffFormComponent('orientation', 'view');

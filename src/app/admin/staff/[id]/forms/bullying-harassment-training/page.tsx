@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 import { useToast } from '@/components/ui/Toast';
 
 export default function StaffBullyingHarassmentTrainingView() {
@@ -70,11 +71,7 @@ export default function StaffBullyingHarassmentTrainingView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Bullying Harassment Training Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

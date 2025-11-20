@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import FairWorkInformationView from "@/app/form-components/staff/fair-work-information/View";
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function StaffFairworkInformationView() {
   const { id } = useParams<{ id: string }>();
@@ -73,11 +74,7 @@ export default function StaffFairworkInformationView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Fair Work Information Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

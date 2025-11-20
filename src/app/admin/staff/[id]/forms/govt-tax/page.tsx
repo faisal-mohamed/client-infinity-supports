@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import TFNOverlayForm from "@/app/form-components/staff/tax/page";
 import { useToast } from '@/components/ui/Toast';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function StaffGovtTaxView() {
   const { id } = useParams<{ id: string }>();
@@ -77,11 +78,7 @@ export default function StaffGovtTaxView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Government Tax Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

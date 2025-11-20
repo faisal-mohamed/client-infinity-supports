@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function AdminConflictOfInterestViewPage() {
   const params = useParams();
@@ -314,14 +315,7 @@ export default function AdminConflictOfInterestViewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading form...</p>
-        </div>
-      </div>
-    );
+    return <LoadingView title="Loading Conflict of Interest Form" message="Please wait..." />;
   }
 
   const hasEmployeeSignature = formData?.employeeSignature;

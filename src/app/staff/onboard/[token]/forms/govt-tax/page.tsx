@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function GovtTaxFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -93,11 +94,7 @@ export default function GovtTaxFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Government Tax Form" message="Please wait..." />;
   }
 
   const GovtTaxView = getStaffFormComponent('govt_tax', 'view');

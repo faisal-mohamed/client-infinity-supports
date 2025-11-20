@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 import { useToast } from '@/components/ui/Toast';
 
 export default function AdminDocumentationAcknowledgementViewPage() {
@@ -88,11 +89,7 @@ export default function AdminDocumentationAcknowledgementViewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Documentation Acknowledgement Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import NDISCodeOfConductEdit, { NDISCodeOfConductEditRef } from '@/app/form-components/staff/code_of_conduct/Edit';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function NDISCodeOfConductFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -89,14 +90,7 @@ export default function NDISCodeOfConductFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your form...</p>
-        </div>
-      </div>
-    );
+    return <LoadingView title="Loading NDIS Code of Conduct Form" message="Please wait..." />;
   }
 
   if (error) {

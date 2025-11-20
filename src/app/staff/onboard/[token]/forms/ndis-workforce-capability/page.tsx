@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import NdisWorkforceCapabilityAckForm, { NdisWorkforceCapabilityAckFormRef } from '../../components/NdisWorkforceCapabilityAckForm';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function NdisWorkforceCapabilityFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -88,11 +89,7 @@ export default function NdisWorkforceCapabilityFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading NDIS Workforce Capability Form" message="Please wait..." />;
   }
 
   const handleDownloadClick = () => {

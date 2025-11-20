@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import SupportWorkerForm, { SupportWorkerFormRef } from '../../components/SupportWorkerForm';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function SupportWorkerFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -78,11 +79,7 @@ export default function SupportWorkerFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Support Worker Form" message="Please wait..." />;
   }
 
   return (

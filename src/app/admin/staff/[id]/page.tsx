@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import LoadingView from '@/components/ui/LoadingView';
 
 interface StaffForm {
   formType: string;
@@ -38,7 +39,7 @@ export default function StaffFormsPage() {
     if (id) loadStaffForms();
   }, [id]);
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (loading) return <LoadingView title="Loading Staff Forms" message="Please wait..." />;
   if (!staff) return <div className="p-8">Staff not found</div>;
 
   return (

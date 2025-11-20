@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function SuperChoiceFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -194,14 +195,7 @@ export default function SuperChoiceFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading form...</p>
-        </div>
-      </div>
-    );
+    return <LoadingView title="Loading Super Choice Form" message="Please wait..." />;
   }
 
   const SuperChoiceFormView = getStaffFormComponent('super_choice_form', 'view');

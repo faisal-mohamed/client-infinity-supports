@@ -55,11 +55,7 @@ export default function PreEmploymentMedicalFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Pre-Employment Medical Form" message="Please wait..." />;
   }
 
   const handleDownloadClick = () => {

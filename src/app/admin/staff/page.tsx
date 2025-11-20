@@ -104,10 +104,10 @@ export default function StaffListPage() {
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        {/* Search Section - Separate Container */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300">
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
             <div className="flex-grow relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <FaSearch className="text-gray-400 h-5 w-5" />
@@ -119,21 +119,26 @@ export default function StaffListPage() {
                 className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow duration-200" 
               />
             </div>
-            <button 
-              onClick={load} 
-              className="px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold transition-all duration-200"
-            >
-              Search
-            </button>
-            <Link 
-              href="/admin/staff/create" 
-              className="px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold transition-all duration-200 flex items-center gap-2 justify-center"
-            >
-              <FaUserPlus className="h-4 w-4" />
-              Add New Staff
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <button 
+                onClick={load} 
+                className="px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold transition-all duration-200 whitespace-nowrap"
+              >
+                Search
+              </button>
+              <Link 
+                href="/admin/staff/create" 
+                className="px-6 py-4 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold transition-all duration-200 flex items-center gap-2 justify-center whitespace-nowrap"
+              >
+                <FaUserPlus className="h-4 w-4" />
+                Add New Staff
+              </Link>
+            </div>
           </div>
-          
+        </div>
+
+        {/* Table Section - Separate Container */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           {loading ? (
             <div className="flex justify-center items-center h-80">
               <div className="text-center">

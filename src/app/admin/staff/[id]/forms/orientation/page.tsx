@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import OrientationView from "@/app/form-components/staff/orientation/View";
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 import { useToast } from '@/components/ui/Toast';
 
 export default function StaffOrientationView() {
@@ -75,11 +76,7 @@ export default function StaffOrientationView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Orientation Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

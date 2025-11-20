@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function AdminEmployeeWelcomeViewPage() {
   const params = useParams();
@@ -102,11 +103,7 @@ export default function AdminEmployeeWelcomeViewPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Employee Welcome Form" message="Please wait..." />;
   }
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';

@@ -87,11 +87,6 @@ const Page35: React.FC = () => {
       </Text>
       
       <Text style={styles.subsection}>11.5 General Notes</Text>
-      
-      <Text style={styles.paragraph}>
-        If the report concludes that the allegation is well-founded, we will invoke the appropriate action 
-        against the bully or harasser.
-      </Text>
     </View>
   );
 };

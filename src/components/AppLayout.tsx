@@ -38,11 +38,11 @@ export default function AppLayout({
   }
 
   return (
-    <div className={`min-h-screen bg-white text-black ${montserrat.className}`}>
+    <div className={`min-h-screen bg-white text-black ${montserrat.className} w-full overflow-x-hidden`}>
       <AdminSidebar hideOnFormPages={hideSidebarOnFormPages} showUserInfo={showUserInfo} />
       
-      <div className="flex min-h-screen pt-16 lg:pt-0">
-        <main className={`flex-1 bg-white transition-all duration-300 ${paddingClasses}`}>
+      <div className="flex min-h-screen pt-16 lg:pt-0 w-full overflow-x-hidden">
+        <main className={`flex-1 bg-white transition-all duration-300 ${paddingClasses} w-full max-w-full overflow-x-hidden`}>
           <ConfirmProvider>{children}</ConfirmProvider>
         </main>
       </div>

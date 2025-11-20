@@ -7,6 +7,7 @@ import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 
 interface BullyingTrainingData {
   staff?: { firstName: string; surname: string; email: string };
@@ -172,14 +173,7 @@ export default function StaffBullyingTrainingView() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-10 w-10 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 text-sm">Loading Bullying Training form...</p>
-        </div>
-      </div>
-    );
+    return <LoadingView title="Loading Bullying Training Form" message="Please wait..." />;
   }
 
   if (!data) {

@@ -6,6 +6,7 @@ import EmployeeDetailsStep, { EmployeeDetailsStepRef } from '../../components/Em
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import FormButton from '@/components/ui/FormButton';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 import { useConfirm } from '@/components/ui/Confirm';
 
 export default function EmployeeDetailsFormPage() {
@@ -100,11 +101,7 @@ export default function EmployeeDetailsFormPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
+    return <LoadingView title="Loading Employee Details Form" message="Please wait..." />;
   }
 
   const EmployeeDetailsView = getStaffFormComponent('employee_details', 'view');
