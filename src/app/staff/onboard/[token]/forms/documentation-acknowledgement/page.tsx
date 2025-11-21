@@ -43,20 +43,38 @@ export default function DocumentationAcknowledgementFormPage() {
         setStaff(staffData.staff || staffData);
 
         // Load saved form data - handle both signature and onboard structures
-        let formSubmission = {};
+        let formSubmission: any = {};
         if (isSignatureLink) {
-          const docAckForm = staffData.signatureForms?.find(
-            (f: any) => f.formSubmission?.form?.formKey === 'documentation_acknowledgement'
-          );
-          if (docAckForm) {
-            formSubmission = docAckForm.formSubmission?.data || {};
+          // Signature API returns { staff, formSubmission, submissions: { formKey: formData } }
+          if (staffData.submissions?.['documentation_acknowledgement']) {
+            formSubmission = staffData.submissions['documentation_acknowledgement'];
+          } else if (staffData.formSubmission?.data) {
+            formSubmission = staffData.formSubmission.data;
           }
         } else {
           formSubmission = staffData.submissions?.['documentation_acknowledgement'] || {};
         }
         
-        setInitialFormData(formSubmission);
-        setFormData(formSubmission);
+        // Pre-fill staff name from database if not already in form data
+        const staffName = staffData.staff 
+          ? `${staffData.staff.firstName || ''} ${staffData.staff.surname || ''}`.trim()
+          : '';
+        
+        const defaultData = {
+          staffName: staffName,
+          signature: '',
+          date: new Date().toISOString().split('T')[0],
+        };
+        
+        const mergedData: any = {
+          ...defaultData,
+          ...formSubmission,
+          // Ensure staffName is always set from database if not in saved data
+          staffName: (formSubmission as any).staffName || staffName,
+        };
+        
+        setInitialFormData(mergedData);
+        setFormData(mergedData);
       } catch (error: any) {
         console.error('Error loading data:', error);
         showToast({

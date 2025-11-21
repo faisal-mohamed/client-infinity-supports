@@ -114,7 +114,6 @@ export default function StaffFormsPageClient() {
       }
       
       const data = await response.json();
-      console.log('Loaded staff forms for assignment:', data); // Debug log
       setAvailableForms(Array.isArray(data) ? data : []);
       
       if (Array.isArray(data) && data.length === 0) {

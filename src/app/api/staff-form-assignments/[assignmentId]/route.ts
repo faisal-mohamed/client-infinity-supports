@@ -46,7 +46,43 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(assignment);
+    // Get submission data if it exists (using formKey)
+    const formKey = assignment.form?.formKey;
+    const submission = formKey ? await prisma.staffFormSubmission.findUnique({
+      where: {
+        staffId_formKey: {
+          staffId: assignment.staffId,
+          formKey: formKey,
+        },
+      },
+      select: {
+        id: true,
+        data: true,
+        filledByAdmin: true,
+        adminFilledAt: true,
+        staffSignature: true,
+        staffSignedAt: true,
+      },
+    }) : null;
+
+    // Get staff common fields
+    const commonFields = await prisma.staffCommonField.findUnique({
+      where: { staffId: assignment.staffId },
+    });
+
+    return NextResponse.json({
+      assignment: {
+        ...assignment,
+        hasSubmission: !!submission,
+        submissionId: submission?.id,
+        filledByAdmin: submission?.filledByAdmin || false,
+        adminFilledAt: submission?.adminFilledAt,
+        staffSignature: submission?.staffSignature,
+        staffSignedAt: submission?.staffSignedAt,
+        submissionData: submission?.data,
+      },
+      commonFields: commonFields || {},
+    });
   } catch (error: any) {
     console.error("Error fetching staff form assignment:", error);
     return NextResponse.json(

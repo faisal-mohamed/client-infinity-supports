@@ -157,10 +157,33 @@ export async function GET(
       }
     }
     
+    // Pre-fill staffName from staff data if not already in formData
+    // This is important for forms like documentation_acknowledgement, orientation, etc.
+    if (formKey === 'documentation_acknowledgement' || formKey === 'orientation' || 
+        formKey === 'fair_work_information' || formKey === 'employee_welcome' ||
+        formKey === 'ndis_workforce_capability' || formKey === 'ndis_code_of_conduct' ||
+        formKey === 'bullying_harassment_training') {
+      if (!formData.staffName && !formData.fullName) {
+        const staffName = `${batch.staff.firstName || ''} ${batch.staff.surname || ''}`.trim();
+        if (staffName) {
+          // Use staffName for documentation_acknowledgement, orientation, fair_work_information
+          // Use fullName for ndis_workforce_capability, ndis_code_of_conduct, bullying_harassment_training
+          if (formKey === 'documentation_acknowledgement' || formKey === 'orientation' || formKey === 'fair_work_information') {
+            formData.staffName = staffName;
+          } else {
+            formData.fullName = staffName;
+          }
+          console.log(`✅ [Signature API GET] Pre-filled ${formKey === 'documentation_acknowledgement' || formKey === 'orientation' || formKey === 'fair_work_information' ? 'staffName' : 'fullName'} for ${formKey}: ${staffName}`);
+        }
+      }
+    }
+    
     console.log(`🔍 [Signature API GET] Final formData for ${formKey}:`, {
       keys: Object.keys(formData),
       hasSignature: !!formData.signature,
       hasStaffSignature: !!formData.staffSignature,
+      hasStaffName: !!formData.staffName,
+      hasFullName: !!formData.fullName,
       signatureValue: formData.signature ? 'EXISTS' : 'NULL/EMPTY'
     });
     
@@ -174,6 +197,7 @@ export async function GET(
         ...batch.staff,
         commonFields: commonFields ? [commonFields] : [],
       },
+      formSubmission: submission,
       submissions: {
         [formKey]: formData
       }

@@ -33,12 +33,59 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { staffId }
     });
 
-    // Return empty data if form doesn't exist yet (for viewing empty form)
-    const formData = ndisWorkforceCapability || submission || { data: {}, staffSignature: null, staffSignedAt: null };
+    // Process form data similar to other form endpoints
+    let formData: Record<string, any> = {};
+    
+    if (ndisWorkforceCapability) {
+      // Use dedicated table data
+      formData = {
+        ...(ndisWorkforceCapability.data || {}),
+        staffSignature: ndisWorkforceCapability.staffSignature,
+        staffSignedAt: ndisWorkforceCapability.staffSignedAt,
+      };
+    } else if (submission) {
+      // Use submission data
+      formData = {
+        ...(submission.data || {}),
+        staffSignature: submission.staffSignature,
+        staffSignedAt: submission.staffSignedAt,
+      };
+    }
+
+    // Add staffName if missing
+    if (!formData.fullName && !formData.staffName) {
+      formData.fullName = `${staff.firstName || ''} ${staff.surname || ''}`.trim();
+      formData.staffName = formData.fullName;
+    }
+
+    // Add signature fields in various formats
+    if (formData.staffSignature) {
+      if (!formData.signature) {
+        formData.signature = formData.staffSignature;
+      }
+    }
+
+    // Add date fields
+    const dateValue =
+      formData.date ||
+      formData.staffSignedAt ||
+      (formData.staffSignedAt
+        ? new Date(formData.staffSignedAt).toISOString().split('T')[0]
+        : '');
+
+    if (dateValue) {
+      formData.date = dateValue;
+    }
 
     return NextResponse.json({
-      ...formData,
       staff,
+      data: formData,
+      submission: submission ? {
+        id: submission.id,
+        isSubmitted: submission.isSubmitted,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt,
+      } : null,
     });
   } catch (error: any) {
     console.error('Error fetching NDIS Workforce Capability form:', error);

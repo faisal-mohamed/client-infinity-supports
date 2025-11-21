@@ -34,7 +34,7 @@ function OverlayTextInput({
       readOnly={readOnly}
       disabled={readOnly}
       maxLength={35}
-      className={`absolute border-none border-b-2 border-gray-900 bg-transparent px-1 py-0 focus:outline-none focus:border-blue-500 ${
+      className={`absolute border-none bg-transparent px-1 py-0 focus:outline-none ${
         readOnly ? 'cursor-not-allowed opacity-70' : ''
       }`}
       style={{ 
@@ -48,10 +48,6 @@ function OverlayTextInput({
         fontFamily: 'Arial, Helvetica, sans-serif',
         fontWeight: '400',
         letterSpacing: '0.2px',
-        borderBottomWidth: '1.5px',
-        borderBottomColor: '#111827',
-        textDecoration: 'underline',
-        textUnderlineOffset: '2px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
@@ -101,7 +97,7 @@ function OverlayDateInput({
       onChange={(e) => onChange(e.target.value)}
       readOnly={readOnly}
       disabled={readOnly}
-      className={`absolute border-b-2 border-gray-800 bg-transparent px-1 text-base focus:outline-none focus:border-blue-500 ${
+      className={`absolute border-none bg-transparent px-1 text-base focus:outline-none ${
         readOnly ? 'cursor-not-allowed opacity-70' : ''
       }`}
       style={{ 
@@ -114,6 +110,188 @@ function OverlayDateInput({
         fontFamily: 'inherit',
       }}
     />
+  );
+}
+
+interface OverlaySignatureLineProps {
+  top: number;
+  left: number;
+  width: number;
+  value: string | null;
+  onChange: (value: string | null) => void;
+  readOnly?: boolean;
+}
+
+function OverlaySignatureLine({
+  top,
+  left,
+  width,
+  value,
+  onChange,
+  readOnly = false,
+}: OverlaySignatureLineProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const sigRef = useRef<SignatureCanvasRef | null>(null);
+
+  const handleSave = () => {
+    if (sigRef.current && !sigRef.current.isEmpty()) {
+      // Get the canvas and export at higher quality with transparent background
+      const canvas = sigRef.current.getTrimmedCanvas?.() ?? sigRef.current.getCanvas();
+      if (canvas) {
+        // Create a higher resolution version with transparent background
+        const scale = 2; // 2x resolution for better quality
+        const scaledCanvas = document.createElement('canvas');
+        const ctx = scaledCanvas.getContext('2d', { willReadFrequently: true });
+        if (ctx) {
+          scaledCanvas.width = canvas.width * scale;
+          scaledCanvas.height = canvas.height * scale;
+          
+          // Scale and draw the original canvas
+          ctx.scale(scale, scale);
+          ctx.drawImage(canvas, 0, 0);
+          
+          // Get image data and process it
+          const imageData = ctx.getImageData(0, 0, scaledCanvas.width, scaledCanvas.height);
+          const data = imageData.data;
+          
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            
+            // Calculate brightness
+            const brightness = (r + g + b) / 3;
+            
+            // Check if pixel is white, light grey, or very light (background)
+            // More aggressive: remove anything lighter than medium grey
+            const isBackground = brightness > 200 || (r > 200 && g > 200 && b > 200) || a < 10;
+            
+            if (isBackground) {
+              // Make background pixels fully transparent
+              data[i + 3] = 0;
+            } else {
+              // Make signature darker and more visible
+              // Convert to pure black for signature strokes
+              const isSignature = brightness < 200;
+              if (isSignature) {
+                data[i] = 0;       // R - pure black
+                data[i + 1] = 0;   // G - pure black
+                data[i + 2] = 0;   // B - pure black
+                data[i + 3] = Math.min(255, Math.max(200, a * 1.5)); // A - fully opaque
+              } else {
+                // For any remaining pixels, make them darker
+                data[i] = Math.max(0, Math.min(255, r * 0.5));
+                data[i + 1] = Math.max(0, Math.min(255, g * 0.5));
+                data[i + 2] = Math.max(0, Math.min(255, b * 0.5));
+                data[i + 3] = Math.min(255, a * 1.3);
+              }
+            }
+          }
+          
+          // Clear and redraw with processed data
+          ctx.clearRect(0, 0, scaledCanvas.width, scaledCanvas.height);
+          ctx.putImageData(imageData, 0, 0);
+          
+          const dataUrl = scaledCanvas.toDataURL('image/png', 1.0);
+          onChange(dataUrl);
+        } else {
+          const dataUrl = canvas.toDataURL('image/png', 1.0);
+          onChange(dataUrl);
+        }
+      } else {
+        const dataUrl = sigRef.current.toDataURL();
+        onChange(dataUrl);
+      }
+      setIsOpen(false);
+    } else {
+      console.warn('⚠️ [OverlaySignatureLine] Cannot save: signature is empty or ref is null');
+    }
+  };
+
+  return (
+    <>
+      {/* Signature line - displayed on a line with underline like name/date */}
+      <div
+        className={`absolute border-none border-b-2 border-gray-900 bg-transparent px-1 py-0 ${
+          readOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-blue-500'
+        }`}
+        style={{ 
+          top: top - 3, // Move up slightly so signature sits on the line
+          left, 
+          width, 
+          height: 60,
+          maxWidth: `${width}px`,
+          borderBottomWidth: '1.5px',
+          borderBottomColor: '#111827',
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start',
+          paddingBottom: '0px', // Remove padding so signature sits directly on line
+          boxSizing: 'border-box',
+        }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        {value ? (
+          <img
+            src={value}
+            alt="Signature"
+            className="object-contain"
+            style={{ 
+              width: 'auto',
+              height: '50px',
+              maxWidth: '100%',
+              objectFit: 'contain',
+              imageRendering: 'auto',
+              imageRendering: '-webkit-optimize-contrast',
+              filter: 'contrast(1.2) brightness(1.0)',
+              backgroundColor: 'transparent',
+              mixBlendMode: 'multiply', // Helps with transparency
+            }}
+            onError={(e) => {
+              console.error('Error loading signature image');
+            }}
+          />
+        ) : (
+          <span className="text-xs text-gray-400" style={{ fontSize: '12px' }}>
+            {readOnly ? '' : 'Click to sign'}
+          </span>
+        )}
+      </div>
+
+      {/* Modal for drawing signature */}
+      {isOpen && !readOnly && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[600px] max-w-[90vw]">
+            <h2 className="text-xl font-bold mb-4">Draw Your Signature</h2>
+            <SignatureCanvas
+              ref={sigRef}
+              existingSignature={value || undefined}
+              width={550}
+              height={200}
+              showClearButton={true}
+              clearButtonText="Clear"
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Save Signature
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -467,12 +645,11 @@ export default function NdisWorkforceCapabilityAcknowledgementOverlay({
           readOnly={true}
         />
 
-        {/* Signature field - positioned at "Signature :" label */}
-        <OverlaySignatureBox
+        {/* Signature field - positioned at "Signature :" label - displayed on a line like name/date */}
+        <OverlaySignatureLine
           top={965}
           left={160}
           width={310}
-          height={60}
           value={signature}
           onChange={(newSignature) => {
             console.log('🔵 [AcknowledgementOverlay] Signature onChange called:', {
