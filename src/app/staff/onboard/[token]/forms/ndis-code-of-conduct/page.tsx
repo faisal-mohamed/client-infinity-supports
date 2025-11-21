@@ -22,7 +22,13 @@ export default function NDISCodeOfConductFormPage() {
         setLoading(true);
         setError(null);
         
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint);
         const data = await res.json();
         
         if (!res.ok) {
@@ -84,8 +90,9 @@ export default function NDISCodeOfConductFormPage() {
       duration: 3000
     });
     
+    const isSignatureLink = window.location.pathname.includes('/staff/signature/');
     setTimeout(() => {
-      router.push(`/staff/onboard/${token}`);
+      router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
     }, 1000);
   };
 

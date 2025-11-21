@@ -92,66 +92,96 @@ export default function EmployeeWelcomeFormPage() {
         const images: string[] = [];
         const devicePixelRatio = Math.max(window.devicePixelRatio || 1, 1);
         
-        // Responsive max width based on screen size
+        // Responsive max width based on screen size (optimized for speed)
         let maxWidth: number;
         let qualityMultiplier: number;
         if (window.innerWidth < 480) {
           maxWidth = 350;
-          qualityMultiplier = 1.2;
+          qualityMultiplier = 1.0; // Reduced from 1.2
         } else if (window.innerWidth < 768) {
           maxWidth = 450;
-          qualityMultiplier = 1.5;
+          qualityMultiplier = 1.3; // Reduced from 1.5
         } else if (window.innerWidth < 1024) {
           maxWidth = 650;
-          qualityMultiplier = 1.8;
+          qualityMultiplier = 1.5; // Reduced from 1.8
         } else if (window.innerWidth < 1440) {
           maxWidth = 800;
-          qualityMultiplier = 2;
+          qualityMultiplier = 1.7; // Reduced from 2.0
         } else {
           maxWidth = 900;
-          qualityMultiplier = 2.2;
+          qualityMultiplier = 1.9; // Reduced from 2.2
         }
         
         const basePageWidth = 595; // A4 width in points
         const displayWidth = Math.min(window.innerWidth * 0.95, maxWidth);
         const responsiveScale = displayWidth / basePageWidth;
-        const baseScale = Math.min(responsiveScale * qualityMultiplier, 3);
+        // Further optimize scale for faster rendering (15% reduction for speed)
+        const adjustedQualityMultiplier = qualityMultiplier * 0.85;
+        const baseScale = Math.min(responsiveScale * adjustedQualityMultiplier, 2.0); // Reduced max to 2.0 for faster rendering
 
-        // Render pages 1-36
+        // Render pages 1-36 in parallel batches for optimal performance
         const pagesToRender = Math.min(36, pdf.numPages);
-        for (let i = 1; i <= pagesToRender; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: baseScale });
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d", { 
-            alpha: false,
-            desynchronized: false,
-            willReadFrequently: false
+        const BATCH_SIZE = 8; // Render 8 pages at a time to avoid overwhelming the browser
+        
+        // Render pages in batches for better memory management and performance
+        for (let batchStart = 0; batchStart < pagesToRender; batchStart += BATCH_SIZE) {
+          const batchEnd = Math.min(batchStart + BATCH_SIZE, pagesToRender);
+          const batchPromises = Array.from({ length: batchEnd - batchStart }, async (_, batchIndex) => {
+            const pageIndex = batchStart + batchIndex;
+            const pageNum = pageIndex + 1;
+            try {
+            const page = await pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: baseScale });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d", { 
+              alpha: false,
+              desynchronized: true, // Enable for better performance
+              willReadFrequently: false
+            });
+            if (!context) return null;
+
+            canvas.width = Math.floor(viewport.width * devicePixelRatio);
+            canvas.height = Math.floor(viewport.height * devicePixelRatio);
+            
+            // Set responsive display size
+            canvas.style.width = '100%';
+            canvas.style.maxWidth = `${Math.floor(viewport.width)}px`;
+            canvas.style.height = 'auto';
+            canvas.style.margin = '0 auto';
+            canvas.style.display = 'block';
+
+            const transform = devicePixelRatio !== 1
+              ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+              : null;
+
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport,
+              transform: transform,
+            };
+
+            await page.render(renderContext).promise;
+            // Use JPEG with lower quality for faster rendering and smaller file size
+            return {
+              index: pageIndex,
+              image: canvas.toDataURL("image/jpeg", 0.85) // JPEG at 85% quality - faster and smaller than PNG
+            };
+          } catch (error) {
+            console.error(`Error rendering page ${pageNum}:`, error);
+            return null;
+          }
           });
-          if (!context) continue;
-
-          canvas.width = Math.floor(viewport.width * devicePixelRatio);
-          canvas.height = Math.floor(viewport.height * devicePixelRatio);
           
-          // Set responsive display size
-          canvas.style.width = '100%';
-          canvas.style.maxWidth = `${Math.floor(viewport.width)}px`;
-          canvas.style.height = 'auto';
-          canvas.style.margin = '0 auto';
-          canvas.style.display = 'block';
-
-          const transform = devicePixelRatio !== 1
-            ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
-            : null;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-            transform: transform,
-          };
-
-          await page.render(renderContext).promise;
-          images.push(canvas.toDataURL("image/png", 1.0));
+          // Wait for this batch to complete
+          const batchResults = await Promise.all(batchPromises);
+          
+          // Add completed pages to images array in order
+          batchResults
+            .filter((page): page is { index: number; image: string } => page !== null)
+            .sort((a, b) => a.index - b.index)
+            .forEach((page) => {
+              images.push(page.image);
+            });
         }
 
         // Render page 37 separately for editable form
@@ -184,7 +214,8 @@ export default function EmployeeWelcomeFormPage() {
             };
 
             await page37.render(renderContext37).promise;
-            setPage37Image(canvas37.toDataURL("image/png", 1.0));
+            // Use JPEG with lower quality for faster rendering and smaller file size
+            setPage37Image(canvas37.toDataURL("image/jpeg", 0.85)); // JPEG at 85% quality - faster and smaller
           }
         }
 
@@ -248,22 +279,24 @@ export default function EmployeeWelcomeFormPage() {
 
       if (response.ok) {
         if (isSubmit) {
-          showToast({
-            type: 'success',
-            title: 'Form Submitted',
-            message: 'Form submitted successfully!',
-            duration: 3000,
-          });
-          setTimeout(() => {
-            router.push(`/staff/onboard/${token}`);
-          }, 1000);
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Form submitted successfully!',
+          duration: 3000,
+        });
+          // Check if this is a signature link by checking the URL path
+          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        setTimeout(() => {
+            router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+        }, 1000);
         } else {
-          showToast({
-            type: 'success',
-            title: 'Draft Saved',
-            message: 'Draft saved successfully!',
-            duration: 3000,
-          });
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Draft saved successfully!',
+          duration: 3000,
+        });
         }
         return true;
       } else {
@@ -284,8 +317,9 @@ export default function EmployeeWelcomeFormPage() {
   };
 
 
-  if (loading) {
-    return <LoadingView title="Loading Employee Welcome Pack" message="Please wait..." />;
+  // Show loading until initial data is loaded AND PDF rendering is complete
+  if (loading || rendering) {
+    return <LoadingView title="Loading Employee Welcome Pack" message="Please wait while we prepare the form..." />;
   }
 
   return (
@@ -301,7 +335,10 @@ export default function EmployeeWelcomeFormPage() {
               <p className="text-sm sm:text-base text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 self-start sm:self-auto transition-colors"
             >
               ← Back to Forms
@@ -309,12 +346,8 @@ export default function EmployeeWelcomeFormPage() {
           </div>
         </div>
 
-        {/* PDF Pages 1-36 (Read-only) */}
-        {rendering ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center text-gray-500">Loading PDF pages...</div>
-          </div>
-        ) : pdfPages.length > 0 ? (
+        {/* PDF Pages 1-36 (Read-only) - Only show after rendering is complete */}
+        {pdfPages.length > 0 && (
           <div className="space-y-4 sm:space-y-5 mb-6 sm:mb-8">
             {pdfPages.map((src, idx) => (
               <div
@@ -332,12 +365,13 @@ export default function EmployeeWelcomeFormPage() {
                     objectFit: 'contain'
                   }}
                 />
-              </div>
+                </div>
             ))}
-          </div>
-        ) : null}
+              </div>
+            )}
 
-        {/* Page 37: Editable Acknowledgement Form - A4 page size matching PDF design */}
+        {/* Page 37: Editable Acknowledgement Form - A4 page size matching PDF design - Only show after PDF pages are loaded */}
+        {pdfPages.length > 0 && (
         <div className="flex justify-center mb-4 sm:mb-6">
           <div 
             className="bg-white shadow-sm border border-gray-200 mx-auto a4-ack-form"
@@ -382,33 +416,22 @@ export default function EmployeeWelcomeFormPage() {
                 </div>
               </div>
 
-              {/* Signature Field - matching PDF layout */}
+              {/* Signature Field - using regular signature component */}
               <div className="flex items-start" style={{ gap: '16px', marginBottom: '20px' }}>
                 <label className="font-normal flex-shrink-0 pt-2" style={{ fontSize: '11pt', width: '80px' }}>Signature</label>
-                <div className="flex-1 border-b border-dotted border-gray-900" style={{ minHeight: '60px', paddingBottom: '4px', paddingLeft: '8px', position: 'relative' }}>
-                  {formData.signature ? (
-                    <div className="relative" style={{ height: '50px' }}>
-                      <img src={formData.signature} alt="Signature" style={{ maxHeight: '50px', objectFit: 'contain' }} />
-                      <button
-                        onClick={() => handleChange('signature', '')}
-                        className="absolute top-0 right-0 px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600"
-                        style={{ zIndex: 10 }}
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ padding: '4px', background: 'transparent' }}>
-                      <SignatureCanvas
-                        onSignatureEnd={(sig) => handleChange('signature', sig)}
-                        onSignatureClear={() => handleChange('signature', '')}
-                        existingSignature={formData.signature}
-                        width={400}
-                        height={60}
-                        className="w-full bg-transparent"
-                      />
-                    </div>
-                  )}
+                <div className="flex-1" style={{ minWidth: 0 }}>
+                  <SignatureCanvas
+                    onSignatureEnd={(sig) => handleChange('signature', sig)}
+                    onSignatureClear={() => handleChange('signature', '')}
+                    existingSignature={formData.signature}
+                    width={400}
+                    height={100}
+                    backgroundColor="white"
+                    showClearButton={true}
+                    clearButtonText="Clear Signature"
+                    placeholder="Draw your signature in the box above"
+                    className="w-full"
+                  />
                 </div>
               </div>
 
@@ -426,10 +449,12 @@ export default function EmployeeWelcomeFormPage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+              </div>
+            </div>
+          )}
         
-        {/* Action Buttons */}
+        {/* Action Buttons - Only show after PDF is loaded */}
+        {pdfPages.length > 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
@@ -448,6 +473,7 @@ export default function EmployeeWelcomeFormPage() {
             </button>
           </div>
         </div>
+        )}
       </div>
     </div>
     </>

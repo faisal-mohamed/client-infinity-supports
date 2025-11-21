@@ -272,6 +272,7 @@ interface FormAssignmentModalProps {
   assigning: boolean;
   onFormSelection: (formId: number) => void;
   onAssignForms: () => void;
+  isStaff?: boolean; // Indicates if this is for staff (defaults to false for client)
 }
 
 export default function FormAssignmentModal({
@@ -283,7 +284,8 @@ export default function FormAssignmentModal({
   selectedFormsToAssign,
   assigning,
   onFormSelection,
-  onAssignForms
+  onAssignForms,
+  isStaff = false
 }: FormAssignmentModalProps) {
   if (!isOpen) return null;
 
@@ -326,7 +328,7 @@ export default function FormAssignmentModal({
               </div>
               <h4 className="text-xl font-bold text-slate-900 mb-2">No Forms Available</h4>
               <p className="text-slate-600 max-w-md mx-auto leading-relaxed">
-                All available forms have already been assigned to this client, or no forms are currently configured.
+                All available forms have already been assigned to this {isStaff ? 'staff' : 'client'}, or no forms are currently configured.
               </p>
             </div>
           ) : (

@@ -12,8 +12,8 @@ export interface PreEmploymentMedicalFormRef {
   getData: () => any;
 }
 
-export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidityChange?: (v: boolean) => void }>(
-  function PreEmploymentMedicalForm({ token, onValidityChange }, ref) {
+export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidityChange?: (v: boolean) => void; isSignatureLink?: boolean }>(
+  function PreEmploymentMedicalForm({ token, onValidityChange, isSignatureLink = false }, ref) {
     const [data, setData] = useState<any>({});
     const [loading, setLoading] = useState(false);
     const [staffInfo, setStaffInfo] = useState<any>({});
@@ -27,19 +27,37 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
       // Load saved data if any
       const loadData = async () => {
         try {
-          const response = await fetch(`/api/staff/onboard/${token}`);
+          const apiEndpoint = isSignatureLink
+            ? `/api/staff/signature/${token}/forms/pre_employment_medical`
+            : `/api/staff/onboard/${token}`;
+          
+          const response = await fetch(apiEndpoint);
           if (response.ok) {
             const result = await response.json();
-            const s = result.staff || {};
-            const saved = (result.submissions && result.submissions['pre_employment_medical']) || {};
+            let s = {};
+            let saved = {};
+            
+            if (isSignatureLink) {
+              s = result.staff || {};
+              saved = result.formSubmission?.data || {};
+              // Merge signature fields
+              if (result.formSubmission?.staffSignature) {
+                saved.signature = result.formSubmission.staffSignature;
+              }
+              if (result.formSubmission?.staffSignedAt) {
+                saved.signatureDate = new Date(result.formSubmission.staffSignedAt).toISOString().split('T')[0];
+              }
+            } else {
+              s = result.staff || {};
+              saved = (result.submissions && result.submissions['pre_employment_medical']) || {};
+            }
+            
             setStaffInfo(s);
             setData((d: any) => ({
               ...d,
               ...saved,
-              // Handle signature data from new fields
               signature: saved.signature || '',
               signatureDate: saved.signatureDate || '',
-              // Set name from staff info if not already set
               fullName: saved.fullName || `${s.firstName || ''} ${s.surname || ''}`.trim()
             }));
           }
@@ -48,7 +66,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
         }
       };
       loadData();
-    }, [token]);
+    }, [token, isSignatureLink]);
 
     useEffect(() => {
       // Check validity whenever data changes
@@ -125,7 +143,11 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
     const save = async (submit: boolean = false): Promise<boolean> => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`, {
+        const apiEndpoint = isSignatureLink
+          ? `/api/staff/signature/${token}/forms/pre_employment_medical`
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

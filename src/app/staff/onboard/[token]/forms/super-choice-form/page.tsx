@@ -19,8 +19,13 @@ export default function SuperChoiceFormPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Load staff data and form submissions in one call
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint);
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -34,11 +39,22 @@ export default function SuperChoiceFormPage() {
         }
 
         const staffData = await response.json();
-        setStaff(staffData);
+        setStaff(staffData.staff || staffData);
         
-        // Get the super_choice_form submission (submissions is an object keyed by formKey)
-        const formSubmission = staffData.submissions?.['super_choice_form'];
-        if (formSubmission) {
+        // Load saved form data - handle both signature and onboard structures
+        let formSubmission = {};
+        if (isSignatureLink) {
+          const superChoiceForm = staffData.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'super_choice_form'
+          );
+          if (superChoiceForm) {
+            formSubmission = superChoiceForm.formSubmission?.data || {};
+          }
+        } else {
+          formSubmission = staffData.submissions?.['super_choice_form'] || {};
+        }
+        
+        if (formSubmission && Object.keys(formSubmission).length > 0) {
           setFormData(formSubmission);
         }
       } catch (error: any) {
@@ -66,7 +82,13 @@ export default function SuperChoiceFormPage() {
   const handleSave = async (isSubmit: boolean) => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/staff/onboard/${token}`, {
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/super_choice_form`
+        : `/api/staff/onboard/${token}`;
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,8 +113,9 @@ export default function SuperChoiceFormPage() {
 
         if (isSubmit) {
           // Small delay to show success message before navigation
+          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
           setTimeout(() => {
-            router.push(`/staff/onboard/${token}`);
+            router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
           }, 1000);
         }
       } else {
@@ -222,7 +245,10 @@ export default function SuperChoiceFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button 
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms

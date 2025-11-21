@@ -13,7 +13,7 @@ export interface EmployeeDetailsStepRef {
   getData: () => any 
 }
 
-export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityChange?: (v: boolean)=>void }>(function EmployeeDetailsStep({ token, onValidityChange }, ref) {
+export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityChange?: (v: boolean)=>void; isSignatureLink?: boolean }>(function EmployeeDetailsStep({ token, onValidityChange, isSignatureLink = false }, ref) {
   const { showToast } = useToast();
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
@@ -38,11 +38,15 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Use signature API if in signature link mode, otherwise use onboard API
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}/forms/employee_details` 
+          : `/api/staff/onboard/${token}`;
+        const res = await fetch(apiEndpoint);
         if (!res.ok) return;
         const json = await res.json();
         const s = json.staff || {};
-        const saved = (json.submissions && json.submissions['employeeDetails']) || {};
+        const saved = (json.submissions && json.submissions['employeeDetails']) || (json.submissions && json.submissions['employee_details']) || {};
         setData((d: any) => ({
           ...d,
           ...saved,
@@ -165,10 +169,19 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
   const save = async (submit: boolean = true) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/staff/onboard/${token}`, { 
+      // Use signature API if in signature link mode, otherwise use onboard API
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/employee_details`
+        : `/api/staff/onboard/${token}`;
+      
+      const res = await fetch(apiEndpoint, { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ formKey: 'employeeDetails', data, submit }) 
+        body: JSON.stringify({ 
+          formKey: isSignatureLink ? 'employee_details' : 'employeeDetails',
+          data, 
+          submit: isSignatureLink ? submit : submit
+        }) 
       });
       const j = await res.json();
       

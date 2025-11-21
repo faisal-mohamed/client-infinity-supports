@@ -15,27 +15,62 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       }, { status: 400 });
     }
     
-    // 🚀 OPTIMIZED: Single query with all includes instead of 8+ separate queries
-    let staff;
+    // 🚀 OPTIMIZED: Check if this is a signature token or onboard token
+    // First try signature batch (for signature links)
+    let staff = null;
+    let batch = null;
+    
     try {
-      staff = await prisma.staff.findFirst({
-        where: { linkToken: token },
+      batch = await prisma.staffFormBatch.findUnique({
+        where: { 
+          batchToken: token,
+          isSignatureOnly: true,
+        },
         include: {
-          // Generic form submissions
-          submissions: true,
-          // Individual form tables
-          employmentDetails: true,
-          employmentWelcomeAck: true,
-          supportWorker: true,
-          preEmploymentMedical: true,
-          ndisWorkforceCapability: true,
-          bullyingHarassmentTraining: true,
-          bullyingTraining: true,
-          ndisCodeOfConduct: true,
-        }
+          staff: {
+            include: {
+              submissions: true,
+              employmentDetails: true,
+              employmentWelcomeAck: true,
+              supportWorker: true,
+              preEmploymentMedical: true,
+              ndisWorkforceCapability: true,
+              bullyingHarassmentTraining: true,
+              bullyingTraining: true,
+              ndisCodeOfConduct: true,
+            },
+          },
+        },
       });
-    } catch (error: any) {
-      if (error.code === 'P2021' && error.message.includes('StaffNdisCodeOfConduct')) {
+      
+      if (batch && batch.expiresAt >= new Date()) {
+        staff = batch.staff;
+      }
+    } catch (error) {
+      // Not a signature token, continue with onboard check
+    }
+    
+    // If not a signature token, try onboard token
+    if (!staff) {
+      try {
+        staff = await prisma.staff.findFirst({
+          where: { linkToken: token },
+          include: {
+            // Generic form submissions
+            submissions: true,
+            // Individual form tables
+            employmentDetails: true,
+            employmentWelcomeAck: true,
+            supportWorker: true,
+            preEmploymentMedical: true,
+            ndisWorkforceCapability: true,
+            bullyingHarassmentTraining: true,
+            bullyingTraining: true,
+            ndisCodeOfConduct: true,
+          }
+        });
+      } catch (error: any) {
+        if (error.code === 'P2021' && error.message.includes('StaffNdisCodeOfConduct')) {
         // Table doesn't exist, create it and retry
         console.log('Creating missing StaffNdisCodeOfConduct table...');
         
@@ -80,8 +115,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
             ndisCodeOfConduct: true,
           }
         });
-      } else {
-        throw error;
+        } else {
+          throw error;
+        }
       }
     }
     
@@ -93,28 +129,81 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       }, { status: 404 });
     }
     
-    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
-      return NextResponse.json({ 
-        error: 'Access link expired',
-        message: 'This access link has expired. Please contact your administrator for a new link.',
-        code: 'LINK_EXPIRED',
-        expiredAt: staff.linkExpiresAt
-      }, { status: 410 });
-    }
+    // Check if this is a signature batch token
+    const isSignatureToken = !!batch;
     
-    if (staff.status === 'deleted') {
-      return NextResponse.json({ 
-        error: 'Account deactivated',
-        message: 'Your staff account has been deactivated. Please contact your administrator.',
-        code: 'ACCOUNT_DEACTIVATED'
-      }, { status: 403 });
+    // Only check expiration for onboard tokens (signature tokens have their own expiration in batch)
+    if (!isSignatureToken) {
+      if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
+        return NextResponse.json({ 
+          error: 'Access link expired',
+          message: 'This access link has expired. Please contact your administrator for a new link.',
+          code: 'LINK_EXPIRED',
+          expiredAt: staff.linkExpiresAt
+        }, { status: 410 });
+      }
+      
+      if (staff.status === 'deleted') {
+        return NextResponse.json({ 
+          error: 'Account deactivated',
+          message: 'Your staff account has been deactivated. Please contact your administrator.',
+          code: 'ACCOUNT_DEACTIVATED'
+        }, { status: 403 });
+      }
     }
     
     // 🚀 NEW: Unified approach using StaffFormSubmission (like client forms)
     const dataByForm: any = {};
     
     // Process all submissions from generic table
-    staff.submissions.forEach((s: any) => {
+    // Handle both onboard tokens (staff.submissions) and signature tokens (need to fetch from batch)
+    let submissions: any[] = [];
+    
+    if (isSignatureToken && batch) {
+      // Get submissions from signature forms in the batch
+      const signatureForms = await prisma.staffSignatureBatchForm.findMany({
+        where: { batchId: batch.id },
+        include: {
+          formSubmission: {
+            include: {
+              form: {
+                select: {
+                  id: true,
+                  formKey: true,
+                  title: true,
+                  version: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      
+      // Map signature forms to submission format
+      submissions = signatureForms.map((sf: any) => ({
+        id: sf.formSubmission.id,
+        formKey: sf.formSubmission.formKey,
+        data: sf.formSubmission.data,
+        staffSignature: sf.formSubmission.staffSignature,
+        staffSignedAt: sf.formSubmission.staffSignedAt,
+        adminSignature: sf.formSubmission.adminSignature,
+        adminSignedAt: sf.formSubmission.adminSignedAt,
+      }));
+    } else {
+      // For onboard tokens, use staff.submissions
+      submissions = staff.submissions ? [...staff.submissions] : [];
+    }
+    
+    submissions.forEach((s: any) => {
+      console.log(`🔍 [Onboard API] Processing submission for formKey: ${s.formKey}`, {
+        id: s.id,
+        staffSignature: s.staffSignature ? 'EXISTS' : 'NULL',
+        staffSignedAt: s.staffSignedAt,
+        dataKeys: Object.keys(s.data || {}),
+        dataHasSignature: !!(s.data as any)?.signature,
+        dataHasStaffSignature: !!(s.data as any)?.staffSignature
+      });
+      
       const formData: any = {
         ...(s.data || {}),
         // Add admin fields if present
@@ -124,40 +213,77 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
         } : {})
       };
       
+      console.log(`🔍 [Onboard API] FormData before signature merge for ${s.formKey}:`, {
+        keys: Object.keys(formData),
+        hasSignature: !!formData.signature,
+        hasStaffSignature: !!formData.staffSignature
+      });
+      
       // Merge signature fields back into data for forms that use them
+      // IMPORTANT: If staffSignature is null, explicitly clear signature fields from formData
       if (s.formKey === 'pre_employment_medical' || s.formKey === 'support_worker') {
         // Merge staffSignature and staffSignedAt back into data as signature and signatureDate
         if (s.staffSignature) {
           formData.signature = s.staffSignature;
+          console.log(`✅ [Onboard API] Added signature to formData for ${s.formKey}`);
+        } else {
+          // Signature was cleared - remove from formData
+          delete formData.signature;
+          console.log(`🗑️ [Onboard API] Removed signature from formData for ${s.formKey} (staffSignature is null)`);
         }
         if (s.staffSignedAt) {
           formData.signatureDate = s.staffSignedAt.toISOString().split('T')[0];
+        } else {
+          delete formData.signatureDate;
         }
       } else if (s.formKey === 'employee_welcome' || s.formKey === 'ndis_workforce_capability' || s.formKey === 'ndis_code_of_conduct' || s.formKey === 'bullying_harassment_training' || s.formKey === 'documentation_acknowledgement') {
         // Merge staffSignature and staffSignedAt back into data as signature and date
         if (s.staffSignature) {
           formData.signature = s.staffSignature;
+          console.log(`✅ [Onboard API] Added signature to formData for ${s.formKey}`);
+        } else {
+          // Signature was cleared - explicitly remove from formData
+          delete formData.signature;
+          delete formData.staffSignature;
+          delete formData.orientationSignature;
+          console.log(`🗑️ [Onboard API] Removed ALL signature fields from formData for ${s.formKey} (staffSignature is null)`);
         }
         if (s.staffSignedAt) {
           formData.date = s.staffSignedAt.toISOString().split('T')[0];
+        } else {
+          delete formData.date;
+          delete formData.acknowledgedAt;
+          delete formData.staffSignedAt;
         }
       } else if (s.formKey === 'bullying_training') {
         // Merge staffSignature and staffSignedAt back into data
         if (s.staffSignature) {
           formData.staffSignature = s.staffSignature;
+        } else {
+          delete formData.staffSignature;
         }
         if (s.staffSignedAt) {
           formData.staffSignedAt = s.staffSignedAt.toISOString();
           formData.date = s.staffSignedAt.toISOString().split('T')[0];
+        } else {
+          delete formData.staffSignedAt;
+          delete formData.date;
         }
       }
+      
+      console.log(`🔍 [Onboard API] Final formData for ${s.formKey}:`, {
+        keys: Object.keys(formData),
+        hasSignature: !!formData.signature,
+        hasStaffSignature: !!formData.staffSignature,
+        signatureValue: formData.signature ? 'EXISTS' : 'NULL/EMPTY'
+      });
       
       dataByForm[s.formKey] = formData;
     });
     
-    // 🔄 BACKWARD COMPATIBILITY: Check dedicated tables for old data
+    // 🔄 BACKWARD COMPATIBILITY: Check dedicated tables for old data (only for onboard tokens)
     // Handle Employee Details form with signature
-    if (staff.employmentDetails && !dataByForm['employeeDetails']) {
+    if (!isSignatureToken && staff.employmentDetails && !dataByForm['employeeDetails']) {
       dataByForm['employeeDetails'] = {
         ...(staff.employmentDetails.data as any || {}),
         employeeSignature: staff.employmentDetails.staffSignature || '',
@@ -168,7 +294,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     }
     
     // Handle Employee Welcome form with signature
-    if (staff.employmentWelcomeAck && !dataByForm['employee_welcome']) {
+    if (!isSignatureToken && staff.employmentWelcomeAck && !dataByForm['employee_welcome']) {
       dataByForm['employee_welcome'] = {
         ...(staff.employmentWelcomeAck.data as any || {}),
         signature: staff.employmentWelcomeAck.staffSignature || '',
@@ -177,7 +303,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     }
     
     // Handle Support Worker form
-    if (staff.supportWorker && !dataByForm['support_worker']) {
+    if (!isSignatureToken && staff.supportWorker && !dataByForm['support_worker']) {
       dataByForm['support_worker'] = {
         ...(staff.supportWorker.data as any || {}),
         signature: staff.supportWorker.staffSignature || '',
@@ -185,8 +311,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    // Handle other dedicated tables similarly (backward compatibility)
-    if (staff.preEmploymentMedical && !dataByForm['pre_employment_medical']) {
+    // Handle other dedicated tables similarly (backward compatibility - only for onboard tokens)
+    if (!isSignatureToken && staff.preEmploymentMedical && !dataByForm['pre_employment_medical']) {
       dataByForm['pre_employment_medical'] = {
         ...(staff.preEmploymentMedical.data as any || {}),
         signature: staff.preEmploymentMedical.staffSignature || '',
@@ -194,15 +320,35 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    if (staff.ndisWorkforceCapability && !dataByForm['ndis_workforce_capability']) {
-      dataByForm['ndis_workforce_capability'] = {
-        ...(staff.ndisWorkforceCapability.data as any || {}),
-        signature: staff.ndisWorkforceCapability.staffSignature || '',
-        date: staff.ndisWorkforceCapability.staffSignedAt?.toISOString().split('T')[0] || ''
-      };
+    // Only use dedicated table as fallback for onboard tokens (not signature tokens)
+    // Signature tokens should use StaffFormSubmission which is already processed above
+    if (!isSignatureToken && staff.ndisWorkforceCapability && !dataByForm['ndis_workforce_capability']) {
+      console.log(`🔍 [Onboard API] Using dedicated table fallback for ndis_workforce_capability`, {
+        staffSignature: staff.ndisWorkforceCapability.staffSignature ? 'EXISTS' : 'NULL',
+        staffSignedAt: staff.ndisWorkforceCapability.staffSignedAt,
+        dataKeys: Object.keys(staff.ndisWorkforceCapability.data as any || {})
+      });
+      
+      const dedicatedData = { ...(staff.ndisWorkforceCapability.data as any || {}) };
+      // Only include signature if it exists (not null/empty)
+      if (staff.ndisWorkforceCapability.staffSignature) {
+        dedicatedData.signature = staff.ndisWorkforceCapability.staffSignature;
+        console.log(`✅ [Onboard API] Added signature from dedicated table`);
+      } else {
+        // Signature was cleared - remove from data
+        delete dedicatedData.signature;
+        delete dedicatedData.staffSignature;
+        console.log(`🗑️ [Onboard API] Removed signature from dedicated table data (staffSignature is null)`);
+      }
+      if (staff.ndisWorkforceCapability.staffSignedAt) {
+        dedicatedData.date = staff.ndisWorkforceCapability.staffSignedAt.toISOString().split('T')[0];
+      } else {
+        delete dedicatedData.date;
+      }
+      dataByForm['ndis_workforce_capability'] = dedicatedData;
     }
     
-    if (staff.bullyingHarassmentTraining && !dataByForm['bullying_harassment_training']) {
+    if (!isSignatureToken && staff.bullyingHarassmentTraining && !dataByForm['bullying_harassment_training']) {
       dataByForm['bullying_harassment_training'] = {
         ...(staff.bullyingHarassmentTraining.data as any || {}),
         signature: staff.bullyingHarassmentTraining.staffSignature || '',
@@ -210,7 +356,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
     
-    if (staff.bullyingTraining && !dataByForm['bullying_training']) {
+    if (!isSignatureToken && staff.bullyingTraining && !dataByForm['bullying_training']) {
       dataByForm['bullying_training'] = {
         ...(staff.bullyingTraining.data as any || {}),
         staffSignature: staff.bullyingTraining.staffSignature || '',
@@ -218,7 +364,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
       };
     }
 
-    if (staff.ndisCodeOfConduct && !dataByForm['ndis_code_of_conduct']) {
+    if (!isSignatureToken && staff.ndisCodeOfConduct && !dataByForm['ndis_code_of_conduct']) {
       dataByForm['ndis_code_of_conduct'] = {
         ...(staff.ndisCodeOfConduct.data as any || {}),
         signature: staff.ndisCodeOfConduct.staffSignature || '',
@@ -243,7 +389,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
     });
   } catch (e: any) {
     console.error('Error loading staff data:', e);
-    
+
     // Handle specific database errors
     if (e.code === 'P2002') {
       return NextResponse.json({ 
@@ -324,8 +470,35 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       }, { status: 400 });
     }
     
-    // 🚀 OPTIMIZED: Single staff lookup instead of separate query
-    const staff = await prisma.staff.findFirst({ where: { linkToken: token } });
+    // 🚀 OPTIMIZED: Check if this is a signature token or onboard token
+    // First try signature batch (for signature links)
+    let staff = null;
+    let batch = null;
+    let isSignatureLink = false;
+    
+    try {
+      batch = await prisma.staffFormBatch.findUnique({
+        where: { 
+          batchToken: token,
+          isSignatureOnly: true,
+        },
+        include: {
+          staff: true,
+        },
+      });
+      
+      if (batch && batch.expiresAt >= new Date()) {
+        staff = batch.staff;
+        isSignatureLink = true;
+      }
+    } catch (error) {
+      // Not a signature token, continue with onboard check
+    }
+    
+    // If not a signature token, try onboard token
+    if (!staff) {
+      staff = await prisma.staff.findFirst({ where: { linkToken: token } });
+    }
     
     if (!staff) {
       return NextResponse.json({ 
@@ -335,7 +508,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
       }, { status: 404 });
     }
     
-    if (staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
+    // Check expiration (onboard token only)
+    if (!isSignatureLink && staff.linkExpiresAt && new Date(staff.linkExpiresAt) < new Date()) {
       return NextResponse.json({ 
         error: 'Access link expired',
         message: 'This access link has expired. Please contact your administrator for a new link.',
@@ -469,15 +643,82 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
             staffSignedAt: date ? new Date(date) : new Date()
           };
         }
+      } else if (formKey === 'orientation') {
+        // For orientation, extract signature and date (can be signature, staffSignature, or orientationSignature)
+        const { signature, staffSignature, orientationSignature, date, acknowledgedAt, staffSignedAt, ...restData } = data;
+        formData = restData;
+        // Check all possible signature field names
+        const sig = signature || staffSignature || orientationSignature;
+        const sigDate = date || acknowledgedAt || staffSignedAt;
+        if (sig) {
+          signatureData = {
+            staffSignature: sig,
+            staffSignedAt: sigDate ? new Date(sigDate) : new Date()
+          };
+        }
+      }
+
+      // 🎯 CHECK IF FORM IS ALREADY SUBMITTED WITH SIGNATURE - CLEAR IF EDITING
+      const existingSubmission = await prisma.staffFormSubmission.findUnique({
+        where: { staffId_formKey: { staffId: staff.id, formKey } },
+      });
+
+      // Check if form has signature (either in column or in data JSON for overlay forms)
+      const hasSignatureInColumn = !!existingSubmission?.staffSignature;
+      const submissionData = existingSubmission?.data as any;
+      const hasSignatureInData = submissionData && typeof submissionData === 'object' && !Array.isArray(submissionData)
+        ? (formKey === 'govt_tax' 
+            ? !!(submissionData.payeeSignature || submissionData.payerSignature)
+            : formKey === 'super_choice_form'
+            ? !!(submissionData.sectionBSignature || submissionData.sectionCSignature || submissionData.sectionDSignature)
+            : formKey === 'ndis_workforce_capability'
+            ? !!(submissionData.signature)
+            : false)
+        : false;
+      const hasExistingSignature = hasSignatureInColumn || hasSignatureInData;
+      
+      // If form was previously submitted with signature and user is editing (not submitting with new signature)
+      // This happens when user edits a form that was already signed
+      if (existingSubmission?.isSubmitted && hasExistingSignature && !signatureData.staffSignature && !submit) {
+        // User is editing a submitted form - clear signature and reset submission status
+        console.log(`🔄 Editing submitted form ${formKey} - clearing signature`);
+        signatureData = {
+          staffSignature: null,
+          staffSignedAt: null,
+        };
+        
+        // Clear ALL possible signature field names from formData (universal approach)
+        // Includes all overlay forms: NDIS Workforce, Tax, Super Choice, etc.
+        const signatureFieldsToClear = [
+          'signature', 'staffSignature', 'orientationSignature', 'employeeSignature',
+          'date', 'acknowledgedAt', 'staffSignedAt', 'signatureDate', 'employeeDate', 
+          'employeeSignatureDate', 'staffSignatureDate',
+          // Tax form signatures
+          'payeeSignature', 'payerSignature', 'payeeSignatureAt', 'payerSignatureAt',
+          // Super Choice form signatures
+          'sectionBSignature', 'sectionCSignature', 'sectionDSignature', 
+          'sectionBDate', 'sectionCDate', 'sectionDDate'
+        ];
+        
+        signatureFieldsToClear.forEach(field => {
+          if (field in formData) {
+            delete formData[field];
+          }
+        });
       }
 
       // Save to generic table (like client forms!)
+      // Determine submission status: if signature was cleared, reset to false
+      const wasSignatureCleared = existingSubmission?.isSubmitted && existingSubmission?.staffSignature && !signatureData.staffSignature && !submit;
+      const finalIsSubmitted = wasSignatureCleared ? false : (submit ? true : (existingSubmission?.isSubmitted && signatureData.staffSignature ? true : false));
+      const finalSubmittedAt = wasSignatureCleared ? null : (submit ? new Date() : (existingSubmission?.isSubmitted && signatureData.staffSignature ? existingSubmission.submittedAt : null));
+      
       saved = await prisma.staffFormSubmission.upsert({
         where: { staffId_formKey: { staffId: staff.id, formKey } },
         update: { 
           data: formData,
-          isSubmitted: !!submit,
-          submittedAt: submit ? new Date() : null,
+          isSubmitted: finalIsSubmitted,
+          submittedAt: finalSubmittedAt,
           ...signatureData
         },
         create: { 
@@ -489,6 +730,118 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
           ...signatureData
         },
       });
+
+      // 🎯 UPDATE STAFF FORM ASSIGNMENT STATUS (like client forms)
+      // When form is saved (draft), mark as in_progress
+      // When form is submitted, mark as completed (if requirements met)
+      try {
+        // Find the form by formKey to get formId and requiresSignature flag
+        const masterForm = await prisma.masterForm.findFirst({
+          where: { formKey: formKey },
+          select: { id: true, version: true, requiresSignature: true },
+        });
+
+        if (masterForm) {
+          // Find the StaffFormAssignment for this staff and form
+          const assignment = await prisma.staffFormAssignment.findUnique({
+            where: {
+              staffId_formId_formVersion: {
+                staffId: staff.id,
+                formId: masterForm.id,
+                formVersion: masterForm.version,
+              },
+            },
+          });
+
+          if (assignment) {
+            // Check if form had signature before clearing
+            const hadSignatureInColumn = !!existingSubmission?.staffSignature;
+            const submissionDataForCheck = existingSubmission?.data as any;
+            const hadSignatureInData = submissionDataForCheck && typeof submissionDataForCheck === 'object' && !Array.isArray(submissionDataForCheck)
+              ? (formKey === 'govt_tax' 
+                  ? !!(submissionDataForCheck.payeeSignature || submissionDataForCheck.payerSignature)
+                  : formKey === 'super_choice_form'
+                  ? !!(submissionDataForCheck.sectionBSignature || submissionDataForCheck.sectionCSignature || submissionDataForCheck.sectionDSignature)
+                  : formKey === 'ndis_workforce_capability'
+                  ? !!(submissionDataForCheck.signature)
+                  : false)
+              : false;
+            const hadSignature = hadSignatureInColumn || hadSignatureInData;
+            
+            // If form was submitted with signature and now being edited (signature cleared), reset status
+            if (existingSubmission?.isSubmitted && hadSignature && !signatureData.staffSignature && !submit) {
+              // Signature was cleared - reset to in_progress
+              await prisma.staffFormAssignment.update({
+                where: { id: assignment.id },
+                data: {
+                  currentStatus: 'in_progress',
+                  isCompleted: false,
+                },
+              });
+              console.log(`🔄 Reset StaffFormAssignment ${assignment.id} to in_progress - signature cleared for editing`);
+            } else if (assignment.currentStatus === 'completed' && !submit) {
+              // Don't update if already completed and just saving draft
+              console.log(`⚠️ StaffFormAssignment ${assignment.id} already completed, skipping status update`);
+            } else if (submit) {
+              // Form is being submitted - check if it should be marked as completed
+              const requiresSignature = masterForm.requiresSignature ?? false;
+              // Check both staffSignature column AND signature fields in formData for overlay forms
+              const hasSignatureInColumn = !!signatureData.staffSignature;
+              // For overlay forms (tax, super choice), check if any signature fields exist in formData
+              const hasSignatureInData = formKey === 'govt_tax' 
+                ? !!(formData.payeeSignature || formData.payerSignature)
+                : formKey === 'super_choice_form'
+                ? !!(formData.sectionBSignature || formData.sectionCSignature || formData.sectionDSignature)
+                : false;
+              const hasSignature = hasSignatureInColumn || hasSignatureInData;
+              
+              // Mark as completed if:
+              // 1. Form doesn't require signature (any submission counts), OR
+              // 2. Form requires signature AND signature is present
+              const shouldMarkCompleted = !requiresSignature || (requiresSignature && hasSignature);
+
+              if (shouldMarkCompleted) {
+                // Update assignment status to completed
+                await prisma.staffFormAssignment.update({
+                  where: { id: assignment.id },
+                  data: {
+                    currentStatus: 'completed',
+                    isCompleted: true,
+                  },
+                });
+                console.log(`✅ Updated StaffFormAssignment ${assignment.id} status to completed for form: ${formKey}`);
+              } else {
+                // Form submitted but missing required signature - keep as in_progress
+                if (assignment.currentStatus === 'not_started') {
+                  await prisma.staffFormAssignment.update({
+                    where: { id: assignment.id },
+                    data: {
+                      currentStatus: 'in_progress',
+                      isCompleted: false,
+                    },
+                  });
+                  console.log(`📝 Updated StaffFormAssignment ${assignment.id} status to in_progress for form: ${formKey}`);
+                }
+              }
+            } else {
+              // Form is being saved (draft) - mark as in_progress if not started
+              if (assignment.currentStatus === 'not_started') {
+                await prisma.staffFormAssignment.update({
+                  where: { id: assignment.id },
+                  data: {
+                    currentStatus: 'in_progress',
+                    isCompleted: false,
+                  },
+                });
+                console.log(`📝 Updated StaffFormAssignment ${assignment.id} status to in_progress for form: ${formKey}`);
+              }
+            }
+          }
+        }
+      } catch (assignmentError) {
+        // Don't fail the whole request if assignment update fails
+        console.error('Error updating StaffFormAssignment status:', assignmentError);
+      }
     }
     
     // Note: Individual form completion is tracked by the presence of data in submissions

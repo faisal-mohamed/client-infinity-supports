@@ -162,9 +162,10 @@ interface ClientHeaderProps {
     inProgress: number;
     notStarted: number;
   };
+  isStaff?: boolean; // Indicates if this is a staff header (defaults to false for client)
 }
 
-export default function ClientHeader({ clientId, client, stats }: ClientHeaderProps) {
+export default function ClientHeader({ clientId, client, stats, isStaff = false }: ClientHeaderProps) {
   const completionPercentage =
     stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
@@ -177,11 +178,11 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
             {/* Back + Client Info */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <Link
-                href="/admin/clients"
+                href={isStaff ? "/admin/staff" : "/admin/clients"}
                 className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-200 group self-start border border-slate-200 hover:border-rose-300 shadow-sm hover:shadow-md transform hover:scale-105 text-sm sm:text-base"
               >
                 <FaArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="font-semibold">Back to Clients</span>
+                <span className="font-semibold">{isStaff ? "Back to Staff" : "Back to Clients"}</span>
               </Link>
 
               <div className="hidden sm:block h-8 w-px bg-slate-300"></div>
@@ -203,7 +204,7 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
                     <span className="text-xs sm:text-sm font-medium text-slate-500">
-                      Active Client
+                      {isStaff ? "Active Staff" : "Active Client"}
                     </span>
                   </div>
                 </div>

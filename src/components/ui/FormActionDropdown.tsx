@@ -19,6 +19,7 @@ interface FormActionDropdownProps {
   onGenerateLinkClick?: () => void;
   showGenerateLink?: boolean;
   generatingLink?: boolean;
+  isStaff?: boolean; // Indicates if this is for staff (defaults to false for client)
 }
 
 export default function FormActionDropdown({
@@ -34,7 +35,8 @@ export default function FormActionDropdown({
   onDeleteClick,
   onGenerateLinkClick,
   showGenerateLink,
-  generatingLink
+  generatingLink,
+  isStaff = false
 }: FormActionDropdownProps) {
   const handleEditClick = () => {
     onEditClick();
@@ -63,20 +65,23 @@ export default function FormActionDropdown({
       triggerRef={triggerRef}
       align="right"
     >
-      <button
-        onClick={handleEditClick}
-        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat"
-      >
-        <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
-          <FaEdit className="h-4 w-4" />
-        </div>
-        <span>Edit Form</span>
-      </button>
+      {/* Hide edit button for staff forms - they will be filled via generated link */}
+      {!isStaff && (
+        <button
+          onClick={handleEditClick}
+          className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat"
+        >
+          <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
+            <FaEdit className="h-4 w-4" />
+          </div>
+          <span>Edit Form</span>
+        </button>
+      )}
       
       {hasSubmission && (
         <>
           <Link
-            href={`/admin/clients/${clientId}/forms/view/${assignmentId}`}
+            href={isStaff ? `/admin/staff/${clientId}/forms/view/${assignmentId}` : `/admin/clients/${clientId}/forms/view/${assignmentId}`}
             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-2 font-montserrat"
             onClick={onClose}
           >

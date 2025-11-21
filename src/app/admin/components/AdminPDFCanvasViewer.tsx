@@ -21,11 +21,13 @@ const loadScript = (src: string): Promise<void> =>
 interface AdminPDFCanvasViewerProps {
   pdfUrl: string;
   minHeight?: number;
+  maxPages?: number; // Optional: limit number of pages to render
 }
 
 export default function AdminPDFCanvasViewer({
   pdfUrl,
   minHeight = 900,
+  maxPages,
 }: AdminPDFCanvasViewerProps) {
   const [pageImages, setPageImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,10 @@ export default function AdminPDFCanvasViewer({
         const baseScale = Math.min(responsiveScale * 2, 3.5);
         const outputScale = devicePixelRatio * baseScale;
         
-        for (let i = 1; i <= pdf.numPages; i++) {
+        // Limit pages if maxPages is specified
+        const totalPagesToRender = maxPages ? Math.min(maxPages, pdf.numPages) : pdf.numPages;
+        
+        for (let i = 1; i <= totalPagesToRender; i++) {
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: baseScale });
           const canvas = document.createElement("canvas");

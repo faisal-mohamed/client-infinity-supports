@@ -11,8 +11,8 @@ export interface NdisWorkforceCapabilityAckFormRef {
   validateDetailed: () => { isValid: boolean; missing?: string[]; invalid?: string[] } | null;
 }
 
-const NdisWorkforceCapabilityAckForm = forwardRef<NdisWorkforceCapabilityAckFormRef, { token: string; onValidityChange?: (valid: boolean)=>void; onSubmitted?: ()=>void }>(
-function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }, ref) {
+const NdisWorkforceCapabilityAckForm = forwardRef<NdisWorkforceCapabilityAckFormRef, { token: string; onValidityChange?: (valid: boolean)=>void; onSubmitted?: ()=>void; isSignatureLink?: boolean }>(
+function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted, isSignatureLink = false }, ref) {
   const [data, setData] = useState<any>({ readAcknowledgement: false, fullName: '', signature: '', date: '' });
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState<{ website: string; formId: string; reviewDate: string }>({ website: '', formId: '', reviewDate: '' });
@@ -49,30 +49,53 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
     const loadData = async () => {
       console.log('🔵 [NdisWorkforceCapabilityAckForm] Loading data for token:', token);
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        const apiEndpoint = isSignatureLink
+          ? `/api/staff/signature/${token}/forms/ndis_workforce_capability`
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint);
         if (response.ok) {
           const result = await response.json();
           console.log('🔵 [NdisWorkforceCapabilityAckForm] API Response:', result);
           
-          // Pre-fill name from staff info if available
-          const staffName = result.staff ? `${result.staff.firstName || ''} ${result.staff.surname || ''}`.trim() : '';
-          
-          if (result.submissions?.ndis_workforce_capability) {
-            const savedData = result.submissions.ndis_workforce_capability;
-            console.log('✅ [NdisWorkforceCapabilityAckForm] Found saved data:', savedData);
+          let savedData = {};
+          if (isSignatureLink) {
+            // Signature API returns formSubmission directly
+            savedData = result.formSubmission?.data || {};
+            // Merge signature fields
+            if (result.formSubmission?.staffSignature) {
+              savedData.signature = result.formSubmission.staffSignature;
+            }
+            if (result.formSubmission?.staffSignedAt) {
+              savedData.date = new Date(result.formSubmission.staffSignedAt).toISOString().split('T')[0];
+            }
+            const staffName = result.staff ? `${result.staff.firstName || ''} ${result.staff.surname || ''}`.trim() : '';
             setData({
               readAcknowledgement: savedData.readAcknowledgement || false,
-              fullName: savedData.fullName || staffName, // Use saved name or staff name
-              signature: savedData.signature || '', // Only load if there's saved signature
-              date: savedData.date || '' // Only load if there's saved date
+              fullName: savedData.fullName || staffName,
+              signature: savedData.signature || '',
+              date: savedData.date || ''
             });
           } else {
-            console.log('⚠️ [NdisWorkforceCapabilityAckForm] No saved data found, pre-filling name from staff info');
-            // Pre-fill name from staff info for new forms
-            setData(prev => ({
-              ...prev,
-              fullName: staffName
-            }));
+            // Onboard API returns submissions object
+            const staffName = result.staff ? `${result.staff.firstName || ''} ${result.staff.surname || ''}`.trim() : '';
+            
+            if (result.submissions?.ndis_workforce_capability) {
+              savedData = result.submissions.ndis_workforce_capability;
+              console.log('✅ [NdisWorkforceCapabilityAckForm] Found saved data:', savedData);
+              setData({
+                readAcknowledgement: savedData.readAcknowledgement || false,
+                fullName: savedData.fullName || staffName,
+                signature: savedData.signature || '',
+                date: savedData.date || ''
+              });
+            } else {
+              console.log('⚠️ [NdisWorkforceCapabilityAckForm] No saved data found, pre-filling name from staff info');
+              setData(prev => ({
+                ...prev,
+                fullName: staffName
+              }));
+            }
           }
         }
       } catch (e) {
@@ -81,7 +104,7 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
       }
     };
     loadData();
-  }, [token]);
+  }, [token, isSignatureLink]);
 
   const handleChange = (k: string, v: any) => {
     const next = { ...data, [k]: v };
@@ -94,7 +117,11 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
     console.log('🔵 [NdisWorkforceCapabilityAckForm] Submitting data:', data);
     setLoading(true);
     try {
-      const res = await fetch(`/api/staff/onboard/${token}`, {
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/ndis_workforce_capability`
+        : `/api/staff/onboard/${token}`;
+      
+      const res = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formKey: 'ndis_workforce_capability', data, submit: true }),
@@ -122,7 +149,11 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted }
     console.log('🔵 [NdisWorkforceCapabilityAckForm] Saving data:', data, 'submit:', submit);
     setLoading(true);
     try {
-      const res = await fetch(`/api/staff/onboard/${token}`, {
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/ndis_workforce_capability`
+        : `/api/staff/onboard/${token}`;
+      
+      const res = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formKey: 'ndis_workforce_capability', data, submit }),

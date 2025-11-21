@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import BullyingTrainingAckForm, { BullyingTrainingAckFormRef } from '../../components/BullyingTrainingAckForm';
 import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function BullyingTrainingFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -21,7 +22,13 @@ export default function BullyingTrainingFormPage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint);
         const data = await res.json();
         
         if (!res.ok) {
@@ -37,7 +44,20 @@ export default function BullyingTrainingFormPage() {
         }
         
         setStaff(data.staff);
-        setFormData(data.submissions['bullying_training'] || {});
+        
+        // Load saved form data - handle both signature and onboard structures
+        let trainingData = {};
+        if (isSignatureLink) {
+          const bullyingTrainingForm = data.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'bullying_training'
+          );
+          if (bullyingTrainingForm) {
+            trainingData = bullyingTrainingForm.formSubmission?.data || {};
+          }
+        } else {
+          trainingData = data.submissions['bullying_training'] || {};
+        }
+        setFormData(trainingData);
         
         showToast({
           type: 'success',
@@ -82,8 +102,9 @@ export default function BullyingTrainingFormPage() {
           duration: 3000
         });
         // Small delay to show the success message
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
         setTimeout(() => {
-          router.push(`/staff/onboard/${token}`);
+          router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
         }, 1000);
       } else if (success) {
         showToast({
@@ -142,7 +163,10 @@ export default function BullyingTrainingFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
               ← Back to Forms
@@ -155,7 +179,11 @@ export default function BullyingTrainingFormPage() {
           ref={formRef}
           token={token as string}
           staff={staff}
-          onSubmitted={() => router.push(`/staff/onboard/${token}`)}
+          isSignatureLink={window.location.pathname.includes('/staff/signature/')}
+          onSubmitted={() => {
+            const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+            router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+          }}
         />
         
         {/* Action Buttons */}

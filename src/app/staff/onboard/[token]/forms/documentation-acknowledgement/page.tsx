@@ -20,7 +20,13 @@ export default function DocumentationAcknowledgementFormPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -34,10 +40,21 @@ export default function DocumentationAcknowledgementFormPage() {
         }
 
         const staffData = await response.json();
-        setStaff(staffData);
+        setStaff(staffData.staff || staffData);
 
-        // Get the documentation_acknowledgement submission
-        const formSubmission = staffData.submissions?.['documentation_acknowledgement'] || {};
+        // Load saved form data - handle both signature and onboard structures
+        let formSubmission = {};
+        if (isSignatureLink) {
+          const docAckForm = staffData.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'documentation_acknowledgement'
+          );
+          if (docAckForm) {
+            formSubmission = docAckForm.formSubmission?.data || {};
+          }
+        } else {
+          formSubmission = staffData.submissions?.['documentation_acknowledgement'] || {};
+        }
+        
         setInitialFormData(formSubmission);
         setFormData(formSubmission);
       } catch (error: any) {
@@ -109,7 +126,13 @@ export default function DocumentationAcknowledgementFormPage() {
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/staff/onboard/${token}`, {
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/documentation_acknowledgement`
+        : `/api/staff/onboard/${token}`;
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,8 +156,9 @@ export default function DocumentationAcknowledgementFormPage() {
           });
 
           // Navigate to next form or dashboard
+          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
           setTimeout(() => {
-            router.push(`/staff/onboard/${token}`);
+            router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
           }, 1500);
         } else {
           showToast({
@@ -181,6 +205,15 @@ export default function DocumentationAcknowledgementFormPage() {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Documentation Acknowledgement</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
+            <button
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
+            >
+              ← Back to Forms
+            </button>
           </div>
         </div>
 

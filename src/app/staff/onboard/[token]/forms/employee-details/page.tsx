@@ -124,7 +124,10 @@ export default function EmployeeDetailsFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
               ← Back to Forms

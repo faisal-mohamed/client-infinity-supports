@@ -11,8 +11,8 @@ export interface BullyingHarassmentTrainingAckFormRef {
   validateDetailed: () => { isValid: boolean; missing?: string[]; invalid?: string[] } | null;
 }
 
-const BullyingHarassmentTrainingAckForm = forwardRef<BullyingHarassmentTrainingAckFormRef, { token: string; onValidityChange?: (valid: boolean)=>void; onSubmitted?: ()=>void }>(
-function BullyingHarassmentTrainingAckForm({ token, onValidityChange, onSubmitted }, ref) {
+const BullyingHarassmentTrainingAckForm = forwardRef<BullyingHarassmentTrainingAckFormRef, { token: string; onValidityChange?: (valid: boolean)=>void; onSubmitted?: ()=>void; isSignatureLink?: boolean }>(
+function BullyingHarassmentTrainingAckForm({ token, onValidityChange, onSubmitted, isSignatureLink = false }, ref) {
   const [data, setData] = useState<any>({ readAcknowledgement: false, fullName: '', signature: '', date: '' });
   const [loading, setLoading] = useState(false);
   const [meta, setMeta] = useState<{ website: string | null; formId: string | null; reviewDate: string | null }>({ website: null, formId: null, reviewDate: null });
@@ -101,7 +101,8 @@ function BullyingHarassmentTrainingAckForm({ token, onValidityChange, onSubmitte
     };
   };
 
-  const save = async (isSubmit = false) => {
+  const save = async (isSubmit = false, isSignatureLinkOverride?: boolean) => {
+    const useSignatureLink = isSignatureLinkOverride !== undefined ? isSignatureLinkOverride : isSignatureLink;
       const validation = validateForm();
       if (!validation.isValid) {
         showToast({
@@ -128,8 +129,12 @@ function BullyingHarassmentTrainingAckForm({ token, onValidityChange, onSubmitte
           submit: isSubmit,
         };
 
-        console.log('🔵 [BullyingHarassmentTrainingAckForm] Saving form:', payload);
-        const response = await fetch(`/api/staff/onboard/${token}`, {
+        console.log('🔵 [BullyingHarassmentTrainingAckForm] Saving form:', payload, 'useSignatureLink:', useSignatureLink);
+        const apiEndpoint = useSignatureLink
+          ? `/api/staff/signature/${token}/forms/bullying_harassment_training`
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),

@@ -16,8 +16,8 @@ interface BullyingTrainingAckFormProps {
   onSubmitted?: () => void;
 }
 
-const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingTrainingAckFormProps>(
-  ({ token, staff, onSubmitted }, ref) => {
+const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingTrainingAckFormProps & { isSignatureLink?: boolean }>(
+  ({ token, staff, onSubmitted, isSignatureLink = false }, ref) => {
     const { showToast } = useToast();
     const [acknowledgerName, setAcknowledgerName] = useState('');
     const [hrFocusDate, setHrFocusDate] = useState('');
@@ -176,7 +176,11 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
           staffSignedAt: new Date().toISOString(),
         };
 
-        const res = await fetch(`/api/staff/onboard/${token}`, {
+        const apiEndpoint = isSignatureLink
+          ? `/api/staff/signature/${token}/forms/bullying_training`
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

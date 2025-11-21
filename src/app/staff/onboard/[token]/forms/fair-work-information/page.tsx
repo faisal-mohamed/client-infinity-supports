@@ -104,7 +104,8 @@ export default function FairWorkInformationFormPage() {
           title: "Acknowledgement submitted",
           message: "Fairwork Information Statements acknowledgement completed.",
         });
-        router.push(`/staff/onboard/${token}`);
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else {
         showToast({
           type: "success",
@@ -167,7 +168,10 @@ export default function FairWorkInformationFormPage() {
               </p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms

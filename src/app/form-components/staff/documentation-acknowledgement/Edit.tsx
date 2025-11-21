@@ -124,9 +124,9 @@ export default function DocumentationAcknowledgementEdit({
               <input
                 type="text"
                 value={formData.staffName}
-                onChange={(e) => handleInputChange('staffName', e.target.value)}
-                disabled={readOnly}
-                className={`w-full h-10 px-3 border border-gray-300 bg-white rounded ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                readOnly
+                disabled
+                className="w-full h-10 px-3 border border-gray-300 bg-gray-100 rounded cursor-not-allowed opacity-70"
                 required
               />
             </div>

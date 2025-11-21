@@ -48,11 +48,31 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Get all forms or filter by formKey
+// Get all forms or filter by formKey or type (client/staff)
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const formKey = url.searchParams.get('formKey') as string | undefined;
+    const type = url.searchParams.get('type') as 'client' | 'staff' | undefined;
+
+    // Define staff form keys (from staff-registry.ts)
+    const staffFormKeys = [
+      'employee_details',
+      'employee_welcome',
+      'support_worker',
+      'pre_employment_medical',
+      'ndis_workforce_capability',
+      'bullying_harassment_training',
+      'bullying_training',
+      'ndis_code_of_conduct',
+      'fair_work_information',
+      'orientation',
+      'govt_tax',
+      'super_choice_form',
+      'vehicle_safety_inspection',
+      'conflict_of_interest',
+      'documentation_acknowledgement',
+    ];
 
     let forms;
     if (formKey) {
@@ -63,7 +83,25 @@ export async function GET(req: NextRequest) {
       });
     } else {
       // Get the latest version of each form
+      let whereClause: any = {};
+      
+      // Filter by type if specified
+      if (type === 'staff') {
+        whereClause = {
+          formKey: {
+            in: staffFormKeys
+          }
+        };
+      } else if (type === 'client') {
+        whereClause = {
+          formKey: {
+            notIn: staffFormKeys
+          }
+        };
+      }
+
       const allForms = await prisma.masterForm.findMany({
+        where: whereClause,
         orderBy: [
           { formKey: 'asc' },
           { version: 'desc' }

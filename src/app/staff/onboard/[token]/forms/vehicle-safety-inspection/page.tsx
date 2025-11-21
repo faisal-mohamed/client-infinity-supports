@@ -15,12 +15,19 @@ export default function VehicleSafetyInspectionFormPage() {
   const [initialFormData, setInitialFormData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint);
         
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -34,10 +41,21 @@ export default function VehicleSafetyInspectionFormPage() {
         }
 
         const staffData = await response.json();
-        setStaff(staffData);
+        setStaff(staffData.staff || staffData);
         
-        // Get the vehicle_safety_inspection submission (submissions is an object keyed by formKey)
-        const formSubmission = staffData.submissions?.['vehicle_safety_inspection'] || {};
+        // Load saved form data - handle both signature and onboard structures
+        let formSubmission = {};
+        if (isSignatureLink) {
+          const vehicleForm = staffData.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'vehicle_safety_inspection'
+          );
+          if (vehicleForm) {
+            formSubmission = vehicleForm.formSubmission?.data || {};
+          }
+        } else {
+          formSubmission = staffData.submissions?.['vehicle_safety_inspection'] || {};
+        }
+        
         setInitialFormData(formSubmission);
         setFormData(formSubmission);
       } catch (error: any) {
@@ -70,7 +88,13 @@ export default function VehicleSafetyInspectionFormPage() {
   const handleSave = async (isSubmit: boolean) => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/staff/onboard/${token}`, {
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/vehicle_safety_inspection`
+        : `/api/staff/onboard/${token}`;
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,11 +116,12 @@ export default function VehicleSafetyInspectionFormPage() {
           message: `Your Vehicle Safety Inspection Checklist has been ${action} successfully.`,
           duration: 4000,
         });
-
-        if (isSubmit) {
+      
+      if (isSubmit) {
           // Small delay to show success message before navigation
+          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
           setTimeout(() => {
-            router.push(`/staff/onboard/${token}`);
+        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
           }, 1000);
         }
       } else {
@@ -145,13 +170,6 @@ export default function VehicleSafetyInspectionFormPage() {
       setSaving(false);
     }
   };
-
-  if (loading) {
-    return <LoadingView title="Loading Vehicle Safety Inspection Form" message="Please wait..." />;
-  }
-
-  const VehicleSafetyInspectionEdit = getStaffFormComponent('vehicle_safety_inspection', 'edit');
-  const [downloading, setDownloading] = useState(false);
 
   const handleDownloadPDF = async () => {
     if (!staff?.id) {
@@ -202,6 +220,12 @@ export default function VehicleSafetyInspectionFormPage() {
     }
   };
 
+  if (loading) {
+    return <LoadingView title="Loading Vehicle Safety Inspection Form" message="Please wait..." />;
+  }
+
+  const VehicleSafetyInspectionEdit = getStaffFormComponent('vehicle_safety_inspection', 'edit');
+
   return (
     <div className="min-h-screen bg-gray-100 py-4 md:py-8">
       <style jsx>{`
@@ -209,7 +233,7 @@ export default function VehicleSafetyInspectionFormPage() {
           min-height: 600px;
         }
         @media (max-width: 768px) {
-          .view-component-wrapper {
+        .view-component-wrapper { 
             min-height: 400px;
           }
         }
@@ -223,8 +247,11 @@ export default function VehicleSafetyInspectionFormPage() {
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Vehicle Safety Inspection Checklist</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
-            <button 
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+            <button
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms
@@ -272,17 +299,17 @@ export default function VehicleSafetyInspectionFormPage() {
               showButtons={false}
             />
           </div>
-
+          
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
-            <button 
+            <button
               onClick={() => handleSave(false)}
               disabled={saving}
               className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Saving...' : 'Save Draft'}
             </button>
-            <button 
+            <button
               onClick={() => handleSave(true)}
               disabled={saving}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"

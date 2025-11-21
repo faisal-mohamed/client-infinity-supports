@@ -21,7 +21,13 @@ export default function ConflictOfInterestFormPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const response = await fetch(apiEndpoint);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -35,10 +41,21 @@ export default function ConflictOfInterestFormPage() {
         }
 
         const staffData = await response.json();
-        setStaff(staffData);
+        setStaff(staffData.staff || staffData);
 
-        // Get the conflict_of_interest submission (submissions is an object keyed by formKey)
-        const formSubmission = staffData.submissions?.['conflict_of_interest'] || {};
+        // Load saved form data - handle both signature and onboard structures
+        let formSubmission = {};
+        if (isSignatureLink) {
+          const conflictForm = staffData.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'conflict_of_interest'
+          );
+          if (conflictForm) {
+            formSubmission = conflictForm.formSubmission?.data || {};
+          }
+        } else {
+          formSubmission = staffData.submissions?.['conflict_of_interest'] || {};
+        }
+        
         setInitialFormData(formSubmission);
         setFormData(formSubmission);
       } catch (error: any) {
@@ -145,7 +162,13 @@ export default function ConflictOfInterestFormPage() {
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/staff/onboard/${token}`, {
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/conflict_of_interest`
+        : `/api/staff/onboard/${token}`;
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -169,8 +192,9 @@ export default function ConflictOfInterestFormPage() {
         });
 
         if (isSubmit) {
+          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
           setTimeout(() => {
-            router.push(`/staff/onboard/${token}`);
+            router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
           }, 1000);
         }
       } else {
@@ -245,7 +269,10 @@ export default function ConflictOfInterestFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button 
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms

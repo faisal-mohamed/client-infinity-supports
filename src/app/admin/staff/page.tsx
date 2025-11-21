@@ -1,9 +1,12 @@
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getStaff, generateStaffLink } from '@/lib/api';
+import { getStaff, generateStaffLink, deleteStaff } from '@/lib/api';
 import StaffLinkModal from '@/app/components/components/staff/StaffLinkModal';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import {
   FaUserFriends,
   FaArrowLeft,
@@ -12,10 +15,15 @@ import {
   FaEye,
   FaLink,
   FaSearch,
+  FaFileAlt,
+  FaTrash,
 } from "react-icons/fa";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 export default function StaffListPage() {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -25,6 +33,7 @@ export default function StaffListPage() {
   const [modalId, setModalId] = useState<number>(0);
   const [selectedStaff, setSelectedStaff] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [deletingStaffId, setDeletingStaffId] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -65,6 +74,46 @@ export default function StaffListPage() {
     setModalName(`${staff.firstName} ${staff.surname}`);
     setModalId(staff.id);
     setModalOpen(true);
+  };
+
+  const handleDeleteStaff = async (staff: any) => {
+    if (deletingStaffId) return;
+
+    const confirmed = await confirm.confirm({
+      title: "Delete Staff Member",
+      message: `Are you sure you want to delete ${staff.firstName} ${staff.surname}? This will permanently remove all associated forms, submissions, and data.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      type: "danger",
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingStaffId(staff.id);
+      
+      await deleteStaff(staff.id);
+
+      showToast({
+        type: 'success',
+        title: 'Staff Deleted',
+        message: `${staff.firstName} ${staff.surname} has been deleted successfully`,
+        duration: 3000,
+      });
+
+      // Reload the staff list
+      load();
+    } catch (error: any) {
+      console.error('Error deleting staff:', error);
+      showToast({
+        type: 'error',
+        title: 'Delete Failed',
+        message: error.message || 'Failed to delete staff. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDeletingStaffId(null);
+    }
   };
 
   return (
@@ -258,6 +307,20 @@ export default function StaffListPage() {
 
                                 <MenuItem>
                                   {({ active } : any) => (
+                                    <Link
+                                      href={`/admin/staff/${s.id}/forms`}
+                                      className={`flex items-center gap-2 px-4 py-2 hover:bg-rose-50 ${
+                                        active ? "text-rose-600" : ""
+                                      }`}
+                                    >
+                                      <FaFileAlt className="w-4 h-4" />
+                                      Forms
+                                    </Link>
+                                  )}
+                                </MenuItem>
+
+                                <MenuItem>
+                                  {({ active } : any) => (
                                     <button
                                       onClick={() => handleGenerateLink(s)}
                                       className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-green-50 ${
@@ -266,6 +329,23 @@ export default function StaffListPage() {
                                     >
                                       <FaLink className="w-4 h-4" />
                                       Generate Link
+                                    </button>
+                                  )}
+                                </MenuItem>
+
+                                <div className="border-t border-gray-200 my-1"></div>
+
+                                <MenuItem>
+                                  {({ active } : any) => (
+                                    <button
+                                      onClick={() => handleDeleteStaff(s)}
+                                      disabled={deletingStaffId === s.id}
+                                      className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-red-50 ${
+                                        active ? "text-red-600" : ""
+                                      } ${deletingStaffId === s.id ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    >
+                                      <FaTrash className="w-4 h-4" />
+                                      {deletingStaffId === s.id ? "Deleting..." : "Delete"}
                                     </button>
                                   )}
                                 </MenuItem>

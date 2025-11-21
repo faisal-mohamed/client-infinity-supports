@@ -15,17 +15,38 @@ export default function OrientationFormPage() {
     date: new Date().toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(true);
+  const [rendering, setRendering] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint);
         const data = await res.json();
         
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
+        
+        // Load saved form data - handle both signature and onboard structures
+        let orientationData = {};
+        if (isSignatureLink) {
+          const orientationForm = data.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'orientation'
+          );
+          if (orientationForm) {
+            orientationData = orientationForm.formSubmission?.data || {};
+          }
+        } else {
+          orientationData = data.submissions['orientation'] || {};
+        }
+        
         const defaultData = {
           staffName: `${data.staff?.firstName ?? ''} ${data.staff?.surname ?? ''}`.trim(),
           acknowledged: false,
@@ -33,7 +54,7 @@ export default function OrientationFormPage() {
         };
         setFormData({
           ...defaultData,
-          ...(data.submissions['orientation'] || {}),
+          ...orientationData,
         });
       } catch (error: any) {
         console.error('Error loading data:', error);
@@ -97,7 +118,13 @@ export default function OrientationFormPage() {
         }
       }
 
-      const res = await fetch(`/api/staff/onboard/${token}`, {
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/orientation`
+        : `/api/staff/onboard/${token}`;
+      
+      const res = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formKey: 'orientation', data: formData, submit: isSubmit }),
@@ -106,7 +133,7 @@ export default function OrientationFormPage() {
       if (!res.ok) throw new Error(j.error || 'Failed to save');
       
       if (isSubmit) {
-        router.push(`/staff/onboard/${token}`);
+        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else {
         alert('Draft saved successfully!');
       }
@@ -118,11 +145,11 @@ export default function OrientationFormPage() {
     }
   };
 
+  const OrientationView = getStaffFormComponent('orientation', 'view');
+
   if (loading) {
     return <LoadingView title="Loading Orientation Form" message="Please wait..." />;
   }
-
-  const OrientationView = getStaffFormComponent('orientation', 'view');
 
   return (
     <div className="min-h-screen bg-gray-100 py-4 md:py-8">
@@ -147,7 +174,10 @@ export default function OrientationFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms
@@ -162,6 +192,7 @@ export default function OrientationFormPage() {
               data={formData}
               acknowledgementMode="editable"
               onAcknowledgementChange={handleAcknowledgementChange}
+              onRenderingChange={setRendering}
             />
           </div>
           

@@ -200,6 +200,15 @@ export async function getStaff(options?: { search?: string; page?: number; pageS
   return res.json();
 }
 
+export async function deleteStaff(id: number) {
+  const res = await fetch(`/api/staff/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error || error.details || 'Failed to delete staff');
+  }
+  return res.json();
+}
+
 export async function createStaff(staffData: {
   firstName: string;
   surname: string;

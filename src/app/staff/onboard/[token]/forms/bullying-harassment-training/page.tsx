@@ -22,14 +22,33 @@ export default function BullyingHarassmentTrainingFormPage() {
     const loadData = async () => {
       console.log('🔵 [Bullying & Harassment Training Page] Loading data for token:', token);
       try {
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint);
         const data = await res.json();
         console.log('🔵 [Bullying & Harassment Training Page] API Response:', data);
         
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
-        const trainingData = data.submissions['bullying_harassment_training'] || {};
+        
+        // Load saved form data - handle both signature and onboard structures
+        let trainingData = {};
+        if (isSignatureLink) {
+          const bullyingHarassmentForm = data.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'bullying_harassment_training'
+          );
+          if (bullyingHarassmentForm) {
+            trainingData = bullyingHarassmentForm.formSubmission?.data || {};
+          }
+        } else {
+          trainingData = data.submissions['bullying_harassment_training'] || {};
+        }
+        
         console.log('✅ [Bullying & Harassment Training Page] Loaded form data:', trainingData);
         setFormData(trainingData);
       } catch (error: any) {
@@ -51,10 +70,14 @@ export default function BullyingHarassmentTrainingFormPage() {
   const handleSave = async (isSubmit = false) => {
     if (!formRef.current) return;
     
-    console.log('🔵 [Bullying & Harassment Training Page] Saving form... isSubmit:', isSubmit);
+    // Detect if this is a signature link or onboard link
+    const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+    
+    console.log('🔵 [Bullying & Harassment Training Page] Saving form... isSubmit:', isSubmit, 'isSignatureLink:', isSignatureLink);
     setSaving(true);
     try {
-      const success = await formRef.current.save(isSubmit);
+      // Pass isSignatureLink as second parameter to save function
+      const success = await (formRef.current as any).save(isSubmit, isSignatureLink);
       console.log('✅ [Bullying & Harassment Training Page] Save result:', success);
       
       if (success && isSubmit) {
@@ -66,7 +89,7 @@ export default function BullyingHarassmentTrainingFormPage() {
           duration: 3000,
         });
         setTimeout(() => {
-          router.push(`/staff/onboard/${token}`);
+          router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
         }, 1000);
       } else if (success) {
         showToast({
@@ -131,7 +154,10 @@ export default function BullyingHarassmentTrainingFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
               ← Back to Forms
@@ -196,6 +222,7 @@ export default function BullyingHarassmentTrainingFormPage() {
           <BullyingHarassmentTrainingAckForm 
             ref={formRef}
             token={token}
+            isSignatureLink={window.location.pathname.includes('/staff/signature/')}
           />
           
           {/* Action Buttons */}

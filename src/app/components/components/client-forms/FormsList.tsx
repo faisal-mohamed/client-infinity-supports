@@ -161,6 +161,7 @@ interface FormsListProps {
   onFormSelect: (assignmentId: number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
   onShowAssignModal: () => void;
+  isStaff?: boolean; // Indicates if this is a staff forms list (defaults to false for client forms)
 }
 
 export default function FormsList({
@@ -170,7 +171,8 @@ export default function FormsList({
   clientId,
   onFormSelect,
   onDownloadPDF,
-  onShowAssignModal
+  onShowAssignModal,
+  isStaff = false
 }: FormsListProps) {
   const completedForms = assignments.filter(a => a.currentStatus === 'completed').length;
 
@@ -188,7 +190,7 @@ export default function FormsList({
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-1">Assigned Forms</h2>
-                  <p className="text-gray-600">Manage and track client form assignments</p>
+                  <p className="text-gray-600">Manage and track {isStaff ? 'staff' : 'client'} form assignments</p>
                 </div>
               </div>
 
@@ -215,7 +217,7 @@ export default function FormsList({
                           {assignments.length} Total Forms
                         </div>
                         <div className="text-sm text-gray-600">
-                          Select forms to generate client signature links
+                          Select forms to generate {isStaff ? 'staff' : 'client'} signature links
                         </div>
                       </div>
                     </div>
@@ -233,7 +235,7 @@ export default function FormsList({
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">No Forms Assigned</h3>
               <p className="text-gray-600 mb-8 text-base max-w-md mx-auto leading-relaxed">
-                Get started by assigning forms to this client. Once assigned, you can track their progress and manage submissions.
+                Get started by assigning forms to this {isStaff ? 'staff' : 'client'}. Once assigned, you can track their progress and manage submissions.
               </p>
               <button
                 onClick={onShowAssignModal}
@@ -260,6 +262,7 @@ export default function FormsList({
                     downloadingPDF={downloadingPDF}
                     onFormSelect={onFormSelect}
                     onDownloadPDF={onDownloadPDF}
+                    isStaff={isStaff}
                   />
                 </div>
               ))}

@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import PreEmploymentMedicalForm, { PreEmploymentMedicalFormRef } from '../../components/PreEmploymentMedicalForm';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function PreEmploymentMedicalFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -17,7 +18,13 @@ export default function PreEmploymentMedicalFormPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}` 
+          : `/api/staff/onboard/${token}`;
+        
+        const res = await fetch(apiEndpoint);
         const data = await res.json();
         
         if (!res.ok) throw new Error(data.error);
@@ -41,8 +48,9 @@ export default function PreEmploymentMedicalFormPage() {
     try {
       const success = await formRef.current.save(isSubmit);
       
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
       if (success && isSubmit) {
-        router.push(`/staff/onboard/${token}`);
+        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else if (success) {
         alert('Draft saved successfully!');
       }
@@ -91,7 +99,10 @@ export default function PreEmploymentMedicalFormPage() {
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
               ← Back to Forms
@@ -127,6 +138,7 @@ export default function PreEmploymentMedicalFormPage() {
           <PreEmploymentMedicalForm 
             ref={formRef}
             token={token}
+            isSignatureLink={window.location.pathname.includes('/staff/signature/')}
           />
           
           <div className="flex gap-4 mt-8 pt-6 border-t">

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import SignaturePad from '@/app/components/forms/SignaturePad';
+import LoadingView from '@/components/ui/LoadingView';
 
 type OrientationAcknowledgementMode = 'hidden' | 'readonly' | 'editable';
 
@@ -12,6 +13,7 @@ interface OrientationViewProps {
   acknowledgementMode?: OrientationAcknowledgementMode;
   onAcknowledgementChange?: (updates: Record<string, any>) => void;
   showDocument?: boolean;
+  onRenderingChange?: (isRendering: boolean) => void;
 }
 
 export default function OrientationView({
@@ -21,6 +23,7 @@ export default function OrientationView({
   acknowledgementMode,
   onAcknowledgementChange,
   showDocument = true,
+  onRenderingChange,
 }: OrientationViewProps) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
@@ -90,8 +93,29 @@ export default function OrientationView({
     }
     const renderPdf = async () => {
       if (hasRenderedRef.current) return;
+      
+      // Wait for container to be available before starting rendering
+      const checkContainer = () => pdfContainerRef.current;
+      
+      // Wait a bit for the ref to be set (up to 500ms)
+      let container = checkContainer();
+      let retries = 0;
+      while (!container && retries < 5) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        container = checkContainer();
+        retries++;
+      }
+      
+      if (!container) {
+        console.error('Container not available after waiting');
+        setError('Failed to initialize PDF container');
+        return;
+      }
+      
+      // Now that container is confirmed, mark as rendering
       hasRenderedRef.current = true;
       setIsRendering(true);
+      onRenderingChange?.(true);
       try {
         console.log('Starting PDF rendering for Staff Orientation');
         console.log('Injecting PDF.js scripts...');
@@ -107,12 +131,13 @@ export default function OrientationView({
         const pdf = await loadingTask.promise;
         console.log('PDF loaded successfully, pages:', pdf.numPages);
 
-        const container = pdfContainerRef.current;
-        if (!container) {
-          console.error('Container not available');
+        // Check container again after async operations
+        const finalContainer = pdfContainerRef.current;
+        if (!finalContainer) {
+          console.error('Container not available after async operations');
           return;
         }
-        container.innerHTML = '';
+        finalContainer.innerHTML = '';
         console.log('Container cleared, starting PDF rendering...');
 
         const containerWidth = container.clientWidth || 794;
@@ -180,13 +205,21 @@ export default function OrientationView({
           await page.render(renderContext).promise;
           fragment.appendChild(canvas);
         }
-        container.appendChild(fragment);
-        console.log('PDF rendering complete.');
+        
+        // Check container one more time before appending
+        const appendContainer = pdfContainerRef.current;
+        if (appendContainer) {
+          appendContainer.appendChild(fragment);
+          console.log('PDF rendering complete.');
+        } else {
+          console.error('Container not available when appending fragments');
+        }
       } catch (err: any) {
         console.error('Error rendering PDF:', err);
         setError(err.message || 'Failed to render PDF.');
       } finally {
         setIsRendering(false);
+        onRenderingChange?.(false);
       }
     };
 
@@ -328,10 +361,9 @@ export default function OrientationView({
               <input
                 type="text"
                 value={derivedStaffName}
-                onChange={(e) =>
-                  handleInputChange('staffName', e.target.value, ['employeeName'])
-                }
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                readOnly
+                disabled
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed opacity-70"
                 placeholder="Enter your full name"
               />
             </div>
@@ -370,7 +402,12 @@ export default function OrientationView({
   return (
     <div className="w-full flex justify-center p-2 md:p-4">
       <div className="w-full max-w-6xl mx-auto">
-        {isRendering && <div className="text-center text-gray-500 mb-4">Loading PDF...</div>}
+        {isRendering && (
+          <LoadingView 
+            title="Loading Staff Orientation" 
+            message="Rendering PDF pages, please wait..." 
+          />
+        )}
         <div 
           ref={pdfContainerRef} 
           className="pdf-container flex flex-col items-center justify-center"
@@ -383,7 +420,7 @@ export default function OrientationView({
             alignItems: 'center'
           }}
         ></div>
-        {renderAcknowledgementSection()}
+        {!isRendering && renderAcknowledgementSection()}
         {children}
       </div>
     </div>

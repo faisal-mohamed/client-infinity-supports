@@ -163,6 +163,7 @@ interface ActionButtonsProps {
   sendingEmail: boolean;
   allFormsCompleted?: boolean;
   onTriggerCompletionEmail?: () => void;
+  isStaff?: boolean; // Indicates if this is for staff (defaults to false for client)
 }
 
 export default function ActionButtons({
@@ -175,7 +176,8 @@ export default function ActionButtons({
   sendEmailNotification,
   sendingEmail,
   allFormsCompleted,
-  onTriggerCompletionEmail
+  onTriggerCompletionEmail,
+  isStaff = false
 }: ActionButtonsProps) {
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
@@ -204,7 +206,7 @@ export default function ActionButtons({
 
               {/* Manage Links */}
               <Link
-                href={`/admin/clients/${clientId}/signature-links`}
+                href={isStaff ? `/admin/staff/${clientId}/signature-links` : `/admin/clients/${clientId}/signature-links`}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 shadow-md hover:shadow-lg font-montserrat"
               >
                 <FaCog className="h-4 w-4" />

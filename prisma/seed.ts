@@ -94,12 +94,108 @@ async function main() {
       title: 'Multi Disciplinary Meeting',
       version: 1,
       requiresSignature: false
+    },
+    // Staff forms
+    {
+      formKey: 'employee_details',
+      title: 'Employee Details',
+      version: 1,
+      requiresSignature: false,
+    },
+    {
+      formKey: 'employee_welcome',
+      title: 'Employee Welcome Pack',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'support_worker',
+      title: 'Position Description',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'pre_employment_medical',
+      title: 'Pre-Employment Medical',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'ndis_workforce_capability',
+      title: 'NDIS Workforce Capability Framework',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'bullying_harassment_training',
+      title: 'Bullying and Harassment Training',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'bullying_training',
+      title: 'Bullying Training',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'ndis_code_of_conduct',
+      title: 'NDIS Code of Conduct',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'fair_work_information',
+      title: 'Fairwork Information Statements',
+      version: 1,
+      requiresSignature: false,
+    },
+    {
+      formKey: 'orientation',
+      title: 'Staff Orientation',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'govt_tax',
+      title: 'TFN Declaration',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'super_choice_form',
+      title: 'Superannuation Standard Choice Form',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'vehicle_safety_inspection',
+      title: 'Vehicle Safety Inspection Checklist',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'conflict_of_interest',
+      title: 'Conflict of Interest Disclosure Form',
+      version: 1,
+      requiresSignature: true,
+    },
+    {
+      formKey: 'documentation_acknowledgement',
+      title: 'Documentation Acknowledgement',
+      version: 1,
+      requiresSignature: true,
     }
   ];
 
   for (const form of forms) {
     await prisma.masterForm.upsert({
-      where: { formKey: form.formKey },
+      where: { 
+        formKey_version: {
+          formKey: form.formKey,
+          version: form.version
+        }
+      },
       update: form,
       create: form,
     });

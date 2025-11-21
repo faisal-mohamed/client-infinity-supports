@@ -90,9 +90,12 @@ export default function StaffNdisWorkforceCapabilityView() {
         showDownload={true}
       />
 
-      {/* PDF Viewer */}
+      {/* PDF Viewer - Only show first page (acknowledgement form) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${id}/forms/ndis-workforce-capability/pdf`} />
+        <AdminPDFCanvasViewer 
+          pdfUrl={`/api/staff/${id}/forms/ndis-workforce-capability/pdf?merge=false`} 
+          maxPages={1}
+        />
       </div>
     </div>
   );

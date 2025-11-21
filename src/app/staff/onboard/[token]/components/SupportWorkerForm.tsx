@@ -14,9 +14,10 @@ export interface SupportWorkerFormRef {
 interface SupportWorkerFormProps {
   token: string;
   onValidityChange?: (valid: boolean) => void;
+  isSignatureLink?: boolean; // If true, use signature API endpoint
 }
 
-const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProps>(({ token, onValidityChange }, ref) => {
+const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProps>(({ token, onValidityChange, isSignatureLink = false }, ref) => {
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState<any>({});
@@ -26,11 +27,26 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
     // Load saved data if any
     const loadData = async () => {
       try {
-        const response = await fetch(`/api/staff/onboard/${token}`);
+        // Use signature API if in signature link mode, otherwise use onboard API
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}/forms/support_worker` 
+          : `/api/staff/onboard/${token}`;
+        const response = await fetch(apiEndpoint);
         if (response.ok) {
           const result = await response.json();
-          const s = result.staff || {};
-          const saved = (result.submissions && result.submissions['support_worker']) || {};
+          // Handle different response structures
+          let s: any = {};
+          let saved: any = {};
+          
+          if (isSignatureLink) {
+            // Signature form API returns staff and submissions
+            s = result.staff || {};
+            saved = (result.submissions && result.submissions['support_worker']) || {};
+          } else {
+            // Onboard API returns staff and submissions
+            s = result.staff || {};
+            saved = (result.submissions && result.submissions['support_worker']) || {};
+          }
           setStaffInfo(s);
           setData((d: any) => ({
             ...d,
@@ -80,12 +96,18 @@ const SupportWorkerForm = forwardRef<SupportWorkerFormRef, SupportWorkerFormProp
   const save = async (final: boolean): Promise<boolean> => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/staff/onboard/${token}`, {
+      // Use signature API if in signature link mode, otherwise use onboard API
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/support_worker`
+        : `/api/staff/onboard/${token}`;
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formKey: 'support_worker',
-          data: { ...data, final }
+          data: { ...data, final },
+          submit: final // Use submit for signature API
         })
       });
       

@@ -27,6 +27,7 @@ interface FormItemProps {
   downloadingPDF: number | null;
   onFormSelect: (assignmentId: number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
+  isStaff?: boolean; // Indicates if this is a staff form (defaults to false for client forms)
 }
 
 export default function FormItem({
@@ -35,7 +36,8 @@ export default function FormItem({
   selectedForms,
   downloadingPDF,
   onFormSelect,
-  onDownloadPDF
+  onDownloadPDF,
+  isStaff = false
 }: FormItemProps) {
   const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
@@ -73,13 +75,21 @@ export default function FormItem({
     if (requiresSignatures && assignment.currentStatus === 'completed') {
       setShowEditWarningModal(true);
     } else {
-      router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+      // Use staff route if it's a staff form, otherwise use client route
+      const editRoute = isStaff
+        ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
+        : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+      router.push(editRoute);
     }
   };
 
   const handleEditConfirm = () => {
     setShowEditWarningModal(false);
-    router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+    // Use staff route if it's a staff form, otherwise use client route
+    const editRoute = isStaff
+      ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
+      : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+    router.push(editRoute);
   };
 
   const handleEditCancel = () => setShowEditWarningModal(false);
@@ -97,7 +107,11 @@ export default function FormItem({
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/form-assignments/${assignment.id}`, { method: 'DELETE' });
+      // Use staff-form-assignments endpoint if it's a staff form, otherwise use form-assignments for client forms
+      const apiEndpoint = isStaff 
+        ? `/api/staff-form-assignments/${assignment.id}`
+        : `/api/form-assignments/${assignment.id}`;
+      const response = await fetch(apiEndpoint, { method: 'DELETE' });
       if (!response.ok) throw new Error("Failed to delete form assignment");
       window.location.reload();
     } catch (err) {
@@ -116,7 +130,11 @@ export default function FormItem({
     try {
       setGeneratingLink(true);
       // Generate a signature link for only this assignment
-      const response = await fetch(`/api/clients/${clientId}/generate-signature-link`, {
+      // Use staff endpoint if it's a staff form, otherwise use client endpoint
+      const apiEndpoint = isStaff
+        ? `/api/staff/${clientId}/generate-signature-link`
+        : `/api/clients/${clientId}/generate-signature-link`;
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formAssignmentIds: [assignment.id] })
@@ -209,7 +227,8 @@ bgColor: 'from-amber-500 to-amber-600',
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.adminFilledAt || assignment.form.formKey === 'emergency_drill' ? (
+            {/* Always show checkbox for staff forms; for client forms, show checkbox only if admin filled or emergency_drill */}
+            {(isStaff || assignment.adminFilledAt || assignment.form.formKey === 'emergency_drill') ? (
               <input
                 type="checkbox"
                 checked={isSelected}
@@ -265,12 +284,12 @@ bgColor: 'from-amber-500 to-amber-600',
                       </span>
                     </div>
                   )}
-                  {assignment.clientSignedAt && (
+                  {(assignment.clientSignedAt || (isStaff && assignment.staffSignedAt)) && (
                     <div className="flex items-center gap-2">
                       <FaCheckCircle className="h-3 w-3 text-green-500" />
                       <span className="text-green-600 font-bold">
                         <span className="hidden sm:inline">Signed </span>
-                        {new Date(assignment.clientSignedAt).toLocaleDateString()}
+                        {new Date((assignment.clientSignedAt || assignment.staffSignedAt)!).toLocaleDateString()}
                       </span>
                     </div>
                   )}
@@ -307,6 +326,7 @@ bgColor: 'from-amber-500 to-amber-600',
               showGenerateLink={assignment.form.formKey === 'emergency_drill'}
               onGenerateLinkClick={generateEmergencyDrillLink}
               generatingLink={generatingLink}
+              isStaff={isStaff}
             />
           </div>
         </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import NdisWorkforceCapabilityAckForm, { NdisWorkforceCapabilityAckFormRef } from '../../components/NdisWorkforceCapabilityAckForm';
+import { useEffect, useMemo, useState } from 'react';
+import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
 import LoadingView from '@/components/ui/LoadingView';
 
@@ -10,27 +10,177 @@ export default function NdisWorkforceCapabilityFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
   const [staff, setStaff] = useState<any>(null);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>({
+    fullName: '',
+    readAcknowledgement: false,
+    signature: '',
+    date: new Date().toISOString().split('T')[0],
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [hasDownloaded, setHasDownloaded] = useState(false);
-  const formRef = useRef<NdisWorkforceCapabilityAckFormRef>(null);
   const { showToast } = useToast();
 
   useEffect(() => {
     const loadData = async () => {
       console.log('🔵 [NDIS Workforce Capability Page] Loading data for token:', token);
+      console.log('🔵 [NDIS Workforce Capability Page] Current pathname:', window.location.pathname);
       try {
-        const res = await fetch(`/api/staff/onboard/${token}`);
+        // Detect if this is a signature link or onboard link
+        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+        console.log('🔵 [NDIS Workforce Capability Page] Is signature link?', isSignatureLink);
+        
+        // For signature links, use the form-specific endpoint to get the actual form data
+        const apiEndpoint = isSignatureLink 
+          ? `/api/staff/signature/${token}/forms/ndis_workforce_capability` 
+          : `/api/staff/onboard/${token}`;
+        console.log('🔵 [NDIS Workforce Capability Page] Using API endpoint:', apiEndpoint);
+        
+        // Add cache-busting parameter to ensure fresh data
+        const res = await fetch(`${apiEndpoint}?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          }
+        });
         const data = await res.json();
         console.log('🔵 [NDIS Workforce Capability Page] API Response:', data);
         
         if (!res.ok) throw new Error(data.error);
         
         setStaff(data.staff);
-        const ndisData = data.submissions['ndis_workforce_capability'] || {};
-        console.log('✅ [NDIS Workforce Capability Page] Loaded form data:', ndisData);
-        setFormData(ndisData);
+        
+        // Load saved form data - handle both signature and onboard structures
+        let ndisData: any = {};
+        if (isSignatureLink) {
+          console.log('🔵 [NDIS Workforce Capability Page] Processing signature link data');
+          console.log('🔵 [NDIS Workforce Capability Page] API Response structure:', {
+            hasSubmissions: !!data.submissions,
+            hasSignatureForms: !!data.signatureForms,
+            hasStaff: !!data.staff,
+            dataKeys: Object.keys(data)
+          });
+          
+          // The form-specific endpoint returns { staff, submissions: { formKey: formData } }
+          if (data.submissions && data.submissions['ndis_workforce_capability']) {
+            ndisData = { ...(data.submissions['ndis_workforce_capability'] || {}) };
+            console.log('🔵 [NDIS Workforce Capability Page] Loaded from submissions object:', {
+              keys: Object.keys(ndisData),
+              hasSignature: !!ndisData.signature,
+              hasStaffSignature: !!ndisData.staffSignature,
+              signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
+            });
+          } else {
+            // Fallback to batch endpoint structure (for backward compatibility)
+            const ndisForm = data.signatureForms?.find(
+              (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
+            );
+            console.log('🔵 [NDIS Workforce Capability Page] Found NDIS form in batch:', {
+              found: !!ndisForm,
+              staffSignature: ndisForm?.formSubmission?.staffSignature ? 'EXISTS' : 'NULL',
+              staffSignedAt: ndisForm?.formSubmission?.staffSignedAt,
+              dataKeys: Object.keys(ndisForm?.formSubmission?.data || {}),
+              dataHasSignature: !!(ndisForm?.formSubmission?.data as any)?.signature
+            });
+            
+            if (ndisForm) {
+              ndisData = { ...(ndisForm.formSubmission?.data || {}) };
+              console.log('🔵 [NDIS Workforce Capability Page] Initial ndisData:', {
+                keys: Object.keys(ndisData),
+                hasSignature: !!ndisData.signature,
+                hasStaffSignature: !!ndisData.staffSignature
+              });
+              
+              // Only set signature from staffSignature column if it exists (not cleared)
+              // If staffSignature is null, explicitly remove signature fields
+              if (ndisForm.formSubmission?.staffSignature) {
+                ndisData.signature = ndisForm.formSubmission.staffSignature;
+                console.log('✅ [NDIS Workforce Capability Page] Added signature from staffSignature column');
+              } else {
+                // Signature was cleared - explicitly remove all signature fields
+                delete ndisData.signature;
+                delete ndisData.staffSignature;
+                delete ndisData.orientationSignature;
+                console.log('🗑️ [NDIS Workforce Capability Page] Removed ALL signature fields (staffSignature is null)');
+              }
+              if (ndisForm.formSubmission?.staffSignedAt) {
+                ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
+              } else {
+                // Date was cleared - remove date fields and set to today
+                delete ndisData.date;
+                delete ndisData.acknowledgedAt;
+                delete ndisData.staffSignedAt;
+                ndisData.date = new Date().toISOString().split('T')[0];
+              }
+            }
+          }
+          
+          console.log('🔵 [NDIS Workforce Capability Page] After processing signature link:', {
+            keys: Object.keys(ndisData),
+            hasSignature: !!ndisData.signature,
+            signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
+          });
+        } else {
+          console.log('🔵 [NDIS Workforce Capability Page] Processing onboard link data');
+          ndisData = { ...(data.submissions['ndis_workforce_capability'] || {}) };
+          console.log('🔵 [NDIS Workforce Capability Page] Initial ndisData from submissions:', {
+            keys: Object.keys(ndisData),
+            hasSignature: !!ndisData.signature,
+            hasStaffSignature: !!ndisData.staffSignature,
+            signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
+          });
+          
+          // Ensure signature fields are properly cleared if they don't exist
+          // Check both the signature field and staffSignature column
+          const hasSignature = ndisData.signature || ndisData.staffSignature;
+          console.log('🔵 [NDIS Workforce Capability Page] Has signature?', hasSignature);
+          if (!hasSignature) {
+            delete ndisData.signature;
+            delete ndisData.staffSignature;
+            delete ndisData.orientationSignature;
+            console.log('🗑️ [NDIS Workforce Capability Page] Removed ALL signature fields (no signature found)');
+          }
+          console.log('🔵 [NDIS Workforce Capability Page] After processing onboard link:', {
+            keys: Object.keys(ndisData),
+            hasSignature: !!ndisData.signature,
+            signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
+          });
+        }
+
+        const defaultData = {
+          fullName: `${data.staff?.firstName ?? ''} ${data.staff?.surname ?? ''}`.trim(),
+          readAcknowledgement: false,
+          signature: '',
+          date: new Date().toISOString().split('T')[0],
+        };
+        
+        // Merge with explicit signature handling
+        const mergedData = {
+          ...defaultData,
+          ...ndisData,
+        };
+        
+        console.log('🔵 [NDIS Workforce Capability Page] Before final signature check:', {
+          keys: Object.keys(mergedData),
+          hasSignature: !!mergedData.signature,
+          hasStaffSignature: !!mergedData.staffSignature,
+          signatureValue: mergedData.signature ? 'EXISTS' : 'NULL/EMPTY'
+        });
+        
+        // If signature was cleared, ensure it's empty string (not undefined)
+        if (!mergedData.signature && !mergedData.staffSignature) {
+          mergedData.signature = '';
+          console.log('🗑️ [NDIS Workforce Capability Page] Set signature to empty string (final cleanup)');
+        }
+        
+        console.log('✅ [NDIS Workforce Capability Page] Final loaded form data:', {
+          keys: Object.keys(mergedData),
+          hasSignature: !!mergedData.signature,
+          signatureValue: mergedData.signature ? 'EXISTS' : 'NULL/EMPTY',
+          signatureLength: mergedData.signature?.length || 0,
+          fullData: mergedData
+        });
+        setFormData(mergedData);
       } catch (error: any) {
         console.error('❌ [NDIS Workforce Capability Page] Error loading data:', error);
         showToast({
@@ -46,28 +196,204 @@ export default function NdisWorkforceCapabilityFormPage() {
 
     if (token) loadData();
   }, [token]);
+  
+  // Reload data when URL changes (e.g., when reload query param is added)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (token && !loading) {
+        const loadData = async () => {
+          try {
+            const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+            const apiEndpoint = isSignatureLink 
+              ? `/api/staff/signature/${token}` 
+              : `/api/staff/onboard/${token}`;
+            
+            const res = await fetch(`${apiEndpoint}?t=${Date.now()}`, {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+              }
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+              let ndisData: any = {};
+              if (isSignatureLink) {
+                const ndisForm = data.signatureForms?.find(
+                  (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
+                );
+                if (ndisForm) {
+                  ndisData = { ...(ndisForm.formSubmission?.data || {}) };
+                  if (ndisForm.formSubmission?.staffSignature) {
+                    ndisData.signature = ndisForm.formSubmission.staffSignature;
+                  } else {
+                    // Signature was cleared - explicitly remove all signature fields
+                    delete ndisData.signature;
+                    delete ndisData.staffSignature;
+                    delete ndisData.orientationSignature;
+                  }
+                  if (ndisForm.formSubmission?.staffSignedAt) {
+                    ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
+                  } else {
+                    // Date was cleared - remove date fields and set to today
+                    delete ndisData.date;
+                    delete ndisData.acknowledgedAt;
+                    delete ndisData.staffSignedAt;
+                    ndisData.date = new Date().toISOString().split('T')[0];
+                  }
+                }
+              } else {
+                ndisData = { ...(data.submissions['ndis_workforce_capability'] || {}) };
+                // Ensure signature fields are properly cleared if they don't exist
+                const hasSignature = ndisData.signature || ndisData.staffSignature;
+                if (!hasSignature) {
+                  delete ndisData.signature;
+                  delete ndisData.staffSignature;
+                  delete ndisData.orientationSignature;
+                }
+              }
 
-  const handleSave = async (isSubmit = false) => {
-    if (!formRef.current) return;
+              const defaultData = {
+                fullName: `${data.staff?.firstName ?? ''} ${data.staff?.surname ?? ''}`.trim(),
+                readAcknowledgement: false,
+                signature: '',
+                date: new Date().toISOString().split('T')[0],
+              };
+              
+              const mergedData = {
+                ...defaultData,
+                ...ndisData,
+              };
+              
+              // If signature was cleared, ensure it's empty string (not undefined)
+              if (!mergedData.signature && !mergedData.staffSignature) {
+                mergedData.signature = '';
+              }
+              
+              setFormData(mergedData);
+            }
+          } catch (error) {
+            console.error('Error reloading data:', error);
+          }
+        };
+        loadData();
+      }
+    };
+
+    // Listen for popstate (back/forward navigation) and focus events
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('focus', handleLocationChange);
     
-    console.log('🔵 [NDIS Workforce Capability Page] Saving form... isSubmit:', isSubmit);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('focus', handleLocationChange);
+    };
+  }, [token, loading]);
+
+  const derivedAcknowledged = useMemo(() => formData?.readAcknowledgement || false, [formData]);
+  const derivedSignature = useMemo(() => formData?.signature || '', [formData]);
+  const derivedDate = useMemo(() => formData?.date || '', [formData]);
+  const derivedStaffName = useMemo(() => formData?.fullName || '', [formData]);
+
+  const handleAcknowledgementChange = (updates: Record<string, any>) => {
+    console.log('🔵 [NDIS Workforce Capability Page] Acknowledgement changed:', updates);
+    setFormData((prev: any) => {
+      const updated = { ...prev, ...updates };
+      console.log('🔵 [NDIS Workforce Capability Page] FormData updated:', {
+        keys: Object.keys(updated),
+        hasSignature: !!updated.signature,
+        signatureLength: updated.signature?.length || 0,
+        hasDate: !!updated.date,
+        hasFullName: !!updated.fullName
+      });
+      return updated;
+    });
+  };
+
+  const handleSave = async (isSubmit: boolean) => {
+    console.log('🔵 [NDIS Workforce Capability Page] Saving form:', {
+      isSubmit,
+      formDataKeys: Object.keys(formData),
+      hasSignature: !!formData.signature,
+      signatureLength: formData.signature?.length || 0,
+      hasDate: !!formData.date,
+      hasFullName: !!formData.fullName,
+      derivedSignature: derivedSignature,
+      derivedDate: derivedDate,
+      derivedStaffName: derivedStaffName
+    });
+    
     setSaving(true);
     try {
-      const success = await formRef.current.save(isSubmit);
-      console.log('✅ [NDIS Workforce Capability Page] Save result:', success);
+      if (isSubmit) {
+        const nameFilled = !!derivedStaffName?.trim();
+        const signatureFilled = !!derivedSignature;
+        const dateFilled = !!derivedDate;
+
+        // Build specific validation message for missing fields
+        const missingFields: string[] = [];
+        if (!nameFilled) missingFields.push('Name');
+        if (!signatureFilled) missingFields.push('Signature');
+        if (!dateFilled) missingFields.push('Date');
+
+        if (missingFields.length > 0) {
+          const fieldList = missingFields.length === 1 
+            ? missingFields[0]
+            : missingFields.length === 2
+            ? `${missingFields[0]} and ${missingFields[1]}`
+            : `${missingFields.slice(0, -1).join(', ')}, and ${missingFields[missingFields.length - 1]}`;
+          
+          showToast({
+            type: 'warning',
+            title: 'Incomplete Form',
+            message: `Please complete the following required ${missingFields.length === 1 ? 'field' : 'fields'}: ${fieldList}.`,
+            duration: 5000,
+          });
+          setSaving(false);
+          return;
+        }
+      }
+
+      // Detect if this is a signature link or onboard link
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/ndis_workforce_capability`
+        : `/api/staff/onboard/${token}`;
+
+      // Use derived values to ensure we're sending the latest signature
+      const dataToSend = {
+        ...formData,
+        signature: derivedSignature || formData.signature || '',
+        date: derivedDate || formData.date || '',
+        fullName: derivedStaffName || formData.fullName || '',
+      };
       
-      if (success && isSubmit) {
-        console.log('🔵 [NDIS Workforce Capability Page] Redirecting to main forms page...');
+      console.log('🔵 [NDIS Workforce Capability Page] Sending data to API:', {
+        keys: Object.keys(dataToSend),
+        hasSignature: !!dataToSend.signature,
+        signatureLength: dataToSend.signature?.length || 0,
+        hasDate: !!dataToSend.date,
+        hasFullName: !!dataToSend.fullName
+      });
+
+      const res = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formKey: 'ndis_workforce_capability', data: dataToSend, submit: isSubmit }),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'Failed to save');
+
+      if (isSubmit) {
         showToast({
           type: 'success',
           title: 'Form Submitted',
           message: 'Form submitted successfully!',
           duration: 3000,
         });
-        setTimeout(() => {
-          router.push(`/staff/onboard/${token}`);
-        }, 1000);
-      } else if (success) {
+        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+      } else {
         showToast({
           type: 'success',
           title: 'Draft Saved',
@@ -88,133 +414,74 @@ export default function NdisWorkforceCapabilityFormPage() {
     }
   };
 
+  const NdisWorkforceCapabilityView = getStaffFormComponent('ndis_workforce_capability', 'view');
+
   if (loading) {
     return <LoadingView title="Loading NDIS Workforce Capability Form" message="Please wait..." />;
   }
 
-  const handleDownloadClick = () => {
-    console.log('✅ [NDIS Workforce Capability Page] User clicked download button');
-    setHasDownloaded(true);
-    showToast({
-      type: 'success',
-      title: 'Download Started',
-      message: 'You can now complete the acknowledgement form below',
-      duration: 5000,
-    });
-  };
-
-  const handleFormClick = (e: React.MouseEvent) => {
-    if (!hasDownloaded) {
-      e.preventDefault();
-      e.stopPropagation();
-      showToast({
-        type: 'warning',
-        title: 'Form Locked',
-        message: 'Please download and read the NDIS Workforce Capability Framework before completing this form.',
-        duration: 5000,
-      });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-
+    <div className="min-h-screen bg-gray-100 py-4 md:py-8">
+      <style jsx>{`
+        .view-component-wrapper .text-gray-700 { color: #374151 !important; }
+        .view-component-wrapper .text-gray-600 { color: #4b5563 !important; }
+        .view-component-wrapper .text-gray-800 { color: #1f2937 !important; }
+        .view-component-wrapper .text-xs { font-size: 0.875rem !important; }
+        .view-component-wrapper { 
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      `}</style>
+      <div className="w-full max-w-7xl mx-auto px-2 md:px-6">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex items-center justify-between">
+        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">NDIS Workforce Capability Framework</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">NDIS Workforce Capability Framework</h1>
               <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
             </div>
             <button
-              onClick={() => router.push(`/staff/onboard/${token}`)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >
               ← Back to Forms
             </button>
           </div>
         </div>
 
-        {/* Download Section - FORCE download before form */}
-        <div className={`bg-white rounded-lg shadow-lg p-8 mb-8 ${!hasDownloaded ? 'ring-4 ring-blue-400 ring-offset-2' : ''}`}>
-          <div className="flex flex-col items-center">
-            {!hasDownloaded && (
-              <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4 w-full">
-                <div className="flex items-center gap-3">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  <p className="text-yellow-800 font-semibold text-sm">
-                    ⚠️ You must download the PDF before completing the form
-                  </p>
-                </div>
-              </div>
-            )}
-            <p className="text-gray-700 text-center mb-4">
-              📄 Please download and read the NDIS Workforce Capability Framework before completing the acknowledgement form below
-            </p>
-            <a
-              href="/stafForms/NDIS WORKFORCE CAPABILITY FRAMEWORK.pdf"
-              download="NDIS_Workforce_Capability_Framework.pdf"
-              onClick={handleDownloadClick}
-              className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg shadow transition-all duration-200 ${
-                hasDownloaded 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-xl transform hover:scale-105 animate-pulse'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              {hasDownloaded ? '✓ Downloaded - Click to Download Again' : 'Download NDIS Workforce Capability Framework'}
-            </a>
+        {/* View Component */}
+        <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
+          <div className="view-component-wrapper w-full">
+            <NdisWorkforceCapabilityView
+              data={formData}
+              acknowledgementMode="editable"
+              onAcknowledgementChange={handleAcknowledgementChange}
+            />
           </div>
-        </div>
 
-        {/* Acknowledgement Form - LOCKED until download */}
-        <div 
-          className={`bg-white rounded-lg shadow-lg p-6 relative ${!hasDownloaded ? 'opacity-50 pointer-events-none' : ''}`}
-          onClick={handleFormClick}
-        >
-          {!hasDownloaded && (
-            <div className="absolute inset-0 bg-gray-900 bg-opacity-10 backdrop-blur-sm rounded-lg flex items-center justify-center z-10 cursor-not-allowed">
-              <div className="bg-white p-6 rounded-xl shadow-2xl text-center max-w-md">
-                <svg className="w-16 h-16 text-yellow-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Form Locked</h3>
-                <p className="text-gray-600">
-                  Please download the NDIS Workforce Capability Framework above before filling out this acknowledgement form.
-                </p>
-              </div>
-            </div>
-          )}
-          <NdisWorkforceCapabilityAckForm 
-            ref={formRef}
-            token={token}
-          />
-          
-          {/* Action Buttons */}
-          <div className="flex gap-4 mt-8 pt-6 border-t">
+          <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
             <button
               onClick={() => handleSave(false)}
-              disabled={saving || !hasDownloaded}
-              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving}
+              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Saving...' : 'Save Draft'}
             </button>
             <button
               onClick={() => handleSave(true)}
-              disabled={saving || !hasDownloaded}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={saving}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Submitting...' : 'Submit & Continue'}
             </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 }
