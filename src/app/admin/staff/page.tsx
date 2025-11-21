@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getStaff, generateStaffLink, deleteStaff } from '@/lib/api';
-import StaffLinkModal from '@/app/components/components/staff/StaffLinkModal';
+import { getStaff, deleteStaff } from '@/lib/api';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/Confirm';
 import {
@@ -13,7 +12,6 @@ import {
   FaUserPlus,
   FaEllipsisV,
   FaEye,
-  FaLink,
   FaSearch,
   FaFileAlt,
   FaTrash,
@@ -27,10 +25,6 @@ export default function StaffListPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalData, setModalData] = useState<{ url: string; expiresAt: string } | null>(null);
-  const [modalName, setModalName] = useState('');
-  const [modalId, setModalId] = useState<number>(0);
   const [selectedStaff, setSelectedStaff] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [deletingStaffId, setDeletingStaffId] = useState<number | null>(null);
@@ -66,14 +60,6 @@ export default function StaffListPage() {
         setSelectAll(true);
       }
     }
-  };
-
-  const handleGenerateLink = async (staff: any) => {
-    const res = await generateStaffLink(staff.id);
-    setModalData({ url: res.link, expiresAt: res.expiresAt });
-    setModalName(`${staff.firstName} ${staff.surname}`);
-    setModalId(staff.id);
-    setModalOpen(true);
   };
 
   const handleDeleteStaff = async (staff: any) => {
@@ -319,20 +305,6 @@ export default function StaffListPage() {
                                   )}
                                 </MenuItem>
 
-                                <MenuItem>
-                                  {({ active } : any) => (
-                                    <button
-                                      onClick={() => handleGenerateLink(s)}
-                                      className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-green-50 ${
-                                        active ? "text-green-600" : ""
-                                      }`}
-                                    >
-                                      <FaLink className="w-4 h-4" />
-                                      Generate Link
-                                    </button>
-                                  )}
-                                </MenuItem>
-
                                 <div className="border-t border-gray-200 my-1"></div>
 
                                 <MenuItem>
@@ -362,7 +334,6 @@ export default function StaffListPage() {
           )}
         </div>
       </div>
-      <StaffLinkModal isOpen={modalOpen} onClose={()=>setModalOpen(false)} staffName={modalName} staffId={modalId} link={modalData} />
     </div>
   );
 }

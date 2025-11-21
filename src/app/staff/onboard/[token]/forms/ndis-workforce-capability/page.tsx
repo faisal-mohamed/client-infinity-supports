@@ -25,14 +25,11 @@ export default function NdisWorkforceCapabilityFormPage() {
       console.log('🔵 [NDIS Workforce Capability Page] Loading data for token:', token);
       console.log('🔵 [NDIS Workforce Capability Page] Current pathname:', window.location.pathname);
       try {
-        // Detect if this is a signature link or onboard link
-        const isSignatureLink = window.location.pathname.includes('/staff/signature/');
-        console.log('🔵 [NDIS Workforce Capability Page] Is signature link?', isSignatureLink);
+        // Always use signature link API (onboard flow removed)
+        console.log('🔵 [NDIS Workforce Capability Page] Using signature link API');
         
-        // For signature links, use the form-specific endpoint to get the actual form data
-        const apiEndpoint = isSignatureLink 
-          ? `/api/staff/signature/${token}/forms/ndis_workforce_capability` 
-          : `/api/staff/onboard/${token}`;
+        // Use the form-specific endpoint to get the actual form data
+        const apiEndpoint = `/api/staff/signature/${token}/forms/ndis_workforce_capability`;
         console.log('🔵 [NDIS Workforce Capability Page] Using API endpoint:', apiEndpoint);
         
         // Add cache-busting parameter to ensure fresh data
@@ -50,9 +47,9 @@ export default function NdisWorkforceCapabilityFormPage() {
         
         setStaff(data.staff);
         
-        // Load saved form data - handle both signature and onboard structures
+        // Load saved form data - always use signature link structure
         let ndisData: any = {};
-        if (isSignatureLink) {
+        {
           console.log('🔵 [NDIS Workforce Capability Page] Processing signature link data');
           console.log('🔵 [NDIS Workforce Capability Page] API Response structure:', {
             hasSubmissions: !!data.submissions,
@@ -72,9 +69,9 @@ export default function NdisWorkforceCapabilityFormPage() {
             });
           } else {
             // Fallback to batch endpoint structure (for backward compatibility)
-            const ndisForm = data.signatureForms?.find(
-              (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
-            );
+          const ndisForm = data.signatureForms?.find(
+            (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
+          );
             console.log('🔵 [NDIS Workforce Capability Page] Found NDIS form in batch:', {
               found: !!ndisForm,
               staffSignature: ndisForm?.formSubmission?.staffSignature ? 'EXISTS' : 'NULL',
@@ -83,7 +80,7 @@ export default function NdisWorkforceCapabilityFormPage() {
               dataHasSignature: !!(ndisForm?.formSubmission?.data as any)?.signature
             });
             
-            if (ndisForm) {
+          if (ndisForm) {
               ndisData = { ...(ndisForm.formSubmission?.data || {}) };
               console.log('🔵 [NDIS Workforce Capability Page] Initial ndisData:', {
                 keys: Object.keys(ndisData),
@@ -91,56 +88,31 @@ export default function NdisWorkforceCapabilityFormPage() {
                 hasStaffSignature: !!ndisData.staffSignature
               });
               
-              // Only set signature from staffSignature column if it exists (not cleared)
+            // Only set signature from staffSignature column if it exists (not cleared)
               // If staffSignature is null, explicitly remove signature fields
-              if (ndisForm.formSubmission?.staffSignature) {
-                ndisData.signature = ndisForm.formSubmission.staffSignature;
+            if (ndisForm.formSubmission?.staffSignature) {
+              ndisData.signature = ndisForm.formSubmission.staffSignature;
                 console.log('✅ [NDIS Workforce Capability Page] Added signature from staffSignature column');
-              } else {
+            } else {
                 // Signature was cleared - explicitly remove all signature fields
                 delete ndisData.signature;
                 delete ndisData.staffSignature;
                 delete ndisData.orientationSignature;
                 console.log('🗑️ [NDIS Workforce Capability Page] Removed ALL signature fields (staffSignature is null)');
-              }
-              if (ndisForm.formSubmission?.staffSignedAt) {
-                ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
-              } else {
+            }
+            if (ndisForm.formSubmission?.staffSignedAt) {
+              ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
+            } else {
                 // Date was cleared - remove date fields and set to today
                 delete ndisData.date;
                 delete ndisData.acknowledgedAt;
                 delete ndisData.staffSignedAt;
-                ndisData.date = new Date().toISOString().split('T')[0];
+              ndisData.date = new Date().toISOString().split('T')[0];
               }
             }
           }
           
           console.log('🔵 [NDIS Workforce Capability Page] After processing signature link:', {
-            keys: Object.keys(ndisData),
-            hasSignature: !!ndisData.signature,
-            signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
-          });
-        } else {
-          console.log('🔵 [NDIS Workforce Capability Page] Processing onboard link data');
-          ndisData = { ...(data.submissions['ndis_workforce_capability'] || {}) };
-          console.log('🔵 [NDIS Workforce Capability Page] Initial ndisData from submissions:', {
-            keys: Object.keys(ndisData),
-            hasSignature: !!ndisData.signature,
-            hasStaffSignature: !!ndisData.staffSignature,
-            signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
-          });
-          
-          // Ensure signature fields are properly cleared if they don't exist
-          // Check both the signature field and staffSignature column
-          const hasSignature = ndisData.signature || ndisData.staffSignature;
-          console.log('🔵 [NDIS Workforce Capability Page] Has signature?', hasSignature);
-          if (!hasSignature) {
-            delete ndisData.signature;
-            delete ndisData.staffSignature;
-            delete ndisData.orientationSignature;
-            console.log('🗑️ [NDIS Workforce Capability Page] Removed ALL signature fields (no signature found)');
-          }
-          console.log('🔵 [NDIS Workforce Capability Page] After processing onboard link:', {
             keys: Object.keys(ndisData),
             hasSignature: !!ndisData.signature,
             signatureValue: ndisData.signature ? 'EXISTS' : 'NULL/EMPTY'
@@ -203,10 +175,8 @@ export default function NdisWorkforceCapabilityFormPage() {
       if (token && !loading) {
         const loadData = async () => {
           try {
-            const isSignatureLink = window.location.pathname.includes('/staff/signature/');
-            const apiEndpoint = isSignatureLink 
-              ? `/api/staff/signature/${token}` 
-              : `/api/staff/onboard/${token}`;
+            // Always use signature link API (onboard flow removed)
+            const apiEndpoint = `/api/staff/signature/${token}`;
             
             const res = await fetch(`${apiEndpoint}?t=${Date.now()}`, {
               cache: 'no-store',
@@ -219,7 +189,7 @@ export default function NdisWorkforceCapabilityFormPage() {
             
             if (res.ok) {
               let ndisData: any = {};
-              if (isSignatureLink) {
+              {
                 const ndisForm = data.signatureForms?.find(
                   (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
                 );
@@ -355,11 +325,8 @@ export default function NdisWorkforceCapabilityFormPage() {
         }
       }
 
-      // Detect if this is a signature link or onboard link
-      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
-      const apiEndpoint = isSignatureLink
-        ? `/api/staff/signature/${token}/forms/ndis_workforce_capability`
-        : `/api/staff/onboard/${token}`;
+      // Always use signature link API (onboard flow removed)
+      const apiEndpoint = `/api/staff/signature/${token}/forms/ndis_workforce_capability`;
 
       // Use derived values to ensure we're sending the latest signature
       const dataToSend = {
@@ -392,7 +359,7 @@ export default function NdisWorkforceCapabilityFormPage() {
           message: 'Form submitted successfully!',
           duration: 3000,
         });
-        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+        router.push(`/staff/signature/${token}`);
       } else {
         showToast({
           type: 'success',
@@ -444,8 +411,7 @@ export default function NdisWorkforceCapabilityFormPage() {
             </div>
             <button
               onClick={() => {
-                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
-                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+                router.push(`/staff/signature/${token}`);
               }}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
             >

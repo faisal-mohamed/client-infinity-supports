@@ -227,15 +227,6 @@ export async function createStaff(staffData: {
   return res.json();
 }
 
-export async function generateStaffLink(staffId: number) {
-  const res = await fetch(`/api/staff/${staffId}/generate-link`, { method: 'POST' });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Failed to generate link');
-  }
-  return res.json();
-}
-
 // Client Forms API functions
 export async function getClientForms(clientId: number) {
   const response = await fetch(`/api/clients/${clientId}/forms`);
