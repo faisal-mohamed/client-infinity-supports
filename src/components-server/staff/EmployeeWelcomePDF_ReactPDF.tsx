@@ -1,65 +1,109 @@
 import React from 'react';
-import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import BasePDFLayout, { PDFMeta } from '@/components-server/pdf/layout/BasePDFLayout';
-import PDFSection from '@/components-server/pdf/layout/PDFSection';
-import { CheckboxItem } from '@/components-server/pdf/elements/PDFCheckboxGroup';
-import PDFPanel from '@/components-server/pdf/elements/PDFPanel';
-import { PDFFieldFullWidth } from '@/components-server/pdf/elements/PDFField';
-import PDFSignatureBlock from '@/components-server/pdf/elements/PDFSignatureBlock';
+import { View, Text, StyleSheet, Image, Document, Page } from '@react-pdf/renderer';
 
 interface EmployeeWelcomePDFProps {
   data: any;
 }
 
 const EmployeeWelcomePDF: React.FC<EmployeeWelcomePDFProps> = ({ data }) => {
-  const meta: PDFMeta = {
-    website: 'infinitysupportswa.org',
-    version: 'SF009',
-    reviewDate: '2025-03-01',
-  };
-
-  const logoUrl = data?.logoDataUrl || '/infinity_logo.png';
+  // Extract data - matching the view component structure
   const formData = data?.data ?? {};
-  const readAcknowledgement = normalizeBoolean(formData.readAcknowledgement);
-  const fullName = formData.fullName || '';
-  const signatureImage = data?.staffSignature || formData.signature;
-  const signatureDate = data?.staffSignedAt || formData.date;
+  const settings = data?.settings ?? {};
+  const staff = formData?.staff || data?.staff || {};
+  
+  // Get meta data from settings (matching view component logic)
+  const website = settings?.company_website || 'infinitysupportswa.org';
+  const formId = settings?.employee_welcome_form_id || 'SF009';
+  const reviewDate = settings?.review_date || new Date().toISOString().slice(0, 10);
+  
+  // Get logo from data - already encoded by the route
+  const logoDataUrl = data?.logoDataUrl || '';
+  
+  // Extract form values - matching view component
+  const readAcknowledgement = normalizeBoolean(formData?.readAcknowledgement);
+  const staffName = staff?.firstName && staff?.surname 
+    ? `${staff.firstName} ${staff.surname}`.trim() 
+    : formData?.staffName || formData?.fullName || '';
+  const signatureImage = data?.staffSignature || formData?.staffSignature || formData?.signature;
+  const staffSignedAt = data?.staffSignedAt || formData?.staffSignedAt;
+  const signatureDate = staffSignedAt 
+    ? new Date(staffSignedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'numeric', year: 'numeric' })
+    : '';
 
   return (
-    <BasePDFLayout title="Employee Handbook Acknowledgement Form" logo={logoUrl} meta={meta}>
-      <View style={styles.container}>
-        <Text style={styles.heading}>Employee Handbook Acknowledgement Form</Text>
-
-        <Text style={styles.bodyText}>
-          I confirm I have received the Employee Handbook from Infinity Supports and have read and understood the content.
-        </Text>
-        <Text style={styles.bodyText}>
-          A printed version of this handbook is also available. If you would like a printed version, please contact us.
-        </Text>
-
-        <PDFPanel>
-          <View style={styles.ackRow}>
-            <CheckboxItem checked={readAcknowledgement} label="I acknowledge that:" />
-          </View>
-          <View style={styles.bulletList}>
-            <Text style={styles.bullet}>• I have received the Employee Handbook from Infinity Supports</Text>
-            <Text style={styles.bullet}>• I have read and understood the content</Text>
-            <Text style={styles.bullet}>• I agree to comply with all policies and procedures outlined in the handbook</Text>
-          </View>
-        </PDFPanel>
-
-        <View style={styles.fieldLine}>
-          <Text style={styles.fieldLabel}>Name</Text>
-          <Text style={styles.fieldValue}>{fullName}</Text>
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header with logo - matching view component */}
+        <View style={styles.headerLogoContainer}>
+          {logoDataUrl ? (
+            <Image src={logoDataUrl} style={styles.logo} />
+          ) : (
+            <Text style={styles.logoPlaceholder}>Logo</Text>
+          )}
         </View>
 
-        <PDFSignatureBlock
-          label="Signature"
-          image={signatureImage}
-          date={signatureDate}
-        />
-      </View>
-    </BasePDFLayout>
+        {/* Title - matching view component */}
+        <Text style={styles.heading}>Employee Handbook Acknowledgement Form</Text>
+
+        {/* Body paragraphs - matching view component */}
+        <Text style={styles.bodyText}>
+          I confirm I have received the Employee handbook from Infinity Supports and have read and
+          understood the content.
+        </Text>
+        <Text style={styles.bodyText}>
+          A printed version of this handbook is also available. If you would like a printed version,
+          please contact us.
+        </Text>
+
+        {/* Acknowledgement checkbox section - matching view component */}
+        <View style={styles.ackContainer}>
+          <View style={styles.ackRow}>
+            <View style={readAcknowledgement ? [styles.checkbox, styles.checkboxChecked] : styles.checkbox}>
+              {readAcknowledgement && <Text style={styles.checkmark}>✓</Text>}
+            </View>
+            <Text style={styles.ackLabel}>
+              <Text style={styles.ackBold}>I acknowledge that:</Text>
+              {'\n'}• I have received the Employee Handbook from Infinity Supports
+              {'\n'}• I have read and understood the content
+              {'\n'}• I agree to comply with all policies and procedures outlined in the handbook
+            </Text>
+          </View>
+        </View>
+
+        {/* Name field - matching view component */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>Name</Text>
+          <View style={styles.underline}>
+            <Text style={styles.fieldValue}>{staffName || '—'}</Text>
+          </View>
+        </View>
+
+        {/* Signature section - matching view component */}
+        <View style={styles.signatureContainer}>
+          <Text style={styles.fieldLabel}>Signature</Text>
+          {signatureImage ? (
+            <Image src={signatureImage} style={styles.signatureImage} />
+          ) : (
+            <Text style={styles.noSignature}>No signature provided</Text>
+          )}
+        </View>
+
+        {/* Date field - matching view component */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>Date</Text>
+          <View style={styles.underline}>
+            <Text style={styles.fieldValue}>{signatureDate || '—'}</Text>
+          </View>
+        </View>
+
+        {/* Footer - matching view component */}
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>Website: {website}</Text>
+          <Text style={styles.footerText}>{formId}</Text>
+          <Text style={styles.footerText}>Review Date: {reviewDate}</Text>
+        </View>
+      </Page>
+    </Document>
   );
 };
 
@@ -72,51 +116,139 @@ const normalizeBoolean = (value: any): boolean => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    padding: 96, // Matching view: px-[96px]
+    paddingTop: 48, // Matching view: pt-12 (12 * 4px = 48px)
+    paddingBottom: 112, // Matching view: pb-[112px]
+    fontFamily: 'Helvetica',
+    fontSize: 12, // Matching view: text-[12pt]
+    minHeight: 1123, // Matching view: min-h-[1123px] (A4 height in points)
+  },
+  headerLogoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 8, // Matching view: mt-2 (2 * 4px = 8px)
+    marginBottom: 24, // Matching view: mb-6 (6 * 4px = 24px)
+  },
+  logo: {
+    height: 64, // Matching view: h-16 (16 * 4px = 64px)
+    objectFit: 'contain',
+  },
+  logoPlaceholder: {
+    fontSize: 12,
+    color: '#9ca3af',
   },
   heading: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 12, // Matching view: text-[12pt]
+    fontWeight: 600, // Matching view: font-semibold
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 24, // Matching view: mb-6
     color: '#1a1a1a',
   },
   bodyText: {
-    fontSize: 10,
+    fontSize: 12, // Matching view: text-[12pt]
     color: '#1f2937',
     lineHeight: 1.5,
-    marginBottom: 10,
+    marginBottom: 16, // Matching view: mb-4
+  },
+  ackContainer: {
+    marginTop: 24, // Matching view: space-y-6 (6 * 4px = 24px)
+    marginBottom: 24,
+    padding: 16, // Matching view: p-4
+    borderWidth: 1,
+    borderColor: '#d1d5db', // Matching view: border-gray-300
+    borderRadius: 8, // Matching view: rounded-lg
+    backgroundColor: '#f9fafb', // Matching view: bg-gray-50
   },
   ackRow: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12, // Matching view: gap-3 (3 * 4px = 12px)
+  },
+  checkbox: {
+    width: 20, // Matching view: w-5 (5 * 4px = 20px)
+    height: 20, // Matching view: h-5
+    borderWidth: 1,
+    borderColor: '#d1d5db', // Matching view: border-gray-300
+    borderRadius: 4, // Matching view: rounded
+    marginTop: 4, // Matching view: mt-1
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 6,
+    backgroundColor: '#ffffff',
   },
-  bulletList: {
-    marginLeft: 12,
-    marginTop: 4,
-    marginBottom: 4,
+  checkboxChecked: {
+    backgroundColor: '#2563eb', // Matching view: accent-blue-600
+    borderColor: '#2563eb',
   },
-  bullet: {
-    fontSize: 9,
-    color: '#111827',
-    lineHeight: 1.5,
+  checkmark: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: 'bold',
   },
-  fieldLine: {
-    marginTop: 18,
-    marginBottom: 10,
+  ackLabel: {
+    fontSize: 12, // Matching view: text-[12pt]
+    lineHeight: 1.5, // Matching view: leading-relaxed
+    color: '#1f2937',
+    flex: 1,
+  },
+  ackBold: {
+    fontWeight: 700, // bold
+  },
+  fieldContainer: {
+    marginTop: 24, // Matching view: space-y-6
+    marginBottom: 24,
   },
   fieldLabel: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontSize: 12, // Matching view: text-[12pt]
+    marginBottom: 4, // Matching view: mb-1
+    color: '#1f2937',
+  },
+  underline: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.6)', // Matching view: border-black/60
+    paddingLeft: 4, // Matching view: px-1
+    paddingRight: 4,
+    paddingTop: 8, // Matching view: py-2
+    paddingBottom: 8,
   },
   fieldValue: {
+    fontSize: 12,
+    color: '#1f2937', // Matching view: text-gray-800
+  },
+  signatureContainer: {
+    marginTop: 24,
+    marginBottom: 32, // Matching view: mb-8
+  },
+  signatureImage: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    maxHeight: 80, // Matching view: max-h-20 (20 * 4px = 80px)
+    backgroundColor: '#ffffff',
+    objectFit: 'contain',
+    marginTop: 8, // Matching view: mb-2 (converted to mt)
+  },
+  noSignature: {
+    fontSize: 12,
+    color: '#9ca3af', // Matching view: text-gray-400
+    fontStyle: 'italic',
+    marginTop: 8,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 24, // Matching view: bottom-6 (6 * 4px = 24px)
+    left: 96, // Matching view: left-[96px]
+    right: 96, // Matching view: right-[96px]
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: 10, // Matching view: text-[10pt]
+    color: '#4b5563', // Matching view: text-gray-600
+  },
+  footerText: {
     fontSize: 10,
-    borderBottom: '1 solid #1f2937',
-    paddingBottom: 6,
-    color: '#111827',
+    color: '#4b5563',
   },
 });
 

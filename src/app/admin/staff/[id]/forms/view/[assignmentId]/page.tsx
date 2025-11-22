@@ -15,6 +15,8 @@ import { useToast } from '@/components/ui/Toast';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { fetchFormSpecificSettings } from '@/lib/settings';
 import NdisWorkforceCapabilityAcknowledgementOverlay from '@/app/form-components/staff/ndis-workforce-capability/AcknowledgementOverlay';
+import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
+import SignatureCanvas from '@/components/ui/SignatureCanvas';
 
 // Types
 interface StaffFormAssignmentData {
@@ -38,6 +40,8 @@ interface StaffFormAssignmentData {
   submissionId?: number;
   staffSignature?: string;
   staffSignedAt?: string;
+  adminSignature?: string;
+  adminSignedAt?: string;
   hasSubmission?: boolean;
 }
 
@@ -53,6 +57,18 @@ export default function StaffFormViewPageClient() {
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [settings, setSettings] = useState({});
+  
+  // Admin section state for employee details
+  const [adminFormData, setAdminFormData] = useState({
+    employmentStatus: '',
+    payRate: '',
+    schadsLevel: '',
+    adminSignature: '',
+    adminSignedAt: new Date().toISOString().split('T')[0],
+  });
+  const [submittingAdmin, setSubmittingAdmin] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState(false); // Track if admin is editing
+  const [pdfKey, setPdfKey] = useState(0); // Force PDF refresh after admin submit
 
   // Load assignment and submission data
   useEffect(() => {
@@ -62,31 +78,67 @@ export default function StaffFormViewPageClient() {
   const loadAssignmentData = async () => {
     try {
       setLoading(true);
+      
+      console.log('🔵 [View Form] Starting to load assignment data for assignmentId:', assignmentId);
 
       // First, fetch assignment to get formKey and staffId
       const assignmentRes = await fetch(`/api/staff-form-assignments/${assignmentId}`);
-      if (!assignmentRes.ok) throw new Error('Failed to load assignment data');
+      if (!assignmentRes.ok) {
+        const errorData = await assignmentRes.json().catch(() => ({}));
+        console.error('❌ [View Form] Failed to load assignment:', errorData);
+        throw new Error('Failed to load assignment data');
+      }
       
       const assignmentData = await assignmentRes.json();
+      console.log('✅ [View Form] Assignment data received:', {
+        assignmentId: assignmentData.assignment?.id,
+        formKey: assignmentData.assignment?.form?.formKey,
+        formTitle: assignmentData.assignment?.form?.title,
+        staffId: assignmentData.assignment?.staffId,
+        hasSubmission: !!assignmentData.assignment?.hasSubmission,
+        submissionId: assignmentData.assignment?.submissionId,
+      });
+      
       const assignment = assignmentData.assignment;
       const formKey = assignment?.form?.formKey;
       const staffId = assignment?.staffId;
 
       if (!formKey || !staffId) {
+        console.error('❌ [View Form] Missing required data:', { formKey, staffId, assignment });
         throw new Error('Missing formKey or staffId in assignment');
       }
 
+      console.log('🔍 [View Form] Form details:', {
+        formKey,
+        formTitle: assignment.form.title,
+        staffId,
+        formVersion: assignment.formVersion,
+      });
+
       // Convert formKey from snake_case to kebab-case for API endpoint
-      const formType = formKey.replace(/_/g, '-');
+      // Special handling for form keys that have different API endpoint names
+      let formType = formKey.replace(/_/g, '-');
+      
+      // Handle special cases where API endpoint name differs from form key
+      if (formKey === 'employee_details' || formKey === 'employment_details') {
+        formType = 'employment-details'; // API uses 'employment-details', not 'employee-details'
+      } else if (formKey === 'employee_welcome' || formKey === 'employment_welcome') {
+        formType = 'employment-welcome'; // API uses 'employment-welcome'
+      }
+      
+      console.log('🔄 [View Form] Converted formType:', formType, '(from formKey:', formKey + ')');
 
       // Try to fetch form data from form-specific endpoint (which processes the data correctly)
       // This endpoint handles signature merging, date formatting, etc.
       let formDataResponse;
       try {
-        formDataResponse = await fetch(`/api/staff/${staffId}/forms/${formType}`);
+        const formDataUrl = `/api/staff/${staffId}/forms/${formType}`;
+        console.log('📡 [View Form] Fetching form data from:', formDataUrl);
+        formDataResponse = await fetch(formDataUrl);
+        console.log('📡 [View Form] Form data response status:', formDataResponse.status, formDataResponse.ok);
       } catch (e) {
         // If form-specific endpoint doesn't exist, we'll process the raw data below
-        console.log(`Form-specific endpoint not found for ${formType}, using raw data`);
+        console.log(`⚠️ [View Form] Form-specific endpoint not found for ${formType}, using raw data`, e);
       }
 
       // Fetch settings in parallel
@@ -100,9 +152,18 @@ export default function StaffFormViewPageClient() {
       if (formDataResponse && formDataResponse.ok) {
         // Use processed data from form-specific endpoint
         const formData = await formDataResponse.json();
+        console.log('✅ [View Form] Form data from API:', {
+          hasData: !!formData.data,
+          dataKeys: formData.data ? Object.keys(formData.data) : [],
+          hasStaff: !!formData.staff,
+        });
         processedFormData = formData.data;
         staffInfo = formData.staff || staffInfo;
       } else if (assignment.submissionData) {
+        console.log('📋 [View Form] Using submission data from assignment:', {
+          hasSubmissionData: !!assignment.submissionData,
+          submissionDataKeys: assignment.submissionData ? Object.keys(assignment.submissionData) : [],
+        });
         // Process raw submission data similar to form-specific endpoints
         processedFormData = { ...(assignment.submissionData || {}) };
 
@@ -162,13 +223,44 @@ export default function StaffFormViewPageClient() {
       // Update assignment with processed data
       const updatedAssignment = {
         ...assignment,
-        submissionData: processedFormData,
+        submissionData: {
+          ...processedFormData,
+          staffSignature: assignment.staffSignature,
+          staffSignedAt: assignment.staffSignedAt,
+          adminSignature: assignment.adminSignature,
+          adminSignedAt: assignment.adminSignedAt,
+        },
         staff: staffInfo,
       };
+
+      console.log('✅ [View Form] Final assignment prepared:', {
+        formKey: updatedAssignment.form.formKey,
+        formTitle: updatedAssignment.form.title,
+        hasSubmissionData: !!updatedAssignment.submissionData,
+        submissionDataKeys: updatedAssignment.submissionData ? Object.keys(updatedAssignment.submissionData) : [],
+        hasStaffSignature: !!updatedAssignment.staffSignature,
+        hasAdminSignature: !!updatedAssignment.adminSignature,
+        staffName: staffInfo ? `${staffInfo.firstName} ${staffInfo.surname}` : 'N/A',
+      });
 
       setAssignment(updatedAssignment);
       setCommonFields(assignmentData.commonFields || {});
       setSettings(fetchedSettings);
+      
+      // Update admin form data if assignment has admin data
+      if (updatedAssignment.submissionData) {
+        setAdminFormData({
+          employmentStatus: updatedAssignment.submissionData?.data?.employmentStatus || '',
+          payRate: updatedAssignment.submissionData?.data?.payRate || '',
+          schadsLevel: updatedAssignment.submissionData?.data?.schadsLevel || updatedAssignment.submissionData?.data?.schadsScore || '',
+          adminSignature: updatedAssignment.submissionData?.adminSignature || '',
+          adminSignedAt: updatedAssignment.submissionData?.adminSignedAt 
+            ? new Date(updatedAssignment.submissionData.adminSignedAt).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0],
+        });
+      }
+      
+      console.log('✅ [View Form] State updated, component will render');
 
     } catch (error) {
       console.error('Error loading assignment or settings:', error);
@@ -200,7 +292,16 @@ export default function StaffFormViewPageClient() {
       
       // Convert formKey from snake_case to kebab-case for API endpoint
       const formKey = assignment.form.formKey;
-      const formType = formKey.replace(/_/g, '-');
+      let formType = formKey.replace(/_/g, '-');
+      
+      // Handle special cases where PDF endpoint name differs from form key
+      // PDF endpoints use 'employee-details' not 'employment-details'
+      let pdfFormType = formType;
+      if (formKey === 'employee_details' || formKey === 'employment_details') {
+        pdfFormType = 'employee-details'; // PDF uses 'employee-details'
+      }
+      
+      console.log('📥 [View Form] Download PDF - formKey:', formKey, 'pdfFormType:', pdfFormType);
       
       let response;
       
@@ -208,18 +309,20 @@ export default function StaffFormViewPageClient() {
       // These forms have dedicated PDF routes that merge the framework PDF with the signed acknowledgement
       if (formKey === 'ndis_workforce_capability' || formKey === 'bullying_harassment_training') {
         // Try the specific PDF route with merge=true
-        response = await fetch(`/api/staff/${staffId}/forms/${formType}/pdf?merge=true`);
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
         
         // If that fails, try without merge
         if (!response.ok) {
-          response = await fetch(`/api/staff/${staffId}/forms/${formType}/pdf`);
+          response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
         }
       } else {
         // Use the generic staff PDF endpoint for other forms
-        response = await fetch(`/api/staff/${staffId}/forms/${formType}/pdf`);
+        console.log('📥 [View Form] Fetching PDF from:', `/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
         
         // If generic endpoint fails, try the generic PDF generation endpoint as fallback
         if (!response.ok) {
+          console.log('⚠️ [View Form] Generic PDF endpoint failed, trying fallback');
           response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
         }
       }
@@ -327,10 +430,14 @@ export default function StaffFormViewPageClient() {
   }
 
   // Get the appropriate staff form component from registry
+  console.log('🎨 [View Form] Determining which component to render for formKey:', assignment.form.formKey);
+  
   let FormViewComponent;
   try {
     FormViewComponent = getStaffFormComponent(assignment.form.formKey);
+    console.log('✅ [View Form] Form component found:', FormViewComponent ? FormViewComponent.name : 'unknown');
   } catch (error) {
+    console.error('❌ [View Form] Failed to get form component:', error);
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -359,6 +466,23 @@ export default function StaffFormViewPageClient() {
   
   // Check if this is NDIS Workforce Capability form - use overlay component
   const isNdisForm = assignment.form.formKey === 'ndis_workforce_capability';
+  
+  // Check if this is Employee Welcome form - use PDF viewer (like employee details)
+  // This ensures what you see matches exactly what gets downloaded
+  const isEmployeeWelcomeForm = assignment.form.formKey === 'employee_welcome' || assignment.form.formKey === 'employment_welcome';
+  
+  // Check if this is Employee Details form - use PDF viewer (like dedicated page)
+  // This ensures what you see matches exactly what gets downloaded
+  const isEmployeeDetailsForm = assignment.form.formKey === 'employee_details' || assignment.form.formKey === 'employment_details';
+  
+  console.log('🎨 [View Form] Rendering decision:', {
+    formKey: assignment.form.formKey,
+    isEmployeeDetailsForm,
+    isEmployeeWelcomeForm,
+    isNdisForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm,
+  });
   
   // Prepare overlay data for NDIS form
   const overlayData = isNdisForm && assignment.submissionData ? {
@@ -448,9 +572,319 @@ export default function StaffFormViewPageClient() {
 
       {/* Form Content with Enhanced Styling */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
-          {isNdisForm ? (
-            /* Use overlay component for NDIS form - shows PDF first page with data overlay */
+        {isEmployeeDetailsForm ? (
+          /* Use PDF viewer for Employee Details form - shows generated PDF (matches download) */
+          (() => {
+            console.log('📄 [View Form] Rendering Employee Details PDF viewer');
+            // PDF endpoint uses 'employee-details' not 'employment-details'
+            const pdfUrl = `/api/staff/${staffId}/forms/employee-details/pdf?key=${pdfKey}`;
+            console.log('📄 [View Form] PDF URL:', pdfUrl);
+            
+            const staffHasSigned = !!assignment?.staffSignature;
+            const adminHasSigned = !!(assignment?.submissionData?.adminSignature || assignment?.adminSignature);
+            const showAdminSection = staffHasSigned && (!adminHasSigned || editingAdmin);
+            
+            const handleAdminSubmit = async (e: React.FormEvent) => {
+              e.preventDefault();
+              
+              // Validate required fields
+              if (!adminFormData.employmentStatus || !adminFormData.payRate || !adminFormData.schadsLevel || !adminFormData.adminSignature) {
+                showToast({
+                  type: 'error',
+                  title: 'Validation Error',
+                  message: 'Please fill all required fields: Employment Status, Pay Rate, SCHADS Level, and Admin Signature',
+                  duration: 5000,
+                });
+                return;
+              }
+              
+              try {
+                setSubmittingAdmin(true);
+                
+                const response = await fetch(`/api/staff/${staffId}/forms/employee-details/admin`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    employmentStatus: adminFormData.employmentStatus,
+                    payRate: adminFormData.payRate,
+                    schadsLevel: adminFormData.schadsLevel,
+                    adminSignature: adminFormData.adminSignature,
+                    adminSignedAt: adminFormData.adminSignedAt,
+                  }),
+                });
+                
+                if (!response.ok) {
+                  const errorData = await response.json().catch(() => ({}));
+                  throw new Error(errorData.message || 'Failed to submit admin section');
+                }
+                
+                const result = await response.json();
+                
+                showToast({
+                  type: 'success',
+                  title: 'Success',
+                  message: result.message || 'Admin section submitted successfully',
+                  duration: 3000,
+                });
+                
+                // Reload assignment data to refresh PDF
+                setPdfKey(prev => prev + 1); // Force PDF refresh
+                setEditingAdmin(false); // Exit edit mode after successful submit
+                await loadAssignmentData();
+                
+              } catch (error: any) {
+                console.error('Error submitting admin section:', error);
+                showToast({
+                  type: 'error',
+                  title: 'Error',
+                  message: error.message || 'Failed to submit admin section',
+                  duration: 5000,
+                });
+              } finally {
+                setSubmittingAdmin(false);
+              }
+            };
+            
+            return (
+              <div className="space-y-6">
+                <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                  <AdminPDFCanvasViewer pdfUrl={pdfUrl} />
+                </div>
+                
+                {/* Admin Section - Only show if staff has signed and admin hasn't */}
+                {showAdminSection && (
+                  <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Section - Office Use Only</h3>
+                      <form onSubmit={handleAdminSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Employment Status */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Employment Status <span className="text-red-500">*</span>
+                            </label>
+                            <div className="space-y-2">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="employmentStatus"
+                                  value="FullTime"
+                                  checked={adminFormData.employmentStatus === 'FullTime'}
+                                  onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                                  className="w-4 h-4 text-blue-600"
+                                  required
+                                />
+                                <span className="text-sm">Full time</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="employmentStatus"
+                                  value="PartTime"
+                                  checked={adminFormData.employmentStatus === 'PartTime'}
+                                  onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <span className="text-sm">Part time</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="employmentStatus"
+                                  value="Casual"
+                                  checked={adminFormData.employmentStatus === 'Casual'}
+                                  onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                                  className="w-4 h-4 text-blue-600"
+                                />
+                                <span className="text-sm">Casual</span>
+                              </label>
+                            </div>
+                          </div>
+                          
+                          {/* Pay Rate and SCHADS Level */}
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Pay Rate <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={adminFormData.payRate}
+                                onChange={(e) => setAdminFormData({...adminFormData, payRate: e.target.value})}
+                                placeholder="e.g., $25.00/hour"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                SCHADS Level <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={adminFormData.schadsLevel}
+                                onChange={(e) => setAdminFormData({...adminFormData, schadsLevel: e.target.value})}
+                                placeholder="e.g., Level 3"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Admin Signature */}
+                        <div className="border-t border-gray-200 pt-6">
+                          <label className="block text-sm font-medium text-gray-700 mb-3">
+                            Admin Signature <span className="text-red-500">*</span>
+                          </label>
+                          <SignatureCanvas
+                            existingSignature={adminFormData.adminSignature}
+                            onSignatureEnd={(sig) => setAdminFormData({...adminFormData, adminSignature: sig})}
+                            onSignatureClear={() => setAdminFormData({...adminFormData, adminSignature: ''})}
+                            width={500}
+                            height={150}
+                            className="bg-white border-2 border-gray-300 rounded-lg"
+                          />
+                          <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Date <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              value={adminFormData.adminSignedAt}
+                              onChange={(e) => setAdminFormData({...adminFormData, adminSignedAt: e.target.value})}
+                              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              required
+                            />
+                          </div>
+                        </div>
+                        
+                        {/* Submit Button */}
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                          {editingAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingAdmin(false);
+                                // Reset form to original data
+                                if (assignment) {
+                                  setAdminFormData({
+                                    employmentStatus: assignment?.submissionData?.data?.employmentStatus || '',
+                                    payRate: assignment?.submissionData?.data?.payRate || '',
+                                    schadsLevel: assignment?.submissionData?.data?.schadsLevel || assignment?.submissionData?.data?.schadsScore || '',
+                                    adminSignature: assignment?.submissionData?.adminSignature || assignment?.adminSignature || '',
+                                    adminSignedAt: (assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt)
+                                      ? new Date(assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt || '').toISOString().split('T')[0]
+                                      : new Date().toISOString().split('T')[0],
+                                  });
+                                }
+                              }}
+                              disabled={submittingAdmin}
+                              className="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                          <button
+                            type="submit"
+                            disabled={submittingAdmin}
+                            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                          >
+                            {submittingAdmin ? 'Submitting...' : editingAdmin ? 'Update Admin Section' : 'Submit Admin Section'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Show read-only admin info if admin has signed and not editing */}
+                {adminHasSigned && !editingAdmin && (
+                  <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Admin Section - Office Use Only</h3>
+                        <button
+                          onClick={() => {
+                            setEditingAdmin(true);
+                            // Populate form with current data
+                            setAdminFormData({
+                              employmentStatus: assignment?.submissionData?.data?.employmentStatus || '',
+                              payRate: assignment?.submissionData?.data?.payRate || '',
+                              schadsLevel: assignment?.submissionData?.data?.schadsLevel || assignment?.submissionData?.data?.schadsScore || '',
+                              adminSignature: assignment?.submissionData?.adminSignature || assignment?.adminSignature || '',
+                              adminSignedAt: (assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt)
+                                ? new Date(assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt || '').toISOString().split('T')[0]
+                                : new Date().toISOString().split('T')[0],
+                            });
+                          }}
+                          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                        >
+                          <FaEdit className="mr-2 h-4 w-4" />
+                          Edit
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Employment Status</label>
+                          <div className="text-sm text-gray-900">
+                            {assignment?.submissionData?.data?.employmentStatus || 'N/A'}
+                          </div>
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Pay Rate</label>
+                            <div className="text-sm text-gray-900">
+                              {assignment?.submissionData?.data?.payRate || 'N/A'}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">SCHADS Level</label>
+                            <div className="text-sm text-gray-900">
+                              {assignment?.submissionData?.data?.schadsLevel || assignment?.submissionData?.data?.schadsScore || 'N/A'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {(assignment?.submissionData?.adminSignature || assignment?.adminSignature) && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Admin Signature</label>
+                              {(assignment?.submissionData?.adminSignature || assignment?.adminSignature) && (
+                                <img src={assignment?.submissionData?.adminSignature || assignment?.adminSignature || ''} alt="Admin Signature" className="max-w-xs h-20 border border-gray-300 rounded" />
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                              <div className="text-sm text-gray-900">
+                                {(assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt) 
+                                  ? new Date(assignment?.submissionData?.adminSignedAt || assignment?.adminSignedAt || '').toLocaleDateString('en-AU') 
+                                  : 'N/A'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
+        ) : isEmployeeWelcomeForm ? (
+          /* Use PDF viewer for Employee Welcome form - shows generated PDF (matches download) */
+          (() => {
+            console.log('📄 [View Form] Rendering Employee Welcome PDF viewer');
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/employee-welcome/pdf`} />
+              </div>
+            );
+          })()
+        ) : isNdisForm ? (
+          /* Use overlay component for NDIS form - shows PDF first page with data overlay */
+          <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
             <div className="p-2 md:p-6">
               <NdisWorkforceCapabilityAcknowledgementOverlay
                 data={overlayData || {}}
@@ -458,17 +892,28 @@ export default function StaffFormViewPageClient() {
                 readOnly={true}
               />
             </div>
-          ) : (
-            /* Use regular form component for other forms */
-            <FormViewComponent
-              data={assignment.submissionData}
-              staff={assignment.staff}
-              isAdminView={true}
-              commonFields={commonFields}
-              settings={settings}
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          /* Use regular form component for other forms */
+          (() => {
+            console.log('📋 [View Form] Rendering form component:', FormViewComponent?.name, {
+              hasSubmissionData: !!assignment.submissionData,
+              submissionDataKeys: assignment.submissionData ? Object.keys(assignment.submissionData) : [],
+            });
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <FormViewComponent
+                  data={assignment.submissionData}
+                  staff={assignment.staff}
+                  isAdminView={true}
+                  commonFields={commonFields}
+                  settings={settings}
+                  staffId={staffId}
+                />
+              </div>
+            );
+          })()
+        )}
       </div>
     </div>
   );

@@ -185,20 +185,41 @@ export default function FormItem({
     const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     const status = assignment.currentStatus;
     if (status === "completed") {
+      // For staff forms, check if staff signed it
+      if (isStaff) {
+        if (assignment.staffSignature) {
+          return {
+            status: requiresSignature ? 'All Signatures Complete' : 'Staff Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        } else if (assignment.filledByAdmin) {
+          return {
+            status: 'Admin Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+      // For client forms or default
       return {
         status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
-color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+        color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
         icon: FaCheckCircle,
-bgColor: 'from-emerald-500 to-emerald-600',
+        bgColor: 'from-emerald-500 to-emerald-600',
         iconColor: 'text-white'
       };
     }
     if (status === "in_progress") {
       return {
         status: 'In Progress',
-color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
+        color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
         icon: requiresSignature ? FaSignature : FaClock,
-bgColor: 'from-amber-500 to-amber-600',
+        bgColor: 'from-amber-500 to-amber-600',
         iconColor: 'text-white'
       };
     }

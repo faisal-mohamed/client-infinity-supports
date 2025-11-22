@@ -39,9 +39,36 @@ export async function GET(
     let formData = null;
     switch (formType) {
       case 'employee-details':
+        // Try dedicated table first, then fallback to generic table (backward compatible)
         formData = await (prisma as any).staffEmploymentDetails.findUnique({
           where: { staffId }
-        });
+        }).catch(() => null);
+        
+        // Fallback to generic table if dedicated table doesn't exist or has no data
+        if (!formData) {
+          const submission = await prisma.staffFormSubmission.findUnique({
+            where: { 
+              staffId_formKey: { 
+                staffId, 
+                formKey: 'employee_details' 
+              } 
+            }
+          });
+          
+          if (submission) {
+            formData = {
+              id: submission.id,
+              staffId: submission.staffId,
+              data: submission.data || {},
+              staffSignature: submission.staffSignature,
+              staffSignedAt: submission.staffSignedAt,
+              adminSignature: submission.adminSignature,
+              adminSignedAt: submission.adminSignedAt,
+              createdAt: submission.createdAt,
+              updatedAt: submission.updatedAt
+            };
+          }
+        }
         break;
       case 'employment-welcome':
         formData = await (prisma as any).staffEmploymentWelcomeAck.findUnique({
@@ -177,6 +204,29 @@ export async function GET(
         }
         break;
       }
+      case 'govt-tax':
+      case 'govt_tax': {
+        const govtTaxSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'govt_tax',
+            },
+          },
+        });
+        if (govtTaxSubmission) {
+          formData = {
+            data: govtTaxSubmission.data || {},
+            staffSignature: govtTaxSubmission.staffSignature,
+            staffSignedAt: govtTaxSubmission.staffSignedAt,
+            createdAt: govtTaxSubmission.createdAt,
+            updatedAt: govtTaxSubmission.updatedAt,
+          };
+        } else {
+          formData = { data: {}, staffSignature: null, staffSignedAt: null };
+        }
+        break;
+      }
       default:
         return new NextResponse("Invalid form type", { status: 400 });
     }
@@ -207,12 +257,19 @@ export async function GET(
     const dataWithStaff = { ...formDataObj, staff };
 
     // Convert logo to base64 for React PDF
-    const logoPath = path.resolve(process.cwd(), 'public/infinity_logo.png');
+    // Use client_full_logo.jpg for employee-welcome form to match view component
+    const logoFilename = formType === 'employee-welcome' || formType === 'employment-welcome' 
+      ? 'client_full_logo.jpg' 
+      : 'infinity_logo.png';
+    const logoPath = path.resolve(process.cwd(), 'public', logoFilename);
     let logoDataUrl = '';
     try {
       if (fs.existsSync(logoPath)) {
         const logoBuffer = fs.readFileSync(logoPath);
-        logoDataUrl = `data:image/png;base64,${logoBuffer.toString('base64')}`;
+        const mimeType = logoFilename.endsWith('.jpg') || logoFilename.endsWith('.jpeg') 
+          ? 'image/jpeg' 
+          : 'image/png';
+        logoDataUrl = `data:${mimeType};base64,${logoBuffer.toString('base64')}`;
       }
     } catch (error) {
       console.warn('Logo not found, skipping:', error);
@@ -243,7 +300,16 @@ export async function GET(
     };
 
     // Get React PDF component
-    const StaffPDFComponent = getStaffPDFComponent(formType.replace(/-/g, '_'));
+    let StaffPDFComponent;
+    try {
+      StaffPDFComponent = getStaffPDFComponent(formType.replace(/-/g, '_'));
+    } catch (error: any) {
+      console.error(`PDF component not found for form type: ${formType}`, error);
+      return new NextResponse(
+        `PDF generation not yet available for this form type (${formType}). Please contact support.`,
+        { status: 501 }
+      );
+    }
     
     // Create PDF element
     const pdfElement = React.createElement(StaffPDFComponent, { data: dataWithLogo });
