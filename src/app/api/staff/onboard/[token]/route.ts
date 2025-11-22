@@ -5,8 +5,10 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  let token: string | undefined;
   try {
-    const { token } = await params;
+    const paramsData = await params;
+    token = paramsData.token;
 
     if (!token) {
       return NextResponse.json(
@@ -70,15 +72,11 @@ export async function GET(
     }
 
     // If not found by linkToken, try to find a StaffFormBatch (new batch system)
-    // Try both signature-only and non-signature batches (for compatibility)
+    // Try non-signature batches first (onboard)
     let batch = await prisma.staffFormBatch.findFirst({
       where: {
         batchToken: token,
-        // First try non-signature batches (onboard)
-        OR: [
-          { isSignatureOnly: false },
-          { isSignatureOnly: null },
-        ],
+        isSignatureOnly: false,
       },
       include: {
         staff: {
@@ -114,6 +112,7 @@ export async function GET(
     });
 
     // If not found, try signature-only batches as fallback (for compatibility)
+    // This allows onboard pages to work with signature links too
     if (!batch) {
       batch = await prisma.staffFormBatch.findFirst({
         where: {
@@ -171,18 +170,21 @@ export async function GET(
 
     // Format submissions as a dictionary keyed by formKey (for backward compatibility)
     const submissionsDict: Record<string, any> = {};
-    batch.signatureForms.forEach((sf: any) => {
-      const formKey = sf.formSubmission.form.formKey;
-      if (formKey) {
-        submissionsDict[formKey] = {
-          ...(sf.formSubmission.data || {}),
-          staffSignature: sf.formSubmission.staffSignature,
-          staffSignedAt: sf.formSubmission.staffSignedAt,
-          adminSignature: sf.formSubmission.adminSignature,
-          adminSignedAt: sf.formSubmission.adminSignedAt,
-        };
-      }
-    });
+    if (batch.signatureForms && Array.isArray(batch.signatureForms)) {
+      batch.signatureForms.forEach((sf: any) => {
+        // Safely access formSubmission and form
+        if (sf?.formSubmission?.form?.formKey) {
+          const formKey = sf.formSubmission.form.formKey;
+          submissionsDict[formKey] = {
+            ...(sf.formSubmission.data || {}),
+            staffSignature: sf.formSubmission.staffSignature,
+            staffSignedAt: sf.formSubmission.staffSignedAt,
+            adminSignature: sf.formSubmission.adminSignature,
+            adminSignedAt: sf.formSubmission.adminSignedAt,
+          };
+        }
+      });
+    }
 
     // Format staff name
     const staffName = `${batch.staff.firstName} ${batch.staff.surname}`;
@@ -204,8 +206,18 @@ export async function GET(
 
   } catch (error: any) {
     console.error("Error fetching staff onboard data:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      token: token,
+    });
     return NextResponse.json(
-      { error: "Failed to fetch onboard data", details: error.message },
+      { 
+        error: "Failed to fetch onboard data", 
+        details: error.message || "An unexpected error occurred",
+        message: error.message || "Unable to load form data. Please try again or contact support if the issue persists."
+      },
       { status: 500 }
     );
   }
@@ -215,10 +227,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
+  let token: string | undefined;
+  let formKey: string | undefined;
   try {
-    const { token } = await params;
+    const paramsData = await params;
+    token = paramsData.token;
     const body = await req.json();
-    const { formKey, data, submit } = body;
+    formKey = body.formKey;
+    const { data, submit } = body;
 
     if (!token) {
       return NextResponse.json(
@@ -241,18 +257,30 @@ export async function POST(
 
     let batch = null;
     if (!staff) {
+      // Try non-signature batches first (onboard)
       batch = await prisma.staffFormBatch.findFirst({
         where: {
           batchToken: token,
-          OR: [
-            { isSignatureOnly: false },
-            { isSignatureOnly: null },
-          ],
+          isSignatureOnly: false,
         },
         include: {
           staff: true,
         },
       });
+      
+      // If not found, try signature-only batches as fallback
+      if (!batch) {
+        batch = await prisma.staffFormBatch.findFirst({
+          where: {
+            batchToken: token,
+            isSignatureOnly: true,
+          },
+          include: {
+            staff: true,
+          },
+        });
+      }
+      
       if (batch) {
         staff = batch.staff;
       }
@@ -287,6 +315,42 @@ export async function POST(
       },
     });
 
+    // Extract signature from data and save to staffSignature column for completion tracking
+    let staffSignature: string | null = null;
+    let staffSignedAt: Date | null = null;
+    
+    if (submit) {
+      // Extract signature based on form type
+      if (formKey === 'fair_work_information') {
+        // Fairwork uses acknowledgementSignature
+        staffSignature = data.acknowledgementSignature || data.signature || data.staffSignature || null;
+        staffSignedAt = data.acknowledgedAt || data.staffSignedAt || data.date ? new Date(data.date) : null;
+      } else if (formKey === 'govt_tax') {
+        // TFN uses payeeSignature
+        staffSignature = data.payeeSignature || data.staffSignature || null;
+        staffSignedAt = data.payeeSignatureAt || data.staffSignedAt || null;
+      } else if (formKey === 'super_choice_form') {
+        // Super Choice uses sectionBSignature, sectionCSignature, or sectionDSignature
+        staffSignature = data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature || null;
+        staffSignedAt = data.sectionBSignedAt || data.sectionCSignedAt || data.sectionDSignedAt || data.staffSignedAt || null;
+      } else {
+        // Generic forms use signature or staffSignature
+        staffSignature = data.signature || data.staffSignature || null;
+        staffSignedAt = data.signatureDate || data.staffSignedAt || data.signedAt ? new Date(data.signedAt) : null;
+      }
+      
+      // If we found a signature but no date, set the date to now
+      if (staffSignature && !staffSignedAt) {
+        staffSignedAt = new Date();
+      }
+      
+      console.log(`📋 [Onboard API] Extracted signature for ${formKey}:`, {
+        hasSignature: !!staffSignature,
+        signatureLength: staffSignature?.length || 0,
+        signedAt: staffSignedAt?.toISOString(),
+      });
+    }
+
     if (submission) {
       // Update existing submission
       submission = await prisma.staffFormSubmission.update({
@@ -303,6 +367,9 @@ export async function POST(
           },
           isSubmitted: submit === true,
           submittedAt: submit === true ? new Date() : submission.submittedAt,
+          // Save signature to column for completion tracking
+          staffSignature: submit ? (staffSignature || submission.staffSignature) : submission.staffSignature,
+          staffSignedAt: submit ? (staffSignedAt || submission.staffSignedAt) : submission.staffSignedAt,
         },
       });
     } else {
@@ -316,8 +383,194 @@ export async function POST(
           data,
           isSubmitted: submit === true,
           submittedAt: submit === true ? new Date() : null,
+          // Save signature to column for completion tracking
+          staffSignature: submit ? staffSignature : null,
+          staffSignedAt: submit ? staffSignedAt : null,
         },
       });
+    }
+
+    // Update StaffFormAssignment status if assignment exists
+    // Find assignment - prioritize batch-based lookup if batch exists
+    let assignment = null;
+    
+    if (batch) {
+      // If we have a batch, find assignment through the batch
+      assignment = await prisma.staffFormAssignment.findFirst({
+        where: {
+          staffId: staff.id,
+          formId: form.id,
+          formVersion: form.version,
+          batchId: batch.id,
+        },
+      });
+    }
+    
+    // If not found through batch, try findUnique with compound unique key
+    if (!assignment) {
+      try {
+        assignment = await prisma.staffFormAssignment.findUnique({
+          where: {
+            staffId_formId_formVersion: {
+              staffId: staff.id,
+              formId: form.id,
+              formVersion: form.version,
+            },
+          },
+        });
+      } catch (error) {
+        // If findUnique fails, try findFirst as fallback
+        console.warn('findUnique failed, trying findFirst:', error);
+        assignment = await prisma.staffFormAssignment.findFirst({
+          where: {
+            staffId: staff.id,
+            formId: form.id,
+            formVersion: form.version,
+          },
+        });
+      }
+    }
+    
+    console.log(`🔍 [Onboard API] Looking for assignment:`, {
+      staffId: staff.id,
+      formId: form.id,
+      formVersion: form.version,
+      batchId: batch?.id,
+      found: !!assignment,
+      assignmentId: assignment?.id,
+      currentStatus: assignment?.currentStatus,
+    });
+
+    if (assignment) {
+      console.log(`📋 [Onboard API] Found assignment ${assignment.id}, current status: ${assignment.currentStatus}, submit: ${submit}`);
+      
+      if (submit) {
+        // Form is being submitted - determine status based on signature requirements
+        const requiresSignature = form.requiresSignature ?? false;
+        
+        // Check if staff has signed (check both column and data fields)
+        // For govt_tax form, only check payeeSignature (Section A only)
+        let hasStaffSignature = false;
+        if (formKey === 'govt_tax') {
+          hasStaffSignature = !!submission.staffSignature || 
+            !!(data.payeeSignature) || 
+            !!(data.staffSignature);
+        } else {
+          hasStaffSignature = !!submission.staffSignature || 
+            !!(data.signature) || 
+            !!(data.staffSignature) ||
+            !!(data.acknowledgementSignature);
+        }
+        
+        console.log(`📋 [Onboard API] Signature check:`, {
+          requiresSignature,
+          hasStaffSignature,
+          submissionStaffSignature: !!submission.staffSignature,
+          dataSignature: !!(data.signature),
+          dataStaffSignature: !!(data.staffSignature),
+          dataAcknowledgementSignature: !!(data.acknowledgementSignature),
+        });
+        
+        // Check if form requires admin/manager signature
+        const formsRequiringAdminSignature = [
+          'bullying_training',
+          'conflict_of_interest',
+          'employee_details',
+          'employment_details'
+        ];
+        const requiresAdminSignature = formsRequiringAdminSignature.includes(formKey);
+        
+        // Check if admin signature exists
+        let hasAdminSignature = false;
+        if (requiresAdminSignature) {
+          hasAdminSignature = !!submission.adminSignature || 
+            (formKey === 'bullying_training' && !!(data.managerSignature)) ||
+            (formKey === 'conflict_of_interest' && !!(data.reviewerSignature)) ||
+            (formKey === 'employee_details' && !!submission.adminSignature);
+        }
+
+        // Determine status:
+        // 1. If form doesn't require signature → completed
+        // 2. If form requires signature but NOT admin signature → completed when staff signs
+        // 3. If form requires admin signature:
+        //    - If only staff signed → in_progress (admin review required)
+        //    - If both staff and admin signed → completed
+        let newStatus = 'in_progress';
+        let shouldMarkCompleted = false;
+        
+        if (!requiresSignature) {
+          // Form doesn't require any signature
+          newStatus = 'completed';
+          shouldMarkCompleted = true;
+        } else if (requiresAdminSignature) {
+          // Form requires both staff and admin signatures
+          if (hasStaffSignature && hasAdminSignature) {
+            // Both signatures present → completed
+            newStatus = 'completed';
+            shouldMarkCompleted = true;
+          } else if (hasStaffSignature) {
+            // Only staff signed → in_progress (admin review required)
+            newStatus = 'in_progress';
+            shouldMarkCompleted = false;
+          } else {
+            // No signatures → in_progress
+            newStatus = 'in_progress';
+            shouldMarkCompleted = false;
+          }
+        } else if (hasStaffSignature) {
+          // Form requires signature but not admin signature, and staff has signed
+          newStatus = 'completed';
+          shouldMarkCompleted = true;
+        } else {
+          // Form requires signature but staff hasn't signed
+          newStatus = 'in_progress';
+          shouldMarkCompleted = false;
+        }
+
+        console.log(`📋 [Onboard API] Status determination:`, {
+          formKey,
+          requiresSignature,
+          requiresAdminSignature,
+          hasStaffSignature,
+          hasAdminSignature,
+          newStatus,
+          shouldMarkCompleted,
+        });
+
+        // Update assignment status
+        try {
+          await prisma.staffFormAssignment.update({
+            where: { id: assignment.id },
+            data: {
+              currentStatus: newStatus,
+              isCompleted: shouldMarkCompleted,
+            },
+          });
+          console.log(`✅ [Onboard API] Updated StaffFormAssignment ${assignment.id} status to ${newStatus} for form: ${formKey} (staff signed: ${hasStaffSignature}, admin signed: ${hasAdminSignature})`);
+        } catch (updateError: any) {
+          console.error(`❌ [Onboard API] Failed to update assignment status:`, updateError);
+          // Don't fail the whole request if status update fails
+        }
+      } else {
+        // Form is being saved (draft) - mark as in_progress if not started
+        if (assignment.currentStatus === 'not_started') {
+          try {
+            await prisma.staffFormAssignment.update({
+              where: { id: assignment.id },
+              data: {
+                currentStatus: 'in_progress',
+                isCompleted: false,
+              },
+            });
+            console.log(`📝 [Onboard API] Updated StaffFormAssignment ${assignment.id} status to in_progress for form: ${formKey}`);
+          } catch (updateError: any) {
+            console.error(`❌ [Onboard API] Failed to update assignment status:`, updateError);
+            // Don't fail the whole request if status update fails
+          }
+        }
+      }
+    } else {
+      console.warn(`⚠️ [Onboard API] No StaffFormAssignment found for staffId: ${staff.id}, formId: ${form.id}, formVersion: ${form.version}, batchId: ${batch?.id}`);
     }
 
     return NextResponse.json({
@@ -328,8 +581,19 @@ export async function POST(
 
   } catch (error: any) {
     console.error("Error saving staff form:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      token: token,
+      formKey: formKey,
+    });
     return NextResponse.json(
-      { error: "Failed to save form", details: error.message },
+      { 
+        error: "Failed to save form", 
+        details: error.message || "An unexpected error occurred",
+        message: error.message || "Unable to save the form. Please try again or contact support if the issue persists."
+      },
       { status: 500 }
     );
   }

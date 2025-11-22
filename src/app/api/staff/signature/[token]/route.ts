@@ -77,10 +77,44 @@ export async function GET(
       (sf: any) => sf.formSubmission.form.requiresSignature !== true
     );
 
-    // Calculate completion status (check staffSignature for staff forms)
-    const signedForms = formsRequiringSignature.filter(
-      (sf: any) => sf.formSubmission.staffSignature !== null && sf.formSubmission.staffSignature !== undefined
-    );
+    // Calculate completion status (check staffSignature column AND form-specific signature fields in data)
+    const signedForms = formsRequiringSignature.filter((sf: any) => {
+      const submission = sf.formSubmission;
+      const formKey = submission.form.formKey;
+      const data = submission.data || {};
+      
+      // Check staffSignature column first
+      if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
+        return true;
+      }
+      
+      // Check form-specific signature fields in data JSON
+      // Fairwork Information - uses acknowledgementSignature
+      if (formKey === 'fair_work_information') {
+        const hasAck = !!(data.acknowledgementSignature || data.signature || data.staffSignature);
+        console.log(`[Completion Check] Fairwork Information: staffSignature=${!!submission.staffSignature}, data.acknowledgementSignature=${!!data.acknowledgementSignature}, data.signature=${!!data.signature}, hasAck=${hasAck}`);
+        return hasAck;
+      }
+      
+      // TFN Declaration - uses payeeSignature
+      if (formKey === 'govt_tax') {
+        const hasPayeeSig = !!(data.payeeSignature || data.staffSignature);
+        console.log(`[Completion Check] TFN Declaration: staffSignature=${!!submission.staffSignature}, data.payeeSignature=${!!data.payeeSignature}, hasPayeeSig=${hasPayeeSig}`);
+        return hasPayeeSig;
+      }
+      
+      // Super Choice Form - uses sectionBSignature, sectionCSignature, or sectionDSignature
+      if (formKey === 'super_choice_form') {
+        const hasSuperSig = !!(data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature);
+        console.log(`[Completion Check] Super Choice: staffSignature=${!!submission.staffSignature}, sectionBSignature=${!!data.sectionBSignature}, sectionCSignature=${!!data.sectionCSignature}, sectionDSignature=${!!data.sectionDSignature}, hasSuperSig=${hasSuperSig}`);
+        return hasSuperSig;
+      }
+      
+      // For other forms, check staffSignature column or generic signature fields
+      const hasGenericSig = !!(data.signature || data.staffSignature);
+      console.log(`[Completion Check] ${formKey}: staffSignature=${!!submission.staffSignature}, data.signature=${!!data.signature}, hasGenericSig=${hasGenericSig}`);
+      return hasGenericSig;
+    });
 
     const completionStatus = {
       totalForms: batch.signatureForms.length,

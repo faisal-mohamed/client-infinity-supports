@@ -126,15 +126,28 @@ export default function GovtTaxEdit({
 
   // Submit form function
   const handleSubmitFormInternal = async () => {
-    // Validate required fields
+    // Validate required fields (Section A only - staff only fills Section A)
     const requiredFields = ['tfn', 'surname', 'firstName', 'dob', 'address'];
     const missingFields = requiredFields.filter(field => !(localFormData as any)[field]);
+    
+    // Validate payee signature (only signature required - Section A only)
+    const hasPayeeSignature = !!(localFormData as any).payeeSignature || !!(localFormData as any).staffSignature;
     
     if (missingFields.length > 0) {
       showToast({
         type: 'error',
         title: 'Validation Error',
         message: `Please fill in required fields: ${missingFields.join(', ')}`,
+        duration: 5000,
+      });
+      return;
+    }
+    
+    if (!hasPayeeSignature) {
+      showToast({
+        type: 'error',
+        title: 'Signature Required',
+        message: 'Please provide your signature (Section A - Payee signature)',
         duration: 5000,
       });
       return;

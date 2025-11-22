@@ -486,6 +486,43 @@ export async function POST(
           staffSignedAt: employeeDate ? new Date(employeeDate) : new Date()
         };
       }
+    } else if (!shouldClearSignature && formKey === 'fair_work_information') {
+      // Fairwork Information - uses acknowledgementSignature
+      const { acknowledgementSignature, signature, staffSignature, acknowledgedAt, staffSignedAt, date, ...restData } = data;
+      formData = restData;
+      const sig = acknowledgementSignature || signature || staffSignature;
+      const sigDate = acknowledgedAt || staffSignedAt || date;
+      if (sig) {
+        signatureData = {
+          staffSignature: sig,
+          staffSignedAt: sigDate ? new Date(sigDate) : new Date()
+        };
+      }
+    } else if (!shouldClearSignature && formKey === 'govt_tax') {
+      // TFN Declaration - uses payeeSignature
+      const { payeeSignature, staffSignature, payeeSignatureAt, staffSignedAt, ...restData } = data;
+      formData = restData;
+      const sig = payeeSignature || staffSignature;
+      const sigDate = payeeSignatureAt || staffSignedAt;
+      if (sig) {
+        signatureData = {
+          staffSignature: sig,
+          staffSignedAt: sigDate ? new Date(sigDate) : new Date()
+        };
+      }
+    } else if (!shouldClearSignature && formKey === 'super_choice_form') {
+      // Super Choice Form - uses sectionBSignature, sectionCSignature, or sectionDSignature
+      const { sectionBSignature, sectionCSignature, sectionDSignature, staffSignature, 
+              sectionBSignedAt, sectionCSignedAt, sectionDSignedAt, staffSignedAt, ...restData } = data;
+      formData = restData;
+      const sig = sectionBSignature || sectionCSignature || sectionDSignature || staffSignature;
+      const sigDate = sectionBSignedAt || sectionCSignedAt || sectionDSignedAt || staffSignedAt;
+      if (sig) {
+        signatureData = {
+          staffSignature: sig,
+          staffSignedAt: sigDate ? new Date(sigDate) : new Date()
+        };
+      }
     }
     
     // If clearing signature, set signature data to null AND clear from formData
@@ -602,6 +639,37 @@ export async function POST(
     } else {
       // When not clearing, use signatureData (which may be empty object)
       Object.assign(updateData, signatureData);
+      
+      // CRITICAL: Also extract signature from formData and save to staffSignature column
+      // This ensures completion tracking works even if signatureData doesn't have it
+      if (submit && !updateData.staffSignature) {
+        let extractedSignature: string | null = null;
+        let extractedSignedAt: Date | null = null;
+        
+        if (formKey === 'fair_work_information') {
+          extractedSignature = formData.acknowledgementSignature || formData.signature || formData.staffSignature || null;
+          extractedSignedAt = formData.acknowledgedAt || formData.staffSignedAt || formData.date ? new Date(formData.date) : null;
+        } else if (formKey === 'govt_tax') {
+          extractedSignature = formData.payeeSignature || formData.staffSignature || null;
+          extractedSignedAt = formData.payeeSignatureAt || formData.staffSignedAt || null;
+        } else if (formKey === 'super_choice_form') {
+          extractedSignature = formData.sectionBSignature || formData.sectionCSignature || formData.sectionDSignature || formData.staffSignature || null;
+          extractedSignedAt = formData.sectionBSignedAt || formData.sectionCSignedAt || formData.sectionDSignedAt || formData.staffSignedAt || null;
+        } else {
+          extractedSignature = formData.signature || formData.staffSignature || null;
+          extractedSignedAt = formData.signatureDate || formData.staffSignedAt || formData.signedAt ? new Date(formData.signedAt) : null;
+        }
+        
+        if (extractedSignature && !extractedSignedAt) {
+          extractedSignedAt = new Date();
+        }
+        
+        if (extractedSignature) {
+          updateData.staffSignature = extractedSignature;
+          updateData.staffSignedAt = extractedSignedAt;
+          console.log(`📋 [Signature API] Extracted and saved signature for ${formKey} to staffSignature column`);
+        }
+      }
     }
     
     console.log(`🔄 [API] Update data for upsert:`, {
@@ -987,11 +1055,30 @@ export async function POST(
         (sf: any) => sf.formSubmission.form.requiresSignature === true
       );
       
-      const allSigned = formsRequiringSignature.every(
-        (sf: any) => sf.formSubmission.staffSignature !== null && 
-                     sf.formSubmission.staffSignature !== undefined &&
-                     sf.formSubmission.staffSignature !== ""
-      );
+      const allSigned = formsRequiringSignature.every((sf: any) => {
+        const submission = sf.formSubmission;
+        const formKey = submission.form?.formKey;
+        const data = submission.data || {};
+        
+        // Check staffSignature column first
+        if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
+          return true;
+        }
+        
+        // Check form-specific signature fields in data JSON
+        if (formKey === 'fair_work_information') {
+          return !!(data.acknowledgementSignature || data.signature || data.staffSignature);
+        }
+        if (formKey === 'govt_tax') {
+          return !!(data.payeeSignature || data.staffSignature);
+        }
+        if (formKey === 'super_choice_form') {
+          return !!(data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature);
+        }
+        
+        // Generic check
+        return !!(data.signature || data.staffSignature);
+      });
       
       if (allSigned && formsRequiringSignature.length > 0 && !batch.isCompleted) {
         await prisma.staffFormBatch.update({

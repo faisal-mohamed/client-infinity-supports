@@ -23,30 +23,50 @@ export default function FairWorkInformationFormPage() {
     const loadData = async () => {
       try {
         const res = await fetch(`/api/staff/onboard/${token}`);
+        
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          const errorMessage = errorData.error || errorData.details || `HTTP ${res.status}: ${res.statusText}`;
+          throw new Error(errorMessage);
+        }
+
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error);
+        if (!data.staff) {
+          throw new Error("Staff data not found");
+        }
 
         setStaff(data.staff);
-        const existing =
-          data.submissions["fair_work_information"] ||
-          {
-            staffName: `${data.staff?.firstName ?? ""} ${
-              data.staff?.surname ?? ""
-            }`.trim(),
-            date: new Date().toISOString().split("T")[0],
-          };
+        
+        // Get existing submission or create default
+        const existingSubmission = data.submissions["fair_work_information"] || {};
+        
+        // Always ensure staffName is set from staff data if not already present
+        const staffName = existingSubmission.staffName || 
+          `${data.staff?.firstName ?? ""} ${data.staff?.surname ?? ""}`.trim();
+        
+        const existing = {
+          ...existingSubmission,
+          staffName: staffName, // Always set staffName
+          date: existingSubmission.date || new Date().toISOString().split("T")[0],
+        };
+        
         setFormData(existing);
       } catch (error: any) {
         console.error("Error loading Fairwork Information form:", error);
-        alert(error.message);
+        showToast({
+          type: "error",
+          title: "Failed to Load Form",
+          message: error.message || "Unable to load form data. Please try again.",
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     if (token) loadData();
-  }, [token]);
+  }, [token, showToast]);
 
   const handleAcknowledgementChange = (updates: Record<string, any>) => {
     setFormData((prev: any) => ({ ...prev, ...updates }));

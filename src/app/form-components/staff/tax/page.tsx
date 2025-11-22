@@ -36,24 +36,32 @@ function OverlayCharInput({
     Array.from({ length }, (_, i) => value[i] || "")
   );
   const inputsRef = useRef<(HTMLInputElement | null)[]>([])
+  const prevPropValueRef = useRef(value); // Track previous value prop
 
+  // Sync from prop only if value changed externally (not from our onChange)
   useEffect(() => {
-    setValues(Array.from({ length }, (_, i) => value[i] || ""));
+    const currentValue = values.join("");
+    // Only sync from prop if:
+    // 1. The prop value is different from our current internal state
+    // 2. The prop actually changed (not just a re-render with same value)
+    if (value !== prevPropValueRef.current && value !== currentValue) {
+      setValues(Array.from({ length }, (_, i) => value[i] || ""));
+    }
+    prevPropValueRef.current = value;
   }, [value, length]);
 
   const effectiveBoxWidth = totalWidth
     ? Math.floor(totalWidth / length)
     : boxWidth || 32;
 
-  useEffect(() => {
-    onChange(values.join(""));
-  }, [values]);
-
   const handleChange = (val: string, idx: number) => {
     if (readOnly) return;
     const newValues = [...values];
     newValues[idx] = val.slice(-1);
     setValues(newValues);
+    // Call onChange directly to avoid infinite loop
+    const newValue = newValues.join("");
+    onChange(newValue);
     if (val && idx < length - 1) inputsRef.current[idx + 1]?.focus();
   };
 
@@ -556,9 +564,9 @@ export default function TFNOverlayForm({
   onDataChange, 
   readOnly = false, 
   showButtons = true,
-  lockSectionB = false,
+  lockSectionB = true, // Default to true - staff only fills Section A
 }: TFNOverlayFormProps = {}) {
-  const sectionBLocked = readOnly || lockSectionB;
+  const sectionBLocked = readOnly || lockSectionB; // Section B is always locked for staff
   const sanitizeDate = (value?: string | null) => {
     if (!value) return "";
     const trimmed = value.trim();
