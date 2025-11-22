@@ -299,6 +299,11 @@ export async function GET(
       adminSignedAt: formData.adminSignedAt,
     };
 
+    // Create images object for forms that use images prop (like bullying-training, bullying-harassment-training)
+    const images = {
+      infinityLogo: logoDataUrl,
+    };
+
     // Get React PDF component
     let StaffPDFComponent;
     try {
@@ -311,8 +316,13 @@ export async function GET(
       );
     }
     
-    // Create PDF element
-    const pdfElement = React.createElement(StaffPDFComponent, { data: dataWithLogo });
+    // Create PDF element - pass both data and images props for consistency with other forms
+    const pdfElement = React.createElement(StaffPDFComponent, { 
+      data: dataWithLogo,
+      settings,
+      images,
+      showBlankForm: false,
+    });
 
     console.log('Generating PDF for staff:', staff.firstName, staff.surname);
     

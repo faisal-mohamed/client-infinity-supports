@@ -56,6 +56,7 @@ export default function FormItem({
     forms: { formTitle: string; formKey: string }[];
     expiresAt: string;
   } | null>(null);
+  const [isNavigatingToEdit, setIsNavigatingToEdit] = useState(false);
 
   const handleEditClick = () => {
     // Check if form was sent via signature link but staff hasn't submitted yet
@@ -83,16 +84,45 @@ export default function FormItem({
     }
   };
 
-  const handleEditConfirm = () => {
+  const handleEditConfirm = async () => {
+    setIsNavigatingToEdit(true);
     setShowEditWarningModal(false);
-    // Use staff route if it's a staff form, otherwise use client route
-    const editRoute = isStaff
-      ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
-      : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
-    router.push(editRoute);
+    
+    try {
+      // For staff forms, clear all signatures (staff and admin/manager) before navigating
+      if (isStaff) {
+        try {
+          const clearResponse = await fetch(`/api/staff/${clientId}/forms/${assignment.form.formKey}/clear-all-signatures`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assignmentId: assignment.id })
+          });
+          
+          if (!clearResponse.ok) {
+            console.error('Failed to clear signatures:', await clearResponse.text());
+            // Continue anyway - the edit page will handle it
+          }
+        } catch (error) {
+          console.error('Error clearing signatures:', error);
+          // Continue anyway - the edit page will handle it
+        }
+      }
+      
+      // Use staff route if it's a staff form, otherwise use client route
+      const editRoute = isStaff
+        ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
+        : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+      router.push(editRoute);
+    } catch (error) {
+      console.error('Error navigating to edit:', error);
+      setIsNavigatingToEdit(false);
+    }
   };
 
-  const handleEditCancel = () => setShowEditWarningModal(false);
+  const handleEditCancel = () => {
+    setShowEditWarningModal(false);
+    setIsNavigatingToEdit(false);
+  };
 
   const handleDeleteFormAssignment = async () => {
     if (isDeleting) return;
@@ -184,8 +214,52 @@ export default function FormItem({
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
     const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     const status = assignment.currentStatus;
+    
+    // Check if this form requires admin signature (like employee_details, conflict_of_interest, bullying_training)
+    const requiresAdminSignature = isStaff && (
+      assignment.form.formKey === 'employee_details' || 
+      assignment.form.formKey === 'employment_details' ||
+      assignment.form.formKey === 'conflict_of_interest' ||
+      assignment.form.formKey === 'bullying_training'
+    );
+    
     if (status === "completed") {
-      // For staff forms, check if staff signed it
+      // For staff forms with admin signatures
+      if (isStaff && requiresAdminSignature) {
+        // Both staff and admin have signed
+        if (assignment.staffSignature && assignment.adminSignature) {
+          return {
+            status: 'Both Admin and Staff Signed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        // Only admin signed (shouldn't happen normally, but handle it)
+        if (assignment.adminSignature && !assignment.staffSignature) {
+          return {
+            status: 'Admin Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        // Only staff signed but status is completed (legacy data or race condition)
+        // This should actually be "in_progress" but if status says completed, show Admin Review
+        if (assignment.staffSignature && !assignment.adminSignature) {
+          return {
+            status: 'Admin Review',
+            color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
+            icon: FaSignature,
+            bgColor: 'from-amber-500 to-amber-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+      
+      // For staff forms without admin signatures
       if (isStaff) {
         if (assignment.staffSignature) {
           return {
@@ -205,6 +279,7 @@ export default function FormItem({
           };
         }
       }
+      
       // For client forms or default
       return {
         status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
@@ -214,7 +289,45 @@ export default function FormItem({
         iconColor: 'text-white'
       };
     }
+    
     if (status === "in_progress") {
+      // For staff forms with admin signatures, check signature status
+      if (isStaff && requiresAdminSignature) {
+        // Staff has signed but admin hasn't (most common case after staff submits)
+        if (assignment.staffSignature && !assignment.adminSignature) {
+          return {
+            status: 'Admin Review',
+            color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
+            icon: FaSignature,
+            bgColor: 'from-amber-500 to-amber-600',
+            iconColor: 'text-white'
+          };
+        }
+        // Both have signed but status is still in_progress (shouldn't happen, but handle it)
+        // This can happen if admin just cleared their signature and status was updated
+        if (assignment.staffSignature && assignment.adminSignature) {
+          // This shouldn't happen, but if it does, show as completed
+          return {
+            status: 'Both Admin and Staff Signed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        // Staff hasn't signed yet
+        if (!assignment.staffSignature) {
+          return {
+            status: 'In Progress',
+            color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
+            icon: FaClock,
+            bgColor: 'from-amber-500 to-amber-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+      
+      // For other forms or default in_progress
       return {
         status: 'In Progress',
         color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
@@ -223,6 +336,7 @@ export default function FormItem({
         iconColor: 'text-white'
       };
     }
+    
     return {
       status: 'Not Started',
       color: 'from-slate-100 to-slate-200 text-slate-800 border-slate-300',
@@ -348,6 +462,7 @@ export default function FormItem({
               onGenerateLinkClick={generateEmergencyDrillLink}
               generatingLink={generatingLink}
               isStaff={isStaff}
+              disabled={showEditWarningModal || isNavigatingToEdit}
             />
           </div>
         </div>
@@ -369,6 +484,7 @@ export default function FormItem({
         onConfirm={handleEditConfirm}
         formTitle={assignment.form.title}
         onDownload={() => onDownloadPDF(assignment)}
+        isLoading={isNavigatingToEdit}
       />
 
       <StaffNotSubmittedModal

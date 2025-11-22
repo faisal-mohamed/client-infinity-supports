@@ -11,6 +11,7 @@ import {
 interface BullyingTrainingPDFProps {
   data?: any;
   settings?: any;
+  images?: any;
   showBlankForm?: boolean;
 }
 
@@ -129,19 +130,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     fontSize: 9,
-    color: '#6b7280',
+    color: '#666666',
+  },
+  footerText: {
+    fontSize: 9,
+    color: '#666666',
   },
 });
 
 const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
   data: rawData,
   settings,
+  images,
   showBlankForm = false,
 }) => {
   const payload = rawData || {};
   const formData = payload?.data || payload || {};
   const mergedSettings = settings || payload?.settings || {};
-  const logoUrl = mergedSettings?.logoDataUrl || '/infinity_logo.png';
+  // Use images prop like other forms (bullying-harassment-training, pre-employment-medical, etc.)
+  const logoUrl = images?.infinityLogo || mergedSettings?.logoDataUrl || '';
   const footerWebsite = mergedSettings?.website || mergedSettings?.company_website;
   const footerId = mergedSettings?.bullying_training_form_id;
   const footerDate = mergedSettings?.bullying_training_review_date;
@@ -184,14 +191,34 @@ const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
   const staffDate = staffDateRaw ? formatDate(staffDateRaw) : '';
   const managerSignedDate = managerSignedAtRaw ? formatDate(managerSignedAtRaw) : '';
 
+  // Render header with logo (same format as bullying-harassment-training)
+  const renderHeader = () => {
+    if (!logoUrl) return null;
+    return (
+      <View style={styles.header} fixed>
+        <Image src={logoUrl} style={styles.headerLogo} />
+      </View>
+    );
+  };
+
+  // Render footer - using form settings API like other staff forms
+  const renderFooter = () => {
+    // Only show footer if at least one value exists
+    if (!footerWebsite && !footerId && !footerDate) return null;
+
+    return (
+      <View style={styles.footer} fixed>
+        {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+        {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+        {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
+      </View>
+    );
+  };
+
   return (
     <Document>
       <Page size="A4" style={styles.page} wrap={false}>
-        {logoUrl && (
-          <View style={styles.header} fixed>
-            <Image src={logoUrl} style={styles.headerLogo} />
-          </View>
-        )}
+        {renderHeader()}
 
         <View style={styles.content}>
           <Text style={styles.title}>Bullying Training Acknowledgment Form</Text>
@@ -264,13 +291,7 @@ const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
           </View>
         </View>
 
-        {(footerWebsite || footerId || footerDate) && (
-          <View style={styles.footer} fixed>
-            {footerWebsite && <Text>Website: {footerWebsite}</Text>}
-            {footerId && <Text>{footerId}</Text>}
-            {footerDate && <Text>Review Date: {footerDate}</Text>}
-          </View>
-        )}
+        {renderFooter()}
       </Page>
     </Document>
   );

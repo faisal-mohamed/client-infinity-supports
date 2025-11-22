@@ -33,7 +33,7 @@ export default function StaffFormHeader({
         {/* Back Button */}
         <div className="flex items-center mb-4">
           <Link
-            href={`/admin/staff/${staffId}`}
+            href={`/admin/staff/${staffId}/forms`}
             className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 group"
           >
             <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />

@@ -50,7 +50,20 @@ export default function ConflictOfInterestFormPage() {
             (f: any) => f.formSubmission?.form?.formKey === 'conflict_of_interest'
           );
           if (conflictForm) {
-            formSubmission = conflictForm.formSubmission?.data || {};
+            // Preserve admin-filled data from submission
+            const submissionData = conflictForm.formSubmission?.data || {};
+            // Also check for admin data in the submission itself (for backward compatibility)
+            formSubmission = {
+              ...submissionData,
+              // Preserve admin fields even if they're in the submission object
+              reviewedBy: submissionData.reviewedBy || conflictForm.formSubmission?.data?.reviewedBy || '',
+              reviewerTitle: submissionData.reviewerTitle || conflictForm.formSubmission?.data?.reviewerTitle || '',
+              reviewDate: submissionData.reviewDate || conflictForm.formSubmission?.data?.reviewDate || '',
+              actionTaken: submissionData.actionTaken || conflictForm.formSubmission?.data?.actionTaken || '',
+              hrDecision: submissionData.hrDecision || conflictForm.formSubmission?.data?.hrDecision || '',
+              reviewerSignature: submissionData.reviewerSignature || conflictForm.formSubmission?.data?.reviewerSignature || '',
+              reviewerDate: submissionData.reviewerDate || conflictForm.formSubmission?.data?.reviewerDate || '',
+            };
           }
         } else {
           formSubmission = staffData.submissions?.['conflict_of_interest'] || {};
@@ -168,6 +181,20 @@ export default function ConflictOfInterestFormPage() {
         ? `/api/staff/signature/${token}/forms/conflict_of_interest`
         : `/api/staff/onboard/${token}`;
       
+      // Preserve admin-filled data when saving (merge with existing data)
+      const dataToSave = {
+        ...initialFormData, // Start with existing data (includes admin fields)
+        ...formData, // Override with current form data (staff fields)
+        // Explicitly preserve admin fields from initial data if they exist
+        reviewedBy: initialFormData?.reviewedBy || formData.reviewedBy || '',
+        reviewerTitle: initialFormData?.reviewerTitle || formData.reviewerTitle || '',
+        reviewDate: initialFormData?.reviewDate || formData.reviewDate || '',
+        actionTaken: initialFormData?.actionTaken || formData.actionTaken || '',
+        hrDecision: initialFormData?.hrDecision || formData.hrDecision || '',
+        reviewerSignature: initialFormData?.reviewerSignature || formData.reviewerSignature || '',
+        reviewerDate: initialFormData?.reviewerDate || formData.reviewerDate || '',
+      };
+      
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -175,7 +202,7 @@ export default function ConflictOfInterestFormPage() {
         },
         body: JSON.stringify({
           formKey: 'conflict_of_interest',
-          data: formData,
+          data: dataToSave,
           submit: isSubmit,
         }),
       });

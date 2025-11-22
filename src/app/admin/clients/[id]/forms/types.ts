@@ -23,6 +23,8 @@ export interface FormAssignmentWithDetails {
   // Staff-specific fields (for staff forms)
   staffSignature?: string;
   staffSignedAt?: string;
+  adminSignature?: string;
+  adminSignedAt?: string;
   // NEW: Include form data for signature validation
   formData?: any;
   currentStatus: string;

@@ -335,7 +335,88 @@ export async function POST(
     const staffId = batch.staffId;
     
     // Process form data and extract signature information
-    let formData: any = { ...data };
+    // IMPORTANT: Start with existing submission data to preserve admin-filled fields (like managerName, reviewedBy, etc.)
+    const existingSubmissionData = (submission?.data as any) || {};
+    
+    // When clearing signatures, also fetch admin data from dedicated tables if they exist
+    // This ensures we have ALL admin data even if it's not in the generic submission data
+    let adminDataFromDedicatedTable: any = {};
+    if (clearSignature === true) {
+      try {
+        const db: any = prisma as any;
+        if (formKey === 'bullying_training') {
+          const dedicated = await db.staffBullyingTraining.findUnique({ where: { staffId } }).catch(() => null);
+          if (dedicated && dedicated.data) {
+            const dedicatedData = dedicated.data as any;
+            // Extract admin fields from dedicated table
+            if (dedicatedData.managerName) adminDataFromDedicatedTable.managerName = dedicatedData.managerName;
+          }
+        } else if (formKey === 'conflict_of_interest') {
+          const dedicated = await db.staffConflictOfInterest.findUnique({ where: { staffId } }).catch(() => null);
+          if (dedicated && dedicated.data) {
+            const dedicatedData = dedicated.data as any;
+            // Extract admin fields from dedicated table
+            if (dedicatedData.reviewedBy) adminDataFromDedicatedTable.reviewedBy = dedicatedData.reviewedBy;
+            if (dedicatedData.reviewerTitle) adminDataFromDedicatedTable.reviewerTitle = dedicatedData.reviewerTitle;
+            if (dedicatedData.actionTaken) adminDataFromDedicatedTable.actionTaken = dedicatedData.actionTaken;
+            if (dedicatedData.hrDecision) adminDataFromDedicatedTable.hrDecision = dedicatedData.hrDecision;
+          }
+        } else if (formKey === 'employee_details' || formKey === 'employment_details') {
+          const dedicated = await db.staffEmploymentDetails.findUnique({ where: { staffId } }).catch(() => null);
+          if (dedicated) {
+            // Extract admin fields from dedicated table (both from data and direct columns)
+            if (dedicated.employmentStatus) adminDataFromDedicatedTable.employmentStatus = dedicated.employmentStatus;
+            if (dedicated.payRate) adminDataFromDedicatedTable.payRate = dedicated.payRate;
+            if (dedicated.schadsLevel) adminDataFromDedicatedTable.schadsLevel = dedicated.schadsLevel;
+            if (dedicated.data) {
+              const dedicatedData = dedicated.data as any;
+              if (dedicatedData.employmentStatus) adminDataFromDedicatedTable.employmentStatus = dedicatedData.employmentStatus;
+              if (dedicatedData.payRate) adminDataFromDedicatedTable.payRate = dedicatedData.payRate;
+              if (dedicatedData.schadsLevel) adminDataFromDedicatedTable.schadsLevel = dedicatedData.schadsLevel;
+              if (dedicatedData.schadsScore) adminDataFromDedicatedTable.schadsLevel = dedicatedData.schadsScore;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ [API] Could not fetch admin data from dedicated table:', error);
+      }
+    }
+    
+    // When clearing signatures, preserve ALL admin-filled data by starting with existing data
+    // Only override with incoming data fields that are NOT admin fields
+    let formData: any;
+    if (clearSignature === true) {
+      // Start with existing submission data, then merge admin data from dedicated table, then merge incoming data
+      formData = { ...existingSubmissionData, ...adminDataFromDedicatedTable };
+      
+      // Merge non-admin fields from incoming data (staff fields only)
+      // Admin fields are preserved from existingSubmissionData and adminDataFromDedicatedTable
+      Object.keys(data).forEach(key => {
+        // Only update if it's not an admin field
+        if (formKey === 'bullying_training' && key === 'managerName') {
+          // Preserve managerName - don't override
+        } else if (formKey === 'conflict_of_interest' && ['reviewedBy', 'reviewerTitle', 'actionTaken', 'hrDecision'].includes(key)) {
+          // Preserve these fields - don't override
+        } else if ((formKey === 'employee_details' || formKey === 'employment_details') && ['employmentStatus', 'payRate', 'schadsLevel', 'schadsScore'].includes(key)) {
+          // Preserve these fields - don't override
+        } else {
+          // Update with incoming data (staff fields)
+          formData[key] = data[key];
+        }
+      });
+      
+      console.log(`🔄 [API] Preserved admin fields from submission:`, {
+        managerName: formKey === 'bullying_training' ? formData.managerName : 'N/A',
+        reviewedBy: formKey === 'conflict_of_interest' ? formData.reviewedBy : 'N/A',
+        reviewerTitle: formKey === 'conflict_of_interest' ? formData.reviewerTitle : 'N/A',
+        employmentStatus: (formKey === 'employee_details' || formKey === 'employment_details') ? formData.employmentStatus : 'N/A',
+      });
+      console.log(`🔄 [API] Admin data from dedicated table:`, adminDataFromDedicatedTable);
+    } else {
+      // Normal save - merge as usual
+      formData = { ...existingSubmissionData, ...data };
+    }
+    
     let signatureData: any = {};
     
     // Check if this is a request to clear signature (for editing)
@@ -346,6 +427,9 @@ export async function POST(
       shouldClearSignature,
       clearSignatureFromPayload: clearSignature,
       incomingDataKeys: Object.keys(data),
+      existingDataKeys: Object.keys(existingSubmissionData),
+      managerNamePreserved: formKey === 'bullying_training' ? (formData.managerName || 'NOT FOUND') : 'N/A',
+      reviewedByPreserved: formKey === 'conflict_of_interest' ? (formData.reviewedBy || 'NOT FOUND') : 'N/A',
       payloadHasClearSignature: clearSignature === true
     });
     
@@ -473,7 +557,48 @@ export async function POST(
     if (shouldClearSignature) {
       updateData.staffSignature = null;
       updateData.staffSignedAt = null;
-      console.log(`🔄 [API] Explicitly setting staffSignature and staffSignedAt to null in update`);
+      // Also clear admin signatures when clearing for editing
+      updateData.adminSignature = null;
+      updateData.adminSignedAt = null;
+      console.log(`🔄 [API] Explicitly setting staffSignature, staffSignedAt, adminSignature, and adminSignedAt to null in update`);
+      
+      // Clear form-specific admin signatures from data JSON
+      // IMPORTANT: All admin data (managerName, reviewedBy, etc.) is already preserved in formData
+      // We only delete signature-related fields, never admin-filled data
+      if (formKey === 'bullying_training') {
+        // Only delete signature fields - preserve ALL other fields including managerName
+        delete formData.managerSignature;
+        delete formData.managerSignedAt;
+        delete formData.staffSignature;
+        delete formData.staffSignedAt;
+        // managerName and ALL other fields are preserved
+        console.log(`🔄 [API] Cleared managerSignature/managerSignedAt, preserved managerName: ${formData.managerName || 'N/A'}`);
+      } else if (formKey === 'conflict_of_interest') {
+        // Only delete signature fields - preserve ALL other fields including reviewedBy, reviewerTitle, actionTaken, hrDecision
+        delete formData.reviewerSignature;
+        delete formData.reviewerDate;
+        delete formData.employeeSignature;
+        delete formData.employeeDate;
+        delete formData.staffSignature;
+        delete formData.staffSignedAt;
+        // reviewedBy, reviewerTitle, actionTaken, hrDecision and ALL other fields are preserved
+        console.log(`🔄 [API] Cleared reviewerSignature/reviewerDate, preserved reviewer info: reviewedBy=${formData.reviewedBy || 'N/A'}, reviewerTitle=${formData.reviewerTitle || 'N/A'}, actionTaken=${formData.actionTaken || 'N/A'}, hrDecision=${formData.hrDecision || 'N/A'}`);
+      } else if (formKey === 'employee_details' || formKey === 'employment_details') {
+        // Only delete signature fields - preserve ALL other fields including employmentStatus, payRate, schadsLevel
+        delete formData.employeeSignature;
+        delete formData.employeeSignatureDate;
+        delete formData.staffSignature;
+        delete formData.staffSignedAt;
+        // employmentStatus, payRate, schadsLevel and ALL other fields are preserved
+        console.log(`🔄 [API] Cleared employeeSignature, preserved employment data: employmentStatus=${formData.employmentStatus || 'N/A'}, payRate=${formData.payRate || 'N/A'}, schadsLevel=${formData.schadsLevel || formData.schadsScore || 'N/A'}`);
+      } else {
+        // Generic forms - only delete signature fields
+        delete formData.signature;
+        delete formData.staffSignature;
+        delete formData.signatureDate;
+        delete formData.staffSignedAt;
+      }
+      updateData.data = formData; // Update with cleared admin signature fields but ALL admin data preserved
     } else {
       // When not clearing, use signatureData (which may be empty object)
       Object.assign(updateData, signatureData);
@@ -532,22 +657,32 @@ export async function POST(
       dataSignatureValue: (verified?.data as any)?.signature ? 'EXISTS' : 'NULL/EMPTY'
     });
     
-    // Verify signature was actually cleared
-    if (shouldClearSignature && (saved.staffSignature || (saved.data as any)?.signature || (saved.data as any)?.staffSignature)) {
-      console.error(`❌ [API] CRITICAL ERROR: Signature was NOT cleared!`, {
-        staffSignature: saved.staffSignature,
-        dataSignature: (saved.data as any)?.signature,
-        dataStaffSignature: (saved.data as any)?.staffSignature
-      });
-      // Return error response
-      return NextResponse.json({
-        success: false,
-        error: 'Failed to clear signature',
-        message: 'The signature could not be cleared. Please try again.',
-        submission: saved, // Include so frontend can verify
-      }, { status: 500 });
-    } else if (shouldClearSignature) {
-      console.log(`✅ [API] Signature successfully cleared and verified`);
+    // Verify signatures were actually cleared
+    if (shouldClearSignature) {
+      const staffSigStillExists = saved.staffSignature || (saved.data as any)?.signature || (saved.data as any)?.staffSignature;
+      const adminSigStillExists = saved.adminSignature || 
+        (formKey === 'bullying_training' && (saved.data as any)?.managerSignature) ||
+        (formKey === 'conflict_of_interest' && (saved.data as any)?.reviewerSignature);
+      
+      if (staffSigStillExists || adminSigStillExists) {
+        console.error(`❌ [API] CRITICAL ERROR: Signatures were NOT cleared!`, {
+          staffSignature: saved.staffSignature,
+          adminSignature: saved.adminSignature,
+          dataSignature: (saved.data as any)?.signature,
+          dataStaffSignature: (saved.data as any)?.staffSignature,
+          managerSignature: (saved.data as any)?.managerSignature,
+          reviewerSignature: (saved.data as any)?.reviewerSignature
+        });
+        // Return error response
+        return NextResponse.json({
+          success: false,
+          error: 'Failed to clear signatures',
+          message: 'The signatures could not be cleared. Please try again.',
+          submission: saved, // Include so frontend can verify
+        }, { status: 500 });
+      } else {
+        console.log(`✅ [API] All signatures (staff and admin) successfully cleared and verified`);
+      }
     }
     
     // 🎯 CRITICAL: Also clear signature from dedicated tables for backward compatibility
@@ -599,14 +734,84 @@ export async function POST(
             }
           });
         } else if (formKey === 'bullying_training') {
-          console.log(`🔄 [API] Clearing signature from StaffBullyingTraining dedicated table`);
-          await prisma.staffBullyingTraining.updateMany({
-            where: { staffId: staffId },
-            data: {
-              staffSignature: null,
-              staffSignedAt: null
-            }
+          console.log(`🔄 [API] Clearing signatures from StaffBullyingTraining dedicated table`);
+          const dedicatedRecord = await prisma.staffBullyingTraining.findUnique({
+            where: { staffId: staffId }
           });
+          
+          if (dedicatedRecord) {
+            const dedicatedData = (dedicatedRecord.data as any) || {};
+            // IMPORTANT: Create a new object with all existing data, then only delete signature fields
+            const preservedData = { ...dedicatedData };
+            // Clear only signatures - keep managerName and ALL other admin data
+            delete preservedData.managerSignature;
+            delete preservedData.managerSignedAt;
+            delete preservedData.staffSignature;
+            delete preservedData.staffSignedAt;
+            // DO NOT delete managerName or any other fields
+            
+            await prisma.staffBullyingTraining.update({
+              where: { staffId: staffId },
+              data: {
+                staffSignature: null,
+                staffSignedAt: null,
+                adminSignature: null,
+                adminSignedAt: null,
+                data: preservedData // Keep ALL admin data including managerName
+              }
+            });
+            console.log(`✅ [API] Cleared all signatures from StaffBullyingTraining table (kept managerName: ${preservedData.managerName || 'N/A'})`);
+          }
+        } else if (formKey === 'conflict_of_interest') {
+          console.log(`🔄 [API] Clearing signatures from StaffConflictOfInterest dedicated table`);
+          const dedicatedRecord = await prisma.staffConflictOfInterest.findUnique({
+            where: { staffId: staffId }
+          });
+          
+          if (dedicatedRecord) {
+            const dedicatedData = (dedicatedRecord.data as any) || {};
+            // IMPORTANT: Create a new object with all existing data, then only delete signature fields
+            const preservedData = { ...dedicatedData };
+            // Clear only signatures - keep reviewedBy, reviewerTitle, actionTaken, hrDecision and ALL other admin data
+            delete preservedData.reviewerSignature;
+            delete preservedData.reviewerDate;
+            delete preservedData.staffSignature;
+            delete preservedData.staffSignedAt;
+            // DO NOT delete reviewedBy, reviewerTitle, actionTaken, hrDecision or any other fields
+            
+            await prisma.staffConflictOfInterest.update({
+              where: { staffId: staffId },
+              data: {
+                staffSignature: null,
+                staffSignedAt: null,
+                adminSignature: null,
+                adminSignedAt: null,
+                data: preservedData // Keep ALL admin data including reviewedBy, reviewerTitle, etc.
+              }
+            });
+            console.log(`✅ [API] Cleared all signatures from StaffConflictOfInterest table (kept reviewer info: reviewedBy=${preservedData.reviewedBy || 'N/A'}, reviewerTitle=${preservedData.reviewerTitle || 'N/A'})`);
+          }
+        } else if (formKey === 'employee_details' || formKey === 'employment_details') {
+          console.log(`🔄 [API] Clearing signatures from StaffEmploymentDetails dedicated table`);
+          const dedicatedRecord = await prisma.staffEmploymentDetails.findUnique({
+            where: { staffId: staffId }
+          });
+          
+          if (dedicatedRecord) {
+            // IMPORTANT: Keep ALL existing data in the dedicated table - only clear signature columns
+            await prisma.staffEmploymentDetails.update({
+              where: { staffId: staffId },
+              data: {
+                staffSignature: null,
+                staffSignedAt: null,
+                adminSignature: null,
+                adminSignedAt: null,
+                // Keep ALL other fields including employmentStatus, payRate, schadsLevel, data JSON, etc.
+                // DO NOT update data field - it will preserve all admin-filled data
+              }
+            });
+            console.log(`✅ [API] Cleared all signatures from StaffEmploymentDetails table (kept all employment data)`);
+          }
         } else if (formKey === 'ndis_code_of_conduct') {
           console.log(`🔄 [API] Clearing signature from StaffNdisCodeOfConduct dedicated table`);
           await prisma.staffNdisCodeOfConduct.updateMany({
@@ -646,7 +851,7 @@ export async function POST(
         });
 
         if (assignment) {
-            // If signature was cleared, reset status to in_progress
+            // If signature was cleared, reset status to in_progress (all signatures cleared)
             if (shouldClearSignature) {
               await prisma.staffFormAssignment.update({
                 where: { id: assignment.id },
@@ -655,7 +860,7 @@ export async function POST(
                   isCompleted: false,
                 },
               });
-              console.log(`🔄 Reset StaffFormAssignment ${assignment.id} to in_progress - signature cleared for editing`);
+              console.log(`🔄 Reset StaffFormAssignment ${assignment.id} to in_progress - all signatures cleared for editing`);
             } else if (assignment.currentStatus === 'completed' && !submit) {
               // Don't update if already completed and just saving draft
               console.log(`⚠️ StaffFormAssignment ${assignment.id} already completed, skipping status update`);
@@ -671,35 +876,73 @@ export async function POST(
                 ? !!(formData.sectionBSignature || formData.sectionCSignature || formData.sectionDSignature)
                 : false;
               const hasSignature = hasSignatureInColumn || hasSignatureInData;
-            
-            // Mark as completed if:
-            // 1. Form doesn't require signature (any submission counts), OR
-            // 2. Form requires signature AND signature is present
-            const shouldMarkCompleted = !requiresSignature || (requiresSignature && hasSignature);
-
-            if (shouldMarkCompleted) {
-              // Update assignment status to completed
-              await prisma.staffFormAssignment.update({
-                where: { id: assignment.id },
-                data: {
-                  currentStatus: 'completed',
-                  isCompleted: true,
-                },
-              });
-              console.log(`✅ Updated StaffFormAssignment ${assignment.id} status to completed for form: ${formKey}`);
-            } else {
-              // Form submitted but missing required signature - keep as in_progress
-              if (assignment.currentStatus === 'not_started') {
-                await prisma.staffFormAssignment.update({
-                  where: { id: assignment.id },
-                  data: {
-                    currentStatus: 'in_progress',
-                    isCompleted: false,
-                  },
-                });
-                console.log(`📝 Updated StaffFormAssignment ${assignment.id} status to in_progress for form: ${formKey}`);
+              
+              // Check if form requires admin/manager signature (forms that need both staff and admin signatures)
+              const formsRequiringAdminSignature = [
+                'bullying_training',
+                'conflict_of_interest',
+                'employee_details',
+                'employment_details'
+              ];
+              const requiresAdminSignature = formsRequiringAdminSignature.includes(formKey);
+              
+              // Check if admin signature exists - use the saved submission
+              let hasAdminSignature = false;
+              if (requiresAdminSignature) {
+                // Check the saved submission for admin signature
+                hasAdminSignature = !!saved?.adminSignature || 
+                  (formKey === 'bullying_training' && !!(saved?.data as any)?.managerSignature) ||
+                  (formKey === 'conflict_of_interest' && !!(saved?.data as any)?.reviewerSignature) ||
+                  (formKey === 'employee_details' && !!saved?.adminSignature);
               }
+            
+            // Status logic:
+            // 1. If form doesn't require signature → completed
+            // 2. If form requires signature but NOT admin signature → completed when staff signs
+            // 3. If form requires admin signature:
+            //    - If only staff signed → in_progress (admin review required)
+            //    - If both staff and admin signed → completed
+            let newStatus = 'in_progress';
+            let shouldMarkCompleted = false;
+            
+            if (!requiresSignature) {
+              // Form doesn't require any signature
+              newStatus = 'completed';
+              shouldMarkCompleted = true;
+            } else if (requiresAdminSignature) {
+              // Form requires both staff and admin signatures
+              if (hasSignature && hasAdminSignature) {
+                // Both signatures present → completed
+                newStatus = 'completed';
+                shouldMarkCompleted = true;
+              } else if (hasSignature) {
+                // Only staff signed → in_progress (admin review required)
+                newStatus = 'in_progress';
+                shouldMarkCompleted = false;
+              } else {
+                // No signatures → in_progress
+                newStatus = 'in_progress';
+                shouldMarkCompleted = false;
+              }
+            } else if (hasSignature) {
+              // Form requires signature but not admin signature, and staff has signed
+              newStatus = 'completed';
+              shouldMarkCompleted = true;
+            } else {
+              // Form requires signature but staff hasn't signed
+              newStatus = 'in_progress';
+              shouldMarkCompleted = false;
             }
+
+            // Update assignment status
+            await prisma.staffFormAssignment.update({
+              where: { id: assignment.id },
+              data: {
+                currentStatus: newStatus,
+                isCompleted: shouldMarkCompleted,
+              },
+            });
+            console.log(`✅ Updated StaffFormAssignment ${assignment.id} status to ${newStatus} for form: ${formKey} (staff signed: ${hasSignature}, admin signed: ${hasAdminSignature})`);
           } else {
             // Form is being saved (draft) - mark as in_progress if not started
             if (assignment.currentStatus === 'not_started') {

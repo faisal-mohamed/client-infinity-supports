@@ -249,19 +249,78 @@ export default function StaffBullyingTrainingView() {
 
         {/* Manager Section */}
         <div className="bg-white rounded-2xl shadow border border-gray-100 p-6 space-y-6">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Manager Acknowledgement</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              This section is completed by the manager after the staff member has signed their acknowledgement.
-            </p>
-          </div>
-
           {!staffSigned ? (
             <div className="p-4 border border-yellow-200 rounded-lg bg-yellow-50 text-yellow-800 text-sm">
               Staff must sign the acknowledgement before you can complete the manager section.
             </div>
+          ) : managerSignature ? (
+            /* Simple message with Edit button when manager has already signed */
+            <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 flex items-center justify-between">
+              <p className="text-sm text-green-800 font-semibold">
+                ✅ Manager section has been completed. This form is fully approved.
+              </p>
+              <button
+                onClick={async () => {
+                  if (confirm('Are you sure you want to clear the manager signature? This will allow you to edit the manager section.')) {
+                    try {
+                      setSaving(true);
+                      const response = await fetch(`/api/staff/${id}/forms/bullying-training/clear-admin-signature`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                      });
+                      
+                      if (response.ok) {
+                        showToast({
+                          type: 'success',
+                          title: 'Signature Cleared',
+                          message: 'Manager signature has been cleared. You can now edit the manager section.',
+                          duration: 3000,
+                        });
+                        // Reload data to refresh the form
+                        setTimeout(() => {
+                          loadData();
+                          setRefreshKey(prev => prev + 1);
+                        }, 500);
+                      } else {
+                        const result = await response.json();
+                        showToast({
+                          type: 'error',
+                          title: 'Error',
+                          message: result.message || 'Failed to clear signature',
+                          duration: 5000,
+                        });
+                      }
+                    } catch (error: any) {
+                      console.error('Error clearing manager signature:', error);
+                      showToast({
+                        type: 'error',
+                        title: 'Network Error',
+                        message: 'Unable to connect to the server.',
+                        duration: 5000,
+                      });
+                    } finally {
+                      setSaving(false);
+                    }
+                  }
+                }}
+                disabled={saving}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                {saving ? 'Clearing...' : 'Edit'}
+              </button>
+            </div>
           ) : (
+            /* Editable form when manager hasn't signed */
             <>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Manager Acknowledgement</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  This section is completed by the manager after the staff member has signed their acknowledgement.
+                </p>
+              </div>
               <div className="grid gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

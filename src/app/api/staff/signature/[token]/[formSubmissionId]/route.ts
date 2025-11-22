@@ -240,7 +240,62 @@ export async function POST(
         staffSignedAt: staffSignedAt,
         updatedAt: new Date(),
       },
+      include: {
+        form: {
+          select: {
+            formKey: true,
+          },
+        },
+      },
     });
+
+    // Update StaffFormAssignment status if staff signed
+    // For forms requiring admin signatures (like employee_details, conflict_of_interest, bullying_training), set to "in_progress" if admin hasn't signed yet
+    if (staffSignature) {
+      // Get formKey from the submission (it's stored in formKey field)
+      const formKey = updatedSubmission.formKey || currentSubmission.formKey;
+      const requiresAdminSignature = formKey === 'employee_details' || 
+                                     formKey === 'employment_details' ||
+                                     formKey === 'conflict_of_interest' ||
+                                     formKey === 'bullying_training';
+      
+      if (formKey) {
+        const assignment = await prisma.staffFormAssignment.findFirst({
+          where: {
+            staffId: currentSubmission.staffId,
+            form: {
+              formKey: formKey,
+            },
+          },
+        });
+
+        if (assignment) {
+          // Check if admin has signed (from the updated submission)
+          const adminHasSigned = !!updatedSubmission.adminSignature;
+          
+          // If form requires admin signature and admin hasn't signed, set to "in_progress"
+          // Otherwise, if all signatures are complete, set to "completed"
+          if (requiresAdminSignature && !adminHasSigned) {
+            await prisma.staffFormAssignment.update({
+              where: { id: assignment.id },
+              data: {
+                currentStatus: 'in_progress',
+                isCompleted: false,
+              },
+            });
+          } else if (!requiresAdminSignature || adminHasSigned) {
+            // Form doesn't require admin signature, or both signatures are complete
+            await prisma.staffFormAssignment.update({
+              where: { id: assignment.id },
+              data: {
+                currentStatus: 'completed',
+                isCompleted: true,
+              },
+            });
+          }
+        }
+      }
+    }
 
     // Check if all forms in batch are signed
     const allSignatureForms = await prisma.staffSignatureBatchForm.findMany({

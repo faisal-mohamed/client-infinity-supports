@@ -91,6 +91,7 @@ export default function StaffSignaturePortalClient() {
   const [navigatingFormId, setNavigatingFormId] = useState<number | null>(null);
   const [editingFormId, setEditingFormId] = useState<number | null>(null);
   const [showEditWarning, setShowEditWarning] = useState<{ form: SignatureForm; formUrl: string } | null>(null);
+  const [confirmingEdit, setConfirmingEdit] = useState(false);
 
   useEffect(() => {
     loadSignatureBatch();
@@ -174,9 +175,10 @@ export default function StaffSignaturePortalClient() {
   };
 
   const handleConfirmEdit = async () => {
-    if (!showEditWarning) return;
+    if (!showEditWarning || confirmingEdit) return;
     
     const { form, formUrl } = showEditWarning;
+    setConfirmingEdit(true);
     setEditingFormId(form.id);
     
     try {
@@ -280,6 +282,10 @@ export default function StaffSignaturePortalClient() {
         // Reload batch data to reflect cleared signature
         await loadSignatureBatch();
         
+        // Close modal and reset state before navigation
+        setShowEditWarning(null);
+        setConfirmingEdit(false);
+        
         // Navigate to form with a timestamp to force reload
         router.push(`${formUrl}?reload=${Date.now()}`);
         // Force a hard refresh to ensure form reloads with cleared signature
@@ -304,8 +310,9 @@ export default function StaffSignaturePortalClient() {
         message: error.message || 'Failed to clear signature. Please try again.',
         duration: 5000,
       });
+      // Keep modal open on error so user can try again
     } finally {
-      setShowEditWarning(null);
+      setConfirmingEdit(false);
     }
   };
 
@@ -725,6 +732,7 @@ export default function StaffSignaturePortalClient() {
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-gray-600 mb-4">
                   <li>Clear your existing signature</li>
+                  <li>Clear any admin/manager signatures (if present)</li>
                   <li>Require you to sign the form again after making changes</li>
                   <li>Reset the form status to "In Progress"</li>
                 </ul>
@@ -735,16 +743,28 @@ export default function StaffSignaturePortalClient() {
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
-                  onClick={() => setShowEditWarning(null)}
-                  className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    setShowEditWarning(null);
+                    setConfirmingEdit(false);
+                  }}
+                  disabled={confirmingEdit}
+                  className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmEdit}
-                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
+                  disabled={confirmingEdit}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Continue Editing
+                  {confirmingEdit ? (
+                    <>
+                      <FaSpinner className="h-4 w-4 animate-spin" />
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    'Continue Editing'
+                  )}
                 </button>
               </div>
             </div>

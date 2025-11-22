@@ -7,6 +7,7 @@ import LoadingView from '@/components/ui/LoadingView';
 import { useToast } from '@/components/ui/Toast';
 import FormItem from '@/app/components/components/client-forms/FormItem';
 import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
+import { FaSync } from 'react-icons/fa';
 
 export default function StaffFormsPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,45 @@ export default function StaffFormsPage() {
 
   useEffect(() => {
     if (id) loadStaffForms();
+  }, [id]);
+
+  // Refresh data when page becomes visible (e.g., when user navigates back from form view)
+  // This ensures the status is updated after admin submits or edits a form
+  useEffect(() => {
+    let lastRefreshTime = Date.now();
+    const REFRESH_INTERVAL = 2000; // Refresh if at least 2 seconds have passed (reduced for better UX)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && id) {
+        const now = Date.now();
+        // Only refresh if enough time has passed to avoid excessive API calls
+        if (now - lastRefreshTime > REFRESH_INTERVAL) {
+          console.log('🟢 [Forms List] Page became visible, refreshing forms list...');
+          lastRefreshTime = now;
+          loadStaffForms();
+        }
+      }
+    };
+
+    // Also listen for focus event (when user switches back to this tab/window)
+    const handleFocus = () => {
+      if (id) {
+        const now = Date.now();
+        if (now - lastRefreshTime > REFRESH_INTERVAL) {
+          console.log('🟢 [Forms List] Window focused, refreshing forms list...');
+          lastRefreshTime = now;
+          loadStaffForms();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [id]);
 
   const loadStaffForms = async () => {
@@ -165,7 +205,18 @@ export default function StaffFormsPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-          <h2 className="text-lg font-semibold mb-4">Assigned Forms</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Assigned Forms</h2>
+            <button
+              onClick={() => loadStaffForms()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              title="Refresh forms list"
+            >
+              <FaSync className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+          </div>
           
           {assignments.length === 0 ? (
             <div className="text-gray-500 text-sm">No forms assigned yet.</div>

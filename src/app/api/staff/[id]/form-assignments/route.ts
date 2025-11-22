@@ -105,6 +105,8 @@ export async function GET(
             adminFilledAt: true,
             staffSignature: true,
             staffSignedAt: true,
+            adminSignature: true,
+            adminSignedAt: true,
           },
         }) : null;
 
@@ -128,6 +130,8 @@ export async function GET(
           adminFilledAt: submission?.adminFilledAt?.toISOString(),
           staffSignature: submission?.staffSignature,
           staffSignedAt: submission?.staffSignedAt?.toISOString(),
+          adminSignature: submission?.adminSignature,
+          adminSignedAt: submission?.adminSignedAt?.toISOString(),
           formData: submission?.data,
           currentStatus: assignment.currentStatus || 'not_started',
         };

@@ -29,10 +29,25 @@ export default function BullyingTrainingFormPage() {
           : `/api/staff/onboard/${token}`;
         
         const res = await fetch(apiEndpoint);
-        const data = await res.json();
         
+        // Check if response is OK before parsing JSON
         if (!res.ok) {
-          const errorMessage = data.message || data.error || 'Failed to load form data';
+          // Try to parse error message, but handle HTML error pages
+          let errorMessage = 'Failed to load form data';
+          try {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const errorData = await res.json();
+              errorMessage = errorData.message || errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+            } else {
+              // Response is HTML (error page), use status text
+              errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+            }
+          } catch (parseError) {
+            // If parsing fails, use status text
+            errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+          }
+          
           setError(errorMessage);
           showToast({
             type: 'error',
@@ -42,6 +57,9 @@ export default function BullyingTrainingFormPage() {
           });
           return;
         }
+        
+        // Parse JSON only if response is OK
+        const data = await res.json();
         
         setStaff(data.staff);
         

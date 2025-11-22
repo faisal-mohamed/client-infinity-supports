@@ -387,6 +387,10 @@ export default function ConflictOfInterestEdit({
             <p className="text-sm text-gray-700 mb-4">
               I certify that the information provided above is complete and accurate to the best of my knowledge. I understand that failure to disclose a potential conflict of interest may result in disciplinary action, up to and including termination of employment. If a potential conflict arises after signing this form, I will promptly notify Infinity Supports WA in writing.
             </p>
+            
+            <div className="p-4 border border-yellow-300 rounded-md bg-yellow-50 text-sm text-yellow-800 mb-4">
+              HR/Management acknowledgement is completed by administration after you submit this form.
+            </div>
             <div className="border border-gray-300 p-3 mb-4">
               <div className="mb-3">
                 <p className="text-sm font-medium text-gray-800 mb-2">Employee Signature: <span className="text-red-500">*</span></p>
@@ -410,125 +414,110 @@ export default function ConflictOfInterestEdit({
           </div>
 
           {/* For HR/Management Use Only */}
-          <div className="mb-4">
-            <h2 className="text-base font-semibold text-gray-800 mb-3">For HR/Management Use Only</h2>
-            {!isAdmin && (
-              <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 mb-3">
-                <p className="text-sm text-yellow-800 font-semibold">
-                  ⚠️ This section is for HR/Management use only. Staff members cannot fill this section.
-                </p>
-              </div>
-            )}
-            <div className={`border border-gray-300 p-3 mb-4 ${!isAdmin ? 'opacity-60' : ''}`}>
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-800 mb-2">Reviewed by: <span className="text-red-500">*</span></p>
-                  <input
-                    type="text"
-                    value={formData.reviewedBy}
-                    onChange={(e) => handleInputChange('reviewedBy', e.target.value)}
-                    disabled={readOnly || !isAdmin}
-                    className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${readOnly || !isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-800 mb-2">Title: <span className="text-red-500">*</span></p>
-                  <input
-                    type="text"
-                    value={formData.reviewerTitle}
-                    onChange={(e) => handleInputChange('reviewerTitle', e.target.value)}
-                    disabled={readOnly || !isAdmin}
-                    className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${readOnly || !isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                  />
-                </div>
-              </div>
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-800 mb-2">Date: <span className="text-red-500">*</span></p>
+          <fieldset className="p-4 border-2 border-dashed border-yellow-300 bg-yellow-50 rounded-lg space-y-3 mb-4">
+            <legend className="px-2 text-xs font-semibold uppercase text-yellow-600 tracking-wider">
+              Office Use Only
+            </legend>
+            <p className="text-sm text-yellow-800">
+              HR/Management acknowledgement is completed by administration after you submit this form.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">Reviewed By</label>
                 <input
-                  type="date"
-                  value={formData.reviewDate}
-                  onChange={(e) => handleInputChange('reviewDate', e.target.value)}
-                  disabled={readOnly || !isAdmin}
-                  className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${readOnly || !isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  type="text"
+                  value={formData.reviewedBy || ''}
+                  readOnly
+                  placeholder="Completed by administration"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
                 />
               </div>
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-800 mb-2">Action Taken (if applicable):</p>
-                <textarea
-                  value={formData.actionTaken}
-                  onChange={(e) => handleInputChange('actionTaken', e.target.value)}
-                  disabled={readOnly || !isAdmin}
-                  rows={2}
-                  className={`w-full min-h-[2.5rem] px-2 py-1 border border-gray-300 bg-white rounded resize-y ${readOnly || !isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">Reviewer Title</label>
+                <input
+                  type="text"
+                  value={formData.reviewerTitle || ''}
+                  readOnly
+                  placeholder="Completed by administration"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
                 />
               </div>
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-800 mb-2">HR Decision: <span className="text-red-500">*</span></p>
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">Review Date</label>
+                <input
+                  type="text"
+                  value={formData.reviewDate ? new Date(formData.reviewDate).toLocaleDateString('en-AU') : ''}
+                  readOnly
+                  placeholder="Completed by administration"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">Action Taken</label>
+                <input
+                  type="text"
+                  value={formData.actionTaken || ''}
+                  readOnly
+                  placeholder="Completed by administration"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block font-medium text-gray-700 mb-1">HR Decision</label>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <input
                       type="radio"
-                      name="hrDecision"
-                      value="noConflict"
                       checked={formData.hrDecision === 'noConflict'}
-                      onChange={(e) => handleInputChange('hrDecision', e.target.value as any)}
-                      disabled={readOnly || !isAdmin}
-                      className={`w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 ${readOnly || !isAdmin ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      readOnly
+                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
                     />
-                    <span className={readOnly || !isAdmin ? 'text-gray-500' : ''}>No conflict found</span>
-                  </label>
-                  <label className="flex items-center gap-2">
+                    <span className="text-gray-500">No conflict found</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <input
                       type="radio"
-                      name="hrDecision"
-                      value="mitigation"
                       checked={formData.hrDecision === 'mitigation'}
-                      onChange={(e) => handleInputChange('hrDecision', e.target.value as any)}
-                      disabled={readOnly || !isAdmin}
-                      className={`w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 ${readOnly || !isAdmin ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      readOnly
+                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
                     />
-                    <span className={readOnly || !isAdmin ? 'text-gray-500' : ''}>Conflict identified and mitigation plan implemented</span>
-                  </label>
-                  <label className="flex items-center gap-2">
+                    <span className="text-gray-500">Conflict identified and mitigation plan implemented</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <input
                       type="radio"
-                      name="hrDecision"
-                      value="furtherReview"
                       checked={formData.hrDecision === 'furtherReview'}
-                      onChange={(e) => handleInputChange('hrDecision', e.target.value as any)}
-                      disabled={readOnly || !isAdmin}
-                      className={`w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 ${readOnly || !isAdmin ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                      readOnly
+                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
                     />
-                    <span className={readOnly || !isAdmin ? 'text-gray-500' : ''}>Further review required</span>
-                  </label>
+                    <span className="text-gray-500">Further review required</span>
+                  </div>
                 </div>
               </div>
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-800 mb-2">Signature of Reviewer: <span className="text-red-500">*</span></p>
-                <div className="border border-gray-300 rounded mb-3">
-                  <SignatureCanvas
-                    existingSignature={formData.reviewerSignature}
-                    onSignatureEnd={(signature) => handleInputChange('reviewerSignature', signature)}
-                    onSignatureClear={() => handleInputChange('reviewerSignature', '')}
-                    width={600}
-                    height={100}
-                    className="bg-white"
-                    disabled={readOnly || !isAdmin}
-                  />
+              <div className="md:col-span-2">
+                <label className="block font-medium text-gray-700 mb-1">Reviewer Signature</label>
+                <div className="w-full min-h-[90px] border border-gray-300 rounded-md bg-gray-100 flex items-center justify-center">
+                  {formData.reviewerSignature ? (
+                    <img src={formData.reviewerSignature} alt="Reviewer Signature" className="max-h-16 object-contain" />
+                  ) : (
+                    <span className="text-gray-500 text-sm text-center px-4">
+                      Signature will appear once administration completes this section.
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="mt-3">
-                <p className="text-sm font-medium text-gray-800 mb-2">Date: <span className="text-red-500">*</span></p>
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">Reviewer Date</label>
                 <input
-                  type="date"
-                  value={formData.reviewerDate}
-                  onChange={(e) => handleInputChange('reviewerDate', e.target.value)}
-                  disabled={readOnly || !isAdmin}
-                  className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${readOnly || !isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                  type="text"
+                  value={formData.reviewerDate ? new Date(formData.reviewerDate).toLocaleDateString('en-AU') : ''}
+                  readOnly
+                  placeholder="Completed by administration"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500"
                 />
               </div>
             </div>
-          </div>
+          </fieldset>
         </FormPage>
       </div>
     </div>

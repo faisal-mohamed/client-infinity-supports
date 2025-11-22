@@ -73,6 +73,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       },
     });
 
+    // Update StaffFormAssignment status to "completed" since both staff and admin have signed
+    const formKey = 'conflict_of_interest';
+    const assignment = await prisma.staffFormAssignment.findFirst({
+      where: {
+        staffId: staffId,
+        form: {
+          formKey: formKey,
+        },
+      },
+    });
+
+    if (assignment) {
+      await prisma.staffFormAssignment.update({
+        where: { id: assignment.id },
+        data: {
+          currentStatus: 'completed',
+          isCompleted: true,
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       message: 'HR section submitted successfully. Form status updated to completed.',

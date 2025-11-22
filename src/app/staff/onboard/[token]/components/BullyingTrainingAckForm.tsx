@@ -72,12 +72,32 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
       const loadData = async () => {
         try {
           setLoading(true);
-          const res = await fetch(`/api/staff/onboard/${token}`);
-          const responseData = await res.json();
           
+          // Use appropriate endpoint based on link type
+          const apiEndpoint = isSignatureLink
+            ? `/api/staff/signature/${token}`
+            : `/api/staff/onboard/${token}`;
+          
+          const res = await fetch(apiEndpoint);
+          
+          // Check if response is OK before parsing JSON
           if (!res.ok) {
-            // Handle API errors with user-friendly messages
-            const errorMessage = responseData.message || 'Failed to load form data';
+            // Try to parse error message, but handle HTML error pages
+            let errorMessage = 'Failed to load form data';
+            try {
+              const contentType = res.headers.get('content-type');
+              if (contentType && contentType.includes('application/json')) {
+                const errorData = await res.json();
+                errorMessage = errorData.message || errorData.error || `HTTP ${res.status}: ${res.statusText}`;
+              } else {
+                // Response is HTML (error page), use status text
+                errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+              }
+            } catch (parseError) {
+              // If parsing fails, use status text
+              errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+            }
+            
             showToast({
               type: 'error',
               title: 'Error Loading Form',
@@ -87,14 +107,47 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
             return;
           }
           
-          // Set staff name from database
-          if (staff?.firstName && staff?.surname) {
-            setStaffName(`${staff.firstName} ${staff.surname}`);
+          // Parse JSON only if response is OK
+          const responseData = await res.json();
+          
+          // Set staff name from API response (prioritize API data over prop)
+          let staffData = responseData.staff || staff;
+          let fullName = '';
+          
+          // For signature links, staff data is directly in responseData.staff
+          // For onboard links, staff data is in responseData.staff
+          if (staffData?.firstName && staffData?.surname) {
+            fullName = `${staffData.firstName} ${staffData.surname}`;
+            setStaffName(fullName);
+          } else if (staff?.firstName && staff?.surname) {
+            // Fallback to prop if API doesn't have staff data
+            fullName = `${staff.firstName} ${staff.surname}`;
+            setStaffName(fullName);
           }
           
-          if (responseData.submissions?.bullying_training) {
-            const formData = responseData.submissions.bullying_training;
-            setAcknowledgerName(formData.acknowledgerName || '');
+          // Load saved form data
+          let formData = null;
+          if (isSignatureLink) {
+            // For signature links, find the form in signatureForms
+            const bullyingTrainingForm = responseData.signatureForms?.find(
+              (f: any) => f.formSubmission?.form?.formKey === 'bullying_training'
+            );
+            if (bullyingTrainingForm) {
+              formData = bullyingTrainingForm.formSubmission?.data || {};
+            }
+          } else {
+            // For onboard links, get from submissions
+            formData = responseData.submissions?.bullying_training || {};
+          }
+          
+          if (formData) {
+            // Pre-fill acknowledgerName with staff name (always use staff name, not saved acknowledgerName)
+            if (fullName) {
+              setAcknowledgerName(fullName);
+            } else if (formData.acknowledgerName) {
+              // Fallback to saved acknowledgerName if staff name not available
+              setAcknowledgerName(formData.acknowledgerName);
+            }
             setHrFocusDate(formData.hrFocusDate || '');
             setStaffSignature(formData.staffSignature || '');
             setDate(formData.date || new Date().toISOString().split('T')[0]);
@@ -105,6 +158,9 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
                 ? formData.managerSignedAt.split('T')[0]
                 : formData.managerSignedAt || '',
             });
+          } else if (fullName) {
+            // If no saved form data, still pre-fill acknowledgerName with staff name
+            setAcknowledgerName(fullName);
           }
           
           showToast({
@@ -127,23 +183,24 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
         }
       };
       loadData();
-    }, [token, staff, showToast]);
+    }, [token, staff, isSignatureLink, showToast]);
+    
+    // Also update staff name when staff prop changes (from parent component)
+    useEffect(() => {
+      if (staff?.firstName && staff?.surname && !staffName) {
+        const fullName = `${staff.firstName} ${staff.surname}`;
+        setStaffName(fullName);
+        setAcknowledgerName(fullName);
+      }
+    }, [staff, staffName]);
 
     const validateForm = () => {
-      if (!acknowledgerName.trim()) {
-        showToast({
-          type: 'error',
-          title: 'Validation Error',
-          message: 'Your name is required',
-          duration: 4000
-        });
-        return false;
-      }
+      // Staff name is required (should be pre-filled)
       if (!staffName.trim()) {
         showToast({
           type: 'error',
           title: 'Validation Error',
-          message: 'Staff Name is required',
+          message: 'Staff name is required. Please refresh the page if the name is not loading.',
           duration: 4000
         });
         return false;
@@ -168,7 +225,7 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
       setSaving(true);
       try {
         const formData = {
-          acknowledgerName: acknowledgerName.trim(),
+          acknowledgerName: staffName.trim(), // Use staff name for acknowledgerName
           hrFocusDate: hrFocusDate.trim(),
           staffName: staffName.trim(),
           staffSignature,
@@ -261,14 +318,9 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
           <div className="text-center mb-6">
             <p className="text-gray-700 text-base leading-relaxed">
               I{' '}
-              <input
-                type="text"
-                value={acknowledgerName}
-                onChange={(e) => setAcknowledgerName(e.target.value)}
-                placeholder="_________________"
-                className="inline-block align-middle border-b-2 border-gray-400 px-3 mx-2 min-w-[260px] sm:min-w-[320px] text-center focus:outline-none focus:border-blue-500"
-                required
-              />
+              <span className="inline-block align-middle border-b-2 border-gray-400 px-3 mx-2 min-w-[260px] sm:min-w-[320px] text-center font-semibold text-gray-900">
+                {staffName || '_________________'}
+              </span>
               {' '}acknowledge that I completed <strong className="text-red-600">Bullying and harassment training</strong> conducted by Infinity Supports WA and HR Focus on{' '}
               <input
                 type="text"
@@ -282,17 +334,24 @@ const BullyingTrainingAckForm = forwardRef<BullyingTrainingAckFormRef, BullyingT
           </div>
 
           <div className="space-y-4">
-          {/* Staff Name - Auto-populated from database */}
+          {/* Staff Name - Auto-populated from database (hidden field for form submission) */}
+          <input
+            type="hidden"
+            value={staffName}
+            name="staffName"
+          />
+          {/* Display-only staff name field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Staff Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              value={staffName}
+              value={staffName || ''}
               className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
-              placeholder="Loading staff name..."
+              placeholder={staffName ? staffName : "Loading staff name..."}
               readOnly
+              disabled
             />
           </div>
 
