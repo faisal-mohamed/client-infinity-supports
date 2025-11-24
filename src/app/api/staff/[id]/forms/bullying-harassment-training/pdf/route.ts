@@ -43,9 +43,12 @@ export async function GET(
     const staffId = parseInt(id);
     const { searchParams } = new URL(req.url);
     const showBlank = searchParams.get('blank') === 'true';
-    const mergeWithFramework = searchParams.get('merge') === 'true';
+    const mergeWithFramework = searchParams.get('merge') === 'true'; // Only merge if explicitly requested
 
-    console.log('📥 [PDF API] Generating Bullying & Harassment Training PDF for staff:', staffId, 'blank:', showBlank, 'merge:', mergeWithFramework);
+    console.log('📥 [Bullying Harassment Training PDF API] Starting PDF generation');
+    console.log('  - Staff ID:', staffId);
+    console.log('  - Show Blank:', showBlank);
+    console.log('  - Merge with Training PDF:', mergeWithFramework);
 
     // Fetch staff data
     const db: any = prisma as any;
@@ -55,8 +58,13 @@ export async function GET(
     });
 
     if (!staff) {
+      console.error('❌ [Bullying Harassment Training PDF API] Staff not found:', staffId);
       return NextResponse.json(
-        { error: 'Staff not found' },
+        { 
+          error: 'Staff not found',
+          message: 'The staff member could not be found. Please verify the staff ID.',
+          details: `Staff ID: ${staffId}`
+        },
         { status: 404 }
       );
     }
@@ -137,21 +145,26 @@ export async function GET(
     // @ts-ignore - renderToBuffer type definition may be strict
     const pdfBuffer = await renderToBuffer(pdfDoc);
 
-    console.log('✅ [PDF API] Acknowledgement PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+    console.log('✅ [Bullying Harassment Training PDF API] Acknowledgement form PDF generated successfully');
+    console.log('  - PDF Size:', pdfBuffer.length, 'bytes');
+    console.log('  - Pages: 1 (acknowledgement form only)');
 
     // If mergeWithFramework is true, merge with the static framework PDF
+    // NOTE: By default, we return ONLY the acknowledgement form PDF (not merged)
     let finalPdfBuffer = pdfBuffer;
     if (mergeWithFramework && !showBlank) {
       try {
-        console.log('📄 [PDF API] Merging with training PDF...');
+        console.log('📄 [Bullying Harassment Training PDF API] Merging with training PDF (merge=true requested)...');
         
         // Read the static training PDF
         const trainingPdfPath = path.join(process.cwd(), 'public', 'stafForms', 'Bullying and Harassment Training 2023.pdf');
         
         if (!fs.existsSync(trainingPdfPath)) {
-          console.warn('⚠️ [PDF API] Training PDF not found at:', trainingPdfPath);
+          console.warn('⚠️ [Bullying Harassment Training PDF API] Training PDF not found at:', trainingPdfPath);
+          console.log('  - Returning acknowledgement form PDF only');
         } else {
           const trainingPdfBytes = fs.readFileSync(trainingPdfPath);
+          console.log('  - Training PDF loaded, size:', trainingPdfBytes.length, 'bytes');
           
           // Create a new PDF document
           const mergedPdf = await PDFDocument.create();
@@ -162,6 +175,7 @@ export async function GET(
           trainingPages.forEach((page: any) => {
             mergedPdf.addPage(page);
           });
+          console.log('  - Training PDF pages added:', trainingPages.length);
           
           // Load the acknowledgement PDF
           const acknowledgementPdf = await PDFDocument.load(pdfBuffer);
@@ -169,32 +183,65 @@ export async function GET(
           acknowledgementPages.forEach((page: any) => {
             mergedPdf.addPage(page);
           });
+          console.log('  - Acknowledgement form pages added:', acknowledgementPages.length);
           
           // Generate the merged PDF
           finalPdfBuffer = Buffer.from(await mergedPdf.save());
-          console.log('✅ [PDF API] PDFs merged successfully, final size:', finalPdfBuffer.length, 'bytes');
+          console.log('✅ [Bullying Harassment Training PDF API] PDFs merged successfully');
+          console.log('  - Final merged PDF size:', finalPdfBuffer.length, 'bytes');
+          console.log('  - Total pages:', trainingPages.length + acknowledgementPages.length);
         }
       } catch (mergeError) {
-        console.error('❌ [PDF API] Error merging PDFs:', mergeError);
+        console.error('❌ [Bullying Harassment Training PDF API] Error merging PDFs:', mergeError);
+        console.log('⚠️ [Bullying Harassment Training PDF API] Falling back to acknowledgement PDF only');
         // Fall back to just the acknowledgement PDF if merge fails
-        console.log('⚠️ [PDF API] Falling back to acknowledgement PDF only');
       }
+    } else {
+      console.log('ℹ️ [Bullying Harassment Training PDF API] Returning acknowledgement form PDF only (no merge)');
+      console.log('  - To merge with training PDF, add ?merge=true to the URL');
     }
 
     // Return PDF as inline (for iframe viewing in admin) or attachment (for download)
-    const contentDisposition = showBlank || mergeWithFramework ? 'attachment' : 'inline';
+    const download = searchParams.get('download') === 'true';
+    const contentDisposition = download ? 'attachment' : 'inline';
+    
+    console.log('📤 [Bullying Harassment Training PDF API] Returning PDF');
+    console.log('  - Content Disposition:', contentDisposition);
+    console.log('  - Filename: Bullying_Harassment_Training_Acknowledgement_' + staff.firstName + '_' + staff.surname + '.pdf');
     
     return new NextResponse(finalPdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${contentDisposition}; filename="Bullying_Harassment_Training_${staff.firstName}_${staff.surname}.pdf"`,
+        'Content-Disposition': `${contentDisposition}; filename="Bullying_Harassment_Training_Acknowledgement_${staff.firstName}_${staff.surname}.pdf"`,
       },
     });
 
   } catch (error: any) {
-    console.error('❌ [PDF API] Error generating PDF:', error);
+    console.error('❌ [Bullying Harassment Training PDF API] Error generating PDF:', error);
+    console.error('  - Error message:', error.message);
+    console.error('  - Error stack:', error.stack);
+    
+    // Provide user-friendly error messages
+    let errorMessage = 'Failed to generate PDF';
+    let errorDetails = error.message || 'An unexpected error occurred';
+    
+    if (error.message?.includes('prisma') || error.message?.includes('database')) {
+      errorMessage = 'Database error occurred';
+      errorDetails = 'Unable to retrieve form data from database. Please try again or contact support.';
+    } else if (error.message?.includes('render') || error.message?.includes('PDF')) {
+      errorMessage = 'PDF generation error';
+      errorDetails = 'Failed to generate the PDF document. Please try again or contact support.';
+    } else if (error.message?.includes('not found') || error.message?.includes('missing')) {
+      errorMessage = 'Required data not found';
+      errorDetails = 'Some required form data is missing. Please ensure the form has been submitted.';
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to generate PDF', details: error.message },
+      { 
+        error: errorMessage,
+        message: errorDetails,
+        details: error.message
+      },
       { status: 500 }
     );
   }

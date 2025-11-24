@@ -593,16 +593,20 @@ export default function StaffFormViewPageClient() {
       
       let response;
       
-      // Check if form has a specific PDF route with merge=true (like ndis-workforce-capability, bullying-harassment-training)
-      // These forms have dedicated PDF routes that merge the framework PDF with the signed acknowledgement
-      if (formKey === 'ndis_workforce_capability' || formKey === 'bullying_harassment_training') {
-        // Try the specific PDF route with merge=true
+      // Check if form has a specific PDF route
+      // Note: bullying_harassment_training now returns only acknowledgement form PDF (no merge by default)
+      if (formKey === 'ndis_workforce_capability') {
+        // NDIS form merges framework PDF with acknowledgement
         response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
         
         // If that fails, try without merge
         if (!response.ok) {
           response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
         }
+      } else if (formKey === 'bullying_harassment_training') {
+        // Bullying Harassment Training returns only acknowledgement form PDF (no merge)
+        console.log('📥 [View Form] Fetching acknowledgement form PDF only (no merge)');
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
       } else {
         // Use the generic staff PDF endpoint for other forms
         console.log('📥 [View Form] Fetching PDF from:', `/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
@@ -617,15 +621,38 @@ export default function StaffFormViewPageClient() {
       
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        let errorMessage = 'Unable to generate PDF';
+        let errorTitle = 'Download Failed';
         
+        // Parse error response
         try {
           const errorData = JSON.parse(errorText);
-          errorMessage = errorData.message || errorData.error || errorMessage;
+          errorMessage = errorData.message || errorData.error || errorData.details || errorMessage;
+          
+          // Set user-friendly title based on error type
+          if (response.status === 404) {
+            errorTitle = 'Form Not Found';
+            errorMessage = 'The form data could not be found. Please ensure the form has been submitted.';
+          } else if (response.status === 500) {
+            errorTitle = 'Server Error';
+            errorMessage = 'An error occurred while generating the PDF. Please try again or contact support.';
+          } else if (response.status === 503) {
+            errorTitle = 'Service Unavailable';
+            errorMessage = 'The PDF service is temporarily unavailable. Please try again in a moment.';
+          }
         } catch {
           // If not JSON, use the text or default message
-          if (errorText) {
-            errorMessage = errorText;
+          if (errorText && errorText.trim()) {
+            errorMessage = errorText.length > 100 ? 'Failed to generate PDF. Please try again.' : errorText;
+          }
+          
+          // Set title based on status code
+          if (response.status === 404) {
+            errorTitle = 'Form Not Found';
+            errorMessage = 'The form data could not be found.';
+          } else if (response.status >= 500) {
+            errorTitle = 'Server Error';
+            errorMessage = 'An error occurred while generating the PDF. Please try again.';
           }
         }
         
@@ -635,7 +662,19 @@ export default function StaffFormViewPageClient() {
       const blob = await response.blob();
       
       if (!blob || blob.size === 0) {
-        throw new Error('Received empty PDF file');
+        throw new Error('The generated PDF file is empty. Please try again.');
+      }
+      
+      // Check if blob is actually a PDF
+      if (blob.type && !blob.type.includes('pdf')) {
+        // Might be an error JSON response
+        const text = await blob.text().catch(() => '');
+        try {
+          const errorData = JSON.parse(text);
+          throw new Error(errorData.message || errorData.error || 'Invalid PDF file received');
+        } catch {
+          throw new Error('Received an invalid file. Please try again.');
+        }
       }
       
       const url = window.URL.createObjectURL(blob);
@@ -661,16 +700,35 @@ export default function StaffFormViewPageClient() {
       });
       
     } catch (error: unknown) {
-      console.error('Error downloading PDF:', error);
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to download PDF. Please try again.';
+      console.error('❌ [View Form] Error downloading PDF:', error);
+      
+      let errorTitle = 'Download Failed';
+      let errorMessage = 'Unable to download PDF. Please try again.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Provide user-friendly messages for common errors
+        if (error.message.includes('not found') || error.message.includes('404')) {
+          errorTitle = 'Form Not Found';
+          errorMessage = 'The form data could not be found. Please ensure the form has been submitted.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorTitle = 'Connection Error';
+          errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (error.message.includes('empty') || error.message.includes('invalid')) {
+          errorTitle = 'PDF Generation Error';
+          errorMessage = 'The PDF could not be generated properly. Please try again or contact support.';
+        } else if (error.message.includes('500') || error.message.includes('Server Error')) {
+          errorTitle = 'Server Error';
+          errorMessage = 'An error occurred on the server. Please try again in a moment.';
+        }
+      }
       
       showToast({
         type: 'error',
-        title: 'Download Failed',
+        title: errorTitle,
         message: errorMessage,
-        duration: 5000,
+        duration: 6000,
       });
     } finally {
       setDownloadingPDF(false);
@@ -792,6 +850,9 @@ export default function StaffFormViewPageClient() {
   // Check if this is Bullying Training form - use PDF viewer with admin section
   const isBullyingTrainingForm = assignment.form.formKey === 'bullying_training';
   
+  // Check if this is Bullying Harassment Training form - use PDF viewer (acknowledgement form only)
+  const isBullyingHarassmentTrainingForm = assignment.form.formKey === 'bullying_harassment_training';
+  
   // Check if this is Conflict of Interest form - use PDF viewer with admin section
   const isConflictOfInterestForm = assignment.form.formKey === 'conflict_of_interest';
   
@@ -799,11 +860,12 @@ export default function StaffFormViewPageClient() {
     formKey: assignment.form.formKey,
     isEmployeeDetailsForm,
     isBullyingTrainingForm,
+    isBullyingHarassmentTrainingForm,
     isConflictOfInterestForm,
     isEmployeeWelcomeForm,
     isNdisForm,
-    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isConflictOfInterestForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isConflictOfInterestForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1213,6 +1275,16 @@ export default function StaffFormViewPageClient() {
             return (
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
                 <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/employee-welcome/pdf`} />
+              </div>
+            );
+          })()
+        ) : isBullyingHarassmentTrainingForm ? (
+          /* Use PDF viewer for Bullying Harassment Training form - shows acknowledgement form PDF only */
+          (() => {
+            console.log('📄 [View Form] Rendering Bullying Harassment Training PDF viewer (acknowledgement form only)');
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/bullying-harassment-training/pdf`} />
               </div>
             );
           })()

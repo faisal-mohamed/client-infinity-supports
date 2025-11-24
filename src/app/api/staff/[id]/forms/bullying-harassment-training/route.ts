@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { id } = await params;
     const staffId = parseInt(id, 10);
@@ -14,35 +17,87 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const staff = await db.staff.findUnique({
       where: { id: staffId },
-      select: { id: true, firstName: true, surname: true, email: true },
+      select: {
+        id: true,
+        firstName: true,
+        surname: true,
+        email: true,
+      },
     });
 
     if (!staff) {
       return NextResponse.json({ error: 'Staff not found' }, { status: 404 });
     }
 
-    // Check both StaffFormSubmission and dedicated table
-    const submission = await db.staffFormSubmission.findFirst({
+    const submission = await db.staffFormSubmission.findUnique({
       where: {
-        staffId: staffId,
-        formKey: 'bullying_harassment_training'
-      }
+        staffId_formKey: {
+          staffId,
+          formKey: 'bullying_harassment_training',
+        },
+      },
     });
 
-    const bullyingHarassmentTraining = await db.staffBullyingHarassmentTraining.findUnique({
-      where: { staffId }
-    });
+    if (!submission) {
+      return NextResponse.json({
+        staff,
+        data: null,
+        submission: null,
+      });
+    }
 
-    // Return empty data if form doesn't exist yet (for viewing empty form)
-    const formData = bullyingHarassmentTraining || submission || { data: {}, staffSignature: null, staffSignedAt: null };
+    const formData: Record<string, any> = {
+      ...(submission.data || {}),
+    };
+
+    if (!formData.staffName && !formData.fullName) {
+      formData.staffName = `${staff.firstName || ''} ${staff.surname || ''}`.trim();
+      formData.fullName = formData.staffName;
+    }
+
+    if (!formData.signature && submission.staffSignature) {
+      formData.signature = submission.staffSignature;
+    }
+
+    if (!formData.staffSignature && submission.staffSignature) {
+      formData.staffSignature = submission.staffSignature;
+    }
+
+    const dateValue =
+      formData.date ||
+      formData.acknowledgedAt ||
+      formData.staffSignedAt ||
+      (submission.staffSignedAt
+        ? new Date(submission.staffSignedAt).toISOString().split('T')[0]
+        : '');
+
+    if (dateValue) {
+      formData.date = dateValue;
+    }
+
+    if (
+      formData.readAcknowledgement === undefined &&
+      formData.acknowledged !== undefined
+    ) {
+      formData.readAcknowledgement = formData.acknowledged;
+    }
 
     return NextResponse.json({
-      ...formData,
       staff,
+      data: formData,
+      submission: {
+        id: submission.id,
+        isSubmitted: submission.isSubmitted,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt,
+      },
     });
   } catch (error: any) {
-    console.error('Error fetching Bullying & Harassment Training form:', error);
-    return NextResponse.json({ error: 'Failed to fetch Bullying & Harassment Training form' }, { status: 500 });
+    console.error('Error fetching bullying harassment training submission:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to fetch bullying harassment training submission' },
+      { status: 500 }
+    );
   }
 }
 

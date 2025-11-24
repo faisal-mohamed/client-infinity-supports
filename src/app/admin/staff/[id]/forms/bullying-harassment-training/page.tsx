@@ -1,8 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 import LoadingView from '@/components/ui/LoadingView';
@@ -10,14 +9,14 @@ import { useToast } from '@/components/ui/Toast';
 
 export default function StaffBullyingHarassmentTrainingView() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  const staffId = parseInt(id, 10);
   const [staff, setStaff] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadStaff = async () => {
       try {
-        const res = await fetch(`/api/staff/${id}`);
+        const res = await fetch(`/api/staff/${staffId}`);
         if (res.ok) {
           const data = await res.json();
           setStaff(data);
@@ -28,24 +27,25 @@ export default function StaffBullyingHarassmentTrainingView() {
         setLoading(false);
       }
     };
-    if (id) loadStaff();
-  }, [id]);
+    if (staffId) loadStaff();
+  }, [staffId]);
 
   const { showToast } = useToast();
   const [downloading, setDownloading] = useState(false);
 
-  const handleDownloadPDF = async () => {
+  const handleDownload = async () => {
     setDownloading(true);
     try {
-      // Use merge=true to get the training PDF + signed acknowledgement form
-      const response = await fetch(`/api/staff/${id}/forms/bullying-harassment-training/pdf?merge=true`);
-      if (!response.ok) throw new Error('Failed to download PDF');
-      
-      const blob = await response.blob();
+      // Download only the acknowledgement form PDF (not merged with training PDF)
+      const res = await fetch(
+        `/api/staff/${staffId}/forms/bullying-harassment-training/pdf?download=true`
+      );
+      if (!res.ok) throw new Error("Failed to download PDF");
+      const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `Bullying_Harassment_Training_${staff?.firstName}_${staff?.surname}.pdf`;
+      a.download = `Bullying_Harassment_Training_Acknowledgement_${staff?.firstName || ""}_${staff?.surname || ""}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -54,11 +54,11 @@ export default function StaffBullyingHarassmentTrainingView() {
       showToast({
         type: 'success',
         title: 'PDF Downloaded',
-        message: 'PDF has been downloaded successfully.',
+        message: 'Acknowledgement form PDF has been downloaded successfully.',
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error downloading PDF:', error);
+      console.error("Download error", error);
       showToast({
         type: 'error',
         title: 'Download Failed',
@@ -81,18 +81,18 @@ export default function StaffBullyingHarassmentTrainingView() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
       {/* Universal Header */}
       <StaffFormHeader
-        staffId={id as string}
+        staffId={staffId.toString()}
         formTitle="Bullying & Harassment Training"
         staffName={staffName}
         staffEmail={staffEmail}
-        onDownload={handleDownloadPDF}
+        onDownload={handleDownload}
         downloading={downloading}
         showDownload={true}
       />
 
-      {/* PDF Viewer */}
+      {/* PDF Viewer - Shows generated acknowledgement form PDF only */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${id}/forms/bullying-harassment-training/pdf`} />
+        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/bullying-harassment-training/pdf`} />
       </div>
     </div>
   );
