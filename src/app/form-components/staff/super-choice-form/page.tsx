@@ -125,7 +125,8 @@ const CharacterInput = ({
       style={{ 
         top, 
         left, 
-        gap: (totalWidth || needsCustomSpacing) ? 0 : gap // Don't use flex gap if we need custom spacing
+        gap: (totalWidth || needsCustomSpacing) ? 0 : gap, // Don't use flex gap if we need custom spacing
+        pointerEvents: readOnly ? 'none' : 'auto' // Allow clicks to pass through when readOnly
       }}
     >
       {Array.from({ length }, (_, i) => (
@@ -140,7 +141,7 @@ const CharacterInput = ({
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
           className={`border border-gray-400 text-center text-sm text-black ${
-            readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+            readOnly ? 'bg-white cursor-pointer' : 'bg-white'
           }`}
           style={{
             width: effectiveBoxWidth,
@@ -148,7 +149,8 @@ const CharacterInput = ({
             marginRight: (totalWidth || !needsCustomSpacing) ? 0 : getMarginRight(i), // Use margin for custom spacing
             fontSize: '12px',
             padding: 0,
-            color: 'black'
+            color: 'black',
+            pointerEvents: readOnly ? 'none' : 'auto' // Block pointer events when readOnly
           }}
           readOnly={readOnly}
           disabled={readOnly}
@@ -379,13 +381,15 @@ const DateInput = ({
   onChange, 
   top, 
   left, 
-  readOnly = false 
+  readOnly = false,
+  required = false
 }: {
   value: { day: string; month: string; year: string };
   onChange: (value: { day: string; month: string; year: string }) => void;
   top: number;
   left: number;
   readOnly?: boolean;
+  required?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -443,6 +447,10 @@ const DateInput = ({
   const monthLeft = 60; // After slash
   const slash2Left = 110; // After month boxes
   const yearLeft = 120; // After second slash
+  
+  // Calculate total width of the entire date field (Day + slash + Month + slash + Year)
+  const totalDateWidth = yearLeft + (22 * 4) + 2; // Year position + 4 boxes + gap
+  const totalDateHeight = 22; // Height of date boxes
 
   // Format display value
   const displayValue = value.day && value.month && value.year 
@@ -451,7 +459,7 @@ const DateInput = ({
 
   return (
     <>
-      {/* Date boxes - clickable to open date picker */}
+      {/* Date boxes - clickable to open date picker - Single container covering entire date area */}
       <div 
         className="absolute"
         style={{ top, left }}
@@ -459,52 +467,71 @@ const DateInput = ({
           if (!readOnly) setIsOpen(true);
         }}
       >
-        {/* Clickable overlay */}
+        {/* Single clickable overlay covering ENTIRE date field (Day + Month + Year) */}
         <div 
-          className={`absolute inset-0 ${readOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-          style={{ zIndex: 1 }}
+          className={`absolute ${readOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-blue-50 hover:bg-opacity-30'}`}
+          style={{ 
+            zIndex: 100,
+            top: -5,
+            left: -5,
+            width: totalDateWidth + 10,
+            height: totalDateHeight + 10,
+            borderRadius: '4px',
+            transition: 'background-color 0.2s',
+            pointerEvents: readOnly ? 'none' : 'auto'
+          }}
         />
         
-        {/* Day - 2 boxes */}
-        <CharacterInput
-          value={value.day}
-          onChange={() => {}}
-          length={2}
-          top={0}
-          left={dayLeft}
-          boxWidth={22}
-          boxHeight={22}
-          gap={2}
-          readOnly={true}
-        />
+        {/* Day - 2 boxes - pointer-events-none so clicks pass through */}
+        <div style={{ pointerEvents: 'none', position: 'relative', zIndex: 1 }}>
+          <CharacterInput
+            value={value.day}
+            onChange={() => {}}
+            length={2}
+            top={0}
+            left={dayLeft}
+            boxWidth={22}
+            boxHeight={22}
+            gap={2}
+            readOnly={true}
+          />
+        </div>
         {/* First slash separator */}
-        <span className="absolute top-1" style={{ left: slash1Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
-        {/* Month - 2 boxes */}
-        <CharacterInput
-          value={value.month}
-          onChange={() => {}}
-          length={2}
-          top={0}
-          left={monthLeft}
-          boxWidth={22}
-          boxHeight={22}
-          gap={2}
-          readOnly={true}
-        />
+        <span className="absolute top-1 pointer-events-none" style={{ left: slash1Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
+        {/* Month - 2 boxes - pointer-events-none so clicks pass through */}
+        <div style={{ pointerEvents: 'none', position: 'relative', zIndex: 1 }}>
+          <CharacterInput
+            value={value.month}
+            onChange={() => {}}
+            length={2}
+            top={0}
+            left={monthLeft}
+            boxWidth={22}
+            boxHeight={22}
+            gap={2}
+            readOnly={true}
+          />
+        </div>
         {/* Second slash separator */}
-        <span className="absolute top-1" style={{ left: slash2Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
-        {/* Year - 4 boxes */}
-        <CharacterInput
-          value={value.year}
-          onChange={() => {}}
-          length={4}
-          top={0}
-          left={yearLeft}
-          boxWidth={22}
-          boxHeight={22}
-          gap={2}
-          readOnly={true}
-        />
+        <span className="absolute top-1 pointer-events-none" style={{ left: slash2Left, fontSize: '14px', fontWeight: 'bold', zIndex: 2 }}>/</span>
+        {/* Year - 4 boxes - pointer-events-none so clicks pass through */}
+        <div style={{ pointerEvents: 'none', position: 'relative', zIndex: 1 }}>
+          <CharacterInput
+            value={value.year}
+            onChange={() => {}}
+            length={4}
+            top={0}
+            left={yearLeft}
+            boxWidth={22}
+            boxHeight={22}
+            gap={2}
+            readOnly={true}
+          />
+        </div>
+        {/* Required indicator border - only show red border, not red dot */}
+        {required && (!value.day || !value.month || !value.year) && (
+          <div className="absolute border-2 border-red-500 rounded pointer-events-none" style={{ zIndex: 50, top: -2, left: -2, width: totalDateWidth + 4, height: totalDateHeight + 4 }} />
+        )}
       </div>
 
       {/* Modal for date picker */}
@@ -515,7 +542,7 @@ const DateInput = ({
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date (DD/MM/YYYY)
+                Date (DD/MM/YYYY) {required && <span className="text-red-500">*</span>}
               </label>
               <input
                 type="date"
@@ -824,6 +851,7 @@ export default function SuperChoiceForm({
         top={760}
         left={565}
         readOnly={readOnly}
+        required={true}
       />
     </div>
   );
@@ -907,6 +935,7 @@ export default function SuperChoiceForm({
         top={750}
         left={300}
         readOnly={readOnly}
+        required={true}
       />
       */}
     </div>
@@ -1009,6 +1038,7 @@ export default function SuperChoiceForm({
         top={900}
         left={300}
         readOnly={readOnly}
+        required={true}
       />
       */}
     </div>

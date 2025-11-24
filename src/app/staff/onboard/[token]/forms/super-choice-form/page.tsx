@@ -14,7 +14,6 @@ export default function SuperChoiceFormPage() {
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -79,7 +78,147 @@ export default function SuperChoiceFormPage() {
     console.log("formData: ", formData);
   }, [formData]);
 
+  // Helper to check if date is complete
+  const isDateComplete = (date: { day: string; month: string; year: string } | undefined): boolean => {
+    if (!date) return false;
+    return !!(date.day && date.month && date.year && 
+              date.day.length === 2 && date.month.length === 2 && date.year.length === 4);
+  };
+
   const handleSave = async (isSubmit: boolean) => {
+    // Validate required fields before submitting
+    if (isSubmit) {
+      const requiredFields: { key: string; label: string }[] = [
+        { key: 'fullName', label: 'Full Name' },
+        { key: 'tfn', label: 'TFN' },
+      ];
+      let missingFields = requiredFields.filter(field => {
+        const value = formData[field.key];
+        return !value || (typeof value === 'string' && value.trim() === '');
+      });
+
+      // Add conditional required fields based on fund choice
+      if (formData.fundChoice === 'existing') {
+        const existingFundFields: { key: string; label: string }[] = [
+          { key: 'superFundName', label: 'Super Fund Name' },
+          { key: 'superFundABN', label: 'Super Fund ABN' },
+          { key: 'superFundUSI', label: 'Super Fund USI' },
+          { key: 'memberAccountNumber', label: 'Member Account Number' },
+          { key: 'accountName', label: 'Account Name' },
+        ];
+        missingFields = missingFields.concat(
+          existingFundFields.filter(field => {
+            const value = formData[field.key];
+            return !value || (typeof value === 'string' && value.trim() === '');
+          })
+        );
+        
+        // Validate Section B signature and date
+        if (!formData.sectionBSignature || formData.sectionBSignature.trim() === '') {
+          showToast({
+            type: 'error',
+            title: 'Signature Required',
+            message: 'Please provide your signature for Section B (My existing super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+        
+        if (!isDateComplete(formData.sectionBDate)) {
+          showToast({
+            type: 'error',
+            title: 'Date Required',
+            message: 'Please provide the signature date for Section B (My existing super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+      } else if (formData.fundChoice === 'default') {
+        const defaultFundFields: { key: string; label: string }[] = [
+          { key: 'businessName', label: 'Business Name' },
+          { key: 'businessABN', label: 'Business ABN' },
+          { key: 'defaultSuperFundName', label: 'Default Super Fund Name' },
+          { key: 'defaultSuperFundABN', label: 'Default Super Fund ABN' },
+          { key: 'defaultSuperFundUSI', label: 'Default Super Fund USI' },
+        ];
+        missingFields = missingFields.concat(
+          defaultFundFields.filter(field => {
+            const value = formData[field.key];
+            return !value || (typeof value === 'string' && value.trim() === '');
+          })
+        );
+        
+        // Validate Section C signature and date
+        if (!formData.sectionCSignature || formData.sectionCSignature.trim() === '') {
+          showToast({
+            type: 'error',
+            title: 'Signature Required',
+            message: 'Please provide your signature for Section C (My employer\'s default super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+        
+        if (!isDateComplete(formData.sectionCDate)) {
+          showToast({
+            type: 'error',
+            title: 'Date Required',
+            message: 'Please provide the signature date for Section C (My employer\'s default super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+      } else if (formData.fundChoice === 'smsf') {
+        const smsfFields: { key: string; label: string }[] = [
+          { key: 'smsfName', label: 'SMSF Name' },
+          { key: 'smsfABN', label: 'SMSF ABN' },
+          { key: 'smsfESA', label: 'SMSF ESA' },
+          { key: 'smsfAccountName', label: 'SMSF Account Name' },
+          { key: 'bankAccountName', label: 'Bank Account Name' },
+          { key: 'bsbCode', label: 'BSB Code' },
+          { key: 'accountNumber', label: 'Account Number' },
+        ];
+        missingFields = missingFields.concat(
+          smsfFields.filter(field => {
+            const value = formData[field.key];
+            return !value || (typeof value === 'string' && value.trim() === '');
+          })
+        );
+        
+        // Validate Section D signature and date
+        if (!formData.sectionDSignature || formData.sectionDSignature.trim() === '') {
+          showToast({
+            type: 'error',
+            title: 'Signature Required',
+            message: 'Please provide your signature for Section D (My private self-managed super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+        
+        if (!isDateComplete(formData.sectionDDate)) {
+          showToast({
+            type: 'error',
+            title: 'Date Required',
+            message: 'Please provide the signature date for Section D (My private self-managed super fund)',
+            duration: 5000,
+          });
+          return;
+        }
+      }
+
+      if (missingFields.length > 0) {
+        const fieldLabels = missingFields.map(f => f.label).join(', ');
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: `Please fill in required fields: ${fieldLabels}`,
+          duration: 5000,
+        });
+        return;
+      }
+    }
+    
     setSaving(true);
     try {
       // Detect if this is a signature link or onboard link
@@ -165,57 +304,6 @@ export default function SuperChoiceFormPage() {
     }
   };
 
-  const handleDownload = async () => {
-    if (!formData || Object.keys(formData).length === 0) {
-      showToast({
-        type: 'warning',
-        title: 'No Data',
-        message: 'Please fill out the form before downloading.',
-        duration: 4000,
-      });
-      return;
-    }
-    
-    setDownloading(true);
-    try {
-      const response = await fetch('/api/generate-pdf/super-choice-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Superannuation_Standard_Choice_Form_${staff?.firstName || ''}_${staff?.surname || ''}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      showToast({
-        type: 'success',
-        title: 'PDF Downloaded',
-        message: 'Your form has been downloaded successfully.',
-        duration: 3000,
-      });
-    } catch (error: any) {
-      console.error('Download error:', error);
-      showToast({
-        type: 'error',
-        title: 'Download Failed',
-        message: error.message || 'Failed to download form. Please try again.',
-        duration: 5000,
-      });
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   if (loading) {
     return <LoadingView title="Loading Super Choice Form" message="Please wait..." />;
@@ -281,13 +369,6 @@ export default function SuperChoiceFormPage() {
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Submitting...' : 'Submit & Continue'}
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={downloading || !formData || Object.keys(formData).length === 0}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
-            >
-              {downloading ? 'Preparing PDF...' : 'Download PDF'}
             </button>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { employeeDetailsSchema as employeeSchema } from './schema';
+import { useToast } from '@/components/ui/Toast';
 
 type Field = any;
 
@@ -18,6 +19,7 @@ employeeDetailsSchema.sections = [/* schema truncated in code for brevity at run
 
 export default function OnboardClient() {
   const { token } = useParams<{ token: string }>();
+  const { showToast } = useToast();
   const [prefill, setPrefill] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,10 +48,20 @@ export default function OnboardClient() {
     const res = await fetch(`/api/staff/onboard/${token}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formKey: 'employeeDetails', data, submit }) });
     if (!res.ok) {
       const j = await res.json().catch(()=>({}));
-      alert(j.error || 'Failed to save');
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: j.error || 'Failed to save',
+        duration: 5000,
+      });
       return;
     }
-    if (submit) alert('Submitted successfully'); else alert('Saved');
+    showToast({
+      type: 'success',
+      title: submit ? 'Form Submitted' : 'Draft Saved',
+      message: submit ? 'Your form has been submitted successfully' : 'Your draft has been saved successfully',
+      duration: 3000,
+    });
   };
 
   if (loading) return <LoadingView title="Loading Staff Forms" message="Please wait..." />;

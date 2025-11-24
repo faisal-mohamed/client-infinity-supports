@@ -4,15 +4,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import PreEmploymentMedicalForm, { PreEmploymentMedicalFormRef } from '../../components/PreEmploymentMedicalForm';
 import LoadingView from '@/components/ui/LoadingView';
+import { useToast } from '@/components/ui/Toast';
 
 export default function PreEmploymentMedicalFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const formRef = useRef<PreEmploymentMedicalFormRef>(null);
 
   useEffect(() => {
@@ -32,7 +33,12 @@ export default function PreEmploymentMedicalFormPage() {
         setStaff(data.staff);
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Error Loading Form',
+          message: error.message || 'Failed to load form data',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
@@ -50,13 +56,29 @@ export default function PreEmploymentMedicalFormPage() {
       
       const isSignatureLink = window.location.pathname.includes('/staff/signature/');
       if (success && isSubmit) {
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Your form has been submitted successfully',
+          duration: 3000,
+        });
         router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else if (success) {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your draft has been saved successfully',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }

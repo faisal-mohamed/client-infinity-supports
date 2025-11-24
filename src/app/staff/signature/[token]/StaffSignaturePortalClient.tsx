@@ -234,13 +234,13 @@ export default function StaffSignaturePortalClient() {
         };
       } else {
         console.log(`  ❌ Status: FILL FORM`);
-        return {
-          status: 'Fill Form',
-          color: 'text-blue-600 bg-blue-100',
-          icon: FaEdit,
-          date: null,
-        };
-      }
+      return {
+        status: 'Fill Form',
+        color: 'text-blue-600 bg-blue-100',
+        icon: FaEdit,
+        date: null,
+      };
+    }
     }
     
     // Forms requiring signature - check both column and form-specific fields
@@ -691,7 +691,7 @@ export default function StaffSignaturePortalClient() {
                       </>
                     ) : (
                       <>
-                        {completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed
+                    {completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed
                       </>
                     )}
                   </span>
@@ -865,7 +865,7 @@ export default function StaffSignaturePortalClient() {
                                 ? 'text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 focus:ring-green-500'
                                 : requiresSignature
                                 ? 'text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500'
-                                : 'text-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 focus:ring-blue-500'
+                              : 'text-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 focus:ring-blue-500'
                           }`}
                         >
                           {navigatingFormId === form.id ? (
@@ -875,17 +875,17 @@ export default function StaffSignaturePortalClient() {
                               <span className="sm:hidden">Loading...</span>
                             </>
                           ) : (statusInfo.status === 'Signed' || statusInfo.status === 'Completed') ? (
-                            <>
-                              <FaCheckCircle className="mr-2 h-4 w-4" />
+                              <>
+                                <FaCheckCircle className="mr-2 h-4 w-4" />
                               <span className="hidden sm:inline">View {statusInfo.status === 'Signed' ? 'Signed' : 'Completed'}</span>
                               <span className="sm:hidden">{statusInfo.status === 'Signed' ? 'Signed' : 'Done'}</span>
-                            </>
+                              </>
                           ) : requiresSignature ? (
-                            <>
-                              <FaSignature className="mr-2 h-4 w-4" />
-                              <span className="hidden sm:inline">Fill & Sign</span>
-                              <span className="sm:hidden">Fill</span>
-                            </>
+                              <>
+                                <FaSignature className="mr-2 h-4 w-4" />
+                                <span className="hidden sm:inline">Fill & Sign</span>
+                                <span className="sm:hidden">Fill</span>
+                              </>
                           ) : (
                             <>
                               <FaEdit className="mr-2 h-4 w-4" />

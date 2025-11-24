@@ -4,15 +4,16 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import LoadingView from '@/components/ui/LoadingView';
+import { useToast } from '@/components/ui/Toast';
 
 export default function GovtTaxFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,7 +27,12 @@ export default function GovtTaxFormPage() {
         setFormData(data.submissions['govt_tax'] || {});
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Error Loading Form',
+          message: error.message || 'Failed to load form data',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
@@ -40,6 +46,88 @@ export default function GovtTaxFormPage() {
   }, [formData])
 
   const handleSave = async (isSubmit: boolean) => {
+    // Validate required fields before submitting
+    if (isSubmit) {
+      const requiredFields: { key: string; label: string }[] = [
+        { key: 'tfn', label: 'TFN' },
+        { key: 'surname', label: 'Surname' },
+        { key: 'firstName', label: 'First Name' },
+        { key: 'dob', label: 'Date of Birth' },
+        { key: 'address', label: 'Address' },
+        { key: 'town', label: 'Town/City' },
+        { key: 'state', label: 'State' },
+        { key: 'postcode', label: 'Postcode' },
+      ];
+      
+      const missingFields = requiredFields.filter(field => {
+        const value = formData[field.key];
+        return !value || (typeof value === 'string' && value.trim() === '');
+      });
+      
+      if (missingFields.length > 0) {
+        const fieldLabels = missingFields.map(f => f.label).join(', ');
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: `Please fill in required fields: ${fieldLabels}`,
+          duration: 5000,
+        });
+        return;
+      }
+      
+      // Validate date of birth format
+      if (formData.dob) {
+        const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!dobRegex.test(formData.dob)) {
+          showToast({
+            type: 'error',
+            title: 'Invalid Date Format',
+            message: 'Date of Birth must be in DD/MM/YYYY format',
+            duration: 5000,
+          });
+          return;
+        }
+      }
+      
+      // Validate signature
+      const hasPayeeSignature = !!(formData.payeeSignature || formData.staffSignature);
+      if (!hasPayeeSignature) {
+        showToast({
+          type: 'error',
+          title: 'Signature Required',
+          message: 'Please provide your signature (Section A - Payee signature)',
+          duration: 5000,
+        });
+        return;
+      }
+      
+      // Validate signature date
+      const payeeSignatureAt = formData.payeeSignatureAt;
+      if (!payeeSignatureAt || payeeSignatureAt.trim() === '') {
+        showToast({
+          type: 'error',
+          title: 'Signature Date Required',
+          message: 'Please provide the signature date (Section A - Payee signature date)',
+          duration: 5000,
+        });
+        return;
+      }
+      
+      // Validate signature date format
+      if (payeeSignatureAt) {
+        const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!dateRegex.test(payeeSignatureAt)) {
+          showToast({
+            type: 'error',
+            title: 'Invalid Date Format',
+            message: 'Signature date must be in DD/MM/YYYY format',
+            duration: 5000,
+          });
+          return;
+        }
+      }
+    }
+    
     setSaving(true);
     try {
       const res = await fetch(`/api/staff/onboard/${token}`, {
@@ -52,47 +140,34 @@ export default function GovtTaxFormPage() {
       
       const isSignatureLink = window.location.pathname.includes('/staff/signature/');
       if (isSubmit) {
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Your form has been submitted successfully',
+          duration: 3000,
+        });
         router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your draft has been saved successfully',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDownload = async () => {
-    if (!formData || Object.keys(formData).length === 0) {
-      alert('Fill out the form before downloading.');
-      return;
-    }
-    setDownloading(true);
-    try {
-      const res = await fetch('/api/generate-pdf/tax-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error('Failed to generate PDF');
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `TFN_Declaration_${staff?.firstName || ''}_${staff?.surname || ''}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error: any) {
-      console.error('Download error:', error);
-      alert(error.message || 'Failed to download form.');
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   if (loading) {
     return <LoadingView title="Loading Government Tax Form" message="Please wait..." />;
@@ -169,13 +244,6 @@ export default function GovtTaxFormPage() {
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
             >
               {saving ? 'Submitting...' : 'Submit & Continue'}
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={downloading}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 w-full sm:w-auto"
-            >
-              {downloading ? 'Preparing PDF...' : 'Download PDF'}
             </button>
           </div>
         </div>

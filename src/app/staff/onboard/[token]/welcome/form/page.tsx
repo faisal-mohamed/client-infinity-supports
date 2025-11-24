@@ -2,9 +2,11 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useToast } from '@/components/ui/Toast';
 
 export default function EmployeeWelcomeFormPage38() {
   const { token } = useParams<{ token: string }>();
+  const { showToast } = useToast();
   const [data, setData] = useState<any>({ readAcknowledgement: false, fullName: '', signature: '', date: '' });
   const [loading, setLoading] = useState(false);
 
@@ -20,9 +22,19 @@ export default function EmployeeWelcomeFormPage38() {
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || 'Failed to save');
-      alert(submit ? 'Submitted' : 'Saved');
+      showToast({
+        type: 'success',
+        title: submit ? 'Form Submitted' : 'Draft Saved',
+        message: submit ? 'Your form has been submitted successfully' : 'Your draft has been saved successfully',
+        duration: 3000,
+      });
     } catch (e: any) {
-      alert(e.message || 'Failed');
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: e.message || 'Failed to save',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }

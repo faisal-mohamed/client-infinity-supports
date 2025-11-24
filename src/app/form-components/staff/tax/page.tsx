@@ -136,7 +136,8 @@ function OverlayCheckbox({
 
 
 
-interface OverlayDateCharInputProps {
+// Date Picker Component with modal
+interface OverlayDatePickerProps {
   dayTop: number;
   dayLeft: number;
   monthTop: number;
@@ -148,103 +149,218 @@ interface OverlayDateCharInputProps {
   value: string; // format: DD/MM/YYYY
   onChange: (val: string) => void;
   readOnly?: boolean;
+  required?: boolean;
 }
 
-function OverlayDateCharInput({
+function OverlayDatePicker({
   dayTop,
   dayLeft,
   monthTop,
   monthLeft,
   yearTop,
   yearLeft,
-  boxWidth = 28,
+  boxWidth = 20,
   boxHeight = 28,
   value,
   onChange,
   readOnly = false,
-}: OverlayDateCharInputProps) {
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.replace(/\D/g, "").padEnd(8, "");
-  const [day, month, year] = [
-    digits.slice(0, 2),
-    digits.slice(2, 4),
-    digits.slice(4, 8),
-  ];
-  const [values, setValues] = useState([day, month, year]);
+  required = false,
+}: OverlayDatePickerProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
 
+  // Convert DD/MM/YYYY to YYYY-MM-DD for date input
+  const formatDateForInput = (dateStr: string): string => {
+    if (!dateStr || !dateStr.includes('/')) return '';
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) return '';
+    const [day, month, year] = parts;
+    if (day.length !== 2 || month.length !== 2 || year.length !== 4) return '';
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+
+  // Convert YYYY-MM-DD to DD/MM/YYYY
+  const formatDateFromInput = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-');
+    if (!y || !m || !d) return '';
+    return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+  };
+
+  // Parse value to extract day, month, year
+  const parseDate = (dateStr: string): { day: string; month: string; year: string } => {
+    if (!dateStr || !dateStr.includes('/')) {
+      return { day: '', month: '', year: '' };
+    }
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) {
+      return { day: '', month: '', year: '' };
+    }
+    return {
+      day: parts[0].padStart(2, '0'),
+      month: parts[1].padStart(2, '0'),
+      year: parts[2]
+    };
+  };
+
+  // Initialize selectedDate when modal opens
   useEffect(() => {
-    const d = value.replace(/\D/g, "").padEnd(8, "");
-    setValues([d.slice(0, 2), d.slice(2, 4), d.slice(4, 8)]);
-  }, [value]);
+    if (isOpen) {
+      const dateStr = formatDateForInput(value);
+      setSelectedDate(dateStr);
+    }
+  }, [isOpen, value]);
 
-  const handleChange = (val: string, section: number, idx: number) => {
-    if (readOnly) return;
-    const updated = [...values];
-    const sectionLen = section === 2 ? 4 : 2;
-    let chars = updated[section].split("");
-    chars[idx] = val.slice(-1);
-    updated[section] = chars.join("").slice(0, sectionLen);
-    setValues(updated);
-    onChange(`${updated[0]}/${updated[1]}/${updated[2]}`);
-
-    // auto focus next box
-    const globalIndex = section === 0 ? idx : section === 1 ? 2 + idx : 4 + idx;
-    if (val && inputsRef.current[globalIndex + 1]) {
-      inputsRef.current[globalIndex + 1]?.focus();
+  const handleSave = () => {
+    if (selectedDate) {
+      const formatted = formatDateFromInput(selectedDate);
+      onChange(formatted);
+      setIsOpen(false);
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    section: number,
-    idx: number
-  ) => {
-    if (readOnly) return;
-    if (e.key === "Backspace") {
-      const globalIndex =
-        section === 0 ? idx : section === 1 ? 2 + idx : 4 + idx;
-      if (!values[section][idx] && globalIndex > 0) {
-        inputsRef.current[globalIndex - 1]?.focus();
-      }
-    }
+  const handleCancel = () => {
+    setIsOpen(false);
   };
 
-  const renderBoxes = (count: number, section: number, prefill: string, startIndex: number) =>
-    Array.from({ length: count }).map((_, i) => {
-      const globalIndex = startIndex + i;
-      return (
-        <input
-          key={`${section}-${i}`}
-          ref={(el) => (inputsRef.current[globalIndex] = el)}
-          type="text"
-          maxLength={1}
-          value={prefill[i] || ""}
-          onChange={!readOnly ? (e) => handleChange(e.target.value, section, i) : undefined}
-          onKeyDown={!readOnly ? (e) => handleKeyDown(e, section, i) : undefined}
-          className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-          style={{ width: boxWidth, height: boxHeight }}
-          readOnly={readOnly}
-          disabled={readOnly}
-        />
-      );
-    });
+  const { day, month, year } = parseDate(value);
+  const gap = 2;
 
   return (
     <>
-      {/* Day */}
-      <div className="absolute flex" style={{ top: dayTop, left: dayLeft }}>
-        {renderBoxes(2, 0, values[0], 0)}
+      {/* Date boxes - clickable to open date picker */}
+      <div 
+        className="absolute"
+        style={{ top: dayTop, left: dayLeft }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        {/* Clickable overlay */}
+        <div 
+          className={`absolute inset-0 ${readOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          style={{ 
+            zIndex: 1,
+            width: boxWidth * 2 + gap,
+            height: boxHeight,
+            left: -gap/2,
+            top: 0
+          }}
+        />
+        
+        {/* Day - 2 boxes */}
+        {Array.from({ length: 2 }).map((_, i) => (
+          <input
+            key={`day-${i}`}
+            type="text"
+            maxLength={1}
+            value={day[i] || ""}
+            readOnly={true}
+            className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} ${required && !value ? 'border-red-500' : ''}`}
+            style={{ width: boxWidth, height: boxHeight, marginRight: i === 0 ? gap : 0 }}
+          />
+        ))}
       </div>
 
       {/* Month */}
-      <div className="absolute flex" style={{ top: monthTop, left: monthLeft }}>
-        {renderBoxes(2, 1, values[1], 2)}
+      <div 
+        className="absolute"
+        style={{ top: monthTop, left: monthLeft }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        <div 
+          className={`absolute inset-0 ${readOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          style={{ 
+            zIndex: 1,
+            width: boxWidth * 2 + gap,
+            height: boxHeight,
+            left: -gap/2,
+            top: 0
+          }}
+        />
+        {Array.from({ length: 2 }).map((_, i) => (
+          <input
+            key={`month-${i}`}
+            type="text"
+            maxLength={1}
+            value={month[i] || ""}
+            readOnly={true}
+            className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} ${required && !value ? 'border-red-500' : ''}`}
+            style={{ width: boxWidth, height: boxHeight, marginRight: i === 0 ? gap : 0 }}
+          />
+        ))}
       </div>
 
       {/* Year */}
-      <div className="absolute flex" style={{ top: yearTop, left: yearLeft }}>
-        {renderBoxes(4, 2, values[2], 4)}
+      <div 
+        className="absolute"
+        style={{ top: yearTop, left: yearLeft }}
+        onClick={() => {
+          if (!readOnly) setIsOpen(true);
+        }}
+      >
+        <div 
+          className={`absolute inset-0 ${readOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          style={{ 
+            zIndex: 1,
+            width: boxWidth * 4 + gap * 3,
+            height: boxHeight,
+            left: -gap/2,
+            top: 0
+          }}
+        />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <input
+            key={`year-${i}`}
+            type="text"
+            maxLength={1}
+            value={year[i] || ""}
+            readOnly={true}
+            className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} ${required && !value ? 'border-red-500' : ''}`}
+            style={{ width: boxWidth, height: boxHeight, marginRight: i < 3 ? gap : 0 }}
+          />
+        ))}
       </div>
+
+      {/* Modal for date picker */}
+      {isOpen && !readOnly && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50" onClick={handleCancel}>
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[400px] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold mb-4 text-gray-800">Select Date</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Date (DD/MM/YYYY) {required && <span className="text-red-500">*</span>}
+              </label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                max={new Date().toISOString().split('T')[0]} // Prevent future dates
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!selectedDate}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -808,20 +924,20 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
       <OverlayCharInput top={415} left={30} length={19} totalWidth={370} boxHeight={25} value={anotherName} onChange={setAnotherName} readOnly={readOnly} />
 
     {/* DOB */}
-    <OverlayDateCharInput
-  dayTop={455}
-  dayLeft={215}
-  monthTop={455}
-  monthLeft={265}
-  yearTop={455}
-  yearLeft={315}
-  boxWidth={20}
-  boxHeight={28}
-  value={dob}
-  onChange={setDob}
-  readOnly={readOnly}
-
-/>
+    <OverlayDatePicker
+      dayTop={455}
+      dayLeft={215}
+      monthTop={455}
+      monthLeft={265}
+      yearTop={455}
+      yearLeft={315}
+      boxWidth={20}
+      boxHeight={28}
+      value={dob}
+      onChange={setDob}
+      readOnly={readOnly}
+      required={true}
+    />
 
 <OverlayMultiRowCharInput
   top={503}
@@ -892,7 +1008,7 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
 />
 
 
- <OverlayDateCharInput
+ <OverlayDatePicker
   dayTop={970}
   dayLeft={215}
   monthTop={970}
@@ -904,7 +1020,6 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
   value={payerSignatureAt}
   onChange={setPayerSignatureAt}
   readOnly={sectionBLocked}
-
 />
 
 
@@ -993,7 +1108,7 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
   readOnly={readOnly}
 />
 
- <OverlayDateCharInput
+ <OverlayDatePicker
   dayTop={570}
   dayLeft={610}
   monthTop={570}
@@ -1004,7 +1119,8 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
   boxHeight={28}
   value={payeeSignatureAt}
   onChange={setPayeeSignatureAt}
-
+  readOnly={readOnly}
+  required={true}
 />
 
 <OverlayMultiRowCharInput

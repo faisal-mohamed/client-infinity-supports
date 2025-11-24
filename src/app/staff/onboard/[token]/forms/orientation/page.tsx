@@ -4,10 +4,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import LoadingView from '@/components/ui/LoadingView';
+import { useToast } from '@/components/ui/Toast';
 
 export default function OrientationFormPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({
     staffName: '',
@@ -58,7 +60,12 @@ export default function OrientationFormPage() {
         });
       } catch (error: any) {
         console.error('Error loading data:', error);
-        alert(error.message);
+        showToast({
+          type: 'error',
+          title: 'Error Loading Form',
+          message: error.message || 'Failed to load form data',
+          duration: 5000,
+        });
       } finally {
         setLoading(false);
       }
@@ -102,17 +109,19 @@ export default function OrientationFormPage() {
         const acknowledgedChecked = !!derivedAcknowledged;
 
         if (!nameFilled || !signatureFilled || !dateFilled || !acknowledgedChecked) {
-          alert(
-            [
-              'Complete the Staff Orientation acknowledgement:',
-              !acknowledgedChecked && '• Tick the acknowledgement checkbox',
-              !nameFilled && '• Enter your full name',
-              !signatureFilled && '• Provide your signature',
-              !dateFilled && '• Select the acknowledgement date',
-            ]
-              .filter(Boolean)
-              .join('\n')
-          );
+          const missingItems = [
+            !acknowledgedChecked && 'Tick the acknowledgement checkbox',
+            !nameFilled && 'Enter your full name',
+            !signatureFilled && 'Provide your signature',
+            !dateFilled && 'Select the acknowledgement date',
+          ].filter(Boolean);
+          
+          showToast({
+            type: 'error',
+            title: 'Complete the Staff Orientation acknowledgement',
+            message: `Please complete: ${missingItems.join(', ')}`,
+            duration: 5000,
+          });
           setSaving(false);
           return;
         }
@@ -133,13 +142,29 @@ export default function OrientationFormPage() {
       if (!res.ok) throw new Error(j.error || 'Failed to save');
       
       if (isSubmit) {
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Your form has been submitted successfully',
+          duration: 3000,
+        });
         router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
       } else {
-        alert('Draft saved successfully!');
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your draft has been saved successfully',
+          duration: 3000,
+        });
       }
     } catch (error: any) {
       console.error('Error saving:', error);
-      alert(error.message);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }

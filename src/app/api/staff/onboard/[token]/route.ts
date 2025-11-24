@@ -319,24 +319,60 @@ export async function POST(
     let staffSignature: string | null = null;
     let staffSignedAt: Date | null = null;
     
+    // Helper function to convert DD/MM/YYYY string to Date object
+    const parseDateString = (dateStr: string | null | undefined): Date | null => {
+      if (!dateStr) return null;
+      
+      // If it's already a Date object, return it
+      if (dateStr instanceof Date) return dateStr;
+      
+      // If it's a string, try to parse it
+      if (typeof dateStr === 'string') {
+        // Try DD/MM/YYYY format (used by tax form)
+        const dmyMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (dmyMatch) {
+          const [, day, month, year] = dmyMatch;
+          // Create date in YYYY-MM-DD format for Date constructor
+          return new Date(`${year}-${month}-${day}`);
+        }
+        
+        // Try ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
+        const isoDate = new Date(dateStr);
+        if (!isNaN(isoDate.getTime())) {
+          return isoDate;
+        }
+      }
+      
+      return null;
+    };
+    
     if (submit) {
       // Extract signature based on form type
       if (formKey === 'fair_work_information') {
         // Fairwork uses signature (primary) or staffSignature (alias)
         staffSignature = data.signature || data.staffSignature || data.acknowledgementSignature || null;
-        staffSignedAt = data.date || data.acknowledgedAt || data.staffSignedAt ? new Date(data.date || data.acknowledgedAt || data.staffSignedAt) : null;
+        staffSignedAt = parseDateString(data.date || data.acknowledgedAt || data.staffSignedAt);
       } else if (formKey === 'govt_tax') {
-        // TFN uses payeeSignature
+        // TFN uses payeeSignature - date is in DD/MM/YYYY format
         staffSignature = data.payeeSignature || data.staffSignature || null;
-        staffSignedAt = data.payeeSignatureAt || data.staffSignedAt || null;
+        staffSignedAt = parseDateString(data.payeeSignatureAt || data.staffSignedAt);
       } else if (formKey === 'super_choice_form') {
         // Super Choice uses sectionBSignature, sectionCSignature, or sectionDSignature
         staffSignature = data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature || null;
-        staffSignedAt = data.sectionBSignedAt || data.sectionCSignedAt || data.sectionDSignedAt || data.staffSignedAt || null;
+        // Super Choice dates might be objects {day, month, year} or strings
+        const dateValue = data.sectionBSignedAt || data.sectionCSignedAt || data.sectionDSignedAt || data.staffSignedAt;
+        if (dateValue) {
+          if (typeof dateValue === 'object' && dateValue.day && dateValue.month && dateValue.year) {
+            // Convert {day, month, year} object to Date
+            staffSignedAt = new Date(`${dateValue.year}-${String(dateValue.month).padStart(2, '0')}-${String(dateValue.day).padStart(2, '0')}`);
+          } else {
+            staffSignedAt = parseDateString(dateValue);
+          }
+        }
       } else {
         // Generic forms use signature or staffSignature
         staffSignature = data.signature || data.staffSignature || null;
-        staffSignedAt = data.signatureDate || data.staffSignedAt || data.signedAt ? new Date(data.signedAt) : null;
+        staffSignedAt = parseDateString(data.signatureDate || data.staffSignedAt || data.signedAt);
       }
       
       // If we found a signature but no date, set the date to now
@@ -347,7 +383,7 @@ export async function POST(
       console.log(`📋 [Onboard API] Extracted signature for ${formKey}:`, {
         hasSignature: !!staffSignature,
         signatureLength: staffSignature?.length || 0,
-        signedAt: staffSignedAt?.toISOString(),
+        signedAt: staffSignedAt instanceof Date ? staffSignedAt.toISOString() : staffSignedAt,
       });
     }
 

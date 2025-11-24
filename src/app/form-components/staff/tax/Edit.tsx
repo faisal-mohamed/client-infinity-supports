@@ -127,17 +127,50 @@ export default function GovtTaxEdit({
   // Submit form function
   const handleSubmitFormInternal = async () => {
     // Validate required fields (Section A only - staff only fills Section A)
-    const requiredFields = ['tfn', 'surname', 'firstName', 'dob', 'address'];
-    const missingFields = requiredFields.filter(field => !(localFormData as any)[field]);
+    const requiredFields: { key: string; label: string }[] = [
+      { key: 'tfn', label: 'TFN' },
+      { key: 'surname', label: 'Surname' },
+      { key: 'firstName', label: 'First Name' },
+      { key: 'dob', label: 'Date of Birth' },
+      { key: 'address', label: 'Address' },
+      { key: 'town', label: 'Town/City' },
+      { key: 'state', label: 'State' },
+      { key: 'postcode', label: 'Postcode' },
+    ];
+    
+    const missingFields = requiredFields.filter(field => {
+      const value = (localFormData as any)[field.key];
+      return !value || (typeof value === 'string' && value.trim() === '');
+    });
+    
+    // Validate date of birth format (DD/MM/YYYY)
+    const dob = (localFormData as any).dob;
+    if (dob) {
+      const dobRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+      if (!dobRegex.test(dob)) {
+        showToast({
+          type: 'error',
+          title: 'Invalid Date Format',
+          message: 'Date of Birth must be in DD/MM/YYYY format',
+          duration: 5000,
+        });
+        return;
+      }
+    }
     
     // Validate payee signature (only signature required - Section A only)
     const hasPayeeSignature = !!(localFormData as any).payeeSignature || !!(localFormData as any).staffSignature;
     
+    // Validate payee signature date
+    const payeeSignatureAt = (localFormData as any).payeeSignatureAt;
+    const hasPayeeSignatureDate = payeeSignatureAt && payeeSignatureAt.trim() !== '';
+    
     if (missingFields.length > 0) {
+      const fieldLabels = missingFields.map(f => f.label).join(', ');
       showToast({
         type: 'error',
         title: 'Validation Error',
-        message: `Please fill in required fields: ${missingFields.join(', ')}`,
+        message: `Please fill in required fields: ${fieldLabels}`,
         duration: 5000,
       });
       return;
@@ -151,6 +184,30 @@ export default function GovtTaxEdit({
         duration: 5000,
       });
       return;
+    }
+    
+    if (!hasPayeeSignatureDate) {
+      showToast({
+        type: 'error',
+        title: 'Signature Date Required',
+        message: 'Please provide the signature date (Section A - Payee signature date)',
+        duration: 5000,
+      });
+      return;
+    }
+    
+    // Validate signature date format
+    if (payeeSignatureAt) {
+      const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+      if (!dateRegex.test(payeeSignatureAt)) {
+        showToast({
+          type: 'error',
+          title: 'Invalid Date Format',
+          message: 'Signature date must be in DD/MM/YYYY format',
+          duration: 5000,
+        });
+        return;
+      }
     }
 
     if (handleSubmitForm && typeof handleSubmitForm === 'function') {
