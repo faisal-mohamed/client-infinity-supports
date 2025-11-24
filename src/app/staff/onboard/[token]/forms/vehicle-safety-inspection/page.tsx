@@ -12,11 +12,88 @@ export default function VehicleSafetyInspectionFormPage() {
   const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
-  const [initialFormData, setInitialFormData] = useState<any>(null);
+  const [initialFormData, setInitialFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const isInitialLoad = useRef(true);
+
+  // Required fields for Driver Information section
+  const requiredFields = [
+    'driver',
+    'licenceNumber',
+    'plantIdNo',
+    'vehicleRegistration',
+    'insurancePolicy',
+    'dateOfInspection'
+  ];
+
+  // Field labels mapping
+  const fieldLabels: Record<string, string> = {
+    driver: 'Driver',
+    licenceNumber: 'Licence number',
+    plantIdNo: 'Plant ID No',
+    vehicleRegistration: 'Vehicle registration',
+    insurancePolicy: 'Insurance policy',
+    dateOfInspection: 'Date of inspection'
+  };
+
+  // Helper function to check if a field value is empty
+  const isFieldEmpty = useCallback((field: string, value: any): boolean => {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed === '') return true;
+      
+      // Date fields - check if it's a valid date string (not placeholder)
+      if (field === 'dateOfInspection' || field === 'reviewedByDate' || field === 'nextInspectionDate') {
+        // Reject placeholder values like "dd-mm-yyyy", "mm/dd/yyyy", etc.
+        const placeholderPatterns = [
+          /^dd[-/]mm[-/]yyyy$/i,
+          /^mm[-/]dd[-/]yyyy$/i,
+          /^yyyy[-/]mm[-/]dd$/i,
+          /^dd[-/]mm[-/]yy$/i,
+          /^mm[-/]dd[-/]yy$/i,
+        ];
+        
+        // Check if it matches any placeholder pattern
+        if (placeholderPatterns.some(pattern => pattern.test(trimmed))) {
+          return true;
+        }
+        
+        // Check if it's a valid date format (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          return true; // Invalid date format
+        }
+        
+        // Additional validation: check if it's a valid date
+        const date = new Date(trimmed);
+        if (isNaN(date.getTime())) {
+          return true; // Invalid date
+        }
+      }
+    }
+    if (Array.isArray(value) && value.length === 0) return true;
+    return false;
+  }, []);
+
+  // Validation function
+  const validateForm = useCallback((): { isValid: boolean; missingFields: string[] } => {
+    const errors: Record<string, string> = {};
+    const missingFields: string[] = [];
+    
+    requiredFields.forEach(field => {
+      const value = formData[field];
+      if (isFieldEmpty(field, value)) {
+        const fieldLabel = fieldLabels[field];
+        errors[field] = `${fieldLabel} is required`;
+        missingFields.push(fieldLabel);
+      }
+    });
+
+    setFieldErrors(errors);
+    return { isValid: Object.keys(errors).length === 0, missingFields };
+  }, [formData, isFieldEmpty]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -44,17 +121,34 @@ export default function VehicleSafetyInspectionFormPage() {
         setStaff(staffData.staff || staffData);
         
         // Load saved form data - handle both signature and onboard structures
-        let formSubmission = {};
+        let formSubmission: any = {};
         if (isSignatureLink) {
           const vehicleForm = staffData.signatureForms?.find(
             (f: any) => f.formSubmission?.form?.formKey === 'vehicle_safety_inspection'
           );
-          if (vehicleForm) {
-            formSubmission = vehicleForm.formSubmission?.data || {};
+          if (vehicleForm && vehicleForm.formSubmission?.data) {
+            // Extract only the form data, exclude signature fields since this form doesn't use signatures
+            const { staffSignature, staffSignedAt, adminSignature, adminSignedAt, ...formData } = vehicleForm.formSubmission.data;
+            formSubmission = formData;
           }
         } else {
-          formSubmission = staffData.submissions?.['vehicle_safety_inspection'] || {};
+          // Check submissions dictionary
+          if (staffData.submissions && staffData.submissions['vehicle_safety_inspection']) {
+            // Extract only the form data, exclude signature fields since this form doesn't use signatures
+            const submissionData = staffData.submissions['vehicle_safety_inspection'];
+            const { staffSignature, staffSignedAt, adminSignature, adminSignedAt, ...formData } = submissionData;
+            formSubmission = formData;
+          }
         }
+        
+        console.log('Loaded form submission data for vehicle_safety_inspection:', {
+          hasData: Object.keys(formSubmission).length > 0,
+          keys: Object.keys(formSubmission),
+          sampleData: Object.keys(formSubmission).slice(0, 5).reduce((acc, key) => {
+            acc[key] = formSubmission[key];
+            return acc;
+          }, {} as any)
+        });
         
         setInitialFormData(formSubmission);
         setFormData(formSubmission);
@@ -78,14 +172,98 @@ export default function VehicleSafetyInspectionFormPage() {
 
   // Memoize the onDataChange callback to prevent infinite loops
   const handleDataChange = useCallback((data: any) => {
+    console.log('Form data changed:', {
+      driver: data.driver,
+      licenceNumber: data.licenceNumber,
+      plantIdNo: data.plantIdNo,
+      vehicleRegistration: data.vehicleRegistration,
+      insurancePolicy: data.insurancePolicy,
+      dateOfInspection: data.dateOfInspection,
+    });
     setFormData(data);
   }, []);
+
+  // Clear field errors when form data changes and fields are filled
+  useEffect(() => {
+    setFieldErrors(prevErrors => {
+      if (Object.keys(prevErrors).length === 0) {
+        return prevErrors; // No errors to clear
+      }
+
+      const newErrors = { ...prevErrors };
+      let hasChanges = false;
+      
+      // Check each field that has an error
+      Object.keys(newErrors).forEach(field => {
+        const value = formData[field];
+        const isEmpty = isFieldEmpty(field, value);
+        
+        console.log(`Checking field ${field}:`, {
+          value,
+          isEmpty,
+          hasError: !!newErrors[field]
+        });
+        
+        // Check if field is now filled (not empty)
+        if (!isEmpty && newErrors[field]) {
+          console.log(`Clearing error for ${field}`);
+          delete newErrors[field];
+          hasChanges = true;
+        }
+      });
+      
+      return hasChanges ? newErrors : prevErrors;
+    });
+  }, [formData, isFieldEmpty]);
 
   useEffect(() => {
     console.log("formData: ", formData);
   }, [formData]);
 
   const handleSave = async (isSubmit: boolean) => {
+    // Validate required fields before submission
+    if (isSubmit) {
+      const validation = validateForm();
+      if (!validation.isValid) {
+        // Build toast message with missing field names
+        let message = '';
+        const missingCount = validation.missingFields.length;
+        
+        if (missingCount === 1) {
+          message = `Please fill in the required field: ${validation.missingFields[0]}`;
+        } else if (missingCount <= 3) {
+          // Show all field names if 3 or fewer
+          const fieldsList = validation.missingFields.slice(0, -1).join(', ');
+          const lastField = validation.missingFields[validation.missingFields.length - 1];
+          message = `Please fill in the required fields: ${fieldsList} and ${lastField}`;
+        } else {
+          // Show first 3 fields and count of remaining
+          const firstThree = validation.missingFields.slice(0, 3).join(', ');
+          const remaining = missingCount - 3;
+          message = `Please fill in the required fields: ${firstThree} and ${remaining} more`;
+        }
+
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: message,
+          duration: 6000,
+        });
+        
+        // Scroll to first error field
+        const firstErrorField = Object.keys(fieldErrors)[0];
+        if (firstErrorField) {
+          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
+                         document.querySelector(`input[type="date"][value="${formData[firstErrorField] || ''}"]`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            (element as HTMLElement).focus();
+          }
+        }
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       // Detect if this is a signature link or onboard link
@@ -171,55 +349,6 @@ export default function VehicleSafetyInspectionFormPage() {
     }
   };
 
-  const handleDownloadPDF = async () => {
-    if (!staff?.id) {
-      showToast({
-        type: 'warning',
-        title: 'No Staff Data',
-        message: 'Please wait for staff data to load before downloading.',
-        duration: 3000,
-      });
-      return;
-    }
-
-    setDownloading(true);
-    try {
-      const pdfUrl = `/api/staff/${staff.id}/forms/vehicle-safety-inspection/pdf`;
-      
-      const response = await fetch(pdfUrl);
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Vehicle_Safety_Inspection_${staff.firstName}_${staff.surname}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      showToast({
-        type: 'success',
-        title: 'PDF Downloaded',
-        message: 'Your Vehicle Safety Inspection Checklist has been downloaded successfully.',
-        duration: 3000,
-      });
-    } catch (error: any) {
-      console.error('Download error:', error);
-      showToast({
-        type: 'error',
-        title: 'Download Failed',
-        message: error.message || 'Failed to download PDF. Please try again.',
-        duration: 5000,
-      });
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   if (loading) {
     return <LoadingView title="Loading Vehicle Safety Inspection Form" message="Please wait..." />;
   }
@@ -259,37 +388,6 @@ export default function VehicleSafetyInspectionFormPage() {
           </div>
         </div>
 
-        {/* Download PDF Section */}
-        {staff?.id && (
-          <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="text-gray-700 font-medium">Download your completed form as a PDF</p>
-                <p className="text-sm text-gray-500 mt-1">View and share your Vehicle Safety Inspection Checklist</p>
-              </div>
-              <button
-                onClick={handleDownloadPDF}
-                disabled={downloading}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
-              >
-                {downloading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Generating PDF...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Download PDF</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Edit Component */}
         <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
           <div className="view-component-wrapper w-full">
@@ -297,6 +395,7 @@ export default function VehicleSafetyInspectionFormPage() {
               initialData={initialFormData}
               onDataChange={handleDataChange}
               showButtons={false}
+              fieldErrors={fieldErrors}
             />
           </div>
           

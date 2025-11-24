@@ -482,12 +482,20 @@ export async function POST(
       
       if (submit) {
         // Form is being submitted - determine status based on signature requirements
-        const requiresSignature = form.requiresSignature ?? false;
+        // Vehicle Safety Inspection does NOT require signature - override database value
+        let requiresSignature = form.requiresSignature ?? false;
+        if (formKey === 'vehicle_safety_inspection') {
+          requiresSignature = false;
+        }
         
         // Check if staff has signed (check both column and data fields)
         // For govt_tax form, only check payeeSignature (Section A only)
+        // For vehicle_safety_inspection, skip signature check entirely
         let hasStaffSignature = false;
-        if (formKey === 'govt_tax') {
+        if (formKey === 'vehicle_safety_inspection') {
+          // Vehicle Safety Inspection doesn't use signatures - always false
+          hasStaffSignature = false;
+        } else if (formKey === 'govt_tax') {
           hasStaffSignature = !!submission.staffSignature || 
             !!(data.payeeSignature) || 
             !!(data.staffSignature);

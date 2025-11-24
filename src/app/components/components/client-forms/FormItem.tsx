@@ -212,7 +212,11 @@ export default function FormItem({
   };
 
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
-    const requiresSignature = formRequiresSignatures(assignment.form.formKey);
+    // Vehicle Safety Inspection does NOT require signature
+    const formKey = assignment.form.formKey;
+    const requiresSignature = formKey === 'vehicle_safety_inspection' 
+      ? false 
+      : formRequiresSignatures(formKey);
     const status = assignment.currentStatus;
     
     // Check if this form requires admin signature (like employee_details, conflict_of_interest, bullying_training)
@@ -261,6 +265,17 @@ export default function FormItem({
       
       // For staff forms without admin signatures
       if (isStaff) {
+        // Vehicle Safety Inspection doesn't require signature - if completed, show "Staff Completed"
+        if (formKey === 'vehicle_safety_inspection') {
+          return {
+            status: 'Staff Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        
         if (assignment.staffSignature) {
           return {
             status: requiresSignature ? 'All Signatures Complete' : 'Staff Completed',
@@ -386,7 +401,9 @@ export default function FormItem({
                     <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-md`}>
                       {statusInfo.status}
                     </span>
-                    {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
+                    {assignment.form.requiresSignature && 
+                     assignment.form.formKey !== 'vehicle_safety_inspection' && 
+                     assignment.currentStatus !== 'completed' && (
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 border-2 border-rose-300 shadow-md">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>

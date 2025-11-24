@@ -140,6 +140,11 @@ export default function StaffSignaturePortalClient() {
     const formKey = submission.form.formKey;
     const data = submission.data || {};
     
+    // Vehicle Safety Inspection does NOT require signature - it's just a form
+    if (formKey === 'vehicle_safety_inspection') {
+      requiresSignature = false;
+    }
+    
     // Fairwork Information has an acknowledgement form with signature - always treat as requiring signature
     if (formKey === 'fair_work_information') {
       requiresSignature = true;
@@ -157,7 +162,45 @@ export default function StaffSignaturePortalClient() {
     let signedDate: Date | string | null = null;
     
     if (!requiresSignature) {
-      // Forms that don't require signature - check if they're filled/submitted
+      // Vehicle Safety Inspection - NEVER check for signatures, only check if submitted/filled
+      if (formKey === 'vehicle_safety_inspection') {
+        // Check if form is submitted
+        if (submission.isSubmitted === true) {
+          isCompleted = true;
+          signedDate = (submission.submittedAt || null) as Date | string | null;
+          console.log(`  ✅ Status: COMPLETED (Vehicle Safety Inspection - submitted), Date: ${signedDate || 'NULL'}`);
+          return {
+            status: 'Completed',
+            color: 'text-green-600 bg-green-100',
+            icon: FaCheck,
+            date: signedDate, // Use submittedAt, not signature date
+          };
+        }
+        // Check if required fields are filled
+        const hasRequiredData = !!(data.driver && data.licenceNumber && data.plantIdNo && 
+                                  data.vehicleRegistration && data.insurancePolicy && data.dateOfInspection);
+        if (hasRequiredData) {
+          isCompleted = true;
+          signedDate = (submission.submittedAt || null) as Date | string | null;
+          console.log(`  ✅ Status: COMPLETED (Vehicle Safety Inspection - filled), Date: ${signedDate || 'NULL'}`);
+          return {
+            status: 'Completed',
+            color: 'text-green-600 bg-green-100',
+            icon: FaCheck,
+            date: signedDate,
+          };
+        }
+        // Not completed yet
+        console.log(`  ❌ Status: FILL FORM (Vehicle Safety Inspection)`);
+        return {
+          status: 'Fill Form',
+          color: 'text-blue-600 bg-blue-100',
+          icon: FaEdit,
+          date: null,
+        };
+      }
+      
+      // For other forms that don't require signature - check if they're filled/submitted
       // BUT: If they have a signature, show "Signed" instead of "Completed" for clarity
       let hasSignature = false;
       let signatureDate: Date | string | null = null;
@@ -218,7 +261,8 @@ export default function StaffSignaturePortalClient() {
         }
       } else {
         // For other forms without signature requirement, check if they have meaningful data
-        if (submission.staffSignature || data.signature || data.staffSignature) {
+        // Note: vehicle_safety_inspection is already handled above, so skip it here
+        if (formKey !== 'vehicle_safety_inspection' && (submission.staffSignature || data.signature || data.staffSignature)) {
           isCompleted = true;
           signedDate = submission.staffSignedAt || data.date || data.staffSignedAt;
         }
@@ -800,11 +844,16 @@ export default function StaffSignaturePortalClient() {
                             {statusInfo.date && (
                               <div className="flex items-center text-xs sm:text-sm text-gray-500">
                                 <FaHistory className="mr-1 h-3 w-3" />
-                                <span>Signed on {new Date(statusInfo.date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}</span>
+                                <span>
+                                  {form.formSubmission.form.formKey === 'vehicle_safety_inspection' 
+                                    ? 'Completed on ' 
+                                    : 'Signed on '}
+                                  {new Date(statusInfo.date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })}
+                                </span>
                               </div>
                             )}
                           </div>

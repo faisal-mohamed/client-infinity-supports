@@ -908,7 +908,7 @@ export async function POST(
 
       if (masterForm) {
         // Find the StaffFormAssignment for this staff and form
-        const assignment = await prisma.staffFormAssignment.findUnique({
+        let assignment = await prisma.staffFormAssignment.findUnique({
           where: {
             staffId_formId_formVersion: {
               staffId: staffId,
@@ -918,7 +918,20 @@ export async function POST(
           },
         });
 
+        // Fallback: If not found with unique constraint, try findFirst
+        if (!assignment) {
+          console.warn(`⚠️ [Signature API] Assignment not found with unique constraint, trying findFirst...`);
+          assignment = await prisma.staffFormAssignment.findFirst({
+            where: {
+              staffId: staffId,
+              formId: masterForm.id,
+              formVersion: masterForm.version,
+            },
+          });
+        }
+
         if (assignment) {
+          console.log(`✅ [Signature API] Found StaffFormAssignment ${assignment.id} for form: ${formKey}, staffId: ${staffId}, formId: ${masterForm.id}, formVersion: ${masterForm.version}`);
             // If signature was cleared, reset status to in_progress (all signatures cleared)
             if (shouldClearSignature) {
               await prisma.staffFormAssignment.update({
@@ -934,16 +947,31 @@ export async function POST(
               console.log(`⚠️ StaffFormAssignment ${assignment.id} already completed, skipping status update`);
             } else if (submit) {
               // Form is being submitted - check if it should be marked as completed
-              const requiresSignature = masterForm.requiresSignature ?? false;
+              // Vehicle Safety Inspection does NOT require signature - override database value
+              let requiresSignature = masterForm.requiresSignature ?? false;
+              if (formKey === 'vehicle_safety_inspection') {
+                requiresSignature = false;
+              }
+              
               // Check both staffSignature column AND signature fields in formData for overlay forms
-              const hasSignatureInColumn = !!signatureData.staffSignature;
-              // For overlay forms (tax, super choice), check if any signature fields exist in formData
-              const hasSignatureInData = formKey === 'govt_tax' 
-                ? !!(formData.payeeSignature || formData.payerSignature)
-                : formKey === 'super_choice_form'
-                ? !!(formData.sectionBSignature || formData.sectionCSignature || formData.sectionDSignature)
-                : false;
-              const hasSignature = hasSignatureInColumn || hasSignatureInData;
+              // For vehicle_safety_inspection, skip signature check entirely
+              let hasSignatureInColumn = false;
+              let hasSignatureInData = false;
+              let hasSignature = false;
+              
+              if (formKey === 'vehicle_safety_inspection') {
+                // Vehicle Safety Inspection doesn't use signatures - always false
+                hasSignature = false;
+              } else {
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                // For overlay forms (tax, super choice), check if any signature fields exist in formData
+                hasSignatureInData = formKey === 'govt_tax' 
+                  ? !!(formData.payeeSignature || formData.payerSignature)
+                  : formKey === 'super_choice_form'
+                  ? !!(formData.sectionBSignature || formData.sectionCSignature || formData.sectionDSignature)
+                  : false;
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
+              }
               
               // Check if form requires admin/manager signature (forms that need both staff and admin signatures)
               const formsRequiringAdminSignature = [
@@ -1024,9 +1052,15 @@ export async function POST(
               console.log(`📝 Updated StaffFormAssignment ${assignment.id} status to in_progress for form: ${formKey}`);
             }
           }
+        } else {
+          console.error(`❌ [Signature API] StaffFormAssignment NOT FOUND for form: ${formKey}, staffId: ${staffId}, formId: ${masterForm.id}, formVersion: ${masterForm.version}`);
+          console.error(`   Looking for: staffId=${staffId}, formId=${masterForm.id}, formVersion=${masterForm.version}`);
         }
+      } else {
+        console.error(`❌ [Signature API] MasterForm NOT FOUND for formKey: ${formKey}`);
       }
     } catch (assignmentError) {
+      console.error(`❌ [Signature API] Error updating StaffFormAssignment:`, assignmentError);
       // Don't fail the whole request if assignment update fails
       console.error('Error updating StaffFormAssignment status:', assignmentError);
     }

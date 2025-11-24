@@ -101,6 +101,8 @@ export async function GET(
           select: {
             id: true,
             data: true,
+            isSubmitted: true,
+            submittedAt: true,
             filledByAdmin: true,
             adminFilledAt: true,
             staffSignature: true,
@@ -109,6 +111,113 @@ export async function GET(
             adminSignedAt: true,
           },
         }) : null;
+
+        // Sync assignment status if submission is submitted but assignment status is wrong
+        // This handles cases where the assignment wasn't updated during submission
+        if (submission?.isSubmitted && assignment.currentStatus !== 'completed') {
+          let shouldSync = false;
+          let newStatus = 'completed';
+          
+          // Vehicle Safety Inspection - doesn't require signature, just needs to be submitted
+          if (formKey === 'vehicle_safety_inspection') {
+            shouldSync = true;
+          }
+          // Forms requiring admin signature - need both staff and admin signatures
+          else if (['employee_details', 'employment_details', 'conflict_of_interest', 'bullying_training'].includes(formKey)) {
+            let hasStaffSig = !!submission.staffSignature;
+            let hasAdminSig = !!submission.adminSignature;
+            // Check form-specific admin signature fields
+            const formData = submission.data as any || {};
+            if (formKey === 'bullying_training' && !hasAdminSig) {
+              hasAdminSig = !!formData.managerSignature;
+            } else if (formKey === 'conflict_of_interest' && !hasAdminSig) {
+              hasAdminSig = !!formData.reviewerSignature;
+            }
+            // Also check data fields for staff signature
+            if (!hasStaffSig) {
+              hasStaffSig = !!(formData.signature || formData.staffSignature);
+            }
+            
+            if (hasStaffSig && hasAdminSig) {
+              // Both signatures present - should be completed
+              shouldSync = true;
+              newStatus = 'completed';
+            } else if (hasStaffSig && !hasAdminSig) {
+              // Only staff signed - should be in_progress (admin review)
+              shouldSync = true;
+              newStatus = 'in_progress';
+            }
+          }
+          // Forms with special signature handling
+          else if (formKey === 'fair_work_information') {
+            // Fairwork uses signature, staffSignature, or acknowledgementSignature
+            const formData = submission.data as any || {};
+            const hasSig = !!submission.staffSignature || 
+                          !!formData.signature || 
+                          !!formData.staffSignature || 
+                          !!formData.acknowledgementSignature;
+            if (hasSig) {
+              shouldSync = true;
+            }
+          }
+          else if (formKey === 'govt_tax') {
+            // TFN uses payeeSignature or payerSignature
+            const formData = submission.data as any || {};
+            const hasSig = !!submission.staffSignature || 
+                          !!formData.payeeSignature || 
+                          !!formData.payerSignature || 
+                          !!formData.staffSignature;
+            if (hasSig) {
+              shouldSync = true;
+            }
+          }
+          else if (formKey === 'super_choice_form') {
+            // Super Choice uses sectionBSignature, sectionCSignature, or sectionDSignature
+            const formData = submission.data as any || {};
+            const hasSig = !!submission.staffSignature || 
+                          !!formData.sectionBSignature || 
+                          !!formData.sectionCSignature || 
+                          !!formData.sectionDSignature || 
+                          !!formData.staffSignature;
+            if (hasSig) {
+              shouldSync = true;
+            }
+          }
+          // Forms requiring only staff signature - check if staff has signed
+          else {
+            const requiresSignature = assignment.form.requiresSignature ?? false;
+            if (requiresSignature) {
+              const formData = submission.data as any || {};
+              const hasStaffSig = !!submission.staffSignature || 
+                                 !!formData.signature || 
+                                 !!formData.staffSignature;
+              if (hasStaffSig) {
+                shouldSync = true;
+              }
+            } else {
+              // Form doesn't require signature - if submitted, it's completed
+              shouldSync = true;
+            }
+          }
+          
+          if (shouldSync) {
+            try {
+              await prisma.staffFormAssignment.update({
+                where: { id: assignment.id },
+                data: {
+                  currentStatus: newStatus,
+                  isCompleted: newStatus === 'completed',
+                },
+              });
+              console.log(`🔄 [Form Assignments API] Synced assignment ${assignment.id} status to ${newStatus} for ${formKey}`);
+              // Update the assignment object for response
+              assignment.currentStatus = newStatus;
+              assignment.isCompleted = newStatus === 'completed';
+            } catch (syncError) {
+              console.error(`❌ [Form Assignments API] Failed to sync assignment status:`, syncError);
+            }
+          }
+        }
 
         return {
           id: assignment.id,

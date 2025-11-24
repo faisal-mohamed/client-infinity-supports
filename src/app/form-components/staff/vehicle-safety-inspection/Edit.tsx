@@ -124,6 +124,7 @@ interface VehicleSafetyInspectionEditProps {
   onDataChange?: (data: VehicleSafetyInspectionFormData) => void;
   showButtons?: boolean;
   readOnly?: boolean;
+  fieldErrors?: Record<string, string>;
 }
 
 export default function VehicleSafetyInspectionEdit({
@@ -131,6 +132,7 @@ export default function VehicleSafetyInspectionEdit({
   onDataChange,
   showButtons = false,
   readOnly = false,
+  fieldErrors = {},
 }: VehicleSafetyInspectionEditProps) {
   const [formData, setFormData] = useState<VehicleSafetyInspectionFormData>({
     driver: '',
@@ -228,30 +230,39 @@ export default function VehicleSafetyInspectionEdit({
   const onDataChangeRef = useRef(onDataChange);
   const isInitialMount = useRef(true);
   const hasInitialized = useRef(false);
+  const lastInitialDataRef = useRef<any>(null);
   
   // Update the ref whenever the callback changes
   useEffect(() => {
     onDataChangeRef.current = onDataChange;
   }, [onDataChange]);
 
-  // Only sync from initialData once on mount
+  // Sync from initialData when it changes (but only if it's different from what we've already loaded)
   useEffect(() => {
-    if (!hasInitialized.current && initialData && Object.keys(initialData).length > 0) {
-      hasInitialized.current = true;
-      setFormData(prev => ({ ...prev, ...initialData }));
+    if (initialData && typeof initialData === 'object') {
+      // Check if initialData has changed
+      const initialDataStr = JSON.stringify(initialData);
+      const lastInitialDataStr = JSON.stringify(lastInitialDataRef.current);
+      
+      // If initialData has any keys and is different from what we last processed, update the form
+      const hasData = Object.keys(initialData).length > 0;
+      if (hasData && initialDataStr !== lastInitialDataStr) {
+        lastInitialDataRef.current = initialData;
+        hasInitialized.current = true;
+        setFormData(prev => ({ ...prev, ...initialData }));
+      }
     }
   }, [initialData]);
 
-  // Only call onDataChange when formData changes (not on initial mount)
+  // Call onDataChange whenever formData changes (after initial mount)
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
     }
-    // Only call onDataChange after initial mount and initialization
-    if (hasInitialized.current) {
-      onDataChangeRef.current?.(formData);
-    }
+    // Call onDataChange whenever formData changes (don't wait for initialization)
+    // This ensures parent component gets updates immediately when user types
+    onDataChangeRef.current?.(formData);
   }, [formData]);
 
   const handleInputChange = (field: keyof VehicleSafetyInspectionFormData, value: string | 'yes' | 'no') => {
@@ -296,15 +307,26 @@ export default function VehicleSafetyInspectionEdit({
     );
   };
 
-  const renderTextField = (field: keyof VehicleSafetyInspectionFormData, className: string = '') => {
+  const renderTextField = (field: keyof VehicleSafetyInspectionFormData, className: string = '', required: boolean = false) => {
+    const hasError = fieldErrors[field];
     return (
-      <input
-        type="text"
-        value={formData[field] as string}
-        onChange={(e) => handleInputChange(field, e.target.value)}
-        disabled={readOnly}
-        className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${className} ${readOnly ? 'bg-gray-100' : ''}`}
-      />
+      <div className="w-full">
+        <input
+          type="text"
+          value={formData[field] as string}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          disabled={readOnly}
+          className={`w-full h-8 px-2 border rounded ${className} ${
+            hasError 
+              ? 'border-red-500 bg-red-50' 
+              : 'border-gray-300 bg-white'
+          } ${readOnly ? 'bg-gray-100' : ''}`}
+          required={required}
+        />
+        {hasError && (
+          <p className="text-red-500 text-xs mt-1">{hasError}</p>
+        )}
+      </div>
     );
   };
 
@@ -343,50 +365,72 @@ export default function VehicleSafetyInspectionEdit({
             <div className="border border-gray-300">
               {/* Row 1: Driver */}
               <div className="grid grid-cols-2 border-b border-gray-300">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Driver</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Driver <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  {renderTextField('driver')}
+                  {renderTextField('driver', '', true)}
                 </div>
               </div>
               {/* Row 2: Licence number */}
               <div className="grid grid-cols-2 border-b border-gray-300">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Licence number</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Licence number <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  {renderTextField('licenceNumber')}
+                  {renderTextField('licenceNumber', '', true)}
                 </div>
               </div>
               {/* Row 3: Plant ID No */}
               <div className="grid grid-cols-2 border-b border-gray-300">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Plant ID No</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Plant ID No <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  {renderTextField('plantIdNo')}
+                  {renderTextField('plantIdNo', '', true)}
                 </div>
               </div>
               {/* Row 4: Vehicle registration */}
               <div className="grid grid-cols-2 border-b border-gray-300">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Vehicle registration</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Vehicle registration <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  {renderTextField('vehicleRegistration')}
+                  {renderTextField('vehicleRegistration', '', true)}
                 </div>
               </div>
               {/* Row 5: Insurance policy */}
               <div className="grid grid-cols-2 border-b border-gray-300">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Insurance policy</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Insurance policy <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  {renderTextField('insurancePolicy')}
+                  {renderTextField('insurancePolicy', '', true)}
                 </div>
               </div>
               {/* Row 6: Date of inspection */}
               <div className="grid grid-cols-2">
-                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">Date of inspection</div>
+                <div className="p-3 bg-gray-100 border-r border-gray-300 font-semibold text-gray-800">
+                  Date of inspection <span className="text-red-500">*</span>
+                </div>
                 <div className="p-3">
-                  <input
-                    type="date"
-                    value={formData.dateOfInspection}
-                    onChange={(e) => handleInputChange('dateOfInspection', e.target.value)}
-                    disabled={readOnly}
-                    className={`w-full h-8 px-2 border border-gray-300 bg-white rounded ${readOnly ? 'bg-gray-100' : ''}`}
-                  />
+                  <div className="w-full">
+                    <input
+                      type="date"
+                      value={formData.dateOfInspection}
+                      onChange={(e) => handleInputChange('dateOfInspection', e.target.value)}
+                      disabled={readOnly}
+                      required
+                      className={`w-full h-8 px-2 border rounded ${
+                        fieldErrors['dateOfInspection']
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-300 bg-white'
+                      } ${readOnly ? 'bg-gray-100' : ''}`}
+                    />
+                    {fieldErrors['dateOfInspection'] && (
+                      <p className="text-red-500 text-xs mt-1">{fieldErrors['dateOfInspection']}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
