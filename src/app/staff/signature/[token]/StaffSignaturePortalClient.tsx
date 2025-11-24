@@ -18,6 +18,8 @@ interface SignatureForm {
     id: number;
     staffSignature?: string;
     staffSignedAt?: string;
+    isSubmitted?: boolean;
+    submittedAt?: string | Date;
     data: any;
     form: {
       id: number;
@@ -33,6 +35,8 @@ interface CompletionStatus {
   formsRequiringSignature: number;
   formsNotRequiringSignature: number;
   signedForms: number;
+  filledFormsNotRequiringSignature?: number;
+  totalCompletedForms?: number;
   isComplete: boolean;
 }
 
@@ -131,26 +135,199 @@ export default function StaffSignaturePortalClient() {
   };
 
   const getFormStatus = (form: SignatureForm) => {
-    const requiresSignature = form.formSubmission.form.requiresSignature;
+    let requiresSignature = form.formSubmission.form.requiresSignature;
+    const submission = form.formSubmission;
+    const formKey = submission.form.formKey;
+    const data = submission.data || {};
     
-    // All forms in signature link are fillable, even if they don't require signature
-    if (!requiresSignature) {
-      return {
-        status: 'Fill Form',
-        color: 'text-blue-600 bg-blue-100',
-        icon: FaEdit,
-        date: null,
-      };
+    // Fairwork Information has an acknowledgement form with signature - always treat as requiring signature
+    if (formKey === 'fair_work_information') {
+      requiresSignature = true;
     }
     
-    if (form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null) {
+    console.log(`\n🎯 [getFormStatus] ${formKey}:`);
+    console.log(`  - requiresSignature (from DB): ${form.formSubmission.form.requiresSignature}`);
+    console.log(`  - requiresSignature (adjusted): ${requiresSignature}`);
+    console.log(`  - isSubmitted: ${submission.isSubmitted}`);
+    console.log(`  - staffSignature column: ${submission.staffSignature ? 'EXISTS' : 'NULL/EMPTY'}`);
+    console.log(`  - staffSignedAt: ${submission.staffSignedAt || 'NULL'}`);
+    
+    // Check if form is completed (using same logic as completion check)
+    let isCompleted = false;
+    let signedDate: Date | string | null = null;
+    
+    if (!requiresSignature) {
+      // Forms that don't require signature - check if they're filled/submitted
+      // BUT: If they have a signature, show "Signed" instead of "Completed" for clarity
+      let hasSignature = false;
+      let signatureDate: Date | string | null = null;
+      
+      // Check if form has signature (even though it's not required)
+      if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
+        hasSignature = true;
+        signatureDate = (submission.staffSignedAt || null) as Date | string | null;
+      } else {
+        // Check form-specific signature fields
+        if (formKey === 'fair_work_information') {
+          hasSignature = !!(data.signature || data.staffSignature || data.acknowledgementSignature);
+          if (hasSignature) {
+            signatureDate = (data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt || null) as Date | string | null;
+          }
+        } else {
+          hasSignature = !!(data.signature || data.staffSignature);
+          if (hasSignature) {
+            signatureDate = submission.staffSignedAt || data.date || data.staffSignedAt;
+          }
+        }
+      }
+      
+      // If form has signature, show "Signed" (even though signature wasn't required)
+      if (hasSignature) {
+        console.log(`  ✅ Status: SIGNED (signature present but not required), Date: ${signatureDate || 'NULL'}`);
+        return {
+          status: 'Signed',
+          color: 'text-green-600 bg-green-100',
+          icon: FaCheck,
+          date: signatureDate,
+        };
+      }
+      
+      // If form is submitted but no signature, show "Completed"
+      if (submission.isSubmitted === true) {
+        isCompleted = true;
+        signedDate = (submission.submittedAt || null) as Date | string | null;
+        console.log(`  ✅ Status: COMPLETED (submitted, no signature), Date: ${signedDate || 'NULL'}`);
+        return {
+          status: 'Completed',
+          color: 'text-green-600 bg-green-100',
+          icon: FaCheck,
+          date: signedDate,
+        };
+      }
+      
+      // Check if form has been filled (has data and signature/acknowledgement)
+      // Fairwork Information - check for acknowledgement
+      if (formKey === 'fair_work_information') {
+        const hasAck = !!(data.signature || data.staffSignature || data.acknowledgementSignature || submission.staffSignature);
+        const hasName = !!(data.staffName || data.name);
+        const hasDate = !!(data.date || data.acknowledgedAt || data.staffSignedAt);
+        const hasAcknowledged = !!(data.acknowledged || data.readAcknowledgement || data.fairworkAcknowledged);
+        isCompleted = hasAck && hasName && hasDate && hasAcknowledged;
+        if (isCompleted) {
+          signedDate = data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt;
+        }
+      } else {
+        // For other forms without signature requirement, check if they have meaningful data
+        if (submission.staffSignature || data.signature || data.staffSignature) {
+          isCompleted = true;
+          signedDate = submission.staffSignedAt || data.date || data.staffSignedAt;
+        }
+      }
+      
+      if (isCompleted) {
+        console.log(`  ✅ Status: COMPLETED, Date: ${signedDate || 'NULL'}`);
+        return {
+          status: 'Completed',
+          color: 'text-green-600 bg-green-100',
+          icon: FaCheck,
+          date: signedDate,
+        };
+      } else {
+        console.log(`  ❌ Status: FILL FORM`);
+        return {
+          status: 'Fill Form',
+          color: 'text-blue-600 bg-blue-100',
+          icon: FaEdit,
+          date: null,
+        };
+      }
+    }
+    
+    // Forms requiring signature - check both column and form-specific fields
+    let hasSignature = false;
+    
+    // Check staffSignature column first
+    if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
+      hasSignature = true;
+      signedDate = (submission.staffSignedAt || null) as Date | string | null;
+    } else {
+      // Check form-specific signature fields in data JSON
+      if (formKey === 'fair_work_information') {
+        hasSignature = !!(data.signature || data.staffSignature || data.acknowledgementSignature);
+        if (hasSignature) {
+          signedDate = (data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt || null) as Date | string | null;
+        }
+      } else if (formKey === 'govt_tax') {
+        hasSignature = !!(data.payeeSignature || data.staffSignature);
+        if (hasSignature) {
+          signedDate = data.payeeSignatureAt || data.staffSignedAt || submission.staffSignedAt;
+        }
+      } else if (formKey === 'super_choice_form') {
+        hasSignature = !!(data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature);
+        if (hasSignature) {
+          // Super Choice uses date objects {day, month, year} - convert to ISO string
+          let dateStr: string | null = null;
+          
+          // Check which section has signature and get corresponding date
+          if (data.sectionBSignature && data.sectionBDate) {
+            const dateObj = data.sectionBDate;
+            if (dateObj.day && dateObj.month && dateObj.year) {
+              dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+            }
+          } else if (data.sectionCSignature && data.sectionCDate) {
+            const dateObj = data.sectionCDate;
+            if (dateObj.day && dateObj.month && dateObj.year) {
+              dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+            }
+          } else if (data.sectionDSignature && data.sectionDDate) {
+            const dateObj = data.sectionDDate;
+            if (dateObj.day && dateObj.month && dateObj.year) {
+              dateStr = `${dateObj.year}-${String(dateObj.month).padStart(2, '0')}-${String(dateObj.day).padStart(2, '0')}`;
+            }
+          }
+          
+          // Fallback to other date fields
+          signedDate = dateStr || 
+                      data.sectionBSignedAt || 
+                      data.sectionCSignedAt || 
+                      data.sectionDSignedAt || 
+                      data.staffSignedAt || 
+                      submission.staffSignedAt ||
+                      data.date ||
+                      submission.submittedAt;
+          
+          console.log(`[Super Choice Date Check] ${formKey}:`, {
+            sectionBSignature: !!data.sectionBSignature,
+            sectionCSignature: !!data.sectionCSignature,
+            sectionDSignature: !!data.sectionDSignature,
+            sectionBDate: data.sectionBDate,
+            sectionCDate: data.sectionCDate,
+            sectionDDate: data.sectionDDate,
+            convertedDateStr: dateStr,
+            staffSignedAt: data.staffSignedAt,
+            submissionStaffSignedAt: submission.staffSignedAt,
+            finalDate: signedDate
+          });
+        }
+      } else {
+        // Generic check
+        hasSignature = !!(data.signature || data.staffSignature);
+        if (hasSignature) {
+          signedDate = data.signatureDate || data.staffSignedAt || submission.staffSignedAt;
+        }
+      }
+    }
+    
+    if (hasSignature) {
+      console.log(`  ✅ Status: SIGNED, Date: ${signedDate || 'NULL'}`);
       return {
         status: 'Signed',
         color: 'text-green-600 bg-green-100',
         icon: FaCheck,
-        date: form.formSubmission.staffSignedAt,
+        date: signedDate,
       };
     } else {
+      console.log(`  ❌ Status: SIGNATURE REQUIRED`);
       return {
         status: 'Signature Required',
         color: 'text-amber-600 bg-amber-100',
@@ -161,10 +338,11 @@ export default function StaffSignaturePortalClient() {
   };
 
   const handleEditForm = (form: SignatureForm, formUrl: string) => {
-    // Check if form has signature
-    const hasSignature = form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null;
+    // Check if form is signed/completed using same logic as getFormStatus
+    const statusInfo = getFormStatus(form);
+    const isSignedOrCompleted = statusInfo.status === 'Signed' || statusInfo.status === 'Completed';
     
-    if (hasSignature) {
+    if (isSignedOrCompleted) {
       // Show warning modal
       setShowEditWarning({ form, formUrl });
     } else {
@@ -487,18 +665,35 @@ export default function StaffSignaturePortalClient() {
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaCheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">{completionStatus.signedForms}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">
+                  {completionStatus.totalCompletedForms !== undefined 
+                    ? completionStatus.totalCompletedForms 
+                    : completionStatus.signedForms}
+                </div>
                 <div className="text-xs sm:text-sm font-medium text-green-700">Completed</div>
               </div>
             </div>
 
-            {/* Progress Bar for Signature Forms Only */}
-            {completionStatus.formsRequiringSignature > 0 && (
+            {/* Progress Bar for All Forms */}
+            {(completionStatus.formsRequiringSignature > 0 || completionStatus.formsNotRequiringSignature > 0) && (
               <div className="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 space-y-1 sm:space-y-0">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Signature Progress</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                    {completionStatus.formsRequiringSignature > 0 ? 'Signature Progress' : 'Form Progress'}
+                  </h3>
                   <span className="text-xs sm:text-sm font-medium text-gray-600">
-                    {completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed
+                    {completionStatus.totalCompletedForms !== undefined ? (
+                      <>
+                        {completionStatus.totalCompletedForms} of {completionStatus.totalForms} forms completed
+                        {completionStatus.formsRequiringSignature > 0 && (
+                          <> ({completionStatus.signedForms} of {completionStatus.formsRequiringSignature} signed)</>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed
+                      </>
+                    )}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 overflow-hidden">
@@ -509,14 +704,26 @@ export default function StaffSignaturePortalClient() {
                         : 'bg-gradient-to-r from-indigo-500 to-purple-500'
                     }`}
                     style={{ 
-                      width: `${completionStatus.formsRequiringSignature > 0 ? 
-                        (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0}%` 
+                      width: `${(() => {
+                        if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
+                          return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
+                        } else if (completionStatus.formsRequiringSignature > 0) {
+                          return (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100;
+                        }
+                        return 0;
+                      })()}%` 
                     }}
                   ></div>
                 </div>
                 <div className="mt-2 text-xs text-gray-500 text-center">
-                  {Math.round(completionStatus.formsRequiringSignature > 0 ? 
-                    (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0)}% Complete
+                  {Math.round((() => {
+                    if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
+                      return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
+                    } else if (completionStatus.formsRequiringSignature > 0) {
+                      return (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100;
+                    }
+                    return 0;
+                  })())}% Complete
                 </div>
               </div>
             )}
@@ -607,8 +814,8 @@ export default function StaffSignaturePortalClient() {
                       <div className="flex-shrink-0 w-full sm:w-auto sm:ml-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                         {/* Download Button - REMOVED: Staff don't need to download forms */}
 
-                        {/* Edit Button - Only show for signed forms */}
-                        {requiresSignature && form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null && (
+                        {/* Edit Button - Only show for signed/completed forms */}
+                        {(statusInfo.status === 'Signed' || statusInfo.status === 'Completed') && (
                           <button
                             onClick={() => handleEditForm(form, formUrl)}
                             disabled={editingFormId === form.id || navigatingFormId === form.id}
@@ -638,12 +845,12 @@ export default function StaffSignaturePortalClient() {
                         {/* Fill/Sign Button - Links to existing admin staff form page */}
                         <button
                           onClick={() => {
-                            if (requiresSignature && form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null) {
-                              // If signed, show view mode (read-only)
+                            if (statusInfo.status === 'Signed' || statusInfo.status === 'Completed') {
+                              // If signed/completed, show view mode (read-only)
                               setNavigatingFormId(form.id);
                               router.push(formUrl);
                             } else {
-                              // Not signed, allow editing
+                              // Not signed/completed, allow editing
                               setNavigatingFormId(form.id);
                               router.push(formUrl);
                             }
@@ -651,14 +858,14 @@ export default function StaffSignaturePortalClient() {
                           disabled={navigatingFormId === form.id || editingFormId === form.id}
                           className={`inline-flex items-center justify-center px-4 sm:px-6 py-2.5 border-2 border-transparent text-sm font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                             navigatingFormId === form.id
-                              ? requiresSignature && form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null
+                              ? (statusInfo.status === 'Signed' || statusInfo.status === 'Completed')
                                 ? 'text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 border-green-300'
                                 : 'text-white bg-gradient-to-r from-indigo-400 to-purple-500 border-indigo-300'
-                              : requiresSignature
-                              ? form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null
+                              : (statusInfo.status === 'Signed' || statusInfo.status === 'Completed')
                                 ? 'text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 focus:ring-green-500'
-                                : 'text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500'
-                              : 'text-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 focus:ring-blue-500'
+                                : requiresSignature
+                                ? 'text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500'
+                                : 'text-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 focus:ring-blue-500'
                           }`}
                         >
                           {navigatingFormId === form.id ? (
@@ -667,20 +874,18 @@ export default function StaffSignaturePortalClient() {
                               <span className="hidden sm:inline">Loading...</span>
                               <span className="sm:hidden">Loading...</span>
                             </>
+                          ) : (statusInfo.status === 'Signed' || statusInfo.status === 'Completed') ? (
+                            <>
+                              <FaCheckCircle className="mr-2 h-4 w-4" />
+                              <span className="hidden sm:inline">View {statusInfo.status === 'Signed' ? 'Signed' : 'Completed'}</span>
+                              <span className="sm:hidden">{statusInfo.status === 'Signed' ? 'Signed' : 'Done'}</span>
+                            </>
                           ) : requiresSignature ? (
-                            form.formSubmission.staffSignature && form.formSubmission.staffSignature !== null ? (
-                              <>
-                                <FaCheckCircle className="mr-2 h-4 w-4" />
-                                <span className="hidden sm:inline">View Signed</span>
-                                <span className="sm:hidden">Signed</span>
-                              </>
-                            ) : (
-                              <>
-                                <FaSignature className="mr-2 h-4 w-4" />
-                                <span className="hidden sm:inline">Fill & Sign</span>
-                                <span className="sm:hidden">Fill</span>
-                              </>
-                            )
+                            <>
+                              <FaSignature className="mr-2 h-4 w-4" />
+                              <span className="hidden sm:inline">Fill & Sign</span>
+                              <span className="sm:hidden">Fill</span>
+                            </>
                           ) : (
                             <>
                               <FaEdit className="mr-2 h-4 w-4" />

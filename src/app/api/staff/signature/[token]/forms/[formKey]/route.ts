@@ -487,11 +487,11 @@ export async function POST(
         };
       }
     } else if (!shouldClearSignature && formKey === 'fair_work_information') {
-      // Fairwork Information - uses acknowledgementSignature
-      const { acknowledgementSignature, signature, staffSignature, acknowledgedAt, staffSignedAt, date, ...restData } = data;
+      // Fairwork Information - uses signature (primary) or staffSignature (alias)
+      const { signature, staffSignature, acknowledgementSignature, date, acknowledgedAt, staffSignedAt, ...restData } = data;
       formData = restData;
-      const sig = acknowledgementSignature || signature || staffSignature;
-      const sigDate = acknowledgedAt || staffSignedAt || date;
+      const sig = signature || staffSignature || acknowledgementSignature;
+      const sigDate = date || acknowledgedAt || staffSignedAt;
       if (sig) {
         signatureData = {
           staffSignature: sig,
@@ -1031,9 +1031,9 @@ export async function POST(
       console.error('Error updating StaffFormAssignment status:', assignmentError);
     }
 
-    // If form was submitted with signature, check if batch is complete
-    if (submit && signatureData.staffSignature) {
-      // Check if all forms in batch are signed
+    // If form was submitted, check if batch is complete
+    if (submit) {
+      // Check if all forms in batch are completed (signed or filled)
       const allSignatureForms = await prisma.staffSignatureBatchForm.findMany({
         where: { batchId: batch.id },
         include: {
@@ -1041,8 +1041,11 @@ export async function POST(
             select: {
               id: true,
               staffSignature: true,
+              isSubmitted: true,
+              data: true,
               form: {
                 select: {
+                  formKey: true,
                   requiresSignature: true,
                 },
               },
@@ -1055,6 +1058,11 @@ export async function POST(
         (sf: any) => sf.formSubmission.form.requiresSignature === true
       );
       
+      const formsNotRequiringSignature = allSignatureForms.filter(
+        (sf: any) => sf.formSubmission.form.requiresSignature !== true
+      );
+      
+      // Check if all forms requiring signature are signed
       const allSigned = formsRequiringSignature.every((sf: any) => {
         const submission = sf.formSubmission;
         const formKey = submission.form?.formKey;
@@ -1080,7 +1088,40 @@ export async function POST(
         return !!(data.signature || data.staffSignature);
       });
       
-      if (allSigned && formsRequiringSignature.length > 0 && !batch.isCompleted) {
+      // Check if all forms not requiring signature are filled/submitted
+      const allFilled = formsNotRequiringSignature.every((sf: any) => {
+        const submission = sf.formSubmission;
+        const formKey = submission.form?.formKey;
+        const data = submission.data || {};
+        
+        // If form is submitted, consider it completed
+        if (submission.isSubmitted === true) {
+          return true;
+        }
+        
+        // Fairwork Information - check for acknowledgement
+        if (formKey === 'fair_work_information') {
+          const hasAck = !!(data.acknowledgementSignature || data.signature || data.staffSignature || submission.staffSignature);
+          const hasName = !!(data.staffName || data.name);
+          const hasDate = !!(data.date || data.acknowledgedAt || data.staffSignedAt);
+          const hasAcknowledged = !!(data.acknowledged || data.readAcknowledgement || data.fairworkAcknowledged);
+          return hasAck && hasName && hasDate && hasAcknowledged;
+        }
+        
+        // For other forms, check if they have meaningful data
+        if (submission.staffSignature || data.signature || data.staffSignature) {
+          return true;
+        }
+        
+        return false;
+      });
+      
+      const totalFormsToComplete = formsRequiringSignature.length + formsNotRequiringSignature.length;
+      const allCompleted = (formsRequiringSignature.length === 0 || allSigned) && 
+                          (formsNotRequiringSignature.length === 0 || allFilled) &&
+                          totalFormsToComplete > 0;
+      
+      if (allCompleted && !batch.isCompleted) {
         await prisma.staffFormBatch.update({
           where: { id: batch.id },
           data: {
@@ -1088,6 +1129,8 @@ export async function POST(
             completedAt: new Date(),
           },
         });
+        
+        console.log(`✅ [Signature API] Batch ${batch.id} marked as completed - all ${totalFormsToComplete} forms completed`);
         
         // Create notifications for admins
         try {

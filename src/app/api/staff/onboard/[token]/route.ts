@@ -57,7 +57,7 @@ export async function GET(
       const submissionsDict: Record<string, any> = {};
       submissions.forEach((sub) => {
         submissionsDict[sub.formKey || ''] = {
-          ...sub.data,
+          ...(sub.data && typeof sub.data === 'object' ? sub.data : {}),
           staffSignature: sub.staffSignature,
           staffSignedAt: sub.staffSignedAt,
           adminSignature: sub.adminSignature,
@@ -322,9 +322,9 @@ export async function POST(
     if (submit) {
       // Extract signature based on form type
       if (formKey === 'fair_work_information') {
-        // Fairwork uses acknowledgementSignature
-        staffSignature = data.acknowledgementSignature || data.signature || data.staffSignature || null;
-        staffSignedAt = data.acknowledgedAt || data.staffSignedAt || data.date ? new Date(data.date) : null;
+        // Fairwork uses signature (primary) or staffSignature (alias)
+        staffSignature = data.signature || data.staffSignature || data.acknowledgementSignature || null;
+        staffSignedAt = data.date || data.acknowledgedAt || data.staffSignedAt ? new Date(data.date || data.acknowledgedAt || data.staffSignedAt) : null;
       } else if (formKey === 'govt_tax') {
         // TFN uses payeeSignature
         staffSignature = data.payeeSignature || data.staffSignature || null;
@@ -362,8 +362,8 @@ export async function POST(
         },
         data: {
           data: {
-            ...(submission.data || {}),
-            ...data,
+            ...(submission.data && typeof submission.data === 'object' ? submission.data : {}),
+            ...(data && typeof data === 'object' ? data : {}),
           },
           isSubmitted: submit === true,
           submittedAt: submit === true ? new Date() : submission.submittedAt,

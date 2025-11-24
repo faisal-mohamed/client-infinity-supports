@@ -450,13 +450,13 @@ export default function AdminConflictOfInterestViewPage() {
             ) : (
               /* Editable form when admin hasn't signed */
               <>
-                <div className="mb-6">
+            <div className="mb-6">
                   <h2 className="text-lg font-bold text-gray-900 mb-2">HR/Management Review</h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Please complete the HR/Management section below to approve this form.
-                  </p>
-                </div>
-                <form onSubmit={handleAdminSubmit} className="space-y-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Please complete the HR/Management section below to approve this form.
+              </p>
+            </div>
+            <form onSubmit={handleAdminSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -594,7 +594,7 @@ export default function AdminConflictOfInterestViewPage() {
               </div>
             </form>
               </>
-            )}
+        )}
           </div>
         )}
 

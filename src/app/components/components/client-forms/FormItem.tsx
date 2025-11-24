@@ -108,11 +108,11 @@ export default function FormItem({
         }
       }
       
-      // Use staff route if it's a staff form, otherwise use client route
-      const editRoute = isStaff
-        ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
-        : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
-      router.push(editRoute);
+    // Use staff route if it's a staff form, otherwise use client route
+    const editRoute = isStaff
+      ? `/admin/staff/${clientId}/forms/edit/${assignment.id}`
+      : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+    router.push(editRoute);
     } catch (error) {
       console.error('Error navigating to edit:', error);
       setIsNavigatingToEdit(false);
