@@ -67,31 +67,34 @@ const Page30: React.FC = () => {
       <Text style={styles.redBold}>ZERO TOLERANCE</Text>
       
       <Text style={styles.paragraph}>
-        The use of drugs or alcohol jeopardises a safe workplace. The Employer has a zero-tolerance policy 
-        in regard to this issue and will not allow workers to work while under the influence of drugs or 
-        alcohol. Non-compliance by employees or other workers will result in disciplinary action up to and 
-        including termination.
+      The use of drugs or alcohol jeopardises a safe workplace. The Employer has a zero-tolerance policy
+       about drugs and alcohol at the workplace. Workers are not permitted to work while under the 
+       influence of drugs or alcohol. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        The Employer acknowledges alcohol and other drug dependencies as treatable conditions and encourages 
-        individuals to seek assistance from appropriate Employers or support groups.
+      Non-compliance with this policy and any associated procedure by employees may result in disciplinary action up 
+      to and including termination. Non-compliance by other workers may also result appropriate action up to 
+      and including termination of their engagement with the Employer. 
       </Text>
       
       <Text style={styles.paragraph}>
-        Workers and visitors must not be adversely affected by drugs or alcohol at work or while at work 
-        functions and must at all times be fit to perform their work safely.
+      The Employer recognises alcohol and other drug dependencies as treatable conditions and encourages 
+      those persons who may be subject to such dependency to seek assistance from appropriate Employers or support groups. 
       </Text>
       
       <Text style={styles.paragraph}>
-        Alcohol may be consumed at some Employer events. We encourage responsible alcohol consumption and 
-        prohibit being drunk or behave in a manner which is inappropriate.
+      Workers and visitors must not be adversely affected by drugs or alcohol at work or while at work functions 
+      and must at all times be fit to perform their work safely. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        Infinity Supports WA strictly promotes a smoking free culture. Employees are strictly prohibited 
-        from smoking whilst supporting clients. It is our smoke free culture due to health & safety concerns 
-        and to promote healthy lifestyle for both clients and staff.
+      Alcohol may be consumed at some Employer events. Where this is the case, the Employer encourages
+       responsible alcohol consumption. At no time should you be drunk or behave in a manner which is 
+       inappropriate. 
+
       </Text>
     </View>
   );

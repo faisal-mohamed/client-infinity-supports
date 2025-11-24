@@ -26,22 +26,26 @@ const Page29: React.FC = () => {
   return (
     <View>
       <Text style={styles.paragraph}>
-        Once a complaint has been received, Infinity Supports WA will investigate the complaint and find 
-        a resolution. The Managing Director will send a letter to confirm we have received the complaint 
-        and provide an expected date that a decision will be reached on the matter.
+      Once a complaint has been received, Infinity Supports WA will investigate the complaint and find
+       a resolution. The Managing Director will write a letter to confirm that your complaint has been received. 
+       This letter will provide you with the expected date Infinity Supports WA of the complaint resolution.
+
       </Text>
       
       <Text style={styles.paragraph}>
-        We will investigate the complaint and create a resolution plan. You will be informed of the plan 
-        and asked for your opinion on the recommended solution indicating whether you are happy or unhappy. 
-        Ongoing issues will be identified by tracking and analysing feedback and complaint data. Feedback, 
-        complaints and dispute resolution are regularly discussed in our management team meetings as part 
-        of our continuous improvement process.
+      The complaint will then be investigated, and a plan to resolve it created. You will be informed of this plan, 
+      and we will ask you to provide your opinion on our recommended solution. You can advise if you are happy
+       with the proposed solution or unhappy with the outcome and feel the matter is not resolved. Any ongoing issue 
+       could be identified by tracking and analysing feedback and complaint data. As a part of the continuous 
+       improvement process, the feedback, complaints and dispute resolution will be discussed in management 
+       team meetings regularly.
+
       </Text>
       
       <Text style={styles.paragraph}>
-        If you are not happy with the solution proposed by Infinity Supports WA regarding your complaint, 
-        you can speak to other organisations, such as:
+      If you are not happy with the solution proposed by Infinity Supports WA regarding your complaint, 
+      you can speak to other organisations, such as:
+
       </Text>
       
       <Text style={styles.subsection}>Commonwealth Ombudsman - Disability Services</Text>

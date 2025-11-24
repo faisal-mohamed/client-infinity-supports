@@ -45,23 +45,7 @@ const styles = StyleSheet.create({
 const Page27: React.FC = () => {
   return (
     <View>
-      {/* Table row continuation */}
-      <View style={styles.tableRow}>
-        <Text style={styles.tableCol1}>
-          the use of a restrictive practice in relation to a person with disability if the use is not in 
-          accordance with a required state or territory authorisation and/or not in accordance with a 
-          behaviour support plan.
-        </Text>
-        <Text style={styles.tableCol2}>Five business days</Text>
-      </View>
-      
-      {/* Red italic text */}
-      <Text style={styles.redItalic}>
-        Incident and Hazard reporting is to be completed on shiftcare. Infinity Supports WA instructs all 
-        its staff to report all incidents and hazards irrespective of their levels of severity. This helps 
-        in ensuring appropriate measures are put in place to minimize occurrences of such incidents.
-      </Text>
-      
+ 
       <Text style={styles.section}>8. Feedback and Complaints</Text>
       
       <Text style={styles.paragraph}>

@@ -26,9 +26,13 @@ const Page31: React.FC = () => {
   return (
     <View>
       <Text style={styles.paragraph}>
-        Smoking is classified as a lifestyle risk factor and can affect clients who are being supported 
-        directly and indirectly. This is in line with The Occupational Safety and Health Act 1984(WA) and 
-        The Occupational Safety and Health Regulations 1996 (WA).
+      Infinity Supports WA strictly promotes a smoking free culture. Employees are not permitted to smoke 
+      whilst supporting clients. Infinity Supports WA emphasises on a smoke free culture due to health & 
+      safety concerns and to promote healthy lifestyle for both clients and staff. Smoking is classified as a 
+      lifestyle risk factor and can affect clients who are being supported directly and indirectly. 
+      This is in line with The Occupational Safety and Health Act 1984(WA) and The Occupational Safety and 
+      Health Regulations 1996 (WA).
+.
       </Text>
       
       <Text style={styles.subsection}>9.1 Prescribed Medication</Text>

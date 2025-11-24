@@ -34,35 +34,45 @@ const Page10: React.FC = () => {
     <View>
       <Text style={styles.subsection}>3.3 Hours of Work</Text>
       <Text style={styles.paragraph}>
-        Your regular ordinary hours will be worked in accordance with Appendix A of your contract. 
-        The Employer reserves the right to change the roster and will give you written notice at any 
-        time. You may from time to time be requested to work additional hours, which may be required 
-        to be performed on afternoons, evenings, night shift, weekends or public holidays.
+      Your regular ordinary hours will generally be worked in accordance with Appendix 
+      A (attached to your contract); however the employer may change the roster 
+      by providing notice in writing at any time. You may be requested to work reasonable
+       additional hours which may include Afternoons, evening, night shift, weekends or 
+       public holidays. 
       </Text>
       
       <Text style={styles.subsection}>3.4 Punctuality</Text>
       <Text style={styles.paragraph}>
-        You are required to be present at your workplace and ready to commence work at least five 
-        minutes before your rostered starting time. Lack of punctuality is a serious performance issue. 
-        All staff are required to clock in and out of shifts at the correct time and geographical 
-        location on shiftcare. Management reserve the right to cross check these matters on a regular 
-        basis and failure to comply with these expectations will lead to disciplinary action. Staff are 
-        also expected to complete their shift notes in a timely and consistent manner before or 
-        immediately after their shift. Failure to complete shift reports will lead to disciplinary action.
+      You are required to be present and ready to commence work at least five minutes prior
+       to your rostered starting time. The Employer considers lack of punctuality a serious 
+       performance issue.  All staff are expected to clock in and out of their rostered shifts
+        at the right time and at the right geographical location using shiftcare. 
+        The management reserves the right to cross check these matters on a regular basis.
+         Failure to follow this expectation will result in initiation of disciplinary action.
+          It is also expected that all staff complete their shift notes in a prompt and 
+          consistent manner prior to completion of their shift or immediately after. 
+          Failure to complete shift reports will also result in initiation of disciplinary 
+          action.
+
+
       </Text>
       
       <Text style={styles.subsection}>3.5 Employee Training</Text>
       <Text style={styles.paragraph}>
-        On commencement of your employment with us, you will be given the training that is necessary 
-        to undertake your job. As your employment with the employer progresses, your role may expand 
-        to cover new activities. You are expected to undertake any training that is considered necessary 
-        to enable you to perform your role to the required standard.
+      At the commencement of your employment, you will receive any training necessary for
+       your specific job. As your employment progresses, your role may be extended to 
+       encompass new activities within the Employer’s business. You are expected to 
+       participate in any training deemed necessary for you to perform your role at the
+        required standards. 
+
       </Text>
       
       {/* Mandatory Learning Modules */}
       <Text style={{ ...styles.paragraph, fontWeight: 'bold', marginTop: 8 }}>
-        Mandatory Learning Modules for new disability workers induction:
+        Mandatory Learning Modules:
       </Text>
+      <Text style={styles.listItem}>These learning modules form part of a suite of learning products that
+         new disability workers may complete as part of their induction:</Text>
       
       <Text style={styles.listItem}>a. NDIS worker orientation Module</Text>
       <Text style={styles.listItem}>b. NDIS worker induction modules</Text>

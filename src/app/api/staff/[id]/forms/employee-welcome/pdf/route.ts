@@ -82,6 +82,7 @@ export async function GET(
       p3_1: await encodeImageToBase64('/welcomeimg/p3-1.png'),
       p3_2: await encodeImageToBase64('/welcomeimg/p3-2.png'),
       p4_1: await encodeImageToBase64('/welcomeimg/p4-1.png'),
+      organizationalChart: await encodeImageToBase64('/image.png'),
     };
 
     // Get app settings for footer

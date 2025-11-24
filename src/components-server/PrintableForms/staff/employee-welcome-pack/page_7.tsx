@@ -55,7 +55,7 @@ const Page7: React.FC = () => {
         victimisation will result in disciplinary action.
       </Text>
       
-      <Text style={styles.subsection}>1.4 General</Text>
+     
     </View>
   );
 };

@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
 const Page8: React.FC = () => {
   return (
     <View>
+       <Text style={styles.subsection}>1.4 General</Text>
       {/* General continuation */}
       <Text style={styles.paragraph}>
         Amendments to this Employee Handbook will be issued from time to time. This Employee Handbook 

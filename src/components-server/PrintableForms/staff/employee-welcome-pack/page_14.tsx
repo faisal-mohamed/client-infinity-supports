@@ -66,22 +66,23 @@ const Page14: React.FC = () => {
       <Text style={styles.subsection}>3.17 EAP (Employee Assistance Program)</Text>
       
       <Text style={styles.paragraph}>
-        The Employee Assistance Program (EAP) is a confidential service available to all employees of 
-        Infinity Supports WA. The EAP is delivered by Breathe Counselling and employees are entitled to 
-        3 free sessions per calendar year.
+        An Employee Assistance Program is available to all employees. This is a 
+        confidential service accessible to all employees. EAP is delivered by Breathe 
+        Counselling. Employees are entitled to 3 free sessions in a calendar year.
       </Text>
       
       <Text style={styles.paragraph}>
-        Contact details for Breathe Counselling:{'\n'}
-        Address: Moana Chambers, 2F/618 Hay St, Perth WA 6000{'\n'}
-        Email: admin@breathecounselling.com{'\n'}
-        Website: www.breathecounsellingperth.com.au
+        Breathe Counselling contact details are as follows:{'\n'}
+        Moana Chambers, 2F/618 Hay St, Perth WA 6000{'\n'}
+        admin@breathecounselling.com{'\n'}
+        www.breathecounsellingperth.com.au
       </Text>
       
       <Text style={styles.paragraph}>
-        Locations of Offices:{'\n'}
-        • Perth CBD - Moana Chambers, 2F/618 Hay Street (mall){'\n'}
-        • Rockingham - Suite 8, 63 Penguin Road, Safety Bay
+        Location of Offices:{'\n'}
+        • Perth CBD - Moana Chambers, 2F/ 618 Hay Street (mall){'\n'}
+        • Rockingham - Suite 8, 63 Penguin Road, Safety Bay{'\n'}
+        • Midland - 12 Cale Street Pinjarra 289 Wilson Road
       </Text>
     </View>
   );

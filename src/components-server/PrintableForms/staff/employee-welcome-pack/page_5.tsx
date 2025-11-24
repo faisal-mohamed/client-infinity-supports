@@ -33,19 +33,19 @@ const Page5: React.FC = () => {
       <Text style={styles.heading}>Contents</Text>
       
       <View style={styles.tocRow}>
-        <Text>1.</Text>
+        <Text>1. Introduction</Text>
         <Text>7</Text>
       </View>
       <View style={styles.tocRowIndent}>
-        <Text>1.1</Text>
+        <Text>1.1 Welcome</Text>
         <Text>7</Text>
       </View>
       <View style={styles.tocRowIndent}>
-        <Text>1.2</Text>
+        <Text>1.2 Purpose of this Employee Handbook</Text>
         <Text>7</Text>
       </View>
       <View style={styles.tocRowIndent}>
-        <Text>1.3</Text>
+        <Text>1.3 Principle of Equality</Text>
         <Text>7</Text>
       </View>
       <View style={styles.tocRowIndent}>
@@ -53,11 +53,11 @@ const Page5: React.FC = () => {
         <Text>7</Text>
       </View>
       <View style={styles.tocRow}>
-        <Text>2.</Text>
+        <Text>2. Code of Conduct</Text>
         <Text>8</Text>
       </View>
       <View style={styles.tocRow}>
-        <Text>3.</Text>
+        <Text>3. Joining the Organisation</Text>
         <Text>9</Text>
       </View>
       <View style={styles.tocRowIndent}>
@@ -105,7 +105,7 @@ const Page5: React.FC = () => {
         <Text>12</Text>
       </View>
       <View style={styles.tocRowIndent}>
-        <Text>3.12 Conflicts of Interest</Text>
+        <Text>3.12 Conflicts of interest</Text>
         <Text>12</Text>
       </View>
       <View style={styles.tocRowIndent}>
@@ -129,7 +129,7 @@ const Page5: React.FC = () => {
         <Text>14</Text>
       </View>
       <View style={styles.tocRow}>
-        <Text>4.</Text>
+        <Text>4. Salaries and Wages</Text>
         <Text>15</Text>
       </View>
       <View style={styles.tocRowIndent}>

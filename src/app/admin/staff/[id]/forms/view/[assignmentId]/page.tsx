@@ -1184,23 +1184,23 @@ export default function StaffFormViewPageClient() {
                     <p className="text-sm text-green-800 font-semibold">
                       ✅ Admin section has been completed. This form is fully approved.
                     </p>
-                    <button
-                      onClick={() => setShowAdminEditWarning(true)}
-                      disabled={clearingAdminSignature}
+                        <button
+                          onClick={() => setShowAdminEditWarning(true)}
+                          disabled={clearingAdminSignature}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
-                    >
-                      {clearingAdminSignature ? (
-                        <>
+                        >
+                          {clearingAdminSignature ? (
+                            <>
                           <FaSpinner className="h-4 w-4 animate-spin" />
                           Clearing...
-                        </>
-                      ) : (
-                        <>
+                            </>
+                          ) : (
+                            <>
                           <FaEdit className="h-4 w-4" />
                           Edit
-                        </>
-                      )}
-                    </button>
+                            </>
+                          )}
+                        </button>
                   </div>
                 )}
               </div>
@@ -1444,24 +1444,24 @@ export default function StaffFormViewPageClient() {
                     <p className="text-sm text-green-800 font-semibold">
                       ✅ Manager section has been completed. This form is fully approved.
                     </p>
-                    <button
-                      onClick={() => setShowAdminEditWarning(true)}
-                      disabled={clearingAdminSignature}
+                        <button
+                          onClick={() => setShowAdminEditWarning(true)}
+                          disabled={clearingAdminSignature}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
-                    >
-                      {clearingAdminSignature ? (
-                        <>
+                        >
+                          {clearingAdminSignature ? (
+                            <>
                           <FaSpinner className="h-4 w-4 animate-spin" />
                           Clearing...
-                        </>
-                      ) : (
-                        <>
+                            </>
+                          ) : (
+                            <>
                           <FaEdit className="h-4 w-4" />
-                          Edit
-                        </>
-                      )}
-                    </button>
-                  </div>
+                              Edit
+                            </>
+                          )}
+                        </button>
+                      </div>
                 )}
               </div>
             );
@@ -1573,7 +1573,7 @@ export default function StaffFormViewPageClient() {
                             <FaEdit className="h-4 w-4" />
                             {clearingAdminSignature ? 'Clearing...' : 'Edit'}
                           </button>
-                        </div>
+                      </div>
                       ) : (
                         /* Editable form when admin hasn't signed */
                         <form onSubmit={handleConflictOfInterestAdminSubmit} className="space-y-6">
@@ -1589,7 +1589,7 @@ export default function StaffFormViewPageClient() {
                                 className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
                               />
-                            </div>
+                              </div>
                             <div>
                               <label className="block text-sm font-semibold text-gray-700 mb-2">
                                 Title: <span className="text-red-500">*</span>
@@ -1604,7 +1604,7 @@ export default function StaffFormViewPageClient() {
                             </div>
                           </div>
 
-                          <div>
+                            <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
                               Date: <span className="text-red-500">*</span>
                             </label>
@@ -1615,9 +1615,9 @@ export default function StaffFormViewPageClient() {
                               className="w-full h-10 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               required
                             />
-                          </div>
+                            </div>
 
-                          <div>
+                            <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
                               Action Taken (if applicable):
                             </label>
@@ -1627,7 +1627,7 @@ export default function StaffFormViewPageClient() {
                               rows={3}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
                             />
-                          </div>
+                              </div>
 
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1687,7 +1687,7 @@ export default function StaffFormViewPageClient() {
                                 className="bg-white"
                                 disabled={false}
                               />
-                            </div>
+                        </div>
                           </div>
 
                           <div>

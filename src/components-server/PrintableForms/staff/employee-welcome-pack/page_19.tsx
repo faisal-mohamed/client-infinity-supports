@@ -25,19 +25,16 @@ const styles = StyleSheet.create({
 const Page19: React.FC = () => {
   return (
     <View>
-      <Text style={styles.paragraph}>
-        Temporary suspension on contractual pay pending an uninterrupted investigation should not be 
-        regarded as disciplinary action or a penalty.
-      </Text>
+    
       
       <Text style={styles.subsection}>5.2 Disciplinary Rules</Text>
       
       <Text style={styles.paragraph}>
-        It is not practicable to specify all disciplinary rules or offences that may result in 
-        disciplinary action, as they may vary depending on the nature of the business. In addition to 
-        the specific examples of unsatisfactory conduct, misconduct and serious misconduct set out in 
-        this procedure, a breach of other conditions detailed in your Employee Handbook or rules and 
-        procedures in force from time to time will result in disciplinary action being taken.
+      It is not practicable to specify all disciplinary rules or offences that may result in disciplinary action, as they may vary depending 
+      on the nature of the work. In addition to the specific examples of unsatisfactory conduct, misconduct and serious misconduct shown 
+      in this policy, a breach of other specific conditions, procedures and practices set out elsewhere in this Employee Handbook or that 
+      have otherwise been made known to you, will also result in this procedure being used to deal with such. 
+
       </Text>
       
       <Text style={styles.subsection}>5.3 Rules Covering Unsatisfactory Conduct and Misconduct</Text>

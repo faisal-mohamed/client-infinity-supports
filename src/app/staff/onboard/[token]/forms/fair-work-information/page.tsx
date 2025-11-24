@@ -49,7 +49,7 @@ export default function FairWorkInformationFormPage() {
           ...existingSubmission,
           staffName: staffName, // Always set staffName
           date: existingSubmission.date || new Date().toISOString().split("T")[0],
-        };
+          };
         
         setFormData(existing);
       } catch (error: any) {

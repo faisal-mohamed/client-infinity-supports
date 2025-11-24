@@ -171,19 +171,19 @@ export async function GET(
     // Format submissions as a dictionary keyed by formKey (for backward compatibility)
     const submissionsDict: Record<string, any> = {};
     if (batch.signatureForms && Array.isArray(batch.signatureForms)) {
-      batch.signatureForms.forEach((sf: any) => {
+    batch.signatureForms.forEach((sf: any) => {
         // Safely access formSubmission and form
         if (sf?.formSubmission?.form?.formKey) {
-          const formKey = sf.formSubmission.form.formKey;
-          submissionsDict[formKey] = {
-            ...(sf.formSubmission.data || {}),
-            staffSignature: sf.formSubmission.staffSignature,
-            staffSignedAt: sf.formSubmission.staffSignedAt,
-            adminSignature: sf.formSubmission.adminSignature,
-            adminSignedAt: sf.formSubmission.adminSignedAt,
-          };
-        }
-      });
+      const formKey = sf.formSubmission.form.formKey;
+        submissionsDict[formKey] = {
+          ...(sf.formSubmission.data || {}),
+          staffSignature: sf.formSubmission.staffSignature,
+          staffSignedAt: sf.formSubmission.staffSignedAt,
+          adminSignature: sf.formSubmission.adminSignature,
+          adminSignedAt: sf.formSubmission.adminSignedAt,
+        };
+      }
+    });
     }
 
     // Format staff name
@@ -270,15 +270,15 @@ export async function POST(
       
       // If not found, try signature-only batches as fallback
       if (!batch) {
-        batch = await prisma.staffFormBatch.findFirst({
-          where: {
-            batchToken: token,
+      batch = await prisma.staffFormBatch.findFirst({
+        where: {
+          batchToken: token,
             isSignatureOnly: true,
-          },
-          include: {
-            staff: true,
-          },
-        });
+        },
+        include: {
+          staff: true,
+        },
+      });
       }
       
       if (batch) {

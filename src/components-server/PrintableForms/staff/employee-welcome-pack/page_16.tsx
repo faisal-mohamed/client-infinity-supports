@@ -72,8 +72,10 @@ const Page16: React.FC = () => {
       <Text style={styles.subsection}>4.9 Personal Leave Entitlements</Text>
       
       <Text style={styles.paragraph}>
-        You are entitled to be paid for personal leave in accordance with the SCHADS Award, unless 
-        otherwise stated in your contract of employment. For the avoidance of doubt, casual employees
+      You are entitled to be paid for personal leave in accordance with the Schads Award, 
+      unless otherwise stated in your contract of employment. For the avoidance of doubt, 
+      casual employees are not entitled to paid personal leave. Paid personal leave accrues 
+      over the course of your employment.
       </Text>
     </View>
   );

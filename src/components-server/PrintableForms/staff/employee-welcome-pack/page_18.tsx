@@ -47,25 +47,24 @@ const Page18: React.FC = () => {
       <Text style={styles.subsection}>5.1 Introduction</Text>
       
       <Text style={styles.paragraph}>
-        This sets standards of performance and behaviour expected by the Employer, together with the 
-        procedure to be followed in the event of disciplinary issues. The policy aims to help promote 
-        fairness and order in the treatment of individuals. It is the Employer's aim that the rules 
-        and procedures should emphasise and encourage improvement in the conduct of individuals where 
-        they are failing to meet the required standards, and not be seen merely as a means of punishment. 
-        We reserve the right to amend these rules and procedures where appropriate.
+      This sets standards of performance and behaviour expected by the Employer, together with the 
+      procedure to be followed in the event of disciplinary issues. The policy aims to help promote fairness and order
+       in the treatment of individuals. It is the Employer’s aim that the rules and procedures should emphasise and encourage 
+       improvement in the conduct of individuals where they are failing to meet the required standards, 
+      and not be seen merely as a means of punishment. We reserve the right to amend these rules and procedures where appropriate. 
       </Text>
       
       <Text style={styles.paragraph}>
-        Every effort will be made to ensure that any action taken under this procedure is fair, with 
-        you being given the opportunity to state your case.
+      Every effort will be made to ensure that any action taken under this procedure is fair,
+       with you being given the opportunity to state your case.
       </Text>
       
       <Text style={styles.paragraph}>
-        The following rules and procedures should ensure that:
+      The following rules and procedures should ensure that: 
       </Text>
       
       <Text style={styles.listItem}>
-        • the correct procedure is used when requiring you to attend a disciplinary hearing;
+        • the correct procedure is used when requiring you to attend a disciplinary hearing; 
       </Text>
       
       <Text style={styles.listItem}>
@@ -73,23 +72,27 @@ const Page18: React.FC = () => {
       </Text>
       
       <Text style={styles.listItem}>
-        • disciplinary action, where necessary, is taken speedily and in a fair, uniform and consistent manner;
+        • disciplinary action, where necessary, is taken speedily and in a fair, uniform and consistent manner; 
       </Text>
       
       <Text style={styles.listItem}>
-        • you will only be disciplined after careful investigation of the facts and the opportunity to 
-        present your side of the case;
+        • you will only be disciplined after careful investigation of the facts and the opportunity to present your side of the case; 
       </Text>
       
       <Text style={styles.listItem}>
-        • at all disciplinary hearings, rather than investigatory meetings, you have the right to be 
-        accompanied by a support person at all stages of the formal disciplinary process;
+        • at all disciplinary hearings, rather than investigatory meetings, you have the right to be
+         accompanied by a support person at all stages of the formal disciplinary process; 
+
       </Text>
       
       <Text style={styles.listItem}>
-        • you will not normally be dismissed for a first breach of discipline, except in the case of 
-        serious misconduct; and if you are disciplined, you will receive an explanation of the penalty 
-        imposed.
+        • you will not normally be dismissed for a first breach of discipline, except in the case of serious 
+misconduct; and if you are disciplined, you will receive an explanation of the penalty imposed. 
+
+      </Text >
+      <Text style={styles.paragraph}>On some occasions temporary suspension on contractual pay may be necessary in order 
+        that an uninterrupted investigation can take place. This should not be regarded as disciplinary action 
+        or a penalty of any kind. 
       </Text>
     </View>
   );

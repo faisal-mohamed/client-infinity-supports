@@ -244,9 +244,13 @@ export default function EmployeeWelcomeFormPage() {
         if (res.ok) {
           const data = await res.json();
           const welcomeData = data.submissions?.employee_welcome || {};
+          // Get staff name from database (like other forms)
+          const staffName = data.staff 
+            ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim()
+            : '';
           setFormData({
             readAcknowledgement: welcomeData.readAcknowledgement || false,
-            fullName: welcomeData.fullName || '',
+            fullName: welcomeData.fullName || staffName, // Use saved name or fetch from staff data
             signature: welcomeData.signature || '',
             date: welcomeData.date || ''
           });
@@ -263,6 +267,34 @@ export default function EmployeeWelcomeFormPage() {
   };
 
   const handleSave = async (isSubmit = false) => {
+    // Validate required fields before submitting
+    if (isSubmit) {
+      const missingFields: string[] = [];
+      
+      if (!formData.readAcknowledgement) {
+        missingFields.push('Acknowledgement checkbox');
+      }
+      if (!formData.fullName || formData.fullName.trim() === '') {
+        missingFields.push('Name');
+      }
+      if (!formData.signature || formData.signature.trim() === '') {
+        missingFields.push('Signature');
+      }
+      if (!formData.date || formData.date.trim() === '') {
+        missingFields.push('Date');
+      }
+      
+      if (missingFields.length > 0) {
+        showToast({
+          type: 'error',
+          title: 'Validation Error',
+          message: `Please fill in required fields: ${missingFields.join(', ')}`,
+          duration: 5000,
+        });
+        return false;
+      }
+    }
+    
     setSaving(true);
     try {
       const response = await fetch(`/api/staff/onboard/${token}`, {
@@ -401,25 +433,51 @@ export default function EmployeeWelcomeFormPage() {
             </p>
 
             <div className="space-y-5" style={{ marginTop: '40px' }}>
-              {/* Name Field - matching PDF layout */}
+              {/* Acknowledgement Checkbox - Required */}
+              <div className="flex items-start gap-3 p-4 border border-gray-300 rounded-lg bg-gray-50 mb-6">
+                <input
+                  id="readAcknowledgement"
+                  type="checkbox"
+                  checked={formData.readAcknowledgement}
+                  onChange={(e) => handleChange('readAcknowledgement', e.target.checked)}
+                  className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                />
+                <label htmlFor="readAcknowledgement" className="text-[11pt] leading-relaxed">
+                  <strong>I acknowledge that:</strong><br />
+                  • I have received the Employee Handbook from Infinity Supports<br />
+                  • I have read and understood the content<br />
+                  • I agree to comply with all policies and procedures outlined in the handbook
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+              </div>
+
+              {/* Name Field - matching PDF layout - Required and Read-only (from DB) */}
               <div className="flex items-end" style={{ gap: '16px', marginBottom: '20px' }}>
-                <label className="font-normal flex-shrink-0" style={{ fontSize: '11pt', width: '80px' }}>Name</label>
-                <div className="flex-1 border-b border-dotted border-gray-900" style={{ minHeight: '20px', paddingBottom: '4px', paddingLeft: '8px' }}>
+                <label className="font-normal flex-shrink-0" style={{ fontSize: '11pt', width: '80px' }}>
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <div className="flex-1 border-b border-dotted border-gray-900" style={{ minHeight: '20px', paddingBottom: '4px', paddingLeft: '8px', backgroundColor: '#f9fafb' }}>
                   <input
                     type="text"
                     value={formData.fullName}
-                    onChange={(e) => handleChange('fullName', e.target.value)}
+                    readOnly
+                    disabled
                     placeholder=""
-                    className="w-full bg-transparent focus:outline-none"
-                    style={{ fontSize: '11pt', border: 'none', padding: 0 }}
+                    className="w-full bg-transparent focus:outline-none cursor-not-allowed opacity-70"
+                    style={{ fontSize: '11pt', border: 'none', padding: 0, color: '#374151' }}
                   />
                 </div>
               </div>
 
-              {/* Signature Field - using regular signature component */}
+              {/* Signature Field - using regular signature component - Required */}
               <div className="flex items-start" style={{ gap: '16px', marginBottom: '20px' }}>
-                <label className="font-normal flex-shrink-0 pt-2" style={{ fontSize: '11pt', width: '80px' }}>Signature</label>
+                <label className="font-normal flex-shrink-0 pt-2" style={{ fontSize: '11pt', width: '80px' }}>
+                  Signature <span className="text-red-500">*</span>
+                </label>
                 <div className="flex-1" style={{ minWidth: 0 }}>
+                  {!formData.signature && (
+                    <div className="text-xs text-red-500 mb-1">Signature is required</div>
+                  )}
                   <SignatureCanvas
                     onSignatureEnd={(sig) => handleChange('signature', sig)}
                     onSignatureClear={() => handleChange('signature', '')}
@@ -430,21 +488,24 @@ export default function EmployeeWelcomeFormPage() {
                     showClearButton={true}
                     clearButtonText="Clear Signature"
                     placeholder="Draw your signature in the box above"
-                    className="w-full"
+                    className={`w-full ${!formData.signature ? 'border-2 border-red-300 rounded' : ''}`}
                   />
                 </div>
               </div>
 
-              {/* Date Field - matching PDF layout */}
+              {/* Date Field - matching PDF layout - Required */}
               <div className="flex items-end" style={{ gap: '16px' }}>
-                <label className="font-normal flex-shrink-0" style={{ fontSize: '11pt', width: '80px' }}>Date</label>
-                <div className="flex-1 border-b border-dotted border-gray-900" style={{ minHeight: '20px', paddingBottom: '4px', paddingLeft: '8px' }}>
+                <label className="font-normal flex-shrink-0" style={{ fontSize: '11pt', width: '80px' }}>
+                  Date <span className="text-red-500">*</span>
+                </label>
+                <div className={`flex-1 border-b border-dotted ${!formData.date ? 'border-red-500' : 'border-gray-900'}`} style={{ minHeight: '20px', paddingBottom: '4px', paddingLeft: '8px' }}>
                   <input
                     type="date"
                     value={formData.date}
                     onChange={(e) => handleChange('date', e.target.value)}
                     className="w-full bg-transparent focus:outline-none"
                     style={{ fontSize: '11pt', border: 'none', padding: 0 }}
+                    required
                   />
                 </div>
               </div>

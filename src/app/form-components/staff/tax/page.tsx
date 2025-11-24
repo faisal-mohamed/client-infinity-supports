@@ -45,7 +45,7 @@ function OverlayCharInput({
     // 1. The prop value is different from our current internal state
     // 2. The prop actually changed (not just a re-render with same value)
     if (value !== prevPropValueRef.current && value !== currentValue) {
-      setValues(Array.from({ length }, (_, i) => value[i] || ""));
+    setValues(Array.from({ length }, (_, i) => value[i] || ""));
     }
     prevPropValueRef.current = value;
   }, [value, length]);
@@ -226,7 +226,7 @@ function OverlayDatePicker({
   const { day, month, year } = parseDate(value);
   const gap = 2;
 
-  return (
+      return (
     <>
       {/* Date boxes - clickable to open date picker */}
       <div 
@@ -250,10 +250,10 @@ function OverlayDatePicker({
         
         {/* Day - 2 boxes */}
         {Array.from({ length: 2 }).map((_, i) => (
-          <input
+        <input
             key={`day-${i}`}
-            type="text"
-            maxLength={1}
+          type="text"
+          maxLength={1}
             value={day[i] || ""}
             readOnly={true}
             className={`border border-gray-400 text-center text-sm ${readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} ${required && !value ? 'border-red-500' : ''}`}
@@ -925,19 +925,19 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
 
     {/* DOB */}
     <OverlayDatePicker
-      dayTop={455}
-      dayLeft={215}
-      monthTop={455}
-      monthLeft={265}
-      yearTop={455}
-      yearLeft={315}
-      boxWidth={20}
-      boxHeight={28}
-      value={dob}
-      onChange={setDob}
-      readOnly={readOnly}
+  dayTop={455}
+  dayLeft={215}
+  monthTop={455}
+  monthLeft={265}
+  yearTop={455}
+  yearLeft={315}
+  boxWidth={20}
+  boxHeight={28}
+  value={dob}
+  onChange={setDob}
+  readOnly={readOnly}
       required={true}
-    />
+/>
 
 <OverlayMultiRowCharInput
   top={503}

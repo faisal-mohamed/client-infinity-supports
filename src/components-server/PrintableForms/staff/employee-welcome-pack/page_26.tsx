@@ -14,24 +14,57 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'justify',
   },
+  tableContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#000000',
+  },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#d1d5db',
-    padding: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#000000',
+    padding: 8,
     fontWeight: 'bold',
     fontSize: 11,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '1 solid #e5e7eb',
-    padding: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    padding: 8,
     fontSize: 10,
+    minHeight: 30,
   },
   tableCol1: {
     width: '70%',
+    paddingRight: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#e5e7eb',
   },
   tableCol2: {
     width: '30%',
+    paddingLeft: 8,
+    textAlign: 'center',
+  },
+  headerCol1: {
+    width: '70%',
+    paddingRight: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#000000',
+  },
+  headerCol2: {
+    width: '30%',
+    paddingLeft: 8,
+    textAlign: 'center',
+  },
+  redText: {
+    fontSize: 11,
+    color: '#dc2626',
+    lineHeight: 1.6,
+    marginTop: 10,
+    textAlign: 'justify',
   },
 });
 
@@ -56,10 +89,10 @@ const Page26: React.FC = () => {
       </Text>
       
       {/* Table */}
-      <View style={{ marginTop: 10 }}>
+      <View style={styles.tableContainer}>
         <View style={styles.tableHeader}>
-          <Text style={styles.tableCol1}>Reportable incident</Text>
-          <Text style={styles.tableCol2}>Required timeframe</Text>
+          <Text style={styles.headerCol1}>Reportable incident</Text>
+          <Text style={styles.headerCol2}>Required timeframe</Text>
         </View>
         
         <View style={styles.tableRow}>
@@ -91,7 +124,22 @@ const Page26: React.FC = () => {
           </Text>
           <Text style={styles.tableCol2}>24 hours</Text>
         </View>
+        
+        <View style={[styles.tableRow, { borderBottomWidth: 0 }]}>
+          <Text style={styles.tableCol1}>
+            the use of a restrictive practice in relation to a person with disability if the use is not 
+            in accordance with a required state or territory authorisation and/or not in accordance with 
+            a behaviour support plan
+          </Text>
+          <Text style={styles.tableCol2}>Five business days</Text>
+        </View>
       </View>
+      
+      <Text style={styles.redText}>
+        Incident and Hazard reporting is to be completed on shiftcare. Infinity Supports WA instructs all 
+        its staff to report all incidents and hazards irrespective of their levels of severity. This helps 
+        in ensuring appropriate measures are put in place to minimize occurrences of such incidents.
+      </Text>
     </View>
   );
 };

@@ -30,32 +30,33 @@ const styles = StyleSheet.create({
 const Page15: React.FC = () => {
   return (
     <View>
-      <Text style={styles.address}>
-        Midland - 12 Cale Street{'\n'}
-        Pinjarra 289 Wilson Road
-      </Text>
+      
       
       <Text style={styles.section}>4. Salaries and Wages</Text>
       
       <Text style={styles.subsection}>4.1 Remuneration</Text>
       
       <Text style={styles.paragraph}>
-        Payment will be at the gross hourly rate in line with the SCHADS award. Payment is fortnightly 
-        to your nominated bank account. Infinity Supports WA will process pays prior to 12.00 pm on 
-        Fridays on a fortnightly basis.
+      You will be paid at the gross hourly rate in line with the SCHADS award. 
+You will be paid fortnightly to the bank account nominated by you. Infinity Supports WA 
+will process pays prior to 12.00 pm on Fridays on a fortnightly basis. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        Your remuneration will be reviewed annually and may be increased at the Employer's discretion. 
-        Any applicable award rate increases will be applied automatically by the Employer.
+      Your remuneration will be reviewed annually and may be increased at the employer’s 
+      discretion. Any applicable award rate increases will be applied automatically by the
+       employer. 
+
       </Text>
       
       <Text style={styles.subsection}>4.2 Tax</Text>
       
       <Text style={styles.paragraph}>
-        At the end of each tax year, you will be provided with a summary statement showing your total 
-        pay and deductions for tax and other matters. You should keep this document safe as you will 
-        need it when completing your self-assessment tax return.
+      At the end of each tax year, you will be given a summary statement showing the total
+       pay you have received during that year and the amount of deductions for tax and other
+        matters. You should keep this document in a safe place as you may need to produce 
+        them for tax purposes. 
       </Text>
       
       <Text style={styles.subsection}>4.3 Pay reviews</Text>
@@ -74,11 +75,12 @@ const Page15: React.FC = () => {
       <Text style={styles.subsection}>4.5 Shortage of Work</Text>
       
       <Text style={styles.paragraph}>
-        Where there is a temporary shortage of work, the Employer will try to maintain your continuity 
-        of employment. This may involve placing you on reduced hours or temporary leave. If you agree 
-        to work reduced hours, your pay will be reduced according to the time actually worked. If you 
-        agree to temporary leave, this will be processed as leave without pay unless you wish to utilise 
-        any accrued leave entitlements.
+      If there is a temporary shortage of work for any reason, we will try to maintain your
+       continuity of employment. With your agreement, we may place you on reduced hours, 
+       or alternatively, temporary leave. If you agree to be placed on reduced hours, 
+       your pay will be reduced according to time worked. If you are placed on leave, 
+       this will be processed as leave without pay unless you elect to utilise any accrued 
+       leave entitlements. 
       </Text>
       
       <Text style={styles.subsection}>4.6 Stand Down</Text>

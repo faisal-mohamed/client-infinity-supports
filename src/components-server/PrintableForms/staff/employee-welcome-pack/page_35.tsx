@@ -26,10 +26,10 @@ const Page35: React.FC = () => {
   return (
     <View>
       <Text style={styles.paragraph}>
-        Where you have been subject to minor, unintentional bullying or harassment you may wish to address 
-        it yourself. You should tell the individual in question that their behaviour is unwelcome and ask 
-        them to stop. If speaking directly to the alleged bully or harasser is too difficult or embarrassing, 
-        you can provide them with a written request instead. A confidential helper can assist you with this.
+      If you are the victim of minor bullying or harassment you should make it clear to the alleged bully or
+       harasser on an informal basis that their behaviour is unwelcome and ask the individual to stop. If you feel
+        unable to do this 
+      verbally then you should hand a written request to the individual, and your confidential helper can assist you in this. 
       </Text>
       
       <Text style={styles.paragraph}>
@@ -37,14 +37,13 @@ const Page35: React.FC = () => {
       </Text>
       
       <Text style={styles.paragraph}>
-        Where the matter is more serious or informal discussions have not been successful, you should bring 
-        the matter to the attention of management as a formal written complaint. Again, a confidential helper 
-        can assist you with this.
+      Where the informal approach fails or if the bullying or harassment is more serious,
+       you should bring the matter to the attention of management as a formal written complaint and again 
+       your confidential helper can assist you in this. If possible, you should keep notes of the bullying or
+        harassment so that the written complaint can include: 
       </Text>
       
-      <Text style={styles.paragraph}>
-        You are encouraged to keep a written record of the bullying or harassment. This should include:
-      </Text>
+     
       
       <Text style={styles.listItem}>• the name of the alleged bully or harasser;</Text>
       <Text style={styles.listItem}>• the nature of the alleged incident of bullying or harassment;</Text>
@@ -55,38 +54,32 @@ const Page35: React.FC = () => {
       </Text>
       
       <Text style={styles.paragraph}>
-        On receipt of a formal complaint we will take action to separate you from the alleged bully or 
-        harasser to enable an uninterrupted investigation to take place. This may involve a temporary 
-        transfer of the alleged bully or harasser to another work area or suspension with contractual pay 
-        until the matter has been resolved.
+      On receipt of a formal complaint, we will take action to separate you from the alleged bully or harasser 
+      to enable an uninterrupted investigation to take place. This may involve a temporary transfer of the 
+alleged bully or harasser to another work area or suspension of employees (with contractual pay) 
+until the matter has been resolved. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        The person dealing with the complaint will invite you to a meeting, at a reasonable time and 
-        location, to discuss the matter and carry out a thorough investigation. You have the right to be 
-        accompanied by a confidential helper or another work colleague at such a meeting.
+      The person dealing with the complaint will invite you to attend a meeting, at a reasonable time and 
+      location, to discuss the matter and carry out a thorough investigation. You have the right to be 
+      accompanied at such a meeting by your confidential helper or another work colleague of your choice and 
+      you must take all reasonable steps to attend. Those involved in the investigation will be expected to act 
+      in confidence and any breach of confidence will be a disciplinary matter. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        Where your complaint is about an employee, we may consider it necessary to hold a meeting with the 
-        alleged bully or harasser to hear that person's version of events. In these circumstances the 
-        alleged bully or harasser may also be accompanied by a work colleague.
+      On conclusion of the investigation which will normally be within ten working days of the 
+      meeting with you, a report of the findings and of the investigator's decision will be sent, 
+      in writing, to you and to the alleged bully or harasser. 
+
       </Text>
       
-      <Text style={styles.paragraph}>
-        Irrespective of whether your complaint is ultimately upheld, all those involved have the right to 
-        expect that the matter will be dealt with confidentially. During the investigation, you, any 
-        witnesses and the alleged bully or harasser will be expected to act in confidence. Any breach of 
-        confidence will be a disciplinary matter.
-      </Text>
+
       
-      <Text style={styles.paragraph}>
-        We will write to you and the alleged bully or harasser, usually within ten working days of the 
-        investigation meeting, confirming our findings and, where appropriate, our decision regarding the 
-        complaint.
-      </Text>
       
-      <Text style={styles.subsection}>11.5 General Notes</Text>
     </View>
   );
 };

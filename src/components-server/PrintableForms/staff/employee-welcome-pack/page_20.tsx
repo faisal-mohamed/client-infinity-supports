@@ -28,17 +28,14 @@ const Page20: React.FC = () => {
       <Text style={styles.subsection}>5.4 Serious Misconduct</Text>
       
       <Text style={styles.paragraph}>
-        Serious misconduct is particularly important because it may lead to termination without notice, 
-        even without any previous warning being issued. It is not possible to provide an exhaustive 
-        list of examples of serious misconduct. However, serious misconduct is generally defined as any 
-        behaviour or negligence that results in a fundamental breach of your contractual terms and that 
-        irrevocably destroys the trust and confidence necessary to continue the employment relationship.
+      Occurrences of serious misconduct are significant because the penalty may be termination without notice, 
+      even without any previous warning being issued. It is not possible to provide an exhaustive list of examples of serious misconduct. 
+      However, any behaviour or negligence resulting in a fundamental breach of your contractual terms that irrevocably destroys
+       the trust and confidence necessary to continue the employment relationship will constitute serious misconduct. 
+       Examples of offences that will normally be considered to be serious misconduct include serious instances of: 
       </Text>
       
-      <Text style={styles.paragraph}>
-        Examples of actions that will normally be regarded as serious misconduct are:
-      </Text>
-      
+    
       <Text style={styles.listItem}>• theft or fraud;</Text>
       <Text style={styles.listItem}>• physical violence or bullying;</Text>
       <Text style={styles.listItem}>• deliberate damage to property;</Text>
@@ -55,30 +52,24 @@ const Page20: React.FC = () => {
       <Text style={styles.subsection}>5.5 Disciplinary Procedure</Text>
       
       <Text style={styles.paragraph}>
-        Disciplinary action taken against you may be based on the following procedure:
+      Disciplinary action taken against you may be based on the following procedure:
       </Text>
       
       <Text style={styles.paragraph}>
         Offence{'\n'}
-        1st occasion - Formal verbal warning{'\n'}
-        2nd occasion - Written warning{'\n'}
-        3rd occasion - Final written warning{'\n'}
-        Unsatisfactory conduct - Termination
+        1st occasion {'\n'}
+        2nd occasion {'\n'}
+        3rd occasion  {'\n'}
+        Unsatisfactory conduct{'\n'}
+        Formal verbal warning{'\n'}
+        Written warning{'\n'}
+        Final written warning{'\n'}
+        Termination
       </Text>
       
-      <Text style={styles.paragraph}>
-        We retain discretion to vary these procedures as appropriate and to determine the number of 
-        warnings given, depending on your length of service and the severity of the misconduct.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        If you have a short amount of service with us, you may not receive warnings before we terminate 
-        your employment. However, you will retain the right to a disciplinary hearing.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        If a disciplinary penalty is imposed it will be in
-      </Text>
+     
+    
+
     </View>
   );
 };

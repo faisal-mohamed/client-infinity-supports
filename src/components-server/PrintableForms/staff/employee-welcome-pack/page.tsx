@@ -196,7 +196,7 @@ const EmployeeWelcomePackPDF: React.FC<EmployeeWelcomePackPDFProps> = ({
       {/* PAGE 9: JOINING THE ORGANISATION */}
       <Page size="A4" style={styles.page}>
         {renderHeader()}
-        <Page9 />
+        <Page9 images={images} />
         {renderFooter()}
       </Page>
 

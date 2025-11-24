@@ -27,31 +27,30 @@ const Page21: React.FC = () => {
     <View>
       {/* Continuation from previous page */}
       <Text style={styles.paragraph}>
-        the form of a formal verbal warning, a written warning or a final written warning. Such warnings 
-        will set out the nature of the misconduct, the change in behaviour required and the right of 
-        appeal. The employee will be advised that a final written warning may result in termination if 
-        there is no satisfactory improvement.
+      We retain discretion in respect of the disciplinary procedures to take account of your length of service and the
+       severity of the misconduct to vary the procedures accordingly. If you have a short amount of service, 
+       you may not be in receipt of any warnings before termination, but you will retain the right to a disciplinary hearing. 
+       If a disciplinary penalty is imposed it will be in line with the procedure outlined above, which may encompass a formal 
+       verbal warning, written warning, final written warning, or termination, and full details will be given to you. 
+There may be occasions where the performance or conduct of an employee is serious enough to by-pass one of the above 
+steps and move immediately to a first and final written warning but not a summary termination. 
+
       </Text>
+      
+  
+      <Text style={styles.paragraph}>
+      This option might be used in circumstances where the Employer’s policy is breached but it is not so serious as
+       to warrant instant termination. 
+      </Text>
+      
       
       <Text style={styles.paragraph}>
-        In particularly serious cases, we reserve the right to move directly to a first and final 
-        written warning where warranted by poor performance or conduct. This is not applicable to 
-        summary termination, which means instant dismissal without any previous warnings.
+      In all cases, warnings will be issued for misconduct, irrespective of the precise matters concerned and any
+       further breach of the rules in relation to similar or entirely independent matters of misconduct will be treated as
+        further disciplinary matters and allow the continuation of the disciplinary process through to termination if the warnings 
+        do not change behaviour. 
+
       </Text>
-      
-      <Text style={styles.paragraph}>
-        Where it is considered appropriate by the Employer, bypassing the progressive steps of the 
-        disciplinary procedure will be in circumstances where a policy of the Employer has been breached, 
-        but the breach is not of a sufficiently serious nature to warrant instant termination.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        Warnings are issued for misconduct and, should there be a further breach of standards (either 
-        similar or independent of the original misconduct) during the period in which a warning is 
-        considered 'live', the Employer will continue with the disciplinary action resulting in 
-        termination where there is no change in behaviour.
-      </Text>
-      
       <Text style={styles.subsection}>5.6 Duration of Warnings</Text>
       
       <Text style={styles.paragraph}>

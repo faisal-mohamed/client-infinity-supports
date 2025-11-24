@@ -36,6 +36,7 @@ const Page36: React.FC = () => {
   return (
     <View wrap={false}>
       {/* Continue 11.5 General Notes from page 35 */}
+      <Text style={styles.subsection}>11.5 General Notes</Text>
       <Text style={[styles.paragraph, { marginTop: 0 }]}>
         If the report concludes that the allegation is well-founded, we will invoke the appropriate action against the bully or harasser.
       </Text>

@@ -29,10 +29,11 @@ const styles = StyleSheet.create({
 const Page6: React.FC = () => {
   return (
     <View>
-      {/* Page heading */}
-      <Text style={styles.heading}>5. 18</Text>
-      
-      {/* Section 5: Disciplinary Rules */}
+      {/* Section 5: Disciplinary Procedure */}
+      <View style={styles.tocRow}>
+        <Text>5. Disciplinary Procedure</Text>
+        <Text>18</Text>
+      </View>
       <View style={styles.tocRowIndent}>
         <Text>5.1 Introduction</Text>
         <Text>18</Text>

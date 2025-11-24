@@ -69,11 +69,12 @@ const Page34: React.FC = () => {
       </Text>
       
       <Text style={styles.paragraph}>
-        We recognise that complaints of bullying, harassment, and particularly of sexual harassment, can 
-        sometimes be of a sensitive or intimate nature and that it may not be appropriate for you to raise 
-        the matter through our normal grievance procedure. In these circumstances, you are encouraged to 
-        raise such issues with a senior colleague of your choice (whether that person has a direct 
-        supervisory responsibility for you) as a confidential helper.
+      We recognise that complaints of bullying, harassment, and particularly of sexual harassment, can sometimes
+       be of a sensitive or intimate nature and that it may not be appropriate for you to raise the issue 
+       through our normal grievance procedure. In these circumstances you are encouraged to raise such issues 
+       with a senior colleague of your choice (whether that person has a direct supervisory responsibility for you)
+        as a confidential helper. 
+
       </Text>
     </View>
   );
