@@ -64,13 +64,22 @@ export async function GET(
       }
     });
 
-    const formData = submission?.data || {};
+    // Structure data similar to generic route - include signature from submission record
+    const submissionData = submission?.data || {};
+    const formData = {
+      ...submissionData,
+      // Include signature from submission record (not just from data JSON)
+      staffSignature: submission?.staffSignature || submissionData.staffSignature || submissionData.signature,
+      staffSignedAt: submission?.staffSignedAt,
+    };
 
     console.log('📊 [PDF API] Staff data:', { 
       id: staff.id, 
       name: `${staff.firstName} ${staff.surname}`,
       hasSubmission: !!submission,
-      dataKeys: Object.keys(formData)
+      hasStaffSignature: !!submission?.staffSignature,
+      dataKeys: Object.keys(formData),
+      hasAcknowledgmentData: !!(submissionData?.acknowledgmentData)
     });
 
     // Encode images to base64
@@ -93,9 +102,16 @@ export async function GET(
 
     console.log('⚙️ [PDF API] Settings from DB:', settings);
 
-    // Create PDF component props
+    // Create PDF component props - structure data to match what PDF component expects
+    // The component does: const formData = data?.data || data || {};
+    // So we can pass either { data: {...} } or just {...}
+    // We'll pass it as { data: {...} } to match the generic route structure
     const pdfProps = {
-      data: formData,
+      data: {
+        data: formData,  // Wrap in data.data structure to match generic route
+        staffSignature: submission?.staffSignature || formData.staffSignature,
+        staffSignedAt: submission?.staffSignedAt,
+      },
       staff: {
         firstName: staff.firstName,
         surname: staff.surname,
@@ -105,19 +121,43 @@ export async function GET(
       images,
     };
 
+    // Check if we should show only acknowledgment form (for admin view/download)
+    const { searchParams } = new URL(req.url);
+    const acknowledgmentOnly = searchParams.get('acknowledgmentOnly') === 'true';
+    
+    console.log('🔵 [PDF API] PDF generation parameters:', {
+      staffId,
+      acknowledgmentOnly,
+      hasFormData: !!formData,
+      hasAcknowledgmentData: !!(formData?.acknowledgmentData),
+      formDataKeys: Object.keys(formData || {})
+    });
+
     console.log('🎨 [PDF API] Creating PDF document with dynamic content...');
 
-    // Generate PDF
-    const pdfDoc = React.createElement(VehicleSafetyInspectionPDF, pdfProps);
+    // Generate PDF - pass acknowledgmentOnly prop
+    const pdfDoc = React.createElement(VehicleSafetyInspectionPDF, {
+      ...pdfProps,
+      acknowledgmentOnly: acknowledgmentOnly,
+    });
     const pdfBuffer = await renderToBuffer(pdfDoc);
 
     console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
 
-    // Return PDF as inline (for iframe viewing in admin)
+    // Determine filename based on acknowledgmentOnly
+    const download = searchParams.get('download') === 'true';
+    
+    const filename = acknowledgmentOnly 
+      ? `Vehicle_Safety_Inspection_Acknowledgment_${staff.firstName}_${staff.surname}.pdf`
+      : `Vehicle_Safety_Inspection_${staff.firstName}_${staff.surname}.pdf`;
+
+    // Return PDF as inline (for iframe viewing in admin) or attachment (for download)
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="Vehicle_Safety_Inspection_${staff.firstName}_${staff.surname}.pdf"`,
+        'Content-Disposition': download 
+          ? `attachment; filename="${filename}"` 
+          : `inline; filename="${filename}"`,
       },
     });
 

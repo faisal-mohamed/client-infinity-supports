@@ -523,6 +523,32 @@ export async function POST(
           staffSignedAt: sigDate ? new Date(sigDate) : new Date()
         };
       }
+    } else if (!shouldClearSignature && formKey === 'vehicle_safety_inspection') {
+      // Vehicle Safety Inspection - uses acknowledgmentData.signature
+      const ackData = data.acknowledgmentData || {};
+      const sig = ackData.signature || data.signature || data.staffSignature;
+      const sigDate = ackData.acknowledgmentDate || data.staffSignedAt || data.signedAt;
+      if (sig) {
+        // Parse the date safely
+        let parsedDate: Date | null = null;
+        if (sigDate) {
+          if (typeof sigDate === 'string') {
+            // Skip if it's the string "Invalid Date"
+            if (sigDate !== 'Invalid Date' && !sigDate.toLowerCase().includes('invalid')) {
+              const dateObj = new Date(sigDate);
+              if (!isNaN(dateObj.getTime())) {
+                parsedDate = dateObj;
+              }
+            }
+          } else if (sigDate instanceof Date) {
+            parsedDate = isNaN(sigDate.getTime()) ? null : sigDate;
+          }
+        }
+        signatureData = {
+          staffSignature: sig,
+          staffSignedAt: parsedDate || new Date()
+        };
+      }
     }
     
     // If clearing signature, set signature data to null AND clear from formData
@@ -557,6 +583,20 @@ export async function POST(
         'sectionBSignature', 'sectionCSignature', 'sectionDSignature', 
         'sectionBDate', 'sectionCDate', 'sectionDDate'
       ];
+      
+      // Special handling for vehicle_safety_inspection - clear acknowledgmentData.signature
+      if (formKey === 'vehicle_safety_inspection') {
+        if (formData.acknowledgmentData && typeof formData.acknowledgmentData === 'object') {
+          console.log(`🔄 [API] Clearing acknowledgmentData.signature for vehicle_safety_inspection`);
+          // Clear signature from acknowledgmentData but preserve other fields
+          formData.acknowledgmentData = {
+            ...formData.acknowledgmentData,
+            signature: '',
+            // Keep acknowledged and acknowledgmentDate if they exist
+          };
+          console.log(`🔄 [API] Cleared acknowledgmentData.signature, preserved other acknowledgmentData fields`);
+        }
+      }
       
       console.log(`🔄 [API] Clearing signature fields from formData:`, signatureFieldsToClear);
       const clearedFields: string[] = [];
@@ -947,21 +987,24 @@ export async function POST(
               console.log(`⚠️ StaffFormAssignment ${assignment.id} already completed, skipping status update`);
             } else if (submit) {
               // Form is being submitted - check if it should be marked as completed
-              // Vehicle Safety Inspection does NOT require signature - override database value
+              // Vehicle Safety Inspection has an acknowledgement form with signature - always require signature
               let requiresSignature = masterForm.requiresSignature ?? false;
               if (formKey === 'vehicle_safety_inspection') {
-                requiresSignature = false;
+                requiresSignature = true; // Always require signature for acknowledgment form
               }
               
               // Check both staffSignature column AND signature fields in formData for overlay forms
-              // For vehicle_safety_inspection, skip signature check entirely
+              // For vehicle_safety_inspection, check acknowledgment signature
               let hasSignatureInColumn = false;
               let hasSignatureInData = false;
               let hasSignature = false;
               
               if (formKey === 'vehicle_safety_inspection') {
-                // Vehicle Safety Inspection doesn't use signatures - always false
-                hasSignature = false;
+                // Vehicle Safety Inspection - check acknowledgment signature
+                const ackData = formData.acknowledgmentData || {};
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                hasSignatureInData = !!(formData.signature || formData.staffSignature || ackData.signature);
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
               } else {
                 hasSignatureInColumn = !!signatureData.staffSignature;
                 // For overlay forms (tax, super choice), check if any signature fields exist in formData

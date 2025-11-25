@@ -39,7 +39,7 @@ export default function FormsManagement() {
     const fetchForms = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/forms");
+        const response = await fetch("/api/forms?type=client");
         if (!response.ok) throw new Error("Failed to fetch forms");
 
         const data = await response.json();

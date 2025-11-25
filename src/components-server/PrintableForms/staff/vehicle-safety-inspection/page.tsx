@@ -143,6 +143,72 @@ const styles = StyleSheet.create({
     minHeight: 20,
     wrap: true,
   },
+  // Acknowledgment form styles
+  paragraph: {
+    fontSize: 11,
+    marginBottom: 12,
+    lineHeight: 1.5,
+    color: '#111827',
+  },
+  acknowledgementBox: {
+    border: '1 solid #d1d5db',
+    borderRadius: 4,
+    padding: 12,
+    marginBottom: 20,
+    backgroundColor: '#f9fafb',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  ackCheckbox: {
+    width: 12,
+    height: 12,
+    border: '1 solid #9ca3af',
+    marginRight: 8,
+    marginTop: 2,
+  },
+  ackCheckboxChecked: {
+    width: 12,
+    height: 12,
+    border: '1 solid #2563eb',
+    backgroundColor: '#2563eb',
+    marginRight: 8,
+    marginTop: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxText: {
+    flex: 1,
+    fontSize: 11,
+    lineHeight: 1.5,
+    color: '#374151',
+  },
+  fieldGroup: {
+    marginBottom: 20,
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#111827',
+  },
+  fieldLine: {
+    borderBottom: '1 dotted #111827',
+    paddingBottom: 4,
+    minHeight: 20,
+  },
+  fieldValue: {
+    fontSize: 11,
+    color: '#111827',
+  },
+  signatureBox: {
+    border: '1 dotted #111827',
+    minHeight: 60,
+    padding: 8,
+    marginTop: 6,
+    backgroundColor: '#ffffff',
+  },
 });
 
 interface VehicleSafetyInspectionPDFProps {
@@ -150,6 +216,7 @@ interface VehicleSafetyInspectionPDFProps {
   staff?: any;
   settings?: any;
   images?: any;
+  acknowledgmentOnly?: boolean;
 }
 
 const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
@@ -157,9 +224,30 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   staff = {},
   settings = {},
   images = {},
+  acknowledgmentOnly = false,
 }) => {
+  console.log('🔵 [PDF Component] VehicleSafetyInspectionPDF rendering:', {
+    acknowledgmentOnly,
+    acknowledgmentOnlyType: typeof acknowledgmentOnly,
+    acknowledgmentOnlyValue: acknowledgmentOnly,
+    hasData: !!data,
+    hasStaff: !!staff,
+    dataKeys: Object.keys(data || {}),
+    formDataKeys: Object.keys(data?.data || {}),
+    acknowledgmentData: !!(data?.data?.acknowledgmentData || data?.acknowledgmentData),
+    fullDataStructure: JSON.stringify(data, null, 2).substring(0, 500) // First 500 chars for debugging
+  });
+  
   const formData = data?.data || data || {};
   const staffName = `${staff.firstName || ''} ${staff.surname || ''}`.trim();
+  
+  console.log('🔵 [PDF Component] Extracted formData:', {
+    formDataKeys: Object.keys(formData),
+    hasAcknowledgmentData: !!formData.acknowledgmentData,
+    acknowledgmentDataKeys: formData.acknowledgmentData ? Object.keys(formData.acknowledgmentData) : [],
+    hasSignature: !!formData.signature,
+    hasStaffSignature: !!formData.staffSignature
+  });
 
   // Helper functions
   const getValue = (key: string): string => {
@@ -197,7 +285,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
       <View style={styles.header} fixed>
         <Image src={images.infinityLogo} style={styles.headerLogo} />
       </View>
-    );
+    );   
   };
 
 
@@ -282,7 +370,6 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   // Inspection Checklist Section
   const renderInspectionChecklist = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Vehicle Safety Inspection Checklist</Text>
       <View style={styles.table}>
         {/* Header */}
         <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
@@ -304,9 +391,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
         <View style={[styles.subsectionHeader, { borderBottom: '1 solid #d1d5db' }]}>
           <Text>Lights</Text>
         </View>
-        <View style={[styles.subsectionNote, { borderBottom: '1 solid #d1d5db' }]}>
-          <Text>Check operation and visibility of:</Text>
-        </View>
+        {renderInspectionRow('Check operation and visibility of:', 'checkOperationVisibility', 'checkOperationVisibilityAction')}
         {renderInspectionRow('Headlights', 'headlights', 'headlightsAction')}
         {renderInspectionRow('Parking lights', 'parkingLights', 'parkingLightsAction')}
 
@@ -342,7 +427,6 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   // Additional Inspection Items
   const renderAdditionalInspection = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Vehicle Safety Inspection Checklist (Continued)</Text>
       <View style={styles.table}>
         {/* Header */}
         <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
@@ -408,7 +492,6 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   // Client Behavior Assessment
   const renderClientBehaviorAssessment = () => (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Client Behavior Assessment</Text>
       <View style={styles.table}>
         {/* Header */}
         <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
@@ -432,13 +515,12 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
         <View style={[styles.subsectionHeader, { borderBottom: '1 solid #d1d5db' }]}>
           <Text>Other Issues</Text>
         </View>
-        {[1, 2, 3, 4, 5].map((num) => {
+        {[1, 2, 3, 4].map((num) => {
           const issue = getValue(`otherIssue${num}`);
-          if (!issue) return null;
           return (
             <View key={num} style={styles.tableRow}>
               <View style={styles.tableCell}>
-                <Text style={{ fontSize: 8 }}>{issue}</Text>
+                <Text style={{ fontSize: 8 }}>{issue || ''}</Text>
               </View>
               <View style={styles.tableCellYesNo}>
                 {renderCheckbox(getYesNo(`otherIssue${num}Yes`) === 'yes')}
@@ -447,7 +529,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
                 {renderCheckbox(getYesNo(`otherIssue${num}Yes`) === 'no')}
               </View>
               <View style={styles.actionCell}>
-                <Text style={{ fontSize: 7 }}>{getValue(`otherIssue${num}Action`)}</Text>
+                <Text style={{ fontSize: 7 }}>{getValue(`otherIssue${num}Action`) || ''}</Text>
               </View>
             </View>
           );
@@ -459,16 +541,12 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   // Review Section
   const renderReviewSection = () => (
     <View style={styles.section}>
-      <View style={styles.table}>
-        <View style={styles.tableRow}>
-          <View style={styles.tableCellLabel}>
-            <Text>Return completed form to:</Text>
-          </View>
-          <View style={styles.tableCellInput}>
-            <Text>{getValue('returnToPosition')}</Text>
-            <Text>Position</Text>
-          </View>
+      <View style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
+        <Text style={{ fontSize: 9, marginRight: 4 }}>Return completed form to :</Text>
+        <View style={{ flex: 1, borderBottom: '1 dotted #111827', minHeight: 18, paddingBottom: 2, marginRight: 8 }}>
+          <Text style={{ fontSize: 9 }}>{getValue('returnTo') || ''}</Text>
         </View>
+        <Text style={{ fontSize: 9 }}>Position</Text>
       </View>
 
       <View style={styles.table} wrap={false}>
@@ -477,7 +555,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
             <Text>Reviewed by [name]:</Text>
           </View>
           <View style={styles.tableCellInput}>
-            <Text>{getValue('reviewedByName')}</Text>
+            <Text>{getValue('reviewedByName') || ''}</Text>
           </View>
         </View>
         <View style={styles.tableRow}>
@@ -485,7 +563,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
             <Text>Position:</Text>
           </View>
           <View style={styles.tableCellInput}>
-            <Text>{getValue('reviewedByPosition')}</Text>
+            <Text>{getValue('reviewedByPosition') || ''}</Text>
           </View>
         </View>
         <View style={styles.tableRow}>
@@ -493,18 +571,175 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
             <Text>Date:</Text>
           </View>
           <View style={styles.tableCellInput}>
-            <Text>{formatDate(getValue('reviewedByDate'))}</Text>
+            <Text>{formatDate(getValue('reviewedByDate')) || ''}</Text>
           </View>
         </View>
       </View>
 
-      <View style={{ marginTop: 6 }}>
-        <Text style={{ fontSize: 8 }}>
-          Date for next inspection: {formatDate(getValue('nextInspectionDate'))}
-        </Text>
+      <View style={styles.table} wrap={false}>
+        <View style={styles.tableRow}>
+          <View style={styles.tableCellLabel}>
+            <Text>Date for next inspection:</Text>
+          </View>
+          <View style={styles.tableCellInput}>
+            <Text>{formatDate(getValue('nextInspectionDate')) || ''}</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
+
+
+  const renderAcknowledgmentPage = () => {
+    console.log('🔵 [PDF Component] renderAcknowledgmentPage called');
+    console.log('🔵 [PDF Component] formData:', {
+      hasAcknowledgmentData: !!formData.acknowledgmentData,
+      acknowledgmentDataKeys: formData.acknowledgmentData ? Object.keys(formData.acknowledgmentData) : [],
+      hasSignature: !!formData.signature,
+      hasStaffSignature: !!formData.staffSignature
+    });
+    
+    const ackData = formData.acknowledgmentData || {};
+    const acknowledged = ackData.acknowledged || false;
+    const acknowledgmentDate = ackData.acknowledgmentDate || '';
+    const signature = ackData.signature || formData.signature || formData.staffSignature || '';
+    
+    console.log('🔵 [PDF Component] Acknowledgment data extracted:', {
+      acknowledged,
+      acknowledgmentDate,
+      hasSignature: !!signature,
+      signatureLength: signature?.length || 0,
+      ackDataKeys: Object.keys(ackData)
+    });
+    
+    // Format date for display
+    const formatAckDate = (dateStr: string): string => {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        const formatted = date.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+        console.log('🔵 [PDF Component] Date formatted:', dateStr, '->', formatted);
+        return formatted;
+      } catch (e) {
+        console.warn('⚠️ [PDF Component] Date formatting error:', e, dateStr);
+        return dateStr;
+      }
+    };
+
+    return (
+      <Page size="A4" style={styles.page}>
+        {renderHeader()}
+        
+        <Text style={styles.title}>Vehicle Safety Inspection Checklist – Acknowledgement</Text>
+        
+        <Text style={styles.paragraph}>
+          I confirm that I have received, read, and understood the Vehicle Safety Inspection Checklist document provided to me by Infinity Supports WA. I understand the inspection requirements and procedures outlined in the document.
+        </Text>
+        
+        <Text style={styles.paragraph}>
+          I acknowledge that it is my responsibility to conduct vehicle safety inspections in accordance with the checklist and to report any issues or concerns identified during inspections.
+        </Text>
+
+        {/* Acknowledgment Box */}
+        <View style={styles.acknowledgementBox}>
+          <View style={styles.checkboxRow}>
+            <View style={acknowledged ? styles.ackCheckboxChecked : styles.ackCheckbox}>
+              {acknowledged && <Text style={{ fontSize: 8, color: '#ffffff', fontWeight: 'bold' }}>✓</Text>}
+            </View>
+            <Text style={styles.checkboxText}>
+              <Text style={{ fontWeight: 'bold' }}>I acknowledge that:</Text>{'\n'}
+              • I have received the Vehicle Safety Inspection Checklist from Infinity Supports WA{'\n'}
+              • I have read and understood the inspection requirements and procedures{'\n'}
+              • I will conduct vehicle safety inspections in accordance with the checklist{'\n'}
+              • I will report any issues or concerns identified during inspections
+            </Text>
+          </View>
+        </View>
+
+        {/* Name Field */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Name *</Text>
+          <View style={styles.fieldLine}>
+            <Text style={styles.fieldValue}>{staffName || 'N/A'}</Text>
+          </View>
+        </View>
+
+        {/* Date Field */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Date *</Text>
+          <View style={styles.fieldLine}>
+            <Text style={styles.fieldValue}>{formatAckDate(acknowledgmentDate)}</Text>
+          </View>
+        </View>
+
+        {/* Signature Field */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>Signature *</Text>
+          <View style={styles.signatureBox}>
+            {signature ? (
+              <Image src={signature} style={{ width: '100%', maxHeight: 60, objectFit: 'contain' }} />
+            ) : (
+              <Text style={{ fontSize: 9, color: '#9ca3af', fontStyle: 'italic' }}>
+                Signature not provided
+              </Text>
+            )}
+          </View>
+        </View>
+      </Page>
+    );
+  };
+
+  // If acknowledgmentOnly is true, render only the acknowledgment page
+  console.log('🔵 [PDF Component] Checking acknowledgmentOnly flag:', {
+    acknowledgmentOnly,
+    isTrue: acknowledgmentOnly === true,
+    type: typeof acknowledgmentOnly,
+    willEnterIfBlock: acknowledgmentOnly === true
+  });
+  
+  if (acknowledgmentOnly === true) {
+    console.log('✅ [PDF Component] acknowledgmentOnly is TRUE - entering acknowledgment-only mode');
+    console.log('🔵 [PDF Component] Checking for acknowledgment data in formData:', {
+      formDataKeys: Object.keys(formData),
+      hasAcknowledgmentData: !!formData.acknowledgmentData,
+      acknowledgmentDataValue: formData.acknowledgmentData,
+      hasSignature: !!formData.signature,
+      hasStaffSignature: !!formData.staffSignature,
+      staffSignatureValue: formData.staffSignature ? 'EXISTS' : 'NULL'
+    });
+    
+    const hasAcknowledgment = formData.acknowledgmentData || formData.signature || formData.staffSignature;
+    console.log('🔵 [PDF Component] Final acknowledgment check result:', {
+      hasAcknowledgment,
+      hasAcknowledgmentData: !!formData.acknowledgmentData,
+      hasSignature: !!formData.signature,
+      hasStaffSignature: !!formData.staffSignature,
+      acknowledgmentDataKeys: formData.acknowledgmentData ? Object.keys(formData.acknowledgmentData) : [],
+      willRenderAcknowledgment: !!hasAcknowledgment
+    });
+    
+    if (!hasAcknowledgment) {
+      console.warn('⚠️ [PDF Component] No acknowledgment data found, returning empty document');
+      // Return empty document if no acknowledgment data
+      return (
+        <Document>
+          <Page size="A4" style={styles.page}>
+            {renderHeader()}
+            <Text style={styles.title}>Vehicle Safety Inspection Checklist – Acknowledgement</Text>
+            <Text style={styles.paragraph}>No acknowledgment form has been completed yet.</Text>
+          </Page>
+        </Document>
+      );
+    }
+    console.log('✅ [PDF Component] Rendering acknowledgment page ONLY (acknowledgmentOnly mode)');
+    return (
+      <Document>
+        {renderAcknowledgmentPage()}
+      </Document>
+    );
+  }
+  
+  console.log('🔵 [PDF Component] acknowledgmentOnly is FALSE - rendering FULL checklist with all pages');
 
   return (
     <Document>
@@ -527,6 +762,8 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
         {renderClientBehaviorAssessment()}
         {renderReviewSection()}
       </Page>
+
+      {/* Acknowledgment Page - NOT included in staff downloads, only shown when acknowledgmentOnly=true */}
     </Document>
   );
 };

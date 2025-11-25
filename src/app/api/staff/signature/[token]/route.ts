@@ -71,15 +71,15 @@ export async function GET(
     // Separate forms by signature requirement
     // IMPORTANT: Forms with requiresSignature === true should be counted
     // NOTE: fair_work_information has an acknowledgement form with signature, so it should ALWAYS be counted
-    // NOTE: vehicle_safety_inspection does NOT require signature - it's just a form
+    // NOTE: vehicle_safety_inspection has an acknowledgement form with signature, so it should ALWAYS be counted
     const formsRequiringSignature = batch.signatureForms.filter(
       (sf: any) => {
         const formKey = sf.formSubmission.form.formKey;
         const requiresSig = sf.formSubmission.form.requiresSignature === true;
         
-        // Vehicle Safety Inspection does NOT require signature - exclude it
+        // Vehicle Safety Inspection has an acknowledgement form with signature - always count it
         if (formKey === 'vehicle_safety_inspection') {
-          return false; // Always exclude from signature-requiring forms
+          return true; // Always include in signature-requiring forms
         }
         
         // Fairwork Information has an acknowledgement form with signature - always count it
@@ -95,9 +95,9 @@ export async function GET(
       (sf: any) => {
         const formKey = sf.formSubmission.form.formKey;
         
-        // Vehicle Safety Inspection does NOT require signature - include it here
+        // Vehicle Safety Inspection should NOT be in the non-signature-requiring list
         if (formKey === 'vehicle_safety_inspection') {
-          return true; // Always include in non-signature-requiring forms
+          return false; // Always exclude from non-signature-requiring forms
         }
         
         // Fairwork Information should NOT be in the non-signature-requiring list
@@ -125,7 +125,7 @@ export async function GET(
         console.log(`    ✅ NOTE: This is an acknowledgement form with signature - ALWAYS counted as requiring signature`);
       }
       if (formKey === 'vehicle_safety_inspection') {
-        console.log(`    ✅ NOTE: This form does NOT require signature - ALWAYS counted as NOT requiring signature`);
+        console.log(`    ✅ NOTE: This is an acknowledgement form with signature - ALWAYS counted as requiring signature`);
       }
     });
     console.log(`  Total: ${batch.signatureForms.length} forms`);
@@ -149,6 +149,17 @@ export async function GET(
       }
       
       // Check form-specific signature fields in data JSON
+      // Vehicle Safety Inspection - uses signature from acknowledgmentData
+      if (formKey === 'vehicle_safety_inspection') {
+        const ackData = data.acknowledgmentData || {};
+        const hasAck = !!(data.signature || data.staffSignature || ackData.signature || submission.staffSignature);
+        console.log(`  - data.signature: ${!!data.signature}`);
+        console.log(`  - data.staffSignature: ${!!data.staffSignature}`);
+        console.log(`  - data.acknowledgmentData.signature: ${!!ackData.signature}`);
+        console.log(`  - Result: ${hasAck ? '✅ SIGNED' : '❌ NOT SIGNED'}`);
+        return hasAck;
+      }
+      
       // Fairwork Information - uses signature (primary) or staffSignature (alias)
       if (formKey === 'fair_work_information') {
         const hasAck = !!(data.signature || data.staffSignature || data.acknowledgementSignature || submission.staffSignature);
@@ -203,21 +214,7 @@ export async function GET(
         return true;
       }
       
-      // Check if form has been filled (has data and signature/acknowledgement)
-      // Vehicle Safety Inspection - check if required fields are filled and form is submitted
-      if (formKey === 'vehicle_safety_inspection') {
-        // Check if form is submitted
-        if (submission.isSubmitted === true) {
-          console.log(`  ✅ COMPLETED (Vehicle Safety Inspection - isSubmitted=true)`);
-          return true;
-        }
-        // Check if required fields are filled
-        const hasRequiredFields = !!(data.driver && data.licenceNumber && data.plantIdNo && 
-                                    data.vehicleRegistration && data.insurancePolicy && data.dateOfInspection);
-        console.log(`  - hasRequiredFields: ${hasRequiredFields}`);
-        console.log(`  - Result: ${hasRequiredFields ? '✅ COMPLETED' : '❌ NOT COMPLETED'}`);
-        return hasRequiredFields;
-      }
+      // Note: Vehicle Safety Inspection is now in formsRequiringSignature, so it won't be checked here
       
       // Fairwork Information - check for acknowledgement
       if (formKey === 'fair_work_information') {

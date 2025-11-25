@@ -134,15 +134,38 @@ export default function StaffSignaturePortalClient() {
     }
   };
 
+  // Helper function to safely format dates for display
+  const formatDateForDisplay = (dateValue: any): string | null => {
+    if (!dateValue) return null;
+    
+    try {
+      const dateObj = dateValue instanceof Date 
+        ? dateValue 
+        : new Date(dateValue);
+      
+      if (!isNaN(dateObj.getTime())) {
+        return dateObj.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+      }
+    } catch (error) {
+      console.error('Error formatting date:', error, dateValue);
+    }
+    
+    return null;
+  };
+
   const getFormStatus = (form: SignatureForm) => {
     let requiresSignature = form.formSubmission.form.requiresSignature;
     const submission = form.formSubmission;
     const formKey = submission.form.formKey;
     const data = submission.data || {};
     
-    // Vehicle Safety Inspection does NOT require signature - it's just a form
+    // Vehicle Safety Inspection has an acknowledgement form with signature - always treat as requiring signature
     if (formKey === 'vehicle_safety_inspection') {
-      requiresSignature = false;
+      requiresSignature = true;
     }
     
     // Fairwork Information has an acknowledgement form with signature - always treat as requiring signature
@@ -205,21 +228,63 @@ export default function StaffSignaturePortalClient() {
       let hasSignature = false;
       let signatureDate: Date | string | null = null;
       
+      // Helper function to safely parse date strings to Date objects
+      const parseDateSafely = (dateValue: any): Date | string | null => {
+        if (!dateValue) return null;
+        
+        // If it's already a Date object, return it
+        if (dateValue instanceof Date) {
+          return isNaN(dateValue.getTime()) ? null : dateValue;
+        }
+        
+        // If it's a string, try to parse it
+        if (typeof dateValue === 'string') {
+          // Skip invalid date strings
+          if (dateValue === 'Invalid Date' || dateValue.toLowerCase().includes('invalid')) {
+            return null;
+          }
+          
+          // Try parsing as ISO string or date string
+          const parsed = new Date(dateValue);
+          if (!isNaN(parsed.getTime())) {
+            return parsed;
+          }
+        }
+        
+        return null;
+      };
+      
       // Check if form has signature (even though it's not required)
       if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
         hasSignature = true;
-        signatureDate = (submission.staffSignedAt || null) as Date | string | null;
+        // Always prioritize submission.staffSignedAt (database timestamp)
+        signatureDate = parseDateSafely(submission.staffSignedAt);
+        if (!signatureDate) {
+          // Fallback to form data dates only if database timestamp is missing
+          if (formKey === 'fair_work_information') {
+            signatureDate = parseDateSafely(data.date) || parseDateSafely(data.acknowledgedAt) || parseDateSafely(data.staffSignedAt);
+          } else {
+            signatureDate = parseDateSafely(data.date) || parseDateSafely(data.staffSignedAt);
+          }
+        }
       } else {
         // Check form-specific signature fields
         if (formKey === 'fair_work_information') {
           hasSignature = !!(data.signature || data.staffSignature || data.acknowledgementSignature);
           if (hasSignature) {
-            signatureDate = (data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt || null) as Date | string | null;
+            // Priority: submission.staffSignedAt > data dates
+            signatureDate = parseDateSafely(submission.staffSignedAt) || 
+                          parseDateSafely(data.date) || 
+                          parseDateSafely(data.acknowledgedAt) || 
+                          parseDateSafely(data.staffSignedAt);
           }
         } else {
           hasSignature = !!(data.signature || data.staffSignature);
           if (hasSignature) {
-            signatureDate = submission.staffSignedAt || data.date || data.staffSignedAt;
+            // Priority: submission.staffSignedAt > data dates
+            signatureDate = parseDateSafely(submission.staffSignedAt) || 
+                          parseDateSafely(data.date) || 
+                          parseDateSafely(data.staffSignedAt);
           }
         }
       }
@@ -253,18 +318,25 @@ export default function StaffSignaturePortalClient() {
       if (formKey === 'fair_work_information') {
         const hasAck = !!(data.signature || data.staffSignature || data.acknowledgementSignature || submission.staffSignature);
         const hasName = !!(data.staffName || data.name);
-        const hasDate = !!(data.date || data.acknowledgedAt || data.staffSignedAt);
+        const hasDate = !!(data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt);
         const hasAcknowledged = !!(data.acknowledged || data.readAcknowledgement || data.fairworkAcknowledged);
         isCompleted = hasAck && hasName && hasDate && hasAcknowledged;
         if (isCompleted) {
-          signedDate = data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt;
+          // Priority: submission.staffSignedAt > data dates
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.date) || 
+                      parseDateSafely(data.acknowledgedAt) || 
+                      parseDateSafely(data.staffSignedAt);
         }
       } else {
         // For other forms without signature requirement, check if they have meaningful data
         // Note: vehicle_safety_inspection is already handled above, so skip it here
         if (formKey !== 'vehicle_safety_inspection' && (submission.staffSignature || data.signature || data.staffSignature)) {
           isCompleted = true;
-          signedDate = submission.staffSignedAt || data.date || data.staffSignedAt;
+          // Priority: submission.staffSignedAt > data dates
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.date) || 
+                      parseDateSafely(data.staffSignedAt);
         }
       }
       
@@ -290,21 +362,78 @@ export default function StaffSignaturePortalClient() {
     // Forms requiring signature - check both column and form-specific fields
     let hasSignature = false;
     
-    // Check staffSignature column first
+    // Helper function to safely parse date strings to Date objects
+    const parseDateSafely = (dateValue: any): Date | string | null => {
+      if (!dateValue) return null;
+      
+      // If it's already a Date object, return it
+      if (dateValue instanceof Date) {
+        return isNaN(dateValue.getTime()) ? null : dateValue;
+      }
+      
+      // If it's a string, try to parse it
+      if (typeof dateValue === 'string') {
+        // Skip invalid date strings
+        if (dateValue === 'Invalid Date' || dateValue.toLowerCase().includes('invalid')) {
+          return null;
+        }
+        
+        // Try parsing as ISO string or date string
+        const parsed = new Date(dateValue);
+        if (!isNaN(parsed.getTime())) {
+          return parsed;
+        }
+      }
+      
+      return null;
+    };
+    
+    // Check staffSignature column first - this is the most reliable source
     if (submission.staffSignature !== null && submission.staffSignature !== undefined && submission.staffSignature !== "") {
       hasSignature = true;
-      signedDate = (submission.staffSignedAt || null) as Date | string | null;
+      // Always prioritize submission.staffSignedAt (database timestamp) - this is the actual signature time
+      signedDate = submission.staffSignedAt ? parseDateSafely(submission.staffSignedAt) : null;
+      if (!signedDate) {
+        // Fallback to form data dates only if database timestamp is missing
+        if (formKey === 'vehicle_safety_inspection') {
+          const ackData = data.acknowledgmentData || {};
+          signedDate = parseDateSafely(ackData.acknowledgmentDate) || parseDateSafely(data.staffSignedAt);
+        } else if (formKey === 'fair_work_information') {
+          signedDate = parseDateSafely(data.date) || parseDateSafely(data.acknowledgedAt) || parseDateSafely(data.staffSignedAt);
+        } else if (formKey === 'govt_tax') {
+          signedDate = parseDateSafely(data.payeeSignatureAt) || parseDateSafely(data.staffSignedAt);
+        } else {
+          signedDate = parseDateSafely(data.signatureDate) || parseDateSafely(data.staffSignedAt);
+        }
+      }
     } else {
-      // Check form-specific signature fields in data JSON
-      if (formKey === 'fair_work_information') {
+      // Check form-specific signature fields in data JSON (when column doesn't have signature)
+      if (formKey === 'vehicle_safety_inspection') {
+        // Vehicle Safety Inspection - check acknowledgment signature
+        const ackData = data.acknowledgmentData || {};
+        hasSignature = !!(data.signature || data.staffSignature || ackData.signature);
+        if (hasSignature) {
+          // Priority: submission.staffSignedAt (if exists) > data.staffSignedAt > acknowledgmentDate (parse it)
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.staffSignedAt) || 
+                      parseDateSafely(ackData.acknowledgmentDate);
+        }
+      } else if (formKey === 'fair_work_information') {
         hasSignature = !!(data.signature || data.staffSignature || data.acknowledgementSignature);
         if (hasSignature) {
-          signedDate = (data.date || data.acknowledgedAt || data.staffSignedAt || submission.staffSignedAt || null) as Date | string | null;
+          // Priority: submission.staffSignedAt > data dates
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.date) || 
+                      parseDateSafely(data.acknowledgedAt) || 
+                      parseDateSafely(data.staffSignedAt);
         }
       } else if (formKey === 'govt_tax') {
         hasSignature = !!(data.payeeSignature || data.staffSignature);
         if (hasSignature) {
-          signedDate = data.payeeSignatureAt || data.staffSignedAt || submission.staffSignedAt;
+          // Priority: submission.staffSignedAt > data dates
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.payeeSignatureAt) || 
+                      parseDateSafely(data.staffSignedAt);
         }
       } else if (formKey === 'super_choice_form') {
         hasSignature = !!(data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature);
@@ -330,15 +459,15 @@ export default function StaffSignaturePortalClient() {
             }
           }
           
-          // Fallback to other date fields
-          signedDate = dateStr || 
-                      data.sectionBSignedAt || 
-                      data.sectionCSignedAt || 
-                      data.sectionDSignedAt || 
-                      data.staffSignedAt || 
-                      submission.staffSignedAt ||
-                      data.date ||
-                      submission.submittedAt;
+          // Priority: submission.staffSignedAt > converted date string > other date fields
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(dateStr) || 
+                      parseDateSafely(data.sectionBSignedAt) || 
+                      parseDateSafely(data.sectionCSignedAt) || 
+                      parseDateSafely(data.sectionDSignedAt) || 
+                      parseDateSafely(data.staffSignedAt) ||
+                      parseDateSafely(data.date) ||
+                      parseDateSafely(submission.submittedAt);
           
           console.log(`[Super Choice Date Check] ${formKey}:`, {
             sectionBSignature: !!data.sectionBSignature,
@@ -357,7 +486,10 @@ export default function StaffSignaturePortalClient() {
         // Generic check
         hasSignature = !!(data.signature || data.staffSignature);
         if (hasSignature) {
-          signedDate = data.signatureDate || data.staffSignedAt || submission.staffSignedAt;
+          // Priority: submission.staffSignedAt > data dates
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.signatureDate) || 
+                      parseDateSafely(data.staffSignedAt);
         }
       }
     }
@@ -841,21 +973,20 @@ export default function StaffSignaturePortalClient() {
                               <StatusIcon className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                               {statusInfo.status}
                             </span>
-                            {statusInfo.date && (
-                              <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                                <FaHistory className="mr-1 h-3 w-3" />
-                                <span>
-                                  {form.formSubmission.form.formKey === 'vehicle_safety_inspection' 
-                                    ? 'Completed on ' 
-                                    : 'Signed on '}
-                                  {new Date(statusInfo.date).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric'
-                                  })}
-                                </span>
-                              </div>
-                            )}
+                            {statusInfo.date && (() => {
+                              const formattedDate = formatDateForDisplay(statusInfo.date);
+                              return formattedDate ? (
+                                <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                                  <FaHistory className="mr-1 h-3 w-3" />
+                                  <span>
+                                    {form.formSubmission.form.formKey === 'vehicle_safety_inspection' 
+                                      ? 'Completed on ' 
+                                      : 'Signed on '}
+                                    {formattedDate}
+                                  </span>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>

@@ -153,9 +153,9 @@ export function getSignatureStatusText(validation: SignatureValidationResult): s
  * Check if a form requires any signatures
  */
 export function formRequiresSignatures(formKey: string): boolean {
-  // Vehicle Safety Inspection does NOT require signature
+  // Vehicle Safety Inspection has an acknowledgement form with signature - always require signature
   if (formKey === 'vehicle_safety_inspection') {
-    return false;
+    return true;
   }
   
   const formConfig = getFormConfig(formKey);

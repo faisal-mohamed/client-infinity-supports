@@ -320,20 +320,33 @@ export async function POST(
     let staffSignedAt: Date | null = null;
     
     // Helper function to convert DD/MM/YYYY string to Date object
-    const parseDateString = (dateStr: string | null | undefined): Date | null => {
+    const parseDateString = (dateStr: string | Date | null | undefined): Date | null => {
       if (!dateStr) return null;
       
-      // If it's already a Date object, return it
-      if (dateStr instanceof Date) return dateStr;
+      // If it's already a Date object, validate it
+      if (dateStr instanceof Date) {
+        if (isNaN(dateStr.getTime())) {
+          return null; // Invalid date
+        }
+        return dateStr;
+      }
       
       // If it's a string, try to parse it
       if (typeof dateStr === 'string') {
+        // Skip if it's the string "Invalid Date"
+        if (dateStr === 'Invalid Date' || dateStr.toLowerCase().includes('invalid')) {
+          return null;
+        }
+        
         // Try DD/MM/YYYY format (used by tax form)
         const dmyMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
         if (dmyMatch) {
           const [, day, month, year] = dmyMatch;
           // Create date in YYYY-MM-DD format for Date constructor
-          return new Date(`${year}-${month}-${day}`);
+          const parsedDate = new Date(`${year}-${month}-${day}`);
+          if (!isNaN(parsedDate.getTime())) {
+            return parsedDate;
+          }
         }
         
         // Try ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss)
@@ -346,9 +359,40 @@ export async function POST(
       return null;
     };
     
+    // Helper function to safely get a valid date or null
+    const getValidDate = (date: Date | string | null | undefined): Date | null => {
+      if (!date) return null;
+      
+      // If it's already a Date, validate it
+      if (date instanceof Date) {
+        return isNaN(date.getTime()) ? null : date;
+      }
+      
+      // If it's a string, try to parse it
+      if (typeof date === 'string') {
+        if (date === 'Invalid Date' || date.toLowerCase().includes('invalid')) {
+          return null;
+        }
+        return parseDateString(date);
+      }
+      
+      return null;
+    };
+    
     if (submit) {
       // Extract signature based on form type
-      if (formKey === 'fair_work_information') {
+      if (formKey === 'vehicle_safety_inspection') {
+        // Vehicle Safety Inspection uses acknowledgmentData.signature
+        const ackData = data.acknowledgmentData || {};
+        staffSignature = ackData.signature || data.signature || data.staffSignature || null;
+        // Extract date from acknowledgmentData.acknowledgmentDate
+        if (ackData.acknowledgmentDate) {
+          staffSignedAt = parseDateString(ackData.acknowledgmentDate);
+        } else {
+          // Fallback to other date fields
+          staffSignedAt = parseDateString(data.staffSignedAt || data.signedAt);
+        }
+      } else if (formKey === 'fair_work_information') {
         // Fairwork uses signature (primary) or staffSignature (alias)
         staffSignature = data.signature || data.staffSignature || data.acknowledgementSignature || null;
         staffSignedAt = parseDateString(data.date || data.acknowledgedAt || data.staffSignedAt);
@@ -380,6 +424,16 @@ export async function POST(
         staffSignedAt = new Date();
       }
       
+      // Validate that staffSignedAt is a valid Date or null
+      if (staffSignedAt && (!(staffSignedAt instanceof Date) || isNaN(staffSignedAt.getTime()))) {
+        console.warn(`⚠️ [Onboard API] Invalid date detected for ${formKey}, resetting to current date`);
+        if (staffSignature) {
+          staffSignedAt = new Date();
+        } else {
+          staffSignedAt = null;
+        }
+      }
+      
       console.log(`📋 [Onboard API] Extracted signature for ${formKey}:`, {
         hasSignature: !!staffSignature,
         signatureLength: staffSignature?.length || 0,
@@ -389,6 +443,11 @@ export async function POST(
 
     if (submission) {
       // Update existing submission
+      // Safely get the fallback date from existing submission
+      const fallbackDate = submit && !staffSignedAt 
+        ? getValidDate(submission.staffSignedAt) 
+        : (submit ? staffSignedAt : getValidDate(submission.staffSignedAt));
+      
       submission = await prisma.staffFormSubmission.update({
         where: {
           staffId_formKey: {
@@ -405,7 +464,7 @@ export async function POST(
           submittedAt: submit === true ? new Date() : submission.submittedAt,
           // Save signature to column for completion tracking
           staffSignature: submit ? (staffSignature || submission.staffSignature) : submission.staffSignature,
-          staffSignedAt: submit ? (staffSignedAt || submission.staffSignedAt) : submission.staffSignedAt,
+          staffSignedAt: fallbackDate,
         },
       });
     } else {
@@ -482,19 +541,23 @@ export async function POST(
       
       if (submit) {
         // Form is being submitted - determine status based on signature requirements
-        // Vehicle Safety Inspection does NOT require signature - override database value
+        // Vehicle Safety Inspection has an acknowledgement form with signature - always require signature
         let requiresSignature = form.requiresSignature ?? false;
         if (formKey === 'vehicle_safety_inspection') {
-          requiresSignature = false;
+          requiresSignature = true; // Always require signature for acknowledgment form
         }
         
         // Check if staff has signed (check both column and data fields)
         // For govt_tax form, only check payeeSignature (Section A only)
-        // For vehicle_safety_inspection, skip signature check entirely
+        // For vehicle_safety_inspection, check acknowledgment signature
         let hasStaffSignature = false;
         if (formKey === 'vehicle_safety_inspection') {
-          // Vehicle Safety Inspection doesn't use signatures - always false
-          hasStaffSignature = false;
+          // Vehicle Safety Inspection - check acknowledgment signature
+          const ackData = data.acknowledgmentData || {};
+          hasStaffSignature = !!submission.staffSignature || 
+            !!(data.signature) || 
+            !!(data.staffSignature) ||
+            !!(ackData.signature);
         } else if (formKey === 'govt_tax') {
           hasStaffSignature = !!submission.staffSignature || 
             !!(data.payeeSignature) || 

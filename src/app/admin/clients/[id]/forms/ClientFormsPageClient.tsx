@@ -130,7 +130,7 @@ const adminId : any  = session?.user?.id;
 
   const loadAvailableForms = async () => {
     try {
-      const response = await fetch('/api/forms');
+      const response = await fetch('/api/forms?type=client');
       if (!response.ok) throw new Error('Failed to load available forms');
       
       const data = await response.json();

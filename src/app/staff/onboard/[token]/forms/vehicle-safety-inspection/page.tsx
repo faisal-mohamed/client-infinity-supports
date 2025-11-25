@@ -2,9 +2,9 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
 import LoadingView from '@/components/ui/LoadingView';
+import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
 export default function VehicleSafetyInspectionFormPage() {
   const { token } = useParams<{ token: string }>();
@@ -12,88 +12,17 @@ export default function VehicleSafetyInspectionFormPage() {
   const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
-  const [initialFormData, setInitialFormData] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const isInitialLoad = useRef(true);
+  const [downloading, setDownloading] = useState(false);
+  const [documentDownloaded, setDocumentDownloaded] = useState(false);
+  const [acknowledgmentData, setAcknowledgmentData] = useState({
+    acknowledged: false,
+    acknowledgmentDate: '',
+    signature: ''
+  });
+  const sigRef = useRef<SignatureCanvasRef | null>(null);
 
-  // Required fields for Driver Information section
-  const requiredFields = [
-    'driver',
-    'licenceNumber',
-    'plantIdNo',
-    'vehicleRegistration',
-    'insurancePolicy',
-    'dateOfInspection'
-  ];
-
-  // Field labels mapping
-  const fieldLabels: Record<string, string> = {
-    driver: 'Driver',
-    licenceNumber: 'Licence number',
-    plantIdNo: 'Plant ID No',
-    vehicleRegistration: 'Vehicle registration',
-    insurancePolicy: 'Insurance policy',
-    dateOfInspection: 'Date of inspection'
-  };
-
-  // Helper function to check if a field value is empty
-  const isFieldEmpty = useCallback((field: string, value: any): boolean => {
-    if (value === null || value === undefined) return true;
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed === '') return true;
-      
-      // Date fields - check if it's a valid date string (not placeholder)
-      if (field === 'dateOfInspection' || field === 'reviewedByDate' || field === 'nextInspectionDate') {
-        // Reject placeholder values like "dd-mm-yyyy", "mm/dd/yyyy", etc.
-        const placeholderPatterns = [
-          /^dd[-/]mm[-/]yyyy$/i,
-          /^mm[-/]dd[-/]yyyy$/i,
-          /^yyyy[-/]mm[-/]dd$/i,
-          /^dd[-/]mm[-/]yy$/i,
-          /^mm[-/]dd[-/]yy$/i,
-        ];
-        
-        // Check if it matches any placeholder pattern
-        if (placeholderPatterns.some(pattern => pattern.test(trimmed))) {
-          return true;
-        }
-        
-        // Check if it's a valid date format (YYYY-MM-DD)
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          return true; // Invalid date format
-        }
-        
-        // Additional validation: check if it's a valid date
-        const date = new Date(trimmed);
-        if (isNaN(date.getTime())) {
-          return true; // Invalid date
-        }
-      }
-    }
-    if (Array.isArray(value) && value.length === 0) return true;
-    return false;
-  }, []);
-
-  // Validation function
-  const validateForm = useCallback((): { isValid: boolean; missingFields: string[] } => {
-    const errors: Record<string, string> = {};
-    const missingFields: string[] = [];
-    
-    requiredFields.forEach(field => {
-      const value = formData[field];
-      if (isFieldEmpty(field, value)) {
-        const fieldLabel = fieldLabels[field];
-        errors[field] = `${fieldLabel} is required`;
-        missingFields.push(fieldLabel);
-      }
-    });
-
-    setFieldErrors(errors);
-    return { isValid: Object.keys(errors).length === 0, missingFields };
-  }, [formData, isFieldEmpty]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -127,31 +56,24 @@ export default function VehicleSafetyInspectionFormPage() {
             (f: any) => f.formSubmission?.form?.formKey === 'vehicle_safety_inspection'
           );
           if (vehicleForm && vehicleForm.formSubmission?.data) {
-            // Extract only the form data, exclude signature fields since this form doesn't use signatures
-            const { staffSignature, staffSignedAt, adminSignature, adminSignedAt, ...formData } = vehicleForm.formSubmission.data;
-            formSubmission = formData;
+            formSubmission = vehicleForm.formSubmission.data;
           }
         } else {
           // Check submissions dictionary
           if (staffData.submissions && staffData.submissions['vehicle_safety_inspection']) {
-            // Extract only the form data, exclude signature fields since this form doesn't use signatures
-            const submissionData = staffData.submissions['vehicle_safety_inspection'];
-            const { staffSignature, staffSignedAt, adminSignature, adminSignedAt, ...formData } = submissionData;
-            formSubmission = formData;
+            formSubmission = staffData.submissions['vehicle_safety_inspection'];
           }
         }
         
-        console.log('Loaded form submission data for vehicle_safety_inspection:', {
-          hasData: Object.keys(formSubmission).length > 0,
-          keys: Object.keys(formSubmission),
-          sampleData: Object.keys(formSubmission).slice(0, 5).reduce((acc, key) => {
-            acc[key] = formSubmission[key];
-            return acc;
-          }, {} as any)
-        });
-        
-        setInitialFormData(formSubmission);
         setFormData(formSubmission);
+        
+        // Load download and acknowledgment states
+        if (formSubmission.documentDownloaded) {
+          setDocumentDownloaded(true);
+        }
+        if (formSubmission.acknowledgmentData) {
+          setAcknowledgmentData(formSubmission.acknowledgmentData);
+        }
       } catch (error: any) {
         console.error('Error loading data:', error);
         showToast({
@@ -170,108 +92,144 @@ export default function VehicleSafetyInspectionFormPage() {
     }
   }, [token, showToast]);
 
-  // Memoize the onDataChange callback to prevent infinite loops
-  const handleDataChange = useCallback((data: any) => {
-    console.log('Form data changed:', {
-      driver: data.driver,
-      licenceNumber: data.licenceNumber,
-      plantIdNo: data.plantIdNo,
-      vehicleRegistration: data.vehicleRegistration,
-      insurancePolicy: data.insurancePolicy,
-      dateOfInspection: data.dateOfInspection,
-    });
-    setFormData(data);
-  }, []);
 
-  // Clear field errors when form data changes and fields are filled
-  useEffect(() => {
-    setFieldErrors(prevErrors => {
-      if (Object.keys(prevErrors).length === 0) {
-        return prevErrors; // No errors to clear
-      }
-
-      const newErrors = { ...prevErrors };
-      let hasChanges = false;
-      
-      // Check each field that has an error
-      Object.keys(newErrors).forEach(field => {
-        const value = formData[field];
-        const isEmpty = isFieldEmpty(field, value);
-        
-        console.log(`Checking field ${field}:`, {
-          value,
-          isEmpty,
-          hasError: !!newErrors[field]
-        });
-        
-        // Check if field is now filled (not empty)
-        if (!isEmpty && newErrors[field]) {
-          console.log(`Clearing error for ${field}`);
-          delete newErrors[field];
-          hasChanges = true;
-        }
-      });
-      
-      return hasChanges ? newErrors : prevErrors;
-    });
-  }, [formData, isFieldEmpty]);
+  const [pdfUrl, setPdfUrl] = useState<string>('');
 
   useEffect(() => {
-    console.log("formData: ", formData);
-  }, [formData]);
+    if (staff?.id) {
+      // Generate PDF URL - it will work even with empty form data
+      const pdfEndpoint = `/api/staff/${staff.id}/forms/vehicle_safety_inspection/pdf`;
+      setPdfUrl(pdfEndpoint);
+    }
+  }, [staff]);
 
-  const handleSave = async (isSubmit: boolean) => {
-    // Validate required fields before submission
-    if (isSubmit) {
-      const validation = validateForm();
-      if (!validation.isValid) {
-        // Build toast message with missing field names
-        let message = '';
-        const missingCount = validation.missingFields.length;
-        
-        if (missingCount === 1) {
-          message = `Please fill in the required field: ${validation.missingFields[0]}`;
-        } else if (missingCount <= 3) {
-          // Show all field names if 3 or fewer
-          const fieldsList = validation.missingFields.slice(0, -1).join(', ');
-          const lastField = validation.missingFields[validation.missingFields.length - 1];
-          message = `Please fill in the required fields: ${fieldsList} and ${lastField}`;
-        } else {
-          // Show first 3 fields and count of remaining
-          const firstThree = validation.missingFields.slice(0, 3).join(', ');
-          const remaining = missingCount - 3;
-          message = `Please fill in the required fields: ${firstThree} and ${remaining} more`;
-        }
-
+  // Handle document download
+  const handleDownload = useCallback(async () => {
+    try {
+      setDownloading(true);
+      
+      if (!staff?.id || !pdfUrl) {
         showToast({
           type: 'error',
-          title: 'Validation Error',
-          message: message,
-          duration: 6000,
+          title: 'Error',
+          message: 'Staff information not loaded. Please refresh the page.',
+          duration: 5000,
         });
-        
-        // Scroll to first error field
-        const firstErrorField = Object.keys(fieldErrors)[0];
-        if (firstErrorField) {
-          const element = document.querySelector(`[name="${firstErrorField}"]`) || 
-                         document.querySelector(`input[type="date"][value="${formData[firstErrorField] || ''}"]`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            (element as HTMLElement).focus();
-          }
-        }
         return;
       }
-    }
 
-    setSaving(true);
-    try {
-      // Detect if this is a signature link or onboard link
+      // Create a temporary link to trigger download
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `Vehicle_Safety_Inspection_Checklist_${staff.firstName}_${staff.surname}.pdf`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Wait a bit before removing the link
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+
+      // Mark as downloaded and save state
+      setDocumentDownloaded(true);
+      
       const isSignatureLink = window.location.pathname.includes('/staff/signature/');
       const apiEndpoint = isSignatureLink
         ? `/api/staff/signature/${token}/forms/vehicle_safety_inspection`
         : `/api/staff/onboard/${token}`;
       
+      await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formKey: 'vehicle_safety_inspection',
+          data: {
+            ...formData,
+            documentDownloaded: true,
+            acknowledgmentData: acknowledgmentData
+          },
+          submit: false,
+        }),
+      });
+
+      showToast({
+        type: 'success',
+        title: 'Document Downloaded',
+        message: 'You can now proceed to fill the acknowledgment form.',
+        duration: 4000,
+      });
+    } catch (error: any) {
+      console.error('Error downloading document:', error);
+      showToast({
+        type: 'error',
+        title: 'Download Error',
+        message: 'Failed to download document. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  }, [staff, token, pdfUrl, formData, acknowledgmentData, showToast]);
+
+  // Handle acknowledgment form changes
+  const handleAcknowledgmentChange = useCallback((field: string, value: any) => {
+    setAcknowledgmentData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
+  // Handle signature
+  const handleSignatureEnd = useCallback((signatureDataUrl: string) => {
+    handleAcknowledgmentChange('signature', signatureDataUrl);
+  }, [handleAcknowledgmentChange]);
+
+  const handleSignatureClear = useCallback(() => {
+    handleAcknowledgmentChange('signature', '');
+  }, [handleAcknowledgmentChange]);
+
+  // Validate and submit acknowledgment
+  const handleSubmitAcknowledgment = useCallback(async () => {
+    if (!acknowledgmentData.acknowledged) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please acknowledge that you have read and understood the document.',
+        duration: 5000,
+      });
+      return;
+    }
+    if (!acknowledgmentData.acknowledgmentDate) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please provide the acknowledgment date.',
+        duration: 5000,
+      });
+      return;
+    }
+    if (!acknowledgmentData.signature) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please provide your signature.',
+        duration: 5000,
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+      const apiEndpoint = isSignatureLink
+        ? `/api/staff/signature/${token}/forms/vehicle_safety_inspection`
+        : `/api/staff/onboard/${token}`;
+      
+      // Save with signature - this marks the form as submitted
+      // The API expects signature in the data object as 'signature' or 'staffSignature'
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
@@ -279,143 +237,311 @@ export default function VehicleSafetyInspectionFormPage() {
         },
         body: JSON.stringify({
           formKey: 'vehicle_safety_inspection',
-          data: formData,
-          submit: isSubmit,
+          data: {
+            ...formData,
+            documentDownloaded: true,
+            acknowledgmentData: acknowledgmentData,
+            // Include signature in data for API to extract
+            signature: acknowledgmentData.signature,
+            staffSignature: acknowledgmentData.signature,
+            staffSignedAt: new Date().toISOString(),
+          },
+          submit: true,
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        const action = isSubmit ? 'submitted' : 'saved';
         showToast({
           type: 'success',
-          title: `Form ${action === 'submitted' ? 'Submitted' : 'Saved'}`,
-          message: `Your Vehicle Safety Inspection Checklist has been ${action} successfully.`,
+          title: 'Form Submitted',
+          message: 'Your acknowledgment has been submitted successfully.',
           duration: 4000,
         });
-      
-      if (isSubmit) {
-          // Small delay to show success message before navigation
-          const isSignatureLink = window.location.pathname.includes('/staff/signature/');
-          setTimeout(() => {
-        router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
-          }, 1000);
-        }
-      } else {
-        // Handle different error types with appropriate messages
-        const errorMessage = result.message || result.error || 'Failed to save form';
-        let title = 'Save Failed';
         
-        // Customize error messages based on error code
-        if (result.code === 'DUPLICATE_ENTRY') {
-          title = 'Already Submitted';
-        } else if (result.code === 'LINK_EXPIRED') {
-          title = 'Access Link Expired';
-        } else if (result.code === 'DATABASE_CONNECTION_ERROR') {
-          title = 'Connection Error';
-        } else if (result.code === 'DATA_TOO_LONG') {
-          title = 'Validation Error';
-        }
-
+        setTimeout(() => {
+          router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+        }, 1000);
+      } else {
         showToast({
           type: 'error',
-          title,
-          message: errorMessage,
+          title: 'Submission Failed',
+          message: result.message || result.error || 'Failed to submit acknowledgment. Please try again.',
           duration: 5000,
         });
       }
     } catch (error: any) {
-      console.error('Error saving form:', error);
-      
-      // Handle network errors
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        showToast({
-          type: 'error',
-          title: 'Network Error',
-          message: 'Unable to connect to the server. Please check your internet connection and try again.',
-          duration: 5000,
-        });
-      } else {
-        showToast({
-          type: 'error',
-          title: 'Unexpected Error',
-          message: 'An unexpected error occurred while saving. Please try again.',
-          duration: 5000,
-        });
-      }
+      console.error('Error submitting acknowledgment:', error);
+      showToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to connect to the server. Please check your internet connection and try again.',
+        duration: 5000,
+      });
     } finally {
       setSaving(false);
     }
-  };
+  }, [acknowledgmentData, formData, token, router, showToast]);
 
   if (loading) {
     return <LoadingView title="Loading Vehicle Safety Inspection Form" message="Please wait..." />;
   }
 
-  const VehicleSafetyInspectionEdit = getStaffFormComponent('vehicle_safety_inspection', 'edit');
-
   return (
-    <div className="min-h-screen bg-gray-100 py-4 md:py-8">
-      <style jsx>{`
-        .view-component-wrapper {
-          min-height: 600px;
-        }
-        @media (max-width: 768px) {
-        .view-component-wrapper { 
-            min-height: 400px;
-          }
-        }
-      `}</style>
-      
-      <div className="w-full max-w-7xl mx-auto px-2 md:px-6">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-6 md:py-10">
+      <div className="w-full max-w-5xl mx-auto px-4 md:px-6">
+        {/* Professional Header */}
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 md:p-8 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Vehicle Safety Inspection Checklist</h1>
-              <p className="text-gray-600">{staff?.firstName} {staff?.surname}</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Vehicle Safety Inspection Checklist</h1>
+              <div className="flex items-center gap-2 text-gray-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium">{staff?.firstName} {staff?.surname}</span>
+              </div>
             </div>
             <button
               onClick={() => {
                 const isSignatureLink = window.location.pathname.includes('/staff/signature/');
                 router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
               }}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 self-start sm:self-auto"
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors self-start sm:self-auto"
             >
-              ← Back to Forms
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Forms
             </button>
           </div>
         </div>
 
-        {/* Edit Component */}
-        <div className="bg-white rounded-lg shadow-lg p-2 md:p-6">
-          <div className="view-component-wrapper w-full">
-            <VehicleSafetyInspectionEdit
-              initialData={initialFormData}
-              onDataChange={handleDataChange}
-              showButtons={false}
-              fieldErrors={fieldErrors}
-            />
+        {/* Step 1: Download PDF */}
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 md:p-8 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
+              documentDownloaded 
+                ? 'bg-green-500 text-white' 
+                : 'bg-rose-600 text-white'
+            }`}>
+              {documentDownloaded ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                '1'
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">Step 1: Download Document</h2>
+              <p className="text-sm text-gray-500">Download the PDF checklist before proceeding</p>
+            </div>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
-            <button
-              onClick={() => handleSave(false)}
-              disabled={saving}
-              className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 w-full sm:w-auto"
-            >
-              {saving ? 'Saving...' : 'Save Draft'}
-            </button>
-            <button
-              onClick={() => handleSave(true)}
-              disabled={saving}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 w-full sm:w-auto"
-            >
-              {saving ? 'Submitting...' : 'Submit & Continue'}
-            </button>
+          <div className="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-lg mb-6">
+            <p className="text-gray-700">
+              Please download the Vehicle Safety Inspection Checklist PDF document before proceeding to the acknowledgment form.
+            </p>
           </div>
+
+          <div className="flex flex-col items-center gap-4">
+            {pdfUrl && (
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className="flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-bold text-lg transition-all bg-rose-600 text-white hover:bg-rose-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {downloading ? (
+                  <>
+                    <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    {documentDownloaded ? 'Download PDF Again' : 'Download PDF Document'}
+                  </>
+                )}
+              </button>
+            )}
+            {documentDownloaded && (
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Document downloaded. You can download again anytime if needed.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Step 2: Acknowledgment Form - Locked until download */}
+        <div className={`bg-white rounded-xl shadow-xl border border-gray-200 p-6 md:p-8 mb-6 transition-all ${
+          !documentDownloaded ? 'opacity-60 pointer-events-none' : ''
+        }`}>
+          <div className="flex items-center gap-3 mb-6">
+            <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
+              documentDownloaded 
+                ? 'bg-rose-600 text-white' 
+                : 'bg-gray-300 text-gray-500'
+            }`}>
+              2
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">Step 2: Acknowledgment Form</h2>
+              <p className="text-sm text-gray-500">Complete and submit your acknowledgment</p>
+            </div>
+            {!documentDownloaded && (
+              <span className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 px-4 py-2 rounded-lg font-medium">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Complete Step 1 first
+              </span>
+            )}
+          </div>
+          
+          {documentDownloaded ? (
+            <div className="w-full flex justify-center">
+              <div className="bg-white w-full max-w-[794px] min-h-[1123px] border shadow relative px-[96px] pt-12 pb-[112px] a4-ack">
+                {/* Header with logo */}
+                <div className="flex justify-center mb-8">
+                  <img 
+                    src="/client_full_logo.jpg" 
+                    alt="Infinity Supports WA logo" 
+                    className="h-16 object-contain" 
+                  />
+                </div>
+
+                {/* Title */}
+                <h2 className="text-center font-semibold mb-6 text-[14pt]">
+                  Vehicle Safety Inspection Checklist – Acknowledgement
+                </h2>
+
+                {/* Acknowledgment Paragraphs */}
+                <p className="mb-4 text-[11pt] leading-relaxed">
+                  I confirm that I have received, read, and understood the Vehicle Safety Inspection Checklist document provided to me by Infinity Supports WA. I understand the inspection requirements and procedures outlined in the document.
+                </p>
+                <p className="mb-8 text-[11pt] leading-relaxed">
+                  I acknowledge that it is my responsibility to conduct vehicle safety inspections in accordance with the checklist and to report any issues or concerns identified during inspections.
+                </p>
+
+                {/* Acknowledgment Box */}
+                <div className="border border-gray-300 rounded-lg p-4 mb-8 bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={acknowledgmentData.acknowledged}
+                      onChange={(e) => handleAcknowledgmentChange('acknowledged', e.target.checked)}
+                      className="mt-1 w-5 h-5 text-rose-600 border-gray-300 rounded focus:ring-rose-500 flex-shrink-0 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <p className="text-[11pt] font-bold mb-2">I acknowledge that:</p>
+                      <ul className="text-[11pt] space-y-1 list-disc list-inside text-gray-700">
+                        <li>I have received the Vehicle Safety Inspection Checklist from Infinity Supports WA</li>
+                        <li>I have read and understood the inspection requirements and procedures</li>
+                        <li>I will conduct vehicle safety inspections in accordance with the checklist</li>
+                        <li>I will report any issues or concerns identified during inspections</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Name Field */}
+                <div className="mb-6">
+                  <label className="block text-[11pt] font-bold mb-2">
+                    Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="border-b border-dotted border-gray-900 min-h-[28px] pb-1 px-1">
+                    <span className="text-[11pt] text-gray-900">
+                      {staff?.firstName} {staff?.surname}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Date Field */}
+                <div className="mb-6">
+                  <label className="block text-[11pt] font-bold mb-2">
+                    Date <span className="text-red-500">*</span>
+                  </label>
+                  <div className="border-b border-dotted border-gray-900 min-h-[28px] pb-1 px-1">
+                    <input
+                      type="date"
+                      value={acknowledgmentData.acknowledgmentDate}
+                      onChange={(e) => handleAcknowledgmentChange('acknowledgmentDate', e.target.value)}
+                      className="w-full text-[11pt] bg-transparent border-none outline-none focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Signature Field */}
+                <div className="mb-8">
+                  <label className="block text-[11pt] font-bold mb-2">
+                    Signature <span className="text-red-500">*</span>
+                  </label>
+                  <div className="border border-dotted border-gray-900 min-h-[80px] p-3 bg-white">
+                    <SignatureCanvas
+                      ref={sigRef}
+                      onSignatureEnd={handleSignatureEnd}
+                      onSignatureClear={handleSignatureClear}
+                      existingSignature={acknowledgmentData.signature}
+                      width={600}
+                      height={150}
+                      penColor="black"
+                      className="w-full"
+                    />
+                  </div>
+                  {!acknowledgmentData.signature && (
+                    <p className="text-[10pt] text-gray-500 mt-2 italic">
+                      Please draw your signature above
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex justify-center pt-6 border-t border-gray-200">
+                  <button
+                    onClick={handleSubmitAcknowledgment}
+                    disabled={saving || !acknowledgmentData.acknowledged || !acknowledgmentData.acknowledgmentDate || !acknowledgmentData.signature}
+                    className="flex items-center justify-center gap-2 px-8 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-[12pt] shadow-md hover:shadow-lg transition-all"
+                  >
+                    {saving ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Submit Acknowledgment
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <p className="text-gray-600 font-medium text-lg">Please complete Step 1 to unlock this form</p>
+              <p className="text-gray-500 text-sm mt-2">Download the PDF document first</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

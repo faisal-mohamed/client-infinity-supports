@@ -607,6 +607,10 @@ export default function StaffFormViewPageClient() {
         // Bullying Harassment Training returns only acknowledgement form PDF (no merge)
         console.log('📥 [View Form] Fetching acknowledgement form PDF only (no merge)');
         response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+      } else if (formKey === 'vehicle_safety_inspection') {
+        // Vehicle Safety Inspection returns only acknowledgment form PDF for admin
+        console.log('📥 [View Form] Fetching acknowledgment form PDF only for vehicle_safety_inspection');
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?acknowledgmentOnly=true`);
       } else {
         // Use the generic staff PDF endpoint for other forms
         console.log('📥 [View Form] Fetching PDF from:', `/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
@@ -679,18 +683,47 @@ export default function StaffFormViewPageClient() {
       
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.style.display = 'none';
+      a.style.position = 'fixed';
+      a.style.left = '-9999px';
+      a.style.top = '-9999px';
       a.href = url;
       const staffName = `${assignment.staff.firstName || ''}_${assignment.staff.surname || ''}`.replace(/[^a-zA-Z0-9]/g, '_');
-      a.download = `${assignment.form.title.replace(/[^a-zA-Z0-9]/g, '_')}_${staffName}.pdf`;
-      document.body.appendChild(a);
-      a.click();
+      const formTitle = assignment.form.formKey === 'vehicle_safety_inspection' 
+        ? 'Vehicle_Safety_Inspection_Acknowledgment'
+        : assignment.form.title.replace(/[^a-zA-Z0-9]/g, '_');
+      a.download = `${formTitle}_${staffName}.pdf`;
       
-      // Cleanup
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
+      console.log('🔵 [View Form Download] Appending link to body...');
+      document.body.appendChild(a);
+      console.log('🔵 [View Form Download] Link appended, triggering click...');
+      a.click();
+      console.log('🔵 [View Form Download] Click triggered');
+      
+      // Cleanup with safety checks
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          console.log('🔵 [View Form Download] Cleanup - checking link state...');
+          if (a && a.parentNode === document.body) {
+            try {
+              console.log('🔵 [View Form Download] Removing link from body...');
+              document.body.removeChild(a);
+              console.log('✅ [View Form Download] Link removed successfully');
+            } catch (e: any) {
+              console.error('❌ [View Form Download] Error removing link:', e);
+            }
+          } else {
+            console.warn('⚠️ [View Form Download] Link not removed - parentNode check failed');
+          }
+          
+          // Revoke URL after delay
+          setTimeout(() => {
+            if (url) {
+              window.URL.revokeObjectURL(url);
+              console.log('✅ [View Form Download] URL revoked');
+            }
+          }, 1000);
+        });
+      });
       
       showToast({
         type: 'success',
@@ -856,6 +889,9 @@ export default function StaffFormViewPageClient() {
   // Check if this is Conflict of Interest form - use PDF viewer with admin section
   const isConflictOfInterestForm = assignment.form.formKey === 'conflict_of_interest';
   
+  // Check if this is Vehicle Safety Inspection form - use PDF viewer (acknowledgment form only)
+  const isVehicleSafetyInspectionForm = assignment.form.formKey === 'vehicle_safety_inspection';
+  
   console.log('🎨 [View Form] Rendering decision:', {
     formKey: assignment.form.formKey,
     isEmployeeDetailsForm,
@@ -864,8 +900,9 @@ export default function StaffFormViewPageClient() {
     isConflictOfInterestForm,
     isEmployeeWelcomeForm,
     isNdisForm,
-    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm,
+    isVehicleSafetyInspectionForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1285,6 +1322,18 @@ export default function StaffFormViewPageClient() {
             return (
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
                 <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/bullying-harassment-training/pdf`} />
+              </div>
+            );
+          })()
+        ) : isVehicleSafetyInspectionForm ? (
+          /* Use PDF viewer for Vehicle Safety Inspection form - shows acknowledgment form PDF only */
+          (() => {
+            console.log('📄 [View Form] Rendering Vehicle Safety Inspection PDF viewer (acknowledgment form only)');
+            const pdfUrl = `/api/staff/${staffId}/forms/vehicle-safety-inspection/pdf?acknowledgmentOnly=true`;
+            console.log('📄 [View Form] Vehicle Safety Inspection PDF URL:', pdfUrl);
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={pdfUrl} />
               </div>
             );
           })()

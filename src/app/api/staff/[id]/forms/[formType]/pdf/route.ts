@@ -227,6 +227,29 @@ export async function GET(
         }
         break;
       }
+      case 'vehicle-safety-inspection':
+      case 'vehicle_safety_inspection': {
+        const vehicleSafetySubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'vehicle_safety_inspection',
+            },
+          },
+        });
+        if (vehicleSafetySubmission) {
+          formData = {
+            data: vehicleSafetySubmission.data || {},
+            staffSignature: vehicleSafetySubmission.staffSignature,
+            staffSignedAt: vehicleSafetySubmission.staffSignedAt,
+            createdAt: vehicleSafetySubmission.createdAt,
+            updatedAt: vehicleSafetySubmission.updatedAt,
+          };
+        } else {
+          formData = { data: {}, staffSignature: null, staffSignedAt: null };
+        }
+        break;
+      }
       default:
         return new NextResponse("Invalid form type", { status: 400 });
     }
@@ -316,19 +339,71 @@ export async function GET(
       );
     }
     
+    // Check if we should show blank acknowledgement form (for staff download)
+    // Check if we should show only acknowledgment form (for admin view/download)
+    const { searchParams } = new URL(req.url);
+    const showBlank = searchParams.get('blank') === 'true';
+    const acknowledgmentOnly = searchParams.get('acknowledgmentOnly') === 'true';
+    
+    console.log('🔵 [PDF API] PDF generation parameters:', {
+      formType,
+      staffId,
+      showBlank,
+      acknowledgmentOnly,
+      hasFormData: !!formData,
+      hasAcknowledgmentData: !!(formData?.data?.acknowledgmentData || (formData as any)?.acknowledgmentData),
+      formDataKeys: formData ? Object.keys(formData) : [],
+      dataKeys: formData?.data ? Object.keys(formData.data) : []
+    });
+    
     // Create PDF element - pass both data and images props for consistency with other forms
+    console.log('🔵 [PDF API] Creating PDF element with props:', {
+      acknowledgmentOnly,
+      acknowledgmentOnlyType: typeof acknowledgmentOnly,
+      acknowledgmentOnlyValue: acknowledgmentOnly,
+      showBlank,
+      hasDataWithLogo: !!dataWithLogo,
+      dataWithLogoKeys: Object.keys(dataWithLogo || {}),
+      dataKeys: Object.keys(dataWithLogo?.data || {}),
+      hasAcknowledgmentData: !!(dataWithLogo?.data?.acknowledgmentData || (dataWithLogo as any)?.acknowledgmentData),
+      acknowledgmentDataKeys: dataWithLogo?.data?.acknowledgmentData ? Object.keys(dataWithLogo.data.acknowledgmentData) : []
+    });
+    
     const pdfElement = React.createElement(StaffPDFComponent, { 
-      data: dataWithLogo,
+      data: {
+        ...dataWithLogo,
+        showBlankAcknowledgement: showBlank,
+      },
       settings,
       images,
       showBlankForm: false,
+      acknowledgmentOnly: acknowledgmentOnly,
+    });
+    
+    console.log('🔵 [PDF API] PDF element created successfully:', {
+      acknowledgmentOnly,
+      acknowledgmentOnlyPassed: acknowledgmentOnly,
+      componentName: StaffPDFComponent?.name || 'Unknown',
+      hasData: !!dataWithLogo,
+      hasSettings: !!settings,
+      hasImages: !!images,
+      propsPassed: {
+        data: !!dataWithLogo,
+        settings: !!settings,
+        images: !!images,
+        showBlankForm: false,
+        acknowledgmentOnly: acknowledgmentOnly
+      }
     });
 
-    console.log('Generating PDF for staff:', staff.firstName, staff.surname);
+    console.log('🔵 [PDF API] Generating PDF for staff:', staff.firstName, staff.surname);
+    console.log('🔵 [PDF API] acknowledgmentOnly mode:', acknowledgmentOnly, 'type:', typeof acknowledgmentOnly);
     
     // Generate PDF buffer using React PDF (no browser!)
     // @ts-ignore - renderToBuffer returns a Node Buffer which is compatible at runtime
+    console.log('🔵 [PDF API] Calling renderToBuffer...');
     const pdfBuffer: any = await renderToBuffer(pdfElement);
+    console.log('✅ [PDF API] PDF buffer generated, size:', pdfBuffer?.length || 0, 'bytes');
     const pdfUint8 = pdfBuffer instanceof Uint8Array ? pdfBuffer : new Uint8Array(pdfBuffer);
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -337,12 +412,13 @@ export async function GET(
       },
     });
 
-    const filename = `${staff.firstName}_${staff.surname}_${formType}.pdf`;
+    const filename = acknowledgmentOnly 
+      ? `${staff.firstName}_${staff.surname}_vehicle_safety_inspection_acknowledgment.pdf`
+      : `${staff.firstName}_${staff.surname}_${formType}.pdf`;
 
     console.log('PDF generated successfully:', filename);
 
     // Check if request wants to download or view inline
-    const searchParams = new URL(req.url).searchParams;
     const download = searchParams.get('download') === 'true';
 
     return new Response(stream, {
