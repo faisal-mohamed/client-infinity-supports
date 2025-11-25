@@ -61,7 +61,7 @@ async function main() {
     },
     {
       formKey: 'individual_risk_assessment',
-      title: 'Individual Risk Assessment',
+      title: 'Individual Activity Risk Assessment',
       version: 1,
       requiresSignature: true,
     },

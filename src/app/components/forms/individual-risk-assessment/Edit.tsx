@@ -68,7 +68,7 @@ export const FORM_SECTIONS : any = [
         requiredFields: [],
         image: {
       src: "/individual-risk-assessment.png",
-      alt: "Individual Risk Assessment Guide"
+      alt: "Individual Activity Risk Assessment Guide"
     }
 
   },

@@ -28,7 +28,7 @@ const Page9 = ({ settings, images }: any) => (
       {/* Middle: Content */}
       <div className="flex-1 w-full max-w-3xl mx-auto px-6 flex flex-col">
         <ul className="list-disc list-inside mb-3">
-          <li>Individual Risk Assessment</li>
+          <li>Individual Activity Risk Assessment</li>
           <li>Home Risk Assessment</li>
         </ul>
 

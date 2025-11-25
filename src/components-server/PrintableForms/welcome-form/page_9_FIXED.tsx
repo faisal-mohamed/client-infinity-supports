@@ -80,7 +80,7 @@ const Page9 = ({ settings, images }: any) => {
         {/* Main Content - Top aligned */}
         <div className="flex-1 w-full max-w-3xl mx-auto px-6 flex flex-col">
           <ul className={`${A4_PDF_TYPOGRAPHY.body} list-disc list-inside mb-3`}>
-            <li>● Individual Risk Assessment</li> <br />
+            <li>● Individual Activity Risk Assessment</li> <br />
             <li>● Home Risk Assessment</li> <br />
           </ul> <br /><br />
 

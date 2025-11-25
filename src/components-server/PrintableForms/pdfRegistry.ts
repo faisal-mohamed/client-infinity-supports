@@ -61,7 +61,7 @@ const pdfFormRegistry: PDFFormComponent[] = [
   {
     formKey: 'individual_risk_assessment',
     component: IndividualRiskAssessmentMatching,
-    name: 'Individual Risk Assessment',
+    name: 'Individual Activity Risk Assessment',
   },
   {
     formKey: "welcome_form",

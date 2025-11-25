@@ -25,7 +25,21 @@ import SignatureLinkModal from '@/app/components/components/client-forms/Signatu
 import {FormAssignmentWithDetails, ClientInfo, AvailableForm} from './types'
 import { useSession } from 'next-auth/react';
 
-
+// List of 12 client form keys (excluding staff forms)
+const CLIENT_FORM_KEYS = [
+  'client_intake_form',
+  'home_visit_risk_assessment',
+  'person_centred_plan',
+  'sa_delivery_of_supports',
+  'participant_risk_assessment',
+  'emergency_drill',
+  'individual_risk_assessment',
+  'welcome_form',
+  'support_action_plan',
+  'schedule_of_supports',
+  'sa_support_coordination',
+  'multi_disciplinary_meeting'
+];
 
 export default function ClientFormsPageClient() {
   const params = useParams();
@@ -134,8 +148,11 @@ const adminId : any  = session?.user?.id;
       if (!response.ok) throw new Error('Failed to load available forms');
       
       const data = await response.json();
-      // API returns forms directly, not wrapped in { forms: [] }
-      setAvailableForms(Array.isArray(data) ? data : []);
+      // Filter to only show client forms (exclude staff forms)
+      const clientForms = Array.isArray(data) 
+        ? data.filter((form: AvailableForm) => CLIENT_FORM_KEYS.includes(form.formKey))
+        : [];
+      setAvailableForms(clientForms);
       
     } catch (error) {
       console.error('Error loading available forms:', error);

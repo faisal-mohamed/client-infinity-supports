@@ -198,7 +198,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
   },
   individual_risk_assessment: {
     key: "individual_risk_assessment",
-    name: "Individual Risk Assessment",
+    name: "Individual Activity Risk Assessment",
     viewComponent: IndividualRiskAssessmentView,
     editComponent: IndividualRiskAssessmentEdit,
     signatures: [

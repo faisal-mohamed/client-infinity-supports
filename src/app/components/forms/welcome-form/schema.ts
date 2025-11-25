@@ -352,7 +352,7 @@ export const welcomeFormSchema: WelcomeSchemaBlock[] = [
   {
     type: 'list',
     items: [
-      'Individual Risk Assessment',
+      'Individual Activity Risk Assessment',
       'Home Risk Assessment'
     ],
     meta: { className: 'ml-8' },

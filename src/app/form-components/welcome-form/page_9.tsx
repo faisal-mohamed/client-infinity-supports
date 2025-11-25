@@ -29,7 +29,7 @@ const Page9: React.FC<any> = ({settings}: any ) => {
         {/* Middle: Content */}
         <div className="flex-grow w-full max-w-3xl mx-auto px-6">
           <ul className="list-disc list-inside mb-4">
-            <li>Individual Risk Assessment</li>
+            <li>Individual Activity Risk Assessment</li>
             <li>Home Risk Assessment</li>
           </ul>
 
