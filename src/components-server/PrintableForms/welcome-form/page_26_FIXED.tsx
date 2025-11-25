@@ -45,7 +45,6 @@ const A4PageWrapper: React.FC<{
 
 const Page26 = ({ schema, data, settings, commonFieldsData, images }: any) => {
   const commonFieldMapping: Record<string, string> = {
-    name: 'name',
     ndisNumber: 'ndis',
     dob: 'dob',
     address: 'street',

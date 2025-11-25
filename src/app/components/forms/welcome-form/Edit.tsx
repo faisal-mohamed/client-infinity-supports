@@ -50,7 +50,6 @@ export const FORM_SECTIONS = [
 
 
 const commonFieldsMapping: Record<string, string> = {
-  name: "name",
   ndisNumber: "ndis",
   dob: "dob", 
   address: "street",
