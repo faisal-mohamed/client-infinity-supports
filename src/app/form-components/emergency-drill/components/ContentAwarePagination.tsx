@@ -31,6 +31,25 @@ const ContentAwarePagination: React.FC<ContentAwarePaginationProps> = ({
       sex: 'sex'
     };
 
+    // For clientName field, combine first name and surname to show full name
+    if (key === 'clientName') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to data.clientName if it exists
+      if (data?.[key]) {
+        return String(data[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+
     if (commonFieldMapping?.[key]) {
       return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
     }

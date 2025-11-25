@@ -135,6 +135,25 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
 
   // Helper function to get common field value
   const getCommonFieldValue = (fieldName: string): string => {
+    // For name field, combine first name and surname to show full name
+    if (fieldName === 'name') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to formData.name if it exists
+      if (formData?.[fieldName]) {
+        return String(formData[fieldName]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+    
     const commonKey = commonFieldsMapping[fieldName];
     return commonFieldsData?.[commonKey] || '';
   };

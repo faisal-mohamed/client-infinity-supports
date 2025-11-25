@@ -442,6 +442,25 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   // Safe data extraction with fallbacks
   const getValue = (key: string): string => {
     try {
+      // For name field, combine first name and surname to show full name
+      if (key === 'name') {
+        const firstName = commonFieldsData?.name || '';
+        const surname = commonFieldsData?.surname || '';
+        const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+        if (fullName) {
+          return fullName;
+        }
+        // Fallback to formData.name if it exists
+        if (formData?.[key]) {
+          return String(formData[key]);
+        }
+        // Last fallback: try to get just the first name from commonFieldsData
+        if (firstName) {
+          return firstName;
+        }
+        return '';
+      }
+      
       let value = '';
       if (commonFieldMapping[key]) {
         value = commonFieldsData?.[commonFieldMapping[key]];

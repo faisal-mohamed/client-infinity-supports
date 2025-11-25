@@ -254,7 +254,12 @@ const Page1 = ({ homeVisitResponse, images, commonFields, settings }: any) => (
         <tbody>
           <tr>
             <td className="border border-black p-2 w-1/3">
-              <span className={A4_PDF_TYPOGRAPHY.label}>Name:</span> {commonFields?.name || homeVisitResponse.name || ''}
+              <span className={A4_PDF_TYPOGRAPHY.label}>Name:</span> {(() => {
+                const firstName = commonFields?.name || '';
+                const surname = commonFields?.surname || '';
+                const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+                return fullName || homeVisitResponse.name || '';
+              })()}
             </td>
             <td className="border border-black p-2 w-1/3">
               <span className={A4_PDF_TYPOGRAPHY.label}>NDIS Number:</span> {commonFields?.ndis || homeVisitResponse.ndisNumber || ''}

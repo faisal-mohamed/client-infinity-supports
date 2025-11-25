@@ -131,6 +131,25 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   // Simple getValue function
   const getValue = (key: string): string => {
     try {
+      // For name field, combine first name and surname to show full name
+      if (key === 'name') {
+        const firstName = commonFieldsData?.name || '';
+        const surname = commonFieldsData?.surname || '';
+        const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+        if (fullName) {
+          return fullName;
+        }
+        // Fallback to formData.name if it exists
+        if (formData?.[key]) {
+          return String(formData[key]);
+        }
+        // Last fallback: try to get just the first name from commonFieldsData
+        if (firstName) {
+          return firstName;
+        }
+        return '';
+      }
+      
       return formData?.[key] || commonFieldsData?.[key] || '';
     } catch {
       return '';

@@ -132,6 +132,25 @@ const MDTMatching: React.FC<MDTMatchingProps> = ({
   
   // Helper function to get field value
   const getValue = (key: string): string => {
+    // For clientName field, combine first name and surname to show full name
+    if (key === 'clientName') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to formData.clientName if it exists
+      if (formData?.[key]) {
+        return String(formData[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+    
     const rawValue = commonFieldMapping[key]
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];
