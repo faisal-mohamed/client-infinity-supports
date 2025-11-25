@@ -67,28 +67,9 @@ const Page4: React.FC<any> = ({
           {/* Optionally bring back title */}
           {/* <p className="text-center text-xs font-semibold mb-4">{schema?.title}</p> */}
 
-          {/* Table 1 - Budget Discussion & Goals */}
+          {/* Table 1 - Goals Section (Budget Approval question removed - it's already in Mainstream Supports section) */}
           <table className="w-full border border-black border-collapse text-xs mb-6">
             <tbody>
-              <tr>
-                <td className="border border-black p-2 font-bold" colSpan={2}>
-                  {schema?.budgetApproval?.label}
-                  <input
-                    type="checkbox"
-                    checked={isChecked(data?.budgetApproval, "Yes")}
-                    readOnly
-                    className="ml-2 align-middle w-4 h-4 border border-black bg-gray-300"
-                  />
-                  <span className="ml-1 font-normal align-middle">Yes</span>
-                  <input
-                    type="checkbox"
-                    checked={isChecked(data?.budgetApproval, "No")}
-                    readOnly
-                    className="ml-4 align-middle w-4 h-4 border border-black bg-gray-300"
-                  />
-                  <span className="ml-1 font-normal align-middle">No</span>
-                </td>
-              </tr>
               <tr>
                 <td
                   colSpan={2}

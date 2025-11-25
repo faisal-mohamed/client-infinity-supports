@@ -31,6 +31,18 @@ const commonFieldMapping: Record<string, string> = {
 };
 
 const getFieldValue = (formData: any, commonFieldsData: any, key: string): string => {
+  // For participantName field, combine first name and surname to show full name
+  if (key === 'participantName') {
+    const firstName = commonFieldsData?.name || '';
+    const surname = commonFieldsData?.surname || '';
+    const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+    if (fullName) {
+      return fullName;
+    }
+    // Fallback to form data if commonFieldsData doesn't have name
+    return formData?.[key] ? String(formData[key]) : '';
+  }
+  
   const mapped = commonFieldMapping[key];
   const raw = mapped ? commonFieldsData?.[mapped] : formData?.[key];
   return raw ? String(raw) : '';
@@ -66,9 +78,20 @@ const renderParticipantTable = (formData: any, commonFieldsData: any) => (
     </View>
     <View style={styles.tableRow}><View style={styles.tableCellLast}><Text style={{ fontSize: 8, fontWeight: 'bold' }}>Email address:</Text><Text style={{ fontSize: 8 }}>{getFieldValue(formData, commonFieldsData, 'email') || ''}</Text></View></View>
     {/* Extra legacy rows */}
-    {!!formData?.planDates && (
+    {(!!formData?.planStartDate || !!formData?.planEndDate) && (
       <View style={styles.tableRow}>
-        <View style={styles.tableCellLast}><Text style={{ fontSize: 8, fontWeight: 'bold' }}>Plan Dates:</Text><Text style={{ fontSize: 8 }}>{String(formData.planDates)}</Text></View>
+        <View style={styles.tableCellLast}>
+          <Text style={{ fontSize: 8, fontWeight: 'bold' }}>Plan Dates:</Text>
+          <Text style={{ fontSize: 8 }}>
+            {formData?.planStartDate && formData?.planEndDate 
+              ? `${formatDateForPDF(formData.planStartDate)} - ${formatDateForPDF(formData.planEndDate)}`
+              : formData?.planStartDate 
+                ? `From: ${formatDateForPDF(formData.planStartDate)}`
+                : formData?.planEndDate 
+                  ? `To: ${formatDateForPDF(formData.planEndDate)}`
+                  : ''}
+          </Text>
+        </View>
       </View>
     )}
     {!!formData?.preferredContactPerson && (
@@ -140,13 +163,13 @@ const ConditionalProvider = ({ num, value }: { num: number; value: string }) => 
   return <Text style={styles.noteText}>{num}. {value}</Text>;
 };
 
-// Helper: Yes/No row showing both options
+// Helper: Yes/No row showing both options - FIXED to prevent splitting across pages/lines
 const YesNoRow = ({ label, k, formData }: { label: string; k: string; formData: any }) => {
   const isYes = formData?.[k] === 'Yes';
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-      <Text style={{ fontWeight: 'bold', fontSize: 8, marginRight: 6 }}>{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View style={{ marginBottom: 4, flexDirection: 'row', alignItems: 'flex-start' }} wrap={false}>
+      <Text style={{ fontWeight: 'bold', fontSize: 8, marginRight: 8, flex: 1 }}>{label} </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <BlueTick checked={isYes} />
           <Text style={{ fontSize: 8, marginLeft: 4 }}>Yes</Text>

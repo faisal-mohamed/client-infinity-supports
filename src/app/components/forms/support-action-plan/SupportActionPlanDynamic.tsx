@@ -51,6 +51,26 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   };
 
   const getFieldValue = (key: string): string => {
+    // For participantName field, combine first name and surname to show full name
+    if (key === 'participantName') {
+      // First, try to get from commonFieldsData (combine first name and surname)
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullNameFromCommon = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullNameFromCommon) {
+        return fullNameFromCommon;
+      }
+      // Fallback to formData.participantName if it exists
+      if (formData?.[key]) {
+        return String(formData[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return "";
+    }
+    
     const mapped = commonFieldMapping[key];
     const raw = mapped ? commonFieldsData?.[mapped] : formData?.[key];
     return raw ?? "";
@@ -368,28 +388,36 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const renderNextPlanGoals = () => {
     const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
     const goalsText = get('goalsText');
-    // Don't render if empty
-    if (!goalsText || goalsText.trim() === '') return null;
+    const displayText = goalsText && goalsText.trim() ? goalsText : '___/___/____';
+    
+    // Professional paragraph-style rendering with proper text wrapping
     return (
       <div className="mb-4">
-        <table className="w-full border border-black border-collapse text-xs">
-          <tbody>
-            <tr className="bg-blue-200">
-              <td className="border border-black px-2 py-1 font-bold" colSpan={2}>
-                5. Goals and funding required for next plan
-              </td>
-            </tr>
-            <tr>
-              <td 
-                className="border border-black px-4 py-4 align-top whitespace-pre-wrap break-words" 
-                colSpan={2}
-                style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}
-              >
-                {goalsText}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="w-full border border-black">
+          {/* Header */}
+          <div className="bg-blue-200 border-b border-black px-3 py-2">
+            <span className="font-bold text-xs">5. Goals and funding required for next plan</span>
+          </div>
+          {/* Content - Professional paragraph style */}
+          <div 
+            className="px-4 py-4 bg-white"
+            style={{ 
+              whiteSpace: 'pre-wrap',
+              wordWrap: 'break-word',
+              overflowWrap: 'break-word',
+              textAlign: 'left',
+              lineHeight: '1.6',
+              fontSize: '11px',
+              minHeight: '60px',
+              // Ensure content flows naturally like a paragraph
+              display: 'block',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            {displayText}
+          </div>
+        </div>
       </div>
     );
   };
@@ -440,11 +468,19 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
               <div className="text-xs" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{getFieldValue('email') || ''}</div>
             </td>
           </tr>
-          {Boolean(formData?.planDates) && (
+          {(Boolean(formData?.planStartDate) || Boolean(formData?.planEndDate)) && (
             <tr>
               <td className="border border-black px-2 py-2 align-top" colSpan={3}>
                 <div className="font-bold text-xs">Plan Dates:</div>
-                <div className="text-xs" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{String(formData?.planDates)}</div>
+                <div className="text-xs" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                  {formData?.planStartDate && formData?.planEndDate 
+                    ? `${formatDateValue(formData.planStartDate)} - ${formatDateValue(formData.planEndDate)}`
+                    : formData?.planStartDate 
+                      ? `From: ${formatDateValue(formData.planStartDate)}`
+                      : formData?.planEndDate 
+                        ? `To: ${formatDateValue(formData.planEndDate)}`
+                        : ''}
+                </div>
               </td>
             </tr>
           )}
@@ -690,10 +726,11 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const BLOCK_SPACING = 3;                 // minimal spacing between blocks
   const TOP_SPACER = 20;                   // spacer below logo
   const BOTTOM_SPACER = 20;                // spacer above footer
-  const SAFETY_BUFFER = 2;                 // minimal safety margin (allows tighter packing)
+  const SAFETY_BUFFER = 10;                // increased safety margin to prevent overflow
   const APPROX_CONTENT_HEIGHT = 1000;      // initial guess; replaced by measured budget (increased for better utilization)
   const [pageBudget, setPageBudget] = useState<number | null>(null);
-  const PAGE_BUDGET = (pageBudget ?? APPROX_CONTENT_HEIGHT) - TOP_SPACER - BOTTOM_SPACER;
+  // Calculate available content height: page height (1123) - padding (60) - header (70) - title (if page 1, ~40) - footer (~50) - spacers
+  const PAGE_BUDGET = (pageBudget ?? APPROX_CONTENT_HEIGHT) - TOP_SPACER - BOTTOM_SPACER - SAFETY_BUFFER;
 
   // Count empty fields in support sections to estimate height more accurately
   const countEmptyFields = (keys: string[]): number => {
@@ -706,7 +743,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   // Improved height estimation - more accurate to reduce wasted space
   const estimateHeight = (block: any) => {
     switch (block.type) {
-      case 'table_participant': return 220;
+      case 'table_participant': {
+        // Always ensure participant table has minimum height, even if some fields are empty
+        // Base height for table structure + rows
+        let baseHeight = 120; // Header + basic rows
+        // Add height for conditional rows if they exist
+        if (formData?.planStartDate || formData?.planEndDate) baseHeight += 35;
+        if (formData?.preferredContactPerson) baseHeight += 35;
+        if (formData?.communicationConsiderations) baseHeight += 35;
+        return Math.max(220, baseHeight); // Minimum 220px to ensure it's always visible
+      }
       case 'preferred_contact': return 220;
       case 'goal': {
         // Individual goal row - compact height
@@ -750,11 +796,21 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         return Math.max(190, 320 - (emptyCount * 20));
       }
       case 'next_plan_goals': {
+        // Always include this section in height calculation (header + content)
         const goalsText = formData?.goalsText;
-        if (!goalsText || String(goalsText).trim() === '') return 0;
+        const baseHeight = 40; // Header height
+        const padding = 32; // Top and bottom padding (16px each)
+        if (!goalsText || String(goalsText).trim() === '') {
+          return baseHeight + padding + 40; // Minimum content height even when empty
+        }
         const len = String(goalsText).length;
-        const lines = Math.ceil(len / 85); // Slightly wider lines for better estimation
-        return Math.max(50, 40 + lines * 17); // Tighter line height
+        // More accurate line calculation for paragraph-style display
+        // Account for padding (32px) and line height (1.6 * 11px ≈ 17.6px)
+        const charsPerLine = 85; // Characters per line for paragraph text
+        const lines = Math.ceil(len / charsPerLine);
+        // Line height calculation: 17.6px per line with proper spacing
+        const contentHeight = Math.max(40, (lines * 17.6) + 8); // Add small buffer
+        return baseHeight + padding + contentHeight;
       }
       case 'section_header': return 30;
       case 'paragraph': {
@@ -808,18 +864,29 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     let h = 0;
     
     heights.forEach((bh, idx) => {
-      // Skip zero-height blocks (empty content)
-      if (bh <= 0) return;
+      // Don't skip critical blocks like participant table, even if estimated height is low
+      // Also don't skip next_plan_goals as it should always be visible
+      // Only skip truly empty content blocks (goals, paragraphs, etc.)
+      const block = extendedSchema[idx];
+      const isCriticalBlock = block?.type === 'table_participant' || block?.type === 'preferred_contact';
+      const isAlwaysVisible = block?.type === 'next_plan_goals';
+      
+      // Skip zero-height blocks only if they're not critical or always visible
+      if (bh <= 0 && !isCriticalBlock && !isAlwaysVisible) return;
+      
+      // Ensure critical blocks and always-visible blocks have minimum height
+      const actualHeight = isCriticalBlock ? Math.max(bh, 200) : (isAlwaysVisible ? Math.max(bh, 110) : bh);
       
       const spacing = current.length > 0 ? BLOCK_SPACING : 0;
-      const next = bh + spacing;
+      const next = actualHeight + spacing;
       const wouldExceed = h + next + SAFETY_BUFFER > PAGE_BUDGET;
       
-      // Improved pagination logic: More aggressive about filling space (like PDF)
+      // Improved pagination logic: Strict about page boundaries to prevent overflow
       // Only break if we truly cannot fit this block
       if (wouldExceed && current.length > 0) {
-        // For small blocks (goals, questions), allow more overflow to fill space
-        const overflowThreshold = bh <= 60 ? 20 : bh <= 100 ? 15 : 10;
+        // For small blocks (goals, questions), allow minimal overflow to fill space
+        // But be more conservative to prevent content from going outside pages
+        const overflowThreshold = actualHeight <= 60 ? 15 : actualHeight <= 100 ? 10 : 5;
         if (h + next <= PAGE_BUDGET + overflowThreshold) {
           // Can fit with small overflow - pack it in
           current.push(idx);
@@ -828,7 +895,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           // Can't fit even with overflow, start new page
           out.push(current); 
           current = [idx]; 
-          h = bh;
+          h = actualHeight;
         }
       } else { 
         current.push(idx); 
@@ -841,20 +908,44 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   }, [measuredHeights, units, PAGE_BUDGET, formData]);
 
   useEffect(() => {
-    const hs = units.map((i) => {
-      const el = measureRefs.current[i];
-      if (el) return Math.ceil(el.getBoundingClientRect().height);
-      return estimateHeight(extendedSchema[i]);
-    });
-    if (hs.some((x) => x && x > 0)) setMeasuredHeights(hs);
-  }, [units]);
+    // Use a small delay to ensure DOM is fully rendered before measuring
+    const timeoutId = setTimeout(() => {
+      const hs = units.map((i) => {
+        const el = measureRefs.current[i];
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const height = Math.ceil(rect.height);
+          // Ensure critical blocks have minimum height even if measurement is 0
+          const block = extendedSchema[i];
+          const isCriticalBlock = block?.type === 'table_participant' || block?.type === 'preferred_contact';
+          if (isCriticalBlock && height === 0) {
+            return estimateHeight(block);
+          }
+          return height > 0 ? height : estimateHeight(extendedSchema[i]);
+        }
+        return estimateHeight(extendedSchema[i]);
+      });
+      if (hs.some((x) => x && x > 0)) setMeasuredHeights(hs);
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [units, extendedSchema]);
 
   const budgetRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (budgetRef.current) {
-      const h = Math.floor(budgetRef.current.getBoundingClientRect().height);
-      if (h && h > 0) setPageBudget(h);
-    }
+    const measureBudget = () => {
+      if (budgetRef.current) {
+        const h = Math.floor(budgetRef.current.getBoundingClientRect().height);
+        if (h && h > 0) setPageBudget(h);
+      }
+    };
+    
+    // Measure immediately
+    measureBudget();
+    
+    // Also measure on resize to handle screen size changes
+    window.addEventListener('resize', measureBudget);
+    return () => window.removeEventListener('resize', measureBudget);
   }, []);
 
   const A4Page = ({ children, pageNumber }: any) => (
@@ -887,7 +978,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <h1 className="text-lg font-bold underline">SUPPORT CO-ORDINATION ACTION PLAN</h1>
         </div>
       )}
-      <div className="flex-1 overflow-hidden">{children}</div>
+      <div className="flex-1" style={{ overflow: 'hidden', minHeight: 0, maxHeight: '100%' }}>{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>{settings?.company_website || ''}</span>
@@ -904,11 +995,19 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         width: '100%',
         maxWidth: '794px',
         margin: '0 auto',
-        overflow: 'hidden'
+        position: 'relative'
       }}
     >
-      {/* Hidden measuring container */}
-      <div style={{ position: 'absolute', left: -10000, top: 0, width: '734px', visibility: 'hidden' }} aria-hidden>
+      {/* Hidden measuring container - ensure proper width for accurate measurements */}
+      <div style={{ 
+        position: 'absolute', 
+        left: -10000, 
+        top: 0, 
+        width: '794px',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+        zIndex: -1
+      }} aria-hidden>
         <div style={{ width: '794px', height: '1123px', boxSizing: 'border-box', padding: '30px', display: 'flex', flexDirection: 'column' }}>
           <div className="flex justify-center mb-0"><img alt="Infinity Logo" src={images?.infinityLogo || '/infinity_logo.png'} width={180} height={70} className="object-contain" /></div>
           <div style={{ height: `${TOP_SPACER}px` }} />
