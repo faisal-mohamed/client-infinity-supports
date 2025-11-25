@@ -45,7 +45,7 @@ export default function FormsManagement() {
   // Call auth hook first
   const { session, status } = useRequireAuth();
   // Now call other hooks
-  const [forms, setForms] = useState([]);
+  const [forms, setForms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
