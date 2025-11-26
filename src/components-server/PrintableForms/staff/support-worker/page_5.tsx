@@ -78,9 +78,9 @@ const Page5: React.FC<Page5Props> = ({ data = {}, staff = {}, showBlankForm = fa
         <View style={{ flex: 2 }}>
           <Text style={styles.fieldLabel}>Signature:</Text>
           <View style={styles.signatureBox}>
-            {!showBlankForm && data?.signature && (
+            {!showBlankForm && data?.signature ? (
               <Image src={data.signature} style={styles.signatureImage} />
-            )}
+            ) : null}
           </View>
         </View>
 
@@ -90,7 +90,20 @@ const Page5: React.FC<Page5Props> = ({ data = {}, staff = {}, showBlankForm = fa
           <View style={styles.fieldBox}>
             <Text style={styles.fieldValue}>
               {!showBlankForm && data?.signatureDate 
-                ? new Date(data.signatureDate).toLocaleDateString('en-AU')
+                ? (() => {
+                    try {
+                      const date = data.signatureDate instanceof Date 
+                        ? data.signatureDate 
+                        : new Date(data.signatureDate);
+                      return date.toLocaleDateString('en-AU', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      });
+                    } catch (e) {
+                      return data.signatureDate || '';
+                    }
+                  })()
                 : ''
               }
             </Text>

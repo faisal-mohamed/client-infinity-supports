@@ -65,7 +65,17 @@ const SupportWorkerPDF: React.FC<SupportWorkerPDFProps> = ({
   images = {},
   showBlankAcknowledgement = false
 }) => {
-  console.log('🔍 [PDF] Position Description - Generating PDF');
+  console.log('🔍 [PDF COMPONENT] ========== SupportWorkerPDF Component Called ==========');
+  console.log('  - This is the React-PDF component from: @/components-server/PrintableForms/staff/support-worker/page');
+  console.log('  - Component is being rendered by React.createElement');
+  console.log('  - This component will be converted to PDF by renderToBuffer');
+  console.log('  - Props received:', {
+    hasData: !!data,
+    hasStaff: !!staff,
+    hasSettings: !!settings,
+    hasImages: !!images,
+    showBlank: showBlankAcknowledgement
+  });
 
   // Footer data from settings ONLY - no hardcoded defaults
   const footerWebsite = settings?.website;

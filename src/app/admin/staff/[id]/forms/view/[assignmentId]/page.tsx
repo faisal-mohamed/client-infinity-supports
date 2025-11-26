@@ -892,6 +892,9 @@ export default function StaffFormViewPageClient() {
   // Check if this is Vehicle Safety Inspection form - use PDF viewer (acknowledgment form only)
   const isVehicleSafetyInspectionForm = assignment.form.formKey === 'vehicle_safety_inspection';
   
+  // Check if this is Support Worker (Position Description) form - use PDF viewer (matches download)
+  const isSupportWorkerForm = assignment.form.formKey === 'support_worker';
+  
   console.log('🎨 [View Form] Rendering decision:', {
     formKey: assignment.form.formKey,
     isEmployeeDetailsForm,
@@ -901,8 +904,9 @@ export default function StaffFormViewPageClient() {
     isEmployeeWelcomeForm,
     isNdisForm,
     isVehicleSafetyInspectionForm,
-    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm,
+    isSupportWorkerForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1584,6 +1588,18 @@ export default function StaffFormViewPageClient() {
                         </button>
                       </div>
                 )}
+              </div>
+            );
+          })()
+        ) : isSupportWorkerForm ? (
+          /* Use PDF viewer for Support Worker (Position Description) form - shows generated PDF (matches download) */
+          (() => {
+            console.log('📄 [View Form] Rendering Support Worker (Position Description) PDF viewer');
+            const pdfUrl = `/api/staff/${staffId}/forms/support-worker/pdf?key=${pdfKey}`;
+            console.log('📄 [View Form] Support Worker PDF URL:', pdfUrl);
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={pdfUrl} />
               </div>
             );
           })()

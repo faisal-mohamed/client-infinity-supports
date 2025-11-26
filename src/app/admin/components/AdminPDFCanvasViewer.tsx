@@ -56,52 +56,78 @@ export default function AdminPDFCanvasViewer({
         const images: string[] = [];
         const devicePixelRatio = Math.max(window.devicePixelRatio || 1, 1);
         
-        // Calculate responsive scale based on container
+        // Calculate responsive scale and quality multiplier based on screen size
+        // This ensures optimal quality for all screen sizes
         const containerWidth = window.innerWidth;
         const basePageWidth = 595; // A4 width in points
-        const maxWidth = Math.min(containerWidth * 0.95, 1200);
-        const responsiveScale = maxWidth / basePageWidth;
+        let maxWidth, qualityMultiplier;
         
-        // Use much higher scale for maximum quality (3.5x max for ultra-crisp rendering)
-        const baseScale = Math.min(responsiveScale * 2, 3.5);
-        const outputScale = devicePixelRatio * baseScale;
+        if (containerWidth < 480) {
+          maxWidth = 350;
+          qualityMultiplier = 2.0; // Very small mobile - high quality
+        } else if (containerWidth < 768) {
+          maxWidth = 450;
+          qualityMultiplier = 2.5; // Mobile - very high quality
+        } else if (containerWidth < 1024) {
+          maxWidth = 650;
+          qualityMultiplier = 3.0; // Tablet - ultra high quality
+        } else if (containerWidth < 1440) {
+          maxWidth = 850;
+          qualityMultiplier = 3.5; // Small desktop - maximum quality
+        } else {
+          maxWidth = 950;
+          qualityMultiplier = 4.0; // Large desktop - ultra maximum quality
+        }
+        
+        const displayWidth = Math.min(containerWidth * 0.95, maxWidth);
+        const responsiveScale = displayWidth / basePageWidth;
         
         // Limit pages if maxPages is specified
         const totalPagesToRender = maxPages ? Math.min(maxPages, pdf.numPages) : pdf.numPages;
         
         for (let i = 1; i <= totalPagesToRender; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: baseScale });
+          
+          // Get viewport with responsive scale
+          const viewport = page.getViewport({ scale: responsiveScale });
+          
+          // Calculate output scale with quality multiplier for ultra-crisp rendering
+          const outputScale = devicePixelRatio * qualityMultiplier;
+          
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d", { 
             alpha: false,
             desynchronized: false,
-            willReadFrequently: false
+            willReadFrequently: false,
+            // Enable high-quality image smoothing
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high' as ImageSmoothingQuality
           });
           if (!context) continue;
 
-          // Set canvas size accounting for device pixel ratio for ultra-crisp rendering
-          canvas.width = Math.floor(viewport.width * devicePixelRatio);
-          canvas.height = Math.floor(viewport.height * devicePixelRatio);
+          // Set canvas size with high resolution (outputScale multiplier)
+          canvas.width = Math.floor(viewport.width * outputScale);
+          canvas.height = Math.floor(viewport.height * outputScale);
           
-          // Set display size (CSS pixels)
+          // Set display size (CSS pixels) - responsive to container
           canvas.style.width = `${Math.floor(viewport.width)}px`;
           canvas.style.height = `${Math.floor(viewport.height)}px`;
 
-          // Use transform array for better quality (like orientation view)
-          const transform = devicePixelRatio !== 1
-            ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+          // Use transform array for better quality (same approach as other high-quality viewers)
+          const transform = outputScale !== 1 
+            ? [outputScale, 0, 0, outputScale, 0, 0] 
             : null;
 
+          // Render with high quality settings
           const renderContext = {
             canvasContext: context,
             viewport: viewport,
-            transform: transform,
+            transform: transform as any,
           };
 
           await page.render(renderContext).promise;
           
-          // Use maximum quality for image export
+          // Use maximum quality PNG export (quality 1.0 = 100%)
           images.push(canvas.toDataURL("image/png", 1.0));
 
           if (cancelled) return;
@@ -125,7 +151,31 @@ export default function AdminPDFCanvasViewer({
   if (loading) {
     return (
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 min-h-[400px] flex items-center justify-center">
-        <div className="text-gray-500 text-sm">Loading document...</div>
+        <div className="text-center">
+          {/* Spinner */}
+          <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+
+          {/* Text */}
+          <h3 className="text-xl font-bold text-slate-800 mb-2">
+            Loading Document
+          </h3>
+          <p className="text-slate-600 font-medium">
+            Please wait...
+          </p>
+
+          {/* Bouncing dots */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+          </div>
+        </div>
       </div>
     );
   }
