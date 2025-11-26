@@ -64,19 +64,19 @@ export default function AdminPDFCanvasViewer({
         
         if (containerWidth < 480) {
           maxWidth = 350;
-          qualityMultiplier = 2.0; // Very small mobile - high quality
+          qualityMultiplier = 3.0; // Very small mobile - ultra high quality
         } else if (containerWidth < 768) {
           maxWidth = 450;
-          qualityMultiplier = 2.5; // Mobile - very high quality
+          qualityMultiplier = 3.5; // Mobile - maximum quality
         } else if (containerWidth < 1024) {
           maxWidth = 650;
-          qualityMultiplier = 3.0; // Tablet - ultra high quality
+          qualityMultiplier = 4.0; // Tablet - ultra maximum quality
         } else if (containerWidth < 1440) {
           maxWidth = 850;
-          qualityMultiplier = 3.5; // Small desktop - maximum quality
+          qualityMultiplier = 4.5; // Small desktop - premium quality
         } else {
           maxWidth = 950;
-          qualityMultiplier = 4.0; // Large desktop - ultra maximum quality
+          qualityMultiplier = 5.0; // Large desktop - ultra premium quality
         }
         
         const displayWidth = Math.min(containerWidth * 0.95, maxWidth);
@@ -99,11 +99,17 @@ export default function AdminPDFCanvasViewer({
             alpha: false,
             desynchronized: false,
             willReadFrequently: false,
-            // Enable high-quality image smoothing
+            // Enable ultra high-quality image smoothing
             imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high' as ImageSmoothingQuality
+            imageSmoothingQuality: 'high' as ImageSmoothingQuality,
+            // Additional quality settings
+            colorSpace: 'srgb',
           });
           if (!context) continue;
+          
+          // Ensure maximum quality rendering
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = 'high';
 
           // Set canvas size with high resolution (outputScale multiplier)
           canvas.width = Math.floor(viewport.width * outputScale);
@@ -199,7 +205,10 @@ export default function AdminPDFCanvasViewer({
             src={src}
             alt={`PDF page ${idx + 1}`}
             className="w-full h-auto rounded-2xl border border-gray-100 shadow-lg"
-            style={{ minHeight }}
+            style={{ 
+              minHeight,
+              imageRendering: 'auto', // Use browser's best quality rendering
+            }}
           />
         </div>
       ))}

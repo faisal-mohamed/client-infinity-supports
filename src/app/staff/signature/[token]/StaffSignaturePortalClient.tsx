@@ -482,6 +482,20 @@ export default function StaffSignaturePortalClient() {
             finalDate: signedDate
           });
         }
+      } else if (formKey === 'pre_employment_medical') {
+        // Pre-Employment Medical requires 3 signatures
+        const hasSignature1 = !!(data.signature || submission.staffSignature);
+        const hasSignature2 = !!(data.disclosureAdviceSignature);
+        const hasSignature3 = !!(data.declarationSignature);
+        hasSignature = hasSignature1 && hasSignature2 && hasSignature3;
+        if (hasSignature) {
+          // Priority: submission.staffSignedAt > data dates
+          // Use the declaration date as it's typically the last signature
+          signedDate = parseDateSafely(submission.staffSignedAt) || 
+                      parseDateSafely(data.declarationDate) ||
+                      parseDateSafely(data.signatureDate) || 
+                      parseDateSafely(data.staffSignedAt);
+        }
       } else {
         // Generic check
         hasSignature = !!(data.signature || data.staffSignature);
@@ -548,6 +562,26 @@ export default function StaffSignaturePortalClient() {
       
       const formDataWithoutSignature = { ...form.formSubmission.data };
       
+      // Special handling for pre_employment_medical - clear all 3 signatures
+      if (formKey === 'pre_employment_medical') {
+        console.log('🔵 [Edit] Clearing all 3 signatures for pre_employment_medical');
+        const preEmploymentSignatureFields = [
+          'signature',           // Informed Consent signature
+          'signatureDate',       // Informed Consent date
+          'disclosureAdviceSignature',  // Disclosure Advice signature
+          'disclosureAdviceDate',       // Disclosure Advice date
+          'declarationSignature',       // Declaration signature
+          'declarationDate'             // Declaration date
+        ];
+        preEmploymentSignatureFields.forEach(field => {
+          if (field in formDataWithoutSignature) {
+            console.log(`  🗑️ Removing field: ${field}`);
+            delete formDataWithoutSignature[field];
+          }
+        });
+        console.log('✅ [Edit] Cleared all pre_employment_medical signatures');
+      }
+      
       // Clear ALL possible signature field names (works for all forms including overlays)
       const signatureFieldsToClear = [
         'signature', 'staffSignature', 'orientationSignature', 'employeeSignature',
@@ -557,7 +591,10 @@ export default function StaffSignaturePortalClient() {
         'payeeSignature', 'payerSignature', 'payeeSignatureAt', 'payerSignatureAt',
         // Super Choice form signatures
         'sectionBSignature', 'sectionCSignature', 'sectionDSignature', 
-        'sectionBDate', 'sectionCDate', 'sectionDDate'
+        'sectionBDate', 'sectionCDate', 'sectionDDate',
+        // Pre-Employment Medical signatures (also include in general list as backup)
+        'disclosureAdviceSignature', 'disclosureAdviceDate',
+        'declarationSignature', 'declarationDate'
       ];
       
       console.log('🔵 [Edit] Clearing signature fields from formData:', signatureFieldsToClear);
@@ -599,25 +636,55 @@ export default function StaffSignaturePortalClient() {
         
         // Check if the submission in the response has the signature cleared
         const submission = responseData.submission;
-        const signatureWasCleared = submission && 
-          (submission.staffSignature === null || submission.staffSignature === undefined || submission.staffSignature === '');
         
-        console.log('🔍 [Edit] Verifying signature was cleared:', {
-          hasSubmission: !!submission,
-          staffSignature: submission?.staffSignature ? 'EXISTS - ERROR!' : 'NULL - SUCCESS',
-          signatureWasCleared: signatureWasCleared
-        });
+        // For pre_employment_medical, check all 3 signatures are cleared
+        let signatureWasCleared = false;
+        if (formKey === 'pre_employment_medical') {
+          const data = submission?.data || {};
+          const sig1Cleared = !data.signature && !submission?.staffSignature;
+          const sig2Cleared = !data.disclosureAdviceSignature;
+          const sig3Cleared = !data.declarationSignature;
+          signatureWasCleared = sig1Cleared && sig2Cleared && sig3Cleared;
+          
+          console.log('🔍 [Edit] Verifying all 3 signatures were cleared for pre_employment_medical:', {
+            hasSubmission: !!submission,
+            signature1Cleared: sig1Cleared,
+            signature2Cleared: sig2Cleared,
+            signature3Cleared: sig3Cleared,
+            allCleared: signatureWasCleared,
+            data: {
+              signature: data.signature ? 'EXISTS' : 'NULL',
+              disclosureAdviceSignature: data.disclosureAdviceSignature ? 'EXISTS' : 'NULL',
+              declarationSignature: data.declarationSignature ? 'EXISTS' : 'NULL',
+              staffSignature: submission?.staffSignature ? 'EXISTS' : 'NULL'
+            }
+          });
+        } else {
+          signatureWasCleared = submission && 
+            (submission.staffSignature === null || submission.staffSignature === undefined || submission.staffSignature === '');
+          
+          console.log('🔍 [Edit] Verifying signature was cleared:', {
+            hasSubmission: !!submission,
+            staffSignature: submission?.staffSignature ? 'EXISTS - ERROR!' : 'NULL - SUCCESS',
+            signatureWasCleared: signatureWasCleared
+          });
+        }
         
         if (!signatureWasCleared) {
           // Signature was NOT cleared - show error
+          const errorMessage = formKey === 'pre_employment_medical'
+            ? 'Failed to clear all signatures. Some signatures still exist. Please try again.'
+            : 'Failed to clear signature. The signature still exists. Please try again.';
           console.error('❌ [Edit] Signature was NOT cleared by backend!', {
+            formKey,
             staffSignature: submission?.staffSignature,
+            data: submission?.data,
             submission: submission
           });
           showToast({
             type: 'error',
             title: 'Error',
-            message: 'Failed to clear signature. The signature still exists. Please try again.',
+            message: errorMessage,
             duration: 5000,
           });
           setEditingFormId(null);
@@ -626,10 +693,13 @@ export default function StaffSignaturePortalClient() {
         
         // Signature was successfully cleared - proceed
         console.log('✅ [Edit] Backend confirmed signature cleared, proceeding to form');
+        const signatureMessage = formKey === 'pre_employment_medical' 
+          ? 'All 3 signatures have been cleared. Please sign again after editing.'
+          : 'Your signature has been cleared. Please sign again after editing.';
         showToast({
           type: 'info',
           title: 'Signature Cleared',
-          message: 'Your signature has been cleared. Please sign again after editing.',
+          message: signatureMessage,
           duration: 4000,
         });
         
@@ -833,8 +903,14 @@ export default function StaffSignaturePortalClient() {
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaSignature className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-amber-600 mb-1">{completionStatus.formsRequiringSignature}</div>
-                <div className="text-xs sm:text-sm font-medium text-amber-700">Require Signature</div>
+                <div className="text-2xl sm:text-3xl font-bold text-amber-600 mb-1">
+                  {completionStatus.totalSignaturesRequired !== undefined 
+                    ? completionStatus.totalSignaturesRequired 
+                    : completionStatus.formsRequiringSignature}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-amber-700">
+                  {completionStatus.totalSignaturesRequired !== undefined ? 'Signatures Required' : 'Require Signature'}
+                </div>
               </div>
               
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-green-100">
@@ -862,12 +938,23 @@ export default function StaffSignaturePortalClient() {
                       <>
                         {completionStatus.totalCompletedForms} of {completionStatus.totalForms} forms completed
                         {completionStatus.formsRequiringSignature > 0 && (
-                          <> ({completionStatus.signedForms} of {completionStatus.formsRequiringSignature} signed)</>
+                          <>
+                            {' '}
+                            {completionStatus.totalSignaturesRequired !== undefined ? (
+                              <>({completionStatus.totalSignaturesCompleted} of {completionStatus.totalSignaturesRequired} signatures)</>
+                            ) : (
+                              <>({completionStatus.signedForms} of {completionStatus.formsRequiringSignature} signed)</>
+                            )}
+                          </>
                         )}
                       </>
                     ) : (
                       <>
-                    {completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed
+                        {completionStatus.totalSignaturesRequired !== undefined ? (
+                          <>{completionStatus.totalSignaturesCompleted} of {completionStatus.totalSignaturesRequired} signatures</>
+                        ) : (
+                          <>{completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed</>
+                        )}
                       </>
                     )}
                   </span>
@@ -881,6 +968,11 @@ export default function StaffSignaturePortalClient() {
                     }`}
                     style={{ 
                       width: `${(() => {
+                        // If signature counts are available, use them for progress
+                        if (completionStatus.totalSignaturesRequired !== undefined && completionStatus.totalSignaturesRequired > 0) {
+                          return (completionStatus.totalSignaturesCompleted / completionStatus.totalSignaturesRequired) * 100;
+                        }
+                        // Otherwise, use form counts
                         if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
                           return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
                         } else if (completionStatus.formsRequiringSignature > 0) {
@@ -893,6 +985,11 @@ export default function StaffSignaturePortalClient() {
                 </div>
                 <div className="mt-2 text-xs text-gray-500 text-center">
                   {Math.round((() => {
+                    // If signature counts are available, use them for progress
+                    if (completionStatus.totalSignaturesRequired !== undefined && completionStatus.totalSignaturesRequired > 0) {
+                      return (completionStatus.totalSignaturesCompleted / completionStatus.totalSignaturesRequired) * 100;
+                    }
+                    // Otherwise, use form counts
                     if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
                       return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
                     } else if (completionStatus.formsRequiringSignature > 0) {

@@ -584,6 +584,27 @@ export async function POST(
         'sectionBDate', 'sectionCDate', 'sectionDDate'
       ];
       
+      // Special handling for pre_employment_medical - clear all 3 signatures
+      if (formKey === 'pre_employment_medical') {
+        console.log(`🔄 [API] Clearing all 3 signatures for pre_employment_medical`);
+        // Clear all 3 signature fields
+        const preEmploymentSignatureFields = [
+          'signature',           // Informed Consent signature
+          'signatureDate',       // Informed Consent date
+          'disclosureAdviceSignature',  // Disclosure Advice signature
+          'disclosureAdviceDate',       // Disclosure Advice date
+          'declarationSignature',       // Declaration signature
+          'declarationDate'             // Declaration date
+        ];
+        preEmploymentSignatureFields.forEach(field => {
+          if (field in formData) {
+            delete formData[field];
+            console.log(`  🗑️ Cleared ${field}`);
+          }
+        });
+        console.log(`✅ [API] Cleared all pre_employment_medical signatures`);
+      }
+      
       // Special handling for vehicle_safety_inspection - clear acknowledgmentData.signature
       if (formKey === 'vehicle_safety_inspection') {
         if (formData.acknowledgmentData && typeof formData.acknowledgmentData === 'object') {

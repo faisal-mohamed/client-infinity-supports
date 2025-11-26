@@ -895,6 +895,9 @@ export default function StaffFormViewPageClient() {
   // Check if this is Support Worker (Position Description) form - use PDF viewer (matches download)
   const isSupportWorkerForm = assignment.form.formKey === 'support_worker';
   
+  // Check if this is Pre-Employment Medical form - use PDF viewer (matches download)
+  const isPreEmploymentMedicalForm = assignment.form.formKey === 'pre_employment_medical';
+  
   console.log('🎨 [View Form] Rendering decision:', {
     formKey: assignment.form.formKey,
     isEmployeeDetailsForm,
@@ -905,8 +908,9 @@ export default function StaffFormViewPageClient() {
     isNdisForm,
     isVehicleSafetyInspectionForm,
     isSupportWorkerForm,
-    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm,
+    isPreEmploymentMedicalForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm || isPreEmploymentMedicalForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm && !isPreEmploymentMedicalForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1597,6 +1601,18 @@ export default function StaffFormViewPageClient() {
             console.log('📄 [View Form] Rendering Support Worker (Position Description) PDF viewer');
             const pdfUrl = `/api/staff/${staffId}/forms/support-worker/pdf?key=${pdfKey}`;
             console.log('📄 [View Form] Support Worker PDF URL:', pdfUrl);
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={pdfUrl} />
+              </div>
+            );
+          })()
+        ) : isPreEmploymentMedicalForm ? (
+          /* Use PDF viewer for Pre-Employment Medical form - shows generated PDF (matches download) */
+          (() => {
+            console.log('📄 [View Form] Rendering Pre-Employment Medical PDF viewer');
+            const pdfUrl = `/api/staff/${staffId}/forms/pre-employment-medical/pdf?key=${pdfKey}`;
+            console.log('📄 [View Form] Pre-Employment Medical PDF URL:', pdfUrl);
             return (
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
                 <AdminPDFCanvasViewer pdfUrl={pdfUrl} />

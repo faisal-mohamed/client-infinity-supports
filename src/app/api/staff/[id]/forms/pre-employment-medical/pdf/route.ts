@@ -135,11 +135,19 @@ export async function GET(
 
     console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
 
-    // Return PDF as inline (for iframe viewing in admin)
+    // Check if request wants to download or view inline
+    const { searchParams } = new URL(req.url);
+    const download = searchParams.get('download') === 'true';
+
+    const filename = `Pre_Employment_Medical_${staff.firstName}_${staff.surname}.pdf`;
+
+    // Return PDF as inline (for viewing) or attachment (for download)
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="Pre_Employment_Medical_${staff.firstName}_${staff.surname}.pdf"`,
+        'Content-Disposition': download 
+          ? `attachment; filename="${filename}"` 
+          : `inline; filename="${filename}"`,
       },
     });
 

@@ -21,24 +21,31 @@ export default function AdminPreEmploymentMedicalViewPage() {
       try {
         console.log('🔵 [Admin View] Loading Pre-Employment Medical data for staff:', staffId);
         
-        // Fetch form data (API now returns empty data if form doesn't exist)
+        // Fetch form data - this is only for checking if signature exists (for download button)
+        // The PDF viewer will always show the generated PDF regardless of data
         const formRes = await fetch(`/api/staff/${staffId}/forms/pre-employment-medical`);
         
-        if (!formRes.ok) {
-          const errorData = await formRes.json();
-          throw new Error(errorData.error || 'Failed to load form');
+        if (formRes.ok) {
+          const formSubmission = await formRes.json();
+          console.log('✅ [Admin View] Form submission:', formSubmission);
+          
+          // Extract staff and form data (for header and download button logic)
+          setStaff(formSubmission.staff || {});
+          setFormData(formSubmission || {});
+        } else {
+          // If form doesn't exist, just load staff info for header
+          const staffRes = await fetch(`/api/admin/staff/${staffId}`);
+          if (staffRes.ok) {
+            const staffData = await staffRes.json();
+            setStaff(staffData);
+            setFormData({});
+          }
         }
-        
-        const formSubmission = await formRes.json();
-        console.log('✅ [Admin View] Form submission:', formSubmission);
-        
-        // Extract staff and form data
-        setStaff(formSubmission.staff || {});
-        setFormData(formSubmission || {});
         
       } catch (error: any) {
         console.error('❌ [Admin View] Error loading data:', error);
-        alert(error.message);
+        // Don't block PDF view on error - PDF will still generate with empty data
+        setFormData({});
       } finally {
         setLoading(false);
       }
@@ -52,8 +59,12 @@ export default function AdminPreEmploymentMedicalViewPage() {
 
   const handleDownloadPDF = async () => {
     setDownloading(true);
+    let url: string | null = null;
+    let link: HTMLAnchorElement | null = null;
+    
     try {
-      const pdfUrl = `/api/staff/${staffId}/forms/pre-employment-medical/pdf`;
+      // Add download=true parameter to trigger download
+      const pdfUrl = `/api/staff/${staffId}/forms/pre-employment-medical/pdf?download=true`;
       
       // Fetch the PDF
       const response = await fetch(pdfUrl);
@@ -62,16 +73,35 @@ export default function AdminPreEmploymentMedicalViewPage() {
       const blob = await response.blob();
       
       // Create a download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      url = window.URL.createObjectURL(blob);
+      link = document.createElement('a');
       link.href = url;
       link.download = `Pre_Employment_Medical_${staff?.firstName}_${staff?.surname}.pdf`;
+      link.style.position = 'fixed';
+      link.style.left = '-9999px';
+      link.style.top = '-9999px';
+      
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Cleanup with requestAnimationFrame to ensure click completes
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (link && link.parentNode === document.body) {
+            try {
+              document.body.removeChild(link);
+            } catch (e) {
+              console.error('Error removing link:', e);
+            }
+          }
+          
+          setTimeout(() => {
+            if (url) {
+              window.URL.revokeObjectURL(url);
+            }
+          }, 1000);
+        });
+      });
       
       showToast({
         type: 'success',
@@ -79,8 +109,22 @@ export default function AdminPreEmploymentMedicalViewPage() {
         message: 'PDF has been downloaded successfully.',
         duration: 3000,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error downloading PDF:', error);
+      
+      // Cleanup on error
+      if (link && link.parentNode === document.body) {
+        try {
+          document.body.removeChild(link);
+        } catch (e) {
+          console.error('Error removing link:', e);
+        }
+      }
+      
+      if (url) {
+        window.URL.revokeObjectURL(url);
+      }
+      
       showToast({
         type: 'error',
         title: 'Download Failed',
@@ -98,7 +142,7 @@ export default function AdminPreEmploymentMedicalViewPage() {
 
   const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
   const staffEmail = staff?.email || '';
-  const hasSignature = formData?.signature || formData?.staffSignature;
+  const hasSignature = formData?.signature || formData?.staffSignature || formData?.declarationSignature;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
@@ -113,9 +157,11 @@ export default function AdminPreEmploymentMedicalViewPage() {
         showDownload={!!hasSignature}
       />
 
-      {/* Full Screen PDF Viewer */}
+      {/* Always show generated PDF - PDF route generates PDF even with empty data */}
       <div className="px-4 sm:px-6 lg:px-8 py-8">
-        <AdminPDFCanvasViewer pdfUrl={`/api/staff/${staffId}/forms/pre-employment-medical/pdf`} />
+        <AdminPDFCanvasViewer 
+          pdfUrl={`/api/staff/${staffId}/forms/pre-employment-medical/pdf`} 
+        />
       </div>
     </div>
   );

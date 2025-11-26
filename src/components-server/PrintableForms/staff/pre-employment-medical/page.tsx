@@ -12,21 +12,21 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    paddingTop: 75, // Space for fixed header
-    paddingBottom: 65, // Increased to prevent content from overlapping with footer (footer is 40px + 20px bottom = 60px, so 65px padding ensures clearance)
-    paddingLeft: 40,
-    paddingRight: 40,
+    padding: 30,
+    paddingTop: 110, // Space for fixed header (logo)
+    paddingBottom: 50, // Space for fixed footer
     fontFamily: 'Helvetica',
     fontSize: 10,
     lineHeight: 1.4,
   },
   header: {
     position: 'absolute',
-    top: 25,
-    left: 40,
-    right: 40,
+    top: 20,
+    left: 0,
+    right: 0,
+    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
   },
   headerLogo: {
     width: 140,
@@ -35,58 +35,45 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: 'absolute',
-    bottom: 20,
-    left: 40,
-    right: 40,
+    bottom: 15,
+    left: 30,
+    right: 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 10,
-    borderTop: '1 solid #e5e7eb',
+    borderTop: '1 solid #ddd',
+    paddingTop: 8,
     fontSize: 9,
-    height: 40,
-    backgroundColor: '#ffffff',
+    color: '#666',
   },
   footerText: {
     fontSize: 9,
     color: '#666666',
   },
   section: {
-    marginBottom: 12,
-    breakInside: 'auto', // Allow sections to break across pages to use space better
-    minHeight: 0, // Don't force minimum height
+    marginBottom: 20, // Increased for better spacing between sections
+    breakInside: 'auto', // Allow natural page breaks
   },
   sectionHeader: {
     backgroundColor: '#2563eb',
     color: '#ffffff',
-    padding: 6,
+    padding: 8,
     fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 6,
-    breakInside: 'avoid', // Keep header with first row of content
-    breakAfter: 'avoid',
-  },
-  declarationHeader: {
-    backgroundColor: '#2563eb',
-    color: '#ffffff',
-    padding: 6,
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 10,
     breakInside: 'avoid', // Keep header with content
-    breakAfter: 'avoid', // Keep header with content below
   },
   contentBox: {
     border: '1 solid #d1d5db',
-    padding: 8,
-    marginBottom: 10,
-    breakInside: 'auto', // Allow content boxes to break across pages
-    minHeight: 0, // Don't force minimum height - let content determine
+    padding: 10,
+    marginBottom: 12,
+    breakInside: 'auto', // Allow breaking across pages
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 8,
     alignItems: 'flex-start',
+    breakInside: 'auto', // Allow breaking if needed
   },
   fieldLabel: {
     width: 140,
@@ -94,79 +81,70 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#374151',
     paddingRight: 8,
-    marginBottom: 4, // Add spacing between label and box
   },
   fieldValue: {
     flex: 1,
     fontSize: 9,
     color: '#111827',
-    minHeight: 12,
-    wrap: true, // Allow text to wrap for longer content like addresses
+    wrap: true,
   },
   fieldBox: {
     border: '1 solid #9ca3af',
-    minHeight: 32, // Increased height for better visibility
-    padding: 8, // Increased padding
+    minHeight: 28,
+    padding: 6,
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'flex-start', // Align text to top-left
+    alignItems: 'flex-start',
   },
   paragraph: {
     fontSize: 10,
-    lineHeight: 1.5, // Better readability like client forms
-    marginBottom: 8, // Better spacing between paragraphs
+    lineHeight: 1.5,
+    marginBottom: 10,
     color: '#111827',
-    breakInside: 'auto', // Allow paragraphs to break if needed
-    wrap: true, // Allow text to wrap properly
-    orphans: 2, // Keep at least 2 lines together at bottom of page
-    widows: 2, // Keep at least 2 lines together at top of page
+    wrap: true,
+    breakInside: 'auto',
   },
   table: {
     width: '100%',
-    borderCollapse: 'collapse',
     marginBottom: 12,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1 solid #d1d5db',
-    breakInside: 'auto', // Allow table rows to break if needed (but try to keep together)
-    minHeight: 20, // Minimum row height
+    minHeight: 24,
+    breakInside: 'avoid', // Keep Yes/No together with question
+    wrap: false, // Prevent row from splitting
   },
   tableHeader: {
     backgroundColor: '#f3f4f6',
     fontWeight: 'bold',
     fontSize: 9,
-    padding: 4,
-    border: '1 solid #d1d5db',
-  },
-  tableCell: {
-    fontSize: 9,
     padding: 6,
     border: '1 solid #d1d5db',
-    flex: 1,
   },
   tableCellQuestion: {
     fontSize: 9,
-    padding: 4,
+    padding: 6,
     border: '1 solid #d1d5db',
     flex: 2.5,
-    wrap: true, // Allow question text to wrap
+    wrap: true,
   },
   tableCellYesNo: {
     fontSize: 9,
-    padding: 2,
+    padding: 4,
     border: '1 solid #d1d5db',
     flex: 0.5,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    wrap: false, // Keep checkbox and label together
   },
   tableCellDetails: {
     fontSize: 9,
-    padding: 4,
+    padding: 6,
     border: '1 solid #d1d5db',
     flex: 4,
     wrap: true,
-    minHeight: 15, // Allow text to wrap and use space
   },
   checkbox: {
     width: 10,
@@ -174,6 +152,8 @@ const styles = StyleSheet.create({
     border: '1 solid #000000',
     marginRight: 4,
     backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   checkboxChecked: {
     width: 10,
@@ -181,95 +161,63 @@ const styles = StyleSheet.create({
     border: '1 solid #000000',
     marginRight: 4,
     backgroundColor: '#87ceeb',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textArea: {
     fontSize: 9,
-    lineHeight: 1.5, // Better readability
-    padding: 10, // More padding like client forms
+    lineHeight: 1.5,
+    padding: 8,
     border: '1 solid #d1d5db',
-    borderRadius: 4,
     backgroundColor: '#f9fafb',
-    minHeight: 60, // Better minimum height for visibility
+    minHeight: 50,
     marginBottom: 10,
-    marginTop: 4, // Space above text area
-    breakInside: 'auto', // Allow text area to break across pages if needed
-    wrap: true, // Allow text to wrap properly
-  },
-  declarationSection: {
-    marginBottom: 15,
-    breakInside: 'avoid', // Keep entire declaration section together - move to next page if not enough space
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    minHeight: 0, // Don't force height
-    // Force the entire section to stay together
-    flexShrink: 0,
-  },
-  declarationContentBox: {
-    // No border - removed outer box as requested
-    padding: 0, // No padding needed without border
-    marginBottom: 10,
-    breakInside: 'avoid', // Keep declaration content box together
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    minHeight: 0, // Don't force height
-    flexShrink: 0, // Prevent shrinking
-  },
-  educationalQualificationsSection: {
-    marginBottom: 15,
-    breakInside: 'avoid', // Keep entire section together - move to next page if not enough space
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    minHeight: 0,
-    flexShrink: 0,
-  },
-  educationalQualificationsContentBox: {
-    // No border - removed outer box as requested
-    padding: 0, // No padding needed without border
-    marginBottom: 10,
-    breakInside: 'avoid', // Keep content box together
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    minHeight: 0,
-    flexShrink: 0,
-  },
-  declarationParagraph: {
-    fontSize: 10,
-    lineHeight: 1.4,
-    marginBottom: 12, // Increased margin for spacing after paragraph
-    color: '#111827',
-    breakInside: 'avoid', // Keep paragraph with signature section
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    flexShrink: 0, // Prevent shrinking
-  },
-  declarationWrapper: {
-    breakInside: 'avoid', // Wrapper to ensure everything stays together - CRITICAL
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
-    minHeight: 0,
-    flexShrink: 0,
-    // Force page break before if not enough space
-    breakBefore: 'auto', // Allow page break before if needed
+    marginTop: 6,
+    breakInside: 'auto',
+    wrap: true,
   },
   signatureRow: {
     flexDirection: 'row',
     gap: 16,
     marginTop: 12,
-    breakInside: 'avoid', // Keep signature row together
-    pageBreakInside: 'avoid', // Alternative syntax (like client forms)
+    marginBottom: 35, // Increased gap after signature before next section
+    breakInside: 'avoid', // Keep signature together
   },
   signatureBox: {
-    border: '1 solid #9ca3af',
-    minHeight: 80,
-    padding: 8,
+    border: '2 solid #000000', // Thick black border for maximum visibility
+    minHeight: 90, // Increased height for better visibility
+    height: 90, // Fixed height to ensure box is always visible
+    padding: 12, // More padding for better spacing
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+    backgroundColor: '#ffffff', // White background
   },
   signatureImage: {
-    maxHeight: 70,
-    maxWidth: '100%',
+    maxHeight: 75, // Increased to fit better in larger box
+    maxWidth: '90%', // Margin from edges
     objectFit: 'contain',
   },
   dateBox: {
-    border: '1 solid #9ca3af',
-    minHeight: 28,
-    padding: 6,
+    border: '2 solid #000000', // Thick black border for maximum visibility
+    minHeight: 36, // Increased height
+    height: 36, // Fixed height
+    padding: 10, // More padding
     flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#ffffff', // White background
+  },
+  subHeadingRow: {
+    flexDirection: 'row',
+    borderBottom: '1 solid #d1d5db',
+    backgroundColor: '#f9fafb',
+    padding: 6,
+    breakInside: 'avoid',
+  },
+  subHeadingText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    flex: 7,
   },
 });
 
@@ -306,44 +254,21 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
       return date.toLocaleDateString('en-AU');
     } catch {
       return dateStr;
     }
   };
 
-  // Render header - using 'fixed' prop so it appears on all pages (including dynamically created ones)
-  const renderHeader = () => {
-    if (!images?.infinityLogo) return null;
+  // Render checkbox with Yes/No label
+  const renderCheckboxWithLabel = (checked: boolean | null, label: string) => {
     return (
-      <View style={styles.header} fixed>
-        <Image src={images.infinityLogo} style={styles.headerLogo} />
+      <View style={styles.tableCellYesNo}>
+        <View style={checked ? styles.checkboxChecked : styles.checkbox}>
+          {checked && <Text style={{ fontSize: 7 }}>✓</Text>}
       </View>
-    );
-  };
-
-  // Render footer - using 'fixed' prop so it appears on all pages (including dynamically created ones)
-  const renderFooter = () => {
-    const footerId = settings?.footerId || settings?.pre_employment_medical_form_id;
-    const footerDate = settings?.footerDate || settings?.review_date;
-    const footerWebsite = settings?.footerWebsite || settings?.company_website;
-
-    if (!footerId && !footerDate && !footerWebsite) return null;
-
-    return (
-      <View style={styles.footer} fixed>
-        {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
-        {footerId && <Text style={styles.footerText}>{footerId}</Text>}
-        {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
-      </View>
-    );
-  };
-
-  // Render checkbox
-  const renderCheckbox = (checked: boolean | null) => {
-    return (
-      <View style={checked ? styles.checkboxChecked : styles.checkbox}>
-        {checked && <Text style={{ fontSize: 8, color: '#000000' }}>✓</Text>}
+        <Text style={{ fontSize: 8, marginLeft: 2 }}>{label}</Text>
       </View>
     );
   };
@@ -377,34 +302,35 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
     'Colour blindness',
   ];
 
-  // Body Parts
-  const bodyParts = [
-    'Back',
-    'Neck',
-    'Shoulders',
-    'Arms',
-    'Hands',
-    'Fingers',
-    'Hips',
-    'Legs',
-    'Feet',
-    'Joints',
-  ];
+  // Get footer values from settings only (no hardcoded fallbacks)
+  const footerWebsite = settings?.footerWebsite || '';
+  const footerId = settings?.footerId || '';
+  const footerDate = settings?.footerDate || '';
 
   return (
     <Document>
-      {/* PAGE 1: Applicant Details and Consent */}
+      {/* Single Page with natural flow - like Emergency Drill */}
       <Page size="A4" style={styles.page}>
-        {renderHeader()}
-        
+        {/* Fixed Header - appears on all pages */}
+        {images?.infinityLogo && (
+          <View style={styles.header} fixed>
+            <Image src={images.infinityLogo} style={styles.headerLogo} />
+          </View>
+        )}
+
+        {/* Content flows naturally with automatic page breaks */}
+        <View>
+          {/* Section 1: Pre-Employment Medical Examination Consent Form */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Applicant Details</Text>
+          <Text style={styles.sectionHeader}>Pre-Employment Medical Examination Consent Form</Text>
           <View style={styles.contentBox}>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Full Name:</Text>
               <View style={styles.fieldBox}>
-                <Text style={styles.fieldValue}>{getValue('fullName') || `${staff?.firstName || ''} ${staff?.surname || ''}`.trim()}</Text>
-              </View>
+                  <Text style={styles.fieldValue}>
+                    {getValue('fullName') || `${staff?.firstName || ''} ${staff?.surname || ''}`.trim()}
+                  </Text>
+                </View>
             </View>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Address:</Text>
@@ -427,78 +353,95 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
           </View>
         </View>
 
+          {/* Section 2: Informed Consent */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Informed Consent (to be completed by the applicant)</Text>
           <View style={styles.contentBox}>
             <Text style={styles.paragraph}>
-              I consent to Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for the position stated above.
+              All applicants for positions at Infinity Supports WA are asked to sign that they have read and understood the content of the following statement and that they give their consent to use and disclose their personal information for the purposes of recruitment and selection.
             </Text>
             <Text style={styles.paragraph}>
-              Infinity Supports WA is committed to privacy legislation and will maintain the confidentiality and security of your personal information. Your personal information will be used solely for the purpose of assessing your suitability for the position you have applied for.
+                In accordance with the Privacy legislation, Infinity Supports WA is committed to ensuring the confidentiality and security of your personal information. The information you supply during the recruitment and selection process will be used solely for the purposes of assessing your suitability for employment in the specified position.
             </Text>
             <Text style={styles.paragraph}>
-              Your personal information may be disclosed to third parties (e.g., internal managers, referees) or as required by law, strictly for the purpose of assessing your application.
+              In order to assist Infinity Supports WA and the assessment of your application, it may be necessary for us to disclose your personal information to certain third parties such as internal managers, your referees etc. and as may be required by law. We will only disclose your personal information to third parties for this purpose.
             </Text>
             <Text style={styles.paragraph}>
-              Infinity Supports WA will retain your application information for 6 months after the selection process is completed. Your information may be used to consider your suitability for other positions that may arise.
+                Infinity Supports WA has a policy of retaining information relating to all applicants for a period of 6 months after the selection process for the position has been completed. During this period if another position for which you may be suitable arises, we may use your information in considering your suitability for such a position.
             </Text>
             <Text style={styles.paragraph}>
-              In accordance with the Corporations Act, Infinity Supports WA will seek information on past performance and employment history, including reference checks with previous employers, police checks, WWCC (Working With Children Check), and educational qualifications checks, prior to any offer of employment.
+              In addition, Infinity Supports WA will, in accordance with the Corporations Act, seek information in relation to past performance and employment history of all candidates prior to appointment to any position. Therefore, reference checks with previous employers, police checks, WWCC and educational qualifications checks may be carried out prior to any offer of employment.
             </Text>
-          </View>
+              
+              {/* Consent Table */}
+              <View style={styles.table}>
+                {[
+                  {
+                    label: 'I consent to Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for the position stated above.',
+                    key: 'consentRecruitment'
+                  },
+                  {
+                    label: 'I consent Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for ANY OTHER suitable positions that may arise in the future.',
+                    key: 'consentFuturePositions'
+                  },
+                  {
+                    label: 'I consent to Infinity Supports WA making inquiries about me from my referees and any other person including colleagues on LinkedIn.',
+                    key: 'consentRefereeInquiries'
+                  },
+                  {
+                    label: 'I consent to Infinity Supports WA carrying out a police check.',
+                    key: 'consentPoliceCheck'
+                  },
+                  {
+                    label: 'I consent to Infinity Supports WA carrying out an educational qualifications check.',
+                    key: 'consentEducationalCheck'
+                  }
+                ].map((item, index) => {
+                  const value = getBoolean(item.key);
+                  return (
+                    <View key={index} style={styles.tableRow} wrap={false}>
+                      <Text style={styles.tableCellQuestion}>{item.label}</Text>
+                      {renderCheckboxWithLabel(value === true, 'Yes')}
+                      {renderCheckboxWithLabel(value === false, 'No')}
         </View>
-
-        {renderFooter()}
-      </Page>
-
-      {/* PAGE 2: Educational Qualifications Check and Pre-Existing Conditions - Allow flow if space available */}
-      <Page size="A4" style={styles.page} wrap>
-        {renderHeader()}
-
-        <View style={styles.educationalQualificationsSection}>
-          <Text style={styles.sectionHeader}>Educational Qualifications Check</Text>
-          <View style={styles.educationalQualificationsContentBox}>
-            {/* Consent text - no box around it */}
-            <View style={{ marginBottom: 12 }}>
-              <Text style={styles.paragraph}>
-                I consent to Infinity Supports WA carrying out an educational qualifications check.
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 6 }}>
-                {renderCheckbox(getBoolean('consentEducationalCheck') === true)}
-                <Text style={styles.fieldValue}>Yes</Text>
-                {renderCheckbox(getBoolean('consentEducationalCheck') === false)}
-                <Text style={styles.fieldValue}>No</Text>
+                  );
+                })}
               </View>
             </View>
-            {/* Signature and Date fields - each has its own box */}
-            <View style={styles.signatureRow}>
+
+            {/* Signature - Outside contentBox for full width */}
+            <View style={styles.signatureRow} wrap={false}>
               <View style={{ flex: 2 }}>
-                <Text style={[styles.fieldLabel, { marginBottom: 10, width: 'auto' }]}>Applicant's Signature:</Text>
+                <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Applicant's Signature:</Text>
                 <View style={styles.signatureBox}>
-                  {(data?.signature || getValue('signature')) && (
+                  {(data?.signature || getValue('signature')) ? (
                     <Image 
                       src={data?.signature || getValue('signature')} 
                       style={styles.signatureImage} 
                     />
+                  ) : (
+                    <Text style={{ fontSize: 9, color: '#9ca3af' }}> </Text>
                   )}
                 </View>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.fieldLabel, { marginBottom: 10, width: 'auto' }]}>Date:</Text>
+                <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Date:</Text>
                 <View style={styles.dateBox}>
                   <Text style={styles.fieldValue}>
-                    {formatDate(data?.signatureDate || getValue('signatureDate'))}
+                    {formatDate(data?.signatureDate || getValue('signatureDate')) || ' '}
                   </Text>
                 </View>
               </View>
             </View>
-          </View>
+            
+            {/* Spacer after signature for better separation */}
+            <View style={{ height: 30, marginBottom: 15 }} />
         </View>
 
+          {/* Section 3: Pre-Existing Conditions */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Pre-Existing Injury or Disease Disclosure Statement (to be completed by the applicant)</Text>
-          {/* Paragraphs - no box around them, just plain text like client forms */}
-          <View style={{ padding: 0, marginBottom: 10 }}>
+            <View>
             <Text style={styles.paragraph}>
               Infinity Supports WA is committed to providing a safe working environment for all employees. As part of this it is our objective to ensure potential employees are not required to work in duties that they are not able to perform safely. As part of the application process for employment with Infinity Supports WA, we request you to disclose any pre-existing injury or disease which may be adversely affected by the performance of the inherent requirements of the position you have applied for – as described in the attached Position Description.
             </Text>
@@ -508,224 +451,206 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
             <Text style={styles.paragraph}>
               Should any alteration, change or rearrangement be necessary to enable you to effectively carry out the inherent requirements of the position, we also request that you disclose these requirements.
             </Text>
-            {/* Disclosure instruction */}
             <Text style={[styles.fieldLabel, { marginTop: 8, marginBottom: 6, width: 'auto' }]}>
-              (Please disclose in the space below any pre-existing injuries or diseases that you suffer from, or have suffered from, which could be affected by the nature of your proposed employment with Infinity Supports WA):
+              Please disclose in the space below any pre-existing injuries or diseases that you suffer from, or have suffered from, which could be affected by the nature of your proposed employment with Infinity Supports WA (attach a separate page if necessary).
             </Text>
-            {/* Text area for disclosure - has its own box */}
             <View style={styles.textArea}>
               <Text style={styles.fieldValue}>{getValue('preExistingConditions')}</Text>
             </View>
           </View>
         </View>
 
-        {/* Spacer to ensure content doesn't get too close to footer */}
-        <View style={{ height: 10 }} />
-
-        {renderFooter()}
-      </Page>
-
-      {/* PAGE 4: General Health and Medical Questions */}
-      <Page size="A4" style={styles.page} wrap>
-        {renderHeader()}
-
+          {/* Section 4: Disclosure Advice */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>General Health Questions</Text>
+          <Text style={styles.sectionHeader}>Disclosure Advice (to be completed by the applicant)</Text>
+          <View style={styles.contentBox}>
+            <Text style={styles.paragraph}>
+              I confirm that I have read and understood the contents of the above information and state that I have disclosed all relevant information in relation to my health and physical ability to carry out the inherent requirements of this position.
+            </Text>
+            </View>
+            
+            {/* Signature - Outside contentBox for full width */}
+            <View style={styles.signatureRow} wrap={false}>
+              <View style={{ flex: 2 }}>
+                <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Applicant's Signature:</Text>
+                <View style={styles.signatureBox}>
+                  {(data?.disclosureAdviceSignature || getValue('disclosureAdviceSignature')) ? (
+                    <Image 
+                      src={data?.disclosureAdviceSignature || getValue('disclosureAdviceSignature')} 
+                      style={styles.signatureImage} 
+                    />
+                  ) : (
+                    <Text style={{ fontSize: 9, color: '#9ca3af' }}> </Text>
+                  )}
+                </View>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Date:</Text>
+                <View style={styles.dateBox}>
+                  <Text style={styles.fieldValue}>
+                    {formatDate(data?.disclosureAdviceDate || getValue('disclosureAdviceDate')) || ' '}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            
+            {/* Spacer after signature for better separation */}
+            <View style={{ height: 30, marginBottom: 15 }} />
+        </View>
+
+          {/* Section 5: General Health Questionnaire */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>General Health Questionnaire (to be completed by the applicant)</Text>
           <View style={styles.contentBox}>
             <View style={styles.table}>
               {/* Table Header */}
-              <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
+                <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]} wrap={false}>
                 <Text style={[styles.tableHeader, { flex: 2.5 }]}>Question</Text>
                 <Text style={[styles.tableHeader, { flex: 0.5 }]}>Yes</Text>
                 <Text style={[styles.tableHeader, { flex: 0.5 }]}>No</Text>
                 <Text style={[styles.tableHeader, { flex: 4 }]}>Details</Text>
               </View>
-              {/* Table Rows */}
+                
+                {/* General Health Questions */}
               {generalHealthQuestions.map((question, index) => {
                 const key = `generalHealth${index}`;
                 const value = getBoolean(key);
                 const details = getValue(`${key}Details`);
                 return (
-                  <View key={index} style={styles.tableRow}>
+                    <View key={index} style={styles.tableRow} wrap={false}>
                     <Text style={styles.tableCellQuestion}>{question}</Text>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === true)}
-                    </View>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === false)}
-                    </View>
-                    <Text style={styles.tableCellDetails}>{details || ''}</Text>
+                      {renderCheckboxWithLabel(value === true, '')}
+                      {renderCheckboxWithLabel(value === false, '')}
+                      <Text style={styles.tableCellDetails}>{details || ''}</Text>
                   </View>
                 );
               })}
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>General Medical Questions</Text>
-          <View style={styles.contentBox}>
-            <View style={styles.table}>
-              {/* Table Header */}
-              <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
-                <Text style={[styles.tableHeader, { flex: 2.5 }]}>Question</Text>
-                <Text style={[styles.tableHeader, { flex: 0.5 }]}>Yes</Text>
-                <Text style={[styles.tableHeader, { flex: 0.5 }]}>No</Text>
-                <Text style={[styles.tableHeader, { flex: 4 }]}>Details</Text>
+                
+                {/* Sub-heading */}
+                <View style={styles.subHeadingRow} wrap={false}>
+                  <Text style={styles.subHeadingText}>Do you, or have you ever, suffered from:</Text>
               </View>
-              {/* Wrist or elbow */}
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCellQuestion}>Wrist or elbow</Text>
-                <View style={styles.tableCellYesNo}>
-                  {renderCheckbox(getBoolean('wristElbow') === true)}
-                </View>
-                <View style={styles.tableCellYesNo}>
-                  {renderCheckbox(getBoolean('wristElbow') === false)}
-                </View>
-                <Text style={styles.tableCellDetails}>{getValue('wristElbowDetails') || ''}</Text>
-              </View>
-              {/* Ankles or knees */}
-              <View style={styles.tableRow}>
-                <Text style={styles.tableCellQuestion}>Ankles or knees</Text>
-                <View style={styles.tableCellYesNo}>
-                  {renderCheckbox(getBoolean('anklesKnees') === true)}
-                </View>
-                <View style={styles.tableCellYesNo}>
-                  {renderCheckbox(getBoolean('anklesKnees') === false)}
-                </View>
-                <Text style={styles.tableCellDetails}>{getValue('anklesKneesDetails') || ''}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {renderFooter()}
-      </Page>
-
-      {/* PAGE 5: Medical Conditions */}
-      <Page size="A4" style={styles.page} wrap>
-        {renderHeader()}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Medical Conditions</Text>
-          <View style={styles.contentBox}>
-            <Text style={[styles.fieldLabel, { marginBottom: 8 }]}>Do you, or have you ever, suffered from:</Text>
-            <View style={styles.table}>
-              {/* Table Header */}
-              <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
-                <Text style={[styles.tableHeader, { flex: 2.5 }]}>Condition</Text>
-                <Text style={[styles.tableHeader, { flex: 0.5 }]}>Yes</Text>
-                <Text style={[styles.tableHeader, { flex: 0.5 }]}>No</Text>
-                <Text style={[styles.tableHeader, { flex: 4 }]}>Details</Text>
-              </View>
-              {/* Table Rows */}
+                
+                {/* Medical Conditions */}
               {medicalConditions.map((condition, index) => {
                 const key = condition.toLowerCase().replace(/[^a-z0-9]/g, '') + 'Condition';
                 const value = getBoolean(key);
                 const details = getValue(`${key}Details`);
                 return (
-                  <View key={index} style={styles.tableRow}>
+                    <View key={index} style={styles.tableRow} wrap={false}>
                     <Text style={styles.tableCellQuestion}>{condition}</Text>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === true)}
-                    </View>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === false)}
-                    </View>
-                    <Text style={styles.tableCellDetails}>{details || ''}</Text>
+                      {renderCheckboxWithLabel(value === true, '')}
+                      {renderCheckboxWithLabel(value === false, '')}
+                      <Text style={styles.tableCellDetails}>{details || ''}</Text>
                   </View>
                 );
               })}
+                
+                {/* Sub-heading */}
+                <View style={styles.subHeadingRow} wrap={false}>
+                  <Text style={styles.subHeadingText}>Do you, or have you ever, had trouble with your:</Text>
+                </View>
+                
+                {/* Body Parts */}
+                {[
+                  { key: 'backNeck', label: 'Back or neck' },
+                  { key: 'wristElbow', label: 'Wrist or elbow' },
+                  { key: 'anklesKnees', label: 'Ankles or knees' }
+                ].map((item) => {
+                  const value = getBoolean(item.key);
+                  const details = getValue(`${item.key}Details`);
+                  return (
+                    <View key={item.key} style={styles.tableRow} wrap={false}>
+                      <Text style={styles.tableCellQuestion}>{item.label}</Text>
+                      {renderCheckboxWithLabel(value === true, '')}
+                      {renderCheckboxWithLabel(value === false, '')}
+                      <Text style={styles.tableCellDetails}>{details || ''}</Text>
+                </View>
+                  );
+                })}
             </View>
           </View>
         </View>
 
-        {renderFooter()}
-      </Page>
-
-      {/* PAGE 6: Body Parts Issues */}
-      <Page size="A4" style={styles.page} wrap>
-        {renderHeader()}
-
+          {/* Section 6: Medical History - Workplace */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>Body Parts Issues</Text>
+          <Text style={styles.sectionHeader}>Medical History - Workplace (to be completed by the applicant)</Text>
           <View style={styles.contentBox}>
-            <Text style={[styles.fieldLabel, { marginBottom: 8 }]}>Do you, or have you ever, had trouble with your:</Text>
             <View style={styles.table}>
               {/* Table Header */}
-              <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]}>
-                <Text style={[styles.tableHeader, { flex: 2.5 }]}>Body Part</Text>
+                <View style={[styles.tableRow, { backgroundColor: '#f3f4f6' }]} wrap={false}>
+                <Text style={[styles.tableHeader, { flex: 2.5 }]}>Question</Text>
                 <Text style={[styles.tableHeader, { flex: 0.5 }]}>Yes</Text>
                 <Text style={[styles.tableHeader, { flex: 0.5 }]}>No</Text>
                 <Text style={[styles.tableHeader, { flex: 4 }]}>Details</Text>
               </View>
-              {/* Table Rows */}
-              {bodyParts.map((bodyPart, index) => {
-                const key = bodyPart.toLowerCase().replace(/[^a-z0-9]/g, '') + 'Issue';
-                const value = getBoolean(key);
-                const details = getValue(`${key}Details`);
-                return (
-                  <View key={index} style={styles.tableRow}>
-                    <Text style={styles.tableCellQuestion}>{bodyPart}</Text>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === true)}
+                
+                {/* Workplace Questions */}
+                {[
+                  { key: 'workInjury', question: 'Have you ever injured yourself at work or suffered an industrial disease?' },
+                  { key: 'ppeDifficulties', question: 'Have you ever had difficulties wearing PPE?' },
+                  { key: 'hazardousMaterials', question: 'Have you ever worked with hazardous materials?' }
+                ].map((item) => {
+                  const value = getBoolean(item.key);
+                  const details = getValue(`${item.key}Details`);
+                  return (
+                    <View key={item.key} style={styles.tableRow} wrap={false}>
+                      <Text style={styles.tableCellQuestion}>{item.question}</Text>
+                      {renderCheckboxWithLabel(value === true, '')}
+                      {renderCheckboxWithLabel(value === false, '')}
+                      <Text style={styles.tableCellDetails}>{details || ''}</Text>
                     </View>
-                    <View style={styles.tableCellYesNo}>
-                      {renderCheckbox(value === false)}
-                    </View>
-                    <Text style={styles.tableCellDetails}>{details || ''}</Text>
-                  </View>
-                );
-              })}
+                  );
+                })}
             </View>
           </View>
         </View>
 
-        {renderFooter()}
-      </Page>
-
-      {/* PAGE 7: Declaration - Separate page to ensure it stays together */}
-      <Page size="A4" style={styles.page}>
-        {renderHeader()}
-
-        {/* Declaration section - on its own page to prevent any breaking */}
-        <View style={styles.declarationSection}>
-          <Text style={styles.declarationHeader}>Declaration (to be completed by the applicant)</Text>
-          <View style={styles.declarationContentBox}>
-            {/* Paragraph text - no box around it */}
-            <Text style={styles.declarationParagraph}>
+          {/* Section 7: Declaration */}
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.sectionHeader}>Declaration (to be completed by the applicant)</Text>
+            <View>
+              <Text style={styles.paragraph}>
               I have not knowingly withheld any information relevant to the pre-employment medical examination. I declare that the information provided in this form is true and correct.
             </Text>
-            {/* Signature and Date fields - each has its own box */}
-            <View style={styles.signatureRow}>
+              <View style={styles.signatureRow} wrap={false}>
               <View style={{ flex: 2 }}>
-                <Text style={[styles.fieldLabel, { marginBottom: 10, width: 'auto' }]}>Applicant's Signature:</Text>
+                  <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Applicant's Signature:</Text>
                 <View style={styles.signatureBox}>
-                  {(data?.declarationSignature || getValue('declarationSignature')) && (
+                    {(data?.declarationSignature || getValue('declarationSignature')) ? (
                     <Image 
                       src={data?.declarationSignature || getValue('declarationSignature')} 
                       style={styles.signatureImage} 
                     />
+                    ) : (
+                      <Text style={{ fontSize: 9, color: '#9ca3af' }}> </Text>
                   )}
                 </View>
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.fieldLabel, { marginBottom: 10, width: 'auto' }]}>Date:</Text>
+                  <Text style={[styles.fieldLabel, { marginBottom: 8, width: 'auto' }]}>Date:</Text>
                 <View style={styles.dateBox}>
                   <Text style={styles.fieldValue}>
-                    {formatDate(data?.declarationDate || getValue('declarationDate'))}
+                      {formatDate(data?.declarationDate || getValue('declarationDate')) || ' '}
                   </Text>
+                  </View>
                 </View>
               </View>
             </View>
           </View>
         </View>
 
-        {renderFooter()}
+        {/* Fixed Footer - appears on all pages */}
+        {(footerWebsite || footerId || footerDate) && (
+          <View style={styles.footer} fixed>
+            {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+            {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+            {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
+          </View>
+        )}
       </Page>
     </Document>
   );
 };
 
 export default PreEmploymentMedicalPDF;
-

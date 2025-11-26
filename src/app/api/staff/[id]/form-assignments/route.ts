@@ -112,9 +112,16 @@ export async function GET(
           },
         }) : null;
 
-        // Sync assignment status if submission is submitted but assignment status is wrong
+        // Sync assignment status if submission exists and status needs updating
         // This handles cases where the assignment wasn't updated during submission
-        if (submission?.isSubmitted && assignment.currentStatus !== 'completed') {
+        // For pre_employment_medical, always check if all 3 signatures are present
+        const needsStatusCheck = submission && (
+          submission.isSubmitted || 
+          (formKey === 'pre_employment_medical' && assignment.currentStatus !== 'completed') ||
+          (assignment.currentStatus !== 'completed' && assignment.form.requiresSignature)
+        );
+        
+        if (needsStatusCheck) {
           let shouldSync = false;
           let newStatus = 'completed';
           
@@ -181,6 +188,24 @@ export async function GET(
                           !!formData.staffSignature;
             if (hasSig) {
               shouldSync = true;
+            }
+          }
+          // Pre-Employment Medical requires 3 signatures
+          else if (formKey === 'pre_employment_medical') {
+            const formData = submission.data as any || {};
+            // Check all 3 signatures are present
+            const hasSignature1 = !!(submission.staffSignature || formData.signature);
+            const hasSignature2 = !!formData.disclosureAdviceSignature;
+            const hasSignature3 = !!formData.declarationSignature;
+            
+            if (hasSignature1 && hasSignature2 && hasSignature3) {
+              // All 3 signatures present - mark as completed
+              shouldSync = true;
+              newStatus = 'completed';
+            } else if (hasSignature1 || hasSignature2 || hasSignature3) {
+              // At least one signature present - mark as in_progress
+              shouldSync = true;
+              newStatus = 'in_progress';
             }
           }
           // Forms requiring only staff signature - check if staff has signed

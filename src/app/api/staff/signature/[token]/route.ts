@@ -190,6 +190,20 @@ export async function GET(
         return hasSuperSig;
       }
       
+      // Pre-Employment Medical - requires 3 signatures
+      if (formKey === 'pre_employment_medical') {
+        const hasSignature1 = !!(data.signature || submission.staffSignature);
+        const hasSignature2 = !!(data.disclosureAdviceSignature);
+        const hasSignature3 = !!(data.declarationSignature);
+        const allSigned = hasSignature1 && hasSignature2 && hasSignature3;
+        console.log(`  - data.signature (Informed Consent): ${!!data.signature}`);
+        console.log(`  - staffSignature column: ${!!submission.staffSignature}`);
+        console.log(`  - data.disclosureAdviceSignature: ${!!data.disclosureAdviceSignature}`);
+        console.log(`  - data.declarationSignature: ${!!data.declarationSignature}`);
+        console.log(`  - Result: ${allSigned ? '✅ SIGNED (all 3 signatures)' : '❌ NOT SIGNED (missing signatures)'}`);
+        return allSigned;
+      }
+      
       // For other forms, check staffSignature column or generic signature fields
       const hasGenericSig = !!(data.signature || data.staffSignature);
       console.log(`  - data.signature: ${!!data.signature}`);
@@ -243,6 +257,61 @@ export async function GET(
       return false;
     });
 
+    // Calculate total signatures required and completed
+    let totalSignaturesRequired = 0;
+    let totalSignaturesCompleted = 0;
+    
+    formsRequiringSignature.forEach((sf: any) => {
+      // Skip if form is null
+      if (!sf.formSubmission?.form) {
+        console.warn(`⚠️ [Signature Count] Skipping form submission ${sf.formSubmission?.id} - form is null`);
+        return;
+      }
+      
+      const formKey = sf.formSubmission.form.formKey;
+      const data = sf.formSubmission.data || {};
+      const submission = sf.formSubmission;
+      
+      // Count required signatures per form
+      if (formKey === 'pre_employment_medical') {
+        // Pre-Employment Medical requires 3 signatures
+        totalSignaturesRequired += 3;
+        // Count completed signatures
+        const sig1 = !!(data.signature || submission.staffSignature);
+        const sig2 = !!(data.disclosureAdviceSignature);
+        const sig3 = !!(data.declarationSignature);
+        if (sig1) totalSignaturesCompleted++;
+        if (sig2) totalSignaturesCompleted++;
+        if (sig3) totalSignaturesCompleted++;
+      } else {
+        // Other forms require 1 signature
+        totalSignaturesRequired += 1;
+        // Check if signature exists
+        if (formKey === 'vehicle_safety_inspection') {
+          const ackData = data.acknowledgmentData || {};
+          if (data.signature || data.staffSignature || ackData.signature || submission.staffSignature) {
+            totalSignaturesCompleted++;
+          }
+        } else if (formKey === 'fair_work_information') {
+          if (data.signature || data.staffSignature || data.acknowledgementSignature || submission.staffSignature) {
+            totalSignaturesCompleted++;
+          }
+        } else if (formKey === 'govt_tax') {
+          if (data.payeeSignature || data.staffSignature) {
+            totalSignaturesCompleted++;
+          }
+        } else if (formKey === 'super_choice_form') {
+          if (data.sectionBSignature || data.sectionCSignature || data.sectionDSignature || data.staffSignature) {
+            totalSignaturesCompleted++;
+          }
+        } else {
+          if (data.signature || data.staffSignature || submission.staffSignature) {
+            totalSignaturesCompleted++;
+          }
+        }
+      }
+    });
+    
     const totalCompletedForms = signedForms.length + filledFormsNotRequiringSignature.length;
     const totalFormsToComplete = formsRequiringSignature.length + formsNotRequiringSignature.length;
 
@@ -254,6 +323,9 @@ export async function GET(
       filledFormsNotRequiringSignature: filledFormsNotRequiringSignature.length,
       totalCompletedForms: totalCompletedForms,
       isComplete: totalFormsToComplete > 0 && totalCompletedForms === totalFormsToComplete,
+      // Add signature-level tracking
+      totalSignaturesRequired: totalSignaturesRequired,
+      totalSignaturesCompleted: totalSignaturesCompleted,
     };
     
     // LOG: Final completion status summary
@@ -264,8 +336,11 @@ export async function GET(
     console.log(`  Signed Forms (requiring signature): ${completionStatus.signedForms}`);
     console.log(`  Filled Forms (not requiring signature): ${completionStatus.filledFormsNotRequiringSignature}`);
     console.log(`  Total Completed Forms: ${completionStatus.totalCompletedForms}`);
+    console.log(`  Total Signatures Required: ${completionStatus.totalSignaturesRequired}`);
+    console.log(`  Total Signatures Completed: ${completionStatus.totalSignaturesCompleted}`);
     console.log(`  Is Complete: ${completionStatus.isComplete}`);
-    console.log(`  Progress: ${completionStatus.totalCompletedForms}/${completionStatus.totalForms} forms completed\n`);
+    console.log(`  Progress: ${completionStatus.totalCompletedForms}/${completionStatus.totalForms} forms completed`);
+    console.log(`  Signature Progress: ${completionStatus.totalSignaturesCompleted}/${completionStatus.totalSignaturesRequired} signatures completed\n`);
 
     // Format staff name
     const staffName = `${batch.staff.firstName} ${batch.staff.surname}`;

@@ -17,11 +17,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
     const [data, setData] = useState<any>({});
     const [loading, setLoading] = useState(false);
     const [staffInfo, setStaffInfo] = useState<any>({});
-    const [meta, setMeta] = useState<{ website: string; formId: string; reviewDate: string }>({
-      website: 'infinitysupportswa.org',
-      formId: 'SF014',
-      reviewDate: '01/03/2025'
-    });
+    const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
 
     useEffect(() => {
       // Load saved data if any
@@ -76,66 +72,260 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
       }
     }, [data, onValidityChange]);
 
-    useEffect(() => {
-      // Load form-specific settings
-      const loadSettings = async () => {
-        try {
-          const settings = await fetchFormSpecificSettings();
-          const getSettingValue = (key: string): string | null => {
-            const groups = Object.values(settings || {});
-            for (const group of groups) {
-              if (Array.isArray(group)) {
-                const s = group.find((it: any) => it && it.key === key);
-                if (s) return s.value || s.defaultValue || null;
-              }
-            }
-            return null;
-          };
-          setMeta({
-            website: getSettingValue('company_website') || 'infinitysupportswa.org',
-            formId: getSettingValue('pre_employment_medical_form_id') || 'SF014',
-            reviewDate: getSettingValue('review_date') || '01/03/2025',
-          });
-        } catch {}
-      };
-      loadSettings();
-    }, []);
 
     const validate = (): boolean => {
       // Check if required fields are filled
-      return !!(
-        data.fullName &&
-        data.consentRecruitment &&
-        data.consentFuturePositions &&
-        data.consentRefereeInquiries &&
-        data.consentPoliceCheck &&
-        data.consentEducationalCheck &&
-        data.signature &&
-        data.signatureDate
-      );
+      if (!data.fullName) return false;
+      if (!data.address) return false;
+      if (!data.dateOfBirth) return false;
+      if (!data.positionApplied) return false;
+      if (data.consentRecruitment !== true && data.consentRecruitment !== false) return false;
+      if (data.consentFuturePositions !== true && data.consentFuturePositions !== false) return false;
+      if (data.consentRefereeInquiries !== true && data.consentRefereeInquiries !== false) return false;
+      if (data.consentPoliceCheck !== true && data.consentPoliceCheck !== false) return false;
+      if (data.consentEducationalCheck !== true && data.consentEducationalCheck !== false) return false;
+      if (!data.signature) return false;
+      if (!data.signatureDate) return false;
+      
+      // Check all general health questions are answered
+      for (let i = 0; i < 5; i++) {
+        const key = `generalHealth${i}`;
+        if (data[key] !== true && data[key] !== false) return false;
+      }
+      
+      // Check all medical conditions are answered
+      const medicalConditions = [
+        'tuberculosis', 'wheezingbronchitisasthma', 'diabetes', 'bloodpressureorheartdisease',
+        'stomachpainsorulcers', 'excessivenoiseexposureorlossofhearing', 'skindisordersordermatitis',
+        'chronicearinfections', 'fitsblackoutsordizziness', 'headinjuryorconcussion',
+        'hernia', 'allergies', 'anxietiesordepressiveillness', 'hepatitisb',
+        'severeheadaches', 'colourblindness'
+      ];
+      for (const condition of medicalConditions) {
+        const key = `${condition}Condition`;
+        if (data[key] !== true && data[key] !== false) return false;
+      }
+      
+      // Check body parts are answered
+      if (data.backNeck !== true && data.backNeck !== false) return false;
+      if (data.wristElbow !== true && data.wristElbow !== false) return false;
+      if (data.anklesKnees !== true && data.anklesKnees !== false) return false;
+      
+      // Check workplace questions are answered
+      if (data.workInjury !== true && data.workInjury !== false) return false;
+      if (data.ppeDifficulties !== true && data.ppeDifficulties !== false) return false;
+      if (data.hazardousMaterials !== true && data.hazardousMaterials !== false) return false;
+      
+      // Check mandatory details when Yes is selected
+      if (data.workInjury === true && !data.workInjuryDetails) return false;
+      if (data.ppeDifficulties === true && !data.ppeDifficultiesDetails) return false;
+      if (data.hazardousMaterials === true && !data.hazardousMaterialsDetails) return false;
+      
+      // Check disclosure advice
+      if (!data.disclosureAdviceSignature) return false;
+      if (!data.disclosureAdviceDate) return false;
+      
+      // Check declaration
+      if (!data.declarationSignature) return false;
+      if (!data.declarationDate) return false;
+      
+      return true;
     };
 
     const validateDetailed = () => {
-      const missing: string[] = [];
+      const errorsBySection: Record<string, string[]> = {};
       const invalid: string[] = [];
+      const errorFields = new Set<string>();
 
-      if (!data.fullName) missing.push('Full Name');
-      if (!data.consentRecruitment) missing.push('Recruitment Consent');
-      if (!data.consentFuturePositions) missing.push('Future Positions Consent');
-      if (!data.consentRefereeInquiries) missing.push('Referee Inquiries Consent');
-      if (!data.consentPoliceCheck) missing.push('Police Check Consent');
-      if (!data.consentEducationalCheck) missing.push('Educational Check Consent');
-      if (!data.signature) missing.push('Signature');
-      if (!data.signatureDate) missing.push('Date');
-
-      // Check if date is valid
-      if (data.signatureDate && isNaN(Date.parse(data.signatureDate))) {
-        invalid.push('Date (invalid format)');
+      // Applicant Details Section
+      const applicantDetailsMissing: string[] = [];
+      if (!data.fullName) {
+        applicantDetailsMissing.push('Full Name');
+        errorFields.add('fullName');
+      }
+      if (!data.address) {
+        applicantDetailsMissing.push('Address');
+        errorFields.add('address');
+      }
+      if (!data.dateOfBirth) {
+        applicantDetailsMissing.push('Date of Birth');
+        errorFields.add('dateOfBirth');
+      }
+      if (!data.positionApplied) {
+        applicantDetailsMissing.push('Position Applied For');
+        errorFields.add('positionApplied');
+      }
+      if (applicantDetailsMissing.length > 0) {
+        errorsBySection['Applicant Details'] = applicantDetailsMissing;
+      }
+      
+      // Informed Consent Section
+      const consentMissing: string[] = [];
+      if (data.consentRecruitment !== true && data.consentRecruitment !== false) {
+        consentMissing.push('Consent #1');
+        errorFields.add('consentRecruitment');
+      }
+      if (data.consentFuturePositions !== true && data.consentFuturePositions !== false) {
+        consentMissing.push('Consent #2');
+        errorFields.add('consentFuturePositions');
+      }
+      if (data.consentRefereeInquiries !== true && data.consentRefereeInquiries !== false) {
+        consentMissing.push('Consent #3');
+        errorFields.add('consentRefereeInquiries');
+      }
+      if (data.consentPoliceCheck !== true && data.consentPoliceCheck !== false) {
+        consentMissing.push('Consent #4');
+        errorFields.add('consentPoliceCheck');
+      }
+      if (data.consentEducationalCheck !== true && data.consentEducationalCheck !== false) {
+        consentMissing.push('Consent #5');
+        errorFields.add('consentEducationalCheck');
+      }
+      if (!data.signature) {
+        consentMissing.push('Signature');
+        errorFields.add('signature');
+      }
+      if (!data.signatureDate) {
+        consentMissing.push('Date');
+        errorFields.add('signatureDate');
+      }
+      if (consentMissing.length > 0) {
+        errorsBySection['Informed Consent'] = consentMissing;
+      }
+      
+      // General Health Questionnaire Section
+      const healthQuestionMissing: string[] = [];
+      for (let i = 0; i < 5; i++) {
+        const key = `generalHealth${i}`;
+        if (data[key] !== true && data[key] !== false) {
+          healthQuestionMissing.push(`Question ${i + 1}`);
+          errorFields.add(key);
+        }
+      }
+      
+      // Medical Conditions
+      const medicalConditions = [
+        'Tuberculosis', 'Wheezing/Bronchitis/Asthma', 'Diabetes', 'Blood pressure or heart disease',
+        'Stomach pains or ulcers', 'Excessive noise exposure or loss of hearing', 'Skin disorders or dermatitis',
+        'Chronic ear infections', 'Fits, black-outs or dizziness', 'Head injury or concussion',
+        'Hernia', 'Allergies', 'Anxieties or depressive illness', 'Hepatitis B',
+        'Severe headaches', 'Colour blindness'
+      ];
+      medicalConditions.forEach((condition, index) => {
+        const key = condition.toLowerCase().replace(/[^a-z0-9]/g, '') + 'Condition';
+        if (data[key] !== true && data[key] !== false) {
+          healthQuestionMissing.push(`Condition ${index + 1}`);
+          errorFields.add(key);
+        }
+      });
+      
+      // Body Parts - use exact keys that match the form
+      const bodyParts = [
+        { label: 'Back or neck', key: 'backNeck' },
+        { label: 'Wrist or elbow', key: 'wristElbow' },
+        { label: 'Ankles or knees', key: 'anklesKnees' }
+      ];
+      bodyParts.forEach((item, index) => {
+        if (data[item.key] !== true && data[item.key] !== false) {
+          healthQuestionMissing.push(`Body Part ${index + 1}`);
+          errorFields.add(item.key);
+        }
+      });
+      
+      if (healthQuestionMissing.length > 0) {
+        errorsBySection['General Health Questionnaire'] = healthQuestionMissing;
+      }
+      
+      // Medical History - Workplace Section
+      const workplaceMissing: string[] = [];
+      if (data.workInjury !== true && data.workInjury !== false) {
+        workplaceMissing.push('Question 1');
+        errorFields.add('workInjury');
+      }
+      if (data.ppeDifficulties !== true && data.ppeDifficulties !== false) {
+        workplaceMissing.push('Question 2');
+        errorFields.add('ppeDifficulties');
+      }
+      if (data.hazardousMaterials !== true && data.hazardousMaterials !== false) {
+        workplaceMissing.push('Question 3');
+        errorFields.add('hazardousMaterials');
+      }
+      
+      // Mandatory details when Yes is selected (only for Workplace section)
+      if (data.workInjury === true && !data.workInjuryDetails) {
+        workplaceMissing.push('Question 1 Details');
+        errorFields.add('workInjuryDetails');
+      }
+      if (data.ppeDifficulties === true && !data.ppeDifficultiesDetails) {
+        workplaceMissing.push('Question 2 Details');
+        errorFields.add('ppeDifficultiesDetails');
+      }
+      if (data.hazardousMaterials === true && !data.hazardousMaterialsDetails) {
+        workplaceMissing.push('Question 3 Details');
+        errorFields.add('hazardousMaterialsDetails');
+      }
+      
+      if (workplaceMissing.length > 0) {
+        errorsBySection['Medical History - Workplace'] = workplaceMissing;
+      }
+      
+      // Disclosure Advice Section
+      const disclosureMissing: string[] = [];
+      if (!data.disclosureAdviceSignature) {
+        disclosureMissing.push('Signature');
+        errorFields.add('disclosureAdviceSignature');
+      }
+      if (!data.disclosureAdviceDate) {
+        disclosureMissing.push('Date');
+        errorFields.add('disclosureAdviceDate');
+      }
+      if (disclosureMissing.length > 0) {
+        errorsBySection['Disclosure Advice'] = disclosureMissing;
+      }
+      
+      // Declaration Section
+      const declarationMissing: string[] = [];
+      if (!data.declarationSignature) {
+        declarationMissing.push('Signature');
+        errorFields.add('declarationSignature');
+      }
+      if (!data.declarationDate) {
+        declarationMissing.push('Date');
+        errorFields.add('declarationDate');
+      }
+      if (declarationMissing.length > 0) {
+        errorsBySection['Declaration'] = declarationMissing;
       }
 
+      // Check if dates are valid
+      if (data.signatureDate && isNaN(Date.parse(data.signatureDate))) {
+        invalid.push('Informed Consent Date (invalid format)');
+      }
+      if (data.disclosureAdviceDate && isNaN(Date.parse(data.disclosureAdviceDate))) {
+        invalid.push('Disclosure Advice Date (invalid format)');
+      }
+      if (data.declarationDate && isNaN(Date.parse(data.declarationDate))) {
+        invalid.push('Declaration Date (invalid format)');
+      }
+
+      // Format error messages by section
+      const formattedErrors: string[] = [];
+      Object.entries(errorsBySection).forEach(([section, fields]) => {
+        if (fields.length === 1) {
+          formattedErrors.push(`${section}: ${fields[0]}`);
+        } else if (fields.length === 2) {
+          formattedErrors.push(`${section}: ${fields[0]}, ${fields[1]}`);
+        } else {
+          formattedErrors.push(`${section}: ${fields[0]}, ${fields[1]} and ${fields.length - 2} more`);
+        }
+      });
+
+      // Update validation errors state
+      setValidationErrors(errorFields);
+
       return {
-        isValid: missing.length === 0 && invalid.length === 0,
-        missing: missing.length > 0 ? missing : undefined,
+        isValid: formattedErrors.length === 0 && invalid.length === 0,
+        missing: formattedErrors.length > 0 ? formattedErrors : undefined,
         invalid: invalid.length > 0 ? invalid : undefined
       };
     };
@@ -179,12 +369,22 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
 
     const handleChange = (key: string, value: any) => {
       setData((prev: any) => ({ ...prev, [key]: value }));
+      // Clear error for this field when user starts typing/selecting
+      if (validationErrors.has(key)) {
+        setValidationErrors((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(key);
+          return newSet;
+        });
+      }
     };
+
+    const hasError = (key: string) => validationErrors.has(key);
 
     return (
       <div className="bg-gray-100 py-8">
         {/* Page 1 - Consent Form */}
-        <FormPage showTitle={false} meta={meta}>
+        <FormPage showTitle={false} meta={{ website: '', version: '', reviewDate: '' }}>
           <div className="space-y-4 text-sm w-full">
             <div className="w-full">
               <div className="border border-gray-300 rounded-lg p-6 w-full">
@@ -196,10 +396,10 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                     </div>
                     <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="Full Name" value={data.fullName} onChange={(v) => handleChange('fullName', v)} />
-                        <Field label="Address" value={data.address} onChange={(v) => handleChange('address', v)} />
-                        <Field label="Date of Birth" type="date" value={data.dateOfBirth} onChange={(v) => handleChange('dateOfBirth', v)} />
-                        <Field label="Position Applied For" value={data.positionApplied} onChange={(v) => handleChange('positionApplied', v)} />
+                        <Field label="Full Name" value={data.fullName} onChange={(v) => handleChange('fullName', v)} required hasError={hasError('fullName')} />
+                        <Field label="Address" value={data.address} onChange={(v) => handleChange('address', v)} required hasError={hasError('address')} />
+                        <Field label="Date of Birth" type="date" value={data.dateOfBirth} onChange={(v) => handleChange('dateOfBirth', v)} required hasError={hasError('dateOfBirth')} />
+                        <Field label="Position Applied For" value={data.positionApplied} onChange={(v) => handleChange('positionApplied', v)} required hasError={hasError('positionApplied')} />
                       </div>
                     </div>
                   </div>
@@ -210,97 +410,130 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                       <h3 className="text-xl font-semibold">Informed Consent (to be completed by the applicant)</h3>
                     </div>
                     <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="space-y-3 text-gray-900 text-sm leading-relaxed">
+                      <div className="space-y-3 text-gray-900 text-sm leading-relaxed mb-4">
                         <p>
-                          I consent to Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for the position stated above.
+                          All applicants for positions at Infinity Supports WA are asked to sign that they have read and understood the content of the following statement and that they give their consent to use and disclose their personal information for the purposes of recruitment and selection.
                         </p>
                         <p>
-                          Infinity Supports WA is committed to privacy legislation and will maintain the confidentiality and security of your personal information. Your personal information will be used solely for the purpose of assessing your suitability for the position you have applied for.
+                          In accordance with the Privacy legislation, Infinity Supports WA is committed to ensuring the confidentiality and security of your personal information.  The information you supply during the recruitment and selection process will be used solely for the purposes of assessing your suitability for employment in the specified position.
                         </p>
                         <p>
-                          Your personal information may be disclosed to third parties (e.g., internal managers, referees) or as required by law, strictly for the purpose of assessing your application.
+                          In order to assist Infinity Supports WA and the assessment of your application, it may be necessary for us to disclose your personal information to certain third parties such as internal managers, your referees etc. and as may be required by law. We will only disclose your personal information to third parties for this purpose.
                         </p>
                         <p>
-                          Infinity Supports WA will retain your application information for 6 months after the selection process is completed. Your information may be used to consider your suitability for other positions that may arise.
+                          Infinity Supports WA has a policy of retaining information relating to all applicants for a period of 6 months after the selection process for the position has been completed.  During this period if another position for which you may be suitable arises, we may use your information in considering your suitability for such a position.
                         </p>
                         <p>
-                          In accordance with the Corporations Act, Infinity Supports WA will seek information on past performance and employment history, including reference checks with previous employers, police checks, WWCC (Working With Children Check), and educational qualifications checks, prior to any offer of employment.
+                          In addition, Infinity Supports WA will, in accordance with the Corporations Act, seek information in relation to past performance and employment history of all candidates prior to appointment to any position. Therefore, reference checks with previous employers, police checks, WWCC and educational qualifications checks may be carried out prior to any offer of employment.
                         </p>
                       </div>
-                    </div>
-                  </div>
-
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </FormPage>
-
-        {/* Page 2 - Medical and Consent */}
-        <FormPage showTitle={false} meta={meta}>
-          <div className="space-y-4 text-sm w-full">
-            <div className="w-full">
-              <div className="border border-gray-300 rounded-lg p-6 w-full">
-                <div className="space-y-6">
-                  {/* Educational Qualifications Check */}
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Educational Qualifications Check</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-900">I consent to Infinity Supports WA carrying out an educational qualifications check.</span>
-                          <div className="flex gap-4">
-                            <label className="flex items-center gap-2">
+                      <div className="mt-4">
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse border border-gray-400">
+                            <tbody>
+                              {[
+                                {
+                                  label: 'I consent to Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for the position stated above.',
+                                  key: 'consentRecruitment'
+                                },
+                                {
+                                  label: 'I consent Infinity Supports WA using and disclosing my personal information for the purposes of recruitment and selection for ANY OTHER suitable positions that may arise in the future.',
+                                  key: 'consentFuturePositions'
+                                },
+                                {
+                                  label: 'I consent to Infinity Supports WA making inquiries about me from my referees and any other person including colleagues on LinkedIn.',
+                                  key: 'consentRefereeInquiries'
+                                },
+                                {
+                                  label: 'I consent to Infinity Supports WA carrying out a police check.',
+                                  key: 'consentPoliceCheck'
+                                },
+                                {
+                                  label: 'I consent to Infinity Supports WA carrying out an educational qualifications check.',
+                                  key: 'consentEducationalCheck'
+                                }
+                              ].map((item, index) => {
+                                const fieldHasError = hasError(item.key);
+                                return (
+                                  <tr key={index} className={`border-b border-gray-300 ${fieldHasError ? 'bg-red-50' : ''}`}>
+                                    <td className={`border px-3 py-2 text-sm text-gray-900 align-top ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`} style={{ width: '70%' }}>
+                                      <span className="text-red-500 mr-1">*</span>{item.label}
+                                    </td>
+                                    <td className={`border px-3 py-2 text-center align-top ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`} style={{ width: '15%' }}>
+                                      <label className="flex items-center justify-center gap-2 cursor-pointer">
                               <input
                                 type="checkbox"
-                                checked={data.consentEducationalCheck === true}
-                                onChange={() => handleChange('consentEducationalCheck', true)}
+                                        checked={data[item.key] === true}
+                                        onChange={() => handleChange(item.key, true)}
                                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        title={`${item.label} - Yes`}
                               />
-                              Yes
+                                      <span className="text-sm text-gray-700">Yes</span>
                             </label>
-                            <label className="flex items-center gap-2">
+                                    </td>
+                                    <td className={`border px-3 py-2 text-center align-top ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`} style={{ width: '15%' }}>
+                                      <label className="flex items-center justify-center gap-2 cursor-pointer">
                               <input
                                 type="checkbox"
-                                checked={data.consentEducationalCheck === false}
-                                onChange={() => handleChange('consentEducationalCheck', false)}
+                                        checked={data[item.key] === false}
+                                        onChange={() => handleChange(item.key, false)}
                                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        title={`${item.label} - No`}
                               />
-                              No
+                                      <span className="text-sm text-gray-700">No</span>
                             </label>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-4 mt-6">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Applicant's Signature:</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Applicant's Signature: <span className="text-red-500">*</span>
+                            </label>
                             <SignatureCanvas
                               existingSignature={data.signature}
                               onSignatureEnd={(sig) => handleChange('signature', sig)}
                               onSignatureClear={() => handleChange('signature', '')}
                               width={400}
                               height={120}
-                              className="bg-white border border-gray-400 rounded-sm"
+                              className={`bg-white border rounded-sm ${hasError('signature') ? 'border-red-500 border-2' : 'border-gray-400'}`}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Date: <span className="text-red-500">*</span>
+                            </label>
                             <input
                               id="signatureDate"
                               title="Signature Date"
                               type="date"
                               value={data.signatureDate || ''}
                               onChange={(e) => handleChange('signatureDate', e.target.value)}
-                              className="w-full border border-gray-400 h-8 rounded-sm px-2 text-gray-900 bg-white"
+                              className={`w-full border h-8 rounded-sm px-2 text-gray-900 bg-white ${hasError('signatureDate') ? 'border-red-500 border-2' : 'border-gray-400'}`}
                             />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
+
+                  </div>
+                      </div>
+                    </div>
+                  </div>
+        </FormPage>
+
+        {/* Page 2 - Pre-Existing Injury and Disclosure Advice */}
+        <FormPage showTitle={false} meta={{ website: '', version: '', reviewDate: '' }}>
+          <div className="space-y-4 text-sm w-full">
+            <div className="w-full">
+              <div className="border border-gray-300 rounded-lg p-6 w-full">
+                <div className="space-y-6">
                   {/* Pre-Existing Injury or Disease Disclosure */}
                   <div>
                     <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
@@ -320,7 +553,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                       </div>
                       <div className="mt-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Please disclose in the space below any pre-existing injuries or diseases that you suffer from, or have suffered from, which could be affected by the nature of your proposed employment with Infinity Supports WA (attach a separate page if necessary):
+                          Please disclose in the space below any pre-existing injuries or diseases that you suffer from, or have suffered from, which could be affected by the nature of your proposed employment with Infinity Supports WA (attach a separate page if necessary).
                         </label>
                         <textarea
                           id="preExistingConditions"
@@ -334,22 +567,64 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                       </div>
                     </div>
                   </div>
+
+                  {/* Disclosure Advice */}
+                  <div>
+                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
+                      <h3 className="text-xl font-semibold">Disclosure Advice (to be completed by the applicant)</h3>
+                </div>
+                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
+                      <div className="space-y-4">
+                        <p className="text-gray-900 text-sm leading-relaxed">
+                          I confirm that I have read and understood the contents of the above information and state that I have disclosed all relevant information in relation to my health and physical ability to carry out the inherent requirements of this position.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Applicant's Signature: <span className="text-red-500">*</span>
+                            </label>
+                            <SignatureCanvas
+                              existingSignature={data.disclosureAdviceSignature}
+                              onSignatureEnd={(sig) => handleChange('disclosureAdviceSignature', sig)}
+                              onSignatureClear={() => handleChange('disclosureAdviceSignature', '')}
+                              width={400}
+                              height={120}
+                              className={`bg-white border rounded-sm ${hasError('disclosureAdviceSignature') ? 'border-red-500 border-2' : 'border-gray-400'}`}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Date: <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              id="disclosureAdviceDate"
+                              title="Disclosure Advice Date"
+                              type="date"
+                              value={data.disclosureAdviceDate || ''}
+                              onChange={(e) => handleChange('disclosureAdviceDate', e.target.value)}
+                              className={`w-full border h-8 rounded-sm px-2 text-gray-900 bg-white ${hasError('disclosureAdviceDate') ? 'border-red-500 border-2' : 'border-gray-400'}`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </FormPage>
 
-        {/* Page 3 - Medical History and Declaration */}
-        <FormPage showTitle={false} meta={meta}>
+        {/* Page 3 - General Health Questionnaire and Medical History */}
+        <FormPage showTitle={false} meta={{ website: '', version: '', reviewDate: '' }}>
           <div className="space-y-4 text-sm w-full">
             <div className="w-full">
               <div className="border border-gray-300 rounded-lg p-6 w-full">
                 <div className="space-y-6">
-                  {/* General Health Questions */}
+                  {/* General Health Questionnaire - All in One Section */}
                   <div>
                     <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">General Health Questions</h3>
+                      <h3 className="text-xl font-semibold">General Health Questionnaire (to be completed by the applicant)</h3>
                     </div>
                     <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
                       <div className="overflow-x-auto">
@@ -363,6 +638,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                             </tr>
                           </thead>
                           <tbody>
+                            {/* First 5 General Health Questions */}
                             {[
                               'Are you being treated by any Doctor for any illness?',
                               'Have you ever broken any bones?',
@@ -371,10 +647,13 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                               'Have you ever had any operations?'
                             ].map((question, index) => {
                               const key = `generalHealth${index}`;
+                              const fieldHasError = hasError(key);
                               return (
-                                <tr key={index}>
-                                  <td className="border border-gray-400 px-3 py-2 text-sm text-gray-900">{question}</td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                <tr key={index} className={fieldHasError ? 'bg-red-50' : ''}>
+                                  <td className={`border px-3 py-2 text-sm text-gray-900 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    <span className="text-red-500 mr-1">*</span>{question}
+                                  </td>
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
                                       checked={data[key] === true}
@@ -383,7 +662,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       title={`${question} - Yes`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
                                       checked={data[key] === false}
@@ -392,7 +671,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       title={`${question} - No`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2">
+                                  <td className={`border px-3 py-2 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     {data[key] === true && (
                                       <textarea
                                         value={data[`${key}Details`] || ''}
@@ -406,119 +685,15 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                 </tr>
                               );
                             })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* General Medical Questions */}
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">General Medical Questions</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="overflow-x-auto">
-                        <table className="w-full border-collapse border border-gray-400">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="border border-gray-400 px-3 py-2 text-left text-sm font-medium text-gray-700">Question</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Yes</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">No</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Details</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                            
+                            {/* Sub-heading row for "Do you, or have you ever, suffered from:" */}
                             <tr>
-                              <td className="border border-gray-400 px-3 py-2 text-sm text-gray-900">Wrist or elbow</td>
-                              <td className="border border-gray-400 px-3 py-2 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={data.wristElbow === true}
-                                  onChange={() => handleChange('wristElbow', true)}
-                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                  title="Wrist or elbow - Yes"
-                                />
-                              </td>
-                              <td className="border border-gray-400 px-3 py-2 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={data.wristElbow === false}
-                                  onChange={() => handleChange('wristElbow', false)}
-                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                  title="Wrist or elbow - No"
-                                />
-                              </td>
-                              <td className="border border-gray-400 px-3 py-2">
-                                {data.wristElbow === true && (
-                                  <textarea
-                                    value={data.wristElbowDetails || ''}
-                                    onChange={(e) => handleChange('wristElbowDetails', e.target.value)}
-                                    rows={2}
-                                    className="w-full border border-gray-400 rounded-sm px-2 py-1 text-gray-900 bg-white text-xs"
-                                    placeholder="Details..."
-                                  />
-                                )}
+                              <td colSpan={4} className="border border-gray-400 px-3 py-2 text-sm font-bold text-gray-900 bg-gray-50">
+                                Do you, or have you ever, suffered from:
                               </td>
                             </tr>
-                            <tr>
-                              <td className="border border-gray-400 px-3 py-2 text-sm text-gray-900">Ankles or knees</td>
-                              <td className="border border-gray-400 px-3 py-2 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={data.anklesKnees === true}
-                                  onChange={() => handleChange('anklesKnees', true)}
-                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                  title="Ankles or knees - Yes"
-                                />
-                              </td>
-                              <td className="border border-gray-400 px-3 py-2 text-center">
-                                <input
-                                  type="checkbox"
-                                  checked={data.anklesKnees === false}
-                                  onChange={() => handleChange('anklesKnees', false)}
-                                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                  title="Ankles or knees - No"
-                                />
-                              </td>
-                              <td className="border border-gray-400 px-3 py-2">
-                                {data.anklesKnees === true && (
-                                  <textarea
-                                    value={data.anklesKneesDetails || ''}
-                                    onChange={(e) => handleChange('anklesKneesDetails', e.target.value)}
-                                    rows={2}
-                                    className="w-full border border-gray-400 rounded-sm px-2 py-1 text-gray-900 bg-white text-xs"
-                                    placeholder="Details..."
-                                  />
-                                )}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Medical Conditions Section */}
-                  <div>
-                    <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Medical Conditions</h3>
-                    </div>
-                    <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="mb-4">
-                        <h4 className="text-lg font-bold text-gray-800 mb-3">Do you, or have you ever, suffered from:</h4>
-                      </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full border-collapse border border-gray-400">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="border border-gray-400 px-3 py-2 text-left text-sm font-medium text-gray-700">Condition</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Yes</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">No</th>
-                              <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Details</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                            
+                            {/* 16 Medical Conditions */}
                             {[
                               'Tuberculosis',
                               'Wheezing/Bronchitis/Asthma',
@@ -537,33 +712,88 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                               'Severe headaches',
                               'Colour blindness'
                             ].map((condition, index) => {
-                              const key = condition.toLowerCase().replace(/[^a-z0-9]/g, '');
+                              const key = condition.toLowerCase().replace(/[^a-z0-9]/g, '') + 'Condition';
+                              const fieldHasError = hasError(key);
                               return (
-                                <tr key={index}>
-                                  <td className="border border-gray-400 px-3 py-2 text-sm text-gray-900">{condition}</td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                <tr key={`condition-${index}`} className={fieldHasError ? 'bg-red-50' : ''}>
+                                  <td className={`border px-3 py-2 text-sm text-gray-900 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    <span className="text-red-500 mr-1">*</span>{condition}
+                                  </td>
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
-                                      checked={data[`${key}Condition`] === true}
-                                      onChange={() => handleChange(`${key}Condition`, true)}
+                                      checked={data[key] === true}
+                                      onChange={() => handleChange(key, true)}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                       title={`${condition} - Yes`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
-                                      checked={data[`${key}Condition`] === false}
-                                      onChange={() => handleChange(`${key}Condition`, false)}
+                                      checked={data[key] === false}
+                                      onChange={() => handleChange(key, false)}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                       title={`${condition} - No`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2">
-                                    {data[`${key}Condition`] === true && (
+                                  <td className={`border px-3 py-2 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    {data[key] === true && (
                                       <textarea
-                                        value={data[`${key}ConditionDetails`] || ''}
-                                        onChange={(e) => handleChange(`${key}ConditionDetails`, e.target.value)}
+                                        value={data[`${key}Details`] || ''}
+                                        onChange={(e) => handleChange(`${key}Details`, e.target.value)}
+                                        rows={2}
+                                        className="w-full border border-gray-400 rounded-sm px-2 py-1 text-gray-900 bg-white text-xs"
+                                        placeholder="Details..."
+                                      />
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            
+                            {/* Sub-heading row for "Do you, or have you ever, had trouble with your:" */}
+                            <tr>
+                              <td colSpan={4} className="border border-gray-400 px-3 py-2 text-sm font-bold text-gray-900 bg-gray-50">
+                                Do you, or have you ever, had trouble with your:
+                              </td>
+                            </tr>
+                            
+                            {/* 3 Body Parts */}
+                            {[
+                              { label: 'Back or neck', key: 'backNeck' },
+                              { label: 'Wrist or elbow', key: 'wristElbow' },
+                              { label: 'Ankles or knees', key: 'anklesKnees' }
+                            ].map((item, index) => {
+                              const fieldHasError = hasError(item.key);
+                              return (
+                                <tr key={`body-${index}`} className={fieldHasError ? 'bg-red-50' : ''}>
+                                  <td className={`border px-3 py-2 text-sm text-gray-900 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    <span className="text-red-500 mr-1">*</span>{item.label}
+                                  </td>
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    <input
+                                      type="checkbox"
+                                      checked={data[item.key] === true}
+                                      onChange={() => handleChange(item.key, true)}
+                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      title={`${item.label} - Yes`}
+                                    />
+                                  </td>
+                                  <td className={`border px-3 py-2 text-center ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    <input
+                                      type="checkbox"
+                                      checked={data[item.key] === false}
+                                      onChange={() => handleChange(item.key, false)}
+                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      title={`${item.label} - No`}
+                                    />
+                                  </td>
+                                  <td className={`border px-3 py-2 ${fieldHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                    {data[item.key] === true && (
+                                      <textarea
+                                        value={data[`${item.key}Details`] || ''}
+                                        onChange={(e) => handleChange(`${item.key}Details`, e.target.value)}
                                         rows={2}
                                         className="w-full border border-gray-400 rounded-sm px-2 py-1 text-gray-900 bg-white text-xs"
                                         placeholder="Details..."
@@ -579,20 +809,17 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                     </div>
                   </div>
 
-                  {/* Body Parts Section */}
+                  {/* Medical History - Workplace */}
                   <div>
                     <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg">
-                      <h3 className="text-xl font-semibold">Body Parts Issues</h3>
+                      <h3 className="text-xl font-semibold">Medical History - Workplace (to be completed by the applicant)</h3>
                     </div>
                     <div className="border border-gray-300 rounded-b-lg p-4 w-full mt-3">
-                      <div className="mb-4">
-                        <h4 className="text-lg font-bold text-gray-800 mb-3">Do you, or have you ever, had trouble with your:</h4>
-                      </div>
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-400">
                           <thead>
                             <tr className="bg-gray-100">
-                              <th className="border border-gray-400 px-3 py-2 text-left text-sm font-medium text-gray-700">Body Part</th>
+                              <th className="border border-gray-400 px-3 py-2 text-left text-sm font-medium text-gray-700">Question</th>
                               <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Yes</th>
                               <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">No</th>
                               <th className="border border-gray-400 px-3 py-2 text-center text-sm font-medium text-gray-700">Details</th>
@@ -600,48 +827,48 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                           </thead>
                           <tbody>
                             {[
-                              'Back',
-                              'Neck',
-                              'Shoulders',
-                              'Arms',
-                              'Hands',
-                              'Fingers',
-                              'Hips',
-                              'Legs',
-                              'Feet',
-                              'Joints'
-                            ].map((bodyPart, index) => {
-                              const key = bodyPart.toLowerCase().replace(/[^a-z0-9]/g, '');
+                              { question: 'Have you ever injured yourself at work or suffered an industrial disease?', key: 'workInjury' },
+                              { question: 'Have you ever had difficulties wearing PPE?', key: 'ppeDifficulties' },
+                              { question: 'Have you ever worked with hazardous materials?', key: 'hazardousMaterials' }
+                            ].map((item, index) => {
+                              const questionHasError = hasError(item.key);
+                              const detailsHasError = hasError(`${item.key}Details`);
                               return (
-                                <tr key={index}>
-                                  <td className="border border-gray-400 px-3 py-2 text-sm text-gray-900">{bodyPart}</td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                <tr key={index} className={questionHasError ? 'bg-red-50' : ''}>
+                                <td className={`border px-3 py-2 text-sm text-gray-900 ${questionHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                  <span className="text-red-500 mr-1">*</span>{item.question}
+                                </td>
+                                  <td className={`border px-3 py-2 text-center ${questionHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
-                                      checked={data[`${key}Issue`] === true}
-                                      onChange={() => handleChange(`${key}Issue`, true)}
+                                    checked={data[item.key] === true}
+                                    onChange={() => handleChange(item.key, true)}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                      title={`${bodyPart} - Yes`}
+                                    title={`${item.question} - Yes`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2 text-center">
+                                  <td className={`border px-3 py-2 text-center ${questionHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
                                     <input
                                       type="checkbox"
-                                      checked={data[`${key}Issue`] === false}
-                                      onChange={() => handleChange(`${key}Issue`, false)}
+                                    checked={data[item.key] === false}
+                                    onChange={() => handleChange(item.key, false)}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                      title={`${bodyPart} - No`}
+                                    title={`${item.question} - No`}
                                     />
                                   </td>
-                                  <td className="border border-gray-400 px-3 py-2">
-                                    {data[`${key}Issue`] === true && (
+                                  <td className={`border px-3 py-2 ${detailsHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}>
+                                  {data[item.key] === true && (
+                                      <div>
                                       <textarea
-                                        value={data[`${key}IssueDetails`] || ''}
-                                        onChange={(e) => handleChange(`${key}IssueDetails`, e.target.value)}
+                                        value={data[`${item.key}Details`] || ''}
+                                        onChange={(e) => handleChange(`${item.key}Details`, e.target.value)}
                                         rows={2}
-                                        className="w-full border border-gray-400 rounded-sm px-2 py-1 text-gray-900 bg-white text-xs"
-                                        placeholder="Details..."
+                                        className={`w-full border rounded-sm px-2 py-1 text-gray-900 bg-white text-xs ${detailsHasError ? 'border-red-500 border-2' : 'border-gray-400'}`}
+                                        placeholder="If yes, please provide details below:"
+                                        required={data[item.key] === true}
                                       />
+                                        <span className="text-red-500 text-xs">* Required when Yes is selected</span>
+                                      </div>
                                     )}
                                   </td>
                                 </tr>
@@ -652,6 +879,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                       </div>
                     </div>
                   </div>
+
 
                   {/* Declaration */}
                   <div>
@@ -665,25 +893,29 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                         </p>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Applicant's Signature:</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Applicant's Signature: <span className="text-red-500">*</span>
+                            </label>
                             <SignatureCanvas
                               existingSignature={data.declarationSignature}
                               onSignatureEnd={(sig) => handleChange('declarationSignature', sig)}
                               onSignatureClear={() => handleChange('declarationSignature', '')}
                               width={400}
                               height={120}
-                              className="bg-white border border-gray-400 rounded-sm"
+                              className={`bg-white border rounded-sm ${hasError('declarationSignature') ? 'border-red-500 border-2' : 'border-gray-400'}`}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Date:</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Date: <span className="text-red-500">*</span>
+                            </label>
                             <input
                               id="declarationDate"
                               title="Declaration Date"
                               type="date"
                               value={data.declarationDate || ''}
                               onChange={(e) => handleChange('declarationDate', e.target.value)}
-                              className="w-full border border-gray-400 h-8 rounded-sm px-2 text-gray-900 bg-white"
+                              className={`w-full border h-8 rounded-sm px-2 text-gray-900 bg-white ${hasError('declarationDate') ? 'border-red-500 border-2' : 'border-gray-400'}`}
                             />
                           </div>
                         </div>
@@ -700,17 +932,20 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
   }
 );
 
-function Field({ label, value, onChange, type = 'text' }: { label: string; value: any; onChange: (v: any) => void; type?: string }) {
+function Field({ label, value, onChange, type = 'text', required = false, hasError = false }: { label: string; value: any; onChange: (v: any) => void; type?: string; required?: boolean; hasError?: boolean }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}:</label>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}: {required && <span className="text-red-500">*</span>}
+      </label>
       <input
         id={`field-${label.toLowerCase().replace(/\s+/g, '-')}`}
         title={label}
         type={type}
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-400 h-8 rounded-sm px-2 text-gray-900 bg-white"
+        className={`w-full border h-8 rounded-sm px-2 text-gray-900 bg-white ${hasError ? 'border-red-500 border-2' : 'border-gray-400'}`}
+        required={required}
       />
     </div>
   );

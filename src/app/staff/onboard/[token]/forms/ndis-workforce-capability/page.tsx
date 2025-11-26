@@ -189,29 +189,27 @@ export default function NdisWorkforceCapabilityFormPage() {
             
             if (res.ok) {
               let ndisData: any = {};
-              {
-                const ndisForm = data.signatureForms?.find(
-                  (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
-                );
-                if (ndisForm) {
-                  ndisData = { ...(ndisForm.formSubmission?.data || {}) };
-                  if (ndisForm.formSubmission?.staffSignature) {
-                    ndisData.signature = ndisForm.formSubmission.staffSignature;
-                  } else {
-                    // Signature was cleared - explicitly remove all signature fields
-                    delete ndisData.signature;
-                    delete ndisData.staffSignature;
-                    delete ndisData.orientationSignature;
-                  }
-                  if (ndisForm.formSubmission?.staffSignedAt) {
-                    ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
-                  } else {
-                    // Date was cleared - remove date fields and set to today
-                    delete ndisData.date;
-                    delete ndisData.acknowledgedAt;
-                    delete ndisData.staffSignedAt;
-                    ndisData.date = new Date().toISOString().split('T')[0];
-                  }
+              const ndisForm = data.signatureForms?.find(
+                (f: any) => f.formSubmission?.form?.formKey === 'ndis_workforce_capability'
+              );
+              if (ndisForm) {
+                ndisData = { ...(ndisForm.formSubmission?.data || {}) };
+                if (ndisForm.formSubmission?.staffSignature) {
+                  ndisData.signature = ndisForm.formSubmission.staffSignature;
+                } else {
+                  // Signature was cleared - explicitly remove all signature fields
+                  delete ndisData.signature;
+                  delete ndisData.staffSignature;
+                  delete ndisData.orientationSignature;
+                }
+                if (ndisForm.formSubmission?.staffSignedAt) {
+                  ndisData.date = new Date(ndisForm.formSubmission.staffSignedAt).toISOString().split('T')[0];
+                } else {
+                  // Date was cleared - remove date fields and set to today
+                  delete ndisData.date;
+                  delete ndisData.acknowledgedAt;
+                  delete ndisData.staffSignedAt;
+                  ndisData.date = new Date().toISOString().split('T')[0];
                 }
               } else {
                 ndisData = { ...(data.submissions['ndis_workforce_capability'] || {}) };
