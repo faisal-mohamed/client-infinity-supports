@@ -267,6 +267,12 @@ export async function GET(
           adminSignature: submission?.adminSignature,
           adminSignedAt: submission?.adminSignedAt?.toISOString(),
           formData: submission?.data,
+          // Include submissionData with date field for display (user-entered date, not submission timestamp)
+          submissionData: submission?.data ? {
+            ...(submission.data as any),
+            // Ensure date field is available from submission data
+            date: (submission.data as any)?.date || undefined,
+          } : undefined,
           currentStatus: assignment.currentStatus || 'not_started',
         };
       })

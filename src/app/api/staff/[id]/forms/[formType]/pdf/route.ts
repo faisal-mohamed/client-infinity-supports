@@ -261,18 +261,32 @@ export async function GET(
     // Extract data from formData (handle both direct data and nested data)
     let formDataObj = formData;
     if (formData?.data && typeof formData.data === 'object') {
+      // Helper to convert Date object to YYYY-MM-DD string (preserves date without timezone shift)
+      const dateToDateString = (date: Date | null | undefined): string | undefined => {
+        if (!date) return undefined;
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return undefined;
+        // Use UTC methods to avoid timezone issues - extract the date part as stored
+        const year = d.getUTCFullYear();
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      // Prioritize date from formData.data over staffSignedAt
+      // This ensures the user-entered date is used, not the submission timestamp
       const baseDate =
         formData.data.date ||
         formData.data.acknowledgedAt ||
-        formData.data.staffSignedAt ||
+        (formData.staffSignedAt ? dateToDateString(formData.staffSignedAt) : undefined) ||
         '';
+      
       formDataObj = {
         ...formData.data,
         staffSignature: formData.staffSignature,
         staffSignedAt: formData.staffSignedAt,
-        date: formData.staffSignedAt
-          ? new Date(formData.staffSignedAt).toISOString().split('T')[0]
-          : baseDate,
+        // Use the date from formData.data if available, otherwise derive from staffSignedAt using UTC
+        date: formData.data.date || (formData.staffSignedAt ? dateToDateString(formData.staffSignedAt) : baseDate),
       };
     }
 

@@ -441,7 +441,16 @@ export default function FormItem({
                       <FaCheckCircle className="h-3 w-3 text-green-500" />
                       <span className="text-green-600 font-bold">
                         <span className="hidden sm:inline">Signed </span>
-                        {new Date((assignment.clientSignedAt || assignment.staffSignedAt)!).toLocaleDateString()}
+                        {(() => {
+                          // For staff forms, prioritize the user-entered date from submissionData over staffSignedAt
+                          if (isStaff && assignment.submissionData?.date) {
+                            // Format YYYY-MM-DD to DD/MM/YYYY
+                            const [year, month, day] = assignment.submissionData.date.split('-');
+                            return `${day}/${month}/${year}`;
+                          }
+                          // Fallback to staffSignedAt or clientSignedAt
+                          return new Date((assignment.clientSignedAt || assignment.staffSignedAt)!).toLocaleDateString();
+                        })()}
                       </span>
                     </div>
                   )}

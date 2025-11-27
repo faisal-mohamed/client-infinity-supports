@@ -471,10 +471,26 @@ export async function POST(
     } else if (!shouldClearSignature && formKey === 'bullying_training') {
       const { staffSignature, staffSignedAt, date, ...restData } = data;
       formData = restData;
+      // Preserve the date field in formData so it's available for PDF generation
+      if (date) {
+        formData.date = date;
+      }
       if (staffSignature) {
+        // If date is provided, use it to set staffSignedAt (preserves user-entered date)
+        // Otherwise use staffSignedAt if provided, or current date as fallback
+        let signatureDate: Date;
+        if (date) {
+          // Parse date as local date to avoid timezone shifts
+          const [year, month, day] = date.split('-');
+          signatureDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        } else if (staffSignedAt) {
+          signatureDate = new Date(staffSignedAt);
+        } else {
+          signatureDate = new Date();
+        }
         signatureData = {
           staffSignature: staffSignature,
-          staffSignedAt: staffSignedAt || date ? new Date(staffSignedAt || date) : new Date()
+          staffSignedAt: signatureDate
         };
       }
     } else if (!shouldClearSignature && formKey === 'conflict_of_interest') {
@@ -700,6 +716,10 @@ export async function POST(
     } else {
       // When not clearing, use signatureData (which may be empty object)
       Object.assign(updateData, signatureData);
+      
+      // CRITICAL: Update the data field with the latest formData (includes date field for bullying_training)
+      // This ensures all form fields including date are saved
+      updateData.data = formData;
       
       // CRITICAL: Also extract signature from formData and save to staffSignature column
       // This ensures completion tracking works even if signatureData doesn't have it
