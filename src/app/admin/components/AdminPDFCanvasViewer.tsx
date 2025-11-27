@@ -57,30 +57,36 @@ export default function AdminPDFCanvasViewer({
         const devicePixelRatio = Math.max(window.devicePixelRatio || 1, 1);
         
         // Calculate responsive scale and quality multiplier based on screen size
-        // This ensures optimal quality for all screen sizes
+        // Maximum quality settings for crystal-clear text rendering
         const containerWidth = window.innerWidth;
         const basePageWidth = 595; // A4 width in points
-        let maxWidth, qualityMultiplier;
+        let maxWidth, qualityMultiplier, baseScale;
         
+        // Use higher base scales and much higher quality multipliers for maximum clarity
         if (containerWidth < 480) {
           maxWidth = 350;
-          qualityMultiplier = 3.0; // Very small mobile - ultra high quality
+          baseScale = 1.5; // Higher base scale for better visibility
+          qualityMultiplier = 6.0; // Very small mobile - maximum quality
         } else if (containerWidth < 768) {
           maxWidth = 450;
-          qualityMultiplier = 3.5; // Mobile - maximum quality
+          baseScale = 1.6;
+          qualityMultiplier = 7.0; // Mobile - maximum quality
         } else if (containerWidth < 1024) {
           maxWidth = 650;
-          qualityMultiplier = 4.0; // Tablet - ultra maximum quality
+          baseScale = 1.7;
+          qualityMultiplier = 8.0; // Tablet - ultra maximum quality
         } else if (containerWidth < 1440) {
           maxWidth = 850;
-          qualityMultiplier = 4.5; // Small desktop - premium quality
+          baseScale = 1.8;
+          qualityMultiplier = 9.0; // Small desktop - premium quality
         } else {
           maxWidth = 950;
-          qualityMultiplier = 5.0; // Large desktop - ultra premium quality
+          baseScale = 2.0; // Even higher for large screens
+          qualityMultiplier = 10.0; // Large desktop - ultra premium quality
         }
         
         const displayWidth = Math.min(containerWidth * 0.95, maxWidth);
-        const responsiveScale = displayWidth / basePageWidth;
+        const responsiveScale = (displayWidth / basePageWidth) * baseScale;
         
         // Limit pages if maxPages is specified
         const totalPagesToRender = maxPages ? Math.min(maxPages, pdf.numPages) : pdf.numPages;
@@ -92,6 +98,7 @@ export default function AdminPDFCanvasViewer({
           const viewport = page.getViewport({ scale: responsiveScale });
           
           // Calculate output scale with quality multiplier for ultra-crisp rendering
+          // Use even higher multiplier for maximum clarity
           const outputScale = devicePixelRatio * qualityMultiplier;
           
           const canvas = document.createElement("canvas");
@@ -99,36 +106,34 @@ export default function AdminPDFCanvasViewer({
             alpha: false,
             desynchronized: false,
             willReadFrequently: false,
-            // Enable ultra high-quality image smoothing
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high' as ImageSmoothingQuality,
-            // Additional quality settings
             colorSpace: 'srgb',
           });
           if (!context) continue;
           
-          // Ensure maximum quality rendering
-          context.imageSmoothingEnabled = true;
-          context.imageSmoothingQuality = 'high';
+          // Type guard to ensure we have CanvasRenderingContext2D
+          if (context instanceof CanvasRenderingContext2D) {
+            // Disable image smoothing for crisp text rendering
+            // Image smoothing can blur text, so we disable it for maximum clarity
+            context.imageSmoothingEnabled = false;
+          }
 
-          // Set canvas size with high resolution (outputScale multiplier)
+          // Set canvas size with maximum resolution (outputScale multiplier)
+          // This creates a high-DPI canvas for crystal-clear rendering
           canvas.width = Math.floor(viewport.width * outputScale);
           canvas.height = Math.floor(viewport.height * outputScale);
           
           // Set display size (CSS pixels) - responsive to container
+          // The browser will scale down the high-res canvas for display
           canvas.style.width = `${Math.floor(viewport.width)}px`;
           canvas.style.height = `${Math.floor(viewport.height)}px`;
 
-          // Use transform array for better quality (same approach as other high-quality viewers)
-          const transform = outputScale !== 1 
-            ? [outputScale, 0, 0, outputScale, 0, 0] 
-            : null;
+          // Scale the context to match the high-resolution canvas
+          context.scale(outputScale, outputScale);
 
-          // Render with high quality settings
+          // Render with high quality settings - no transform needed since we scaled the context
           const renderContext = {
             canvasContext: context,
             viewport: viewport,
-            transform: transform as any,
           };
 
           await page.render(renderContext).promise;
@@ -207,7 +212,7 @@ export default function AdminPDFCanvasViewer({
             className="w-full h-auto rounded-2xl border border-gray-100 shadow-lg"
             style={{ 
               minHeight,
-              imageRendering: 'auto', // Use browser's best quality rendering
+              imageRendering: 'crisp-edges', // Crisp edges for sharp text
             }}
           />
         </div>

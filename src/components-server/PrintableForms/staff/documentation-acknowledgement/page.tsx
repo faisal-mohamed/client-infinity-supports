@@ -95,6 +95,33 @@ const styles = StyleSheet.create({
     color: '#2563eb',
     textDecoration: 'none',
   },
+  employeeDetailsSection: {
+    marginBottom: 15,
+    borderTop: '1 solid #000000',
+    paddingTop: 8,
+  },
+  fieldRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    alignItems: 'flex-start',
+  },
+  fieldLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    width: 100,
+    color: '#111827',
+    marginRight: 8,
+  },
+  fieldBox: {
+    flex: 1,
+    borderBottom: '1 solid #d1d5db',
+    paddingBottom: 2,
+    minHeight: 16,
+  },
+  fieldValue: {
+    fontSize: 9,
+    color: '#111827',
+  },
 });
 
 interface DocumentationAcknowledgementPDFProps {
@@ -156,6 +183,34 @@ const DocumentationAcknowledgementPDF: React.FC<DocumentationAcknowledgementPDFP
       <Page size="A4" style={styles.page}>
         {renderHeader()}
         <Text style={styles.title}>Documentation Acknowledgement</Text>
+
+        {/* Employee Details Section */}
+        <View style={styles.employeeDetailsSection}>
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldLabel}>
+              <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>First Name:</Text>
+            </View>
+            <View style={styles.fieldBox}>
+              <Text style={styles.fieldValue}>{staff?.firstName || ''}</Text>
+            </View>
+          </View>
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldLabel}>
+              <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Surname:</Text>
+            </View>
+            <View style={styles.fieldBox}>
+              <Text style={styles.fieldValue}>{staff?.surname || ''}</Text>
+            </View>
+          </View>
+          <View style={styles.fieldRow}>
+            <View style={styles.fieldLabel}>
+              <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Email:</Text>
+            </View>
+            <View style={styles.fieldBox}>
+              <Text style={styles.fieldValue}>{staff?.email || ''}</Text>
+            </View>
+          </View>
+        </View>
 
         {/* Document Receipt Confirmation Section */}
         <View style={styles.section}>
