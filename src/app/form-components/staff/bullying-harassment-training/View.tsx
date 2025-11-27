@@ -15,6 +15,9 @@ interface BullyingHarassmentTrainingViewProps {
   onAcknowledgementChange?: (updates: Record<string, any>) => void;
   showDocument?: boolean;
   onRenderingChange?: (isRendering: boolean) => void;
+  staffId?: number; // Staff ID for generating PDF URL
+  usePdfViewer?: boolean; // Option to use iframe PDF viewer instead of canvas
+  generatedPdfUrl?: string; // Direct URL to generated PDF
 }
 
 const PDF_URL = "/stafForms/Bullying and Harassment Training 2023.pdf";
@@ -28,11 +31,17 @@ export default function BullyingHarassmentTrainingView({
   onAcknowledgementChange,
   showDocument = true,
   onRenderingChange,
+  staffId,
+  usePdfViewer = false, // Default to canvas for static PDF, but allow iframe for generated PDF
+  generatedPdfUrl,
 }: BullyingHarassmentTrainingViewProps) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
   const [isRendering, setIsRendering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Generate PDF URL if staffId is provided
+  const pdfUrl = generatedPdfUrl || (staffId ? `/api/staff/${staffId}/forms/bullying-harassment-training/pdf` : null);
 
   const derivedStaffName = useMemo(
     () => data?.staffName || data?.fullName || data?.employeeName || '',
@@ -50,6 +59,48 @@ export default function BullyingHarassmentTrainingView({
     () => data?.date || data?.acknowledgedAt || data?.staffSignedAt || '',
     [data?.date, data?.acknowledgedAt, data?.staffSignedAt]
   );
+
+  // Helper function to format date without timezone issues
+  const formatDateSafe = (dateStr: string): string => {
+    if (!dateStr) return '';
+    try {
+      // Extract date part from string (handles both "2025-11-27" and "2025-11-27T00:00:00.000Z")
+      let datePart = dateStr;
+      if (typeof dateStr === 'string' && dateStr.includes('T')) {
+        datePart = dateStr.split('T')[0];
+      }
+      
+      // Check if it's in YYYY-MM-DD format
+      if (typeof datePart === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        const [year, month, day] = datePart.split('-').map(Number);
+        // Create date using local timezone (month is 0-indexed)
+        const date = new Date(year, month - 1, day);
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString('en-AU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      }
+      
+      // Fallback: try to parse the original string
+      const dateObj = new Date(dateStr);
+      if (isNaN(dateObj.getTime())) return dateStr;
+      
+      // Extract date components and create new local date to avoid timezone issues
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth() + 1;
+      const day = dateObj.getDate();
+      const localDate = new Date(year, month - 1, day);
+      return localDate.toLocaleDateString('en-AU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   const hasAcknowledgementData =
     !!derivedStaffName || !!derivedSignature || !!derivedDate || !!derivedAcknowledged;
@@ -95,6 +146,39 @@ export default function BullyingHarassmentTrainingView({
       }
       return;
     }
+    
+    // If using PDF viewer (iframe) and we have a PDF URL, use iframe instead of canvas
+    if (usePdfViewer && pdfUrl) {
+      const container = pdfContainerRef.current;
+      if (!container) return;
+      
+      container.innerHTML = '';
+      setIsRendering(true);
+      onRenderingChange?.(true);
+      
+      const iframe = document.createElement('iframe');
+      iframe.src = pdfUrl;
+      iframe.style.width = '100%';
+      iframe.style.minHeight = '800px';
+      iframe.style.border = '1px solid #e5e7eb';
+      iframe.style.borderRadius = '8px';
+      iframe.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+      iframe.style.backgroundColor = 'white';
+      iframe.onload = () => {
+        setIsRendering(false);
+        onRenderingChange?.(false);
+        hasRenderedRef.current = true;
+      };
+      iframe.onerror = () => {
+        setError('Failed to load PDF');
+        setIsRendering(false);
+        onRenderingChange?.(false);
+      };
+      
+      container.appendChild(iframe);
+      return;
+    }
+    
     const renderPdf = async () => {
       if (hasRenderedRef.current) return;
       
@@ -143,19 +227,19 @@ export default function BullyingHarassmentTrainingView({
         let maxWidth, qualityMultiplier;
         if (window.innerWidth < 480) {
           maxWidth = 350;
-          qualityMultiplier = 1.2;
+          qualityMultiplier = 3.0; // Increased for ultra-high quality
         } else if (window.innerWidth < 768) {
           maxWidth = 450;
-          qualityMultiplier = 1.5;
+          qualityMultiplier = 3.5; // Increased for maximum quality
         } else if (window.innerWidth < 1024) {
           maxWidth = 650;
-          qualityMultiplier = 1.8;
+          qualityMultiplier = 4.0; // Increased for ultra-maximum quality
         } else if (window.innerWidth < 1440) {
           maxWidth = 850;
-          qualityMultiplier = 2;
+          qualityMultiplier = 4.5; // Increased for premium quality
         } else {
           maxWidth = 950;
-          qualityMultiplier = 2.2;
+          qualityMultiplier = 5.0; // Increased for ultra-premium quality
         }
 
         const displayWidth = Math.min(containerWidth * 0.9, maxWidth);
@@ -173,9 +257,16 @@ export default function BullyingHarassmentTrainingView({
           const context = canvas.getContext('2d', { 
             alpha: false,
             desynchronized: false,
-            willReadFrequently: false
+            willReadFrequently: false,
+            // Enable high-quality image smoothing
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high' as ImageSmoothingQuality,
           });
           if (!context) continue;
+
+          // Enable maximum quality rendering
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = 'high';
 
           canvas.width = Math.floor(viewport.width * outputScale);
           canvas.height = Math.floor(viewport.height * outputScale);
@@ -211,7 +302,7 @@ export default function BullyingHarassmentTrainingView({
     };
 
     renderPdf();
-  }, [showDocument, excludeLastPage, onRenderingChange]);
+  }, [showDocument, excludeLastPage, onRenderingChange, usePdfViewer, pdfUrl]);
 
   const renderAcknowledgementSection = () => {
     if (resolvedAcknowledgementMode === 'hidden') return null;
@@ -275,7 +366,7 @@ export default function BullyingHarassmentTrainingView({
               <div>
                 <label className="block mb-1">Date</label>
                 <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800 min-h-[32px]">
-                  {derivedDate ? new Date(derivedDate).toLocaleDateString('en-AU') : (
+                  {derivedDate ? formatDateSafe(derivedDate) : (
                     <span className="text-gray-400 italic">—</span>
                   )}
                 </div>

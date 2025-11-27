@@ -86,13 +86,30 @@ export async function GET(
     const submissionData = submission?.data || {};
     const dedicatedTableData = (bullyingHarassmentTraining?.data as any) || {};
     
+    // Helper to convert Date object to YYYY-MM-DD string (preserves date without timezone shift)
+    const dateToDateString = (date: Date | null | undefined): string | undefined => {
+      if (!date) return undefined;
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return undefined;
+      // Use UTC methods to avoid timezone issues - extract the date part as stored
+      const year = d.getUTCFullYear();
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     // Merge form data - dedicated table takes priority
     const formData = {
       ...submissionData,
       ...dedicatedTableData,
       // Handle signature fields - prefer dedicated table top-level fields, fallback to submission
       signature: bullyingHarassmentTraining?.staffSignature || submission?.staffSignature || dedicatedTableData?.signature || submissionData?.signature,
-      date: bullyingHarassmentTraining?.staffSignedAt ? new Date(bullyingHarassmentTraining.staffSignedAt).toISOString().split('T')[0] : (submission?.staffSignedAt ? new Date(submission.staffSignedAt).toISOString().split('T')[0] : dedicatedTableData?.date || submissionData?.date),
+      // Convert Date objects to YYYY-MM-DD format to avoid timezone issues
+      date: bullyingHarassmentTraining?.staffSignedAt 
+        ? dateToDateString(bullyingHarassmentTraining.staffSignedAt) 
+        : (submission?.staffSignedAt 
+          ? dateToDateString(submission.staffSignedAt) 
+          : (dedicatedTableData?.date || submissionData?.date)),
       staffSignature: bullyingHarassmentTraining?.staffSignature || submission?.staffSignature,
       staffSignedAt: bullyingHarassmentTraining?.staffSignedAt || submission?.staffSignedAt,
     };

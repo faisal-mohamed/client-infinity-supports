@@ -22,8 +22,9 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
     paddingHorizontal: 52,
     fontFamily: 'Helvetica',
-    fontSize: 11,
-    lineHeight: 1.5,
+    fontSize: 13, // Further increased for maximum clarity
+    lineHeight: 1.7, // Further increased for better spacing
+    color: '#000000', // Pure black for maximum contrast
   },
   header: {
     position: 'absolute',
@@ -33,90 +34,92 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerLogo: {
-    width: 120,
-    height: 45,
+    width: 140, // Increased from 120 for better visibility
+    height: 50, // Increased from 45 for better visibility
     objectFit: 'contain',
   },
   content: {
     marginTop: 20,
   },
   title: {
-    fontSize: 14,
+    fontSize: 18, // Further increased for maximum visibility
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 32,
-    marginBottom: 18,
+    marginBottom: 22, // Increased
+    color: '#000000', // Pure black
   },
   introText: {
-    fontSize: 11,
-    lineHeight: 1.6,
-    marginBottom: 14,
-    color: '#111827',
+    fontSize: 13, // Further increased
+    lineHeight: 1.8, // Further increased
+    marginBottom: 18, // Increased
+    color: '#000000', // Pure black
   },
   acknowledgementBox: {
     backgroundColor: '#f9fafb',
-    border: '1 solid #d1d5db',
-    padding: 12,
+    border: '1.5 solid #d1d5db', // Increased from 1 for better visibility
+    padding: 14, // Increased from 12
     borderRadius: 4,
-    marginBottom: 20,
+    marginBottom: 22, // Increased from 20
   },
   acknowledgementTitle: {
-    fontSize: 11,
+    fontSize: 12, // Increased from 11
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 8, // Increased from 6
     color: '#111827',
   },
   acknowledgementItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 8, // Increased from 6
   },
   acknowledgementBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7, // Increased from 6
+    height: 7, // Increased from 6
+    borderRadius: 3.5,
     backgroundColor: '#2563eb',
-    marginTop: 5,
-    marginRight: 8,
+    marginTop: 6, // Increased from 5
+    marginRight: 10, // Increased from 8
   },
   acknowledgementText: {
     flex: 1,
-    fontSize: 11,
-    lineHeight: 1.5,
+    fontSize: 12, // Increased from 11
+    lineHeight: 1.6, // Increased from 1.5
     color: '#111827',
   },
   fieldRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginBottom: 16,
+    marginBottom: 18, // Increased from 16
   },
   fieldLabel: {
-    fontSize: 11,
+    fontSize: 13, // Further increased
     fontWeight: 'bold',
-    width: 110,
-    marginRight: 8,
-    color: '#111827',
+    width: 125, // Increased
+    marginRight: 12, // Increased
+    color: '#000000', // Pure black
   },
   fieldLine: {
     flex: 1,
-    borderBottom: '1 dotted #4b5563',
-    minHeight: 22,
-    paddingBottom: 2,
+    borderBottom: '2 solid #000000', // Increased thickness for better visibility
+    minHeight: 26, // Increased
+    paddingBottom: 4, // Increased
   },
   fieldValue: {
-    fontSize: 11,
-    color: '#111827',
+    fontSize: 13, // Further increased
+    color: '#000000', // Pure black
+    fontWeight: 'bold', // Bold for better visibility
   },
   signatureField: {
     flex: 1,
-    borderBottom: '1 dotted #4b5563',
-    minHeight: 42,
-    paddingBottom: 4,
+    borderBottom: '1.5 solid #000000', // Changed from dotted to solid, increased thickness, darker color
+    minHeight: 45, // Increased from 42
+    paddingBottom: 5, // Increased from 4
     justifyContent: 'center',
   },
   signatureImage: {
-    maxWidth: 160,
-    maxHeight: 40,
+    maxWidth: 180, // Increased from 160
+    maxHeight: 45, // Increased from 40
     objectFit: 'contain',
     alignSelf: 'center',
   },
@@ -126,14 +129,14 @@ const styles = StyleSheet.create({
     left: 52,
     right: 52,
     paddingTop: 10,
-    borderTop: '1 solid #e5e7eb',
+    borderTop: '1.5 solid #e5e7eb', // Increased thickness
     flexDirection: 'row',
     justifyContent: 'space-between',
-    fontSize: 9,
+    fontSize: 10, // Increased from 9 for better readability
     color: '#666666',
   },
   footerText: {
-    fontSize: 9,
+    fontSize: 10, // Increased from 9 for better readability
     color: '#666666',
   },
 });
@@ -180,9 +183,28 @@ const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
   const formatDate = (value: string) => {
     if (!value) return '';
     try {
+      // Extract date part from string (handles both "2025-11-27" and "2025-11-27T00:00:00.000Z")
+      let datePart = value;
+      if (typeof value === 'string' && value.includes('T')) {
+        datePart = value.split('T')[0];
+      }
+      
+      // Check if it's in YYYY-MM-DD format - format directly without Date object to avoid timezone issues
+      if (typeof datePart === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        const [year, month, day] = datePart.split('-');
+        // Directly format as DD/MM/YYYY without using Date object
+        return `${day}/${month}/${year}`;
+      }
+      
+      // Fallback: try to parse the original string
       const dateObj = new Date(value);
       if (Number.isNaN(dateObj.getTime())) return value;
-      return dateObj.toLocaleDateString('en-AU');
+      
+      // Use UTC methods to extract date components to avoid timezone issues
+      const year = dateObj.getUTCFullYear();
+      const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getUTCDate()).padStart(2, '0');
+      return `${day}/${month}/${year}`;
     } catch {
       return value;
     }
