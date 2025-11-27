@@ -7,11 +7,16 @@ interface PDFSectionProps {
   wrap?: boolean;
   children: React.ReactNode;
   marginBottom?: number;
+  minPresenceAhead?: number;
 }
 
-const PDFSection: React.FC<PDFSectionProps> = ({ title, wrap = true, children, marginBottom }) => {
+const PDFSection: React.FC<PDFSectionProps> = ({ title, wrap = true, children, marginBottom, minPresenceAhead }) => {
   return (
-    <View style={[styles.section, marginBottom ? { marginBottom } : {}]} wrap={wrap}>
+    <View 
+      style={[styles.section, marginBottom ? { marginBottom } : {}]} 
+      wrap={wrap}
+      minPresenceAhead={minPresenceAhead}
+    >
       <Text style={styles.sectionTitle}>{title}</Text>
       <View>{children}</View>
     </View>

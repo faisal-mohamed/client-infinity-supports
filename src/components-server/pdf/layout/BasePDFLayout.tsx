@@ -19,9 +19,18 @@ const BasePDFLayout: React.FC<BasePDFLayoutProps> = ({ title, logo, meta, childr
   // Only show footer if meta data exists (from settings API)
   const hasFooterData = meta && (meta.website || meta.version || meta.reviewDate);
   
+  console.log('📄 [BasePDFLayout] Rendering PDF:', {
+    title,
+    hasLogo: !!logo,
+    hasFooter: hasFooterData,
+    footerData: meta,
+  });
+  
   return (
     <Document>
+      {/* Single Page component - React-PDF will automatically create multiple pages when content overflows */}
       <Page size="A4" style={styles.page}>
+        {/* Fixed Header - appears on ALL pages automatically */}
         <View style={styles.header} fixed>
           <View style={styles.headerContent}>
             {logo ? (
@@ -33,8 +42,12 @@ const BasePDFLayout: React.FC<BasePDFLayoutProps> = ({ title, logo, meta, childr
           </View>
         </View>
 
-        <View style={styles.content}>{children}</View>
+        {/* Content - wrap={true} allows natural page breaks and automatic page creation */}
+        <View style={styles.content} wrap={true}>
+          {children}
+        </View>
 
+        {/* Fixed Footer - appears on ALL pages automatically */}
         {hasFooterData && (
           <View style={styles.footer} fixed>
             <View style={styles.footerRow}>
@@ -69,6 +82,7 @@ const styles = StyleSheet.create({
     right: PDF_SPACING.pagePadding,
     borderBottom: '2 solid #333',
     paddingBottom: 10,
+    zIndex: 1, // Ensure header is above content
   },
   headerContent: {
     flexDirection: 'column',
@@ -95,6 +109,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    // Header is at top: 15px, extends to ~115px (logo 60px + gap 8px + title ~20px + padding 10px + border 2px)
+    // Page paddingTop is 110px, so content starts at 110px
+    // Header extends to 115px, so we need at least 5px more margin, but add safety margin
+    marginTop: 20, // Additional space after page padding to clear header (header extends to ~115px, content starts at 110px)
+    marginBottom: 50, // Reserve space for fixed footer (footer height ~30px + padding + safety margin)
+    minHeight: 0, // Allow flex to work properly
+    // Note: React-PDF doesn't support overflow: hidden, so we rely on proper margins
   },
   footer: {
     position: 'absolute',
@@ -103,6 +124,7 @@ const styles = StyleSheet.create({
     right: PDF_SPACING.pagePadding,
     borderTop: '2 solid #333',
     paddingTop: 8,
+    zIndex: 1, // Ensure footer is above content
   },
   footerRow: {
     flexDirection: 'row',

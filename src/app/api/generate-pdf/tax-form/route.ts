@@ -8,8 +8,33 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     
+    console.log('📄 [TFN PDF] PDF generation request received');
+    console.log('📄 [TFN PDF] FormData received:', {
+      hasData: !!formData,
+      dataType: typeof formData,
+      dataKeys: formData ? Object.keys(formData) : [],
+      dataSample: formData ? {
+        tfn: formData.tfn,
+        firstName: formData.firstName,
+        surname: formData.surname,
+        dob: formData.dob,
+        address: formData.address,
+        hasPayeeSignature: !!formData.payeeSignature,
+        payeeSignatureAt: formData.payeeSignatureAt,
+        hasPayerSignature: !!formData.payerSignature,
+        payerSignatureAt: formData.payerSignatureAt,
+      } : null,
+    });
+    
+    if (!formData || Object.keys(formData).length === 0) {
+      console.error('📄 [TFN PDF] ERROR: No form data provided!');
+      return NextResponse.json({ error: 'Form data is required' }, { status: 400 });
+    }
+    
     // Generate HTML content with form data
+    console.log('📄 [TFN PDF] Generating HTML content...');
     const htmlContent = generateTaxFormHTML(formData);
+    console.log('📄 [TFN PDF] HTML content generated, length:', htmlContent.length);
     
     // Launch Playwright browser
     const browser = await chromium.launch();
@@ -62,9 +87,10 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+  } catch (error: any) {
+    console.error('📄 [TFN PDF] PDF generation error:', error);
+    console.error('📄 [TFN PDF] Error stack:', error.stack);
+    return NextResponse.json({ error: 'Failed to generate PDF', details: error.message }, { status: 500 });
   }
 }
 

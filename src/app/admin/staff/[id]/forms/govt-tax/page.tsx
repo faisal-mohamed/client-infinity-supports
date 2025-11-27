@@ -21,13 +21,26 @@ export default function StaffGovtTaxView() {
     if (!staffId) return;
     setLoading(true);
     try {
+      console.log('🔍 [TFN View] Fetching form data for staff:', staffId);
       const res = await fetch(`/api/staff/${staffId}/forms/govt-tax`);
       if (!res.ok) throw new Error("Failed to load TFN declaration");
       const data = await res.json();
+      console.log('🔍 [TFN View] Data received:', {
+        hasStaff: !!data.staff,
+        hasData: !!data.data,
+        dataKeys: data.data ? Object.keys(data.data) : [],
+        dataSample: data.data ? {
+          tfn: data.data.tfn,
+          firstName: data.data.firstName,
+          surname: data.data.surname,
+          hasPayeeSignature: !!data.data.payeeSignature,
+        } : null,
+      });
       setStaff(data.staff);
       setFormData(data.data);
-    } catch (error) {
-      console.error("Error loading TFN declaration:", error);
+    } catch (error: any) {
+      console.error("🔍 [TFN View] Error loading TFN declaration:", error);
+      console.error("🔍 [TFN View] Error details:", error.message);
       setFormData(null);
     } finally {
       setLoading(false);
@@ -39,9 +52,21 @@ export default function StaffGovtTaxView() {
   }, [fetchData]);
 
   const handleDownload = async () => {
-    if (!formData) return;
+    if (!formData) {
+      console.error('🔍 [TFN View] Cannot download - no form data');
+      return;
+    }
     setDownloading(true);
     try {
+      console.log('🔍 [TFN View] Downloading PDF with formData:', {
+        keys: Object.keys(formData),
+        sample: {
+          tfn: formData.tfn,
+          firstName: formData.firstName,
+          surname: formData.surname,
+          hasPayeeSignature: !!formData.payeeSignature,
+        },
+      });
       const res = await fetch("/api/generate-pdf/tax-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

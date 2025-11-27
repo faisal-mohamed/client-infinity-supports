@@ -595,7 +595,46 @@ export default function StaffFormViewPageClient() {
       
       // Check if form has a specific PDF route
       // Note: bullying_harassment_training now returns only acknowledgement form PDF (no merge by default)
-      if (formKey === 'ndis_workforce_capability') {
+      if (formKey === 'govt_tax' || formKey === 'govt-tax') {
+        // TFN Declaration uses POST endpoint with form data
+        console.log('📥 [View Form] Fetching TFN Declaration PDF using POST endpoint');
+        console.log('📥 [View Form] Form data check:', {
+          hasSubmissionData: !!assignment.submissionData,
+          dataKeys: assignment.submissionData ? Object.keys(assignment.submissionData) : [],
+          dataSample: assignment.submissionData ? {
+            tfn: assignment.submissionData.tfn,
+            firstName: assignment.submissionData.firstName,
+            surname: assignment.submissionData.surname,
+            hasPayeeSignature: !!assignment.submissionData.payeeSignature,
+          } : null,
+        });
+        
+        if (!assignment.submissionData || Object.keys(assignment.submissionData).length === 0) {
+          console.error('📥 [View Form] ERROR: No form data available for PDF generation');
+          throw new Error('Form data is required to generate PDF. Please ensure the form has been submitted.');
+        }
+        
+        console.log('📥 [View Form] Sending POST request to /api/generate-pdf/tax-form');
+        response = await fetch('/api/generate-pdf/tax-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(assignment.submissionData),
+        });
+        console.log('📥 [View Form] POST response status:', response.status, response.ok);
+      } else if (formKey === 'super_choice_form' || formKey === 'super-choice-form') {
+        // Super Choice Form also uses POST endpoint with form data
+        console.log('📥 [View Form] Fetching Super Choice Form PDF using POST endpoint');
+        
+        if (!assignment.submissionData || Object.keys(assignment.submissionData).length === 0) {
+          throw new Error('Form data is required to generate PDF. Please ensure the form has been submitted.');
+        }
+        
+        response = await fetch('/api/generate-pdf/super-choice-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(assignment.submissionData),
+        });
+      } else if (formKey === 'ndis_workforce_capability') {
         // NDIS form merges framework PDF with acknowledgement
         response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
         
@@ -1906,9 +1945,23 @@ export default function StaffFormViewPageClient() {
             console.log('📋 [View Form] Rendering form component:', FormViewComponent?.name, {
               hasSubmissionData: !!assignment.submissionData,
               submissionDataKeys: assignment.submissionData ? Object.keys(assignment.submissionData) : [],
+              formKey: assignment.form.formKey,
             });
+            
+            // Special handling for govt_tax form - it expects initialData prop instead of data
+            const isGovtTaxForm = assignment.form.formKey === 'govt_tax' || assignment.form.formKey === 'govt-tax';
+            
             return (
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                {isGovtTaxForm ? (
+                  <FormViewComponent
+                    initialData={assignment.submissionData || {}}
+                    onDataChange={() => {}}
+                    readOnly={true}
+                    lockSectionB={true}
+                    showButtons={false}
+                  />
+                ) : (
                 <FormViewComponent
                   data={assignment.submissionData}
                   staff={assignment.staff}
@@ -1917,6 +1970,7 @@ export default function StaffFormViewPageClient() {
                   settings={settings}
                   staffId={staffId}
                 />
+                )}
               </div>
             );
           })()

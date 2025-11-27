@@ -13,6 +13,15 @@ interface EmployeeDetailsPDFProps {
 }
 
 const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
+  console.log('📋 [EmployeeDetailsPDF] Starting PDF generation');
+  console.log('📋 [EmployeeDetailsPDF] Data received:', {
+    hasData: !!data,
+    hasSettings: !!data?.settings,
+    hasLogo: !!data?.logoDataUrl,
+    hasStaffSignature: !!data?.staffSignature,
+    hasAdminSignature: !!data?.adminSignature,
+  });
+  
   // Get meta from settings (passed via data.settings), no hardcoded defaults
   const settings = data?.settings || {};
   const meta: PDFMeta | undefined = (settings?.website || settings?.employee_details_form_id || settings?.employee_details_review_date) ? {
@@ -22,6 +31,12 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
   } : undefined;
 
   const logoUrl = data?.logoDataUrl || '/infinity_logo.png';
+  
+  console.log('📋 [EmployeeDetailsPDF] PDF configuration:', {
+    hasMeta: !!meta,
+    meta,
+    logoUrl: logoUrl.substring(0, 50) + '...',
+  });
 
   // Get value with fallback for field name variations
   const getValue = (key: string): string => {
@@ -54,10 +69,13 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
 
   const employmentStatus = (getValue('employmentStatus') || '').toString().toLowerCase();
 
+  console.log('📋 [EmployeeDetailsPDF] Rendering sections...');
+  console.log('📋 [EmployeeDetailsPDF] Section count: 8 sections');
+  
   return (
     <BasePDFLayout title="Employee Details Form" logo={logoUrl} meta={meta}>
-      <View>
-        <PDFSection title="Personal Information">
+      <View style={styles.mainContainer}>
+        <PDFSection title="Personal Information" marginBottom={18}>
           <PDFFieldRow>
             <PDFField label="First Name" value={getValue('firstName')} />
             <PDFField label="Last Name" value={getValue('surname')} />
@@ -72,7 +90,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           </PDFFieldRow>
         </PDFSection>
 
-        <PDFSection title="Contact Details">
+        <PDFSection title="Contact Details" marginBottom={18}>
           <PDFFieldFullWidth label="Address" value={getValue('address')} />
           <PDFFieldRow>
             <PDFField label="Suburb" value={getValue('suburb')} />
@@ -88,7 +106,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           </PDFFieldRow>
         </PDFSection>
 
-        <PDFSection title="Tax & Banking Information">
+        <PDFSection title="Tax & Banking Information" marginBottom={18}>
           <PDFFieldFullWidth label="Employee Tax File" value={getValue('employeeTaxFile')} />
           <PDFPanel title="Bank Details">
             <PDFFieldRow>
@@ -103,7 +121,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           </PDFPanel>
         </PDFSection>
 
-        <PDFSection title="Residency & Work Rights" wrap={false}>
+        <PDFSection title="Residency & Work Rights" wrap={false} marginBottom={18} minPresenceAhead={150}>
           <View style={styles.checkboxColumn}>
             <PDFCheckboxGroup
               label="Are you an Australian citizen?"
@@ -126,7 +144,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           )}
         </PDFSection>
 
-        <PDFSection title="Next of Kin">
+        <PDFSection title="Next of Kin" marginBottom={18}>
           <PDFFieldRow>
             <PDFField label="Next of Kin" value={getValue('nokName')} />
             <PDFField label="Relationship" value={getValue('nokRelationship')} />
@@ -146,13 +164,15 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
           </PDFFieldRow>
         </PDFSection>
 
-        <PDFSignatureBlock
-          label="Employee Signature"
-          image={data?.staffSignature}
-          date={data?.staffSignedAt}
-        />
+        <View style={styles.signatureSpacer}>
+          <PDFSignatureBlock
+            label="Employee Signature"
+            image={data?.staffSignature}
+            date={data?.staffSignedAt}
+          />
+        </View>
 
-        <PDFSection title="Office Use Only" wrap={false}>
+        <PDFSection title="Office Use Only" wrap={false} marginBottom={18} minPresenceAhead={120}>
           <PDFPanel title="Employee Status">
             <View style={styles.officeRow}>
               <View style={styles.officeLeft}>
@@ -178,11 +198,13 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
 
         {/* Admin Signature - Only show if admin has signed */}
         {data?.adminSignature && (
-          <PDFSignatureBlock
-            label="Admin Signature"
-            image={data?.adminSignature}
-            date={data?.adminSignedAt}
-          />
+          <View style={styles.signatureSpacer}>
+            <PDFSignatureBlock
+              label="Admin Signature"
+              image={data?.adminSignature}
+              date={data?.adminSignedAt}
+            />
+          </View>
         )}
       </View>
     </BasePDFLayout>
@@ -201,14 +223,21 @@ const formatDate = (value?: string) => {
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    width: '100%',
+    // Remove overflow: hidden as React-PDF doesn't support it well
+    // Content will flow naturally across pages
+  },
   checkboxColumn: {
     width: '100%',
-    marginBottom: 6,
+    marginBottom: 8,
+    gap: 4, // Add spacing between checkboxes
   },
   officeRow: {
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
+    gap: 12, // Add gap between left and right columns
   },
   officeLeft: {
     width: '45%',
@@ -220,9 +249,14 @@ const styles = StyleSheet.create({
   },
   statusList: {
     width: '100%',
+    gap: 4, // Add spacing between status items
   },
   statusItem: {
-    marginBottom: 4,
+    marginBottom: 6, // Increased from 4
+  },
+  signatureSpacer: {
+    marginTop: 12,
+    marginBottom: 18, // Increased spacing around signatures
   },
 });
 

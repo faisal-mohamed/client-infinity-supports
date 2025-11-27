@@ -135,10 +135,19 @@ export async function GET(
     // Create PDF element
     const pdfElement = React.createElement(StaffPDFComponent, { data: dataWithLogo });
 
-    console.log('Generating Employee Details PDF for staff:', staff.firstName, staff.surname);
+    console.log('📄 [PDF Route] Generating Employee Details PDF for staff:', staff.firstName, staff.surname);
+    console.log('📄 [PDF Route] PDF element created, starting render...');
+    console.log('📄 [PDF Route] Data passed to component:', {
+      hasData: !!dataWithLogo,
+      hasSettings: !!dataWithLogo.settings,
+      hasLogo: !!dataWithLogo.logoDataUrl,
+      settingsKeys: Object.keys(dataWithLogo.settings || {}),
+    });
     
     // Generate PDF buffer using React PDF
+    console.log('📄 [PDF Route] Calling renderToBuffer...');
     const pdfBuffer: any = await renderToBuffer(pdfElement);
+    console.log('📄 [PDF Route] PDF buffer generated, size:', pdfBuffer?.length || 0, 'bytes');
     const pdfUint8 = pdfBuffer instanceof Uint8Array ? pdfBuffer : new Uint8Array(pdfBuffer);
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {

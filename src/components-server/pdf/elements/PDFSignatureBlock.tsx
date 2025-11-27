@@ -9,9 +9,9 @@ interface PDFSignatureBlockProps {
 }
 
 const PDFSignatureBlock: React.FC<PDFSignatureBlockProps> = ({ label, image, date }) => (
-  <View style={styles.container}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={styles.row}>
+  <View style={styles.container} wrap={false} minPresenceAhead={120}>
+    <Text style={styles.label} wrap={false}>{label}</Text>
+    <View style={styles.row} wrap={false}>
       <View style={styles.signatureBox}>
         {image ? (
           <Image src={image} style={styles.signatureImage} />

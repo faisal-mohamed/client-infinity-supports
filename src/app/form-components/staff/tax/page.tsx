@@ -682,6 +682,24 @@ export default function TFNOverlayForm({
   showButtons = true,
   lockSectionB = true, // Default to true - staff only fills Section A
 }: TFNOverlayFormProps = {}) {
+  console.log('📝 [TFN Form] Component rendered with initialData:', {
+    hasInitialData: !!initialData,
+    initialDataKeys: Object.keys(initialData || {}),
+    initialDataSample: initialData ? {
+      tfn: initialData.tfn,
+      firstName: initialData.firstName,
+      surname: initialData.surname,
+      dob: initialData.dob,
+      address: initialData.address,
+      hasPayeeSignature: !!initialData.payeeSignature,
+      payeeSignatureAt: initialData.payeeSignatureAt,
+      hasPayerSignature: !!initialData.payerSignature,
+      payerSignatureAt: initialData.payerSignatureAt,
+    } : null,
+    readOnly,
+    lockSectionB,
+  });
+  
   const sectionBLocked = readOnly || lockSectionB; // Section B is always locked for staff
   const sanitizeDate = (value?: string | null) => {
     if (!value) return "";
