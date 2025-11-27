@@ -295,9 +295,14 @@ export async function GET(
 
     // Convert logo to base64 for React PDF
     // Use client_full_logo.jpg for employee-welcome form to match view component
-    const logoFilename = formType === 'employee-welcome' || formType === 'employment-welcome' 
-      ? 'client_full_logo.jpg' 
-      : 'infinity_logo.png';
+    // Use client_full_logo-bg-removed.png for NDIS Code of Conduct form
+    let logoFilename = 'infinity_logo.png';
+    if (formType === 'employee-welcome' || formType === 'employment-welcome') {
+      logoFilename = 'client_full_logo.jpg';
+    } else if (formType === 'ndis-code-of-conduct' || formType === 'ndis_code_of_conduct') {
+      logoFilename = 'client_full_logo-bg-removed.png';
+    }
+    
     const logoPath = path.resolve(process.cwd(), 'public', logoFilename);
     let logoDataUrl = '';
     try {
@@ -307,9 +312,12 @@ export async function GET(
           ? 'image/jpeg' 
           : 'image/png';
         logoDataUrl = `data:${mimeType};base64,${logoBuffer.toString('base64')}`;
+        console.log(`✅ [PDF API] Logo loaded: ${logoFilename}, size: ${logoBuffer.length} bytes`);
+      } else {
+        console.warn(`⚠️ [PDF API] Logo file not found: ${logoPath}`);
       }
     } catch (error) {
-      console.warn('Logo not found, skipping:', error);
+      console.warn('❌ [PDF API] Error loading logo:', error);
     }
 
     // Get app settings for footer (like other staff forms)
@@ -325,10 +333,16 @@ export async function GET(
       }
     });
 
+    // Add logoDataUrl to settings so the PDF component can access it
+    if (logoDataUrl) {
+      settings.logoDataUrl = logoDataUrl;
+      console.log(`✅ [PDF API] Added logoDataUrl to settings, length: ${logoDataUrl.length}`);
+    }
+
     // Add logo and settings to data
     const dataWithLogo = { 
       data: dataWithStaff,
-      logoDataUrl,
+      logoDataUrl, // Also keep at top level for backward compatibility
       settings,
       staffSignature: formData.staffSignature,
       staffSignedAt: formData.staffSignedAt,
@@ -372,6 +386,7 @@ export async function GET(
     
     // Create PDF element - pass both data and images props for consistency with other forms
     console.log('🔵 [PDF API] Creating PDF element with props:', {
+      formType,
       acknowledgmentOnly,
       acknowledgmentOnlyType: typeof acknowledgmentOnly,
       acknowledgmentOnlyValue: acknowledgmentOnly,
@@ -379,6 +394,9 @@ export async function GET(
       hasDataWithLogo: !!dataWithLogo,
       dataWithLogoKeys: Object.keys(dataWithLogo || {}),
       dataKeys: Object.keys(dataWithLogo?.data || {}),
+      hasSettings: !!dataWithLogo?.settings,
+      hasLogoDataUrl: !!dataWithLogo?.settings?.logoDataUrl,
+      logoDataUrlLength: dataWithLogo?.settings?.logoDataUrl ? String(dataWithLogo.settings.logoDataUrl).length : 0,
       hasAcknowledgmentData: !!(dataWithLogo?.data?.acknowledgmentData || (dataWithLogo as any)?.acknowledgmentData),
       acknowledgmentDataKeys: dataWithLogo?.data?.acknowledgmentData ? Object.keys(dataWithLogo.data.acknowledgmentData) : []
     });

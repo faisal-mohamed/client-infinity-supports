@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerLogo: {
-    width: 160,
-    height: 60,
+    width: 250,
+    height: 80,
     objectFit: 'contain',
   },
   headerRight: {
@@ -254,7 +254,10 @@ const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, showB
     !showBlankForm && (payload.date || payload.staffSignedAt) ? formatDate(payload.date || payload.staffSignedAt) : '';
   const versionDateValue = formatVersionDate(payload.versionDate);
 
-  const logoUrl = data?.settings?.logoDataUrl || '/infinity_logo.png';
+  // Use client logo with background removed for NDIS Code of Conduct form
+  // logoDataUrl should be a base64 data URL from the API route (e.g., "data:image/png;base64,...")
+  // Check both settings.logoDataUrl and top-level logoDataUrl for compatibility
+  const logoUrl = data?.settings?.logoDataUrl || data?.logoDataUrl || '';
 
   return (
     <Document>
