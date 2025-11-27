@@ -587,6 +587,27 @@ export default function SuperChoiceForm({
   readOnly = false,
   showButtons = true
 }: SuperChoiceFormProps = {}) {
+  console.log('📝 [Super Choice Form] Component rendered with initialData:', {
+    hasInitialData: !!initialData,
+    initialDataKeys: Object.keys(initialData || {}),
+    initialDataSample: initialData ? {
+      fullName: initialData.fullName,
+      tfn: initialData.tfn,
+      employeeNumber: initialData.employeeNumber,
+      fundChoice: initialData.fundChoice,
+      superFundName: initialData.superFundName,
+      hasSectionBSignature: !!initialData.sectionBSignature,
+      sectionBSignatureType: typeof initialData.sectionBSignature,
+      sectionBSignatureLength: initialData.sectionBSignature ? String(initialData.sectionBSignature).length : 0,
+      sectionBSignaturePreview: initialData.sectionBSignature ? String(initialData.sectionBSignature).substring(0, 50) + '...' : null,
+      sectionBDate: initialData.sectionBDate,
+      hasSectionCSignature: !!initialData.sectionCSignature,
+      hasSectionDSignature: !!initialData.sectionDSignature,
+    } : null,
+    readOnly,
+    showButtons,
+  });
+  
   // Refs for all form fields to enable up/down navigation
   const fullNameRef = React.useRef<HTMLInputElement>(null);
   const employeeNumberRefs = React.useRef<(HTMLInputElement | null)[]>([]);
@@ -609,6 +630,17 @@ export default function SuperChoiceForm({
   const [hasComplianceLetter, setHasComplianceLetter] = useState(initialData.hasComplianceLetter || false);
   const [sectionBSignature, setSectionBSignature] = useState(initialData.sectionBSignature || "");
   const [sectionBDate, setSectionBDate] = useState(initialData.sectionBDate || { day: "", month: "", year: "" });
+  
+  // Log signature state after initialization
+  useEffect(() => {
+    console.log('📝 [Super Choice Form] Signature state initialized:', {
+      hasSectionBSignature: !!sectionBSignature,
+      sectionBSignatureType: typeof sectionBSignature,
+      sectionBSignatureLength: sectionBSignature ? String(sectionBSignature).length : 0,
+      sectionBSignaturePreview: sectionBSignature ? String(sectionBSignature).substring(0, 50) + '...' : null,
+      sectionBDate,
+    });
+  }, []); // Only run once on mount
   
   // Page 3 - Section C: My employer's default super fund
   const [businessName, setBusinessName] = useState(initialData.businessName || "");

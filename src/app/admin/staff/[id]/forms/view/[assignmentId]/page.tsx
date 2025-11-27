@@ -624,16 +624,30 @@ export default function StaffFormViewPageClient() {
       } else if (formKey === 'super_choice_form' || formKey === 'super-choice-form') {
         // Super Choice Form also uses POST endpoint with form data
         console.log('📥 [View Form] Fetching Super Choice Form PDF using POST endpoint');
+        console.log('📥 [View Form] Form data check:', {
+          hasSubmissionData: !!assignment.submissionData,
+          dataKeys: assignment.submissionData ? Object.keys(assignment.submissionData) : [],
+          dataSample: assignment.submissionData ? {
+            fullName: assignment.submissionData.fullName,
+            tfn: assignment.submissionData.tfn,
+            employeeNumber: assignment.submissionData.employeeNumber,
+            fundChoice: assignment.submissionData.fundChoice,
+            hasSectionBSignature: !!assignment.submissionData.sectionBSignature,
+          } : null,
+        });
         
         if (!assignment.submissionData || Object.keys(assignment.submissionData).length === 0) {
+          console.error('📥 [View Form] ERROR: No form data available for PDF generation');
           throw new Error('Form data is required to generate PDF. Please ensure the form has been submitted.');
         }
         
+        console.log('📥 [View Form] Sending POST request to /api/generate-pdf/super-choice-form');
         response = await fetch('/api/generate-pdf/super-choice-form', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(assignment.submissionData),
         });
+        console.log('📥 [View Form] POST response status:', response.status, response.ok);
       } else if (formKey === 'ndis_workforce_capability') {
         // NDIS form merges framework PDF with acknowledgement
         response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
@@ -1948,8 +1962,9 @@ export default function StaffFormViewPageClient() {
               formKey: assignment.form.formKey,
             });
             
-            // Special handling for govt_tax form - it expects initialData prop instead of data
+            // Special handling for forms that expect initialData prop instead of data
             const isGovtTaxForm = assignment.form.formKey === 'govt_tax' || assignment.form.formKey === 'govt-tax';
+            const isSuperChoiceForm = assignment.form.formKey === 'super_choice_form' || assignment.form.formKey === 'super-choice-form';
             
             return (
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
@@ -1961,15 +1976,22 @@ export default function StaffFormViewPageClient() {
                     lockSectionB={true}
                     showButtons={false}
                   />
+                ) : isSuperChoiceForm ? (
+                  <FormViewComponent
+                    initialData={assignment.submissionData || {}}
+                    onDataChange={() => {}}
+                    readOnly={true}
+                    showButtons={false}
+                  />
                 ) : (
-                <FormViewComponent
-                  data={assignment.submissionData}
-                  staff={assignment.staff}
-                  isAdminView={true}
-                  commonFields={commonFields}
-                  settings={settings}
-                  staffId={staffId}
-                />
+                  <FormViewComponent
+                    data={assignment.submissionData}
+                    staff={assignment.staff}
+                    isAdminView={true}
+                    commonFields={commonFields}
+                    settings={settings}
+                    staffId={staffId}
+                  />
                 )}
               </div>
             );

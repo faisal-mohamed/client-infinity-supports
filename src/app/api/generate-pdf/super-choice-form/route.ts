@@ -8,12 +8,31 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     
+    console.log('📄 [Super Choice PDF] PDF generation request received');
+    console.log('📄 [Super Choice PDF] FormData received:', {
+      hasData: !!formData,
+      dataType: typeof formData,
+      dataKeys: formData ? Object.keys(formData) : [],
+      dataSample: formData ? {
+        fullName: formData.fullName,
+        tfn: formData.tfn,
+        employeeNumber: formData.employeeNumber,
+        fundChoice: formData.fundChoice,
+        superFundName: formData.superFundName,
+        hasSectionBSignature: !!formData.sectionBSignature,
+        sectionBDate: formData.sectionBDate,
+      } : null,
+    });
+    
     if (!formData || Object.keys(formData).length === 0) {
+      console.error('📄 [Super Choice PDF] ERROR: No form data provided!');
       return NextResponse.json({ error: 'Form data is required' }, { status: 400 });
     }
 
     // Generate HTML content for all pages
+    console.log('📄 [Super Choice PDF] Generating HTML content...');
     const htmlContent = generateSuperChoiceFormHTML(formData);
+    console.log('📄 [Super Choice PDF] HTML content generated, length:', htmlContent.length);
     
     // Launch Playwright browser
     const browser = await chromium.launch();
@@ -57,6 +76,8 @@ export async function POST(request: NextRequest) {
     
     // Get PDF buffer
     const pdfBuffer = Buffer.from(pdf.output('arraybuffer'));
+    console.log('📄 [Super Choice PDF] PDF buffer generated, size:', pdfBuffer.length, 'bytes');
+    console.log('📄 [Super Choice PDF] Total pages:', screenshots.length);
     
     return new NextResponse(pdfBuffer, {
       headers: {
@@ -65,9 +86,10 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
+  } catch (error: any) {
+    console.error('📄 [Super Choice PDF] PDF generation error:', error);
+    console.error('📄 [Super Choice PDF] Error stack:', error.stack);
+    return NextResponse.json({ error: 'Failed to generate PDF', details: error.message }, { status: 500 });
   }
 }
 
