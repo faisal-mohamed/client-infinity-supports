@@ -71,16 +71,19 @@ const styles = StyleSheet.create({
   },
   fieldRow: {
     flexDirection: 'row',
-    marginBottom: 8,
-    alignItems: 'flex-start',
+    borderBottom: '1 solid #000000',
+    borderLeft: '1 solid #000000',
+    borderRight: '1 solid #000000',
+    minHeight: 32,
     breakInside: 'auto', // Allow breaking if needed
   },
   fieldLabel: {
     width: 140,
-    fontWeight: 'bold',
-    fontSize: 9,
-    color: '#374151',
-    paddingRight: 8,
+    padding: 8,
+    backgroundColor: '#f3f4f6', // Gray background for labels
+    borderRight: '1 solid #000000',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   fieldValue: {
     flex: 1,
@@ -89,12 +92,12 @@ const styles = StyleSheet.create({
     wrap: true,
   },
   fieldBox: {
-    border: '1 solid #9ca3af',
     minHeight: 28,
-    padding: 6,
+    padding: 8,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-start',
+    backgroundColor: '#ffffff', // White background for input fields
   },
   paragraph: {
     fontSize: 10,
@@ -176,6 +179,25 @@ const styles = StyleSheet.create({
     breakInside: 'auto',
     wrap: true,
   },
+  underlinedInput: {
+    marginTop: 8,
+    marginBottom: 20, // Increased margin to prevent overlap with next section
+    breakInside: 'auto',
+  },
+  underlinedInputLine: {
+    borderBottom: '1 solid #000000', // Underline for each line
+    paddingBottom: 2,
+    marginBottom: 4, // Smaller space between lines for continuous appearance
+    minHeight: 20,
+    width: '100%',
+  },
+  underlinedInputText: {
+    fontSize: 10,
+    lineHeight: 1.6,
+    fontWeight: 'bold', // Slightly bold
+    color: '#111827',
+    wrap: true,
+  },
   signatureRow: {
     flexDirection: 'row',
     gap: 16,
@@ -250,12 +272,43 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
   };
 
   // Helper to format date
-  const formatDate = (dateStr: string): string => {
+  // FIX: Handle timezone issues by always extracting date part and parsing as local date
+  const formatDate = (dateStr: string | undefined | null): string => {
     if (!dateStr) return '';
     try {
+      // Extract date part from string (handles both "2025-11-26" and "2025-11-26T00:00:00.000Z")
+      let datePart = dateStr;
+      if (typeof dateStr === 'string' && dateStr.includes('T')) {
+        datePart = dateStr.split('T')[0];
+      }
+      
+      // Check if it's in YYYY-MM-DD format
+      if (typeof datePart === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        const [year, month, day] = datePart.split('-').map(Number);
+        // Create date using local timezone (month is 0-indexed)
+        const date = new Date(year, month - 1, day);
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString('en-AU', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      }
+      
+      // Fallback: try to parse the original string
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
-      return date.toLocaleDateString('en-AU');
+      
+      // Extract date components and create new local date to avoid timezone issues
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const localDate = new Date(year, month - 1, day);
+      return localDate.toLocaleDateString('en-AU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
     } catch {
       return dateStr;
     }
@@ -323,29 +376,38 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
           {/* Section 1: Pre-Employment Medical Examination Consent Form */}
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Pre-Employment Medical Examination Consent Form</Text>
-          <View style={styles.contentBox}>
+          {/* Table format: labels in gray left column, inputs in white right column */}
+          <View style={{ borderTop: '1 solid #000000' }}>
             <View style={styles.fieldRow}>
-              <Text style={styles.fieldLabel}>Full Name:</Text>
+              <View style={styles.fieldLabel}>
+                <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Full Name:</Text>
+              </View>
               <View style={styles.fieldBox}>
-                  <Text style={styles.fieldValue}>
-                    {getValue('fullName') || `${staff?.firstName || ''} ${staff?.surname || ''}`.trim()}
-                  </Text>
-                </View>
+                <Text style={styles.fieldValue}>
+                  {getValue('fullName') || `${staff?.firstName || ''} ${staff?.surname || ''}`.trim()}
+                </Text>
+              </View>
             </View>
             <View style={styles.fieldRow}>
-              <Text style={styles.fieldLabel}>Address:</Text>
+              <View style={styles.fieldLabel}>
+                <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Address:</Text>
+              </View>
               <View style={styles.fieldBox}>
                 <Text style={styles.fieldValue}>{getValue('address')}</Text>
               </View>
             </View>
             <View style={styles.fieldRow}>
-              <Text style={styles.fieldLabel}>Date of Birth:</Text>
+              <View style={styles.fieldLabel}>
+                <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Date of Birth:</Text>
+              </View>
               <View style={styles.fieldBox}>
                 <Text style={styles.fieldValue}>{formatDate(getValue('dateOfBirth'))}</Text>
               </View>
             </View>
             <View style={styles.fieldRow}>
-              <Text style={styles.fieldLabel}>Position Applied For:</Text>
+              <View style={styles.fieldLabel}>
+                <Text style={{ fontWeight: 'bold', fontSize: 9, color: '#111827' }}>Position Applied For:</Text>
+              </View>
               <View style={styles.fieldBox}>
                 <Text style={styles.fieldValue}>{getValue('positionApplied')}</Text>
               </View>
@@ -451,12 +513,95 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
             <Text style={styles.paragraph}>
               Should any alteration, change or rearrangement be necessary to enable you to effectively carry out the inherent requirements of the position, we also request that you disclose these requirements.
             </Text>
-            <Text style={[styles.fieldLabel, { marginTop: 8, marginBottom: 6, width: 'auto' }]}>
+            <Text style={[styles.fieldLabel, { marginTop: 8, marginBottom: 8, width: 'auto' }]}>
               Please disclose in the space below any pre-existing injuries or diseases that you suffer from, or have suffered from, which could be affected by the nature of your proposed employment with Infinity Supports WA (attach a separate page if necessary).
             </Text>
-            <View style={styles.textArea}>
-              <Text style={styles.fieldValue}>{getValue('preExistingConditions')}</Text>
-            </View>
+             {/* Underlined input style - each line of text gets its own underline */}
+             <View style={styles.underlinedInput}>
+               {(() => {
+                 const text = getValue('preExistingConditions') || '';
+                 
+                 // Helper function to split long lines into multiple lines based on estimated width
+                 // Approximate: ~80-90 characters per line for A4 page with padding
+                 const charsPerLine = 85;
+                 
+                 let allLines: string[] = [];
+                 
+                 if (text && text.trim()) {
+                   // First, split by explicit newlines (user pressed Enter)
+                   const explicitLines = text.split('\n');
+                   
+                   // For each explicit line, check if it needs to be split further
+                   explicitLines.forEach(line => {
+                     const trimmedLine = line.trim();
+                     if (!trimmedLine) {
+                       // Empty line - keep it
+                       allLines.push('');
+                     } else if (trimmedLine.length <= charsPerLine) {
+                       // Line fits in one underline - keep as is
+                       allLines.push(trimmedLine);
+                     } else {
+                       // Line is too long - split into multiple lines
+                       // Split by words to avoid breaking words
+                       const words = trimmedLine.split(/\s+/);
+                       let currentLine = '';
+                       
+                       words.forEach(word => {
+                         const testLine = currentLine ? `${currentLine} ${word}` : word;
+                         if (testLine.length <= charsPerLine) {
+                           currentLine = testLine;
+                         } else {
+                           // Current line is full, start new line
+                           if (currentLine) {
+                             allLines.push(currentLine);
+                           }
+                           // If single word is longer than charsPerLine, split it
+                           if (word.length > charsPerLine) {
+                             // Split long word into chunks
+                             for (let i = 0; i < word.length; i += charsPerLine) {
+                               allLines.push(word.substring(i, i + charsPerLine));
+                             }
+                             currentLine = '';
+                           } else {
+                             currentLine = word;
+                           }
+                         }
+                       });
+                       // Add remaining line
+                       if (currentLine) {
+                         allLines.push(currentLine);
+                       }
+                     }
+                   });
+                 }
+                 
+                 // Show minimum 3 lines for form-like appearance, max 15 lines
+                 const minLines = 3;
+                 const maxLines = 15;
+                 
+                 // If no text, show empty lines
+                 if (allLines.length === 0) {
+                   allLines = Array(minLines).fill('');
+                 } else if (allLines.length < minLines) {
+                   // Add empty lines if less than minimum
+                   while (allLines.length < minLines) {
+                     allLines.push('');
+                   }
+                 }
+                 
+                 // Limit to max lines
+                 const displayLines = allLines.slice(0, maxLines);
+                 
+                 // Render each line with its own underline
+                 return displayLines.map((line, index) => (
+                   <View key={index} style={styles.underlinedInputLine}>
+                     <Text style={styles.underlinedInputText}>{line || '\u00A0'}</Text>
+                   </View>
+                 ));
+               })()}
+             </View>
+            {/* Extra spacing to prevent overlap with next section */}
+            <View style={{ marginBottom: 15 }} />
           </View>
         </View>
 
