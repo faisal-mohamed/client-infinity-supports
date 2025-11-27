@@ -22,6 +22,7 @@ import NdisWorkforceCapabilityAcknowledgementOverlay from '@/app/form-components
 import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import AdminEditWarningModal from '@/components/ui/AdminEditWarningModal';
+import OrientationView from '@/app/form-components/staff/orientation/View';
 
 // Types
 interface StaffFormAssignmentData {
@@ -954,6 +955,9 @@ export default function StaffFormViewPageClient() {
   // Check if this is Documentation Acknowledgement form - use PDF viewer (matches download)
   const isDocumentationAcknowledgementForm = assignment.form.formKey === 'documentation_acknowledgement';
   
+  // Check if this is Orientation form - use acknowledgement form component only (not full PDF)
+  const isOrientationForm = assignment.form.formKey === 'orientation';
+  
   console.log('🎨 [View Form] Rendering decision:', {
     formKey: assignment.form.formKey,
     isEmployeeDetailsForm,
@@ -966,8 +970,9 @@ export default function StaffFormViewPageClient() {
     isSupportWorkerForm,
     isPreEmploymentMedicalForm,
     isDocumentationAcknowledgementForm,
+    isOrientationForm,
     willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm || isPreEmploymentMedicalForm || isDocumentationAcknowledgementForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm && !isPreEmploymentMedicalForm && !isDocumentationAcknowledgementForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm && !isPreEmploymentMedicalForm && !isDocumentationAcknowledgementForm && !isOrientationForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1953,6 +1958,20 @@ export default function StaffFormViewPageClient() {
               />
             </div>
           </div>
+        ) : isOrientationForm ? (
+          /* Use OrientationView component for Orientation form - shows acknowledgement form only (not full PDF) */
+          (() => {
+            console.log('📋 [View Form] Rendering Orientation acknowledgement form only');
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden p-2 md:p-6">
+                <OrientationView
+                  data={assignment.submissionData || {}}
+                  acknowledgementMode="readonly"
+                  showDocument={false}
+                />
+              </div>
+            );
+          })()
         ) : (
           /* Use regular form component for other forms */
           (() => {
