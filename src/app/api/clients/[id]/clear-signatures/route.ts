@@ -42,7 +42,11 @@ export async function POST(
           const requiredSignatures = signatures.filter(sig => sig.required);
           
           // Clear signature data from form data
-          const updatedData = { ...submission.data };
+          const submissionData = submission.data;
+          let updatedData: Record<string, any> = {};
+          if (submissionData && typeof submissionData === 'object' && !Array.isArray(submissionData)) {
+            updatedData = Object.assign({}, submissionData as Record<string, any>);
+          }
           let hadSignatures = false;
           
           signatures.forEach(sig => {

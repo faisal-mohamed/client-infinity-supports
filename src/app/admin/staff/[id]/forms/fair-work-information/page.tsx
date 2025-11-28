@@ -5,13 +5,17 @@ import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import FairWorkInformationView from "@/app/form-components/staff/fair-work-information/View";
 import LoadingView from '@/components/ui/LoadingView';
+import { useToast } from '@/components/ui/Toast';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
 
 export default function StaffFairworkInformationView() {
   const { id } = useParams<{ id: string }>();
   const staffId = parseInt(id);
+  const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!staffId) return;
@@ -33,9 +37,6 @@ export default function StaffFairworkInformationView() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  const { showToast } = useToast();
-  const [downloading, setDownloading] = useState(false);
 
   const handleDownload = async () => {
     setDownloading(true);

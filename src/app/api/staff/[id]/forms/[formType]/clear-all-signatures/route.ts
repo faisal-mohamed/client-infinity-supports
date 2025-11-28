@@ -308,8 +308,12 @@ export async function POST(
 
     // Clear from generic submissions table
     if (submission) {
-      const submissionData = submission.data || {};
-      let updatedData = { ...submissionData };
+      const submissionData = submission.data;
+      // Ensure we have an object to work with (Prisma JsonValue can be various types)
+      let updatedData: Record<string, any> = {};
+      if (submissionData && typeof submissionData === 'object' && !Array.isArray(submissionData)) {
+        updatedData = Object.assign({}, submissionData as Record<string, any>);
+      }
       
       // Remove ONLY signature-related fields (signatures and signature dates) - keep all other admin-filled data
       if (formKey === 'bullying_training') {

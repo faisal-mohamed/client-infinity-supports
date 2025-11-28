@@ -45,7 +45,10 @@ export async function GET(
       });
     }
 
-    const formData = { ...(submission.data || {}) };
+    const submissionData = submission.data;
+    const formData: Record<string, any> = (submissionData && typeof submissionData === 'object' && !Array.isArray(submissionData))
+      ? Object.assign({}, submissionData as Record<string, any>)
+      : {};
 
     if (!formData.staffName) {
       formData.staffName = `${staff.firstName || ''} ${staff.surname || ''}`.trim();

@@ -71,7 +71,7 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
 
   console.log('📋 [EmployeeDetailsPDF] Rendering sections...');
   console.log('📋 [EmployeeDetailsPDF] Section count: 8 sections');
-  
+
   return (
     <BasePDFLayout title="Employee Details Form" logo={logoUrl} meta={meta}>
       <View style={styles.mainContainer}>
@@ -165,11 +165,11 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
         </PDFSection>
 
         <View style={styles.signatureSpacer}>
-          <PDFSignatureBlock
-            label="Employee Signature"
-            image={data?.staffSignature}
-            date={data?.staffSignedAt}
-          />
+        <PDFSignatureBlock
+          label="Employee Signature"
+          image={data?.staffSignature}
+          date={data?.staffSignedAt}
+        />
         </View>
 
         <PDFSection title="Office Use Only" wrap={false} marginBottom={18} minPresenceAhead={120}>
@@ -199,11 +199,11 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
         {/* Admin Signature - Only show if admin has signed */}
         {data?.adminSignature && (
           <View style={styles.signatureSpacer}>
-            <PDFSignatureBlock
-              label="Admin Signature"
-              image={data?.adminSignature}
-              date={data?.adminSignedAt}
-            />
+          <PDFSignatureBlock
+            label="Admin Signature"
+            image={data?.adminSignature}
+            date={data?.adminSignedAt}
+          />
           </View>
         )}
       </View>

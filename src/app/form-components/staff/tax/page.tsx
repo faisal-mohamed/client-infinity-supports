@@ -667,21 +667,14 @@ function OverlaySquareRadioGroupFour({
 
 
 // ✅ Main Form
-interface TFNOverlayFormProps {
-  initialData?: any;
-  onDataChange?: (data: any) => void;
-  readOnly?: boolean;
-  showButtons?: boolean;
-  lockSectionB?: boolean;
-}
-
-export default function TFNOverlayForm({ 
-  initialData = {}, 
-  onDataChange, 
-  readOnly = false, 
-  showButtons = true,
-  lockSectionB = true, // Default to true - staff only fills Section A
-}: TFNOverlayFormProps = {}) {
+export default function TFNOverlayForm(props: any = {}) {
+  const {
+    initialData = {},
+    onDataChange,
+    readOnly = false,
+    showButtons = true,
+    lockSectionB = true, // Default to true - staff only fills Section A
+  } = props;
   console.log('📝 [TFN Form] Component rendered with initialData:', {
     hasInitialData: !!initialData,
     initialDataKeys: Object.keys(initialData || {}),

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getStaffFormComponent } from '@/app/forms/staff-registry';
 import { useToast } from '@/components/ui/Toast';
 import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+import LoadingView from '@/components/ui/LoadingView';
 
 export default function StaffSuperChoiceFormView() {
   const { id } = useParams<{ id: string }>();

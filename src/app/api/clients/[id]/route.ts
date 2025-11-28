@@ -140,7 +140,11 @@ export async function PUT(
           const requiredSignatures = signatures;
           
           // Clear signature data from form data
-          const updatedData = { ...submission.data };
+          const submissionData = submission.data;
+          let updatedData: Record<string, any> = {};
+          if (submissionData && typeof submissionData === 'object' && !Array.isArray(submissionData)) {
+            updatedData = Object.assign({}, submissionData as Record<string, any>);
+          }
           let hadSignatures = false;
           
           signatures.forEach(sig => {

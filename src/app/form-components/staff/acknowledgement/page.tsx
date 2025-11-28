@@ -1,17 +1,8 @@
 "use client";
 import React from "react";
 
-interface DocumentationAcknowledgementProps {
-  formData?: {
-    staffName?: string;
-    signature?: string;
-    date?: string;
-  };
-}
-
-export default function DocumentationAcknowledgement({
-  formData = {},
-}: DocumentationAcknowledgementProps) {
+export default function DocumentationAcknowledgement(props: any = {}) {
+  const formData = props.formData || {};
   return (
     <div className="bg-white min-h-screen flex justify-center items-start pt-10 px-4 font-['Open_Sans']">
       <div className="max-w-3xl w-full">

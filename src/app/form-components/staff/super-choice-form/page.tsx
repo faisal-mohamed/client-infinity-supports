@@ -574,19 +574,13 @@ const DateInput = ({
   );
 };
 
-interface SuperChoiceFormProps {
-  initialData?: any;
-  onDataChange?: (data: any) => void;
-  readOnly?: boolean;
-  showButtons?: boolean;
-}
-
-export default function SuperChoiceForm({
-  initialData = {},
-  onDataChange,
-  readOnly = false,
-  showButtons = true
-}: SuperChoiceFormProps = {}) {
+export default function SuperChoiceForm(props: any = {}) {
+  const {
+    initialData = {},
+    onDataChange,
+    readOnly = false,
+    showButtons = true
+  } = props;
   console.log('📝 [Super Choice Form] Component rendered with initialData:', {
     hasInitialData: !!initialData,
     initialDataKeys: Object.keys(initialData || {}),
