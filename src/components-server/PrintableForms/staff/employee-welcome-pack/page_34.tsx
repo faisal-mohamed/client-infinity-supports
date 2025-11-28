@@ -28,20 +28,23 @@ const Page34: React.FC = () => {
       <Text style={styles.subsection}>11.3 Bullying</Text>
       
       <Text style={styles.paragraph}>
-        Bullying is repeated, offensive, abusive, intimidating, insulting or unreasonable behaviour directed 
-        towards an individual or a group, which makes the recipient(s) feel threatened, humiliated or 
-        vulnerable. Single incidents of bullying will not be tolerated.
+      Bullying is repeated, offensive, abusive, intimidating, insulting or 
+      unreasonable behaviour directed towards an individual or a group, which makes
+       the recipient(s) feel threatened, humiliated or vulnerable. Note single 
+       incidents of bullying will not be tolerated. 
       </Text>
       
       <Text style={styles.paragraph}>
-        Bullying can happen in the workplace and outside of the workplace at events connected to the 
-        workplace, such as social functions or business trips. It can be a form of harassment and cause an 
-        individual to suffer negative physical and mental effects. It can take the form of physical, verbal 
-        and non-verbal conduct.
+      Bullying can occur in the workplace and outside of the workplace at events 
+      connected to the workplace, such as social functions or business trips. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        Examples of bullying include:
+      Bullying can be a form of harassment and can cause an individual to suffer negative physical and mental effects. 
+      </Text>
+      <Text style={styles.paragraph}>Bullying can take the form of physical, verbal and non-verbal conduct. As with harassment, there are many examples of bullying,
+         which can include: 
       </Text>
       
       <Text style={styles.listItem}>• abusive, insulting or offensive language or comments;</Text>
@@ -55,11 +58,10 @@ const Page34: React.FC = () => {
       </Text>
       
       <Text style={styles.paragraph}>
-        These examples are not exhaustive and disciplinary action at the appropriate level will be taken 
-        against employees committing any form of bullying. Appropriate action in relation to an employee 
-        will include disciplinary action in accordance with the Employer's disciplinary and disciplinary 
-        termination procedure. For other workers, appropriate action may include termination of their 
-        engagement with the Employer.
+      These examples are not exhaustive and disciplinary action at the appropriate level will be taken against employees committing any form of bullying. 
+      Appropriate action in relation to an employee will include disciplinary action in accordance 
+      with the Employer’s disciplinary and disciplinary termination procedure. For other workers, 
+      appropriate action may include termination of their engagement with the Employer. 
       </Text>
       
       <Text style={styles.subsection}>11.4 Bullying & Harassment Complaint Procedure</Text>
