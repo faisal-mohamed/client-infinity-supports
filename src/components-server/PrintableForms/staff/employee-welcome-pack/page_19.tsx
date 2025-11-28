@@ -40,7 +40,7 @@ const Page19: React.FC = () => {
       <Text style={styles.subsection}>5.3 Rules Covering Unsatisfactory Conduct and Misconduct</Text>
       
       <Text style={styles.paragraph}>
-        The following are examples of matters that will normally give rise to disciplinary action:
+      You will be liable to disciplinary action if you are found to have acted in any of the following ways: 
       </Text>
       
       <Text style={styles.listItem}>
@@ -49,8 +49,9 @@ const Page19: React.FC = () => {
       </Text>
       
       <Text style={styles.listItem}>
-        • Action, negligence or behaviour likely to result in injury to yourself, a fellow employee or 
-        a member of the public.
+        • Actions which could threaten the health and safety of yourself, your colleagues or others; 
+
+
       </Text>
       
       <Text style={styles.listItem}>

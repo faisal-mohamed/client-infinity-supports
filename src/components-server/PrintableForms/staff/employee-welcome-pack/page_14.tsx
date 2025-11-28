@@ -25,42 +25,39 @@ const styles = StyleSheet.create({
 const Page14: React.FC = () => {
   return (
     <View>
-      <Text style={styles.paragraph}>
-        Any deliberate or persistent breaches of this policy may result in disciplinary action being 
-        taken against you.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        If you are in any doubt whether any aspect of your appearance or attire is appropriate for 
-        your job role you should contact management.
-      </Text>
+ 
       
       <Text style={styles.subsection}>3.16 Whistleblowers</Text>
       
       <Text style={styles.paragraph}>
-        It is important to the Employer that any fraud, misconduct or wrongdoing by workers or officers 
-        of the Employer is reported and properly dealt with. We therefore encourage all individuals to 
-        raise any concerns that they may have about the conduct of others in the business or the way in 
-        which the business is run. This policy sets out the way in which individuals may raise any 
-        concerns that they have and how those concerns will be dealt with.
+        If you believe that the Employer or any of its officers or employees is 
+        involved in any form of wrongdoing such as:
+      </Text>
+      
+      <Text style={styles.listItem}>• committing a criminal offence;</Text>
+      
+      <Text style={styles.listItem}>• failing to comply with a legal obligation;</Text>
+      
+      <Text style={styles.listItem}>• endangering the health and safety of an individual;</Text>
+      
+      <Text style={styles.listItem}>• environmental damage; or</Text>
+      
+      <Text style={styles.listItem}>• concealing any information relating to the above,</Text>
+      
+      <Text style={styles.paragraph}>
+        You should, in the first instance, report your concerns to management who will 
+        treat the matter with complete confidence. If you are not satisfied with the 
+        explanation or reason given to you, you should raise the matter with the 
+        appropriate organisation or body, e.g. the police, the Environment Protection 
+        Agency or Work Cover.
       </Text>
       
       <Text style={styles.paragraph}>
-        You may raise your concerns with your manager or, if you feel unable to do so, with the directors. 
-        You should provide as much detail as possible about the wrongdoing including dates, times, and 
-        names of those involved.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        The matters raised may include: committing a criminal offence; failing to comply with a legal 
-        obligation; endangering the health and safety of an individual; damaging the environment; or 
-        concealing information relating to any of the above.
-      </Text>
-      
-      <Text style={styles.paragraph}>
-        You will not suffer any detriment for raising a genuine concern. However, this procedure should 
-        not be used for making trivial or vexatious allegations and the making of such may result in 
-        disciplinary action.
+        You will not suffer any detriment as a result of any genuine 
+        attempt to bring to light matters of concern. However,
+         if this procedure has not been invoked in good faith 
+         (eg for malicious reasons or in pursuit of a personal grudge), 
+         then you may be subject to disciplinary action up to and including termination.
       </Text>
       
       <Text style={styles.subsection}>3.17 EAP (Employee Assistance Program)</Text>

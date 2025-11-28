@@ -54,17 +54,16 @@ steps and move immediately to a first and final written warning but not a summar
       <Text style={styles.subsection}>5.6 Duration of Warnings</Text>
       
       <Text style={styles.paragraph}>
-        i) Formal verbal warning – This will be disregarded for disciplinary purposes after a six-month 
-        period.
+        i) Formal verbal warning – A formal verbal warning will normally be disregarded for disciplinary purposes after a six-month period. 
+
       </Text>
       
       <Text style={styles.paragraph}>
-        ii) Written warning – This will be disregarded for disciplinary purposes after a 12-month period.
+        ii) Written warning – A written warning will normally be disregarded for disciplinary purposes after a 12-month period
       </Text>
       
       <Text style={styles.paragraph}>
-        iii) Final written warning – This will be disregarded for disciplinary purposes after an 18-month 
-        period.
+        iii) Final written warning – A final written warning will normally be disregarded for disciplinary purposes after an 18-month period. 
       </Text>
       
       <Text style={styles.subsection}>5.7 General Notes</Text>

@@ -62,7 +62,7 @@ will process pays prior to 12.00 pm on Fridays on a fortnightly basis.
       <Text style={styles.subsection}>4.3 Pay reviews</Text>
       
       <Text style={styles.paragraph}>
-        Your pay is reviewed annually and increased in accordance with minimum wage or award requirements. 
+        Pay is reviewed annually and increased in accordance with minimum wage or award requirements. 
         However, there is no guarantee that you will receive an increase in your pay because of any review.
       </Text>
       
