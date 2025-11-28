@@ -309,8 +309,8 @@ export default function StaffFormsPageClient() {
     }
   };
 
-  // Download PDF function
-  const handleDownloadPDF = async (assignment: FormAssignmentWithDetails) => {
+  // Download PDF function - returns a promise so dropdown can close after completion
+  const handleDownloadPDF = async (assignment: FormAssignmentWithDetails): Promise<void> => {
     if (!assignment.hasSubmission || !assignment.submissionId) {
       showToast({
         type: 'error',
@@ -324,10 +324,85 @@ export default function StaffFormsPageClient() {
     try {
       setDownloadingPDF(assignment.id);
       
-      const response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
+      // Convert formKey from snake_case to kebab-case for API endpoint
+      const formKey = assignment.form.formKey;
+      let formType = formKey.replace(/_/g, '-');
+      
+      // Handle special cases where PDF endpoint name differs from form key
+      let pdfFormType = formType;
+      if (formKey === 'employee_details' || formKey === 'employment_details') {
+        pdfFormType = 'employee-details'; // PDF uses 'employee-details'
+      }
+      
+      let response;
+      
+      // Check if form has a specific PDF route (same logic as form view page)
+      if (formKey === 'govt_tax' || formKey === 'govt-tax') {
+        // TFN Declaration uses POST endpoint with form data
+        // Need to fetch form data first
+        const formDataRes = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}`);
+        if (!formDataRes.ok) {
+          throw new Error('Failed to fetch form data');
+        }
+        const formData = await formDataRes.json();
+        
+        response = await fetch('/api/generate-pdf/tax-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData.data || formData),
+        });
+      } else if (formKey === 'super_choice_form' || formKey === 'super-choice-form') {
+        // Super Choice Form also uses POST endpoint with form data
+        const formDataRes = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}`);
+        if (!formDataRes.ok) {
+          throw new Error('Failed to fetch form data');
+        }
+        const formData = await formDataRes.json();
+        
+        response = await fetch('/api/generate-pdf/super-choice-form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData.data || formData),
+        });
+      } else if (formKey === 'ndis_workforce_capability') {
+        // NDIS form merges framework PDF with acknowledgement
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
+        
+        // If that fails, try without merge
+        if (!response.ok) {
+          response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+        }
+      } else if (formKey === 'bullying_harassment_training') {
+        // Bullying Harassment Training returns only acknowledgement form PDF (no merge)
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+      } else if (formKey === 'vehicle_safety_inspection') {
+        // Vehicle Safety Inspection returns only acknowledgment form PDF for admin
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?acknowledgmentOnly=true`);
+      } else {
+        // Use the generic staff PDF endpoint for other forms
+        response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+        
+        // If generic endpoint fails, try the generic PDF generation endpoint as fallback
+        if (!response.ok) {
+          response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
+        }
+      }
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorText = await response.text().catch(() => '');
+        let errorMessage = 'Unable to generate PDF';
+        
+        // Parse error response
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorData.error || errorData.details || errorMessage;
+        } catch {
+          if (errorText && errorText.trim()) {
+            errorMessage = errorText.length > 100 ? 'Failed to generate PDF. Please try again.' : errorText;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
       
       const blob = await response.blob();

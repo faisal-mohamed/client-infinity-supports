@@ -480,9 +480,30 @@ export default function FormItem({
               clientId={clientId}
               assignmentId={assignment.id}
               hasSubmission={assignment.hasSubmission}
-              onDownloadPDF={() => onDownloadPDF(assignment)}
+              onDownloadPDF={async () => {
+                // Don't close dropdown immediately - let download complete first
+                try {
+                  await onDownloadPDF(assignment);
+                  // Close dropdown after download completes successfully
+                  setActiveActionMenu(false);
+                } catch (error) {
+                  // Close dropdown even on error
+                  setActiveActionMenu(false);
+                }
+              }}
               downloadingPDF={downloadingPDF === assignment.id}
-              onDeleteClick={handleDeleteFormAssignment}
+              onDeleteClick={async () => {
+                // Don't close dropdown immediately - let delete complete first
+                try {
+                  await handleDeleteFormAssignment();
+                  // Close dropdown after delete completes successfully
+                  setActiveActionMenu(false);
+                } catch (error) {
+                  // Close dropdown even on error
+                  setActiveActionMenu(false);
+                }
+              }}
+              deletingForm={isDeleting}
               // Show Generate Link only for emergency_drill
               showGenerateLink={assignment.form.formKey === 'emergency_drill'}
               onGenerateLinkClick={generateEmergencyDrillLink}

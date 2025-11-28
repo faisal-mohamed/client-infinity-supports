@@ -14,7 +14,8 @@ interface FormActionDropdownProps {
   hasSubmission: boolean;
   onDownloadPDF: () => void;
   downloadingPDF: boolean;
-  onDeleteClick:  any
+  onDeleteClick:  any;
+  deletingForm?: boolean; // Loading state for delete action
   // Optional emergency-drill specific action
   onGenerateLinkClick?: () => void;
   showGenerateLink?: boolean;
@@ -34,6 +35,7 @@ export default function FormActionDropdown({
   onDownloadPDF,
   downloadingPDF,
   onDeleteClick,
+  deletingForm = false,
   onGenerateLinkClick,
   showGenerateLink,
   generatingLink,
@@ -50,9 +52,11 @@ export default function FormActionDropdown({
     onClose();
   }
 
-  const handleDownloadClick = () => {
+  const handleDownloadClick = async () => {
+    // Don't close immediately - let the download function handle closing after completion
+    // This allows the user to see the loading state
     onDownloadPDF();
-    onClose();
+    // Note: We'll close the dropdown after download completes in the parent component
   };
 
   const handleGenerateLinkClick = () => {
@@ -86,7 +90,10 @@ export default function FormActionDropdown({
           <Link
             href={isStaff ? `/admin/staff/${clientId}/forms/view/${assignmentId}` : `/admin/clients/${clientId}/forms/view/${assignmentId}`}
             className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-2 font-montserrat"
-            onClick={onClose}
+            onClick={() => {
+              // Close dropdown when navigation starts
+              setTimeout(() => onClose(), 100);
+            }}
           >
             <div className="p-2 rounded-lg bg-green-100 text-green-600">
               <FaEye className="h-4 w-4" />
@@ -130,12 +137,17 @@ export default function FormActionDropdown({
 
       <button
         onClick={handleDeleteClick}
-        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat"
+        disabled={deletingForm || disabled}
+        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-700 transition-all duration-200 w-full text-left rounded-lg mx-2 font-montserrat disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="p-2 rounded-lg bg-red-100 text-red-600">
-          <FaTrash className="h-4 w-4" />
+          {deletingForm ? (
+            <FaSpinner className="h-4 w-4 animate-spin" />
+          ) : (
+            <FaTrash className="h-4 w-4" />
+          )}
         </div>
-        <span>Delete Form</span>
+        <span>{deletingForm ? 'Deleting...' : 'Delete Form'}</span>
       </button>
     </Dropdown>
   );
