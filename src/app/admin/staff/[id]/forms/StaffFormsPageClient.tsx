@@ -15,6 +15,7 @@ import SignatureLinkModal from '@/app/components/components/client-forms/Signatu
 
 import { FormAssignmentWithDetails, ClientInfo, AvailableForm } from '@/app/admin/clients/[id]/forms/types';
 import { useSession } from 'next-auth/react';
+import StaffCommonFieldsWarningModal from '@/components/StaffCommonFieldsWarningModal';
 
 export default function StaffFormsPageClient() {
   const params = useParams();
@@ -49,6 +50,9 @@ export default function StaffFormsPageClient() {
     forms: { formTitle: string; formKey: string }[];
     expiresAt: string;
   } | null>(null);
+
+  // Common fields warning modal state
+  const [showCommonFieldsWarning, setShowCommonFieldsWarning] = useState(false);
 
   // Calculate statistics
   const stats = {
@@ -458,7 +462,10 @@ export default function StaffFormsPageClient() {
         selectedForms={selectedForms}
         generatingLink={generatingLink}
         onShowAssignModal={() => setShowAssignModal(true)}
-        onShowCommonFieldsWarning={() => {}}
+        onShowCommonFieldsWarning={() => {
+          console.log('🔘 [Update Details] Button clicked, opening warning modal');
+          setShowCommonFieldsWarning(true);
+        }}
         onGenerateSignatureLink={generateSignatureLink}
         sendEmailNotification={() => {}}
         sendingEmail={false}
@@ -499,6 +506,156 @@ export default function StaffFormsPageClient() {
         clientId={staffId}
         generatedLink={generatedLink}
         onCopyLink={copyLinkToClipboard}
+      />
+
+      {/* Common Fields Warning Modal */}
+      <StaffCommonFieldsWarningModal
+        isOpen={showCommonFieldsWarning}
+        onClose={() => {
+          console.log('🔍 [Modal] onClose called');
+          setShowCommonFieldsWarning(false);
+        }}
+        onProceed={() => {
+          console.log('🔍 [Modal] onProceed called - navigating to staff detail page with update modal');
+          setShowCommonFieldsWarning(false);
+          // Navigate to staff detail page and open update modal directly
+          router.push(`/admin/staff/${staffId}?openUpdate=true`);
+        }}
+        staffName={staff?.name || ''}
+        assignments={assignments.map((a: any) => ({
+          id: a.id,
+          form: {
+            id: a.form.id,
+            formKey: a.form.formKey,
+            title: a.form.title,
+            version: a.form.version,
+          },
+          hasSubmission: a.hasSubmission || false,
+          submissionId: a.submissionId,
+          filledByAdmin: a.filledByAdmin || false,
+          staffSignature: a.staffSignature || null,
+        }))}
+        onDownloadForm={async (assignmentId: number, formTitle: string) => {
+          const assignment = assignments.find((a: any) => a.id === assignmentId);
+          if (!assignment) {
+            throw new Error('Assignment not found');
+          }
+
+          if (!assignment.hasSubmission || !assignment.submissionId) {
+            throw new Error('Form must be filled before downloading PDF');
+          }
+
+          try {
+            // Convert formKey from snake_case to kebab-case for API endpoint
+            const formKey = assignment.form.formKey;
+            let formType = formKey.replace(/_/g, '-');
+            
+            // Handle special cases where PDF endpoint name differs from form key
+            let pdfFormType = formType;
+            if (formKey === 'employee_details' || formKey === 'employment_details') {
+              pdfFormType = 'employee-details'; // PDF uses 'employee-details'
+            }
+            
+            let response;
+            
+            // Check if form has a specific PDF route (same logic as handleDownloadPDF)
+            if (formKey === 'govt_tax' || formKey === 'govt-tax') {
+              // TFN Declaration uses POST endpoint with form data
+              // Need to fetch form data first
+              const formDataRes = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}`);
+              if (!formDataRes.ok) {
+                throw new Error('Failed to fetch form data');
+              }
+              const formData = await formDataRes.json();
+              
+              response = await fetch('/api/generate-pdf/tax-form', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData.data || formData),
+              });
+            } else if (formKey === 'super_choice_form' || formKey === 'super-choice-form') {
+              // Super Choice Form also uses POST endpoint with form data
+              const formDataRes = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}`);
+              if (!formDataRes.ok) {
+                throw new Error('Failed to fetch form data');
+              }
+              const formData = await formDataRes.json();
+              
+              response = await fetch('/api/generate-pdf/super-choice-form', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData.data || formData),
+              });
+            } else if (formKey === 'ndis_workforce_capability') {
+              // NDIS form merges framework PDF with acknowledgement
+              response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?merge=true`);
+              
+              // If that fails, try without merge
+              if (!response.ok) {
+                response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+              }
+            } else if (formKey === 'bullying_harassment_training') {
+              // Bullying Harassment Training returns only acknowledgement form PDF (no merge)
+              response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+            } else if (formKey === 'vehicle_safety_inspection') {
+              // Vehicle Safety Inspection returns only acknowledgment form PDF for admin
+              response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf?acknowledgmentOnly=true`);
+            } else {
+              // Use the generic staff PDF endpoint for other forms
+              response = await fetch(`/api/staff/${staffId}/forms/${pdfFormType}/pdf`);
+              
+              // If generic endpoint fails, try the generic PDF generation endpoint as fallback
+              if (!response.ok) {
+                response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
+              }
+            }
+            
+            if (!response.ok) {
+              const errorText = await response.text().catch(() => '');
+              let errorMessage = 'Unable to generate PDF';
+              
+              // Parse error response
+              try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorData.error || errorData.details || errorMessage;
+              } catch {
+                if (errorText && errorText.trim()) {
+                  errorMessage = errorText.length > 100 ? 'Failed to generate PDF. Please try again.' : errorText;
+                }
+              }
+              
+              throw new Error(errorMessage);
+            }
+            
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            const staffName = `${staff?.name || ''}`.replace(/[^a-zA-Z0-9]/g, '_');
+            a.download = `${formTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${staffName}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            showToast({
+              type: 'success',
+              title: 'PDF Downloaded',
+              message: `${formTitle} downloaded successfully`,
+              duration: 3000,
+            });
+          } catch (error: any) {
+            console.error('Error downloading PDF:', error);
+            showToast({
+              type: 'error',
+              title: 'Download Failed',
+              message: error.message || 'Failed to download PDF. Please try again.',
+              duration: 5000,
+            });
+            throw error;
+          }
+        }}
       />
     </div>
   );

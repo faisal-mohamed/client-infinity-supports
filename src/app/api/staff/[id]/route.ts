@@ -1,6 +1,85 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const staffId = parseInt(id || "0");
+
+    if (staffId === 0) {
+      return NextResponse.json(
+        { error: "Invalid staff ID" },
+        { status: 400 }
+      );
+    }
+
+    const body = await req.json();
+    const { firstName, surname, email, phone, commonFields } = body;
+
+    // Validate required fields
+    if (!firstName || !surname || !email) {
+      return NextResponse.json(
+        { error: "First name, surname, and email are required" },
+        { status: 400 }
+      );
+    }
+
+    // Update staff
+    const updatedStaff = await prisma.staff.update({
+      where: { id: staffId },
+      data: {
+        firstName,
+        surname,
+        email,
+        phone,
+      },
+      include: {
+        commonFields: true,
+      },
+    });
+
+    // Update or create common fields if provided
+    if (commonFields) {
+      const existingCommonFields = await prisma.staffCommonField.findUnique({
+        where: { staffId },
+      });
+
+      if (existingCommonFields) {
+        // Update existing common fields
+        await prisma.staffCommonField.update({
+          where: { staffId },
+          data: {
+            ...commonFields,
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        // Create new common fields
+        await prisma.staffCommonField.create({
+          data: {
+            staffId,
+            ...commonFields,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      staff: updatedStaff,
+    });
+  } catch (error: any) {
+    console.error("Error updating staff:", error);
+    return NextResponse.json(
+      { error: "Failed to update staff", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
