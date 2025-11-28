@@ -238,8 +238,8 @@ export default function AdminPDFCanvasViewer({
         
         const displayWidth = Math.min(containerWidth * 0.95, maxWidth);
         const responsiveScale = (displayWidth / basePageWidth) * baseScale;
-        const outputScale = devicePixelRatio * qualityMultiplier;
-        
+          const outputScale = devicePixelRatio * qualityMultiplier;
+          
         renderSettingsRef.current = {
           devicePixelRatio,
           maxWidth,
@@ -362,21 +362,21 @@ export default function AdminPDFCanvasViewer({
         const isRendering = renderingPagesRef.current.has(pageNum) && !isRendered;
         
         return (
-          <div
-            key={idx}
+        <div
+          key={idx}
             ref={(el) => {
               pageRefs.current[idx] = el;
             }}
             data-page-num={pageNum}
-            className="bg-gradient-to-b from-gray-50 to-white rounded-3xl shadow-xl border border-gray-200 p-4 md:p-8"
-          >
+          className="bg-gradient-to-b from-gray-50 to-white rounded-3xl shadow-xl border border-gray-200 p-4 md:p-8"
+        >
             {isRendered ? (
-              <img
-                src={src}
+          <img
+            src={src}
                 alt={`PDF page ${pageNum}`}
-                className="w-full h-auto rounded-2xl border border-gray-100 shadow-lg"
-                style={{ 
-                  minHeight,
+            className="w-full h-auto rounded-2xl border border-gray-100 shadow-lg"
+            style={{ 
+              minHeight,
                   imageRendering: 'crisp-edges',
                 }}
               />
@@ -398,7 +398,7 @@ export default function AdminPDFCanvasViewer({
                 <p className="text-gray-400 text-sm">Page {pageNum}</p>
               </div>
             )}
-          </div>
+        </div>
         );
       })}
     </div>

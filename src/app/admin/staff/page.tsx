@@ -15,6 +15,7 @@ import {
   FaSearch,
   FaFileAlt,
   FaTrash,
+  FaSpinner,
 } from "react-icons/fa";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
@@ -28,6 +29,8 @@ export default function StaffListPage() {
   const [selectedStaff, setSelectedStaff] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [deletingStaffId, setDeletingStaffId] = useState<number | null>(null);
+  const [viewingStaffId, setViewingStaffId] = useState<number | null>(null);
+  const [viewingFormsId, setViewingFormsId] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -88,7 +91,7 @@ export default function StaffListPage() {
       });
 
       // Reload the staff list
-      load();
+      await load();
     } catch (error: any) {
       console.error('Error deleting staff:', error);
       showToast({
@@ -271,57 +274,84 @@ export default function StaffListPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Menu as="div" className="relative inline-block text-left">
-                            <MenuButton className="text-slate-500 hover:text-rose-600 transition">
+                            <MenuButton className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200">
                               <FaEllipsisV className="w-5 h-5" />
                             </MenuButton>
 
-                            <MenuItems className="absolute right-0 mt-2 w-48 origin-top-right bg-white border border-gray-200 rounded-xl shadow-lg focus:outline-none z-50">
-                              <div className="py-1 text-sm text-slate-700">
-                                <MenuItem>
-                                  {({ active } : any) => (
-                                    <Link
-                                      href={`/admin/staff/${s.id}`}
-                                      className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-50 ${
-                                        active ? "text-slate-600" : ""
-                                      }`}
-                                    >
-                                      <FaEye className="w-4 h-4" />
-                                      View More
-                                    </Link>
-                                  )}
-                                </MenuItem>
+                            <MenuItems className="absolute right-0 mt-2 w-44 origin-top-right bg-white border border-gray-200 rounded-xl shadow-2xl focus:outline-none z-50 py-1.5">
+                              <MenuItem>
+                                {({ close } : any) => (
+                                  <Link
+                                    href={`/admin/staff/${s.id}`}
+                                    onClick={() => {
+                                      setViewingStaffId(s.id);
+                                      setTimeout(() => close(), 100);
+                                    }}
+                                    className={`flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 hover:text-green-700 transition-all duration-200 rounded-lg mx-1.5 font-montserrat ${
+                                      viewingStaffId === s.id ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    <div className="p-1.5 rounded-lg bg-green-100 text-green-600">
+                                      {viewingStaffId === s.id ? (
+                                        <FaSpinner className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <FaEye className="h-3.5 w-3.5" />
+                                      )}
+                                    </div>
+                                    <span>{viewingStaffId === s.id ? "Loading..." : "View More"}</span>
+                                  </Link>
+                                )}
+                              </MenuItem>
 
-                                <MenuItem>
-                                  {({ active } : any) => (
-                                    <Link
-                                      href={`/admin/staff/${s.id}/forms`}
-                                      className={`flex items-center gap-2 px-4 py-2 hover:bg-rose-50 ${
-                                        active ? "text-rose-600" : ""
-                                      }`}
-                                    >
-                                      <FaFileAlt className="w-4 h-4" />
-                                      Forms
-                                    </Link>
-                                  )}
-                                </MenuItem>
+                              <MenuItem>
+                                {({ close } : any) => (
+                                  <Link
+                                    href={`/admin/staff/${s.id}/forms`}
+                                    onClick={() => {
+                                      setViewingFormsId(s.id);
+                                      setTimeout(() => close(), 100);
+                                    }}
+                                    className={`flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 hover:text-indigo-700 transition-all duration-200 rounded-lg mx-1.5 font-montserrat ${
+                                      viewingFormsId === s.id ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-600">
+                                      {viewingFormsId === s.id ? (
+                                        <FaSpinner className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <FaFileAlt className="h-3.5 w-3.5" />
+                                      )}
+                                    </div>
+                                    <span>{viewingFormsId === s.id ? "Loading..." : "Forms"}</span>
+                                  </Link>
+                                )}
+                              </MenuItem>
 
-                                <div className="border-t border-gray-200 my-1"></div>
-
-                                <MenuItem>
-                                  {({ active } : any) => (
-                                    <button
-                                      onClick={() => handleDeleteStaff(s)}
-                                      disabled={deletingStaffId === s.id}
-                                      className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-red-50 ${
-                                        active ? "text-red-600" : ""
-                                      } ${deletingStaffId === s.id ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    >
-                                      <FaTrash className="w-4 h-4" />
-                                      {deletingStaffId === s.id ? "Deleting..." : "Delete"}
-                                    </button>
-                                  )}
-                                </MenuItem>
-                              </div>
+                              <MenuItem>
+                                {({ close } : any) => (
+                                  <button
+                                    onClick={async () => {
+                                      // Don't close dropdown - keep it open to show loading state
+                                      await handleDeleteStaff(s);
+                                      // Close after delete completes
+                                      setTimeout(() => close(), 100);
+                                    }}
+                                    disabled={deletingStaffId === s.id}
+                                    className={`flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-700 transition-all duration-200 w-full text-left rounded-lg mx-1.5 font-montserrat disabled:opacity-50 disabled:cursor-not-allowed ${
+                                      deletingStaffId === s.id ? "opacity-50 cursor-not-allowed" : ""
+                                    }`}
+                                  >
+                                    <div className="p-1.5 rounded-lg bg-red-100 text-red-600">
+                                      {deletingStaffId === s.id ? (
+                                        <FaSpinner className="h-3.5 w-3.5 animate-spin" />
+                                      ) : (
+                                        <FaTrash className="h-3.5 w-3.5" />
+                                      )}
+                                    </div>
+                                    <span>{deletingStaffId === s.id ? "Deleting..." : "Delete"}</span>
+                                  </button>
+                                )}
+                              </MenuItem>
                             </MenuItems>
                           </Menu>
                         </td>
