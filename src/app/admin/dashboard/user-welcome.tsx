@@ -5,14 +5,28 @@ import { FaUserCircle, FaBell, FaSun, FaMoon } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function UserWelcome() {
+interface UserWelcomeProps {
+  viewType?: 'client' | 'staff';
+}
+
+export default function UserWelcome({ viewType }: UserWelcomeProps = {}) {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Get view type from prop, localStorage, or default to 'client'
+  const getViewType = () => {
+    if (viewType) return viewType;
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('dashboardViewType') as 'client' | 'staff') || 'client';
+    }
+    return 'client';
+  };
+
   const fetchNotificationCount = async () => {
     try {
-      const response = await fetch('/api/admin/notifications/count');
+      const currentViewType = getViewType();
+      const response = await fetch(`/api/admin/notifications/count?type=${currentViewType}`);
       if (response.ok) {
         const data = await response.json();
         setUnreadCount(data.unreadCount);
@@ -28,9 +42,19 @@ export default function UserWelcome() {
     if (session) {
       fetchNotificationCount();
       const interval = setInterval(fetchNotificationCount, 30000);
-      return () => clearInterval(interval);
+      
+      // Listen for storage changes (when view type changes)
+      const handleStorageChange = () => {
+        fetchNotificationCount();
+      };
+      window.addEventListener('storage', handleStorageChange);
+      
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('storage', handleStorageChange);
+      };
     }
-  }, [session]);
+  }, [session, viewType]);
 
   return (
     <div className="w-full">
@@ -65,7 +89,7 @@ export default function UserWelcome() {
         </div>
 
         <div className="flex items-center space-x-3">
-          <Link href="/admin/notifications">
+          <Link href={`/admin/notifications?type=${getViewType()}`}>
             <div className="relative cursor-pointer group">
               <div className="bg-gradient-to-r from-slate-100 to-white p-3 rounded-lg shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition-all duration-200">
                 <FaBell

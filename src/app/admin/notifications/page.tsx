@@ -2,16 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaSignature, FaCalendarDay } from 'react-icons/fa';
+import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaSignature, FaCalendarDay, FaSpinner } from 'react-icons/fa';
 import useRequireAuth from '../../hooks/useRequireAuth';
 
 interface Notification {
   id: number;
   isRead: boolean;
   createdAt: string;
-  client: {
+  client?: {
     id: number;
     name: string;
+    email: string;
+  };
+  staff?: {
+    id: number;
+    firstName: string;
+    surname: string;
     email: string;
   };
   formSubmission: {
@@ -41,16 +47,46 @@ interface GroupedNotifications {
 export default function NotificationsPage() {
   const { session, status } = useRequireAuth();
 
+  // Get view type from URL params, localStorage, or default to 'client'
+  const getViewType = (): 'client' | 'staff' => {
+    if (typeof window !== 'undefined') {
+      // First check URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlType = urlParams.get('type');
+      if (urlType === 'client' || urlType === 'staff') {
+        return urlType;
+      }
+      // Then check localStorage
+      return (localStorage.getItem('dashboardViewType') as 'client' | 'staff') || 'client';
+    }
+    return 'client';
+  };
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewType, setViewType] = useState<'client' | 'staff'>(getViewType);
+  const [loadingButtonId, setLoadingButtonId] = useState<number | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 0
   });
+
+  // Listen for view type changes
+  useEffect(() => {
+    const handleViewTypeChange = (e: CustomEvent) => {
+      setViewType(e.detail);
+      setCurrentPage(1); // Reset to first page when switching
+    };
+    
+    window.addEventListener('dashboardViewTypeChanged' as any, handleViewTypeChange);
+    return () => {
+      window.removeEventListener('dashboardViewTypeChanged' as any, handleViewTypeChange);
+    };
+  }, []);
 
   // Group notifications by date
   const groupNotificationsByDate = (notifications: Notification[]): GroupedNotifications => {
@@ -90,7 +126,10 @@ export default function NotificationsPage() {
   const fetchNotifications = async (page: number = 1) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/notifications?page=${page}&limit=10`);
+      const currentViewType = typeof window !== 'undefined' 
+        ? (localStorage.getItem('dashboardViewType') as 'client' | 'staff') || 'client'
+        : 'client';
+      const response = await fetch(`/api/admin/notifications?page=${page}&limit=10&type=${currentViewType}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch notifications');
@@ -111,12 +150,15 @@ export default function NotificationsPage() {
   // Mark notification as read
   const markAsRead = async (notificationId: number) => {
     try {
+      const currentViewType = typeof window !== 'undefined' 
+        ? (localStorage.getItem('dashboardViewType') as 'client' | 'staff') || 'client'
+        : 'client';
       const response = await fetch(`/api/admin/notifications/${notificationId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ isRead: true }),
+        body: JSON.stringify({ isRead: true, type: currentViewType }),
       });
 
       if (response.ok) {
@@ -157,7 +199,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [viewType]);
 
   if (status === 'loading' || !session) return null;
 
@@ -214,7 +256,9 @@ export default function NotificationsPage() {
       </div>
       <div>
         <h1 className="text-3xl font-bold text-slate-900 mb-1">Notifications</h1>
-        <p className="text-slate-600">Stay updated with client form submissions</p>
+        <p className="text-slate-600">
+          Stay updated with {viewType === 'staff' ? 'staff' : 'client'} form submissions
+        </p>
       </div>
     </div>
   </div>
@@ -289,7 +333,7 @@ export default function NotificationsPage() {
       </div>
       <h3 className="text-xl font-semibold text-slate-900 mb-3">No notifications yet</h3>
       <p className="text-slate-500 max-w-md mx-auto">
-        You'll see notifications here when clients submit and sign their forms.
+        You'll see notifications here when {viewType === 'staff' ? 'staff members' : 'clients'} submit and sign their forms.
         Stay tuned for updates!
       </p>
     </div>
@@ -352,14 +396,24 @@ export default function NotificationsPage() {
                       </div>
 
                       <p className="text-slate-700 mb-4 leading-relaxed">
-                        <span className="font-semibold text-rose-700">{notification.client.name}</span> has successfully signed and submitted{' '}
+                        <span className="font-semibold text-rose-700">
+                          {notification.client 
+                            ? notification.client.name 
+                            : notification.staff 
+                              ? `${notification.staff.firstName} ${notification.staff.surname}`
+                              : 'Unknown'}
+                        </span> has successfully signed and submitted{' '}
                         <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
                       </p>
 
                       <div className="flex items-center gap-6 text-sm text-slate-500 mb-4">
                         <div className="flex items-center gap-2">
                           <FaUser className="h-4 w-4 text-rose-500" />
-                          <span>{notification.client.email}</span>
+                          <span>
+                            {notification.client 
+                              ? notification.client.email 
+                              : notification.staff?.email || 'N/A'}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FaClock className="h-4 w-4 text-gray-400" />
@@ -368,12 +422,37 @@ export default function NotificationsPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Link href={`/admin/clients/${notification.client.id}/forms`}>
+                        <Link 
+                          href={
+                            notification.client 
+                              ? `/admin/clients/${notification.client.id}/forms`
+                              : notification.staff
+                                ? `/admin/staff/${notification.staff.id}/forms`
+                                : '/admin/dashboard'
+                          }
+                          onClick={() => {
+                            setLoadingButtonId(notification.id);
+                            if (!notification.isRead) {
+                              markAsRead(notification.id);
+                            }
+                            // Clear loading state after a timeout (in case navigation is slow)
+                            setTimeout(() => {
+                              setLoadingButtonId(null);
+                            }, 5000);
+                          }}
+                        >
                           <button
-                            className="px-6 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
-                            onClick={() => !notification.isRead && markAsRead(notification.id)}
+                            disabled={loadingButtonId === notification.id}
+                            className="px-6 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 disabled:opacity-70 disabled:cursor-wait disabled:transform-none flex items-center gap-2"
                           >
-                            View Details
+                            {loadingButtonId === notification.id ? (
+                              <>
+                                <FaSpinner className="h-4 w-4 animate-spin" />
+                                <span>Loading...</span>
+                              </>
+                            ) : (
+                              <span>View Details</span>
+                            )}
                           </button>
                         </Link>
                         {!notification.isRead && (

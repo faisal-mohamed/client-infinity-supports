@@ -32,35 +32,74 @@ export async function GET(
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    // Get notification with full details
-    const notification = await prisma.formSubmissionNotification.findFirst({
-      where: {
-        id: notificationId,
-        adminId: admin.id // Ensure admin can only access their notifications
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true
-          }
+    // Get type parameter
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type') || 'client';
+
+    let notification: any = null;
+
+    if (type === 'staff') {
+      // Get staff notification with full details
+      notification = await prisma.staffSubmissionNotification.findFirst({
+        where: {
+          id: notificationId,
+          adminId: admin.id
         },
-        formSubmission: {
-          include: {
-            form: {
-              select: {
-                id: true,
-                title: true,
-                formKey: true,
-                version: true
+        include: {
+          staff: {
+            select: {
+              id: true,
+              firstName: true,
+              surname: true,
+              email: true,
+              phone: true
+            }
+          },
+          formSubmission: {
+            include: {
+              form: {
+                select: {
+                  id: true,
+                  title: true,
+                  formKey: true,
+                  version: true
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    } else {
+      // Get client notification with full details
+      notification = await prisma.formSubmissionNotification.findFirst({
+        where: {
+          id: notificationId,
+          adminId: admin.id
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true
+            }
+          },
+          formSubmission: {
+            include: {
+              form: {
+                select: {
+                  id: true,
+                  title: true,
+                  formKey: true,
+                  version: true
+                }
+              }
+            }
+          }
+        }
+      });
+    }
 
     if (!notification) {
       return NextResponse.json(
@@ -111,18 +150,35 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { isRead } = body;
+    const { isRead, type } = body;
 
-    // Update notification
-    const updatedNotification = await prisma.formSubmissionNotification.updateMany({
-      where: {
-        id: notificationId,
-        adminId: admin.id // Ensure admin can only update their notifications
-      },
-      data: {
-        isRead: isRead ?? true
-      }
-    });
+    // Determine which model to use based on type
+    const notificationType = type || 'client';
+    let updatedNotification: any;
+
+    if (notificationType === 'staff') {
+      // Update staff notification
+      updatedNotification = await prisma.staffSubmissionNotification.updateMany({
+        where: {
+          id: notificationId,
+          adminId: admin.id
+        },
+        data: {
+          isRead: isRead ?? true
+        }
+      });
+    } else {
+      // Update client notification
+      updatedNotification = await prisma.formSubmissionNotification.updateMany({
+        where: {
+          id: notificationId,
+          adminId: admin.id
+        },
+        data: {
+          isRead: isRead ?? true
+        }
+      });
+    }
 
     if (updatedNotification.count === 0) {
       return NextResponse.json(

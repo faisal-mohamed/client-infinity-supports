@@ -20,13 +20,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    // Get unread notifications count
-    const unreadCount = await prisma.formSubmissionNotification.count({
-      where: {
-        adminId: admin.id,
-        isRead: false
-      }
-    });
+    // Get type parameter (client or staff)
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type') || 'client'; // Default to client
+
+    let unreadCount = 0;
+
+    if (type === 'staff') {
+      // Get unread staff notifications count
+      unreadCount = await prisma.staffSubmissionNotification.count({
+        where: {
+          adminId: admin.id,
+          isRead: false
+        }
+      });
+    } else {
+      // Get unread client notifications count (default)
+      unreadCount = await prisma.formSubmissionNotification.count({
+        where: {
+          adminId: admin.id,
+          isRead: false
+        }
+      });
+    }
 
     return NextResponse.json({
       unreadCount

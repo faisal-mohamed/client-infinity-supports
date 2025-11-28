@@ -298,7 +298,25 @@ export const DashboardClient = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewType, setViewType] = useState<'client' | 'staff'>('client');
+  
+  // Get view type from localStorage or default to 'client'
+  const getInitialViewType = (): 'client' | 'staff' => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('dashboardViewType') as 'client' | 'staff') || 'client';
+    }
+    return 'client';
+  };
+  
+  const [viewType, setViewType] = useState<'client' | 'staff'>(getInitialViewType);
+
+  // Save view type to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('dashboardViewType', viewType);
+      // Trigger custom event for other components to listen
+      window.dispatchEvent(new CustomEvent('dashboardViewTypeChanged', { detail: viewType }));
+    }
+  }, [viewType]);
 
   useEffect(() => {
     async function fetchStats() {
@@ -324,7 +342,7 @@ export const DashboardClient = () => {
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <UserWelcome />
+            <UserWelcome viewType={viewType} />
           </div>
           {/* Professional Segmented Control Toggle */}
           <div className="flex-shrink-0">
