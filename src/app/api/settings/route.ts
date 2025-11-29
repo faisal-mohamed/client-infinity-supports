@@ -76,13 +76,15 @@ export async function GET(req: NextRequest) {
     if (!queryAdminId && session?.user?.id) {
       // Import default settings from initialize route
       const defaultSettings = [
-        { key: 'from_email', type: 'email', category: 'email_settings', label: 'From Email Address', description: 'Email address used as sender for all outgoing emails', isRequired: true, defaultValue: '', sortOrder: 1 },
-        { key: 'smtp_host', type: 'text', category: 'email_settings', label: 'SMTP Host', description: 'The SMTP server used to send emails (e.g., smtp.gmail.com)', isRequired: true, defaultValue: '', sortOrder: 2 },
-        { key: 'smtp_port', type: 'number', category: 'email_settings', label: 'SMTP Port', description: 'The port number used to connect to the SMTP server (e.g., 587 for TLS)', isRequired: true, defaultValue: '587', sortOrder: 3 },
-        { key: 'smtp_password', type: 'password', category: 'email_settings', label: 'SMTP App Password', description: 'App password used to authenticate with the SMTP server', isRequired: true, defaultValue: '', sortOrder: 4 },
-        { key: 'admin_email', type: 'email', category: 'email_settings', label: 'Admin Notification Email', description: 'Email address where system alerts or notifications will be sent', isRequired: true, defaultValue: '', sortOrder: 5 },
-        { key: 'company_website', type: 'url', category: 'form_metadata', label: 'Company Website', description: 'Company website URL that appears on forms', isRequired: true, defaultValue: '', sortOrder: 1 },
-        { key: 'review_date', type: 'date', category: 'form_metadata', label: 'Review Date', description: 'Default review date for forms', isRequired: true, defaultValue: '', sortOrder: 2 },
+        // Client Email Settings
+        { key: 'client_from_email', type: 'email', category: 'client_email_settings', label: 'From Email Address', description: 'Email address used as sender for all client-related outgoing emails', isRequired: true, defaultValue: '', sortOrder: 1 },
+        { key: 'client_smtp_host', type: 'text', category: 'client_email_settings', label: 'SMTP Host', description: 'The SMTP server used to send client-related emails (e.g., smtp.gmail.com)', isRequired: true, defaultValue: '', sortOrder: 2 },
+        { key: 'client_smtp_port', type: 'number', category: 'client_email_settings', label: 'SMTP Port', description: 'The port number used to connect to the SMTP server (e.g., 587 for TLS)', isRequired: true, defaultValue: '587', sortOrder: 3 },
+        { key: 'client_smtp_password', type: 'password', category: 'client_email_settings', label: 'SMTP App Password', description: 'App password used to authenticate with the SMTP server for client emails', isRequired: true, defaultValue: '', sortOrder: 4 },
+        { key: 'client_admin_email', type: 'email', category: 'client_email_settings', label: 'Admin Notification Email', description: 'Email address where client-related system alerts or notifications will be sent', isRequired: true, defaultValue: '', sortOrder: 5 },
+        // Client Form Metadata
+        { key: 'client_company_website', type: 'url', category: 'client_form_metadata', label: 'Company Website', description: 'Company website URL that appears on client forms', isRequired: true, defaultValue: '', sortOrder: 1 },
+        { key: 'client_review_date', type: 'date', category: 'client_form_metadata', label: 'Review Date', description: 'Default review date for client forms', isRequired: true, defaultValue: '', sortOrder: 2 },
         { key: 'client_intake_form_id', type: 'text', category: 'form_ids', label: 'Client Intake Form ID', description: 'Unique identifier for client intake forms', isRequired: true, defaultValue: '', sortOrder: 1 },
         { key: 'home_visit_form_id', type: 'text', category: 'form_ids', label: 'Home Visit Risk Assessment ID', description: 'Unique identifier for home visit risk assessment forms', isRequired: true, defaultValue: '', sortOrder: 2 },
         { key: 'person_centre_plan_form_id', type: 'text', category: 'form_ids', label: 'Person Centre Plan ID', description: 'Unique identifier for person centre plan forms', isRequired: true, defaultValue: '', sortOrder: 3 },
@@ -95,6 +97,28 @@ export async function GET(req: NextRequest) {
         { key: 'support_action_plan', type: 'text', category: 'form_ids', label: 'Support Co-ordination Action Plan ID', description: 'Unique identifier for Support Co-ordination Action Plan form', isRequired: true, defaultValue: '', sortOrder: 10 },
         { key: 'schedule_of_supports', type: 'text', category: 'form_ids', label: 'Schedule of Supports Form ID', description: 'Unique identifier for Schedule of Supports form', isRequired: true, defaultValue: '', sortOrder: 11 },
         { key: 'sa_support_coordination', type: 'text', category: 'form_ids', label: 'Service Agreement Support Co-Ordination ID', description: 'Unique identifier for Service Agreement Support Co-Ordination forms', isRequired: true, defaultValue: '', sortOrder: 12 },
+        // Staff Form IDs
+        { key: 'employee_details_form_id', type: 'text', category: 'staff_form_ids', label: 'Employee Details Form ID', description: 'Unique identifier for Employee Details forms', isRequired: true, defaultValue: '', sortOrder: 1 },
+        { key: 'employee_welcome_form_id', type: 'text', category: 'staff_form_ids', label: 'Employee Welcome Pack Form ID', description: 'Unique identifier for Employee Welcome Pack forms', isRequired: true, defaultValue: '', sortOrder: 2 },
+        { key: 'support_worker_form_id', type: 'text', category: 'staff_form_ids', label: 'Position Description Form ID', description: 'Unique identifier for Position Description forms', isRequired: true, defaultValue: '', sortOrder: 3 },
+        { key: 'pre_employment_medical_form_id', type: 'text', category: 'staff_form_ids', label: 'Pre-Employment Medical Form ID', description: 'Unique identifier for Pre-Employment Medical forms', isRequired: true, defaultValue: '', sortOrder: 4 },
+        { key: 'bullying_harassment_training_form_id', type: 'text', category: 'staff_form_ids', label: 'Bullying and Harassment Training Form ID', description: 'Unique identifier for Bullying and Harassment Training forms', isRequired: true, defaultValue: '', sortOrder: 5 },
+        { key: 'bullying_training_form_id', type: 'text', category: 'staff_form_ids', label: 'Bullying Training Form ID', description: 'Unique identifier for Bullying Training forms', isRequired: true, defaultValue: '', sortOrder: 6 },
+        { key: 'ndis_code_of_conduct_form_id', type: 'text', category: 'staff_form_ids', label: 'NDIS Code of Conduct Form ID', description: 'Unique identifier for NDIS Code of Conduct forms', isRequired: true, defaultValue: '', sortOrder: 7 },
+        { key: 'fair_work_information_form_id', type: 'text', category: 'staff_form_ids', label: 'Fairwork Information Statements Form ID', description: 'Unique identifier for Fairwork Information Statements forms', isRequired: true, defaultValue: '', sortOrder: 8 },
+        { key: 'orientation_form_id', type: 'text', category: 'staff_form_ids', label: 'Staff Orientation Form ID', description: 'Unique identifier for Staff Orientation forms', isRequired: true, defaultValue: '', sortOrder: 9 },
+        { key: 'conflict_of_interest_form_id', type: 'text', category: 'staff_form_ids', label: 'Conflict of Interest Form ID', description: 'Unique identifier for Conflict of Interest forms', isRequired: true, defaultValue: '', sortOrder: 10 },
+        { key: 'documentation_acknowledgement_form_id', type: 'text', category: 'staff_form_ids', label: 'Documentation Acknowledgement Form ID', description: 'Unique identifier for Documentation Acknowledgement forms', isRequired: true, defaultValue: '', sortOrder: 11 },
+        { key: 'vehicle_safety_inspection_form_id', type: 'text', category: 'staff_form_ids', label: 'Vehicle Safety Inspection Form ID', description: 'Unique identifier for Vehicle Safety Inspection forms', isRequired: true, defaultValue: '', sortOrder: 12 },
+        // Staff Email Settings
+        { key: 'staff_from_email', type: 'email', category: 'staff_email_settings', label: 'From Email Address', description: 'Email address used as sender for all staff-related outgoing emails', isRequired: true, defaultValue: '', sortOrder: 1 },
+        { key: 'staff_smtp_host', type: 'text', category: 'staff_email_settings', label: 'SMTP Host', description: 'The SMTP server used to send staff-related emails (e.g., smtp.gmail.com)', isRequired: true, defaultValue: '', sortOrder: 2 },
+        { key: 'staff_smtp_port', type: 'number', category: 'staff_email_settings', label: 'SMTP Port', description: 'The port number used to connect to the SMTP server (e.g., 587 for TLS)', isRequired: true, defaultValue: '587', sortOrder: 3 },
+        { key: 'staff_smtp_password', type: 'password', category: 'staff_email_settings', label: 'SMTP App Password', description: 'App password used to authenticate with the SMTP server for staff emails', isRequired: true, defaultValue: '', sortOrder: 4 },
+        { key: 'staff_admin_email', type: 'email', category: 'staff_email_settings', label: 'Admin Notification Email', description: 'Email address where staff-related system alerts or notifications will be sent', isRequired: true, defaultValue: '', sortOrder: 5 },
+        // Staff Form Metadata
+        { key: 'staff_company_website', type: 'url', category: 'staff_form_metadata', label: 'Company Website', description: 'Company website URL that appears on staff forms', isRequired: true, defaultValue: '', sortOrder: 1 },
+        { key: 'staff_review_date', type: 'date', category: 'staff_form_metadata', label: 'Review Date', description: 'Default review date for staff forms', isRequired: true, defaultValue: '', sortOrder: 2 },
       ];
 
       // Get existing setting keys for this admin

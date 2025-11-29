@@ -12,13 +12,13 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    paddingTop: 70,
-    paddingBottom: 40,
-    paddingLeft: 40,
-    paddingRight: 40,
+    paddingTop: 80,
+    paddingBottom: 50, // Increased to make room for footer
+    paddingLeft: 50,
+    paddingRight: 50,
     fontFamily: 'Helvetica',
-    fontSize: 9,
-    lineHeight: 1.3,
+    fontSize: 10,
+    lineHeight: 1.5,
   },
   header: {
     position: 'absolute',
@@ -33,36 +33,38 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
   },
   title: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 16,
+    marginTop: 8,
     textAlign: 'center',
     color: '#111827',
   },
   section: {
-    marginBottom: 8,
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 10,
+    marginTop: 8,
     color: '#111827',
   },
   table: {
     width: '100%',
     border: '1 solid #d1d5db',
-    marginBottom: 6,
+    marginBottom: 12,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1 solid #d1d5db',
-    minHeight: 18,
+    minHeight: 24,
   },
   tableHeader: {
     backgroundColor: '#f3f4f6',
     fontWeight: 'bold',
-    fontSize: 8,
-    padding: 4,
+    fontSize: 9,
+    padding: 6,
     borderRight: '1 solid #d1d5db',
   },
   tableHeaderItem: {
@@ -76,23 +78,24 @@ const styles = StyleSheet.create({
     flex: 2,
   },
   tableCell: {
-    fontSize: 8,
-    padding: 4,
+    fontSize: 9,
+    padding: 6,
     borderRight: '1 solid #d1d5db',
     color: '#111827',
     flex: 2.5,
+    lineHeight: 1.4,
   },
   tableCellYesNo: {
-    fontSize: 8,
-    padding: 2,
+    fontSize: 9,
+    padding: 4,
     borderRight: '1 solid #d1d5db',
     flex: 0.6,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tableCellLabel: {
-    fontSize: 8,
-    padding: 4,
+    fontSize: 9,
+    padding: 6,
     borderRight: '1 solid #d1d5db',
     backgroundColor: '#f9fafb',
     fontWeight: 'bold',
@@ -100,11 +103,12 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   tableCellInput: {
-    fontSize: 8,
-    padding: 4,
+    fontSize: 9,
+    padding: 6,
     flex: 1,
     color: '#111827',
-    minHeight: 16,
+    minHeight: 20,
+    lineHeight: 1.4,
   },
   checkbox: {
     width: 8,
@@ -121,40 +125,43 @@ const styles = StyleSheet.create({
   },
   subsectionHeader: {
     backgroundColor: '#f3f4f6',
-    padding: 4,
-    fontSize: 9,
+    padding: 6,
+    fontSize: 10,
     fontWeight: 'bold',
     borderBottom: '1 solid #d1d5db',
     flexDirection: 'row',
   },
   subsectionNote: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#6b7280',
-    padding: 3,
+    padding: 5,
     fontStyle: 'italic',
     backgroundColor: '#fafafa',
+    lineHeight: 1.4,
   },
   actionCell: {
-    fontSize: 7,
-    padding: 3,
+    fontSize: 8,
+    padding: 5,
     borderRight: '1 solid #d1d5db',
     flex: 2,
     color: '#111827',
-    minHeight: 20,
+    minHeight: 24,
     wrap: true,
+    lineHeight: 1.4,
   },
   // Acknowledgment form styles
   paragraph: {
     fontSize: 11,
-    marginBottom: 12,
-    lineHeight: 1.5,
+    marginBottom: 16,
+    lineHeight: 1.6,
     color: '#111827',
   },
   acknowledgementBox: {
     border: '1 solid #d1d5db',
     borderRadius: 4,
-    padding: 12,
-    marginBottom: 20,
+    padding: 16,
+    marginBottom: 24,
+    marginTop: 8,
     backgroundColor: '#f9fafb',
   },
   checkboxRow: {
@@ -185,29 +192,48 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   fieldGroup: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   fieldLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 8,
     color: '#111827',
   },
   fieldLine: {
     borderBottom: '1 dotted #111827',
-    paddingBottom: 4,
-    minHeight: 20,
+    paddingBottom: 6,
+    paddingTop: 4,
+    minHeight: 24,
   },
   fieldValue: {
     fontSize: 11,
     color: '#111827',
+    lineHeight: 1.5,
   },
   signatureBox: {
     border: '1 dotted #111827',
-    minHeight: 60,
-    padding: 8,
-    marginTop: 6,
+    minHeight: 70,
+    padding: 12,
+    marginTop: 8,
     backgroundColor: '#ffffff',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 40,
+    right: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: 8,
+    color: '#6b7280',
+    borderTop: '1 solid #e5e7eb',
+    paddingTop: 6,
+  },
+  footerText: {
+    fontSize: 8,
+    color: '#6b7280',
   },
 });
 
@@ -288,6 +314,32 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
     );   
   };
 
+  // Footer data from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.vehicle_safety_inspection_form_id;
+  const footerDate = settings?.vehicle_safety_inspection_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+
+  console.log('🔍 [Vehicle Safety PDF] Footer data:', {
+    hasSettings: !!settings,
+    settingsKeys: Object.keys(settings || {}),
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+  });
+
+  const renderFooter = () => {
+    if (!hasFooterData) return null;
+    return (
+      <View style={styles.footer} fixed>
+        {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+        {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+        {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
+      </View>
+    );
+  };
+
 
   // Driver Information Section
   const renderDriverInformation = () => (
@@ -352,7 +404,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
     return (
       <View style={styles.tableRow}>
         <View style={styles.tableCell}>
-          <Text style={{ fontSize: 8 }}>{item}</Text>
+          <Text style={{ fontSize: 9, lineHeight: 1.4 }}>{item}</Text>
         </View>
         <View style={styles.tableCellYesNo}>
           {renderCheckbox(yesNo === 'yes')}
@@ -361,7 +413,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
           {renderCheckbox(yesNo === 'no')}
         </View>
         <View style={styles.actionCell}>
-          <Text style={{ fontSize: 7 }}>{getValue(actionField)}</Text>
+          <Text style={{ fontSize: 8, lineHeight: 1.4 }}>{getValue(actionField)}</Text>
         </View>
       </View>
     );
@@ -520,7 +572,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
           return (
             <View key={num} style={styles.tableRow}>
               <View style={styles.tableCell}>
-                <Text style={{ fontSize: 8 }}>{issue || ''}</Text>
+                <Text style={{ fontSize: 9, lineHeight: 1.4 }}>{issue || ''}</Text>
               </View>
               <View style={styles.tableCellYesNo}>
                 {renderCheckbox(getYesNo(`otherIssue${num}Yes`) === 'yes')}
@@ -529,7 +581,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
                 {renderCheckbox(getYesNo(`otherIssue${num}Yes`) === 'no')}
               </View>
               <View style={styles.actionCell}>
-                <Text style={{ fontSize: 7 }}>{getValue(`otherIssue${num}Action`) || ''}</Text>
+                <Text style={{ fontSize: 8, lineHeight: 1.4 }}>{getValue(`otherIssue${num}Action`) || ''}</Text>
               </View>
             </View>
           );
@@ -541,12 +593,12 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
   // Review Section
   const renderReviewSection = () => (
     <View style={styles.section}>
-      <View style={{ marginBottom: 12, flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
-        <Text style={{ fontSize: 9, marginRight: 4 }}>Return completed form to :</Text>
-        <View style={{ flex: 1, borderBottom: '1 dotted #111827', minHeight: 18, paddingBottom: 2, marginRight: 8 }}>
-          <Text style={{ fontSize: 9 }}>{getValue('returnTo') || ''}</Text>
+      <View style={{ marginBottom: 16, flexDirection: 'row', alignItems: 'flex-end', flexWrap: 'nowrap' }}>
+        <Text style={{ fontSize: 10, marginRight: 6 }}>Return completed form to :</Text>
+        <View style={{ flex: 1, borderBottom: '1 dotted #111827', minHeight: 22, paddingBottom: 4, marginRight: 10 }}>
+          <Text style={{ fontSize: 10 }}>{getValue('returnTo') || ''}</Text>
         </View>
-        <Text style={{ fontSize: 9 }}>Position</Text>
+        <Text style={{ fontSize: 10 }}>Position</Text>
       </View>
 
       <View style={styles.table} wrap={false}>
@@ -685,6 +737,8 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
             )}
           </View>
         </View>
+
+        {renderFooter()}
       </Page>
     );
   };
@@ -727,6 +781,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
             {renderHeader()}
             <Text style={styles.title}>Vehicle Safety Inspection Checklist – Acknowledgement</Text>
             <Text style={styles.paragraph}>No acknowledgment form has been completed yet.</Text>
+            {renderFooter()}
           </Page>
         </Document>
       );
@@ -748,12 +803,14 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
         <Text style={styles.title}>Vehicle Safety Inspection Checklist</Text>
         {renderDriverInformation()}
         {renderInspectionChecklist()}
+        {renderFooter()}
       </Page>
 
       <Page size="A4" style={styles.page}>
         {renderHeader()}
         <Text style={styles.title}>Vehicle Safety Inspection Checklist</Text>
         {renderAdditionalInspection()}
+        {renderFooter()}
       </Page>
 
       <Page size="A4" style={styles.page}>
@@ -761,6 +818,7 @@ const VehicleSafetyInspectionPDF: React.FC<VehicleSafetyInspectionPDFProps> = ({
         <Text style={styles.title}>Vehicle Safety Inspection Checklist</Text>
         {renderClientBehaviorAssessment()}
         {renderReviewSection()}
+        {renderFooter()}
       </Page>
 
       {/* Acknowledgment Page - NOT included in staff downloads, only shown when acknowledgmentOnly=true */}

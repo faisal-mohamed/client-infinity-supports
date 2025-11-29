@@ -102,12 +102,27 @@ const EmployeeWelcomePackPDF: React.FC<EmployeeWelcomePackPDFProps> = ({
   showBlankAcknowledgement = false
 }) => {
   console.log('🔍 [PDF] Employee Welcome Pack - Generating fixed-page PDF');
+  console.log('🔍 [PDF] Settings received:', {
+    settingsKeys: Object.keys(settings || {}),
+    website: settings?.website || settings?.company_website,
+    formId: settings?.employee_welcome_form_id,
+    reviewDate: settings?.employee_welcome_review_date || settings?.review_date,
+    hasImages: !!images,
+    hasFullLogo: !!images?.fullLogo,
+  });
 
-  // Footer data from settings only
-  const footerWebsite = settings?.website;
+  // Footer data from settings - try multiple possible keys
+  const footerWebsite = settings?.website || settings?.company_website;
   const footerId = settings?.employee_welcome_form_id;
-  const footerDate = settings?.employee_welcome_review_date;
+  const footerDate = settings?.employee_welcome_review_date || settings?.review_date;
   const hasFooterData = footerWebsite || footerId || footerDate;
+  
+  console.log('🔍 [PDF] Footer data:', {
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+  });
 
   // Get logo image - use base64 if available, otherwise use path for browser
   const headerLogoSrc = images?.fullLogo || '/client_full_logo.jpg';

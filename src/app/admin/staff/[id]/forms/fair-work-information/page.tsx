@@ -14,6 +14,7 @@ export default function StaffFairworkInformationView() {
   const { showToast } = useToast();
   const [staff, setStaff] = useState<any>(null);
   const [formData, setFormData] = useState<any>(null);
+  const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
@@ -26,6 +27,7 @@ export default function StaffFairworkInformationView() {
       const data = await res.json();
       setStaff(data.staff);
       setFormData(data.data);
+      setMeta(data.meta || null);
     } catch (error) {
       console.error("Error loading fairwork acknowledgement:", error);
       setFormData(null);
@@ -103,6 +105,7 @@ export default function StaffFairworkInformationView() {
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-2 md:p-6">
             <FairWorkInformationView
               data={formData}
+              meta={meta}
               acknowledgementMode="readonly"
               showDocument={false}
             />

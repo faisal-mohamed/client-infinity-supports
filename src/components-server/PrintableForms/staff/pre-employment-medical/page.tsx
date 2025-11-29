@@ -355,10 +355,20 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
     'Colour blindness',
   ];
 
-  // Get footer values from settings only (no hardcoded fallbacks)
-  const footerWebsite = settings?.footerWebsite || '';
-  const footerId = settings?.footerId || '';
-  const footerDate = settings?.footerDate || '';
+  // Get footer values from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.pre_employment_medical_form_id;
+  const footerDate = settings?.pre_employment_medical_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+  
+  console.log('🔍 [Pre-Employment Medical PDF] Footer data:', {
+    hasSettings: !!settings,
+    settingsKeys: Object.keys(settings || {}),
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+  });
 
   return (
     <Document>
@@ -786,7 +796,7 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
         </View>
 
         {/* Fixed Footer - appears on all pages */}
-        {(footerWebsite || footerId || footerDate) && (
+        {hasFooterData && (
           <View style={styles.footer} fixed>
             {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
             {footerId && <Text style={styles.footerText}>{footerId}</Text>}

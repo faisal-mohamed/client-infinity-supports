@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
 import EmployeeWelcomePackPDF from '@/components-server/PrintableForms/staff/employee-welcome-pack/page';
@@ -85,26 +86,24 @@ export async function GET(
       organizationalChart: await encodeImageToBase64('/image.png'),
     };
 
-    // Get app settings for footer
-    const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // Get staff-specific app settings for footer (website, form ID, review date)
+    const settings = await getStaffSettingsForForm(staffId, 'employee_welcome');
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach(setting => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
+    console.log('🔍 [PDF API] Staff settings for Employee Welcome Pack:', {
+      staffId,
+      adminId: staff.createdById,
+      settingsKeys: Object.keys(settings),
+      website: settings?.website || settings?.company_website,
+      formId: settings?.employee_welcome_form_id,
+      reviewDate: settings?.employee_welcome_review_date || settings?.review_date,
+      hasFullLogo: !!images.fullLogo,
+      hasInfinityLogo: !!images.infinityLogo,
     });
-
-    // NO hardcoded defaults - only use what's in the database
-    console.log('⚙️ [PDF API] Settings from DB:', settings);
 
     // Create PDF component props
     const pdfProps = {
       data: {
-        ...formData,
+        ...(typeof formData === 'object' && formData !== null ? formData : {}),
         staffSignature: submission?.staffSignature,
         staffSignedAt: submission?.staffSignedAt,
         staff: {
@@ -128,13 +127,18 @@ export async function GET(
     console.log('🎨 [PDF API] Creating PDF document with fixed pages...');
 
     // Generate PDF
+    // @ts-ignore - renderToBuffer accepts React elements
     const pdfDoc = React.createElement(EmployeeWelcomePackPDF, pdfProps);
-    const pdfBuffer = await renderToBuffer(pdfDoc);
+    // @ts-ignore - renderToBuffer type definition may be strict
+    const pdfBuffer: any = await renderToBuffer(pdfDoc);
 
-    console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+    console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer?.length || 0, 'bytes');
+
+    // Convert buffer to Uint8Array for NextResponse
+    const pdfUint8 = pdfBuffer instanceof Uint8Array ? pdfBuffer : new Uint8Array(pdfBuffer);
 
     // Return PDF as inline (for iframe viewing in admin)
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfUint8, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="Employee_Welcome_Pack_${staff.firstName}_${staff.surname}.pdf"`,

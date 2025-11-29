@@ -14,6 +14,11 @@ interface OrientationViewProps {
   onAcknowledgementChange?: (updates: Record<string, any>) => void;
   showDocument?: boolean;
   onRenderingChange?: (isRendering: boolean) => void;
+  meta?: {
+    website?: string | null;
+    formId?: string | null;
+    reviewDate?: string | null;
+  };
 }
 
 export default function OrientationView({
@@ -24,6 +29,7 @@ export default function OrientationView({
   onAcknowledgementChange,
   showDocument = true,
   onRenderingChange,
+  meta,
 }: OrientationViewProps) {
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const hasRenderedRef = useRef(false);
@@ -303,6 +309,15 @@ export default function OrientationView({
                 </div>
               </div>
             </div>
+            
+            {/* Footer */}
+            {(meta?.website || meta?.formId || meta?.reviewDate) && (
+              <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 px-[60px] py-3 bg-gray-50 flex justify-between items-center text-[9pt] text-gray-600">
+                {meta?.website && <span>Website: {meta.website}</span>}
+                {meta?.formId && <span>{meta.formId}</span>}
+                {meta?.reviewDate && <span>Review Date: {meta.reviewDate}</span>}
+              </div>
+            )}
           </div>
         </div>
       );

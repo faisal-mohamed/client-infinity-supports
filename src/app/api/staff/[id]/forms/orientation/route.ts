@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getStaffSettingsForForm } from "@/lib/settings-server";
 
 export async function GET(
   _req: NextRequest,
@@ -40,9 +41,18 @@ export async function GET(
     });
 
     if (!submission) {
+      // Get staff-specific settings even when no submission exists
+      const settings = await getStaffSettingsForForm(staffId, 'orientation');
+      const meta = {
+        website: settings?.website || settings?.company_website || null,
+        formId: settings?.orientation_form_id || null,
+        reviewDate: settings?.orientation_review_date || settings?.review_date || null,
+      };
+      
       return NextResponse.json({
         staff,
         data: null,
+        meta,
         submission: null,
       });
     }
@@ -88,9 +98,20 @@ export async function GET(
         formData.orientationAcknowledged ?? formData.readOrientation;
     }
 
+    // Get staff-specific settings for footer
+    const settings = await getStaffSettingsForForm(staffId, 'orientation');
+    
+    // Prepare meta data for the view component
+    const meta = {
+      website: settings?.website || settings?.company_website || null,
+      formId: settings?.orientation_form_id || null,
+      reviewDate: settings?.orientation_review_date || settings?.review_date || null,
+    };
+
     return NextResponse.json({
       staff,
       data: formData,
+      meta,
       submission: {
         id: submission.id,
         isSubmitted: submission.isSubmitted,

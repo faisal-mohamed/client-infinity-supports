@@ -152,9 +152,20 @@ const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
   const mergedSettings = settings || payload?.settings || {};
   // Use images prop like other forms (bullying-harassment-training, pre-employment-medical, etc.)
   const logoUrl = images?.infinityLogo || mergedSettings?.logoDataUrl || '';
-  const footerWebsite = mergedSettings?.website || mergedSettings?.company_website;
-  const footerId = mergedSettings?.bullying_training_form_id;
-  const footerDate = mergedSettings?.bullying_training_review_date;
+  const footerWebsite = settings?.website || settings?.company_website || mergedSettings?.website || mergedSettings?.company_website;
+  const footerId = settings?.bullying_training_form_id || mergedSettings?.bullying_training_form_id;
+  const footerDate = settings?.bullying_training_review_date || settings?.review_date || mergedSettings?.bullying_training_review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+  
+  console.log('🔍 [Bullying Training PDF] Footer data:', {
+    hasSettings: !!settings,
+    hasMergedSettings: !!mergedSettings,
+    settingsKeys: Object.keys(settings || {}),
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+  });
   const acknowledgementPoints = [
     'I have completed the Bullying Training session.',
     'I understand the concepts and procedures covered.',
@@ -226,8 +237,12 @@ const BullyingTrainingPDF: React.FC<BullyingTrainingPDFProps> = ({
   // Render footer - using form settings API like other staff forms
   const renderFooter = () => {
     // Only show footer if at least one value exists
-    if (!footerWebsite && !footerId && !footerDate) return null;
+    if (!hasFooterData) {
+      console.log('⚠️ [Bullying Training PDF] No footer data, skipping footer render');
+      return null;
+    }
 
+    console.log('✅ [Bullying Training PDF] Rendering footer with:', { footerWebsite, footerId, footerDate });
     return (
       <View style={styles.footer} fixed>
         {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}

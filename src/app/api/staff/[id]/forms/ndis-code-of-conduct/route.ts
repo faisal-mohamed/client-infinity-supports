@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -51,9 +52,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'NDIS code of conduct form not found' }, { status: 404 });
     }
 
+    // Get staff-specific settings for footer
+    const settings = await getStaffSettingsForForm(staffId, 'ndis_code_of_conduct');
+    
+    // Prepare meta data for the view component
+    const meta = {
+      website: settings?.website || settings?.company_website || null,
+      formId: settings?.ndis_code_of_conduct_form_id || null,
+      reviewDate: settings?.ndis_code_of_conduct_review_date || settings?.review_date || null,
+    };
+
     return NextResponse.json({
       ...ndisCodeOfConduct,
-      staff
+      staff,
+      meta,
     });
   } catch (error: any) {
     console.error('Error fetching NDIS code of conduct form:', error);

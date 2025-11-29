@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#ffffff',
     paddingTop: 70,
-    paddingBottom: 40,
+    paddingBottom: 50, // Increased to make room for footer
     paddingLeft: 40,
     paddingRight: 40,
     fontFamily: 'Helvetica',
@@ -122,6 +122,23 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#111827',
   },
+  footer: {
+    position: 'absolute',
+    bottom: 15,
+    left: 40,
+    right: 40,
+    borderTop: '1 solid #d1d5db',
+    paddingTop: 6,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    fontSize: 8,
+  },
+  footerText: {
+    fontSize: 8,
+    color: '#6b7280',
+  },
 });
 
 interface DocumentationAcknowledgementPDFProps {
@@ -159,6 +176,26 @@ const DocumentationAcknowledgementPDF: React.FC<DocumentationAcknowledgementPDFP
     return (
       <View style={styles.header} fixed>
         <Image src={images.infinityLogo} style={styles.headerLogo} />
+      </View>
+    );
+  };
+
+  // Footer data from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.documentation_acknowledgement_form_id;
+  const footerDate = settings?.documentation_acknowledgement_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+
+  const renderFooter = () => {
+    if (!hasFooterData) return null;
+    
+    return (
+      <View style={styles.footer} fixed>
+        <View style={styles.footerRow}>
+          {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+          {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+          {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
+        </View>
       </View>
     );
   };
@@ -264,6 +301,7 @@ const DocumentationAcknowledgementPDF: React.FC<DocumentationAcknowledgementPDFP
             <Text style={styles.signatureValue}>{formatDate(getValue('date'))}</Text>
           </View>
         </View>
+        {renderFooter()}
       </Page>
     </Document>
   );

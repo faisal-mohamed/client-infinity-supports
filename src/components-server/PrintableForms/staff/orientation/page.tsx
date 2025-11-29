@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     padding: 48,
     paddingTop: 80,
-    paddingBottom: 72,
+    paddingBottom: 50, // Increased to make room for footer
     fontFamily: "Helvetica",
     fontSize: 11,
     lineHeight: 1.5,
@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
 
 interface OrientationPDFProps {
   data?: any;
+  settings?: any;
+  images?: any;
 }
 
 const formatDate = (value?: string) => {
@@ -138,8 +140,13 @@ const formatDate = (value?: string) => {
   }
 };
 
-const OrientationPDF: React.FC<OrientationPDFProps> = ({ data = {} }) => {
+const OrientationPDF: React.FC<OrientationPDFProps> = ({ 
+  data = {}, 
+  settings = {},
+  images = {}
+}) => {
   const logo =
+    images?.infinityLogo ||
     data?.settings?.logoDataUrl ||
     data?.logoDataUrl ||
     data?.data?.logoDataUrl ||
@@ -175,9 +182,20 @@ const OrientationPDF: React.FC<OrientationPDFProps> = ({ data = {} }) => {
     formData.readOrientation ??
     false;
 
-  const footerLeft = formData.footerLeft || "";
-  const footerCenter = formData.footerCenter || "";
-  const footerRight = formData.footerRight || "";
+  // Footer data from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.orientation_form_id;
+  const footerDate = settings?.orientation_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+  
+  console.log('🔍 [Orientation PDF] Footer data:', {
+    hasSettings: !!settings,
+    settingsKeys: Object.keys(settings || {}),
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+  });
 
   return (
     <Document>
@@ -246,11 +264,11 @@ const OrientationPDF: React.FC<OrientationPDFProps> = ({ data = {} }) => {
           </View>
         </View>
 
-        {(footerLeft || footerCenter || footerRight) && (
+        {hasFooterData && (
           <View style={styles.footer} fixed>
-            <Text style={styles.footerText}>{footerLeft}</Text>
-            <Text style={styles.footerText}>{footerCenter}</Text>
-            <Text style={styles.footerText}>{footerRight}</Text>
+            {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+            {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+            {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
           </View>
         )}
       </Page>

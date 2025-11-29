@@ -23,6 +23,7 @@ import AdminPDFCanvasViewer from '@/app/admin/components/AdminPDFCanvasViewer';
 import SignatureCanvas from '@/components/ui/SignatureCanvas';
 import AdminEditWarningModal from '@/components/ui/AdminEditWarningModal';
 import OrientationView from '@/app/form-components/staff/orientation/View';
+import FairWorkInformationView from '@/app/form-components/staff/fair-work-information/View';
 
 // Types
 interface StaffFormAssignmentData {
@@ -63,6 +64,7 @@ export default function StaffFormViewPageClient() {
   const [loading, setLoading] = useState(true);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [settings, setSettings] = useState({});
+  const [formMeta, setFormMeta] = useState<any>(null); // Store meta data for forms that need it
   
   // Admin section state for employee details
   const [adminFormData, setAdminFormData] = useState({
@@ -191,6 +193,10 @@ export default function StaffFormViewPageClient() {
         });
         processedFormData = formData.data;
         staffInfo = formData.staff || staffInfo;
+        // Store meta if available (for forms like fair_work_information)
+        if (formData.meta) {
+          setFormMeta(formData.meta);
+        }
       } else if (assignment.submissionData) {
         console.log('📋 [View Form] Using submission data from assignment:', {
           hasSubmissionData: !!assignment.submissionData,
@@ -955,8 +961,14 @@ export default function StaffFormViewPageClient() {
   // Check if this is Documentation Acknowledgement form - use PDF viewer (matches download)
   const isDocumentationAcknowledgementForm = assignment.form.formKey === 'documentation_acknowledgement';
   
+  // Check if this is NDIS Code of Conduct form - use PDF viewer (matches download)
+  const isNdisCodeOfConductForm = assignment.form.formKey === 'ndis_code_of_conduct';
+  
   // Check if this is Orientation form - use acknowledgement form component only (not full PDF)
   const isOrientationForm = assignment.form.formKey === 'orientation';
+  
+  // Check if this is Fair Work Information form - use acknowledgement form component only (not full PDF)
+  const isFairWorkInformationForm = assignment.form.formKey === 'fair_work_information';
   
   console.log('🎨 [View Form] Rendering decision:', {
     formKey: assignment.form.formKey,
@@ -970,9 +982,11 @@ export default function StaffFormViewPageClient() {
     isSupportWorkerForm,
     isPreEmploymentMedicalForm,
     isDocumentationAcknowledgementForm,
+    isNdisCodeOfConductForm,
     isOrientationForm,
-    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm || isPreEmploymentMedicalForm || isDocumentationAcknowledgementForm,
-    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm && !isPreEmploymentMedicalForm && !isDocumentationAcknowledgementForm && !isOrientationForm,
+    isFairWorkInformationForm,
+    willUsePDFViewer: isEmployeeDetailsForm || isEmployeeWelcomeForm || isBullyingTrainingForm || isBullyingHarassmentTrainingForm || isConflictOfInterestForm || isVehicleSafetyInspectionForm || isSupportWorkerForm || isPreEmploymentMedicalForm || isDocumentationAcknowledgementForm || isNdisCodeOfConductForm,
+    willUseFormComponent: !isEmployeeDetailsForm && !isEmployeeWelcomeForm && !isNdisForm && !isBullyingTrainingForm && !isBullyingHarassmentTrainingForm && !isConflictOfInterestForm && !isVehicleSafetyInspectionForm && !isSupportWorkerForm && !isPreEmploymentMedicalForm && !isDocumentationAcknowledgementForm && !isNdisCodeOfConductForm && !isOrientationForm && !isFairWorkInformationForm,
   });
   
   // Prepare overlay data for NDIS form
@@ -1693,6 +1707,18 @@ export default function StaffFormViewPageClient() {
               </div>
             );
           })()
+        ) : isNdisCodeOfConductForm ? (
+          /* Use PDF viewer for NDIS Code of Conduct form - shows generated PDF (matches download) */
+          (() => {
+            console.log('📄 [View Form] Rendering NDIS Code of Conduct PDF viewer');
+            const pdfUrl = `/api/staff/${staffId}/forms/ndis-code-of-conduct/pdf?key=${pdfKey}`;
+            console.log('📄 [View Form] NDIS Code of Conduct PDF URL:', pdfUrl);
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <AdminPDFCanvasViewer pdfUrl={pdfUrl} />
+              </div>
+            );
+          })()
         ) : isConflictOfInterestForm ? (
           /* Use PDF viewer for Conflict of Interest form with admin section */
           (() => {
@@ -1966,6 +1992,22 @@ export default function StaffFormViewPageClient() {
               <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden p-2 md:p-6">
                 <OrientationView
                   data={assignment.submissionData || {}}
+                  meta={formMeta}
+                  acknowledgementMode="readonly"
+                  showDocument={false}
+                />
+              </div>
+            );
+          })()
+        ) : isFairWorkInformationForm ? (
+          /* Use FairWorkInformationView component for Fair Work Information form - shows acknowledgement form only (not full PDF) */
+          (() => {
+            console.log('📋 [View Form] Rendering Fair Work Information acknowledgement form only');
+            return (
+              <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden p-2 md:p-6">
+                <FairWorkInformationView
+                  data={assignment.submissionData || {}}
+                  meta={formMeta}
                   acknowledgementMode="readonly"
                   showDocument={false}
                 />

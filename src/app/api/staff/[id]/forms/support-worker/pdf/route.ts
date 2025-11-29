@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
 import SupportWorkerPDF from '@/components-server/PrintableForms/staff/support-worker/page';
@@ -85,20 +86,10 @@ export async function GET(
       fullLogo: await encodeImageToBase64('/client_full_logo.jpg'),
     };
 
-    // Get app settings for footer
-    const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // Get staff-specific app settings for footer (website, form ID, review date)
+    const settings = await getStaffSettingsForForm(staffId, 'support_worker');
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach(setting => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
-    });
-
-    console.log('⚙️ [PDF API] Settings from DB:', settings);
+    console.log('⚙️ [PDF API] Staff settings for Support Worker Position Description:', settings);
 
     // Format signature date properly
     let signatureDate = null;

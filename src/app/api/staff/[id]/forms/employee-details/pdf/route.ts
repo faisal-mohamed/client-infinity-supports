@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 import { getStaffPDFComponent } from '@/components-server/staff/staffPDFRegistry';
 import fs from 'fs';
 import path from 'path';
@@ -96,17 +97,17 @@ export async function GET(
       console.warn('Logo not found, skipping:', error);
     }
 
-    // Get app settings for footer
-    const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // Get staff-specific app settings for footer
+    const settings = await getStaffSettingsForForm(staffId, 'employee_details');
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach((setting: any) => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
+    console.log('🔍 [PDF Route] Staff settings retrieved:', {
+      staffId,
+      adminId: (await prisma.staff.findUnique({ where: { id: staffId }, select: { createdById: true } }))?.createdById,
+      settingsKeys: Object.keys(settings),
+      website: settings?.website || settings?.company_website,
+      formId: settings?.employee_details_form_id,
+      reviewDate: settings?.employee_details_review_date || settings?.review_date,
+      hasLogo: !!logoDataUrl,
     });
 
     // Add logo and settings to data

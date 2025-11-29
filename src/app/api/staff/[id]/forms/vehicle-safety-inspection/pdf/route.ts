@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
 import VehicleSafetyInspectionPDF from '@/components-server/PrintableForms/staff/vehicle-safety-inspection/page';
@@ -87,20 +88,10 @@ export async function GET(
       infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
     };
 
-    // Get app settings for footer
-    const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // Get staff-specific app settings for footer
+    const settings = await getStaffSettingsForForm(staffId, 'vehicle_safety_inspection');
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach(setting => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
-    });
-
-    console.log('⚙️ [PDF API] Settings from DB:', settings);
+    console.log('⚙️ [PDF API] Staff settings for Vehicle Safety Inspection:', settings);
 
     // Create PDF component props - structure data to match what PDF component expects
     // The component does: const formData = data?.data || data || {};

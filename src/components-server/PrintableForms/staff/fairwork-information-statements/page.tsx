@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
 
 interface FairworkInformationPDFProps {
   data?: any;
+  settings?: any;
+  images?: any;
 }
 
 const formatDate = (value?: string) => {
@@ -138,8 +140,13 @@ const formatDate = (value?: string) => {
   }
 };
 
-const FairworkInformationPDF: React.FC<FairworkInformationPDFProps> = ({ data = {} }) => {
+const FairworkInformationPDF: React.FC<FairworkInformationPDFProps> = ({ 
+  data = {}, 
+  settings = {},
+  images = {}
+}) => {
   const logo =
+    images?.infinityLogo ||
     data?.settings?.logoDataUrl ||
     data?.logoDataUrl ||
     data?.data?.logoDataUrl ||
@@ -188,9 +195,11 @@ const FairworkInformationPDF: React.FC<FairworkInformationPDFProps> = ({ data = 
     formData.fairworkAcknowledged ??
     false;
 
-  const footerLeft = formData.footerLeft || '';
-  const footerCenter = formData.footerCenter || '';
-  const footerRight = formData.footerRight || '';
+  // Footer data from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.fair_work_information_form_id;
+  const footerDate = settings?.fair_work_information_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
 
   return (
     <Document>
@@ -253,11 +262,11 @@ const FairworkInformationPDF: React.FC<FairworkInformationPDFProps> = ({ data = 
           </View>
         </View>
 
-        {(footerLeft || footerCenter || footerRight) && (
+        {hasFooterData && (
           <View style={styles.footer} fixed>
-            <Text style={styles.footerText}>{footerLeft}</Text>
-            <Text style={styles.footerText}>{footerCenter}</Text>
-            <Text style={styles.footerText}>{footerRight}</Text>
+            {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+            {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+            {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
           </View>
         )}
       </Page>

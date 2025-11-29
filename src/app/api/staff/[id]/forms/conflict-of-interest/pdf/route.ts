@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getStaffSettingsForForm } from '@/lib/settings-server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
 import ConflictOfInterestPDF from '@/components-server/PrintableForms/staff/conflict-of-interest/page';
@@ -100,20 +101,18 @@ export async function GET(
       infinityLogo: await encodeImageToBase64('/infinity_logo.png'),
     };
 
-    // Get app settings for footer
-    const rawSettings = await prisma.appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // Get staff-specific app settings for footer
+    const settings = await getStaffSettingsForForm(staffId, 'conflict_of_interest');
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach(setting => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
+    console.log('🔍 [PDF API] Staff settings for Conflict of Interest:', {
+      staffId,
+      adminId: (await prisma.staff.findUnique({ where: { id: staffId }, select: { createdById: true } }))?.createdById,
+      settingsKeys: Object.keys(settings),
+      website: settings?.website || settings?.company_website,
+      formId: settings?.conflict_of_interest_form_id,
+      reviewDate: settings?.conflict_of_interest_review_date || settings?.review_date,
+      hasInfinityLogo: !!images.infinityLogo,
     });
-
-    console.log('⚙️ [PDF API] Settings from DB:', settings);
 
     // Create PDF component props
     const pdfProps = {

@@ -24,18 +24,30 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
   
   // Get meta from settings (passed via data.settings), no hardcoded defaults
   const settings = data?.settings || {};
-  const meta: PDFMeta | undefined = (settings?.website || settings?.employee_details_form_id || settings?.employee_details_review_date) ? {
-    website: settings?.website,
-    version: settings?.employee_details_form_id,
-    reviewDate: settings?.employee_details_review_date,
+  
+  // Try multiple possible keys for website, form ID, and review date
+  const website = settings?.website || settings?.company_website || null;
+  const formId = settings?.employee_details_form_id || null;
+  const reviewDate = settings?.employee_details_review_date || settings?.review_date || null;
+  
+  const meta: PDFMeta | undefined = (website || formId || reviewDate) ? {
+    website: website || '',
+    version: formId || '',
+    reviewDate: reviewDate || undefined,
   } : undefined;
 
   const logoUrl = data?.logoDataUrl || '/infinity_logo.png';
   
   console.log('📋 [EmployeeDetailsPDF] PDF configuration:', {
+    hasSettings: !!data?.settings,
+    settingsKeys: Object.keys(settings),
+    website,
+    formId,
+    reviewDate,
     hasMeta: !!meta,
     meta,
     logoUrl: logoUrl.substring(0, 50) + '...',
+    logoLength: logoUrl.length,
   });
 
   // Get value with fallback for field name variations
@@ -72,8 +84,18 @@ const EmployeeDetailsPDF: React.FC<EmployeeDetailsPDFProps> = ({ data }) => {
   console.log('📋 [EmployeeDetailsPDF] Rendering sections...');
   console.log('📋 [EmployeeDetailsPDF] Section count: 8 sections');
 
+  // Ensure logo is always provided (fallback to default if missing)
+  const finalLogoUrl = logoUrl && logoUrl.length > 0 ? logoUrl : '/infinity_logo.png';
+  
+  console.log('📋 [EmployeeDetailsPDF] Final render config:', {
+    hasLogo: !!finalLogoUrl,
+    logoLength: finalLogoUrl?.length || 0,
+    hasMeta: !!meta,
+    metaDetails: meta,
+  });
+
   return (
-    <BasePDFLayout title="Employee Details Form" logo={logoUrl} meta={meta}>
+    <BasePDFLayout title="Employee Details Form" logo={finalLogoUrl} meta={meta}>
       <View style={styles.mainContainer}>
         <PDFSection title="Personal Information" marginBottom={18}>
           <PDFFieldRow>

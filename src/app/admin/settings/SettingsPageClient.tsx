@@ -36,27 +36,45 @@ interface GroupedSettings {
 
 // Category configurations
 const categoryConfig = {
-  form_metadata: {
-    label: 'Form Metadata',
-    icon: FaFileAlt,
-    description: 'Common data used across all forms',
-    color: 'from-blue-500 to-blue-600'
-  },
-  
-  email_settings: {
+  // Client categories
+  client_email_settings: {
     label: 'Email Settings',
     icon: FaEnvelope,
-    description: 'Email configuration for notifications and communications',
+    description: 'Email configuration for client notifications and communications',
     color: 'from-green-500 to-green-600'
   },
-  
+  client_form_metadata: {
+    label: 'Form Metadata',
+    icon: FaFileAlt,
+    description: 'Common data used across client forms',
+    color: 'from-blue-500 to-blue-600'
+  },
   form_ids: {
     label: 'Form IDs',
     icon: FaCog,
-    description: 'IDs assigned to different forms',
+    description: 'IDs assigned to different client forms',
     color: 'from-gray-500 to-gray-600'
   },
   
+  // Staff categories
+  staff_email_settings: {
+    label: 'Email Settings',
+    icon: FaEnvelope,
+    description: 'Email configuration for staff notifications and communications',
+    color: 'from-green-500 to-green-600'
+  },
+  staff_form_metadata: {
+    label: 'Form Metadata',
+    icon: FaFileAlt,
+    description: 'Common data used across staff forms',
+    color: 'from-blue-500 to-blue-600'
+  },
+  staff_form_ids: {
+    label: 'Form IDs',
+    icon: FaCog,
+    description: 'IDs assigned to different staff forms',
+    color: 'from-purple-500 to-purple-600'
+  },
 };
 
 export default function SettingsPageClient() {
@@ -69,7 +87,8 @@ export default function SettingsPageClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [initializing, setInitializing] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string>('email_settings');
+  const [activeCategory, setActiveCategory] = useState<string>('client_email_settings');
+  const [activeSection, setActiveSection] = useState<'client' | 'staff'>('client');
   const [hasChanges, setHasChanges] = useState(false);
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
@@ -484,8 +503,35 @@ export default function SettingsPageClient() {
     );
   }
 
-  const categories = Object.keys(settings).length > 0 ? Object.keys(settings) : ['email_settings', 'form_metadata'];
-  const currentSettings = settings[activeCategory] || [];
+  // Group categories by client/staff - now completely separate
+  const clientCategories = ['client_email_settings', 'client_form_metadata', 'form_ids'];
+  const staffCategories = ['staff_email_settings', 'staff_form_metadata', 'staff_form_ids'];
+  
+  // Get all available categories from settings
+  const allCategories = Object.keys(settings).length > 0 ? Object.keys(settings) : ['client_email_settings', 'client_form_metadata'];
+  
+  // Filter to show only relevant categories
+  const availableClientCategories = clientCategories.filter(cat => allCategories.includes(cat));
+  const availableStaffCategories = staffCategories.filter(cat => allCategories.includes(cat));
+  
+  // Handle category selection - track which section it belongs to
+  const handleCategoryClick = (category: string, section: 'client' | 'staff') => {
+    setActiveCategory(category);
+    setActiveSection(section);
+  };
+  
+  // Get current settings based on active category
+  // Filter out form IDs that should not be displayed
+  const excludedFormIds = [
+    'ndis_workforce_capability_form_id',
+    'govt_tax_form_id',
+    'super_choice_form_id',
+    'employment_details_form_id' // Unused - only employee_details_form_id is used
+  ];
+  
+  const currentSettings = (settings[activeCategory] || []).filter(
+    (setting: AppSetting) => !excludedFormIds.includes(setting.key)
+  );
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -561,47 +607,101 @@ export default function SettingsPageClient() {
               </div>
               
               {/* Mobile: Horizontal scroll, Desktop: Vertical stack */}
-              <nav className="p-4">
-                <div className="flex lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
-                  {categories.map((category, index) => {
-                    const config = categoryConfig[category as keyof typeof categoryConfig] || {
-                      label: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                      icon: FaCog,
-                      description: '',
-                      color: 'from-gray-500 to-gray-600'
-                    };
-                    const Icon = config.icon;
-                    const isActive = activeCategory === category;
-                    
-                    return (
-                      <button
-                        key={category}
-                        onClick={() => setActiveCategory(category)}
-                        className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-4 rounded-xl text-left transition-all duration-200 min-w-[200px] lg:min-w-0 ${
-                          isActive
-                            ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-2 border-indigo-200 shadow-md'
-                            : 'text-gray-700 hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-md'
-                        }`}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                          animation: 'fadeInLeft 0.6s ease-out forwards'
-                        }}
-                      >
-                        <div className={`p-3 rounded-xl mr-4 bg-gradient-to-br ${config.color} text-white shadow-md flex-shrink-0`}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-base truncate">{config.label}</div>
-                          {config.description && (
-                            <div className="text-sm text-gray-500 mt-1 hidden lg:block">{config.description}</div>
+              <nav className="p-4 space-y-6">
+                {/* Client Settings Categories */}
+                <div>
+                  <div className="mb-3 px-2">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Client Settings Categories</h4>
+                  </div>
+                  <div className="flex lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+                    {availableClientCategories.map((category, index) => {
+                      const config = categoryConfig[category as keyof typeof categoryConfig] || {
+                        label: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        icon: FaCog,
+                        description: '',
+                        color: 'from-gray-500 to-gray-600'
+                      };
+                      const Icon = config.icon;
+                      const isActive = activeCategory === category && activeSection === 'client';
+                      
+                      return (
+                        <button
+                          key={`client-${category}`}
+                          onClick={() => handleCategoryClick(category, 'client')}
+                          className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-4 rounded-xl text-left transition-all duration-200 min-w-[200px] lg:min-w-0 ${
+                            isActive
+                              ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-2 border-indigo-200 shadow-md'
+                              : 'text-gray-700 hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-md'
+                          }`}
+                          style={{
+                            animationDelay: `${index * 50}ms`,
+                            animation: 'fadeInLeft 0.6s ease-out forwards'
+                          }}
+                        >
+                          <div className={`p-3 rounded-xl mr-4 bg-gradient-to-br ${config.color} text-white shadow-md flex-shrink-0`}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-base truncate">{config.label}</div>
+                            {config.description && (
+                              <div className="text-sm text-gray-500 mt-1 hidden lg:block">{config.description}</div>
+                            )}
+                          </div>
+                          {isActive && (
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
                           )}
-                        </div>
-                        {isActive && (
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
-                        )}
-                      </button>
-                    );
-                  })}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Staff Settings Categories */}
+                <div>
+                  <div className="mb-3 px-2">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Staff Settings Categories</h4>
+                  </div>
+                  <div className="flex lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+                    {availableStaffCategories.map((category, index) => {
+                      const config = categoryConfig[category as keyof typeof categoryConfig] || {
+                        label: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        icon: FaCog,
+                        description: '',
+                        color: 'from-gray-500 to-gray-600'
+                      };
+                      const Icon = config.icon;
+                      const isActive = activeCategory === category && activeSection === 'staff';
+                      
+                      return (
+                        <button
+                          key={`staff-${category}`}
+                          onClick={() => handleCategoryClick(category, 'staff')}
+                          className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-4 rounded-xl text-left transition-all duration-200 min-w-[200px] lg:min-w-0 ${
+                            isActive
+                              ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-2 border-indigo-200 shadow-md'
+                              : 'text-gray-700 hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-md'
+                          }`}
+                          style={{
+                            animationDelay: `${(availableClientCategories.length + index) * 50}ms`,
+                            animation: 'fadeInLeft 0.6s ease-out forwards'
+                          }}
+                        >
+                          <div className={`p-3 rounded-xl mr-4 bg-gradient-to-br ${config.color} text-white shadow-md flex-shrink-0`}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-base truncate">{config.label}</div>
+                            {config.description && (
+                              <div className="text-sm text-gray-500 mt-1 hidden lg:block">{config.description}</div>
+                            )}
+                          </div>
+                          {isActive && (
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </nav>
             </div>

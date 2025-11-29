@@ -4,6 +4,7 @@ import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { prisma } from "@/lib/prisma";
 import { getStaffPDFComponent } from "@/components-server/staff/staffPDFRegistry";
+import { getStaffSettingsForForm } from "@/lib/settings-server";
 import fs from "fs";
 import path from "path";
 
@@ -20,6 +21,9 @@ export async function GET(
   try {
     const { id, formType } = await params;
     const staffId = parseInt(id);
+
+    console.log('🔵 [PDF API] ========== PDF Generation Request ==========');
+    console.log('🔵 [PDF API] Request received:', { staffId, formType, url: req.url });
 
     if (!staffId || !formType) {
       return new NextResponse("Missing staffId or formType", { status: 400 });
@@ -321,17 +325,104 @@ export async function GET(
     }
 
     // Get app settings for footer (like other staff forms)
-    const rawSettings = await (prisma as any).appSettings.findMany({
-      where: { isActive: true },
-      select: { key: true, value: true },
-    });
+    // For fair-work-information and ndis-code-of-conduct, use getStaffSettingsForForm to get admin-specific settings
+    let settings: Record<string, any> = {};
+    
+    if (formType === 'fair-work-information' || formType === 'fair_work_information') {
+      // Use staff-specific settings for fair-work-information
+      const staffSettings = await getStaffSettingsForForm(staffId, 'fair_work_information');
+      settings = {
+        ...staffSettings,
+      };
+      console.log('🔍 [PDF API] Staff settings for Fairwork Information Statements:', {
+        staffId,
+        settingsKeys: Object.keys(settings),
+        website: settings?.website,
+        formId: settings?.fair_work_information_form_id,
+        reviewDate: settings?.fair_work_information_review_date,
+      });
+    } else if (formType === 'ndis-code-of-conduct' || formType === 'ndis_code_of_conduct') {
+      // Use staff-specific settings for ndis-code-of-conduct
+      const staffSettings = await getStaffSettingsForForm(staffId, 'ndis_code_of_conduct');
+      settings = {
+        ...staffSettings,
+      };
+      console.log('🔍 [PDF API] Staff settings for NDIS Code of Conduct:', {
+        staffId,
+        settingsKeys: Object.keys(settings),
+        website: settings?.website || settings?.company_website,
+        formId: settings?.ndis_code_of_conduct_form_id,
+        reviewDate: settings?.ndis_code_of_conduct_review_date || settings?.review_date,
+        hasWebsite: !!(settings?.website || settings?.company_website),
+        hasFormId: !!settings?.ndis_code_of_conduct_form_id,
+        hasReviewDate: !!(settings?.ndis_code_of_conduct_review_date || settings?.review_date),
+        allSettings: settings,
+      });
+      console.log('🔍 [PDF API] Settings object details:', JSON.stringify(settings, null, 2));
+    } else if (formType === 'pre-employment-medical') {
+      // Use staff-specific settings for pre-employment-medical
+      const staffSettings = await getStaffSettingsForForm(staffId, 'pre_employment_medical');
+      settings = {
+        ...staffSettings,
+      };
+      console.log('🔍 [PDF API] Staff settings for Pre-Employment Medical:', {
+        staffId,
+        settingsKeys: Object.keys(settings),
+        website: settings?.website || settings?.company_website,
+        formId: settings?.pre_employment_medical_form_id,
+        reviewDate: settings?.pre_employment_medical_review_date || settings?.review_date,
+        hasWebsite: !!(settings?.website || settings?.company_website),
+        hasFormId: !!settings?.pre_employment_medical_form_id,
+        hasReviewDate: !!(settings?.pre_employment_medical_review_date || settings?.review_date),
+        allSettings: settings,
+      });
+    } else if (formType === 'bullying-training') {
+      // Use staff-specific settings for bullying-training
+      const staffSettings = await getStaffSettingsForForm(staffId, 'bullying_training');
+      settings = {
+        ...staffSettings,
+      };
+      console.log('🔍 [PDF API] Staff settings for Bullying Training:', {
+        staffId,
+        settingsKeys: Object.keys(settings),
+        website: settings?.website || settings?.company_website,
+        formId: settings?.bullying_training_form_id,
+        reviewDate: settings?.bullying_training_review_date || settings?.review_date,
+        hasWebsite: !!(settings?.website || settings?.company_website),
+        hasFormId: !!settings?.bullying_training_form_id,
+        hasReviewDate: !!(settings?.bullying_training_review_date || settings?.review_date),
+        allSettings: settings,
+      });
+    } else if (formType === 'orientation') {
+      // Use staff-specific settings for orientation
+      const staffSettings = await getStaffSettingsForForm(staffId, 'orientation');
+      settings = {
+        ...staffSettings,
+      };
+      console.log('🔍 [PDF API] Staff settings for Orientation:', {
+        staffId,
+        settingsKeys: Object.keys(settings),
+        website: settings?.website || settings?.company_website,
+        formId: settings?.orientation_form_id,
+        reviewDate: settings?.orientation_review_date || settings?.review_date,
+        hasWebsite: !!(settings?.website || settings?.company_website),
+        hasFormId: !!settings?.orientation_form_id,
+        hasReviewDate: !!(settings?.orientation_review_date || settings?.review_date),
+        allSettings: settings,
+      });
+    } else {
+      // For other forms, use the generic approach (backward compatibility)
+      const rawSettings = await (prisma as any).appSettings.findMany({
+        where: { isActive: true },
+        select: { key: true, value: true },
+      });
 
-    const settings: Record<string, any> = {};
-    rawSettings.forEach((setting: any) => {
-      if (setting.value && setting.value.trim() !== '') {
-        settings[setting.key] = setting.value;
-      }
-    });
+      rawSettings.forEach((setting: any) => {
+        if (setting.value && setting.value.trim() !== '') {
+          settings[setting.key] = setting.value;
+        }
+      });
+    }
 
     // Add logoDataUrl to settings so the PDF component can access it
     if (logoDataUrl) {
@@ -401,6 +492,19 @@ export async function GET(
       acknowledgmentDataKeys: dataWithLogo?.data?.acknowledgmentData ? Object.keys(dataWithLogo.data.acknowledgmentData) : []
     });
     
+    // Log settings being passed for NDIS Code of Conduct
+    if (formType === 'ndis-code-of-conduct' || formType === 'ndis_code_of_conduct') {
+      console.log('🔍 [PDF API] About to create PDF element with settings:', {
+        settingsKeys: Object.keys(settings || {}),
+        website: settings?.website,
+        company_website: settings?.company_website,
+        ndis_code_of_conduct_form_id: settings?.ndis_code_of_conduct_form_id,
+        ndis_code_of_conduct_review_date: settings?.ndis_code_of_conduct_review_date,
+        review_date: settings?.review_date,
+        fullSettings: settings,
+      });
+    }
+    
     const pdfElement = React.createElement(StaffPDFComponent, { 
       data: {
         ...dataWithLogo,
@@ -427,6 +531,14 @@ export async function GET(
         acknowledgmentOnly: acknowledgmentOnly
       }
     });
+    
+    // Additional logging for NDIS Code of Conduct
+    if (formType === 'ndis-code-of-conduct' || formType === 'ndis_code_of_conduct') {
+      console.log('🔍 [PDF API] Settings passed to PDF component:', {
+        settingsObject: settings,
+        settingsStringified: JSON.stringify(settings),
+      });
+    }
 
     console.log('🔵 [PDF API] Generating PDF for staff:', staff.firstName, staff.surname);
     console.log('🔵 [PDF API] acknowledgmentOnly mode:', acknowledgmentOnly, 'type:', typeof acknowledgmentOnly);

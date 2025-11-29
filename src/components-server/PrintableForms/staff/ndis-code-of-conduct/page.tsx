@@ -4,13 +4,14 @@ import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/render
 interface NdisCodeOfConductPDFProps {
   data?: any;
   settings?: any;
+  images?: any;
   showBlankForm?: boolean;
 }
 
 const styles = StyleSheet.create({
   page: {
     paddingTop: 40,
-    paddingBottom: 60,
+    paddingBottom: 50, // Increased to make room for footer
     paddingHorizontal: 48,
     fontFamily: 'Helvetica',
     fontSize: 11,
@@ -172,6 +173,23 @@ const styles = StyleSheet.create({
     objectFit: 'contain',
     alignSelf: 'center',
   },
+  footer: {
+    position: 'absolute',
+    bottom: 15,
+    left: 48,
+    right: 48,
+    borderTop: '1 solid #d1d5db',
+    paddingTop: 6,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    fontSize: 8,
+  },
+  footerText: {
+    fontSize: 8,
+    color: '#6b7280',
+  },
 });
 
 const conductPoints = [
@@ -242,7 +260,7 @@ const HeaderSection: React.FC<{ logoUrl: string; versionDate: string }> = ({ log
   </View>
 );
 
-const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, showBlankForm = false }) => {
+const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, settings = {}, images = {}, showBlankForm = false }) => {
   const payload = data?.data || data || {};
   const staff = payload.staff || {};
   const staffName =
@@ -257,7 +275,52 @@ const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, showB
   // Use client logo with background removed for NDIS Code of Conduct form
   // logoDataUrl should be a base64 data URL from the API route (e.g., "data:image/png;base64,...")
   // Check both settings.logoDataUrl and top-level logoDataUrl for compatibility
-  const logoUrl = data?.settings?.logoDataUrl || data?.logoDataUrl || '';
+  const logoUrl = images?.infinityLogo || data?.settings?.logoDataUrl || data?.logoDataUrl || '';
+  
+  // Footer data from settings
+  const footerWebsite = settings?.website || settings?.company_website;
+  const footerId = settings?.ndis_code_of_conduct_form_id;
+  const footerDate = settings?.ndis_code_of_conduct_review_date || settings?.review_date;
+  const hasFooterData = footerWebsite || footerId || footerDate;
+
+  // Debug logging - these will appear in TERMINAL/SERVER logs, not browser console
+  console.log('🔍 [NDIS PDF Component] ========== NDIS Code of Conduct PDF Component ==========');
+  console.log('🔍 [NDIS PDF Component] Props received:', {
+    hasData: !!data,
+    hasSettings: !!settings,
+    hasImages: !!images,
+    settingsKeys: Object.keys(settings || {}),
+    imagesKeys: Object.keys(images || {}),
+  });
+  console.log('🔍 [NDIS PDF Component] Footer data extraction:', {
+    footerWebsite,
+    footerId,
+    footerDate,
+    hasFooterData,
+    settingsWebsite: settings?.website,
+    settingsCompanyWebsite: settings?.company_website,
+    settingsFormId: settings?.ndis_code_of_conduct_form_id,
+    settingsReviewDate: settings?.ndis_code_of_conduct_review_date,
+    settingsGenericReviewDate: settings?.review_date,
+  });
+
+  const renderFooter = () => {
+    if (!hasFooterData) {
+      console.log('⚠️ [NDIS PDF] No footer data, skipping footer render');
+      return null;
+    }
+    
+    console.log('✅ [NDIS PDF] Rendering footer with:', { footerWebsite, footerId, footerDate });
+    return (
+      <View style={styles.footer} fixed>
+        <View style={styles.footerRow}>
+          {footerWebsite && <Text style={styles.footerText}>Website: {footerWebsite}</Text>}
+          {footerId && <Text style={styles.footerText}>{footerId}</Text>}
+          {footerDate && <Text style={styles.footerText}>Review Date: {footerDate}</Text>}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <Document>
@@ -311,6 +374,7 @@ const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, showB
             </Text>
           </View>
         </View>
+        {renderFooter()}
       </Page>
 
       <Page size="A4" style={styles.page}>
@@ -339,6 +403,7 @@ const NdisCodeOfConductPDF: React.FC<NdisCodeOfConductPDFProps> = ({ data, showB
             </View>
           </View>
         </View>
+        {renderFooter()}
       </Page>
     </Document>
   );
