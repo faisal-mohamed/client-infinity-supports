@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkAndTriggerStaffBatchEmail } from '@/lib/staff-batch-email';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -92,6 +93,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           isCompleted: true,
         },
       });
+
+      // Check if batch is completed and trigger email
+      console.log(`🔍 [CONFLICT OF INTEREST ADMIN] Form completed, checking batch completion...`);
+      await checkAndTriggerStaffBatchEmail(staffId, 'conflict_of_interest');
     }
 
     return NextResponse.json({

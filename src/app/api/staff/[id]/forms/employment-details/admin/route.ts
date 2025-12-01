@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkAndTriggerStaffBatchEmail } from '@/lib/staff-batch-email';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -59,6 +60,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             isCompleted: true,
           },
         });
+
+        // Check if batch is completed and trigger email
+        console.log(`🔍 [EMPLOYEE DETAILS ADMIN] Form completed, checking batch completion...`);
+        await checkAndTriggerStaffBatchEmail(staffId, 'employee_details');
       }
 
       return NextResponse.json({
@@ -132,6 +137,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           isCompleted: true,
         },
       });
+
+      // Check if batch is completed and trigger email
+      console.log(`🔍 [EMPLOYEE DETAILS ADMIN] Form completed, checking batch completion...`);
+      await checkAndTriggerStaffBatchEmail(staffId, 'employee_details');
     }
 
     return NextResponse.json({

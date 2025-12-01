@@ -654,6 +654,40 @@ export async function POST(
             },
           });
           console.log(`✅ [Onboard API] Updated StaffFormAssignment ${assignment.id} status to ${newStatus} for form: ${formKey} (staff signed: ${hasStaffSignature}, admin signed: ${hasAdminSignature})`);
+          
+          // For forms that don't require admin signature and are now completed, trigger email check
+          if (shouldMarkCompleted && !requiresAdminSignature) {
+            console.log(`🔍 [Onboard API] Form ${formKey} completed by staff (no admin signature required), checking batch completion...`);
+            console.log(`🔍 [Onboard API] Email trigger details:`, {
+              formKey,
+              staffId: staff.id,
+              assignmentId: assignment.id,
+              newStatus,
+              shouldMarkCompleted,
+              requiresAdminSignature,
+              hasStaffSignature,
+              hasAdminSignature
+            });
+            try {
+              const { checkAndTriggerStaffBatchEmail } = await import('@/lib/staff-batch-email');
+              console.log(`📧 [Onboard API] Calling checkAndTriggerStaffBatchEmail for formKey: ${formKey}, staffId: ${staff.id}`);
+              await checkAndTriggerStaffBatchEmail(staff.id, formKey);
+              console.log(`✅ [Onboard API] checkAndTriggerStaffBatchEmail completed for ${formKey}`);
+            } catch (emailError) {
+              console.error(`❌ [Onboard API] Error triggering batch email check for ${formKey}:`, {
+                error: emailError,
+                message: emailError instanceof Error ? emailError.message : 'Unknown error',
+                stack: emailError instanceof Error ? emailError.stack : undefined
+              });
+              // Don't fail the request if email check fails
+            }
+          } else {
+            console.log(`ℹ️ [Onboard API] Email check skipped for ${formKey}:`, {
+              shouldMarkCompleted,
+              requiresAdminSignature,
+              reason: !shouldMarkCompleted ? 'Form not marked as completed' : 'Form requires admin signature'
+            });
+          }
         } catch (updateError: any) {
           console.error(`❌ [Onboard API] Failed to update assignment status:`, updateError);
           // Don't fail the whole request if status update fails

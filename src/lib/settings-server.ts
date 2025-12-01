@@ -74,7 +74,7 @@ export async function fetchSettingsFromDB(adminId: any | null): Promise<AppSetti
       };
     } else {
       // Fetch both admin-specific and global settings (admin-specific takes precedence)
-      const adminIdInt = parseInt(adminId);
+  const adminIdInt = parseInt(adminId);
       if (isNaN(adminIdInt)) {
         // If parsing fails, only get global settings
         whereClause = { 
@@ -84,10 +84,10 @@ export async function fetchSettingsFromDB(adminId: any | null): Promise<AppSetti
       } else {
         whereClause = {
           isActive: true,
-          OR: [
-            { adminId: adminIdInt },
-            { adminId: null },
-          ],
+        OR: [
+          { adminId: adminIdInt },
+          { adminId: null },
+        ],
         };
       }
     }
@@ -174,37 +174,81 @@ export async function getMultipleSettingsFromDB(
   adminId: number | null
 ): Promise<Record<string, string | null>> {
   try {
-    const settings : any  = await fetchSettingsFromDB(adminId);
-    const result: Record<string, string | null> = {};
-
-    console.log(`🔍 [getMultipleSettingsFromDB] Looking for ${keys.length} keys with adminId: ${adminId}`);
-    console.log(`🔍 [getMultipleSettingsFromDB] Total settings fetched: ${settings.length}`);
-    console.log(`🔍 [getMultipleSettingsFromDB] Sample settings:`, settings.slice(0, 3).map((s: any) => ({ key: s.key, adminId: s.adminId, value: s.value })));
-
-    for (const key of keys) {
-      // ✅ Prefer admin-specific, fallback to global
-      // Handle null adminId properly - don't convert null to 0
-      let setting;
-      if (adminId === null) {
-        // When adminId is null, look for global settings (adminId === null)
-        setting = settings.find((s: any) => s.key === key && s.adminId === null);
+    // ✅ OPTIMIZED: Query only the specific keys we need instead of fetching all settings
+    // This is much faster, especially when there are many settings
+    let whereClause: any;
+    
+    if (adminId === null || adminId === undefined) {
+      // Only fetch global settings (adminId: null) for the specific keys
+      whereClause = { 
+        key: { in: keys },
+        adminId: null,
+        isActive: true 
+      };
+    } else {
+      // Fetch both admin-specific and global settings for the specific keys
+      const adminIdInt = parseInt(String(adminId));
+      if (isNaN(adminIdInt)) {
+        whereClause = { 
+          key: { in: keys },
+          adminId: null,
+          isActive: true 
+        };
       } else {
-        // When adminId is a number, prefer admin-specific, then fallback to global
-        setting = settings.find((s: any) => s.key === key && s.adminId === adminId) ||
-                  settings.find((s: any) => s.key === key && s.adminId === null);
+        whereClause = {
+          key: { in: keys },
+          isActive: true,
+          OR: [
+            { adminId: adminIdInt },
+            { adminId: null },
+          ],
+        };
       }
-
-      console.log(`🔍 [getMultipleSettingsForDB] Setting found for key "${key}":`, setting ? {
-        key: setting.key,
-        adminId: setting.adminId,
-        value: setting.value,
-        defaultValue: setting.defaultValue
-      } : 'NOT FOUND');
-
-      result[key] = setting ? (setting.value || setting.defaultValue || null) : null;
     }
 
-    console.log(`🔍 [getMultipleSettingsFromDB] Final result:`, result);
+    // Query only the keys we need - much faster!
+    const settings : any = await prisma.appSettings.findMany({
+      where: whereClause,
+      orderBy: [
+        { adminId: 'desc' } // Admin-specific (numbers) first, then global (null) - so admin-specific can override
+      ],
+    });
+
+    console.log(`🔍 [getMultipleSettingsFromDB] Looking for ${keys.length} keys with adminId: ${adminId}`);
+    console.log(`🔍 [getMultipleSettingsFromDB] Found ${settings.length} matching settings (optimized query)`);
+
+    const result: Record<string, string | null> = {};
+
+    // Initialize all keys to null
+    keys.forEach(key => result[key] = null);
+
+    // Process settings: admin-specific override global
+    // Settings are ordered by adminId DESC, so admin-specific (numbers) come before global (null)
+    const processedKeys = new Set<string>();
+    
+    for (const setting of settings) {
+      const key = setting.key;
+      // Only process each key once (admin-specific takes precedence due to ordering)
+      if (!processedKeys.has(key)) {
+        processedKeys.add(key);
+        result[key] = setting.value || setting.defaultValue || null;
+
+        console.log(`🔍 [getMultipleSettingsForDB] Setting found for key "${key}":`, {
+          key: setting.key,
+          adminId: setting.adminId,
+          value: setting.value ? 'SET' : 'EMPTY',
+          source: setting.adminId === null ? 'GLOBAL' : 'ADMIN-SPECIFIC'
+        });
+      }
+    }
+
+    // Log any missing keys
+    const missingKeys = keys.filter(key => !processedKeys.has(key));
+    if (missingKeys.length > 0) {
+      console.log(`⚠️ [getMultipleSettingsFromDB] Missing keys: ${missingKeys.join(', ')}`);
+    }
+
+    console.log(`🔍 [getMultipleSettingsFromDB] Final result:`, Object.keys(result).length, 'keys processed');
     return result;
   } catch (error) {
     console.error("Error getting multiple settings:", error);

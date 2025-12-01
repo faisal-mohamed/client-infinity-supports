@@ -261,7 +261,7 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
         <Field label="Suburb" value={data.suburb} onChange={(v)=>set('suburb', v)} />
         <Field label="State" value={data.state} onChange={(v)=>set('state', v)} />
         <Field label="Postcode" value={data.postcode} onChange={(v)=>set('postcode', v)} />
-        <Field label="Home Phone" value={data.homePhone} onChange={(v)=>set('homePhone', v)} />
+        <NumberLineField label="Home Phone" value={data.homePhone || ''} onChange={(v)=>set('homePhone', v)} maxLength={15} />
         <Field label="Mobile" value={data.mobile} onChange={(v)=>set('mobile', v)} readOnly />
         <Field label="Email Address" value={data.email} onChange={(v)=>set('email', v)} className="col-span-2" readOnly />
 
@@ -304,16 +304,10 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
             <Field label="Suburb" value={data.nokSuburb} onChange={(v)=>set('nokSuburb', v)} />
             <Field label="State" value={data.nokState} onChange={(v)=>set('nokState', v)} />
             <Field label="Postcode" value={data.nokPostcode} onChange={(v)=>set('nokPostcode', v)} />
-            <Field label="Home Phone" value={data.nokHomePhone} onChange={(v)=>set('nokHomePhone', v)} />
-            <Field label="Mobile" value={data.nokMobile} onChange={(v)=>set('nokMobile', v)} />
+            <NumberLineField label="Home Phone" value={data.nokHomePhone || ''} onChange={(v)=>set('nokHomePhone', v)} maxLength={15} />
+            <NumberLineField label="Mobile" value={data.nokMobile || ''} onChange={(v)=>set('nokMobile', v)} maxLength={15} />
             <Field label="Work" value={data.nokWorkPhone} onChange={(v)=>set('nokWorkPhone', v)} />
           </div>
-        </div>
-        {/* Footer */}
-        <div className="absolute bottom-6 left-[96px] right-[96px] text-[10pt] text-gray-600 flex items-center justify-between">
-          <div>Website: {meta.website}</div>
-          <div>{meta.formId}</div>
-          <div>Review Date: {meta.reviewDate}</div>
         </div>
       </div>
     </div>
@@ -410,12 +404,6 @@ export default forwardRef<EmployeeDetailsStepRef, { token: string; onValidityCha
             )}
           </fieldset>
         </div>
-      </div>
-      {/* Footer */}
-      <div className="absolute bottom-6 left-[96px] right-[96px] text-[10pt] text-gray-600 flex items-center justify-between">
-        <div>Website: {meta.website}</div>
-        <div>{meta.formId}</div>
-        <div>Review Date: {meta.reviewDate}</div>
       </div>
     </div>
   </>);

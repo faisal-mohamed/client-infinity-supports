@@ -254,6 +254,143 @@ export async function GET(
         }
         break;
       }
+      case 'super-choice-form':
+      case 'super_choice_form': {
+        // Super Choice Form uses a special Playwright-based PDF generation
+        // Redirect to the special endpoint
+        const superChoiceSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'super_choice_form',
+            },
+          },
+        });
+        if (!superChoiceSubmission) {
+          return new NextResponse("Super Choice Form submission not found", { status: 404 });
+        }
+        
+        const formDataObj = (superChoiceSubmission.data as any) || {};
+        
+        // Call the special super-choice-form PDF endpoint
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+        const pdfUrl = `${baseUrl}/api/generate-pdf/super-choice-form`;
+        
+        console.log(`📄 [PDF API] Redirecting super_choice_form to special endpoint: ${pdfUrl}`);
+        
+        try {
+          const pdfResponse = await fetch(pdfUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formDataObj)
+          });
+          
+          if (!pdfResponse.ok) {
+            throw new Error(`Super choice form PDF generation failed: ${pdfResponse.status}`);
+          }
+          
+          const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+          const filename = `Superannuation_Standard_Choice_Form_${staff.firstName || ''}_${staff.surname || ''}.pdf`.replace(/\s+/g, '_');
+          
+          return new NextResponse(pdfBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="${filename}"`
+            }
+          });
+        } catch (error) {
+          console.error('❌ [PDF API] Super choice form PDF generation error:', error);
+          return new NextResponse(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
+        }
+      }
+      case 'govt-tax':
+      case 'govt_tax': {
+        // TFN Declaration Form uses a special Playwright-based PDF generation
+        // Redirect to the special endpoint
+        const taxSubmission = await prisma.staffFormSubmission.findUnique({
+          where: {
+            staffId_formKey: {
+              staffId,
+              formKey: 'govt_tax',
+            },
+          },
+        });
+        if (!taxSubmission) {
+          return new NextResponse("TFN Declaration Form submission not found", { status: 404 });
+        }
+        
+        const formDataObj = (taxSubmission.data as any) || {};
+        
+        // Call the special tax-form PDF endpoint
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+        const pdfUrl = `${baseUrl}/api/generate-pdf/tax-form`;
+        
+        console.log(`📄 [PDF API] Redirecting govt_tax to special endpoint: ${pdfUrl}`);
+        
+        try {
+          const pdfResponse = await fetch(pdfUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formDataObj)
+          });
+          
+          if (!pdfResponse.ok) {
+            throw new Error(`TFN Declaration PDF generation failed: ${pdfResponse.status}`);
+          }
+          
+          const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+          const filename = `TFN_Declaration_Form_${staff.firstName || ''}_${staff.surname || ''}.pdf`.replace(/\s+/g, '_');
+          
+          return new NextResponse(pdfBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="${filename}"`
+            }
+          });
+        } catch (error) {
+          console.error('❌ [PDF API] TFN Declaration PDF generation error:', error);
+          return new NextResponse(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
+        }
+      }
+      case 'ndis-workforce-capability':
+      case 'ndis_workforce_capability': {
+        // NDIS Workforce Capability uses a special Playwright-based PDF generation
+        // Redirect to the special endpoint
+        const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+        const pdfUrl = `${baseUrl}/api/staff/${staffId}/forms/ndis-workforce-capability/pdf`;
+        
+        console.log(`📄 [PDF API] Redirecting ndis_workforce_capability to special endpoint: ${pdfUrl}`);
+        
+        try {
+          const pdfResponse = await fetch(pdfUrl, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!pdfResponse.ok) {
+            throw new Error(`NDIS Workforce Capability PDF generation failed: ${pdfResponse.status}`);
+          }
+          
+          const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+          const filename = `NDIS_Workforce_Capability_${staff.firstName || ''}_${staff.surname || ''}.pdf`.replace(/\s+/g, '_');
+          
+          return new NextResponse(pdfBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="${filename}"`
+            }
+          });
+        } catch (error) {
+          console.error('❌ [PDF API] NDIS Workforce Capability PDF generation error:', error);
+          return new NextResponse(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
+        }
+      }
       default:
         return new NextResponse("Invalid form type", { status: 400 });
     }
@@ -412,16 +549,16 @@ export async function GET(
       });
     } else {
       // For other forms, use the generic approach (backward compatibility)
-      const rawSettings = await (prisma as any).appSettings.findMany({
-        where: { isActive: true },
-        select: { key: true, value: true },
-      });
+    const rawSettings = await (prisma as any).appSettings.findMany({
+      where: { isActive: true },
+      select: { key: true, value: true },
+    });
 
-      rawSettings.forEach((setting: any) => {
-        if (setting.value && setting.value.trim() !== '') {
-          settings[setting.key] = setting.value;
-        }
-      });
+    rawSettings.forEach((setting: any) => {
+      if (setting.value && setting.value.trim() !== '') {
+        settings[setting.key] = setting.value;
+      }
+    });
     }
 
     // Add logoDataUrl to settings so the PDF component can access it

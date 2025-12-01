@@ -261,7 +261,6 @@ function generateNDISFormHTML(data: any, staff: any, imageBase64: string): strin
           width: 310px;
           height: 60px;
           border: none;
-          border-bottom: 1.5px solid #111827;
           background: transparent;
           display: flex;
           align-items: flex-end;

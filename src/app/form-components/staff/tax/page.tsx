@@ -710,9 +710,41 @@ export default function TFNOverlayForm(props: any = {}) {
   const [state, setState] = useState(initialData.state || "");
   const [postcode, setPostcode] = useState(initialData.postcode || "");
 
+  // Exemption options (check1, check2, check3) are mutually exclusive - only one can be selected
   const [check1, setCheck1] = useState(initialData.check1 || false);
   const [check2, setCheck2] = useState(initialData.check2 || false);
   const [check3, setCheck3] = useState(initialData.check3 || false);
+  
+  // Handlers to make exemption options mutually exclusive
+  const handleCheck1Change = (checked: boolean) => {
+    if (checked) {
+      setCheck1(true);
+      setCheck2(false);
+      setCheck3(false);
+    } else {
+      setCheck1(false);
+    }
+  };
+  
+  const handleCheck2Change = (checked: boolean) => {
+    if (checked) {
+      setCheck1(false);
+      setCheck2(true);
+      setCheck3(false);
+    } else {
+      setCheck2(false);
+    }
+  };
+  
+  const handleCheck3Change = (checked: boolean) => {
+    if (checked) {
+      setCheck1(false);
+      setCheck2(false);
+      setCheck3(true);
+    } else {
+      setCheck3(false);
+    }
+  };
   const [check4, setCheck4] = useState(initialData.check4 || false);
   const [check5, setCheck5] = useState(initialData.check5 || false);
   const [check6, setCheck6] = useState(initialData.check6 || false);
@@ -917,9 +949,10 @@ const [payerSignatureAt, setPayerSignatureAt] = useState(sanitizeDate(initialDat
       {/* 🔹 TFN */}
       <OverlayCharInput top={120} left={147} length={9} totalWidth={250} boxHeight={25} value={tfn} onChange={setTfn} readOnly={readOnly} />
 
-      <OverlayCheckbox top={153} left={372} checked={check1} onChange={setCheck1} boxWidth={30} boxHeight={30} readOnly={readOnly} />
-      <OverlayCheckbox top={185} left={372} checked={check2} onChange={setCheck2} boxWidth={30} boxHeight={30} readOnly={readOnly} />
-      <OverlayCheckbox top={216} left={372} checked={check3} onChange={setCheck3} boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      {/* Exemption options - mutually exclusive (only one can be selected) */}
+      <OverlayCheckbox top={153} left={372} checked={check1} onChange={handleCheck1Change} boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={185} left={372} checked={check2} onChange={handleCheck2Change} boxWidth={30} boxHeight={30} readOnly={readOnly} />
+      <OverlayCheckbox top={216} left={372} checked={check3} onChange={handleCheck3Change} boxWidth={30} boxHeight={30} readOnly={readOnly} />
 
 
       <OverlayCheckbox top={250} left={200} checked={check4} onChange={setCheck4}  boxWidth={30} boxHeight={30} readOnly={readOnly} />

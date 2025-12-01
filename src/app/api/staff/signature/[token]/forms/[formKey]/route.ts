@@ -445,7 +445,7 @@ export async function POST(
           staffSignedAt: employeeSignatureDate ? new Date(employeeSignatureDate) : new Date()
         };
       }
-    } else if (!shouldClearSignature && (formKey === 'support_worker' || formKey === 'pre_employment_medical')) {
+    } else if (!shouldClearSignature && formKey === 'support_worker') {
       const { signature, signatureDate, ...restData } = data;
       formData = restData;
       if (signature) {
@@ -453,6 +453,67 @@ export async function POST(
           staffSignature: signature,
           staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
         };
+      }
+    } else if (!shouldClearSignature && formKey === 'pre_employment_medical') {
+      // Pre-Employment Medical requires 3 signatures:
+      // 1. signature (Informed Consent)
+      // 2. disclosureAdviceSignature (Disclosure Advice) 
+      // 3. declarationSignature (Declaration)
+      console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Processing 3 signatures for form submission`);
+      const { signature, signatureDate, disclosureAdviceSignature, disclosureAdviceDate, declarationSignature, declarationDate, ...restData } = data;
+      formData = restData;
+      
+      // Debug: Log what signatures we received
+      console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Signature check:`, {
+        hasSignature1: !!signature,
+        hasSignature2: !!disclosureAdviceSignature,
+        hasSignature3: !!declarationSignature,
+        signature1Length: signature?.length || 0,
+        signature2Length: disclosureAdviceSignature?.length || 0,
+        signature3Length: declarationSignature?.length || 0,
+        signature1Date: signatureDate,
+        signature2Date: disclosureAdviceDate,
+        signature3Date: declarationDate
+      });
+      
+      // Check if all 3 signatures are present
+      const hasAllSignatures = !!(signature && disclosureAdviceSignature && declarationSignature);
+      console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] All 3 signatures present: ${hasAllSignatures}`);
+      
+      if (hasAllSignatures) {
+        // Use the main signature for staffSignature column (for backward compatibility)
+        // All 3 signatures are stored in formData
+        signatureData = {
+          staffSignature: signature,
+          staffSignedAt: signatureDate ? new Date(signatureDate) : new Date()
+        };
+        // Ensure all 3 signatures are in formData
+        formData.signature = signature;
+        formData.signatureDate = signatureDate;
+        formData.disclosureAdviceSignature = disclosureAdviceSignature;
+        formData.disclosureAdviceDate = disclosureAdviceDate;
+        formData.declarationSignature = declarationSignature;
+        formData.declarationDate = declarationDate;
+        console.log(`✅ [PRE-EMPLOYMENT MEDICAL] All 3 signatures saved successfully`);
+      } else {
+        // If not all signatures are present, still save what we have
+        // but don't set staffSignature (form will remain incomplete)
+        console.log(`⚠️ [PRE-EMPLOYMENT MEDICAL] Not all signatures present - form will remain incomplete`);
+        if (signature) {
+          formData.signature = signature;
+          formData.signatureDate = signatureDate;
+          console.log(`  ✓ Saved signature 1 (Informed Consent)`);
+        }
+        if (disclosureAdviceSignature) {
+          formData.disclosureAdviceSignature = disclosureAdviceSignature;
+          formData.disclosureAdviceDate = disclosureAdviceDate;
+          console.log(`  ✓ Saved signature 2 (Disclosure Advice)`);
+        }
+        if (declarationSignature) {
+          formData.declarationSignature = declarationSignature;
+          formData.declarationDate = declarationDate;
+          console.log(`  ✓ Saved signature 3 (Declaration)`);
+        }
       }
     } else if (!shouldClearSignature && (formKey === 'employee_welcome' || formKey === 'ndis_workforce_capability' || 
                formKey === 'ndis_code_of_conduct' || formKey === 'bullying_harassment_training' ||
@@ -753,11 +814,167 @@ export async function POST(
       }
     }
     
+    // 🎯 CRITICAL FIX: For pre_employment_medical, automatically mark as submitted if all 3 signatures are present
+    // This ensures the form is marked as completed even if submit flag is not explicitly set
+    let shouldAutoSubmit = false;
+    if (formKey === 'pre_employment_medical' && !shouldClearSignature) {
+      const hasAll3Signatures = !!(
+        (formData.signature || signatureData.staffSignature) &&
+        formData.disclosureAdviceSignature &&
+        formData.declarationSignature
+      );
+      if (hasAll3Signatures) {
+        shouldAutoSubmit = true;
+        console.log(`✅ [PRE-EMPLOYMENT MEDICAL] All 3 signatures present - auto-marking as submitted`);
+        if (!updateData.isSubmitted) {
+          updateData.isSubmitted = true;
+          updateData.submittedAt = new Date();
+        }
+      } else {
+        console.log(`⚠️ [PRE-EMPLOYMENT MEDICAL] Not all 3 signatures present - will not auto-submit`);
+        console.log(`  Signature 1: ${!!(formData.signature || signatureData.staffSignature) ? '✅' : '❌'}`);
+        console.log(`  Signature 2: ${!!formData.disclosureAdviceSignature ? '✅' : '❌'}`);
+        console.log(`  Signature 3: ${!!formData.declarationSignature ? '✅' : '❌'}`);
+      }
+    } else if (formKey === 'govt_tax' && !shouldClearSignature) {
+      // TFN Declaration requires: signature, TFN, name fields, address fields, and signature date
+      const hasSignature = !!(formData.payeeSignature || formData.staffSignature || signatureData.staffSignature);
+      const hasTFN = !!(formData.tfn && formData.tfn.trim() !== '');
+      const hasName = !!(formData.firstName && formData.firstName.trim() !== '' && formData.surname && formData.surname.trim() !== '');
+      const hasDOB = !!(formData.dob && formData.dob.trim() !== '');
+      const hasAddress = !!(formData.address && formData.address.trim() !== '');
+      const hasTown = !!(formData.town && formData.town.trim() !== '');
+      const hasState = !!(formData.state && formData.state.trim() !== '');
+      const hasPostcode = !!(formData.postcode && formData.postcode.trim() !== '');
+      const hasSignatureDate = !!(formData.payeeSignatureAt || formData.staffSignedAt);
+      
+      const allRequiredFieldsPresent = hasSignature && hasTFN && hasName && hasDOB && hasAddress && hasTown && hasState && hasPostcode && hasSignatureDate;
+      
+      if (allRequiredFieldsPresent) {
+        shouldAutoSubmit = true;
+        console.log(`✅ [TFN DECLARATION] All required fields present - auto-marking as submitted`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  TFN: ${hasTFN ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  DOB: ${hasDOB ? '✅' : '❌'}`);
+        console.log(`  Address: ${hasAddress ? '✅' : '❌'}`);
+        console.log(`  Town: ${hasTown ? '✅' : '❌'}`);
+        console.log(`  State: ${hasState ? '✅' : '❌'}`);
+        console.log(`  Postcode: ${hasPostcode ? '✅' : '❌'}`);
+        console.log(`  Signature Date: ${hasSignatureDate ? '✅' : '❌'}`);
+        if (!updateData.isSubmitted) {
+          updateData.isSubmitted = true;
+          updateData.submittedAt = new Date();
+        }
+      } else {
+        console.log(`⚠️ [TFN DECLARATION] Not all required fields present - will not auto-submit`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  TFN: ${hasTFN ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  DOB: ${hasDOB ? '✅' : '❌'}`);
+        console.log(`  Address: ${hasAddress ? '✅' : '❌'}`);
+        console.log(`  Town: ${hasTown ? '✅' : '❌'}`);
+        console.log(`  State: ${hasState ? '✅' : '❌'}`);
+        console.log(`  Postcode: ${hasPostcode ? '✅' : '❌'}`);
+        console.log(`  Signature Date: ${hasSignatureDate ? '✅' : '❌'}`);
+      }
+    } else if (formKey === 'fair_work_information' && !shouldClearSignature) {
+      // Fairwork Information requires: signature, name, date, and acknowledged flag
+      const hasSignature = !!(formData.signature || formData.staffSignature || formData.acknowledgementSignature || signatureData.staffSignature);
+      const hasName = !!(formData.staffName || formData.name);
+      const hasDate = !!(formData.date || formData.acknowledgedAt || formData.staffSignedAt);
+      const hasAcknowledged = !!(formData.acknowledged || formData.readAcknowledgement || formData.fairworkAcknowledged);
+      
+      const allRequiredFieldsPresent = hasSignature && hasName && hasDate && hasAcknowledged;
+      
+      if (allRequiredFieldsPresent) {
+        shouldAutoSubmit = true;
+        console.log(`✅ [FAIRWORK INFORMATION] All required fields present - auto-marking as submitted`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Acknowledged: ${hasAcknowledged ? '✅' : '❌'}`);
+        if (!updateData.isSubmitted) {
+          updateData.isSubmitted = true;
+          updateData.submittedAt = new Date();
+        }
+      } else {
+        console.log(`⚠️ [FAIRWORK INFORMATION] Not all required fields present - will not auto-submit`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Acknowledged: ${hasAcknowledged ? '✅' : '❌'}`);
+      }
+    } else if (formKey === 'ndis_workforce_capability' && !shouldClearSignature) {
+      // NDIS Workforce Capability requires: signature, fullName, date, and readAcknowledgement flag
+      const hasSignature = !!(formData.signature || formData.staffSignature || signatureData.staffSignature);
+      const hasName = !!(formData.fullName || formData.staffName || formData.name);
+      const hasDate = !!(formData.date || formData.staffSignedAt);
+      const hasAcknowledged = !!(formData.readAcknowledgement || formData.acknowledged);
+      
+      const allRequiredFieldsPresent = hasSignature && hasName && hasDate && hasAcknowledged;
+      
+      if (allRequiredFieldsPresent) {
+        shouldAutoSubmit = true;
+        console.log(`✅ [NDIS WORKFORCE CAPABILITY] All required fields present - auto-marking as submitted`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Acknowledged: ${hasAcknowledged ? '✅' : '❌'}`);
+        if (!updateData.isSubmitted) {
+          updateData.isSubmitted = true;
+          updateData.submittedAt = new Date();
+        }
+      } else {
+        console.log(`⚠️ [NDIS WORKFORCE CAPABILITY] Not all required fields present - will not auto-submit`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Acknowledged: ${hasAcknowledged ? '✅' : '❌'}`);
+      }
+    } else if (formKey === 'ndis_code_of_conduct' && !shouldClearSignature) {
+      // NDIS Code of Conduct requires: signature, date, position, and staffName
+      const hasSignature = !!(formData.signature || formData.staffSignature || signatureData.staffSignature);
+      const hasDate = !!(formData.date || formData.staffSignedAt);
+      const hasPosition = !!(formData.position && formData.position.trim() !== '');
+      const hasName = !!(formData.staffName || formData.name);
+      
+      const allRequiredFieldsPresent = hasSignature && hasDate && hasPosition && hasName;
+      
+      if (allRequiredFieldsPresent) {
+        shouldAutoSubmit = true;
+        console.log(`✅ [NDIS CODE OF CONDUCT] All required fields present - auto-marking as submitted`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Position: ${hasPosition ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+        if (!updateData.isSubmitted) {
+          updateData.isSubmitted = true;
+          updateData.submittedAt = new Date();
+        }
+      } else {
+        console.log(`⚠️ [NDIS CODE OF CONDUCT] Not all required fields present - will not auto-submit`);
+        console.log(`  Signature: ${hasSignature ? '✅' : '❌'}`);
+        console.log(`  Date: ${hasDate ? '✅' : '❌'}`);
+        console.log(`  Position: ${hasPosition ? '✅' : '❌'}`);
+        console.log(`  Name: ${hasName ? '✅' : '❌'}`);
+      }
+    }
+    
+    // Use auto-submit if set, otherwise use the submit flag from payload
+    const finalIsSubmitted = shouldAutoSubmit || !!submit;
+    const finalSubmittedAt = shouldAutoSubmit || submit ? new Date() : null;
+    
     console.log(`🔄 [API] Update data for upsert:`, {
       keys: Object.keys(updateData),
       staffSignature: updateData.staffSignature,
       staffSignedAt: updateData.staffSignedAt,
-      shouldClearSignature
+      shouldClearSignature,
+      formKey,
+      submitFromPayload: !!submit,
+      shouldAutoSubmit,
+      finalIsSubmitted,
+      isPreEmploymentMedical: formKey === 'pre_employment_medical'
     });
     
     const saved = await prisma.staffFormSubmission.upsert({
@@ -767,15 +984,19 @@ export async function POST(
           formKey: formKey 
         } 
       },
-      update: updateData,
+      update: {
+        ...updateData,
+        isSubmitted: shouldClearSignature ? false : finalIsSubmitted,
+        submittedAt: shouldClearSignature ? null : finalSubmittedAt,
+      },
       create: { 
         staffId: staffId,
         formId: submission.form?.id || null,
         formVersion: submission.form?.version || 1,
         formKey: formKey,
         data: formData,
-        isSubmitted: !!submit,
-        submittedAt: submit ? new Date() : null,
+        isSubmitted: finalIsSubmitted,
+        submittedAt: finalSubmittedAt,
         filledByAdmin: false,
         ...signatureData
       },
@@ -788,22 +1009,47 @@ export async function POST(
     
     console.log(`✅ [API] Form submission saved:`, {
       id: saved.id,
-      staffSignature: saved.staffSignature ? 'EXISTS - ERROR!' : 'NULL - SUCCESS',
+      formKey,
+      staffSignature: saved.staffSignature ? 'EXISTS' : 'NULL',
       staffSignedAt: saved.staffSignedAt,
       isSubmitted: saved.isSubmitted,
       dataKeys: Object.keys(saved.data as any || {}),
       dataHasSignature: !!(saved.data as any)?.signature,
-      dataHasStaffSignature: !!(saved.data as any)?.staffSignature
+      dataHasStaffSignature: !!(saved.data as any)?.staffSignature,
+      isPreEmploymentMedical: formKey === 'pre_employment_medical',
+      preEmploymentMedicalSignatures: formKey === 'pre_employment_medical' ? {
+        signature1: !!(saved.data as any)?.signature || !!saved.staffSignature,
+        signature2: !!(saved.data as any)?.disclosureAdviceSignature,
+        signature3: !!(saved.data as any)?.declarationSignature,
+        signature1Length: (saved.data as any)?.signature?.length || saved.staffSignature?.length || 0,
+        signature2Length: (saved.data as any)?.disclosureAdviceSignature?.length || 0,
+        signature3Length: (saved.data as any)?.declarationSignature?.length || 0
+      } : undefined
     });
     
     console.log(`🔍 [API] Verified submission from DB:`, {
       id: verified?.id,
+      formKey,
       staffSignature: verified?.staffSignature ? 'EXISTS' : 'NULL',
       staffSignedAt: verified?.staffSignedAt,
+      isSubmitted: verified?.isSubmitted,
       dataKeys: Object.keys((verified?.data as any) || {}),
       dataHasSignature: !!((verified?.data as any)?.signature),
       dataHasStaffSignature: !!((verified?.data as any)?.staffSignature),
-      dataSignatureValue: (verified?.data as any)?.signature ? 'EXISTS' : 'NULL/EMPTY'
+      dataSignatureValue: (verified?.data as any)?.signature ? 'EXISTS' : 'NULL/EMPTY',
+      isPreEmploymentMedical: formKey === 'pre_employment_medical',
+      preEmploymentMedicalSignatures: formKey === 'pre_employment_medical' ? {
+        signature1: !!((verified?.data as any)?.signature || verified?.staffSignature),
+        signature2: !!((verified?.data as any)?.disclosureAdviceSignature),
+        signature3: !!((verified?.data as any)?.declarationSignature),
+        all3Present: !!((verified?.data as any)?.signature || verified?.staffSignature) && 
+                     !!((verified?.data as any)?.disclosureAdviceSignature) && 
+                     !!((verified?.data as any)?.declarationSignature),
+        signature1InData: !!(verified?.data as any)?.signature,
+        signature1InColumn: !!verified?.staffSignature,
+        signature2InData: !!(verified?.data as any)?.disclosureAdviceSignature,
+        signature3InData: !!(verified?.data as any)?.declarationSignature
+      } : undefined
     });
     
     // Verify signatures were actually cleared
@@ -1023,10 +1269,10 @@ export async function POST(
                 },
               });
               console.log(`🔄 Reset StaffFormAssignment ${assignment.id} to in_progress - all signatures cleared for editing`);
-            } else if (assignment.currentStatus === 'completed' && !submit) {
-              // Don't update if already completed and just saving draft
+            } else if (assignment.currentStatus === 'completed' && !submit && !shouldAutoSubmit) {
+              // Don't update if already completed and just saving draft (unless auto-submitting)
               console.log(`⚠️ StaffFormAssignment ${assignment.id} already completed, skipping status update`);
-            } else if (submit) {
+            } else if (submit || shouldAutoSubmit) {
               // Form is being submitted - check if it should be marked as completed
               // Vehicle Safety Inspection has an acknowledgement form with signature - always require signature
               let requiresSignature = masterForm.requiresSignature ?? false;
@@ -1040,12 +1286,135 @@ export async function POST(
               let hasSignatureInData = false;
               let hasSignature = false;
               
-              if (formKey === 'vehicle_safety_inspection') {
+              if (formKey === 'pre_employment_medical') {
+                // Pre-Employment Medical requires all 3 signatures:
+                // 1. signature (Informed Consent)
+                // 2. disclosureAdviceSignature (Disclosure Advice)
+                // 3. declarationSignature (Declaration)
+                console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Checking completion status...`);
+                console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Using saved submission data for verification...`);
+                
+                // Use the saved submission data to verify signatures (more reliable than formData)
+                const savedData = (saved?.data as any) || {};
+                hasSignatureInColumn = !!saved?.staffSignature;
+                const hasSignature1 = !!(savedData.signature || saved?.staffSignature);
+                const hasSignature2 = !!savedData.disclosureAdviceSignature;
+                const hasSignature3 = !!savedData.declarationSignature;
+                hasSignatureInData = hasSignature1 && hasSignature2 && hasSignature3;
+                hasSignature = hasSignatureInData; // All 3 must be present
+                
+                console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Signature completion check (using saved data):`, {
+                  submissionId: saved?.id,
+                  isSubmitted: saved?.isSubmitted,
+                  hasSignatureInColumn,
+                  hasSignature1,
+                  hasSignature2,
+                  hasSignature3,
+                  hasSignatureInData,
+                  hasSignature,
+                  savedDataKeys: Object.keys(savedData),
+                  signature1InSavedData: !!savedData.signature,
+                  signature1InColumn: !!saved?.staffSignature,
+                  signature2InSavedData: !!savedData.disclosureAdviceSignature,
+                  signature3InSavedData: !!savedData.declarationSignature,
+                  formDataKeys: Object.keys(formData),
+                  signature1InFormData: !!formData.signature,
+                  signature2InFormData: !!formData.disclosureAdviceSignature,
+                  signature3InFormData: !!formData.declarationSignature,
+                  signatureDataStaffSignature: !!signatureData.staffSignature
+                });
+              } else if (formKey === 'vehicle_safety_inspection') {
                 // Vehicle Safety Inspection - check acknowledgment signature
                 const ackData = formData.acknowledgmentData || {};
                 hasSignatureInColumn = !!signatureData.staffSignature;
                 hasSignatureInData = !!(formData.signature || formData.staffSignature || ackData.signature);
                 hasSignature = hasSignatureInColumn || hasSignatureInData;
+              } else if (formKey === 'fair_work_information') {
+                // Fairwork Information - check for signature (can be signature, staffSignature, or acknowledgementSignature)
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                hasSignatureInData = !!(formData.signature || formData.staffSignature || formData.acknowledgementSignature);
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
+                
+                console.log(`🔍 [FAIRWORK INFORMATION] Signature completion check:`, {
+                  hasSignatureInColumn,
+                  hasSignatureInData,
+                  hasSignature,
+                  signatureInFormData: !!formData.signature,
+                  staffSignatureInFormData: !!formData.staffSignature,
+                  acknowledgementSignatureInFormData: !!formData.acknowledgementSignature,
+                  signatureInColumn: !!signatureData.staffSignature
+                });
+              } else if (formKey === 'ndis_workforce_capability') {
+                // NDIS Workforce Capability - check for signature, fullName, date, and readAcknowledgement
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                hasSignatureInData = !!(formData.signature || formData.staffSignature);
+                const hasName = !!(formData.fullName || formData.staffName || formData.name);
+                const hasDate = !!(formData.date || formData.staffSignedAt);
+                const hasAcknowledged = !!(formData.readAcknowledgement || formData.acknowledged);
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
+                
+                // For NDIS Workforce Capability, all fields must be present
+                if (!hasName || !hasDate || !hasAcknowledged) {
+                  hasSignature = false;
+                }
+                
+                console.log(`🔍 [NDIS WORKFORCE CAPABILITY] Completion check:`, {
+                  hasSignatureInColumn,
+                  hasSignatureInData,
+                  hasSignature,
+                  hasName,
+                  hasDate,
+                  hasAcknowledged,
+                  signatureInFormData: !!formData.signature,
+                  staffSignatureInFormData: !!formData.staffSignature,
+                  signatureInColumn: !!signatureData.staffSignature,
+                  fullName: formData.fullName || formData.staffName || formData.name || 'MISSING',
+                  date: formData.date || formData.staffSignedAt || 'MISSING',
+                  readAcknowledgement: formData.readAcknowledgement || formData.acknowledged || false
+                });
+              } else if (formKey === 'ndis_code_of_conduct') {
+                // NDIS Code of Conduct - check for signature, date, position, and staffName
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                hasSignatureInData = !!(formData.signature || formData.staffSignature);
+                const hasDate = !!(formData.date || formData.staffSignedAt);
+                const hasPosition = !!(formData.position && formData.position.trim() !== '');
+                const hasName = !!(formData.staffName || formData.name);
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
+                
+                // For NDIS Code of Conduct, all fields must be present
+                if (!hasDate || !hasPosition || !hasName) {
+                  hasSignature = false;
+                }
+                
+                console.log(`🔍 [NDIS CODE OF CONDUCT] Completion check:`, {
+                  hasSignatureInColumn,
+                  hasSignatureInData,
+                  hasSignature,
+                  hasDate,
+                  hasPosition,
+                  hasName,
+                  signatureInFormData: !!formData.signature,
+                  staffSignatureInFormData: !!formData.staffSignature,
+                  signatureInColumn: !!signatureData.staffSignature,
+                  date: formData.date || formData.staffSignedAt || 'MISSING',
+                  position: formData.position || 'MISSING',
+                  staffName: formData.staffName || formData.name || 'MISSING'
+                });
+              } else if (formKey === 'govt_tax') {
+                // TFN Declaration - check for payeeSignature or staffSignature
+                hasSignatureInColumn = !!signatureData.staffSignature;
+                hasSignatureInData = !!(formData.payeeSignature || formData.payerSignature || formData.staffSignature);
+                hasSignature = hasSignatureInColumn || hasSignatureInData;
+                
+                console.log(`🔍 [TFN DECLARATION] Signature completion check:`, {
+                  hasSignatureInColumn,
+                  hasSignatureInData,
+                  hasSignature,
+                  payeeSignatureInFormData: !!formData.payeeSignature,
+                  payerSignatureInFormData: !!formData.payerSignature,
+                  staffSignatureInFormData: !!formData.staffSignature,
+                  signatureInColumn: !!signatureData.staffSignature
+                });
               } else {
                 hasSignatureInColumn = !!signatureData.staffSignature;
                 // For overlay forms (tax, super choice), check if any signature fields exist in formData
@@ -1123,6 +1492,77 @@ export async function POST(
               },
             });
             console.log(`✅ Updated StaffFormAssignment ${assignment.id} status to ${newStatus} for form: ${formKey} (staff signed: ${hasSignature}, admin signed: ${hasAdminSignature})`);
+            
+            // For forms that don't require admin signature and are now completed, trigger email check
+            if (shouldMarkCompleted && !requiresAdminSignature) {
+              console.log(`🔍 [Signature API] Form ${formKey} completed by staff (no admin signature required), checking batch completion...`);
+              console.log(`🔍 [Signature API] Email trigger details:`, {
+                formKey,
+                staffId,
+                assignmentId: assignment.id,
+                newStatus,
+                shouldMarkCompleted,
+                requiresAdminSignature,
+                hasSignature,
+                hasAdminSignature,
+                isPreEmploymentMedical: formKey === 'pre_employment_medical',
+                isFairWorkInformation: formKey === 'fair_work_information',
+                isTFNDeclaration: formKey === 'govt_tax',
+                preEmploymentMedicalSignatures: formKey === 'pre_employment_medical' ? {
+                  signature1: !!(formData.signature || signatureData.staffSignature),
+                  signature2: !!formData.disclosureAdviceSignature,
+                  signature3: !!formData.declarationSignature
+                } : undefined,
+                fairWorkInformationDetails: formKey === 'fair_work_information' ? {
+                  hasSignature,
+                  hasName: !!(formData.staffName || formData.name),
+                  hasDate: !!(formData.date || formData.acknowledgedAt || formData.staffSignedAt),
+                  hasAcknowledged: !!(formData.acknowledged || formData.readAcknowledgement || formData.fairworkAcknowledged),
+                  signatureInFormData: !!(formData.signature || formData.staffSignature || formData.acknowledgementSignature),
+                  signatureInColumn: !!signatureData.staffSignature
+                } : undefined,
+                tfnDeclarationDetails: formKey === 'govt_tax' ? {
+                  hasSignature,
+                  hasTFN: !!(formData.tfn && formData.tfn.trim() !== ''),
+                  hasName: !!(formData.firstName && formData.surname),
+                  hasDOB: !!(formData.dob && formData.dob.trim() !== ''),
+                  hasAddress: !!(formData.address && formData.address.trim() !== ''),
+                  hasTown: !!(formData.town && formData.town.trim() !== ''),
+                  hasState: !!(formData.state && formData.state.trim() !== ''),
+                  hasPostcode: !!(formData.postcode && formData.postcode.trim() !== ''),
+                  hasSignatureDate: !!(formData.payeeSignatureAt || formData.staffSignedAt),
+                  signatureInFormData: !!(formData.payeeSignature || formData.payerSignature || formData.staffSignature),
+                  signatureInColumn: !!signatureData.staffSignature
+                } : undefined
+              });
+              try {
+                const { checkAndTriggerStaffBatchEmail } = await import('@/lib/staff-batch-email');
+                console.log(`📧 [Signature API] Calling checkAndTriggerStaffBatchEmail for formKey: ${formKey}, staffId: ${staffId}`);
+                await checkAndTriggerStaffBatchEmail(staffId, formKey);
+                console.log(`✅ [Signature API] checkAndTriggerStaffBatchEmail completed for ${formKey}`);
+              } catch (emailError) {
+                console.error(`❌ [Signature API] Error triggering batch email check for ${formKey}:`, {
+                  error: emailError,
+                  message: emailError instanceof Error ? emailError.message : 'Unknown error',
+                  stack: emailError instanceof Error ? emailError.stack : undefined
+                });
+                // Don't fail the request if email check fails
+              }
+            } else {
+              console.log(`ℹ️ [Signature API] Email check skipped for ${formKey}:`, {
+                shouldMarkCompleted,
+                requiresAdminSignature,
+                reason: !shouldMarkCompleted ? 'Form not marked as completed' : 'Form requires admin signature',
+                isPreEmploymentMedical: formKey === 'pre_employment_medical',
+                preEmploymentMedicalDetails: formKey === 'pre_employment_medical' ? {
+                  hasSignature,
+                  hasAll3Signatures: hasSignature,
+                  signature1: !!(formData.signature || signatureData.staffSignature),
+                  signature2: !!formData.disclosureAdviceSignature,
+                  signature3: !!formData.declarationSignature
+                } : undefined
+              });
+            }
           } else {
             // Form is being saved (draft) - mark as in_progress if not started
             if (assignment.currentStatus === 'not_started') {
@@ -1149,8 +1589,10 @@ export async function POST(
       console.error('Error updating StaffFormAssignment status:', assignmentError);
     }
 
-    // If form was submitted, check if batch is complete
-    if (submit) {
+    // If form was submitted (either via submit flag or auto-submit), check if batch is complete
+    const wasSubmitted = submit || shouldAutoSubmit;
+    if (wasSubmitted) {
+      console.log(`🔍 [API] Form was submitted (submit=${!!submit}, shouldAutoSubmit=${shouldAutoSubmit}), checking batch completion...`);
       // Check if all forms in batch are completed (signed or filled)
       const allSignatureForms = await prisma.staffSignatureBatchForm.findMany({
         where: { batchId: batch.id },
@@ -1159,6 +1601,7 @@ export async function POST(
             select: {
               id: true,
               staffSignature: true,
+              adminSignature: true,
               isSubmitted: true,
               data: true,
               form: {
@@ -1192,6 +1635,31 @@ export async function POST(
         }
         
         // Check form-specific signature fields in data JSON
+        if (formKey === 'pre_employment_medical') {
+          // Pre-Employment Medical requires all 3 signatures:
+          // 1. signature (Informed Consent)
+          // 2. disclosureAdviceSignature (Disclosure Advice)
+          // 3. declarationSignature (Declaration)
+          const hasSignature = !!(data.signature || submission.staffSignature);
+          const hasDisclosureAdvice = !!data.disclosureAdviceSignature;
+          const hasDeclaration = !!data.declarationSignature;
+          const allComplete = hasSignature && hasDisclosureAdvice && hasDeclaration;
+          
+          console.log(`🔍 [PRE-EMPLOYMENT MEDICAL] Batch completion check:`, {
+            submissionId: submission.id,
+            hasSignature,
+            hasDisclosureAdvice,
+            hasDeclaration,
+            allComplete,
+            dataKeys: Object.keys(data),
+            staffSignatureInColumn: !!submission.staffSignature,
+            signatureInData: !!data.signature,
+            disclosureAdviceInData: !!data.disclosureAdviceSignature,
+            declarationInData: !!data.declarationSignature
+          });
+          
+          return allComplete;
+        }
         if (formKey === 'fair_work_information') {
           return !!(data.acknowledgementSignature || data.signature || data.staffSignature);
         }
@@ -1234,10 +1702,77 @@ export async function POST(
         return false;
       });
       
+      // IMPORTANT: Check forms requiring admin signature separately
+      // These forms need BOTH staff and admin signatures to be considered completed
+      const formsRequiringAdminSignature = ['bullying_training', 'conflict_of_interest', 'employee_details', 'employment_details'];
+      const formsWithAdminSignature = allSignatureForms.filter((sf: any) => {
+        const submission = sf.formSubmission;
+        const formKey = submission?.form?.formKey;
+        if (!formKey || !formsRequiringAdminSignature.includes(formKey)) return false;
+        
+        const hasStaffSig = !!submission.staffSignature;
+        const hasAdminSig = !!submission.adminSignature || 
+          (formKey === 'bullying_training' && !!(submission.data as any)?.managerSignature) ||
+          (formKey === 'conflict_of_interest' && (!!submission.adminSignature || !!(submission.data as any)?.reviewerSignature)) ||
+          (formKey === 'employee_details' && !!submission.adminSignature);
+        
+        return hasStaffSig && hasAdminSig;
+      });
+      
+      // Filter out forms requiring admin signature from formsRequiringSignature
+      const formsRequiringSignatureOnly = formsRequiringSignature.filter((sf: any) => {
+        const formKey = sf.formSubmission?.form?.formKey;
+        return !formsRequiringAdminSignature.includes(formKey);
+      });
+      
+      // Check if all signature-only forms (not requiring admin) are signed
+      const allSignedOnly = formsRequiringSignatureOnly.every((sf: any) => {
+        const submission = sf.formSubmission;
+        return !!submission.staffSignature;
+      });
+      
+      // Check if all admin-signature-required forms have BOTH signatures
+      const allAdminSignatureFormsCompleted = allSignatureForms
+        .filter((sf: any) => {
+          const formKey = sf.formSubmission?.form?.formKey;
+          return formKey && formsRequiringAdminSignature.includes(formKey);
+        })
+        .every((sf: any) => {
+          const submission = sf.formSubmission;
+          const formKey = submission?.form?.formKey;
+          const hasStaffSig = !!submission.staffSignature;
+          const hasAdminSig = !!submission.adminSignature || 
+            (formKey === 'bullying_training' && !!(submission.data as any)?.managerSignature) ||
+            (formKey === 'conflict_of_interest' && (!!submission.adminSignature || !!(submission.data as any)?.reviewerSignature)) ||
+            (formKey === 'employee_details' && !!submission.adminSignature);
+          return hasStaffSig && hasAdminSig;
+      });
+      
       const totalFormsToComplete = formsRequiringSignature.length + formsNotRequiringSignature.length;
-      const allCompleted = (formsRequiringSignature.length === 0 || allSigned) && 
+      
+      // All forms are completed only if:
+      // 1. All admin-signature-required forms have BOTH signatures
+      // 2. All signature-only forms (not requiring admin) have staff signature
+      // 3. All non-signature forms are filled
+      const allCompleted = 
+        allAdminSignatureFormsCompleted &&
+        (formsRequiringSignatureOnly.length === 0 || allSignedOnly) && 
                           (formsNotRequiringSignature.length === 0 || allFilled) &&
                           totalFormsToComplete > 0;
+      
+      console.log(`🔍 [Signature API] Batch completion check:`, {
+        totalForms: totalFormsToComplete,
+        formsRequiringAdminSignature: allSignatureForms.filter((sf: any) => {
+          const formKey = sf.formSubmission?.form?.formKey;
+          return formKey && formsRequiringAdminSignature.includes(formKey);
+        }).length,
+        allAdminSignatureFormsCompleted,
+        formsRequiringSignatureOnly: formsRequiringSignatureOnly.length,
+        allSignedOnly,
+        formsNotRequiringSignature: formsNotRequiringSignature.length,
+        allFilled,
+        allCompleted
+      });
       
       if (allCompleted && !batch.isCompleted) {
         await prisma.staffFormBatch.update({
@@ -1266,6 +1801,206 @@ export async function POST(
           );
         } catch (notifError) {
           console.error('Error creating notifications:', notifError);
+        }
+
+        // 📧 Send email notification when staff batch completes
+        try {
+          console.log(`🔍 [STAFF BATCH EMAIL] Starting email trigger process for staffId: ${staffId}, batchId: ${batch.id}`);
+          
+          // Get staff info
+          const staff = await prisma.staff.findUnique({
+            where: { id: staffId },
+            select: { 
+              id: true, 
+              firstName: true, 
+              surname: true, 
+              email: true,
+              createdById: true 
+            },
+          });
+
+          console.log(`🔍 [STAFF BATCH EMAIL] Staff data retrieved:`, {
+            staffFound: !!staff,
+            staffId: staff?.id,
+            staffEmail: staff?.email || 'MISSING',
+            createdById: staff?.createdById || 'NULL',
+            firstName: staff?.firstName,
+            surname: staff?.surname
+          });
+
+          if (!staff) {
+            console.error(`❌ [STAFF BATCH EMAIL] Staff ${staffId} not found in database`);
+            // Continue - don't break the function
+          } else if (!staff.email) {
+            console.error(`❌ [STAFF BATCH EMAIL] Staff ${staffId} has no email address, cannot send email`);
+            // Continue - don't break the function
+          } else {
+          // Get the admin who created this staff (for email configuration)
+          // Use fallback strategy if createdById is null (same as getStaffSettingsForForm)
+          let adminId = staff.createdById;
+          
+          console.log(`🔍 [STAFF BATCH EMAIL] Admin ID check:`, {
+            adminId,
+            adminIdType: typeof adminId,
+            hasAdminId: !!adminId
+          });
+          
+          // Use fallback strategy if createdById is null
+          if (!adminId) {
+            console.warn(`⚠️ [STAFF BATCH EMAIL] Staff ${staffId} has no createdById, trying fallback strategies...`);
+            
+            // Try default admin (ID: 1) first
+            const testAdminId = 1;
+            console.log(`🔍 [STAFF BATCH EMAIL] Trying fallback adminId: ${testAdminId}`);
+            adminId = testAdminId;
+            
+            // Note: We could add more fallback logic here if needed
+            console.log(`✅ [STAFF BATCH EMAIL] Using fallback adminId: ${adminId}`);
+          }
+
+          // Get all completed form submissions for this batch
+          const formSubmissionIds = allSignatureForms
+            .map((sf: any) => sf.formSubmission?.id)
+            .filter((id: any) => id !== null && id !== undefined);
+          
+          console.log(`🔍 [STAFF BATCH EMAIL] Form submission IDs:`, {
+            totalSignatureForms: allSignatureForms.length,
+            extractedIds: formSubmissionIds.length,
+            ids: formSubmissionIds
+          });
+          
+          const completedFormSubmissions = await prisma.staffFormSubmission.findMany({
+            where: {
+              id: { in: formSubmissionIds },
+              isSubmitted: true,
+            },
+            include: {
+              form: {
+                select: {
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          });
+
+          console.log(`🔍 [STAFF BATCH EMAIL] Completed form submissions:`, {
+            found: completedFormSubmissions.length,
+            submissions: completedFormSubmissions.map((s: any) => ({
+              id: s.id,
+              formId: s.formId,
+              title: s.form?.title,
+              isSubmitted: s.isSubmitted
+            }))
+          });
+
+          const completedFormsData = completedFormSubmissions.map((submission: any) => ({
+            id: submission.id,
+            formId: submission.formId,
+            title: submission.form?.title || 'Unknown Form',
+          }));
+
+          console.log(`🔍 [STAFF BATCH EMAIL] Completed forms data:`, {
+            count: completedFormsData.length,
+            forms: completedFormsData
+          });
+
+          if (completedFormsData.length === 0) {
+            console.warn(`⚠️ [STAFF BATCH EMAIL] No completed form submissions found, skipping email`);
+            // Continue - don't break the function
+          } else {
+            const staffName = `${staff.firstName || ''} ${staff.surname || ''}`.trim() || 'Staff Member';
+            
+            console.log(`📧 [STAFF BATCH EMAIL] Preparing to send email:`, {
+              staffId: staff.id,
+              staffName,
+              staffEmail: staff.email,
+              adminId,
+              originalCreatedById: staff.createdById,
+              usingFallback: !staff.createdById,
+              formsCount: completedFormsData.length,
+              batchId: batch.id
+            });
+
+            // Check if email was already sent for this batch
+            const batchAlreadySent = batch.isCompleted && batch.completedAt;
+            
+            console.log(`🔍 [STAFF BATCH EMAIL] Batch completion status:`, {
+              isCompleted: batch.isCompleted,
+              completedAt: batch.completedAt,
+              alreadySent: batchAlreadySent
+            });
+            
+            if (!batchAlreadySent) {
+
+              // Build email API URL
+              const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL || 'http://localhost:3000';
+              const emailApiUrl = `${baseUrl}/api/notifications/send-email/${adminId}`;
+              
+              console.log(`🔍 [STAFF BATCH EMAIL] Email API configuration:`, {
+                baseUrl,
+                emailApiUrl,
+                adminId,
+                originalCreatedById: staff.createdById,
+                usingFallback: !staff.createdById,
+                emailType: 'staff_batch_completed'
+              });
+
+              const emailPayload = {
+                type: 'staff_batch_completed',
+                staffId: staff.id,
+                staffName: staffName,
+                staffEmail: staff.email,
+                batchId: batch.id,
+                completedForms: completedFormsData,
+                completedAt: new Date().toLocaleString(),
+              };
+
+              console.log(`📤 [STAFF BATCH EMAIL] Sending request to email API:`, {
+                url: emailApiUrl,
+                method: 'POST',
+                payload: {
+                  ...emailPayload,
+                  completedForms: `${completedFormsData.length} forms`
+                }
+              });
+
+              // Send dual notification (admin + staff)
+              const notificationResponse = await fetch(emailApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload),
+              });
+
+              console.log(`🔍 [STAFF BATCH EMAIL] Email API response:`, {
+                status: notificationResponse.status,
+                statusText: notificationResponse.statusText,
+                ok: notificationResponse.ok
+              });
+
+              if (notificationResponse.ok) {
+                const responseData = await notificationResponse.json();
+                console.log(`✅ [STAFF BATCH EMAIL] Email sent successfully:`, responseData);
+              } else {
+                const errorData = await notificationResponse.json().catch(() => ({ error: 'Failed to parse error response' }));
+                console.error(`❌ [STAFF BATCH EMAIL] Failed to send email:`, {
+                  status: notificationResponse.status,
+                  statusText: notificationResponse.statusText,
+                  error: errorData
+                });
+              }
+            } else {
+              console.log(`⚠️ [STAFF BATCH EMAIL] Email already sent for this batch (completed at: ${batch.completedAt})`);
+            }
+          }
+          } // End of else block for staff.email check
+        } catch (emailError) {
+          console.error('❌ [STAFF BATCH EMAIL] Error sending email:', {
+            error: emailError,
+            message: emailError instanceof Error ? emailError.message : 'Unknown error',
+            stack: emailError instanceof Error ? emailError.stack : undefined
+          });
+          // Don't fail the request if email fails
         }
       }
     }

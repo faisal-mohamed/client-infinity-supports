@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { checkAndTriggerStaffBatchEmail } from '@/lib/staff-batch-email';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -63,6 +64,31 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         adminSignedAt: new Date(adminSignedAt),
       },
     });
+
+    // Update StaffFormAssignment status to "completed" since both staff and admin have signed
+    const formKey = 'employee_details';
+    const assignment = await prisma.staffFormAssignment.findFirst({
+      where: {
+        staffId: staffId,
+        form: {
+          formKey: formKey,
+        },
+      },
+    });
+
+    if (assignment) {
+      await prisma.staffFormAssignment.update({
+        where: { id: assignment.id },
+        data: {
+          currentStatus: 'completed',
+          isCompleted: true,
+        },
+      });
+
+      // Check if batch is completed and trigger email
+      console.log(`🔍 [EMPLOYEE DETAILS ADMIN] Form completed, checking batch completion...`);
+      await checkAndTriggerStaffBatchEmail(staffId, 'employee_details');
+    }
 
     return NextResponse.json({
       success: true,
