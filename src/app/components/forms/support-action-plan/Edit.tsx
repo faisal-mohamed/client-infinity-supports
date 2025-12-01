@@ -48,7 +48,8 @@ const FORM_SECTIONS: any = [
     fields: [
       "participantName",
       "ndisNumber",
-      "planDates",
+      "planStartDate",
+      "planEndDate",
       "dob",
       "gender",
       "address",
@@ -220,6 +221,14 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 }: any) => {
   // Helper function to get common field value
   const getCommonFieldValue = (fieldName: string): string => {
+    // For participantName field, combine first name and surname to show full name
+    if (fieldName === "participantName") {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      return fullName || '';
+    }
+    
     const commonKey = commonFieldsMapping[fieldName];
     return commonFieldsData?.[commonKey] || "";
   };
@@ -245,7 +254,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     // Page 1
     participantName: "",
     ndisNumber: "",
-    planDates: "",
+    planStartDate: "",
+    planEndDate: "",
     dob: "",
     gender: "",
     address: "",
@@ -379,6 +389,33 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       return;
     }
 
+    // Validate plan dates - end date must be after start date
+    if (name === 'planEndDate' && value) {
+      const startDate = localValues.planStartDate;
+      if (startDate && value < startDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan end date cannot be before the start date.",
+          duration: 4000,
+        });
+        return;
+      }
+    }
+    
+    if (name === 'planStartDate' && value) {
+      const endDate = localValues.planEndDate;
+      if (endDate && value > endDate) {
+        showToast({
+          type: "error",
+          title: "Invalid Date Range",
+          message: "Plan start date cannot be after the end date.",
+          duration: 4000,
+        });
+        return;
+      }
+    }
+
     let newValue: any = value;
     if (type === "checkbox") {
       newValue = (e.target as HTMLInputElement).checked;
@@ -495,6 +532,11 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     const isPhoneField = /phone|mobile$/i.test(name) || ["phone", "contactPhone"].includes(name);
     const isEmailField = /email$/i.test(name) || ["email", "contactEmail"].includes(name);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    
+    // Add min date constraint for planEndDate based on planStartDate
+    const minDate = (type === 'date' && name === 'planEndDate' && localValues.planStartDate) 
+      ? localValues.planStartDate 
+      : undefined;
 
     const handlePhoneBeforeInput = (e: any) => {
       if (isFieldReadOnly) return;
@@ -562,6 +604,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           type={isPhoneField ? "tel" : isEmailField ? "email" : type}
           name={name}
           value={displayValue}
+          min={minDate}
           onChange={isCommon ? undefined : (e) => {
             handleChange(e as any);
             if (isEmailField) {
@@ -603,7 +646,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               ? "bg-blue-50 border-blue-200 text-blue-800"
               : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-          aria-invalid={fieldErrors[name] || localEmailErrors[name] ? 'true' : undefined}
+          aria-invalid={fieldErrors[name] || localEmailErrors[name] ? true : false}
         />
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
@@ -783,7 +826,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
   const FIELD_METADATA: any = {
     participantName: { label: "Name", type: "text" },
     ndisNumber: { label: "NDIS number", type: "text" },
-    planDates: { label: "Plan Dates", type: "date" },
+    planStartDate: { label: "Start Date", type: "date", placeholder: "Select start date" },
+    planEndDate: { label: "End Date", type: "date", placeholder: "Select end date" },
     dob: { label: "DOB", type: "text" },
     gender: { label: "Gender", type: "text" },
     address: { label: "Address", type: "text" },

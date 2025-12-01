@@ -68,7 +68,7 @@ export const FORM_SECTIONS : any = [
         requiredFields: [],
         image: {
       src: "/individual-risk-assessment.png",
-      alt: "Individual Risk Assessment Guide"
+      alt: "Individual Activity Risk Assessment Guide"
     }
 
   },
@@ -122,6 +122,25 @@ const IndividualRiskAssessmentEdit: React.FC<FormProps> = ({
 
 // Helper function to get common field value
 const getCommonFieldValue = (fieldName: string): string => {
+  // For personName field, combine first name and surname to show full name
+  if (fieldName === 'personName') {
+    const firstName = commonFieldsData?.name || '';
+    const surname = commonFieldsData?.surname || '';
+    const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+    if (fullName) {
+      return fullName;
+    }
+    // Fallback to formData.personName if it exists
+    if (formData?.[fieldName]) {
+      return String(formData[fieldName]);
+    }
+    // Last fallback: try to get just the first name from commonFieldsData
+    if (firstName) {
+      return firstName;
+    }
+    return '';
+  }
+  
   const commonKey = commonFieldsMapping[fieldName];
   return commonFieldsData?.[commonKey] || '';
 };

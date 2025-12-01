@@ -69,6 +69,25 @@ const Page2: React.FC<Page2Props> = ({
   };
 
   const getValue = (key: string) => {
+    // For personName field, combine first name and surname to show full name
+    if (key === 'personName') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to data.personName if it exists
+      if (data?.[key]) {
+        return String(data[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+    
     if (commonFieldMapping[key]) {
       return commonFieldsData?.[commonFieldMapping[key]] ?? '';
     }

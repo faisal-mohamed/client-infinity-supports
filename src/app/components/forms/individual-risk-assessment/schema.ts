@@ -11,7 +11,7 @@ export interface IRABlock {
   label?: string;
 }
 
-// Ordered blocks for Individual Risk Assessment view/pdf
+// Ordered blocks for Individual Activity Risk Assessment view/pdf
 export const iraSchema: IRABlock[] = [
   { type: 'title', label: 'Individual Activity Risk Assessment' },
   { type: 'header_grid' },

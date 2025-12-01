@@ -762,20 +762,20 @@ const renderSignatureField = (
   },
 
   row14_weeks: {
-    label: "Weeks for Provider Travel (01-002-0107-1-1) ($16.89/hr)",
+    label: "Weeks for Provider Travel (01-002-0107-1-1) ($70.23/hr)",
     type: "text",
   },
   row14_totalHours: {
-    label: "Total Hours for Provider Travel (01-002-0107-1-1) ($16.89/hr)",
+    label: "Total Hours for Provider Travel (01-002-0107-1-1) ($70.23/hr)",
     type: "text",
   },
 
   row15_weeks: {
-    label: "Weeks for Provider Travel (04-104-0125-6-1) ($16.89/hr)",
+    label: "Weeks for Provider Travel (04-104-0125-6-1) ($70.23/hr)",
     type: "text",
   },
   row15_totalHours: {
-    label: "Total Hours for Provider Travel (04-104-0125-6-1) ($16.89/hr)",
+    label: "Total Hours for Provider Travel (04-104-0125-6-1) ($70.23/hr)",
     type: "text",
   },
 
@@ -992,8 +992,8 @@ const supportLineItems = [
   { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 80.06 },
   { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 70.23 },
   { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.0 }, // Assuming this is per km
-  { code: "row16", label: "01_002_0107_1_1 Provider Travel", rate: 17.55 },
-  { code: "row17", label: "04_104_0125_6_1 Provider Travel", rate: 17.55 },
+  { code: "row16", label: "01_002_0107_1_1 Provider Travel", rate: 70.23 },
+  { code: "row17", label: "04_104_0125_6_1 Provider Travel", rate: 70.23 },
 ];
 
 

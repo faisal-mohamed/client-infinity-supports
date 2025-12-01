@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 
 // Import SignatureCanvas directly
 const ReactSignatureCanvas = require('react-signature-canvas').default;
@@ -32,7 +32,7 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
   onSignatureEnd,
   onSignatureClear,
   existingSignature,
-  width = 400,
+  width,
   height = 150,
   penColor = "black",
   backgroundColor = "white",
@@ -43,6 +43,50 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
   placeholder = "Draw your signature in the box above"
 }, ref) => {
   const sigCanvasRef = useRef<any | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isDrawingRef = useRef(false);
+  const [canvasWidth, setCanvasWidth] = useState(width || 400);
+
+  // Measure container width and update canvas width
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        // Subtract border width (2px on each side = 4px total)
+        const newWidth = containerWidth - 4;
+        if (newWidth > 0) {
+          setCanvasWidth(newWidth);
+        }
+      }
+    };
+
+    // Small delay to ensure container is rendered
+    const timeoutId = setTimeout(updateWidth, 100);
+
+    // Update on window resize with debounce
+    let resizeTimeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateWidth, 100);
+    };
+    window.addEventListener('resize', handleResize);
+    
+    // Also observe container size changes
+    const resizeObserver = new ResizeObserver(() => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateWidth, 100);
+    });
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
+    };
+  }, [width]);
 
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
@@ -81,7 +125,10 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
   const handleSignatureEnd = () => {
     if (sigCanvasRef.current && onSignatureEnd) {
       try {
-        const canvas = sigCanvasRef.current.getTrimmedCanvas?.() ?? sigCanvasRef.current.getCanvas();
+        // Mark that we just drew, so we don't reload our own signature
+        isDrawingRef.current = true;
+        // Use getCanvas() instead of getTrimmedCanvas() to preserve position and avoid stretching
+        const canvas = sigCanvasRef.current.getCanvas();
         const dataUrl = canvas.toDataURL("image/png");
         onSignatureEnd(dataUrl);
       } catch (err) {
@@ -102,35 +149,38 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
 
   // Load existing signature when component mounts or signature value changes
   useEffect(() => {
-    if (!existingSignature || !sigCanvasRef.current) return;
-
-    const canvasInstance = sigCanvasRef.current;
-    if (!canvasInstance.isEmpty()) {
+    // Skip if user just drew this signature (prevents redraw loop)
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false;
       return;
     }
-
-    const img = new window.Image();
-    img.src = existingSignature;
-    img.onload = () => {
-      const ctx = canvasInstance.getCanvas()?.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-      }
-    };
-  }, [existingSignature, width, height]);
+    
+    if (existingSignature && sigCanvasRef.current) {
+      const img = new window.Image();
+      img.src = existingSignature;
+      img.onload = () => {
+        const canvas = sigCanvasRef.current?.getCanvas();
+        const ctx = canvas?.getContext("2d");
+        if (ctx && canvas) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // Draw at natural size, not stretched
+          ctx.drawImage(img, 0, 0);
+        }
+      };
+    }
+  }, [existingSignature]);
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <div className="border-2 border-gray-300 rounded-lg bg-white">
+      <div ref={containerRef} className="border-2 border-gray-300 rounded-lg bg-white w-full">
         <ReactSignatureCanvas
           ref={sigCanvasRef}
           penColor={penColor}
           backgroundColor={backgroundColor}
           canvasProps={{ 
-            width, 
+            width: canvasWidth, 
             height, 
-            className: "rounded-lg",
+            className: "rounded-lg block",
             style: disabled ? { pointerEvents: 'none', opacity: 0.6 } : {}
           }}
           onEnd={handleSignatureEnd}

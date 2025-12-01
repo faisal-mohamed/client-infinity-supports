@@ -12,6 +12,22 @@ import {
 } from "react-icons/fa";
 import useRequireAuth from "../../hooks/useRequireAuth";
 
+// List of 12 client form keys (excluding staff forms)
+const CLIENT_FORM_KEYS = [
+  'client_intake_form',
+  'home_visit_risk_assessment',
+  'person_centred_plan',
+  'sa_delivery_of_supports',
+  'participant_risk_assessment',
+  'emergency_drill',
+  'individual_risk_assessment',
+  'welcome_form',
+  'support_action_plan',
+  'schedule_of_supports',
+  'sa_support_coordination',
+  'multi_disciplinary_meeting'
+];
+
 // Enhanced skeleton loader row
 function SkeletonRow() {
   return (
@@ -29,7 +45,7 @@ export default function FormsManagement() {
   // Call auth hook first
   const { session, status } = useRequireAuth();
   // Now call other hooks
-  const [forms, setForms] = useState([]);
+  const [forms, setForms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +59,11 @@ export default function FormsManagement() {
         if (!response.ok) throw new Error("Failed to fetch forms");
 
         const data = await response.json();
-        setForms(data);
+        // Filter to only show client forms (exclude staff forms)
+        const clientForms = Array.isArray(data) 
+          ? data.filter((form: any) => CLIENT_FORM_KEYS.includes(form.formKey))
+          : [];
+        setForms(clientForms);
       } catch (err) {
         console.error("Error fetching forms:", err);
         setError("Failed to load forms. Please try again.");

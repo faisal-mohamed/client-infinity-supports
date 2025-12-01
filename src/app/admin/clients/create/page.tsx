@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaSave,
@@ -36,7 +36,8 @@ export default function CreateClientPage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [checkingEmail, setCheckingEmail] = useState(false);
-  let emailCheckTimer: any;
+  const emailCheckTimer = useRef<NodeJS.Timeout | null>(null);
+  const currentCheckingEmail = useRef<string>("");
 
   // Function to clear specific field error
   const clearFieldError = (fieldName: string) => {
@@ -157,6 +158,15 @@ export default function CreateClientPage() {
   const [navigateToAssignForms, setNavigateToAssignForms] = useState(true);
 
   const { showToast } = useToast();
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (emailCheckTimer.current) {
+        clearTimeout(emailCheckTimer.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -479,24 +489,58 @@ export default function CreateClientPage() {
                         type="email"
                         value={email}
                         onChange={(e) => {
-                          const next = e.target.value.toLowerCase();
+                          const next = e.target.value.toLowerCase().trim();
                           setEmail(next);
-                          clearFieldError("email");
-                          // debounce check
-                          if (emailCheckTimer) clearTimeout(emailCheckTimer);
-                          emailCheckTimer = setTimeout(async () => {
-                            const val = next.trim();
-                            if (!val) return;
+                          // Clear error immediately when user types
+                          setErrors((prev) => {
+                            const newErrors = { ...prev };
+                            delete newErrors.email;
+                            return newErrors;
+                          });
+                          // Clear any pending email check
+                          if (emailCheckTimer.current) {
+                            clearTimeout(emailCheckTimer.current);
+                            emailCheckTimer.current = null;
+                          }
+                          // Don't check if email is empty
+                          if (!next) {
+                            setCheckingEmail(false);
+                            return;
+                          }
+                          // Track the email we're about to check
+                          const emailToCheck = next;
+                          currentCheckingEmail.current = emailToCheck;
+                          // Debounce check
+                          emailCheckTimer.current = setTimeout(async () => {
+                            // Verify this is still the email we want to check
+                            if (emailToCheck !== currentCheckingEmail.current) {
+                              return;
+                            }
                             setCheckingEmail(true);
                             try {
-                              const res = await checkClientEmailExists(val);
-                              if (res?.exists) {
-                                setErrors((prev) => ({ ...prev, email: "A client with this email already exists." }));
+                              const res = await checkClientEmailExists(emailToCheck);
+                              // Only update if this is still the email being checked
+                              if (emailToCheck === currentCheckingEmail.current) {
+                                if (res?.exists) {
+                                  setErrors((prev) => ({ ...prev, email: "A client with this email already exists." }));
+                                } else {
+                                  // Clear error if email doesn't exist
+                                  setErrors((prev) => {
+                                    const newErrors = { ...prev };
+                                    delete newErrors.email;
+                                    return newErrors;
+                                  });
+                                }
                               }
+                            } catch (error) {
+                              // Silently fail - don't show error for network issues
+                              console.error("Email check failed:", error);
                             } finally {
-                              setCheckingEmail(false);
+                              if (emailToCheck === currentCheckingEmail.current) {
+                                setCheckingEmail(false);
+                              }
                             }
-                          }, 400);
+                          }, 500);
                         }}
                         className={`w-full border rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${
                           errors.email

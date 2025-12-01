@@ -19,6 +19,25 @@ const BOTTOM_GAP = 28; // enforce ~2 lines of space above the footer
 
 const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsData = {}, settings = {}, images = {} }) => {
   const getValue = (key: string) => {
+    // For personName field, combine first name and surname to show full name
+    if (key === 'personName') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to formData.personName if it exists
+      if (formData?.[key]) {
+        return String(formData[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+    
     const map: Record<string, string> = {
       personName: 'name',
       phoneNumber: 'phone',

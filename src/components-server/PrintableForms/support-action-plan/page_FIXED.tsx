@@ -61,7 +61,8 @@ export const formSchema : any = {
       fields: [
         { key: "participantName", label: "Name", type: "text" },
         { key: "ndisNumber", label: "NDIS number", type: "text" },
-        { key: "planDates", label: "Plan Dates", type: "text" },
+        { key: "planStartDate", label: "Start Date", type: "text" },
+        { key: "planEndDate", label: "End Date", type: "text" },
         { key: "dob", label: "DOB", type: "text" },
         { key: "gender", label: "Gender", type: "text" },
         { key: "address", label: "Address", type: "text" },

@@ -342,6 +342,25 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
 
   // Get field value helper - FIXED to match web view field mapping
   const getFieldValue = (key: string): string => {
+    // For name field, combine first name and surname to show full name
+    if (key === 'name') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to formData.name if it exists
+      if (formData?.[key]) {
+        return String(formData[key]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
+    }
+    
     // Common field mappings - match web view exactly
     const commonFieldMap: Record<string, string> = {
       name: 'name',

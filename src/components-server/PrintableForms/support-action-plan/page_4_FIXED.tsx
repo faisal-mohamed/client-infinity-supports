@@ -91,30 +91,9 @@ const Page4: React.FC<any> = ({
           
           <StandardHeader images={images} />
 
-          {/* Table 1 - Budget Discussion & Goals */}
+          {/* Table 1 - Goals Section (Budget Approval question removed - it's already in Mainstream Supports section) */}
           <table className={`w-full border border-black border-collapse ${A4_PDF_TYPOGRAPHY.tableCell} mb-6`}>
             <tbody>
-              <tr>
-                <td className={`border border-black p-2 ${A4_PDF_TYPOGRAPHY.label}`} colSpan={2}>
-                  {schema?.budgetApproval?.label} &nbsp;&nbsp;
-                                    <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>Yes</span>
-
-                  <input
-                    type="checkbox"
-                    checked={isChecked(data?.budgetApproval, "Yes")}
-                    readOnly
-                    className="ml-2 align-middle w-4 h-4 border border-black bg-gray-300"
-                  /> &nbsp;&nbsp;
-                                    <span className={`ml-1 ${A4_PDF_TYPOGRAPHY.tableCell} align-middle`}>No</span>
-
-                  <input
-                    type="checkbox"
-                    checked={isChecked(data?.budgetApproval, "No")}
-                    readOnly
-                    className="ml-4 align-middle w-4 h-4 border border-black bg-gray-300"
-                  />
-                </td>
-              </tr>
               <tr>
                 <td
                   colSpan={2}

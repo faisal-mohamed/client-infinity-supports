@@ -288,7 +288,6 @@ const WelcomeForm_MATCHING: React.FC<WelcomeFormPDFProps> = ({
   });
 
   const commonFieldMapping: Record<string, string> = {
-    name: "name",
     ndisNumber: "ndis",
     dob: "dob",
     address: "street",

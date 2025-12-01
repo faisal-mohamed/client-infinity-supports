@@ -38,7 +38,19 @@ const EmergencyDrillStrictForm: React.FC<any> = ({ formData, commonFieldsData, s
 
   const getValue = (key: string) => {
     let value = '';
-    if (commonFieldMapping?.[key]) {
+    // For clientName field, combine first name and surname to show full name
+    if (key === 'clientName') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        value = fullName;
+      } else if (formData?.[key]) {
+        value = String(formData[key]);
+      } else if (firstName) {
+        value = firstName;
+      }
+    } else if (commonFieldMapping?.[key]) {
       value = commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
     } else {
       value = formData?.[key] ?? '';

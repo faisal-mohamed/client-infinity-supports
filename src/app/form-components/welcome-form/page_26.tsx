@@ -13,7 +13,6 @@ import { parseISO, isValid, format } from 'date-fns';
 const Page26: React.FC<any> = ({ schema, data, settings, commonFieldsData }: any) => {
 
   const commonFieldMapping: Record<string, string> = {
-    name: 'name',
     ndisNumber: 'ndis',
     dob: 'dob',
     address: 'street',

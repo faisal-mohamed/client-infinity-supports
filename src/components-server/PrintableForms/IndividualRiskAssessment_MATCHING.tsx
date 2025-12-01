@@ -47,6 +47,26 @@ const styles = StyleSheet.create({
 });
 
 const get = (obj: any, key: string, common?: any) => {
+  // For personName field, combine first name and surname to show full name
+  if (key === 'personName') {
+    const firstName = common?.name || '';
+    const surname = common?.surname || '';
+    const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+    if (fullName) {
+      return fullName;
+    }
+    // Fallback to form data if commonFieldsData doesn't have name
+    const formValue = obj ? obj[key] : undefined;
+    if (formValue !== undefined && formValue !== null && String(formValue).length > 0) {
+      return formValue;
+    }
+    // Last fallback: try to get just the first name from commonFieldsData
+    if (firstName) {
+      return firstName;
+    }
+    return '';
+  }
+  
   // Prefer value from form data; fall back to mapped common fields
   const formValue = obj ? obj[key] : undefined;
   if (formValue !== undefined && formValue !== null && String(formValue).length > 0) return formValue;

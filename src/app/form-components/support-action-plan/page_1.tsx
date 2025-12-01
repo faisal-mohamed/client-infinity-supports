@@ -48,6 +48,18 @@ const Page1: React.FC<Props> = ({ schema, data, settings , commonFieldsData }) =
 
   
 const getValue = (key: string): string => {
+  // For participantName field, combine first name and surname to show full name
+  if (key === 'participantName') {
+    const firstName = commonFieldsData?.name || '';
+    const surname = commonFieldsData?.surname || '';
+    const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+    if (fullName) {
+      return fullName;
+    }
+    // Fallback to form data if commonFieldsData doesn't have name
+    return data?.[key] || '';
+  }
+  
   const raw = commonFieldMapping[key]
     ? commonFieldsData?.[commonFieldMapping[key]]
     : data?.[key];

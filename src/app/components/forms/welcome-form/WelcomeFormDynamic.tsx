@@ -40,7 +40,6 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
   const SAFETY_BUFFER = 100; // Extra buffer for footer
 
   const commonFieldMapping: Record<string, string> = {
-    name: "name",
     ndisNumber: "ndis",
     dob: "dob",
     address: "street",
