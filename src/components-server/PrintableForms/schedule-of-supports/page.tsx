@@ -26,8 +26,8 @@ export const formSchema = {
       isPerKm: true
     },
     { key: "row13", description: '01_013_0107_1_1 Non-Face-to-Face', cost: '$67.56' },
-    { key: "row14", description: '01-002-0107-1-1 Provider Travel', cost: '$16.89' },
-    { key: "row15", description: '04-104-0125-6-1 Provider Travel', cost: '$16.89' }
+    { key: "row14", description: '01-002-0107-1-1 Provider Travel', cost: '$70.23' },
+    { key: "row15", description: '04-104-0125-6-1 Provider Travel', cost: '$70.23' }
   ]
   },
   page2: {

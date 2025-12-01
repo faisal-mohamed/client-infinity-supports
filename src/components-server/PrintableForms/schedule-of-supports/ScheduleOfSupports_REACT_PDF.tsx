@@ -165,8 +165,8 @@ export default function ScheduleOfSupports({
     { key: "row13", description: '09-009-0117-6-3 Skill Development and Training', cost: '$80.06' },
     { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$70.23' },
     { key: "row15", description: '04-590-0125-6-1 Activity based Transport', cost: '$1 Per km', isPerKm: true },
-    { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
-    { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' }
+    { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$70.23' },
+    { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$70.23' }
   ];
 
   return (
