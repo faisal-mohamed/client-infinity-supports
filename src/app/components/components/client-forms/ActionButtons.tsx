@@ -293,7 +293,7 @@ export default function ActionButtons({
                 <div className="flex-1 text-sm text-rose-700">
                   <p className="font-semibold mb-1">Quick Actions Guide</p>
                   <ul className="space-y-1 list-disc list-inside">
-                    <li><strong>Assign Forms:</strong> Add forms to client</li>
+                    <li><strong>Assign Forms:</strong> Add forms to {isStaff ? 'staff' : 'client'}</li>
                     <li><strong>Update Details:</strong> Edit shared information</li>
                     <li><strong>Manage Links:</strong> View existing links</li>
                     <li><strong>Generate Link:</strong> Create for selected forms</li>

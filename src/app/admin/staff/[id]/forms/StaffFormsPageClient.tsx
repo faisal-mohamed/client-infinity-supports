@@ -41,6 +41,9 @@ export default function StaffFormsPageClient() {
   // Download state
   const [downloadingPDF, setDownloadingPDF] = useState<number | null>(null);
 
+  // Email state
+  const [sendingEmail, setSendingEmail] = useState(false);
+
   // Signature link modal state
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<{
@@ -60,6 +63,131 @@ export default function StaffFormsPageClient() {
     completed: assignments.filter(a => a.currentStatus === "completed").length,
     inProgress: assignments.filter(a => a.currentStatus === "in_progress").length,
     notStarted: assignments.filter(a => a.currentStatus === "not_started").length
+  };
+
+  // Check if all forms are completed
+  const allFormsCompleted = stats.completed === stats.total && stats.total > 0;
+
+  // Send email notification for selected forms
+  const generateEmail = async () => {
+    if (selectedForms.length === 0) {
+      showToast({
+        type: 'error',
+        title: 'No Forms Selected',
+        message: 'Please select at least one form to send email',
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      setSendingEmail(true);
+      const response = await fetch(`/api/staff/${staffId}/send-staff-only-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formAssignmentIds: selectedForms
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.details || errorData.error || 'Unknown error';
+        
+        // Use centralized error parser
+        const { parseEmailError, extractErrorDetails } = await import('@/utils/emailErrorHandler');
+        const errorDetails = extractErrorDetails(errorData);
+        const errorInfo = parseEmailError(errorDetails);
+        
+        showToast({
+          type: errorInfo.type,
+          title: errorInfo.title,
+          message: errorInfo.message,
+          duration: errorInfo.duration,
+        });
+        return;
+      }
+
+      const data = await response.json();
+
+      // Show success message
+      showToast({
+        type: 'success',
+        title: '✅ Email Sent!',
+        message: `📧 Email sent successfully to ${staff?.email || 'staff'}\n\n📎 Attachments: ${selectedForms.length} PDF file(s)`,
+        duration: 5000,
+      });
+
+      setSelectedForms([]);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      
+      // Use centralized error parser for network/unexpected errors
+      const { parseEmailError } = await import('@/utils/emailErrorHandler');
+      const errorInfo = parseEmailError(error instanceof Error ? error.message : 'Network error');
+      
+      showToast({
+        type: errorInfo.type,
+        title: errorInfo.title,
+        message: errorInfo.message,
+        duration: errorInfo.duration,
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  // Trigger completion email for all completed forms
+  const triggerCompletionEmail = async () => {
+    try {
+      setSendingEmail(true);
+      
+      console.log(`📧 [MANUAL TRIGGER] Triggering completion email for staff ${staffId}...`);
+      
+      const response = await fetch(`/api/staff/${staffId}/trigger-completion-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to send email');
+      }
+
+      const data = await response.json();
+      
+      console.log(`✅ [MANUAL TRIGGER] Email sent successfully:`, data);
+
+      // Check if both emails were sent successfully
+      const adminSent = data.recipients?.admin || false;
+      const staffSent = data.recipients?.staff || false;
+      const bothSent = adminSent && staffSent;
+
+      showToast({
+        type: bothSent ? 'success' : 'warning',
+        title: bothSent ? '✅ Completion Emails Sent!' : '⚠️ Partial Success',
+        message: `📧 Completion email notification:\n\n` +
+                 `✉️ Admin: ${adminSent ? '✅ Sent' : '❌ Failed'}\n` +
+                 `✉️ Staff: ${staffSent ? '✅ Sent' : '❌ Failed'}\n` +
+                 `📎 Attachments: ${data.completedForms || 0} PDF(s)`,
+        duration: 8000,
+      });
+
+    } catch (error: any) {
+      console.error('❌ [MANUAL TRIGGER] Error:', error);
+      
+      const { parseEmailError } = await import('@/utils/emailErrorHandler');
+      const errorInfo = parseEmailError(error.message || 'Failed to send completion email');
+      
+      showToast({
+        type: errorInfo.type,
+        title: errorInfo.title,
+        message: errorInfo.message,
+        duration: errorInfo.duration,
+      });
+    } finally {
+      setSendingEmail(false);
+    }
   };
 
   // Load staff and form assignments
@@ -467,8 +595,10 @@ export default function StaffFormsPageClient() {
           setShowCommonFieldsWarning(true);
         }}
         onGenerateSignatureLink={generateSignatureLink}
-        sendEmailNotification={() => {}}
-        sendingEmail={false}
+        sendEmailNotification={generateEmail}
+        sendingEmail={sendingEmail}
+        allFormsCompleted={allFormsCompleted}
+        onTriggerCompletionEmail={triggerCompletionEmail}
         isStaff={true}
       />
 
