@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaSignature, FaCalendarDay } from 'react-icons/fa';
+import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaSignature, FaCalendarDay, FaUserClock, FaCheckCircle } from 'react-icons/fa';
 import useRequireAuth from '../../hooks/useRequireAuth';
 
 interface Notification {
   id: number;
   isRead: boolean;
   createdAt: string;
+  formAssignmentStatus?: string; // New: form assignment status
   client: {
     id: number;
     name: string;
@@ -329,31 +330,67 @@ export default function NotificationsPage() {
 
                 <div className="p-6">
                   <div className="flex items-start gap-4">
-                    {/* Icon */}
+                    {/* Icon - Different based on status */}
                     <div className={`p-3 rounded-xl shadow-md ${
-                      notification.isRead
+                      notification.formAssignmentStatus === 'pending_admin_review'
+                        ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white'
+                        : notification.formAssignmentStatus === 'completed'
+                        ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
+                        : notification.isRead
                         ? 'bg-gray-100 text-gray-600'
                         : 'bg-gradient-to-br from-rose-500 to-rose-600 text-white'
                     }`}>
-                      <FaSignature className="h-5 w-5" />
+                      {notification.formAssignmentStatus === 'pending_admin_review' ? (
+                        <FaUserClock className="h-5 w-5" />
+                      ) : notification.formAssignmentStatus === 'completed' ? (
+                        <FaCheckCircle className="h-5 w-5" />
+                      ) : (
+                        <FaSignature className="h-5 w-5" />
+                      )}
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="font-semibold text-lg text-slate-900">
-                          Form Signed & Submitted
+                          {notification.formAssignmentStatus === 'pending_admin_review' 
+                            ? '⚠️ Staff Submitted - Your Review Required'
+                            : notification.formAssignmentStatus === 'completed'
+                            ? '✅ Form Fully Completed'
+                            : 'Form Signed & Submitted'
+                          }
                         </h3>
                         {!notification.isRead && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-sm">
-                            New
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-sm ${
+                            notification.formAssignmentStatus === 'pending_admin_review'
+                              ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white'
+                              : 'bg-gradient-to-r from-rose-500 to-rose-600 text-white'
+                          }`}>
+                            {notification.formAssignmentStatus === 'pending_admin_review' ? 'Action Required' : 'New'}
                           </span>
                         )}
                       </div>
 
                       <p className="text-slate-700 mb-4 leading-relaxed">
-                        <span className="font-semibold text-rose-700">{notification.client.name}</span> has successfully signed and submitted{' '}
-                        <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
+                        {notification.formAssignmentStatus === 'pending_admin_review' ? (
+                          <>
+                            Staff has completed their section of{' '}
+                            <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
+                            {' '}for client <span className="font-semibold text-yellow-700">{notification.client.name}</span>.
+                            <span className="block mt-1 text-yellow-700 font-medium">Please complete the Follow-up section and add your signature.</span>
+                          </>
+                        ) : notification.formAssignmentStatus === 'completed' ? (
+                          <>
+                            <span className="font-semibold text-emerald-700">{notification.client.name}</span>'s{' '}
+                            <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
+                            {' '}has been fully completed with all signatures.
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-semibold text-rose-700">{notification.client.name}</span> has successfully signed and submitted{' '}
+                            <span className="font-medium text-slate-900">{notification.formSubmission.form.title}</span>
+                          </>
+                        )}
                       </p>
 
                       <div className="flex items-center gap-6 text-sm text-slate-500 mb-4">
@@ -370,10 +407,14 @@ export default function NotificationsPage() {
                       <div className="flex items-center gap-3">
                         <Link href={`/admin/clients/${notification.client.id}/forms`}>
                           <button
-                            className="px-6 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                            className={`px-6 py-2 text-white rounded-xl transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 ${
+                              notification.formAssignmentStatus === 'pending_admin_review'
+                                ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
+                                : 'bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700'
+                            }`}
                             onClick={() => !notification.isRead && markAsRead(notification.id)}
                           >
-                            View Details
+                            {notification.formAssignmentStatus === 'pending_admin_review' ? 'Complete Review' : 'View Details'}
                           </button>
                         </Link>
                         {!notification.isRead && (

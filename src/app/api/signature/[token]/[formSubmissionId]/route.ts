@@ -822,15 +822,36 @@ export async function PUT(
     const batch = await prisma.formBatch.findUnique({
       where: { batchToken: token, isSignatureOnly: true },
       include: {
-        signatureForms: { select: { formSubmissionId: true } },
+        signatureForms: { 
+          include: {
+            formSubmission: {
+              include: {
+                form: {
+                  select: {
+                    id: true,
+                    formKey: true,
+                    title: true,
+                  }
+                }
+              }
+            }
+          }
+        },
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          }
+        }
       },
     });
 
     if (!batch) return NextResponse.json({ error: "Signature link not found" }, { status: 404 });
     if (batch.expiresAt < new Date()) return NextResponse.json({ error: "Signature link expired" }, { status: 410 });
 
-    const inBatch = batch.signatureForms.some((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
-    if (!inBatch) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
+    const signatureForm = batch.signatureForms.find((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
+    if (!signatureForm) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
 
     // Update submission data and mark as submitted if this is the final submission
     const updated = await prisma.formSubmission.update({
@@ -845,6 +866,173 @@ export async function PUT(
       },
       select: { id: true },
     });
+
+    // 🔔 NOTIFICATION: When staff submits their part of the form, notify admin
+    if (isSubmitted) {
+      const formKey = signatureForm.formSubmission?.form?.formKey;
+      const formTitle = signatureForm.formSubmission?.form?.title || 'Unknown Form';
+      const formId = signatureForm.formSubmission?.form?.id;
+      const clientName = batch.client?.name || 'Unknown Client';
+      
+      // Get staff name from the form data (support worker signature field or similar)
+      const staffName = data?.supportWorkers || data?.staffName || 'Support Worker';
+
+      // 🎯 Get adminId from FormAssignment using the form submission details
+      let adminId: number | undefined;
+      try {
+        const formSubmissionDetails = await prisma.formSubmission.findUnique({
+          where: { id: formSubmissionIdInt },
+          select: { clientId: true, formId: true, formVersion: true }
+        });
+        
+        if (formSubmissionDetails) {
+          const formAssignment = await prisma.formAssignment.findFirst({
+            where: {
+              clientId: formSubmissionDetails.clientId,
+              formId: formSubmissionDetails.formId,
+              formVersion: formSubmissionDetails.formVersion,
+            },
+            select: { assignedById: true }
+          });
+          adminId = formAssignment?.assignedById ?? undefined;
+          console.log(`🔍 [STAFF SUBMITTED] Found adminId from FormAssignment: ${adminId}`);
+        }
+      } catch (adminLookupError) {
+        console.error(`❌ [STAFF SUBMITTED] Error looking up adminId:`, adminLookupError);
+      }
+
+      console.log(`🔔 [STAFF SUBMITTED] Staff submitted form via signature link`, {
+        formKey,
+        formTitle,
+        clientName,
+        staffName,
+        formSubmissionId: formSubmissionIdInt,
+        adminId
+      });
+
+      // 🎯 UPDATE FORM ASSIGNMENT STATUS TO "pending_admin_review"
+      // This indicates staff has completed their part, waiting for admin to complete
+      try {
+        const formSubmission = await prisma.formSubmission.findUnique({
+          where: { id: formSubmissionIdInt },
+          select: { clientId: true, formId: true, formVersion: true }
+        });
+
+        if (formSubmission) {
+          await prisma.formAssignment.updateMany({
+            where: {
+              clientId: formSubmission.clientId,
+              formId: formSubmission.formId,
+              formVersion: formSubmission.formVersion,
+            },
+            data: {
+              currentStatus: 'pending_admin_review',
+              isCompleted: false,
+            },
+          });
+          console.log(`✅ [STAFF SUBMITTED] Form assignment status updated to 'pending_admin_review'`);
+        }
+      } catch (statusError) {
+        console.error(`❌ [STAFF SUBMITTED] Failed to update form assignment status:`, statusError);
+      }
+
+      try {
+        // 1. Create dashboard notification for all admins
+        const allAdmins = await prisma.admin.findMany({ select: { id: true } });
+        
+        const notificationPromises = allAdmins.map((admin) =>
+          prisma.formSubmissionNotification.create({
+            data: {
+              adminId: admin.id,
+              clientId: batch.client.id,
+              formSubmissionId: formSubmissionIdInt,
+            },
+          })
+        );
+
+        await Promise.all(notificationPromises);
+        console.log(`✅ [STAFF SUBMITTED] Dashboard notifications created for ${allAdmins.length} admin(s)`);
+
+        // 2. Update batch as notified
+        await prisma.formBatch.update({
+          where: { id: batch.id },
+          data: { adminNotified: true },
+        });
+
+        // 3. Send email notification to admin (non-blocking)
+        console.log(`📧 [STAFF SUBMITTED] Preparing email notification...`);
+        console.log(`📧 [STAFF SUBMITTED] Admin ID: ${adminId}`);
+        console.log(`📧 [STAFF SUBMITTED] NEXTAUTH_URL: ${process.env.NEXTAUTH_URL}`);
+        console.log(`📧 [STAFF SUBMITTED] VERCEL_URL: ${process.env.VERCEL_URL}`);
+        
+        if (adminId) {
+          try {
+            const emailUrl = `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`;
+            console.log(`📧 [STAFF SUBMITTED] Email API URL: ${emailUrl}`);
+            
+            const emailPayload = {
+              type: "staff_form_submitted",
+              clientId: batch.client.id,
+              clientName,
+              staffName,
+              formTitle,
+              formId,
+              formSubmissionId: formSubmissionIdInt,
+              submittedAt: new Date().toLocaleString(),
+            };
+            console.log(`📧 [STAFF SUBMITTED] Email payload:`, JSON.stringify(emailPayload, null, 2));
+            
+            const emailResponse = await fetch(emailUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(emailPayload),
+            });
+
+            console.log(`📧 [STAFF SUBMITTED] Email response status: ${emailResponse.status}`);
+            
+            if (emailResponse.ok) {
+              const emailResult = await emailResponse.json();
+              console.log(`✅ [STAFF SUBMITTED] Email notification sent to admin successfully!`);
+              console.log(`✅ [STAFF SUBMITTED] Email result:`, JSON.stringify(emailResult, null, 2));
+            } else {
+              const errorText = await emailResponse.text();
+              console.error(`❌ [STAFF SUBMITTED] Email notification failed!`);
+              console.error(`❌ [STAFF SUBMITTED] Response status: ${emailResponse.status}`);
+              console.error(`❌ [STAFF SUBMITTED] Error details:`, errorText);
+            }
+          } catch (emailError: any) {
+            console.error(`❌ [STAFF SUBMITTED] Email send error (non-blocking)!`);
+            console.error(`❌ [STAFF SUBMITTED] Error name: ${emailError?.name}`);
+            console.error(`❌ [STAFF SUBMITTED] Error message: ${emailError?.message}`);
+            console.error(`❌ [STAFF SUBMITTED] Error stack:`, emailError?.stack);
+          }
+        } else {
+          console.warn(`⚠️ [STAFF SUBMITTED] No adminId found, skipping email notification`);
+          console.warn(`⚠️ [STAFF SUBMITTED] Could not find FormAssignment for this form submission`);
+        }
+
+        // 4. Create activity log
+        await prisma.formActivityLog.create({
+          data: {
+            clientId: batch.client.id,
+            logType: "CLIENT",
+            action: "Staff Form Section Submitted",
+            metadata: {
+              formKey,
+              formTitle,
+              formSubmissionId: formSubmissionIdInt,
+              staffName,
+              batchId: batch.id,
+              submittedAt: new Date().toISOString(),
+            },
+          },
+        });
+
+      } catch (notificationError) {
+        console.error(`❌ [STAFF SUBMITTED] Notification error (non-blocking):`, notificationError);
+        // Don't fail the main request if notification fails
+      }
+    }
 
     return NextResponse.json({ success: true, formSubmissionId: updated.id });
   } catch (error: any) {

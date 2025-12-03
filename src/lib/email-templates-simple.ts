@@ -15,6 +15,16 @@ export interface BatchCompletionEmailData {
   completedAt?: string;
 }
 
+export interface StaffFormSubmittedEmailData {
+  clientName: string;
+  staffName: string;
+  formTitle: string;
+  formId: number;
+  formSubmissionId: number;
+  submittedAt: string;
+  reviewLink?: string;
+}
+
 /**
  * Convert company logo to base64
  */
@@ -206,6 +216,93 @@ export async function generateTestEmailSimple(): Promise<string> {
       <!-- Footer -->
       <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #7f8c8d; font-size: 14px;">
         <p style="margin: 0;">This is an automated test from ${appName}</p>
+        <p style="margin: 15px 0 0 0; font-size: 12px;">
+          © ${new Date().getFullYear()} ${appName}. All rights reserved.
+        </p>
+      </div>
+
+    </body>
+    </html>
+  `;
+}
+
+/**
+ * Generate staff form submitted notification email for admin
+ */
+export async function generateStaffFormSubmittedEmail(data: StaffFormSubmittedEmailData): Promise<string> {
+  const appName = await getSettingFromDB('app_name', 'Infinity Support Portal');
+  
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Staff Form Submission - Pending Your Review</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+        <h1 style="margin: 0; font-size: 28px;">📋 Form Pending Review</h1>
+        <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Staff has completed their section</p>
+      </div>
+
+      <!-- Alert Box -->
+      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin-bottom: 30px; border-radius: 0 8px 8px 0;">
+        <h2 style="color: #92400e; margin-top: 0; margin-bottom: 10px;">⚠️ Action Required</h2>
+        <p style="font-size: 16px; margin: 0; color: #92400e;">
+          A staff member has submitted their part of the form. Please review and complete the remaining sections.
+        </p>
+      </div>
+
+      <!-- Form Details -->
+      <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
+        <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 20px;">📝 Submission Details</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; width: 40%;">Form Title:</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${data.formTitle}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280;">Client Name:</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${data.clientName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280;">Submitted By:</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${data.staffName || 'Support Worker'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; font-weight: 600; color: #6b7280;">Submitted At:</td>
+            <td style="padding: 10px 0; color: #1f2937;">${data.submittedAt}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- What You Need To Do -->
+      <div style="background: #ecfdf5; border: 1px solid #10b981; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
+        <h3 style="color: #059669; margin-top: 0; margin-bottom: 15px;">✅ What You Need To Do</h3>
+        <ol style="margin: 0; padding-left: 20px; color: #065f46;">
+          <li style="margin-bottom: 10px;">Log in to the admin portal</li>
+          <li style="margin-bottom: 10px;">Navigate to the client's forms</li>
+          <li style="margin-bottom: 10px;">Open the "${data.formTitle}" form</li>
+          <li style="margin-bottom: 10px;">Review the staff's entries</li>
+          <li style="margin-bottom: 10px;">Complete the Follow-up section</li>
+          <li>Add your supervisor signature to finalize</li>
+        </ol>
+      </div>
+
+      <!-- Status Badge -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <span style="background: #fef3c7; color: #92400e; padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 14px; display: inline-block;">
+          🕐 Awaiting Supervisor Review & Signature
+        </span>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align: center; padding: 20px; border-top: 1px solid #eee; color: #7f8c8d; font-size: 14px;">
+        <p style="margin: 0;">This is an automated notification from ${appName}</p>
+        <p style="margin: 5px 0 0 0;">Please complete your review at your earliest convenience.</p>
         <p style="margin: 15px 0 0 0; font-size: 12px;">
           © ${new Date().getFullYear()} ${appName}. All rights reserved.
         </p>

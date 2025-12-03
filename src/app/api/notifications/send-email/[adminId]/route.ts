@@ -3,7 +3,8 @@ import { sendEmail, getEmailConfig, testEmailConnection } from "@/lib/email";
 import { generateMultiplePDFBuffers } from "@/lib/pdf-buffer";
 import {
   generateBatchCompletionEmailSimple,
-  generateTestEmailSimple
+  generateTestEmailSimple,
+  generateStaffFormSubmittedEmail
 } from "@/lib/email-templates-simple";
 import {
   generateClientConfirmationEmail,
@@ -16,7 +17,8 @@ type EmailNotificationType =
   | "test_email"
   | "client_confirmation"
   | "client_test"
-  | "dual_notification";
+  | "dual_notification"
+  | "staff_form_submitted";
 
 interface EmailNotificationData {
   type: EmailNotificationType;
@@ -32,6 +34,12 @@ interface EmailNotificationData {
   completedAt?: string;
   sendToAdmin?: boolean;
   sendToClient?: boolean;
+  // Staff form submitted specific fields
+  staffName?: string;
+  formTitle?: string;
+  formId?: number;
+  formSubmissionId?: number;
+  submittedAt?: string;
 }
 
 
@@ -200,6 +208,9 @@ export async function POST(
         break;
       case "dual_notification":
         emailResult = await handleDualNotificationEmail(data, emailConfig, adminIdParam);
+        break;
+      case "staff_form_submitted":
+        emailResult = await handleStaffFormSubmittedEmail(data, emailConfig, adminIdParam);
         break;
       default:
         return NextResponse.json(
@@ -511,4 +522,64 @@ async function handleDualNotificationEmail(data: EmailNotificationData, config: 
     },
     totalEmails: 2
   };
+}
+
+/**
+ * Handle staff form submitted notification email to admin
+ * This is triggered when staff completes their part of a shared form (like Emergency Drill)
+ */
+async function handleStaffFormSubmittedEmail(data: EmailNotificationData, config: any, adminId: any) {
+  console.log(`📨 [STAFF SUBMITTED] Starting staff form submission notification`, {
+    clientName: data.clientName,
+    staffName: data.staffName,
+    formTitle: data.formTitle,
+    adminEmail: config.adminEmail
+  });
+
+  const { clientName, staffName, formTitle, formId, formSubmissionId, submittedAt } = data;
+
+  if (!clientName || !formTitle) {
+    console.error(`❌ [STAFF SUBMITTED] Missing required data:`, {
+      clientName: clientName ? '✅' : '❌ MISSING',
+      formTitle: formTitle ? '✅' : '❌ MISSING'
+    });
+    throw new Error("Client name and form title are required for staff submission notification");
+  }
+
+  console.log(`📝 [STAFF SUBMITTED] Generating email HTML...`);
+  const emailHtml = await generateStaffFormSubmittedEmail({
+    clientName: clientName || 'Unknown Client',
+    staffName: staffName || 'Support Worker',
+    formTitle: formTitle || 'Unknown Form',
+    formId: formId || 0,
+    formSubmissionId: formSubmissionId || 0,
+    submittedAt: submittedAt || new Date().toLocaleString()
+  });
+  console.log(`✅ [STAFF SUBMITTED] Email HTML generated`);
+
+  const subject = `📋 Action Required: ${formTitle} - Staff Section Completed for ${clientName}`;
+
+  console.log(`📧 [STAFF SUBMITTED] Sending email to admin: ${config.adminEmail}`);
+  const result = await sendEmail({
+    to: config.adminEmail,
+    subject,
+    html: emailHtml,
+    adminId: adminId
+  });
+
+  if (result.success) {
+    console.log(`✅ [STAFF SUBMITTED] Successfully sent to admin!`, {
+      to: config.adminEmail,
+      messageId: result.messageId,
+      formTitle,
+      clientName
+    });
+  } else {
+    console.error(`❌ [STAFF SUBMITTED] Failed to send to admin!`, {
+      to: config.adminEmail,
+      error: result.error
+    });
+  }
+
+  return result;
 }

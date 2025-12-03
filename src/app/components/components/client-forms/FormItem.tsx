@@ -169,18 +169,28 @@ export default function FormItem({
     if (status === "completed") {
       return {
         status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
-color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+        color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
         icon: FaCheckCircle,
-bgColor: 'from-emerald-500 to-emerald-600',
+        bgColor: 'from-emerald-500 to-emerald-600',
+        iconColor: 'text-white'
+      };
+    }
+    // New status: Admin Review - Staff submitted, waiting for admin to complete
+    if (status === "pending_admin_review") {
+      return {
+        status: 'Admin Review',
+        color: 'from-yellow-300 to-yellow-400 text-yellow-900 border-yellow-500',
+        icon: FaExclamationTriangle,
+        bgColor: 'from-yellow-500 to-yellow-600',
         iconColor: 'text-white'
       };
     }
     if (status === "in_progress") {
       return {
         status: 'In Progress',
-color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
+        color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
         icon: requiresSignature ? FaSignature : FaClock,
-bgColor: 'from-amber-500 to-amber-600',
+        bgColor: 'from-amber-500 to-amber-600',
         iconColor: 'text-white'
       };
     }

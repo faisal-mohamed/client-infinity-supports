@@ -147,7 +147,7 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
     }
   };
 
-  // Load existing signature when component mounts or signature value changes
+  // Load existing signature when component mounts, signature value changes, or canvas resizes
   useEffect(() => {
     // Skip if user just drew this signature (prevents redraw loop)
     if (isDrawingRef.current) {
@@ -156,19 +156,29 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
     }
     
     if (existingSignature && sigCanvasRef.current) {
-      const img = new window.Image();
-      img.src = existingSignature;
-      img.onload = () => {
-        const canvas = sigCanvasRef.current?.getCanvas();
-        const ctx = canvas?.getContext("2d");
-        if (ctx && canvas) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          // Draw at natural size, not stretched
-          ctx.drawImage(img, 0, 0);
-        }
+      // Small delay to ensure canvas is ready after resize
+      const loadSignature = () => {
+        const img = new window.Image();
+        img.src = existingSignature;
+        img.onload = () => {
+          const canvas = sigCanvasRef.current?.getCanvas();
+          const ctx = canvas?.getContext("2d");
+          if (ctx && canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw at natural size, not stretched
+            ctx.drawImage(img, 0, 0);
+          }
+        };
+        img.onerror = () => {
+          console.error("Failed to load existing signature image");
+        };
       };
+      
+      // Delay loading slightly to ensure canvas is properly sized
+      const timeoutId = setTimeout(loadSignature, 50);
+      return () => clearTimeout(timeoutId);
     }
-  }, [existingSignature]);
+  }, [existingSignature, canvasWidth]); // Added canvasWidth as dependency to redraw after resize
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -176,12 +186,12 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
         <ReactSignatureCanvas
           ref={sigCanvasRef}
           penColor={penColor}
-          backgroundColor={backgroundColor}
+          backgroundColor={disabled ? "#f9fafb" : backgroundColor}
           canvasProps={{ 
             width: canvasWidth, 
             height, 
             className: "rounded-lg block",
-            style: disabled ? { pointerEvents: 'none', opacity: 0.6 } : {}
+            style: disabled ? { pointerEvents: 'none', cursor: 'not-allowed' } : {}
           }}
           onEnd={handleSignatureEnd}
         />

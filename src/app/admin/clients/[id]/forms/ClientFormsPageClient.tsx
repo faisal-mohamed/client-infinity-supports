@@ -95,19 +95,10 @@ const adminId : any  = session?.user?.id;
   // Calculate statistics
   const stats = {
     total: assignments.length,
-    completed: assignments.filter(a => {
-      
-      if(a.currentStatus === "completed") return true;
-    }).length,
-    inProgress: assignments.filter(a => {
-    
-
-            if(a.currentStatus === "in_progress") return true;
-
-    }).length,
-    notStarted: assignments.filter(a => {
-      if(a.currentStatus === "not_started") return true;
-    }).length
+    completed: assignments.filter(a => a.currentStatus === "completed").length,
+    pendingAdminReview: assignments.filter(a => a.currentStatus === "pending_admin_review").length,
+    inProgress: assignments.filter(a => a.currentStatus === "in_progress").length,
+    notStarted: assignments.filter(a => a.currentStatus === "not_started").length
   };
 
   // Load client and form assignments

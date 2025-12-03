@@ -65,13 +65,35 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
+    // Enrich notifications with form assignment status
+    const enrichedNotifications = await Promise.all(
+      notifications.map(async (notification) => {
+        // Get form assignment status for this form submission
+        const formAssignment = await prisma.formAssignment.findFirst({
+          where: {
+            clientId: notification.clientId,
+            formId: notification.formSubmission.formId,
+            formVersion: notification.formSubmission.formVersion,
+          },
+          select: {
+            currentStatus: true,
+          },
+        });
+
+        return {
+          ...notification,
+          formAssignmentStatus: formAssignment?.currentStatus || 'unknown',
+        };
+      })
+    );
+
     // Get total count for pagination
     const totalCount = await prisma.formSubmissionNotification.count({
       where: whereClause
     });
 
     return NextResponse.json({
-      notifications,
+      notifications: enrichedNotifications,
       pagination: {
         page,
         limit,

@@ -1,6 +1,6 @@
 "use client";
 
-import { FaFileAlt, FaCheckCircle, FaClock, FaExclamationTriangle } from 'react-icons/fa';
+import { FaFileAlt, FaCheckCircle, FaClock, FaExclamationTriangle, FaUserClock } from 'react-icons/fa';
 
 interface StatsCardsProps {
   stats: {
@@ -8,6 +8,7 @@ interface StatsCardsProps {
     completed: number;
     inProgress: number;
     notStarted: number;
+    pendingAdminReview?: number;
   };
 }
 
@@ -28,6 +29,13 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       iconColor: 'text-green-600'
     },
     {
+      title: 'Admin Review',
+      value: stats.pendingAdminReview || 0,
+      icon: FaUserClock,
+      bgColor: 'bg-yellow-100',
+      iconColor: 'text-yellow-600'
+    },
+    {
       title: 'In Progress',
       value: stats.inProgress,
       icon: FaClock,
@@ -45,7 +53,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
         {statsData.map((stat, index) => {
           const IconComponent = stat.icon;
           return (

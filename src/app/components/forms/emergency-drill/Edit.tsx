@@ -51,7 +51,7 @@ export const FORM_SECTIONS : any = [
       "supervisorNotified"
     ],
     icon: FaHome,
-    requiredFields: ["drillDate", "drillTime", "supportWorkers"] // Required for client/staff
+    requiredFields: ["drillDate", "drillTime", "clientName", "supportWorkers", "supervisorNotified"] // All fields required
   },
   {
     id: "drillTypes",
@@ -62,7 +62,7 @@ export const FORM_SECTIONS : any = [
       "otherDrill"
     ],
     icon: FaHome,
-    requiredFields: ["selectedDrillType"] // Single drill type selection required
+    requiredFields: ["selectedDrillType"] // Single drill type selection required (otherDrill is conditionally required when "Other" is selected)
   },
   {
     id: "executionDetails",
@@ -76,7 +76,7 @@ export const FORM_SECTIONS : any = [
       "supportAction"
     ],
     icon: FaHome,
-    requiredFields: ["planFollowed", "safetyProtocols", "clientResponse", "supportAction"] // Required for client/staff
+    requiredFields: ["planFollowed", "safetyProtocols", "servicesContacted", "clientResponse", "supportAction"] // All fields required
   },
   {
     id: "observations",
@@ -88,7 +88,7 @@ export const FORM_SECTIONS : any = [
       "unexpectedIssues"
     ],
     icon: FaHome,    
-    requiredFields: ["whatWentWell", "challenges"] // Required for client/staff
+    requiredFields: ["whatWentWell", "challenges", "unexpectedIssues"] // All fields required
   },
   {
     id: "recommendations",
@@ -102,7 +102,7 @@ export const FORM_SECTIONS : any = [
       "planUpdateDetails"
     ],
     icon: FaHome,
-    requiredFields: ["procedureChanges"] // Required for client/staff
+    requiredFields: ["procedureChanges", "additionalTrainingRequired", "planUpdateNeeded"] // All fields required (trainingDetails/planUpdateDetails are conditionally required when "Yes" is selected)
   },
   {
     id: "followup",
@@ -114,7 +114,7 @@ export const FORM_SECTIONS : any = [
       "nextDrillDate"
     ],
     icon: FaHome,
-    requiredFields: ["debriefConducted", "supervisorComments", "nextDrillDate"] // Required for admin only
+    requiredFields: ["debriefConducted", "supervisorComments", "nextDrillDate"] // All fields required
   },
   {
     id: "signatures",
@@ -127,7 +127,7 @@ export const FORM_SECTIONS : any = [
       "supervisorSignatureDate"
     ],
     icon: FaHome,
-    requiredFields: ["supportWorkerSignature", "supportWorkerSignatureDate"] // Required for client/staff
+    requiredFields: ["supportWorkerSignature", "supportWorkerSignatureDate", "supervisorSignature", "supervisorSignatureDate"] // All fields required
   }
 ];
 
@@ -565,9 +565,18 @@ const getCommonFieldValue = (fieldName: string): string => {
               missingFields.push('Please specify the other drill type');
             }
           }
-      } else {
+        } else if (currentStep === 6) {
+          // Section 7 (Signatures) - Client/Staff only needs their own signature
+          const clientSignatureRequired = ['supportWorkerSignature', 'supportWorkerSignatureDate'];
+          clientSignatureRequired.forEach((fieldName: string) => {
+            const value = localValues[fieldName];
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(fieldName);
+            }
+          });
+        } else {
           currentSection.requiredFields.forEach((fieldName: any) => {
-      let value;
+            let value;
             if (isCommonField(fieldName)) {
               value = getCommonFieldValue(fieldName);
             } else {
@@ -1128,6 +1137,12 @@ const getCommonFieldValue = (fieldName: string): string => {
       return true;
     }
     
+    // SIGNATURE LINK MODE: Client/Staff only needs their own signature fields
+    if (isSignatureLink && currentStep === 6) {
+      const clientSignatureRequired = ['supportWorkerSignature', 'supportWorkerSignatureDate'];
+      return clientSignatureRequired.includes(fieldName);
+    }
+    
     // ADMIN REVIEW MODE: Override required fields for admin sections
     if (filledByClient && !isSignatureLink) {
       // Section 5 (Follow-up) - all fields required for admin
@@ -1310,6 +1325,15 @@ const getCommonFieldValue = (fieldName: string): string => {
         return baseRequired && dropdownRequired && trainingRequired && planUpdateRequired;
       }
       
+      // Section 7 (Signatures) - Client/Staff only needs to fill their own signature fields
+      if (currentStep === 6) {
+        const clientSignatureRequired = ['supportWorkerSignature', 'supportWorkerSignatureDate'];
+        return clientSignatureRequired.every((fieldName: string) => {
+          const value = localValues[fieldName];
+          return value && (typeof value !== 'string' || value.trim() !== '');
+        });
+      }
+      
       return currentSection.requiredFields.every((fieldName: any) => {
         let value;
         if (isCommonField(fieldName)) {
@@ -1470,6 +1494,14 @@ const getCommonFieldValue = (fieldName: string): string => {
               (!localValues['planUpdateDetails'] || localValues['planUpdateDetails'].trim() === '')) {
             missingFields.push(`${section.title}: planUpdateDetails (required when "Updates needed for emergency plan" is Yes)`);
           }
+        } else if (index === 6) { // Section 7 (Signatures) - Client/Staff only needs their own signature
+          const clientSignatureRequired = ['supportWorkerSignature', 'supportWorkerSignatureDate'];
+          clientSignatureRequired.forEach((fieldName: string) => {
+            const value = localValues[fieldName];
+            if (!value || (typeof value === 'string' && value.trim() === '')) {
+              missingFields.push(`${section.title}: ${fieldName}`);
+            }
+          });
         } else {
           section.requiredFields.forEach((fieldName: any) => {
             let value;

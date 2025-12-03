@@ -41,6 +41,9 @@ export async function POST(
     });
 
     const adminId = assignment?.assignedBy?.id;
+    
+    // 🎯 Track previous status to detect admin completing a "pending_admin_review" form
+    const previousStatus = assignment?.currentStatus;
 
     if (!assignment) {
       return NextResponse.json(
@@ -182,6 +185,9 @@ export async function POST(
     console.log(
       `🎯 Updating FormAssignment ${assignmentIdNum} to status: ${newStatus}`
     );
+    console.log(
+      `🎯 Previous status was: ${previousStatus}`
+    );
 
     await prisma.formAssignment.update({
       where: { id: assignmentIdNum },
@@ -194,6 +200,98 @@ export async function POST(
     console.log(
       `✅ FormAssignment ${assignmentIdNum} submitted with status: ${newStatus}`
     );
+
+    // 🔔 SPECIAL CASE: Admin completed a form that was in "pending_admin_review" status
+    // This happens when staff submitted their part, and now admin is completing theirs
+    if (previousStatus === 'pending_admin_review' && newStatus === 'completed') {
+      console.log(`🎉 [ADMIN COMPLETED] Admin completed a pending_admin_review form!`);
+      console.log(`🎉 [ADMIN COMPLETED] Form: ${assignment.form.title}`);
+      
+      try {
+        // Get client info
+        const clientInfo = await prisma.client.findUnique({
+          where: { id: assignment.clientId },
+          select: { name: true, email: true },
+        });
+
+        // Get all admins in the system
+        const allAdmins = await prisma.admin.findMany({
+          select: { id: true },
+        });
+
+        // Create notifications for all admins (form fully completed)
+        const notificationPromises = allAdmins.map((admin) =>
+          prisma.formSubmissionNotification.create({
+            data: {
+              adminId: admin.id,
+              clientId: assignment.clientId,
+              formSubmissionId: formSubmission.id,
+            },
+          })
+        );
+
+        await Promise.all(notificationPromises);
+        console.log(`✅ [ADMIN COMPLETED] Notifications created for ${allAdmins.length} admin(s)`);
+
+        // Create activity log
+        await prisma.formActivityLog.create({
+          data: {
+            clientId: assignment.clientId,
+            adminId: adminId,
+            logType: "ADMIN",
+            action: "Form Fully Completed by Admin",
+            metadata: {
+              formKey: assignment.form.formKey,
+              formTitle: assignment.form.title,
+              formSubmissionId: formSubmission.id,
+              previousStatus: 'pending_admin_review',
+              newStatus: 'completed',
+              completedAt: new Date().toISOString(),
+            },
+          },
+        });
+
+        // Send dual notification email (admin + client)
+        console.log(`📧 [ADMIN COMPLETED] Sending completion email...`);
+        try {
+          const completedFormsData = [{
+            id: formSubmission.id,
+            formId: assignment.form.id,
+            title: assignment.form.title,
+          }];
+
+          const emailUrl = `${process.env.NEXTAUTH_URL || req.nextUrl.origin}/api/notifications/send-email/${adminId}`;
+          console.log(`📧 [ADMIN COMPLETED] Email URL: ${emailUrl}`);
+          
+          const emailResponse = await fetch(emailUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "dual_notification",
+              adminId,
+              clientId: assignment.clientId,
+              clientName: clientInfo?.name,
+              clientEmail: clientInfo?.email,
+              batchId: 0,
+              completedForms: completedFormsData,
+              completedAt: new Date().toLocaleString(),
+            }),
+          });
+
+          if (emailResponse.ok) {
+            const emailResult = await emailResponse.json();
+            console.log(`✅ [ADMIN COMPLETED] Completion email sent!`, emailResult);
+          } else {
+            const errorText = await emailResponse.text();
+            console.error(`❌ [ADMIN COMPLETED] Email failed:`, errorText);
+          }
+        } catch (emailError) {
+          console.error(`❌ [ADMIN COMPLETED] Email error (non-blocking):`, emailError);
+        }
+      } catch (notificationError) {
+        console.error(`❌ [ADMIN COMPLETED] Notification error:`, notificationError);
+      }
+    }
 
     // 🔔 CREATE NOTIFICATIONS for ALL ADMINS when client has signed the form
     if (hasAllSignatures && clientSignature) {
