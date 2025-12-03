@@ -1150,8 +1150,6 @@ export async function POST(
               data: {
                 staffSignature: null,
                 staffSignedAt: null,
-                adminSignature: null,
-                adminSignedAt: null,
                 data: preservedData // Keep ALL admin data including managerName
               }
             });
@@ -1179,8 +1177,6 @@ export async function POST(
               data: {
                 staffSignature: null,
                 staffSignedAt: null,
-                adminSignature: null,
-                adminSignedAt: null,
                 data: preservedData // Keep ALL admin data including reviewedBy, reviewerTitle, etc.
               }
             });

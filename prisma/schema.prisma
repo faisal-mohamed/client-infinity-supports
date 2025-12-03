@@ -102,6 +102,7 @@ model StaffFormSubmission {
   data        Json      // JSON containing ALL form submission data
   isSubmitted Boolean   @default(false)
   submittedAt DateTime?
+  createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   // Admin workflow tracking

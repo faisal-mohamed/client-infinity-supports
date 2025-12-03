@@ -261,7 +261,7 @@ export default function BullyingHarassmentTrainingView({
             // Enable high-quality image smoothing
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high' as ImageSmoothingQuality,
-          });
+          }) as CanvasRenderingContext2D;
           if (!context) continue;
 
           // Enable maximum quality rendering

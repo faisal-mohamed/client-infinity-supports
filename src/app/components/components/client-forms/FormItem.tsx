@@ -442,10 +442,10 @@ export default function FormItem({
                       <span className="text-green-600 font-bold">
                         <span className="hidden sm:inline">Signed </span>
                         {(() => {
-                          // For staff forms, prioritize the user-entered date from submissionData over staffSignedAt
-                          if (isStaff && assignment.submissionData?.date) {
+                          // For staff forms, prioritize the user-entered date from formData over staffSignedAt
+                          if (isStaff && assignment.formData?.date) {
                             // Format YYYY-MM-DD to DD/MM/YYYY
-                            const [year, month, day] = assignment.submissionData.date.split('-');
+                            const [year, month, day] = assignment.formData.date.split('-');
                             return `${day}/${month}/${year}`;
                           }
                           // Fallback to staffSignedAt or clientSignedAt

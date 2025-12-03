@@ -50,8 +50,7 @@ export async function POST(request: NextRequest) {
     
     for (let i = 0; i < pages.length; i++) {
       const screenshot = await pages[i].screenshot({
-        type: 'png',
-        clip: { x: 0, y: 0, width: 800, height: 1000 }
+        type: 'png'
       });
       screenshots.push(screenshot);
     }

@@ -139,7 +139,7 @@ export async function GET(
     
     // Wait for signature processing to complete
     await page.waitForFunction(() => {
-      const sigImg = document.getElementById('signature-img');
+      const sigImg = document.getElementById('signature-img') as HTMLImageElement;
       if (!sigImg) return true; // No signature, continue
       // Check if image has been processed (src changed to data URL)
       return sigImg.src && sigImg.src.startsWith('data:image/png');

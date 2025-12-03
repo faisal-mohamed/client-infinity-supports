@@ -421,9 +421,9 @@ const renderTableRow = (cells: TableCellConfig[], header = false, rowStyle?: any
           <Text
             style={[
               styles.tableCellText,
-              header && styles.tableHeaderText,
-              cell.bold && styles.bold,
-              cell.align === 'center' && styles.textCenter,
+              ...(header ? [styles.tableHeaderText] : []),
+              ...(cell.bold ? [styles.bold] : []),
+              ...(cell.align === 'center' ? [styles.textCenter] : []),
             ]}
           >
             {cell.text}

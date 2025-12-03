@@ -121,12 +121,12 @@ export async function GET(
 
     // Generate PDF
     const pdfDoc = React.createElement(DocumentationAcknowledgementPDF, pdfProps);
-    const pdfBuffer = await renderToBuffer(pdfDoc);
+    const pdfBuffer = await renderToBuffer(pdfDoc as any);
 
     console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
 
     // Return PDF as inline (for iframe viewing in admin)
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="Documentation_Acknowledgement_${staff.firstName}_${staff.surname}.pdf"`,

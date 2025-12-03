@@ -904,12 +904,10 @@ export default function StaffSignaturePortalClient() {
                   <FaSignature className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold text-amber-600 mb-1">
-                  {completionStatus.totalSignaturesRequired !== undefined 
-                    ? completionStatus.totalSignaturesRequired 
-                    : completionStatus.formsRequiringSignature}
+                  {completionStatus.formsRequiringSignature}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-amber-700">
-                  {completionStatus.totalSignaturesRequired !== undefined ? 'Signatures Required' : 'Require Signature'}
+                  Require Signature
                 </div>
               </div>
               
@@ -940,21 +938,13 @@ export default function StaffSignaturePortalClient() {
                         {completionStatus.formsRequiringSignature > 0 && (
                           <>
                             {' '}
-                            {completionStatus.totalSignaturesRequired !== undefined ? (
-                              <>({completionStatus.totalSignaturesCompleted} of {completionStatus.totalSignaturesRequired} signatures)</>
-                            ) : (
-                              <>({completionStatus.signedForms} of {completionStatus.formsRequiringSignature} signed)</>
-                            )}
+                            <>({completionStatus.signedForms} of {completionStatus.formsRequiringSignature} signed)</>
                           </>
                         )}
                       </>
                     ) : (
                       <>
-                        {completionStatus.totalSignaturesRequired !== undefined ? (
-                          <>{completionStatus.totalSignaturesCompleted} of {completionStatus.totalSignaturesRequired} signatures</>
-                        ) : (
-                          <>{completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed</>
-                        )}
+                        <>{completionStatus.signedForms} of {completionStatus.formsRequiringSignature} forms signed</>
                       </>
                     )}
                   </span>
@@ -968,11 +958,7 @@ export default function StaffSignaturePortalClient() {
                     }`}
                     style={{ 
                       width: `${(() => {
-                        // If signature counts are available, use them for progress
-                        if (completionStatus.totalSignaturesRequired !== undefined && completionStatus.totalSignaturesRequired > 0) {
-                          return (completionStatus.totalSignaturesCompleted / completionStatus.totalSignaturesRequired) * 100;
-                        }
-                        // Otherwise, use form counts
+                        // Use form counts for progress
                         if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
                           return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
                         } else if (completionStatus.formsRequiringSignature > 0) {
@@ -985,11 +971,7 @@ export default function StaffSignaturePortalClient() {
                 </div>
                 <div className="mt-2 text-xs text-gray-500 text-center">
                   {Math.round((() => {
-                    // If signature counts are available, use them for progress
-                    if (completionStatus.totalSignaturesRequired !== undefined && completionStatus.totalSignaturesRequired > 0) {
-                      return (completionStatus.totalSignaturesCompleted / completionStatus.totalSignaturesRequired) * 100;
-                    }
-                    // Otherwise, use form counts
+                    // Use form counts for progress
                     if (completionStatus.totalCompletedForms !== undefined && completionStatus.totalForms > 0) {
                       return (completionStatus.totalCompletedForms / completionStatus.totalForms) * 100;
                     } else if (completionStatus.formsRequiringSignature > 0) {

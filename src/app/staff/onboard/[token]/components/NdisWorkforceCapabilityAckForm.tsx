@@ -58,7 +58,7 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted, 
           const result = await response.json();
           console.log('🔵 [NdisWorkforceCapabilityAckForm] API Response:', result);
           
-          let savedData = {};
+          let savedData: any = {};
           if (isSignatureLink) {
             // Signature API returns formSubmission directly
             savedData = result.formSubmission?.data || {};
@@ -91,7 +91,7 @@ function NdisWorkforceCapabilityAckForm({ token, onValidityChange, onSubmitted, 
               });
             } else {
               console.log('⚠️ [NdisWorkforceCapabilityAckForm] No saved data found, pre-filling name from staff info');
-              setData(prev => ({
+              setData((prev: any) => ({
                 ...prev,
                 fullName: staffName
               }));

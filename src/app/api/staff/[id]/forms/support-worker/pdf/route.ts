@@ -73,7 +73,7 @@ export async function GET(
 
     // Get form submission data
     const submission = staff.submissions.find(s => s.formKey === 'support_worker');
-    const formData = submission?.data || {};
+    const formData = (submission?.data as any) || {};
 
     console.log('📊 [PDF API] Staff data:', { 
       id: staff.id, 
@@ -154,7 +154,7 @@ export async function GET(
     console.log('⚙️ [PDF API] Calling renderToBuffer from @react-pdf/renderer...');
     console.log('  - This is the React-PDF function that generates the actual PDF buffer');
     
-    const pdfBuffer = await renderToBuffer(pdfDoc);
+    const pdfBuffer = await renderToBuffer(pdfDoc as any);
     
     console.log('📊 [PDF API] PDF Buffer Generated:');
     console.log('  - Buffer type:', Buffer.isBuffer(pdfBuffer) ? 'Buffer' : typeof pdfBuffer);
@@ -174,7 +174,7 @@ export async function GET(
     console.log('✅ [PDF API] ========== PDF GENERATION COMPLETE ==========');
 
     // Return PDF as inline (for iframe viewing in admin)
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="Position_Description_${staff.firstName}_${staff.surname}.pdf"`,

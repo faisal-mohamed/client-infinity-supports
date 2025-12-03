@@ -122,7 +122,7 @@ export async function GET(
 
     // Generate PDF
     const pdfDoc = React.createElement(PreEmploymentMedicalPDF, pdfProps);
-    const pdfBuffer = await renderToBuffer(pdfDoc);
+    const pdfBuffer = await renderToBuffer(pdfDoc as any);
 
     console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
 
@@ -133,7 +133,7 @@ export async function GET(
     const filename = `Pre_Employment_Medical_${staff.firstName}_${staff.surname}.pdf`;
 
     // Return PDF as inline (for viewing) or attachment (for download)
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': download 

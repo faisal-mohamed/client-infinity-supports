@@ -114,8 +114,8 @@ export async function GET(
     batch.signatureForms.forEach((sf: any) => {
       const formKey = sf.formSubmission.form.formKey;
       const dbRequiresSig = sf.formSubmission.form.requiresSignature;
-      const isInRequiringList = formsRequiringSignature.some(f => f.formSubmission.form.formKey === formKey);
-      const isInNotRequiringList = formsNotRequiringSignature.some(f => f.formSubmission.form.formKey === formKey);
+      const isInRequiringList = formsRequiringSignature.some(f => f.formSubmission.form?.formKey === formKey);
+      const isInNotRequiringList = formsNotRequiringSignature.some(f => f.formSubmission.form?.formKey === formKey);
       
       console.log(`  - ${formKey}:`);
       console.log(`    Database requiresSignature: ${dbRequiresSig}`);

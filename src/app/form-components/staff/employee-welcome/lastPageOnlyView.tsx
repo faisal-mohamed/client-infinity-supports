@@ -57,7 +57,7 @@ export default function EmployeeWelcomeAckView({
           <div>
             <label className="block text-[12pt] mb-1">Name</label>
             <div className="w-full border-b border-black/60 px-1 py-2 text-gray-800">
-              {data?.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '' || <span className="text-gray-400 italic">—</span>}
+              {data?.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() || <span className="text-gray-400 italic">—</span> : <span className="text-gray-400 italic">—</span>}
             </div>
           </div>
 

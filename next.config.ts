@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     // Don't fail build on TypeScript errors during production build
-    ignoreBuildErrors: true, // Skip TypeScript errors during build
+    ignoreBuildErrors: false, // Show TypeScript errors during build
   },
   // This setting helps with hydration mismatches by suppressing the warnings in development
   onDemandEntries: {

@@ -64,7 +64,7 @@ export default function OnboardClient() {
     });
   };
 
-  if (loading) return <LoadingView title="Loading Staff Forms" message="Please wait..." />;
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="text-lg font-semibold">Loading Staff Forms</div><div className="text-gray-600 mt-2">Please wait...</div></div></div>;
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-600">{error}</div>;
 
   return (

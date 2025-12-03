@@ -77,7 +77,7 @@ function OverlayCharInput({
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
-          ref={(el) => (inputsRef.current[i] = el)}
+          ref={(el) => { inputsRef.current[i] = el; }}
           type="text"
           maxLength={1}
           value={values[i]}
@@ -441,7 +441,7 @@ function OverlayMultiRowCharInput({
             return (
               <input
                 key={idx}
-                ref={(el) => (inputsRef.current[idx] = el)}
+                ref={(el) => { inputsRef.current[idx] = el; }}
                 type="text"
                 maxLength={1}
                 value={chars[idx]}
@@ -472,7 +472,7 @@ function OverlayGroupedCharInput({
   readOnly = false,
 }: any) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
-  const totalLength = groups.reduce((acc, g) => acc + g.length, 0);
+  const totalLength = groups.reduce((acc: number, g: any) => acc + g.length, 0);
 
   const normalize = (str: string) => {
     const arr = str.slice(0, totalLength).split("");
@@ -509,13 +509,13 @@ function OverlayGroupedCharInput({
 
   return (
     <>
-      {groups.map((group, gIdx) => {
+      {groups.map((group: any, gIdx: number) => {
         const boxes = Array.from({ length: group.length }).map((_, i) => {
           const idx = currentIndex + i;
           return (
             <input
               key={`${gIdx}-${i}`}
-              ref={(el) => (inputsRef.current[idx] = el)}
+              ref={(el) => { inputsRef.current[idx] = el; }}
               type="text"
               maxLength={1}
               value={chars[idx]}

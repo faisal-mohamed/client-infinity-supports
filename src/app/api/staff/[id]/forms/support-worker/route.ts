@@ -39,7 +39,7 @@ export async function GET(
     }
 
     const responseData = {
-      ...submission.data,
+      ...(submission.data as any),
       signature: submission.staffSignature,
       signatureDate: submission.staffSignedAt,
       staff: {

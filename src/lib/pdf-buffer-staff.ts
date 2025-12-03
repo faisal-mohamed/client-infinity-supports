@@ -368,7 +368,7 @@ export async function generateMultipleStaffPDFBuffers(
     console.log(`🔍 [STAFF PDF] ${formKey === 'super_choice_form' ? 'Super Choice Form' : 'TFN Declaration'} PDF result:`, {
       success: result.success,
       filename: result.filename,
-      bufferSize: result.buffer?.length || 0,
+      bufferSize: 'buffer' in result ? (result.buffer?.length || 0) : 0,
       error: result.error
     });
   });

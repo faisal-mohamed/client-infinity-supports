@@ -37,15 +37,13 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
       logo={logo}
       meta={{
         website: 'infinitysupportswa.org',
-        formId: 'NDIS-WCF',
+        version: 'NDIS-WCF',
         reviewDate: '01/03/2025'
       }}
     >
       {/* Header Section */}
       <PDFSection title="NDIS Workforce Capability Framework" wrap={false}>
-        <PDFParagraph bordered>
-          This form documents the NDIS Workforce Capability Framework understanding and compliance for staff members.
-        </PDFParagraph>
+        <PDFParagraph label="Description" value="This form documents the NDIS Workforce Capability Framework understanding and compliance for staff members." bordered />
       </PDFSection>
 
       {/* Staff Information */}
@@ -60,9 +58,7 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
       {/* Framework Understanding */}
       {formData.frameworkUnderstanding && (
         <PDFSection title="Framework Understanding" wrap={false}>
-          <PDFParagraph bordered>
-            {formData.frameworkUnderstanding}
-          </PDFParagraph>
+          <PDFParagraph label="Understanding" value={formData.frameworkUnderstanding} bordered />
         </PDFSection>
       )}
 
@@ -94,18 +90,14 @@ const NdisWorkforceCapabilityPDF: React.FC<NdisWorkforceCapabilityPDFProps> = ({
       {/* Training Completed */}
       {formData.trainingCompleted && (
         <PDFSection title="Training Completed" wrap={false}>
-          <PDFParagraph bordered>
-            {formData.trainingCompleted}
-          </PDFParagraph>
+          <PDFParagraph label="Training" value={formData.trainingCompleted} bordered />
         </PDFSection>
       )}
 
       {/* Comments */}
       {formData.comments && (
         <PDFSection title="Additional Comments" wrap={false}>
-          <PDFParagraph bordered>
-            {formData.comments}
-          </PDFParagraph>
+          <PDFParagraph label="Comments" value={formData.comments} bordered />
         </PDFSection>
       )}
 

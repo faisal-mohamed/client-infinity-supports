@@ -30,8 +30,8 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
           const response = await fetch(apiEndpoint);
           if (response.ok) {
             const result = await response.json();
-            let s = {};
-            let saved = {};
+            let s: any = {};
+            let saved: any = {};
             
             if (isSignatureLink) {
               s = result.staff || {};

@@ -131,7 +131,7 @@ export async function GET(
       ...pdfProps,
       acknowledgmentOnly: acknowledgmentOnly,
     });
-    const pdfBuffer = await renderToBuffer(pdfDoc);
+    const pdfBuffer = await renderToBuffer(pdfDoc as any);
 
     console.log('✅ [PDF API] PDF generated successfully, size:', pdfBuffer.length, 'bytes');
 
@@ -143,7 +143,7 @@ export async function GET(
       : `Vehicle_Safety_Inspection_${staff.firstName}_${staff.surname}.pdf`;
 
     // Return PDF as inline (for iframe viewing in admin) or attachment (for download)
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': download 

@@ -244,8 +244,7 @@ function OverlaySignatureLine({
               height: '50px',
               maxWidth: '100%',
               objectFit: 'contain',
-              imageRendering: 'auto',
-              imageRendering: '-webkit-optimize-contrast',
+              imageRendering: '-webkit-optimize-contrast' as any,
               filter: 'contrast(1.2) brightness(1.0)',
               backgroundColor: 'transparent',
               mixBlendMode: 'multiply', // Helps with transparency
