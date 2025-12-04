@@ -58,6 +58,28 @@ export async function generateStaffPDFBuffer({
       // Extract form data from submission
       const formData = (submission.data as any) || {};
       
+      // 🎯 CRITICAL: Map staffSignature to sectionBSignature if not already in formData
+      // Super Choice Form can have signatures in sectionB, sectionC, or sectionD
+      // Priority: sectionBSignature > sectionCSignature > sectionDSignature > staffSignature
+      if (submission.staffSignature) {
+        if (!formData.sectionBSignature && !formData.sectionCSignature && !formData.sectionDSignature) {
+          // If no section signature exists, use staffSignature for sectionB (most common)
+          formData.sectionBSignature = submission.staffSignature;
+          console.log('📄 [STAFF PDF] Mapped staffSignature to sectionBSignature');
+        }
+      }
+      
+      // Map staffSignedAt to sectionBDate if needed
+      if (submission.staffSignedAt && !formData.sectionBDate) {
+        const signedDate = new Date(submission.staffSignedAt);
+        formData.sectionBDate = {
+          day: String(signedDate.getDate()).padStart(2, '0'),
+          month: String(signedDate.getMonth() + 1).padStart(2, '0'),
+          year: String(signedDate.getFullYear()),
+        };
+        console.log('📄 [STAFF PDF] Mapped staffSignedAt to sectionBDate:', formData.sectionBDate);
+      }
+      
       // Use the special super-choice-form PDF endpoint
       const url = `${baseUrl}/api/generate-pdf/super-choice-form`;
       
@@ -70,7 +92,8 @@ export async function generateStaffPDFBuffer({
         fundChoice: formData.fundChoice,
         hasSectionBSignature: !!formData.sectionBSignature,
         hasSectionCSignature: !!formData.sectionCSignature,
-        hasSectionDSignature: !!formData.sectionDSignature
+        hasSectionDSignature: !!formData.sectionDSignature,
+        sectionBDate: formData.sectionBDate
       });
       
       const response = await fetch(url, {

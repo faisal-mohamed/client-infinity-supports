@@ -655,6 +655,31 @@ export async function POST(
           });
           console.log(`✅ [Onboard API] Updated StaffFormAssignment ${assignment.id} status to ${newStatus} for form: ${formKey} (staff signed: ${hasStaffSignature}, admin signed: ${hasAdminSignature})`);
           
+          // 🔔 CREATE NOTIFICATIONS when staff submits a form (regardless of whether it requires admin signature)
+          if (submit && hasStaffSignature) {
+            try {
+              const allAdmins = await prisma.admin.findMany({ select: { id: true } });
+              await Promise.all(
+                allAdmins.map((admin: any) =>
+                  prisma.staffSubmissionNotification.create({
+                    data: {
+                      adminId: admin.id,
+                      staffId: staff.id,
+                      formSubmissionId: submission.id,
+                    },
+                  }).catch((err) => {
+                    console.error(`❌ Failed to create notification for admin ${admin.id}:`, err);
+                    return null;
+                  })
+                )
+              );
+              console.log(`🔔 [Onboard API] Created notifications for ${allAdmins.length} admins - Staff ${staff.firstName} ${staff.surname} submitted ${formKey}`);
+            } catch (notifError) {
+              console.error(`❌ [Onboard API] Error creating notifications for ${formKey}:`, notifError);
+              // Don't fail the request if notification creation fails
+            }
+          }
+          
           // For forms that don't require admin signature and are now completed, trigger email check
           if (shouldMarkCompleted && !requiresAdminSignature) {
             console.log(`🔍 [Onboard API] Form ${formKey} completed by staff (no admin signature required), checking batch completion...`);

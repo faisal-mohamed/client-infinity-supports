@@ -41,6 +41,48 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         },
       });
 
+      // CRITICAL: Also sync to StaffFormSubmission table for email notifications to work
+      // Try to find existing submission with either formKey variation
+      const existingSubmission = await db.staffFormSubmission.findFirst({
+        where: {
+          staffId: staffId,
+          formKey: { in: ['employee_details', 'employeeDetails'] }
+        }
+      }).catch(() => null);
+
+      const submissionData = {
+        data: {
+          ...(existing.data || {}),
+          employmentStatus,
+          payRate,
+          schadsLevel,
+        },
+        adminSignature,
+        adminSignedAt: new Date(adminSignedAt),
+        staffSignature: existing.staffSignature,
+        staffSignedAt: existing.staffSignedAt,
+        isSubmitted: true,
+        submittedAt: existing.staffSignedAt || new Date(),
+        updatedAt: new Date(),
+      };
+
+      if (existingSubmission) {
+        // Update existing submission
+        await db.staffFormSubmission.update({
+          where: { id: existingSubmission.id },
+          data: submissionData
+        });
+      } else {
+        // Create new submission entry for email notifications
+        await db.staffFormSubmission.create({
+          data: {
+            staffId: staffId,
+            formKey: 'employee_details',
+            ...submissionData
+          }
+        });
+      }
+
       // Update StaffFormAssignment status to "completed" since both staff and admin have signed
       const formKey = 'employee_details'; // Use snake_case for formKey
       const assignment = await prisma.staffFormAssignment.findFirst({
@@ -62,7 +104,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         });
 
         // Check if batch is completed and trigger email
-        console.log(`🔍 [EMPLOYEE DETAILS ADMIN] Form completed, checking batch completion...`);
+        console.log(`🔍 [EMPLOYEE DETAILS ADMIN] Form completed (dedicated table), checking batch completion...`);
         await checkAndTriggerStaffBatchEmail(staffId, 'employee_details');
       }
 
@@ -74,14 +116,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     // FALLBACK: Use generic StaffFormSubmission table (like client forms)
-    const genericForm = await db.staffFormSubmission.findUnique({
+    // Try both formKey variations: 'employee_details' (snake_case) and 'employeeDetails' (camelCase)
+    let genericForm = await db.staffFormSubmission.findUnique({
       where: { 
         staffId_formKey: { 
           staffId, 
-          formKey: 'employeeDetails' 
+          formKey: 'employee_details' 
         } 
       }
-    });
+    }).catch(() => null);
+
+    // Fallback to camelCase version if snake_case not found
+    if (!genericForm) {
+      genericForm = await db.staffFormSubmission.findUnique({
+        where: { 
+          staffId_formKey: { 
+            staffId, 
+            formKey: 'employeeDetails' 
+          } 
+        }
+      }).catch(() => null);
+    }
 
     if (!genericForm) {
       return NextResponse.json({ 
@@ -98,12 +153,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }, { status: 400 });
     }
 
+    // Use the actual formKey that was found (could be 'employee_details' or 'employeeDetails')
+    const actualFormKey = genericForm.formKey;
+
     // Update with admin data in generic table
     const updated = await db.staffFormSubmission.update({
       where: { 
         staffId_formKey: { 
           staffId, 
-          formKey: 'employeeDetails' 
+          formKey: actualFormKey
         } 
       },
       data: {

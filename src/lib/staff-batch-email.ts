@@ -625,6 +625,15 @@ export async function checkAndTriggerStaffBatchEmail(
       if (notificationResponse.ok) {
         const responseData = await notificationResponse.json();
         console.log(`✅ [STAFF BATCH EMAIL HELPER] Email sent successfully:`, responseData);
+        
+        // Mark batch as admin notified
+        await prisma.staffFormBatch.update({
+          where: { id: batch.id },
+          data: {
+            adminNotified: true,
+          },
+        });
+        console.log(`✅ [STAFF BATCH EMAIL HELPER] Batch ${batch.id} marked as admin notified`);
       } else {
           const errorText = await notificationResponse.text();
           let errorData;

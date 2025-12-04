@@ -62,6 +62,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             isCompleted: true,
           },
         });
+
+        // Check if batch is completed and trigger email
+        console.log(`🔍 [BULLYING TRAINING ADMIN] Form completed (dedicated table), checking batch completion...`);
+        await checkAndTriggerStaffBatchEmail(staffId, 'bullying_training');
       }
 
       return NextResponse.json({ success: true, data: updated });
