@@ -62,7 +62,7 @@ const CompactHeader = ({ images, commonFieldsData, formData }: {
 
       {/* Title */}
       <div className={`text-center ${COMPACT_TYPOGRAPHY.sectionHeader}`}>
-        Schedule of Support for: {commonFieldsData?.name || "________________"}
+        Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
       </div>
 
       {/* NDIS and Plan Dates */}

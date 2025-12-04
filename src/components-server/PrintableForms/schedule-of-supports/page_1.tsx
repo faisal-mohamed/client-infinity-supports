@@ -67,7 +67,7 @@ const Page1: React.FC<Page1Props> = ({
 
           {/* Title */}
           <div className="text-center font-semibold text-[11px]">
-            Schedule of Support for: {commonFieldsData?.name || "________________"}
+            Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
           </div>
 
           {/* NDIS and Plan Dates */}

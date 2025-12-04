@@ -51,7 +51,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* Title */}
         <div className="text-center font-semibold mb-4" style={{ fontSize: '12px' }}>
-          Schedule of Support for: {commonFieldsData?.name || "________________"}
+          Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
         </div>
 
         {/* NDIS & Plan Dates */}

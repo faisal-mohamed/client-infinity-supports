@@ -93,7 +93,7 @@ const Page1NoGap: React.FC<Page1Props> = ({
 
         <div style={{ height: `${titleHeight}mm`, marginBottom: "0" }}>
           <div className={`text-center ${COMPACT_TYPOGRAPHY.sectionHeader}`}>
-            Schedule of Support for: {commonFieldsData?.name || "________________"}
+            Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
           </div>
         </div>
 

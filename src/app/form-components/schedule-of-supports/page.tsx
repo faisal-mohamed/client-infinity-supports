@@ -28,8 +28,8 @@ const formSchema = {
     cost: '$1 Per km',
     isPerKm: true
   },
-  { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$70.23' },
-  { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$70.23' }
+  { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
+  { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' }
 ],
 
   },

@@ -97,7 +97,7 @@ const Page1CompactFixed: React.FC<Page1Props> = ({
           {/* Title */}
           <div className={`text-center ${COMPACT_TYPOGRAPHY.sectionHeader}`} 
                style={{ height: "6mm", lineHeight: "6mm" }}>
-            Schedule of Support for: {commonFieldsData?.name || "________________"}
+            Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
           </div>
 
           {/* NDIS and Plan Dates */}

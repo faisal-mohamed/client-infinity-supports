@@ -55,7 +55,7 @@ const StandardHeader = ({ images, title, commonFieldsData, formData }: {
 
       {/* Title */}
       <div className={`text-center ${A4_PDF_TYPOGRAPHY.sectionHeader}`}>
-        Schedule of Support for: {commonFieldsData?.name || "________________"}
+        Schedule of Support for: {[commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ') || "________________"}
       </div>
 
       {/* NDIS and Plan Dates */}
