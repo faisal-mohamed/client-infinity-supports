@@ -520,6 +520,11 @@ const getFieldValue = (
   return rawValue;
 };
 
+// Helper function to ensure array type for checkbox functions
+const ensureArray = (value: any): any[] => {
+  return Array.isArray(value) ? value : (value ? [value] : []);
+};
+
 // Standardized checkbox display component
 const displayCheckboxGroup = (options: any, selected: any[] = [], otherValue: any = "") => (
   <div className="space-y-1">
@@ -638,7 +643,7 @@ const Page1 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                       <td className="border border-black px-1 py-0.5">
                         {displayCheckboxGroup(
                           field.options,
-                          value,
+                          ensureArray(value),
                           field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : ""
                         )}
                       </td>
@@ -738,7 +743,7 @@ const Page2 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                       <td className="border border-black px-2 py-1">
                         {displayCheckboxGroup(
                           field.options,
-                          value,
+                          ensureArray(value),
                           field.otherKey ? getFieldValue(field.otherKey, formData, commonFields) : ""
                         )}
                       </td>
@@ -1088,7 +1093,7 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                   <p className={`mb-2 ${A4_PDF_TYPOGRAPHY.body}`}>What is your current living arrangement? (Please tick the appropriate box)</p>
                   {renderCheckboxList(
                     pageSchema.fields.find((f: any) => f.key === "livingArrangements").options,
-                    getFieldValue("livingArrangements", formData, commonFields) || [],
+                    ensureArray(getFieldValue("livingArrangements", formData, commonFields)),
                     getFieldValue("livingArrangementsOther", formData, commonFields) || ""
                   )}
                 </td>
@@ -1100,7 +1105,7 @@ const Page4 = ({ formSchema, formData = {}, commonFields = {}, images, settings 
                   <p className={`mb-2 ${A4_PDF_TYPOGRAPHY.body}`}>How do you travel to work or to your day service? (Please tick the appropriate box)</p>
                   {renderCheckboxList(
                     pageSchema.fields.find((f: any) => f.key === "travelArrangements").options,
-                    getFieldValue("travelArrangements", formData, commonFields) || [],
+                    ensureArray(getFieldValue("travelArrangements", formData, commonFields)),
                     getFieldValue("travelArrangementsOther", formData, commonFields) || ""
                   )}
                 </td>
