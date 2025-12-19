@@ -114,10 +114,14 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
   };
 
   const getValue = (key: string) => {
-    if (commonFieldMapping?.[key]) {
-      return commonFieldsData?.[commonFieldMapping?.[key]] ?? "";
+    // Always prioritize current client details from database
+    const mapped = commonFieldMapping?.[key];
+    if (mapped && commonFieldsData?.[mapped]) {
+      return String(commonFieldsData[mapped]);
     }
-    return formData?.[key] ?? "";
+    
+    // Only fallback to saved form data if DB doesn't have the value
+    return formData?.[key] ? String(formData[key]) : "";
   };
 
   const isChecked = (fieldKey: string, value: string) => {

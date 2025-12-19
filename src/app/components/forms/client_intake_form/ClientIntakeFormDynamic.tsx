@@ -5,11 +5,48 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 // Dynamic PDF View - Multiple A4 pages with auto page breaks
 const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
   
+  // Add comprehensive logging
+  console.log('🔍 Client Intake Dynamic - Data received:');
+  console.log('📋 formData:', formData);
+  console.log('👤 commonFieldsData:', commonFieldsData);
+  console.log('📊 NDIS from commonFieldsData:', commonFieldsData?.ndis);
+  console.log('📊 NDIS from formData:', formData?.ndisNumber);
+  
   // Get field value helper function
   const getFieldValue = (key: string): string => {
-    const value = formData?.[key] || commonFieldsData?.[key] || '';
-    console.log(`Field ${key}:`, value);
-    return value;
+    console.log(`🔍 Getting Client Intake field: ${key}`);
+    
+    // Map common fields correctly
+    const commonFieldMapping: Record<string, string> = {
+      ndisNumber: 'ndis',
+      givenName: 'name',
+      surname: 'surname',
+      dateOfBirth: 'dob',
+      sex: 'sex',
+      addressNumberStreet: 'street',
+      state: 'state',
+      postcode: 'postCode',
+      email: 'email',
+      mobile: 'phone',
+      // homePhone: not mapped - uses form data only
+      disabilityConditions: 'disability'
+    };
+    
+    // Always prioritize current client details from database
+    const mapped = commonFieldMapping[key];
+    if (mapped && commonFieldsData?.[mapped]) {
+      console.log(`✅ Client Intake Field ${key} (from commonFields.${mapped}):`, commonFieldsData[mapped]);
+      return String(commonFieldsData[mapped]);
+    }
+    
+    // Only fallback to saved form data if DB doesn't have the value
+    if (formData?.[key]) {
+      console.log(`⚠️ Client Intake Field ${key} (from formData):`, formData[key]);
+      return String(formData[key]);
+    }
+    
+    console.log(`❌ Client Intake Field ${key}: No value found`);
+    return '';
   };
 
   // All form fields in order

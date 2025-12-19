@@ -30,8 +30,10 @@ const BLOCK_SPACING = 16; // Space between blocks
 
   // Get field value helper function
   const getFieldValue = (key: string): string => {
-    let rawValue = commonFieldMapping[key]
-      ? commonFieldsData?.[commonFieldMapping[key]]
+    // Always prioritize current client details from database
+    const mapped = commonFieldMapping[key];
+    let rawValue = mapped && commonFieldsData?.[mapped] 
+      ? commonFieldsData[mapped]
       : formData?.[key];
 
     // Fallbacks for legacy keys

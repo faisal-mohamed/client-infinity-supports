@@ -109,8 +109,39 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
 
   // Get field value helper function (matches web view logic)
   const getFieldValue = (key: string): string => {
-    const value = formData?.[key] || commonFieldsData?.[key] || '';
-    return value ? String(value) : '';
+    console.log(`🔍 Client Intake PDF Matching - Getting field: ${key}`);
+    
+    // Map common fields correctly
+    const commonFieldMapping: Record<string, string> = {
+      ndisNumber: 'ndis',
+      givenName: 'name',
+      surname: 'surname',
+      dateOfBirth: 'dob',
+      sex: 'sex',
+      addressNumberStreet: 'street',
+      state: 'state',
+      postcode: 'postCode',
+      email: 'email',
+      mobile: 'phone',
+      // homePhone: not mapped - uses form data only
+      disabilityConditions: 'disability'
+    };
+    
+    // Always prioritize current client details from database
+    const mapped = commonFieldMapping[key];
+    if (mapped && commonFieldsData?.[mapped]) {
+      console.log(`✅ Client Intake PDF ${key} (from commonFieldsData.${mapped}):`, commonFieldsData[mapped]);
+      return String(commonFieldsData[mapped]);
+    }
+    
+    // Only fallback to saved form data if DB doesn't have the value
+    if (formData?.[key]) {
+      console.log(`⚠️ Client Intake PDF ${key} (from formData):`, formData[key]);
+      return String(formData[key]);
+    }
+    
+    console.log(`❌ Client Intake PDF ${key}: No value found`);
+    return '';
   };
 
   // Helper to decide if a dependent detail should render

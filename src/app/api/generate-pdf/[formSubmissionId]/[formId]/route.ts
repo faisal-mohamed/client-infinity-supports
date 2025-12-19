@@ -81,7 +81,7 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
         componentProps = {
           formKey: 'client_intake_form',           // ✅ Required prop
           formData,                               // ✅ Form submission data
-          commonFields: commonFields || {},
+          commonFieldsData: commonFields || {},   // ✅ Fixed: Use commonFieldsData instead of commonFields
           images: images || {},     // ✅ Client's common fields data
           settings: settings || {}
 

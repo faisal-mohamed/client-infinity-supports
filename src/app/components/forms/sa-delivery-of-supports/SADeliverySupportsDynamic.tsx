@@ -7,8 +7,16 @@ import { saDeliverySchema, SchemaBlock } from "./schema";
 // Dynamic SA Delivery of Supports View - Multiple A4 pages with auto page breaks
 const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
   
+  // Add comprehensive logging
+  console.log('🔍 SA Delivery Dynamic - Data received:');
+  console.log('📋 formData:', formData);
+  console.log('👤 commonFieldsData:', commonFieldsData);
+  console.log('📊 Name from commonFieldsData:', commonFieldsData?.name);
+  console.log('📊 Surname from commonFieldsData:', commonFieldsData?.surname);
+  
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
+    surname: "surname",
     address: "street",
     dob: "dob",
     disability: "disability",

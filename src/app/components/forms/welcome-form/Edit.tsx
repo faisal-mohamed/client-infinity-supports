@@ -87,7 +87,13 @@ const WelcomeFormEdit: React.FC<FormProps> = ({
 // Helper function to get common field value
 const getCommonFieldValue = (fieldName: string): string => {
   const commonKey = commonFieldsMapping[fieldName];
-  return commonFieldsData?.[commonKey] || '';
+  // Always prioritize current client details from database
+    if (commonKey && commonFieldsData?.[commonKey]) {
+      return String(commonFieldsData[commonKey]);
+    }
+    
+    // Only fallback to saved form data if DB doesn't have the value
+    return formData?.[fieldName] ? String(formData[fieldName]) : '';
 };
   useEffect(() => {
     console.log("Common fields data updated:", commonFieldsData);

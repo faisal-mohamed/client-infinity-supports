@@ -187,6 +187,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
 
   const commonFieldMapping: Record<string, string> = {
     givenNames: 'name',
+    surname: 'surname',
     address: 'street',
     dob: 'dob',
     disability: 'disability',
@@ -200,6 +201,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
 
   // Get field value helper function
   const getFieldValue = (key: string): string => {
+    console.log(`🔍 SA Delivery PDF - Getting field: ${key}`);
     let rawValue = commonFieldMapping[key]
       ? commonFieldsData?.[commonFieldMapping[key]]
       : formData?.[key];

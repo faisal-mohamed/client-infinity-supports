@@ -72,7 +72,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     }
     
     const mapped = commonFieldMapping[key];
-    const raw = mapped ? commonFieldsData?.[mapped] : formData?.[key];
+    // Always prioritize current client details from database
+  const raw = mapped && commonFieldsData?.[mapped] 
+    ? commonFieldsData[mapped] 
+    : formData?.[key];
     return raw ?? "";
   };
 

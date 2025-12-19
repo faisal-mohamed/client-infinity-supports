@@ -5,8 +5,31 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 // Dynamic Person Centred Plan - Pages based on data content
 const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
   
+  // Add comprehensive logging
+  console.log('🔍 PCP Dynamic - Data received:');
+  console.log('📋 formData:', formData);
+  console.log('👤 commonFieldsData:', commonFieldsData);
+  console.log('📊 NDIS from commonFieldsData:', commonFieldsData?.ndis);
+  console.log('📊 NDIS from formData:', formData?.ndisNumber);
+  
   // Get field value helper function
   const getFieldValue = (key: string): string => {
+    // For NDIS number, map to correct field
+    if (key === 'ndisNumber') {
+      // Always prioritize current client details from database
+      if (commonFieldsData?.ndis) {
+        console.log(`✅ PCP NDIS (from commonFields.ndis):`, commonFieldsData.ndis);
+        return String(commonFieldsData.ndis);
+      }
+      // Fallback to saved form data
+      if (formData?.[key]) {
+        console.log(`⚠️ PCP NDIS (from formData):`, formData[key]);
+        return String(formData[key]);
+      }
+      console.log(`❌ PCP NDIS: No value found`);
+      return '';
+    }
+    
     // For name field, combine first name and surname to show full name
     if (key === 'name') {
       const firstName = commonFieldsData?.name || '';
@@ -29,7 +52,10 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       return '';
     }
     
-    const value = formData?.[key] || commonFieldsData?.[key] || '';
+    // Always prioritize current client details from database
+    const commonValue = commonFieldsData?.[key];
+    const formValue = formData?.[key];
+    const value = commonValue || formValue || '';
     console.log(`PCP Field ${key}:`, value);
     return String(value);
   };
@@ -44,7 +70,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     { key: 'guardianAddress', label: '5) Address', type: 'text', section: 'Personal Information' },
     { key: 'contactNumber', label: '6) Contact Number', type: 'text', section: 'Personal Information' },
     { key: 'disability', label: '7) Disability', type: 'text', section: 'Personal Information' },
-    { key: 'ndisNumber', label: '8) NDIS Number', type: 'text', section: 'Personal Information' },
+    { key: 'ndisNumber', label: '8) NDIS Number', type: 'text', section: 'Personal Information', mapFrom: 'ndis' },
     
     // About Me
     { key: 'myStory', label: 'My Story', type: 'longtext', section: 'About Me' },

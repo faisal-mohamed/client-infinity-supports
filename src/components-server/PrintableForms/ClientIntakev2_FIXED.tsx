@@ -470,9 +470,45 @@ const getFieldValue = (
   formData: Record<string, any>,
   commonFields: Record<string, any>
 ) => {
-  const rawValue = key in commonFieldMapping
-    ? commonFields?.[commonFieldMapping[key]] ?? ""
-    : formData?.[key] ?? "";
+  console.log(`🔍 Client Intake PDF - Getting field: ${key}`);
+  console.log(`📊 commonFields[${commonFieldMapping[key]}]:`, commonFields?.[commonFieldMapping[key]]);
+  console.log(`📋 formData[${key}]:`, formData?.[key]);
+  
+  // Always prioritize current client details from database
+  const mapped = commonFieldMapping[key];
+  if (mapped && commonFields?.[mapped]) {
+    const rawValue = commonFields[mapped];
+    console.log(`✅ Client Intake PDF Field ${key} (from commonFields.${mapped}):`, rawValue);
+    
+    // Handle date formatting
+    if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+      const parsed = parseISO(rawValue);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    
+    return String(rawValue);
+  }
+  
+  // Only fallback to saved form data if DB doesn't have the value
+  if (formData?.[key]) {
+    const rawValue = formData[key];
+    console.log(`⚠️ Client Intake PDF Field ${key} (from formData):`, rawValue);
+    
+    // Handle date formatting for formData too
+    if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+      const parsed = parseISO(rawValue);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    
+    return String(rawValue);
+  }
+  
+  console.log(`❌ Client Intake PDF Field ${key}: No value found`);
+  const rawValue = "";
 
   if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
     const parsed = parseISO(rawValue);

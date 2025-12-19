@@ -155,7 +155,13 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     }
     
     const commonKey = commonFieldsMapping[fieldName];
-    return commonFieldsData?.[commonKey] || '';
+    // Always prioritize current client details from database
+    if (commonKey && commonFieldsData?.[commonKey]) {
+      return String(commonFieldsData[commonKey]);
+    }
+    
+    // Only fallback to saved form data if DB doesn't have the value
+    return formData?.[fieldName] ? String(formData[fieldName]) : '';
   };
 
   useEffect(() => {
