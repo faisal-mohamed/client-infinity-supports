@@ -29,16 +29,16 @@ async function encodeImageToBase64(imagePath: string): Promise<string> {
       extension = urlParts[urlParts.length - 1].split("?")[0];
     } else {
       const fullPath = path.join(process.cwd(), "public", imagePath);
-      
+
       // Check if file exists before reading
       if (!fs.existsSync(fullPath)) {
         console.error(`Image file not found: ${fullPath}`);
         return "";
       }
-      
+
       imageBuffer = fs.readFileSync(fullPath);
       extension = path.extname(imagePath).substring(1);
-      
+
       // Validate that we got a valid buffer
       if (!imageBuffer || imageBuffer.length === 0) {
         console.error(`Image file is empty or invalid: ${fullPath}`);
@@ -366,7 +366,7 @@ async function generatePDFWithReactPDF(
 ): Promise<Buffer> {
   console.log('🔍 [PDF DEBUG] generatePDFWithReactPDF called for:', formKey);
   console.log('🔍 [PDF DEBUG] Available settings:', Object.keys(settings || {}));
-  
+
   // Choose the appropriate PDF component based on formKey
   // Emergency Drill has a bespoke component; all others come from the registry
   let PDFComponent;
@@ -382,7 +382,7 @@ async function generatePDFWithReactPDF(
     console.log('🔍 [PDF DEBUG] Registry returned component:', PDFComponent?.name || 'Anonymous');
   }
 
-  try { console.log('✅ [PDF DEBUG] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch {}
+  try { console.log('✅ [PDF DEBUG] ReactPDF component selected for', formKey, '=>', PDFComponent?.name); } catch { }
 
   // Provide optional images for specific forms
   let images: any = {};
@@ -476,7 +476,7 @@ export async function GET(
     // Priority: 1) Query param adminId (for email PDFs), 2) Session adminId (for direct downloads)
     const session = await getServerSession(authOptions);
     let adminId: number | null = null;
-    
+
     if (queryAdminId) {
       adminId = parseInt(queryAdminId);
       console.log(`📧 [PDF Route] Using adminId from query params: ${adminId} (for email PDF)`);
@@ -486,10 +486,10 @@ export async function GET(
     } else {
       console.warn('⚠️ No admin ID found (no query param or session), PDF may have default settings');
     }
-    
+
     // Fetch settings: admin-specific first, then global (adminId: null) as fallback
     const rawSettings = await prisma.appSettings.findMany({
-      where: { 
+      where: {
         isActive: true,
         ...(adminId ? {
           OR: [
@@ -524,13 +524,13 @@ export async function GET(
       const origin = new URL(req.url).origin;
       const cookieHeader = req.headers.get('cookie') || '';
       let settingsUrl = `${origin}/api/settings?forms=true`;
-      
+
       // Add adminId to query if available (critical for email PDFs)
       if (adminId) {
         settingsUrl += `&adminId=${adminId}`;
         console.log(`📋 [PDF Route] Fetching settings with adminId: ${adminId}`);
       }
-      
+
       const formsResp = await fetch(settingsUrl, {
         cache: 'no-store',
         headers: { cookie: cookieHeader }
@@ -560,7 +560,7 @@ export async function GET(
     console.log('🔍 [PDF DEBUG] Submission ID:', submissionId);
 
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment' || form.formKey === 'multi_disciplinary_meeting') {
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment' || form.formKey === 'multi_disciplinary_meeting' || form.formKey === 'conflict_of_interest') {
       console.log('✅ [PDF DEBUG] Using @react-pdf/renderer for:', form.formKey);
       console.log('✅ [PDF DEBUG] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');
@@ -579,11 +579,11 @@ export async function GET(
       }
 
       console.time('⏱️ Browser Launch');
-      
+
       // Use @sparticuz/chromium for production (serverless), regular playwright for dev
       const isProduction = process.env.NODE_ENV === 'production';
       let browser;
-      
+
       if (isProduction) {
         console.log('🚀 Production mode: Using @sparticuz/chromium');
         browser = await chromium.launch({
@@ -604,7 +604,7 @@ export async function GET(
           args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
         });
       }
-      
+
       console.timeEnd('⏱️ Browser Launch');
 
       console.time('⏱️ Page Creation');
@@ -635,7 +635,7 @@ export async function GET(
       console.timeEnd('⏱️ Image Loading');
 
       console.time('⏱️ PDF Generation');
-      
+
       // For participant risk assessment, use header/footer
       const pdfOptions: any = {
         format: "A4",
@@ -644,11 +644,11 @@ export async function GET(
         scale: 1,
         tagged: true
       };
-      
+
       if (form.formKey === 'participant_risk_assessment') {
         const website = settings?.company_website || '';
         const formId = settings?.participant_risk_assessment || '';
-        
+
         // Format review date as DD-MM-YYYY
         let reviewDate = '';
         if (settings?.review_date) {
@@ -658,20 +658,20 @@ export async function GET(
           const year = date.getFullYear();
           reviewDate = `${day}-${month}-${year}`;
         }
-        
+
         const logoDataUrl = await encodeImageToBase64("/infinity_logo.png");
-        
+
         // Exact margins as specified
         pdfOptions.margin = { top: "110px", bottom: "90px", left: "18px", right: "18px" };
         pdfOptions.displayHeaderFooter = true;
-        
+
         // Header: logo centered with proper container width
         pdfOptions.headerTemplate = `
           <div style="width: 100%; text-align: center; padding: 25px 0 10px 0;">
             <img src="${logoDataUrl}" style="height: 55px; margin: 0 auto; display: block;" />
           </div>
         `;
-        
+
         // Footer: 3 columns with proper left/center/right alignment like sample image
         pdfOptions.footerTemplate = `
           <div style="font-size: 9px; padding: 10px 18px 5px 18px; width: 100%;">
@@ -686,7 +686,7 @@ export async function GET(
         pdfOptions.margin = { top: "0", bottom: "0", left: "0", right: "0" };
         pdfOptions.displayHeaderFooter = false;
       }
-      
+
       pdfBuffer = await page.pdf(pdfOptions);
       console.timeEnd('⏱️ PDF Generation');
 

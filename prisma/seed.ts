@@ -23,7 +23,7 @@ async function main() {
   console.log("✅ Seeded admin:", admin.email);
 
   // 📝 Seed Master Forms
-    const forms = [
+  const forms = [
     {
       formKey: 'client_intake_form',
       title: 'Client Intake Form',
@@ -41,7 +41,7 @@ async function main() {
       title: 'Person Centred Plan',
       version: 1,
       requiresSignature: false,
-    },{
+    }, {
       formKey: 'sa_delivery_of_supports',
       title: 'SA Delivery of Supports',
       version: 1,
@@ -56,7 +56,7 @@ async function main() {
     {
       formKey: 'emergency_drill',
       title: 'Emergency Drill',
-      version: 1, 
+      version: 1,
       requiresSignature: true,
     },
     {
@@ -77,7 +77,7 @@ async function main() {
       version: 1,
       requiresSignature: true
     },
-      {
+    {
       formKey: 'schedule_of_supports',
       title: 'Schedule of Supports',
       version: 1,
@@ -87,11 +87,17 @@ async function main() {
       formKey: 'sa_support_coordination',
       title: 'Service Agreement Support Co-Ordination',
       version: 1,
-      requiresSignature: true 
+      requiresSignature: true
     },
     {
       formKey: 'multi_disciplinary_meeting',
       title: 'Multi Disciplinary Meeting',
+      version: 1,
+      requiresSignature: false
+    },
+    {
+      formKey: 'conflict_of_interest',
+      title: 'Conflict of Interest',
       version: 1,
       requiresSignature: false
     }

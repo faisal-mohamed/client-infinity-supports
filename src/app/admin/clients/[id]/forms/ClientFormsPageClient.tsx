@@ -9,8 +9,8 @@ import CommonFieldsWarningModal from '@/components/CommonFieldsWarningModal';
 import SignatureInvalidationModal, { FormInfo } from '@/components/SignatureInvalidationModal';
 
 import { validateFormSignatures, getSignatureStatusText, formRequiresSignatures } from '@/lib/signatureValidation';
-import { 
-  detectCommonFieldChanges, 
+import {
+  detectCommonFieldChanges,
   getChangedCommonFields
 } from '@/lib/signatureInvalidation';
 
@@ -22,7 +22,7 @@ import FormsList from '@/app/components/components/client-forms/FormsList';
 import FormAssignmentModal from '@/app/components/components/client-forms/FormAssignmentModal';
 import SignatureLinkModal from '@/app/components/components/client-forms/SignatureLinkModal';
 
-import {FormAssignmentWithDetails, ClientInfo, AvailableForm} from './types'
+import { FormAssignmentWithDetails, ClientInfo, AvailableForm } from './types'
 import { useSession } from 'next-auth/react';
 
 // List of 12 client form keys (excluding staff forms)
@@ -38,25 +38,26 @@ const CLIENT_FORM_KEYS = [
   'support_action_plan',
   'schedule_of_supports',
   'sa_support_coordination',
-  'multi_disciplinary_meeting'
+  'multi_disciplinary_meeting',
+  'conflict_of_interest'
 ];
 
 export default function ClientFormsPageClient() {
   const params = useParams();
   const router = useRouter();
   const { showToast } = useToast();
-  
+
   const clientId = parseInt(params?.id as string);
   const { data: session } = useSession();
-const adminId : any  = session?.user?.id;
-  
+  const adminId: any = session?.user?.id;
+
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedForms, setSelectedForms] = useState<number[]>([]);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [sendingEmail, setSendingEmail] = useState<boolean>(false);
-  
+
   // Form assignment modal state
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [availableForms, setAvailableForms] = useState<AvailableForm[]>([]);
@@ -110,16 +111,16 @@ const adminId : any  = session?.user?.id;
   const loadClientForms = async () => {
     try {
       setLoading(true);
-      
+
       const response = await fetch(`/api/clients/${clientId}/form-assignments`);
       if (!response.ok) throw new Error('Failed to load client forms');
-      
+
       const data = await response.json();
       console.log("DATA: ", data);
       console.log("Client common fields: ", data.client?.commonFields);
       setClient(data.client);
       setAssignments(data.assignments);
-      
+
     } catch (error) {
       console.error('Error loading client forms:', error);
       showToast({
@@ -137,14 +138,14 @@ const adminId : any  = session?.user?.id;
     try {
       const response = await fetch('/api/forms');
       if (!response.ok) throw new Error('Failed to load available forms');
-      
+
       const data = await response.json();
       // Filter to only show client forms (exclude staff forms)
-      const clientForms = Array.isArray(data) 
+      const clientForms = Array.isArray(data)
         ? data.filter((form: AvailableForm) => CLIENT_FORM_KEYS.includes(form.formKey))
         : [];
       setAvailableForms(clientForms);
-      
+
     } catch (error) {
       console.error('Error loading available forms:', error);
     }
@@ -152,8 +153,8 @@ const adminId : any  = session?.user?.id;
 
   // Handler functions
   const handleFormAssignmentSelection = (formId: number) => {
-    setSelectedFormsToAssign(prev => 
-      prev.includes(formId) 
+    setSelectedFormsToAssign(prev =>
+      prev.includes(formId)
         ? prev.filter(id => id !== formId)
         : [...prev, formId]
     );
@@ -180,18 +181,18 @@ const adminId : any  = session?.user?.id;
 
     try {
       setAssigning(true);
-      
+
       const response = await fetch(`/api/clients/${clientId}/assign-forms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           formIds: selectedFormsToAssign,
           adminId: parseInt(adminId)
         }),
       });
 
       if (!response.ok) throw new Error('Failed to assign forms');
-      
+
       showToast({
         type: 'success',
         title: 'Forms Assigned',
@@ -203,7 +204,7 @@ const adminId : any  = session?.user?.id;
       setSelectedFormsToAssign([]);
       setShowAssignModal(false);
       loadClientForms();
-      
+
     } catch (error) {
       console.error('Error assigning forms:', error);
       showToast({
@@ -234,7 +235,7 @@ const adminId : any  = session?.user?.id;
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      
+
       showToast({
         type: 'success',
         title: 'Link Copied',
@@ -258,13 +259,13 @@ const adminId : any  = session?.user?.id;
 
     try {
       setDownloadingPDF(assignment.id);
-      
+
       const response = await fetch(`/api/generate-pdf/${assignment.submissionId}/${assignment.form.id}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -275,14 +276,14 @@ const adminId : any  = session?.user?.id;
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       showToast({
         type: 'success',
         title: 'PDF Downloaded',
         message: 'Form PDF downloaded successfully',
         duration: 3000,
       });
-      
+
     } catch (error: any) {
       console.error('Error downloading PDF:', error);
       showToast({
@@ -309,12 +310,12 @@ const adminId : any  = session?.user?.id;
 
     try {
       setGeneratingLink(true);
-      
+
       const response = await fetch(`/api/clients/${clientId}/generate-signature-link`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          formAssignmentIds: selectedForms 
+        body: JSON.stringify({
+          formAssignmentIds: selectedForms
         }),
       });
 
@@ -330,9 +331,9 @@ const adminId : any  = session?.user?.id;
         }
         throw new Error(errorMessage);
       }
-      
+
       const data = await response.json();
-      
+
       // Show modal with option to view all links
       setGeneratedLink({
         url: data.signatureUrl,
@@ -342,15 +343,15 @@ const adminId : any  = session?.user?.id;
         expiresAt: data.expiresAt,
       });
       setShowLinkModal(true);
-      
+
       // Clear selection
       setSelectedForms([]);
-      
+
       // Optionally reload the page to show updated data
       setTimeout(() => {
         loadClientForms();
       }, 1000);
-      
+
     } catch (error: any) {
       console.error('Error generating signature link:', error);
       showToast({
@@ -364,86 +365,86 @@ const adminId : any  = session?.user?.id;
     }
   };
 
- const generateEmail = async () => {
-  if (selectedForms.length === 0) {
-    showToast({
-      type: 'error',
-      title: 'No Forms Selected',
-      message: 'Please select at least one admin-filled form to send email',
-      duration: 3000,
-    });
-    return;
-  }
+  const generateEmail = async () => {
+    if (selectedForms.length === 0) {
+      showToast({
+        type: 'error',
+        title: 'No Forms Selected',
+        message: 'Please select at least one admin-filled form to send email',
+        duration: 3000,
+      });
+      return;
+    }
 
-  try {
-    setSendingEmail(true);
-    const response = await fetch(`/api/clients/${clientId}/send-client-only-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formAssignmentIds: selectedForms
-      })
-    });
+    try {
+      setSendingEmail(true);
+      const response = await fetch(`/api/clients/${clientId}/send-client-only-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formAssignmentIds: selectedForms
+        })
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      const errorMessage = errorData.details || errorData.error || 'Unknown error';
-      
-      // Use centralized error parser
-      const { parseEmailError, extractErrorDetails } = await import('@/utils/emailErrorHandler');
-      const errorDetails = extractErrorDetails(errorData);
-      const errorInfo = parseEmailError(errorDetails);
-      
+      if (!response.ok) {
+        const errorData = await response.json();
+        const errorMessage = errorData.details || errorData.error || 'Unknown error';
+
+        // Use centralized error parser
+        const { parseEmailError, extractErrorDetails } = await import('@/utils/emailErrorHandler');
+        const errorDetails = extractErrorDetails(errorData);
+        const errorInfo = parseEmailError(errorDetails);
+
+        showToast({
+          type: errorInfo.type,
+          title: errorInfo.title,
+          message: errorInfo.message,
+          duration: errorInfo.duration,
+        });
+        return;
+      }
+
+      const data = await response.json();
+
+      // Use centralized success message
+      const { getEmailSuccessMessage } = await import('@/utils/emailErrorHandler');
+      const successInfo = getEmailSuccessMessage('client', client?.email, selectedForms.length);
+
+      showToast({
+        type: 'success',
+        title: successInfo.title,
+        message: successInfo.message,
+        duration: successInfo.duration,
+      });
+
+      setSelectedForms([]);
+    } catch (error) {
+      console.error('Error sending email:', error);
+
+      // Use centralized error parser for network/unexpected errors
+      const { parseEmailError } = await import('@/utils/emailErrorHandler');
+      const errorInfo = parseEmailError(error instanceof Error ? error.message : 'Network error');
+
       showToast({
         type: errorInfo.type,
         title: errorInfo.title,
         message: errorInfo.message,
         duration: errorInfo.duration,
-      });
-      return;
+      })
+
     }
-
-    const data = await response.json();
-
-    // Use centralized success message
-    const { getEmailSuccessMessage } = await import('@/utils/emailErrorHandler');
-    const successInfo = getEmailSuccessMessage('client', client?.email, selectedForms.length);
-
-    showToast({
-      type: 'success',
-      title: successInfo.title,
-      message: successInfo.message,
-      duration: successInfo.duration,
-    });
-
-    setSelectedForms([]);
-  } catch (error) {
-    console.error('Error sending email:', error);
-    
-    // Use centralized error parser for network/unexpected errors
-    const { parseEmailError } = await import('@/utils/emailErrorHandler');
-    const errorInfo = parseEmailError(error instanceof Error ? error.message : 'Network error');
-    
-    showToast({
-      type: errorInfo.type,
-      title: errorInfo.title,
-      message: errorInfo.message,
-      duration: errorInfo.duration,
-    })
-  
-  }
     finally {
       setSendingEmail(false)
     }
-};
+  };
 
   // Trigger completion email for all completed forms
   const triggerCompletionEmail = async () => {
     try {
       setSendingEmail(true);
-      
+
       console.log(`📧 [MANUAL TRIGGER] Triggering completion email for client ${clientId}...`);
-      
+
       const response = await fetch(`/api/clients/${clientId}/trigger-completion-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
@@ -455,25 +456,25 @@ const adminId : any  = session?.user?.id;
       }
 
       const data = await response.json();
-      
+
       console.log(`✅ [MANUAL TRIGGER] Email sent successfully:`, data);
 
       showToast({
         type: 'success',
         title: '✅ Completion Email Sent!',
         message: `📧 Email sent to both admin and client\n\n` +
-                 `✉️ Admin: ${data.recipients?.admin ? '✅ Sent' : '❌ Failed'}\n` +
-                 `✉️ Client: ${data.recipients?.client ? '✅ Sent' : '❌ Failed'}\n` +
-                 `📎 Attachments: ${data.completedForms} PDF(s)`,
+          `✉️ Admin: ${data.recipients?.admin ? '✅ Sent' : '❌ Failed'}\n` +
+          `✉️ Client: ${data.recipients?.client ? '✅ Sent' : '❌ Failed'}\n` +
+          `📎 Attachments: ${data.completedForms} PDF(s)`,
         duration: 6000,
       });
 
     } catch (error: any) {
       console.error('❌ [MANUAL TRIGGER] Error:', error);
-      
+
       const { parseEmailError } = await import('@/utils/emailErrorHandler');
       const errorInfo = parseEmailError(error.message || 'Failed to send completion email');
-      
+
       showToast({
         type: errorInfo.type,
         title: errorInfo.title,
@@ -507,11 +508,11 @@ const adminId : any  = session?.user?.id;
   const openCommonFieldsModal = () => {
     console.log("Opening common fields modal, client:", client);
     console.log("Client common fields:", client?.commonFields);
-    
+
     if (client) {
       // Use commonFields if available, otherwise initialize with basic client info
       const commonFieldsData = client.commonFields || {};
-      
+
       const fieldsData = {
         clientId: clientId,
         name: commonFieldsData.name || client.name || '',
@@ -528,7 +529,7 @@ const adminId : any  = session?.user?.id;
         phone: commonFieldsData.phone || client.phone || '',
         surname: commonFieldsData.surname || ''
       };
-      
+
       setCommonFields(fieldsData);
       setOriginalCommonFields({ ...fieldsData }); // Store original for comparison
     } else {
@@ -550,7 +551,7 @@ const adminId : any  = session?.user?.id;
 
   const handleCommonFieldsChange = (field: keyof CommonField, value: string | number | null) => {
     if (!commonFields) return;
-    
+
     setCommonFields(prev => ({
       ...prev!,
       [field]: value
@@ -566,7 +567,7 @@ const adminId : any  = session?.user?.id;
 
     // Check if any fields actually changed
     const hasChanges = detectCommonFieldChanges(originalCommonFields, updatedFields);
-    
+
     if (!hasChanges) {
       // No changes, just close modal
       setShowCommonFieldsModal(false);
@@ -583,13 +584,13 @@ const adminId : any  = session?.user?.id;
       // Check if client has any signed forms via API
       const response = await fetch(`/api/clients/${clientId}/signed-forms`);
       if (!response.ok) throw new Error('Failed to check signed forms');
-      
+
       const { hasSignedForms, signedForms } = await response.json();
-      
+
       if (hasSignedForms) {
         // Get changed fields
         const changedFields = getChangedCommonFields(originalCommonFields, updatedFields);
-        
+
         // Show signature invalidation warning
         setSignatureInvalidationData({
           type: 'common-fields',
@@ -603,7 +604,7 @@ const adminId : any  = session?.user?.id;
 
       // No signed forms, proceed normally
       await updateCommonFields();
-      
+
     } catch (error) {
       console.error('Error checking signed forms:', error);
       showToast({
@@ -620,7 +621,7 @@ const adminId : any  = session?.user?.id;
 
     try {
       setUpdatingCommonFields(true);
-      
+
       if (signatureInvalidationData.type === 'common-fields') {
         // Clear all client signatures first via API
         const clearResponse = await fetch(`/api/clients/${clientId}/clear-signatures`, {
@@ -628,37 +629,37 @@ const adminId : any  = session?.user?.id;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'common-fields' })
         });
-        
+
         if (!clearResponse.ok) throw new Error('Failed to clear signatures');
-        
+
         // Then update common fields
         await updateCommonFields();
-        
+
         // 🎯 GET ENHANCED RESPONSE DATA
         const responseData = await clearResponse.json();
-        const { 
-          clearedForms, 
-          clearedFormsWithSignatures, 
+        const {
+          clearedForms,
+          clearedFormsWithSignatures,
           statusUpdatedAssignments,
-          details 
+          details
         } = responseData;
-        
+
         console.log('Clear signatures response:', responseData);
-        
+
         // 🎯 CREATE ENHANCED TOAST MESSAGE
         let toastMessage = `Updated common fields and cleared signatures from ${clearedFormsWithSignatures || clearedForms} form(s)`;
-        
+
         if (statusUpdatedAssignments > 0) {
           toastMessage += `. ${statusUpdatedAssignments} form(s) status changed to "In Progress" (require re-signing)`;
         }
-        
+
         // Show detailed info in console for debugging
         if (details?.statusUpdates?.length > 0) {
-          console.log('🎯 Forms with status updated to "in_progress":', 
-            details.statusUpdates.map((update : any) => `${update.formTitle} (${update.requiredSignatures} signatures required)`)
+          console.log('🎯 Forms with status updated to "in_progress":',
+            details.statusUpdates.map((update: any) => `${update.formTitle} (${update.requiredSignatures} signatures required)`)
           );
         }
-        
+
         showToast({
           type: 'warning',
           title: 'Signatures Cleared & Status Updated',
@@ -666,11 +667,11 @@ const adminId : any  = session?.user?.id;
           duration: 6000, // Longer duration for more detailed message
         });
       }
-      
+
       // Close modals
       setShowSignatureInvalidationModal(false);
       setSignatureInvalidationData(null);
-      
+
     } catch (error) {
       console.error('Error handling signature invalidation:', error);
       showToast({
@@ -690,7 +691,7 @@ const adminId : any  = session?.user?.id;
 
     try {
       setUpdatingCommonFields(true);
-      
+
       const response = await fetch(`/api/clients/${clientId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -717,7 +718,7 @@ const adminId : any  = session?.user?.id;
       });
 
       if (!response.ok) throw new Error('Failed to update common fields');
-      
+
       showToast({
         type: 'success',
         title: 'Success',
@@ -726,10 +727,10 @@ const adminId : any  = session?.user?.id;
       });
 
       setShowCommonFieldsModal(false);
-      
+
       // Reload client data to get updated info
       loadClientForms();
-      
+
     } catch (error) {
       console.error('Error updating common fields:', error);
       showToast({
@@ -747,32 +748,32 @@ const adminId : any  = session?.user?.id;
     return (
       <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
         <div className="flex justify-center items-center h-80">
-              <div className="text-center">
-                {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <div className="text-center">
+            {/* Spinner */}
+            <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
 
-                {/* Text */}
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
-                  Loading Assigned forms
-                </h3>
-                <p className="text-slate-600 font-medium">
-                  Please wait...
-                </p>
+            {/* Text */}
+            <h3 className="text-xl font-bold text-slate-800 mb-2">
+              Loading Assigned forms
+            </h3>
+            <p className="text-slate-600 font-medium">
+              Please wait...
+            </p>
 
-                {/* Bouncing dots */}
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                </div>
-              </div>
+            {/* Bouncing dots */}
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+              <div
+                className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                style={{ animationDelay: "0.1s" }}
+              ></div>
+              <div
+                className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                style={{ animationDelay: "0.2s" }}
+              ></div>
             </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -780,7 +781,7 @@ const adminId : any  = session?.user?.id;
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
       {/* Client Header */}
-      <ClientHeader 
+      <ClientHeader
         clientId={clientId}
         client={client}
         stats={stats}

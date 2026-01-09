@@ -17,6 +17,7 @@ import SupportActionPlanMatching from './SupportActionPlan_MATCHING';
 import MDT from './mdt/page'  // Uses MDT_MATCHING.tsx internally
 import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
 import SASupportCoordination from './SASupportCoordination_MATCHING';
+import ConflictOfInterest_MATCHING from './ConflictOfInterest_MATCHING';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -87,6 +88,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'sa_support_coordination',
     name: "SASupportCoordination",
     component: SASupportCoordination
+  },
+  {
+    formKey: 'conflict_of_interest',
+    name: "Conflict of Interest",
+    component: ConflictOfInterest_MATCHING
   }
 
 ];

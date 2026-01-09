@@ -1,3 +1,4 @@
+import ConflictOfInterestPDF from "../../components-server/PrintableForms/ConflictOfInterest_MATCHING";
 import ClientIntakeFormEnhanced from "../components/forms/client_intake_form/ClientIntakeFormEnhanced";
 import ClientIntakeFormEdit from "../components/forms/client_intake_form/ClientIntakeFormEdit"; // NEW: Unified edit wrapper
 import ClientIntakeFormView from "../components/forms/client_intake_form/ClientIntakeFormView"; // NEW: Unified view wrapper
@@ -44,6 +45,10 @@ import ScheduleForSupportEdit1 from "../components/forms/schedule-of-supports/Ed
 
 import SASupportCoordinationView from "@/components/sa-support-coordination/View";
 import SASupportCoordinationEdit from "../components/forms/sa-support-coordination/Edit";
+
+import ConflictOfInterestEdit from "../components/forms/conflict_of_interest/Edit";
+import ConflictOfInterestView from "../components/forms/conflict_of_interest/View";
+
 
 
 // Signature requirement interface
@@ -344,12 +349,35 @@ const formRegistry: Record<string, FormRegistryItem> = {
         label: "Conflict Signature",
         description: "Signature of the Provider/Nominee",
         condition: (formData: any) => {
-         return formData.isConflictOfInterest === "Yes";
-   },
+          return formData.isConflictOfInterest === "Yes";
+        },
         dataKey: "signature",
         signedAtKey: "signDate",
         signerName: "printName",
       },
+    ],
+  },
+  conflict_of_interest: {
+    key: "conflict_of_interest",
+    name: "Conflict of Interest",
+    viewComponent: ConflictOfInterestView,
+    editComponent: ConflictOfInterestEdit,
+    pdfComponent: ConflictOfInterestPDF,
+    signatures: [
+      {
+        id: "participant_signature",
+        label: "Participant/Authorised Rep Signature",
+        description: "Signature of the Participant or Authorised Representative",
+        required: true,
+        dataKey: "participantSignature",
+      },
+      {
+        id: "employee_signature",
+        label: "Employee/Provider Signature",
+        description: "Signature of the Employee/Provider",
+        required: true,
+        dataKey: "employeeSignature",
+      }
     ],
   }
 };
