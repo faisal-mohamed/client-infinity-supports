@@ -27,7 +27,7 @@ interface ConflictOfInterestViewProps {
 
 const ConflictOfInterestView: React.FC<ConflictOfInterestViewProps> = (props) => {
     // Attempt to resolve common fields from various possible prop locations
-    const commonFieldsData = props.commonFields || props.client?.commonFields || {};
+    const commonFieldsData = props.commonFieldsData || props.commonFields || props.client?.commonFields || {};
 
     return (
         <div className="w-full h-[calc(100vh-100px)] min-h-[600px] bg-gray-100 rounded-xl overflow-y-auto shadow-sm border border-gray-200">

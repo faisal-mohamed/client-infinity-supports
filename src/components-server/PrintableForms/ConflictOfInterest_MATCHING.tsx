@@ -232,7 +232,68 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
 }) => {
 
     const getFieldValue = (key: string) => {
+        // Handle Participant Name Concatenation
+        if (key === 'participantName') {
+            // Try formData first, then commonFields
+            if (formData?.[key]) return formData[key];
+            if (commonFieldsData?.name || commonFieldsData?.surname) {
+                return `${commonFieldsData.name || ''} ${commonFieldsData.surname || ''}`.trim();
+            }
+            return '';
+        }
+
+        // Handle Date conversion (Standardize on DD/MM/YYYY)
+        if (key.toLowerCase().includes('date') || key.toLowerCase().includes('dob')) {
+            let val = formData?.[key] || commonFieldsData?.[key];
+            // Mappings for PDF field names to data keys
+            if (key === 'participantDob') val = commonFieldsData?.dob || commonFieldsData?.dateOfBirth || formData?.dob;
+            if (key === 'participantSignDate') val = formData?.participantSignDate;
+            if (key === 'employeeSignDate') val = formData?.employeeSignDate;
+            if (key === 'managerSignDate') val = formData?.managerSignDate;
+
+            if (!val) return '';
+            // Convert yyyy-MM-dd to dd/mm/yyyy
+            if (val.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const [y, m, d] = val.split('-');
+                return `${d}/${m}/${y}`;
+            }
+            // Convert dd-mm-yyyy to dd/mm/yyyy
+            if (val.match(/^\d{2}-\d{2}-\d{4}$/)) {
+                return val.replace(/-/g, '/');
+            }
+            return val;
+        }
+
+        // Handlings for other specific field mappings
+        if (key === 'ndisNumber') return commonFieldsData?.ndis || formData?.ndis || formData?.ndisNumber || '';
+        if (key === 'participantAddress') return commonFieldsData?.street || commonFieldsData?.address || formData?.residentialAddress || '';
+        if (key === 'participantPhone') return commonFieldsData?.phone || formData?.contactPhone || '';
+        if (key === 'participantEmail') return commonFieldsData?.email || formData?.contactEmail || '';
+
+        if (key === 'managerName') return formData?.managerName || formData?.providerRepName || '';
+
+        // Default fallback
         return formData?.[key] || commonFieldsData?.[key] || '';
+    };
+
+    const isOptionSelected = (field: string, option: string) => {
+        const value = formData?.[field];
+        if (!value) return false;
+
+        // Normalize option for comparison (remove punctuation, lowercase)
+        const normalize = (s: string) => s.toLowerCase().replace(/[.,]/g, '').trim();
+        const normOption = normalize(option);
+
+        // If field is array
+        if (Array.isArray(value)) {
+            return value.some((v: string) => {
+                const normV = normalize(v);
+                return normV.includes(normOption) || normOption.includes(normV);
+            });
+        }
+
+        // If field is string (e.g. single choice allowed as string)
+        return normalize(value).includes(normOption);
     };
 
     // Helper to get formatted date
@@ -430,10 +491,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "a potential conflict of interest – it might happen",
                         "a perceived conflict of interest – it seems like it has happened or might happen."
                     ].map((opt) => {
-                        const isSelected = (formData?.conflictType || []).some((v: string) => v.toLowerCase().includes(opt.split('–')[0].trim().toLowerCase()));
+                        const isSelected = isOptionSelected('conflictType', opt.split('–')[0]);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                     {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10 }}>{opt}</Text>
@@ -448,10 +509,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "a provider or organisation",
                         "a business owner."
                     ].map((opt) => {
-                        const isSelected = (formData?.conflictRelatesTo || []).some((v: string) => v.toLowerCase().includes(opt.split('–')[0].trim().toLowerCase()));
+                        const isSelected = isOptionSelected('conflictRelatesTo', opt.split('–')[0]);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                     {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10 }}>{opt}</Text>
@@ -468,10 +529,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "Business. For example, there are multiple supports and services provided from the same or connected business or organisation.",
                         "Personal. For example, a friend or family member benefits from the arrangement."
                     ].map((opt) => {
-                        const isSelected = (formData?.conflictNature || []).some((v: string) => v.toLowerCase().includes(opt.split('.')[0].trim().toLowerCase()));
+                        const isSelected = isOptionSelected('conflictNature', opt.split('.')[0]);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                     {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
@@ -504,11 +565,23 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "No, services require specific cultural and religious choices and practices.",
                         "No, highly specialised services have few accredited providers that operate nationally."
                     ].map((opt) => {
-                        const isSelected = (formData?.conflictAvoidable || []).some((v: string) => v.toLowerCase().trim() === opt.toLowerCase().trim() || (v.toLowerCase().startsWith('yes') && opt.toLowerCase().startsWith('yes')) || (v.toLowerCase().startsWith('no') && opt.toLowerCase().startsWith('no')));
-                        // Simple matching logic, might need refinement based on exact data values
+                        // Use basic option matching or specific logic for Yes/No starts
+                        let isSelected = isOptionSelected('conflictAvoidable', opt);
+                        // Fallback for simple yes/no match if text differs slightly
+                        if (!isSelected && formData?.conflictAvoidable) {
+                            const val = Array.isArray(formData.conflictAvoidable) ? formData.conflictAvoidable[0] : formData.conflictAvoidable;
+                            if (typeof val === 'string') {
+                                if (opt.toLowerCase().startsWith('yes') && val.toLowerCase().startsWith('yes')) isSelected = true;
+                                if (opt.toLowerCase().startsWith('no') && val.toLowerCase().startsWith('no')) isSelected = true;
+                                // But only if they match the specific yes/no option?
+                                // The original logic was loose. Let's stick to isOptionSelected first, which is fuzzy enough.
+                                // If val is "Yes, (outline...)" and opt is "Yes, (outline...)" it matches.
+                            }
+                        }
+
                         return (
                             <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                     {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
@@ -572,10 +645,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "Restrict. Limit conflicted person’s involvement in delivering supports and services.",
                         "Remove. Conflicted person to be removed from delivering supports and services to participant named in section A."
                     ].map((opt) => {
-                        const isSelected = (formData?.managementAction || []).some((v: string) => v.toLowerCase().includes(opt.split('.')[0].trim().toLowerCase()));
+                        const isSelected = isOptionSelected('managementAction', opt.split('.')[0]);
                         return (
                             <View style={[styles.checkboxRow, { marginBottom: 6 }]} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                     {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10 }}>{opt}</Text>
@@ -617,13 +690,11 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                             "employee",
                             "other, please state ."
                         ].map((opt, idx) => {
-                            // Logic to detect if it's the 2nd options which seemed blank in one screenshot
-                            const isLegacyAuthRep = idx === 1;
-                            const isSelected = (formData?.discussedWith || []).some((v: string) => v.toLowerCase().includes("participant") && idx === 0 ? true : v.toLowerCase().includes(opt.toLowerCase()));
+                            const isSelected = isOptionSelected('discussedWith', opt);
 
                             return (
                                 <View style={[styles.checkboxRow, { marginBottom: 6 }]} key={idx}>
-                                    <View style={[styles.checkboxBox, isSelected && styles.checkboxChecked]}>
+                                    <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                         {isSelected && <Text style={styles.checkMark}>X</Text>}
                                     </View>
                                     <Text style={{ fontSize: 10 }}>{opt}</Text>
@@ -667,11 +738,11 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "I have been provided with options to raise my concerns if the circumstances set out in this declaration change.",
                         "I understand that personal information collected, managed and disclosed on this form will comply with requirements of the organisation’s privacy policy."
                     ].map((opt, idx) => {
-                        // Default checkboxes to empty for template or based on data
+                        const isSelected = isOptionSelected('participantAck', opt);
                         return (
                             <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8 }]} key={idx}>
-                                <View style={[styles.checkboxBox, { marginTop: 2 }]}>
-                                    {/* Logic for checked state */}
+                                <View style={[styles.checkboxBox, { marginTop: 2 }, isSelected ? styles.checkboxChecked : {}]}>
+                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
                                 </View>
                                 <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
                             </View>
@@ -686,23 +757,31 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Signature</Text></View>
-                            <View style={[styles.tableCellValue, { height: 40 }]}></View>
+                            <View style={[styles.tableCellValue, { height: 40 }]}>
+                                {getFieldValue('participantSignature')?.startsWith('data:image') && (
+                                    <Image src={getFieldValue('participantSignature')} style={{ height: 35, objectFit: 'contain' }} />
+                                )}
+                            </View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Date (DD/MM/YYYY)</Text></View>
-                            <View style={styles.tableCellValue}><Text>{today}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('participantSignDate')}</Text></View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Authorised representative name</Text></View>
-                            <View style={styles.tableCellValue}><Text></Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('authRepName')}</Text></View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Signature</Text></View>
-                            <View style={[styles.tableCellValue, { height: 40 }]}></View>
+                            <View style={[styles.tableCellValue, { height: 40 }]}>
+                                {getFieldValue('authRepSignature')?.startsWith('data:image') && (
+                                    <Image src={getFieldValue('authRepSignature')} style={{ height: 35, objectFit: 'contain' }} />
+                                )}
+                            </View>
                         </View>
                         <View style={styles.tableRowLast}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Date (DD/MM/YYYY)</Text></View>
-                            <View style={styles.tableCellValue}><Text></Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('authRepSignDate')}</Text></View>
                         </View>
                     </View>
 
@@ -716,33 +795,44 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "a copy of this declaration form",
                         "any additional management plans",
                         "the organisation’s conflict of interest policy and procedures."
-                    ].map((opt, idx) => (
-                        <View style={[styles.checkboxRow, { marginBottom: 5, marginLeft: 15 }]} key={idx}>
-                            <View style={styles.checkboxBox}></View>
-                            <Text style={{ fontSize: 10 }}>{opt}</Text>
-                        </View>
-                    ))}
+                    ].map((opt, idx) => {
+                        const isSelected = isOptionSelected('employeeProvided', opt);
+                        return (
+                            <View style={[styles.checkboxRow, { marginBottom: 5, marginLeft: 15 }]} key={idx}>
+                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
+                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
+                                </View>
+                                <Text style={{ fontSize: 10 }}>{opt}</Text>
+                            </View>
+                        )
+                    })}
 
                     {[
                         "the details provided are correct to the best of my knowledge and I make this conflict of interest declaration in good faith.",
                         "I understand that if the circumstances as set out in this declaration change, I am required to complete a new declaration setting out the circumstances.",
                         "I acknowledge that this conflict of interest declaration and management plan will be reviewed:"
-                    ].map((opt, idx) => (
-                        <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8, marginTop: idx === 0 ? 10 : 0 }]} key={idx}>
-                            <View style={[styles.checkboxBox, { marginTop: 2 }]}>
+                    ].map((opt, idx) => {
+                        const isSelected = isOptionSelected('employeeAck', opt);
+                        return (
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8, marginTop: idx === 0 ? 10 : 0 }]} key={idx}>
+                                <View style={[styles.checkboxBox, { marginTop: 2 }, isSelected ? styles.checkboxChecked : {}]}>
+                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
+                                </View>
+                                <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
                             </View>
-                            <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
-                        </View>
-                    ))}
+                        )
+                    })}
 
                     <View style={{ marginLeft: 30 }}>
                         <View style={[styles.checkboxRow, { marginBottom: 5 }]}>
-                            <View style={styles.checkboxBox}></View>
+                            <View style={[styles.checkboxBox, isOptionSelected('reviewPeriod', 'within 6 months') ? styles.checkboxChecked : {}]}>
+                                {isOptionSelected('reviewPeriod', 'within 6 months') && <Text style={styles.checkMark}>X</Text>}
+                            </View>
                             <Text style={{ fontSize: 10 }}>within 6 months</Text>
                         </View>
                         <View style={[styles.checkboxRow, { marginBottom: 5 }]}>
-                            <View style={[styles.checkboxBox, styles.checkboxChecked]}>
-                                <Text style={styles.checkMark}>X</Text>
+                            <View style={[styles.checkboxBox, isOptionSelected('reviewPeriod', 'within 12 months') ? styles.checkboxChecked : {}]}>
+                                {isOptionSelected('reviewPeriod', 'within 12 months') && <Text style={styles.checkMark}>X</Text>}
                             </View>
                             <Text style={{ fontSize: 10 }}>within 12 months</Text>
                         </View>
@@ -768,27 +858,31 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Signature</Text></View>
-                            <View style={[styles.tableCellValue, { height: 40 }]}></View>
+                            <View style={[styles.tableCellValue, { height: 40 }]}>
+                                {getFieldValue('employeeSignature')?.startsWith('data:image') && (
+                                    <Image src={getFieldValue('employeeSignature')} style={{ height: 35, objectFit: 'contain' }} />
+                                )}
+                            </View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Date (DD/MM/YYYY)</Text></View>
-                            <View style={styles.tableCellValue}><Text>{today}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('employeeSignDate')}</Text></View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Operations manager or director name</Text></View>
-                            <View style={styles.tableCellValue}><Text>{getFieldValue('providerRepName')}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('managerName')}</Text></View>
                         </View>
                         <View style={styles.tableRow}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Signature</Text></View>
                             <View style={[styles.tableCellValue, { height: 40 }]}>
-                                {getFieldValue('providerSignature')?.startsWith('data:image') && (
-                                    <Image src={getFieldValue('providerSignature')} style={{ height: 35, objectFit: 'contain' }} />
+                                {getFieldValue('managerSignature')?.startsWith('data:image') && (
+                                    <Image src={getFieldValue('managerSignature')} style={{ height: 35, objectFit: 'contain' }} />
                                 )}
                             </View>
                         </View>
                         <View style={styles.tableRowLast}>
                             <View style={[styles.tableCellLabel, { backgroundColor: '#E5E7EB' }]}><Text>Date (DD/MM/YYYY)</Text></View>
-                            <View style={styles.tableCellValue}><Text>{today}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('managerSignDate')}</Text></View>
                         </View>
                     </View>
 
