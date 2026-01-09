@@ -94,10 +94,11 @@ export async function POST(
 
     // Forms that can have signature links even without admin filling
     const formsAllowedWithoutAdminFill = [
-      'emergency_drill', 
+      'emergency_drill',
       'participant_risk_assessment',
       'support_action_plan', // Support Action Plan can be signed by client
       'schedule_of_supports', // Schedule of Supports can be signed by client
+      'conflict_of_interest',
     ];
 
     // Create FormSubmission if it doesn't exist for allowed forms
@@ -129,9 +130,9 @@ export async function POST(
     // Filter valid submissions:
     // 1. Must have a submission ID
     // 2. Either filled by admin OR form is in allowed list OR has data (meaning it was worked on)
-    const validSubmissions = processedSubmissions.filter(sub => 
+    const validSubmissions = processedSubmissions.filter(sub =>
       sub.submissionId && (
-        sub.filledByAdmin || 
+        sub.filledByAdmin ||
         formsAllowedWithoutAdminFill.includes(sub.formKey) ||
         sub.hasData
       )
@@ -140,7 +141,7 @@ export async function POST(
     if (validSubmissions.length === 0) {
       const missingSubmissions = processedSubmissions.filter(sub => !sub.submissionId);
       const noDataSubmissions = processedSubmissions.filter(sub => sub.submissionId && !sub.filledByAdmin && !sub.hasData && !formsAllowedWithoutAdminFill.includes(sub.formKey));
-      
+
       let errorMessage = "Cannot generate signature link: ";
       if (missingSubmissions.length > 0) {
         errorMessage += `Some forms don't have submissions yet. Please save the forms first.`;
@@ -149,7 +150,7 @@ export async function POST(
       } else {
         errorMessage += "No valid forms found for the selected assignments.";
       }
-      
+
       return NextResponse.json(
         { error: errorMessage },
         { status: 400 }

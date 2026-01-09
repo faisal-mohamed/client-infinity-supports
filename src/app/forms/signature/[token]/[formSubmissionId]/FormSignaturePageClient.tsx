@@ -62,7 +62,7 @@ export default function FormSignaturePageClient() {
   const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
   const [editedFormValues, setEditedFormValues] = useState<any | null>(null);
-  
+
   // Button-specific loading states
   const [saving, setSaving] = useState(false); // For Save Progress button
   const [navigatingNext, setNavigatingNext] = useState(false); // For Next button
@@ -133,7 +133,7 @@ export default function FormSignaturePageClient() {
 
       for (const sig of allSignatures) {
         const dataKey = sig.dataKey || sig.id;
-        const isSigned : any = !!formData.formSubmission.data[dataKey];
+        const isSigned: any = !!formData.formSubmission.data[dataKey];
 
         // Grouped logic
         if (sig.groupId && sig.groupRequirementType === "any") {
@@ -156,7 +156,7 @@ export default function FormSignaturePageClient() {
 
       // Evaluate "any" groups
       for (const [groupId, groupSigs] of groupMap.entries()) {
-        const isGroupSigned = groupSigs.some((sig : any ) => sig.isSigned);
+        const isGroupSigned = groupSigs.some((sig: any) => sig.isSigned);
         if (isGroupSigned) {
           groupSigs.forEach((sig) => (completed[sig.id] = true));
         } else {
@@ -222,7 +222,7 @@ export default function FormSignaturePageClient() {
       }
 
       const data = await response.json();
-      
+
       // DEBUG: Log form data received from API
       console.group('[Frontend Debug] Form data loaded from API');
       console.log('Full response:', data);
@@ -239,10 +239,10 @@ export default function FormSignaturePageClient() {
         console.log('authorSignature length:', data.formSubmission.data.authorSignature.length);
         console.log('authorSignature preview:', data.formSubmission.data.authorSignature.substring(0, 50) + '...');
       }
-      console.log('Are they the same?', 
+      console.log('Are they the same?',
         data?.formSubmission?.data?.participantSignature === data?.formSubmission?.data?.authorSignature);
       console.groupEnd();
-      
+
       setFormData(data);
       setEditedFormValues(data?.formSubmission?.data || {});
       console.log("Form data loaded:", data);
@@ -294,7 +294,7 @@ export default function FormSignaturePageClient() {
       setSubmitting(true);
 
       const signatureDataURL = signatureRef.toDataURL();
-      
+
       // Convert date from YYYY-MM-DD to DD-MM-YYYY format
       const [year, month, day] = signatureDate.split('-');
       const formattedDate = `${day}-${month}-${year}`;
@@ -449,7 +449,7 @@ export default function FormSignaturePageClient() {
       formData.formSubmission.form.formKey,
       "view"
     );
-    if (formData.formSubmission.form.formKey === "emergency_drill") {
+    if (["emergency_drill", "conflict_of_interest"].includes(formData.formSubmission.form.formKey)) {
       FormEditComponent = getFormComponent(
         formData.formSubmission.form.formKey,
         "edit"
@@ -479,8 +479,8 @@ export default function FormSignaturePageClient() {
   }
 
   const requiresSignature = formData.formSubmission.form.requiresSignature;
-  const isEmergencyDrill = formData.formSubmission.form.formKey === "emergency_drill";
-  
+  const isEditableForm = ["emergency_drill", "conflict_of_interest"].includes(formData.formSubmission.form.formKey);
+
   const allSignaturesComplete = requiredSignatures.length === 0;
 
   console.log("Debug - Signature Status:", {
@@ -561,7 +561,7 @@ export default function FormSignaturePageClient() {
 
         {/* Form Content */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
-          {isEmergencyDrill && FormEditComponent ? (
+          {isEditableForm && FormEditComponent ? (
             <FormEditComponent
               formData={editedFormValues}
               commonFieldsData={formData.client.commonFields?.[0] || formData.client || {}}
@@ -599,55 +599,26 @@ export default function FormSignaturePageClient() {
                   setNavigatingNext(false);
                 }
               }}
-              handleSaveForPrev={async () => {
+              handleSubmitForm={async () => {
                 try {
-                  setNavigatingPrev(true);
+                  setSaving(true);
                   const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ data: editedFormValues }),
                   });
                   if (!res.ok) throw new Error("Failed to save");
+                  showToast({ type: "success", title: "Submitted", message: "Form submitted successfully", duration: 3000 });
+                  // Optionally redirect or show success state
                 } catch (e: any) {
-                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
+                  showToast({ type: "error", title: "Submit failed", message: e?.message || "Could not submit" });
                 } finally {
-                  setNavigatingPrev(false);
+                  setSaving(false);
                 }
               }}
-              handleSubmitForm={async () => {
-                try {
-                  const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                      data: editedFormValues,
-                      isSubmitted: true // Mark as final submission
-                    }),
-                  });
-                  if (!res.ok) throw new Error("Failed to save");
-                  
-                  // Show success message and redirect to forms list
-                  showToast({ 
-                    type: "success", 
-                    title: "Form Submitted Successfully", 
-                    message: "Thank you! Your form has been submitted and will be reviewed by your supervisor.", 
-                    duration: 3000 
-                  });
-                  
-                  // Redirect to forms list after a short delay
-                  setTimeout(() => {
-                    router.push(`/forms/signature/${token}`);
-                  }, 2000);
-                } catch (e: any) {
-                  showToast({ type: "error", title: "Save failed", message: e?.message || "Could not save" });
-                }
-              }}
-              saving={saving}
-              navigatingNext={navigatingNext}
-              navigatingPrev={navigatingPrev}
-              settings={formSettings}
             />
           ) : (
+
             <FormViewComponent
               formSchemas={formData.formSubmission.form.schema}
               formData={formData.formSubmission.data}
@@ -663,8 +634,8 @@ export default function FormSignaturePageClient() {
         {/* Signature Requirements Overview */}
         {/* {renderSignatureStatus()} */}
 
-        {/* Action Section - Only show for forms requiring signature (hidden for emergency_drill) */}
-        {requiresSignature && !isEmergencyDrill && !showSignaturePad && !allSignaturesComplete && (
+        {/* Action Section - Only show for forms requiring signature (hidden for editable forms) */}
+        {requiresSignature && !isEditableForm && !showSignaturePad && !allSignaturesComplete && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Review Complete
@@ -689,7 +660,7 @@ export default function FormSignaturePageClient() {
         )}
 
         {requiresSignature &&
-          !isEmergencyDrill &&
+          !isEditableForm &&
           showSignaturePad &&
           !allSignaturesComplete &&
           requiredSignatures.length > 0 && (

@@ -41,7 +41,7 @@ export default function FormItem({
   const [activeActionMenu, setActiveActionMenu] = useState(false);
   const [showEditWarningModal, setShowEditWarningModal] = useState(false);
   const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
-  const dropdownTriggerRef : any = useRef<HTMLButtonElement>(null);
+  const dropdownTriggerRef: any = useRef<HTMLButtonElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const confirm = useConfirm();
   const { showToast } = useToast();
@@ -58,16 +58,16 @@ export default function FormItem({
   const handleEditClick = () => {
     // Check if form was sent via signature link but staff hasn't submitted yet
     // ONLY apply this restriction to Emergency Drill form
-    const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
-                              !assignment.filledByAdmin && 
-                              !assignment.hasSubmission;
-    
+    const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' &&
+      !assignment.filledByAdmin &&
+      !assignment.hasSubmission;
+
     if (isWaitingForStaff) {
       // Show "waiting for staff" modal
       setShowStaffNotSubmittedModal(true);
       return;
     }
-    
+
     // Check if editing will invalidate signatures
     const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
     if (requiresSignatures && assignment.currentStatus === 'completed') {
@@ -112,7 +112,7 @@ export default function FormItem({
     }
   };
 
-  const generateEmergencyDrillLink = async () => {
+  const generateQuickLink = async () => {
     try {
       setGeneratingLink(true);
       // Generate a signature link for only this assignment
@@ -166,6 +166,43 @@ export default function FormItem({
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
     const requiresSignature = formRequiresSignatures(assignment.form.formKey);
     const status = assignment.currentStatus;
+
+    // Custom Status Logic for Conflict of Interest
+    if (assignment.form.formKey === 'conflict_of_interest' && assignment.formData) {
+      const data = assignment.formData;
+      const hasEmployeeSign = !!data.employeeSignature;
+      const hasParticipantSign = !!data.participantSignature || !!data.authRepSignature;
+      const hasManagerSign = !!data.managerSignature;
+
+      if (hasManagerSign) {
+        return {
+          status: 'All Signatures Complete',
+          color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+          icon: FaCheckCircle,
+          bgColor: 'from-emerald-500 to-emerald-600',
+          iconColor: 'text-white'
+        };
+      }
+      if (hasParticipantSign && !hasManagerSign) {
+        return {
+          status: 'Manager Review',
+          color: 'from-amber-300 to-amber-400 text-amber-900 border-amber-500',
+          icon: FaExclamationTriangle,
+          bgColor: 'from-amber-500 to-amber-600',
+          iconColor: 'text-white'
+        };
+      }
+      if (hasEmployeeSign && !hasParticipantSign) {
+        return {
+          status: 'Waiting for Participant',
+          color: 'from-blue-300 to-blue-400 text-blue-900 border-blue-500',
+          icon: FaClock,
+          bgColor: 'from-blue-500 to-blue-600',
+          iconColor: 'text-white'
+        };
+      }
+    }
+
     if (status === "completed") {
       return {
         status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
@@ -209,9 +246,8 @@ export default function FormItem({
 
   return (
     <>
-      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${
-        isSelected ? 'bg-gradient-to-r from-rose-50 to-rose-100 border-l-4 border-rose-500' : 'bg-white'
-      } border border-gray-100 rounded-2xl`}>
+      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${isSelected ? 'bg-gradient-to-r from-rose-50 to-rose-100 border-l-4 border-rose-500' : 'bg-white'
+        } border border-gray-100 rounded-2xl`}>
         {generatingLink && (
           <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin" />
@@ -219,7 +255,7 @@ export default function FormItem({
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.adminFilledAt || assignment.form.formKey === 'emergency_drill' ? (
+            {assignment.adminFilledAt || ['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey) ? (
               <input
                 type="checkbox"
                 checked={isSelected}
@@ -313,9 +349,9 @@ export default function FormItem({
               onDownloadPDF={() => onDownloadPDF(assignment)}
               downloadingPDF={downloadingPDF === assignment.id}
               onDeleteClick={handleDeleteFormAssignment}
-              // Show Generate Link only for emergency_drill
-              showGenerateLink={assignment.form.formKey === 'emergency_drill'}
-              onGenerateLinkClick={generateEmergencyDrillLink}
+              // Show Generate Link only for supported forms
+              showGenerateLink={['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey)}
+              onGenerateLinkClick={generateQuickLink}
               generatingLink={generatingLink}
             />
           </div>
@@ -347,8 +383,8 @@ export default function FormItem({
         onResendLink={() => {
           setShowStaffNotSubmittedModal(false);
           // Trigger resend link action if needed
-          if (assignment.form.formKey === 'emergency_drill') {
-            generateEmergencyDrillLink();
+          if (['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey)) {
+            generateQuickLink();
           }
         }}
       />

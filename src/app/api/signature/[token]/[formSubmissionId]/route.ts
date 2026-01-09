@@ -18,39 +18,39 @@ export async function GET(
       );
     }
 
-  const batch = await prisma.formBatch.findUnique({
-  where: { 
-    batchToken: token,
-    isSignatureOnly: true,
-  },
-  include: {
-    client: {
-      select: {
-        id: true,
-        name: true,
-        email: true,
+    const batch = await prisma.formBatch.findUnique({
+      where: {
+        batchToken: token,
+        isSignatureOnly: true,
       },
-    },
-    signatureForms: {
       include: {
-        formSubmission: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        signatureForms: {
           include: {
-            form: {
-              select: {
-                id: true,
-                formKey: true,
-                title: true,
-                version: true,
-                schema: true,
-                requiresSignature: true,
+            formSubmission: {
+              include: {
+                form: {
+                  select: {
+                    id: true,
+                    formKey: true,
+                    title: true,
+                    version: true,
+                    schema: true,
+                    requiresSignature: true,
+                  },
+                },
               },
             },
           },
         },
       },
-    },
-  },
-});
+    });
 
 
     if (!batch) {
@@ -79,15 +79,25 @@ export async function GET(
 
     const signatureForm = batch.signatureForms[0];
 
-    const result : any = batch.signatureForms.find(item => {
-  return item.formSubmission?.id === formSubmissionIdInt;
-});
+    const result: any = batch.signatureForms.find(item => {
+      return item.formSubmission?.id === formSubmissionIdInt;
+    });
 
-console.log(result);
+    console.log(result);
 
     // Fetch commonFields separately (same as admin API for consistency)
     const commonFields = await prisma.commonField.findUnique({
       where: { clientId: batch.client.id },
+    });
+
+    // DEBUG: Log commonFields to verify dob is being fetched
+    console.log('[DEBUG] CommonFields for clientId', batch.client.id, ':', {
+      name: commonFields?.name,
+      surname: commonFields?.surname,
+      dob: commonFields?.dob,
+      ndis: commonFields?.ndis,
+      email: commonFields?.email,
+      phone: commonFields?.phone
     });
 
     // DEBUG: Log form data being sent to frontend
@@ -106,7 +116,7 @@ console.log(result);
       console.log('authorSignature length:', result.formSubmission.data.authorSignature.length);
       console.log('authorSignature preview:', result.formSubmission.data.authorSignature.substring(0, 50) + '...');
     }
-    console.log('Are they the same?', 
+    console.log('Are they the same?',
       result.formSubmission?.data?.participantSignature === result.formSubmission?.data?.authorSignature);
     console.groupEnd();
 
@@ -145,7 +155,7 @@ console.log(result);
 //         { status: 400 }
 //       );
 //     }
-    
+
 
 //     const batch = await prisma.formBatch.findUnique({
 //       where: {
@@ -490,42 +500,42 @@ export async function POST(
     }
 
     const batch = await prisma.formBatch.findUnique({
-  where: { batchToken: token, isSignatureOnly: true },
-  include: {
-    client: {
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    },
-    signatureForms: {
+      where: { batchToken: token, isSignatureOnly: true },
       include: {
-        formSubmission: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        signatureForms: {
           include: {
-            form: {
-              select: {
-                formKey: true,
-                requiresSignature: true,
-                title: true, // in case you need title for email
-                id: true
+            formSubmission: {
+              include: {
+                form: {
+                  select: {
+                    formKey: true,
+                    requiresSignature: true,
+                    title: true, // in case you need title for email
+                    id: true
+                  },
+                },
               },
             },
           },
         },
       },
-    },
-  },
-});
+    });
 
 
     if (!batch) return NextResponse.json({ error: "Signature link not found" }, { status: 404 });
     if (batch.expiresAt < new Date()) return NextResponse.json({ error: "Signature link expired" }, { status: 410 });
 
-    const signatureForm = batch.signatureForms.find((sf : any ) => sf.formSubmissionId === formSubmissionIdInt);
+    const signatureForm = batch.signatureForms.find((sf: any) => sf.formSubmissionId === formSubmissionIdInt);
     if (!signatureForm) return NextResponse.json({ error: "Form not found in batch" }, { status: 404 });
 
-    const currentSubmission : any = await prisma.formSubmission.findUnique({
+    const currentSubmission: any = await prisma.formSubmission.findUnique({
       where: { id: formSubmissionIdInt },
       select: { data: true, clientId: true, formId: true, formVersion: true },
     });
@@ -537,18 +547,18 @@ export async function POST(
     const signatures = formConfig?.signatures || [];
 
     let signatureConfig = signatures.find(sig => sig.id === signatureId);
-    
+
     // Special handling for conflict signature (sa_support_coordination specific)
     if (!signatureConfig && signatureId === "conflict_signature" && formKey === "sa_support_coordination") {
       signatureConfig = {
         id: "conflict_signature",
         dataKey: "signature",
-        signedAtKey: "signDate", 
+        signedAtKey: "signDate",
         signerName: "printName",
         label: "Conflict Signature"
       };
     }
-    
+
     if (!signatureConfig) {
       return NextResponse.json({ error: `Signature config not found for ID: ${signatureId}` }, { status: 400 });
     }
@@ -580,13 +590,13 @@ export async function POST(
     console.log('Signature being saved to:', dataKey);
     console.log('Signature length:', signature ? signature.length : 0);
     console.log('Signature preview:', signature ? signature.substring(0, 50) + '...' : 'EMPTY');
-    
+
     // CRITICAL: For support_action_plan, ensure we only update the correct signature field
     // Prevent accidentally copying signature to wrong field
     const updatedFormData: any = {
       ...currentSubmission.data,
     };
-    
+
     // Only update the specific signature field that was signed
     if (formKey === 'support_action_plan') {
       if (dataKey === 'authorSignature') {
@@ -598,7 +608,7 @@ export async function POST(
         if (!updatedFormData.participantSignature) {
           updatedFormData.participantSignature = '';
         }
-        console.log('[API Debug] Saving authorSignature only, participantSignature preserved as:', 
+        console.log('[API Debug] Saving authorSignature only, participantSignature preserved as:',
           updatedFormData.participantSignature ? 'EXISTS' : 'EMPTY');
       } else if (dataKey === 'participantSignature') {
         // Only update participantSignature - do NOT touch authorSignature
@@ -609,7 +619,7 @@ export async function POST(
         if (!updatedFormData.authorSignature) {
           updatedFormData.authorSignature = '';
         }
-        console.log('[API Debug] Saving participantSignature only, authorSignature preserved as:', 
+        console.log('[API Debug] Saving participantSignature only, authorSignature preserved as:',
           updatedFormData.authorSignature ? 'EXISTS' : 'EMPTY');
       } else {
         // Fallback for other fields
@@ -623,19 +633,19 @@ export async function POST(
       if (signedAtKey) updatedFormData[signedAtKey] = signedAt;
       if (signerNameKey) updatedFormData[signerNameKey] = signerName;
     }
-    
+
     if (autoDetectedRole) {
       updatedFormData.signatureRole = autoDetectedRole;
     }
-    
+
     console.log('Updated formData keys:', Object.keys(updatedFormData));
     console.log('Updated participantSignature exists:', !!updatedFormData.participantSignature);
     console.log('Updated authorSignature exists:', !!updatedFormData.authorSignature);
-    console.log('Updated participantSignature === authorSignature?', 
+    console.log('Updated participantSignature === authorSignature?',
       updatedFormData.participantSignature === updatedFormData.authorSignature);
-    console.log('Updated participantSignature value:', 
+    console.log('Updated participantSignature value:',
       updatedFormData.participantSignature ? updatedFormData.participantSignature.substring(0, 50) + '...' : 'EMPTY');
-    console.log('Updated authorSignature value:', 
+    console.log('Updated authorSignature value:',
       updatedFormData.authorSignature ? updatedFormData.authorSignature.substring(0, 50) + '...' : 'EMPTY');
     console.groupEnd();
 
@@ -647,7 +657,7 @@ export async function POST(
         data: updatedFormData,
       },
     });
-    
+
     // DEBUG: Verify what was saved
     const savedSubmission = await prisma.formSubmission.findUnique({
       where: { id: formSubmissionIdInt },
@@ -656,7 +666,7 @@ export async function POST(
     const savedData = savedSubmission?.data as any;
     console.log('[Signature API Debug] After save - participantSignature exists:', !!savedData?.participantSignature);
     console.log('[Signature API Debug] After save - authorSignature exists:', !!savedData?.authorSignature);
-    console.log('[Signature API Debug] After save - Are they the same?', 
+    console.log('[Signature API Debug] After save - Are they the same?',
       savedData?.participantSignature === savedData?.authorSignature);
 
     // update form assignment
@@ -701,7 +711,7 @@ export async function POST(
         select: { data: true },
       });
 
-      const submissionData : any = latestSubmission?.data || {};
+      const submissionData: any = latestSubmission?.data || {};
       const required = getRequiredSignaturesWithGroups(config?.signatures || [], submissionData);
 
       const allSigned = required.every(sig => !!submissionData[sig.dataKey!]);
@@ -749,7 +759,7 @@ export async function POST(
 
       // 📧 Send notification email
       try {
-        const completedFormsData = batch.signatureForms.map((sf : any ) => ({
+        const completedFormsData = batch.signatureForms.map((sf: any) => ({
           id: sf.formSubmissionId,
           formId: sf.formSubmission.form.id,
           title: sf.formSubmission.form?.title || "Untitled",
@@ -783,9 +793,9 @@ export async function POST(
     // return final status
     const refreshedAssignment = formAssignment
       ? await prisma.formAssignment.findUnique({
-          where: { id: formAssignment.id },
-          select: { currentStatus: true },
-        })
+        where: { id: formAssignment.id },
+        select: { currentStatus: true },
+      })
       : null;
 
     return NextResponse.json({
@@ -822,7 +832,7 @@ export async function PUT(
     const batch = await prisma.formBatch.findUnique({
       where: { batchToken: token, isSignatureOnly: true },
       include: {
-        signatureForms: { 
+        signatureForms: {
           include: {
             formSubmission: {
               include: {
@@ -873,7 +883,7 @@ export async function PUT(
       const formTitle = signatureForm.formSubmission?.form?.title || 'Unknown Form';
       const formId = signatureForm.formSubmission?.form?.id;
       const clientName = batch.client?.name || 'Unknown Client';
-      
+
       // Get staff name from the form data (support worker signature field or similar)
       const staffName = data?.supportWorkers || data?.staffName || 'Support Worker';
 
@@ -884,7 +894,7 @@ export async function PUT(
           where: { id: formSubmissionIdInt },
           select: { clientId: true, formId: true, formVersion: true }
         });
-        
+
         if (formSubmissionDetails) {
           const formAssignment = await prisma.formAssignment.findFirst({
             where: {
@@ -939,7 +949,7 @@ export async function PUT(
       try {
         // 1. Create dashboard notification for all admins
         const allAdmins = await prisma.admin.findMany({ select: { id: true } });
-        
+
         const notificationPromises = allAdmins.map((admin) =>
           prisma.formSubmissionNotification.create({
             data: {
@@ -964,12 +974,12 @@ export async function PUT(
         console.log(`📧 [STAFF SUBMITTED] Admin ID: ${adminId}`);
         console.log(`📧 [STAFF SUBMITTED] NEXTAUTH_URL: ${process.env.NEXTAUTH_URL}`);
         console.log(`📧 [STAFF SUBMITTED] VERCEL_URL: ${process.env.VERCEL_URL}`);
-        
+
         if (adminId) {
           try {
             const emailUrl = `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`;
             console.log(`📧 [STAFF SUBMITTED] Email API URL: ${emailUrl}`);
-            
+
             const emailPayload = {
               type: "staff_form_submitted",
               clientId: batch.client.id,
@@ -981,7 +991,7 @@ export async function PUT(
               submittedAt: new Date().toLocaleString(),
             };
             console.log(`📧 [STAFF SUBMITTED] Email payload:`, JSON.stringify(emailPayload, null, 2));
-            
+
             const emailResponse = await fetch(emailUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -989,7 +999,7 @@ export async function PUT(
             });
 
             console.log(`📧 [STAFF SUBMITTED] Email response status: ${emailResponse.status}`);
-            
+
             if (emailResponse.ok) {
               const emailResult = await emailResponse.json();
               console.log(`✅ [STAFF SUBMITTED] Email notification sent to admin successfully!`);

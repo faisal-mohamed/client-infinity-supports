@@ -377,6 +377,14 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: "Signature of the Employee/Provider",
         required: true,
         dataKey: "employeeSignature",
+      },
+      {
+        id: "manager_signature",
+        label: "Manager Signature",
+        description: "Signature of the Manager",
+        required: true,
+        dataKey: "managerSignature",
+        signedAtKey: "managerSignDate",
       }
     ],
   }

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  FaFileAlt, FaSignature, FaCheck, FaClock, FaUser, FaCalendarAlt, 
+import {
+  FaFileAlt, FaSignature, FaCheck, FaClock, FaUser, FaCalendarAlt,
   FaEye, FaDownload, FaCheckCircle, FaExclamationCircle, FaInfoCircle,
   FaSpinner, FaShieldAlt, FaHistory, FaShare, FaCopy, FaExternalLinkAlt
 } from 'react-icons/fa';
@@ -56,7 +56,7 @@ export default function SignaturePortalClient() {
   const params = useParams();
   const token = params.token as string;
   const { showToast } = useToast();
-  
+
   const [batchData, setBatchData] = useState<SignatureBatchData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export default function SignaturePortalClient() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/signature/${token}`);
       if (!response.ok) {
         if (response.status === 404) {
@@ -80,11 +80,11 @@ export default function SignaturePortalClient() {
         }
         throw new Error('Failed to load signature forms');
       }
-      
+
       const data = await response.json();
       console.log("data: ", data)
       setBatchData(data);
-      
+
     } catch (error: any) {
       console.error('Error loading signature batch:', error);
       setError(error.message || 'Failed to load signature forms');
@@ -95,7 +95,7 @@ export default function SignaturePortalClient() {
 
   const getFormStatus = (form: SignatureForm) => {
     const requiresSignature = form.formSubmission.form.requiresSignature;
-    
+
     if (!requiresSignature) {
       return {
         status: 'View Only',
@@ -104,7 +104,7 @@ export default function SignaturePortalClient() {
         date: null,
       };
     }
-    
+
     if (form.formSubmission.clientSignature === "true") {
       return {
         status: 'Signed',
@@ -125,7 +125,7 @@ export default function SignaturePortalClient() {
   const handleDownloadForm = async (formSubmissionId: number, formId: number, formTitle: string) => {
     try {
       setDownloadingForm(formSubmissionId);
-      
+
       showToast({
         type: 'info',
         title: 'Generating PDF',
@@ -177,8 +177,8 @@ export default function SignaturePortalClient() {
           <p className="text-sm sm:text-base text-gray-600 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
       </div>
@@ -259,9 +259,9 @@ export default function SignaturePortalClient() {
                   <p className="text-xs sm:text-sm text-gray-600">{batchData.client.email}</p>
                 </div>
               </div>
-              
+
               <div className="hidden sm:block w-px h-12 bg-gray-300"></div>
-              
+
               <div className="flex items-center">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
                   <FaCalendarAlt className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
@@ -291,7 +291,7 @@ export default function SignaturePortalClient() {
                 <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">{completionStatus.totalForms}</div>
                 <div className="text-xs sm:text-sm font-medium text-blue-700">Total Forms</div>
               </div>
-              
+
               <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-amber-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaSignature className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -299,7 +299,7 @@ export default function SignaturePortalClient() {
                 <div className="text-2xl sm:text-3xl font-bold text-amber-600 mb-1">{completionStatus.formsRequiringSignature}</div>
                 <div className="text-xs sm:text-sm font-medium text-amber-700">Require Signature</div>
               </div>
-              
+
               <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-green-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaCheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -319,20 +319,19 @@ export default function SignaturePortalClient() {
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 overflow-hidden">
-                  <div 
-                    className={`h-2 sm:h-3 rounded-full transition-all duration-500 ease-out ${
-                      completionStatus.isComplete 
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                  <div
+                    className={`h-2 sm:h-3 rounded-full transition-all duration-500 ease-out ${completionStatus.isComplete
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-500'
                         : 'bg-gradient-to-r from-indigo-500 to-purple-500'
-                    }`}
-                    style={{ 
-                      width: `${completionStatus.formsRequiringSignature > 0 ? 
-                        (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0}%` 
+                      }`}
+                    style={{
+                      width: `${completionStatus.formsRequiringSignature > 0 ?
+                        (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0}%`
                     }}
                   ></div>
                 </div>
                 <div className="mt-2 text-xs text-gray-500 text-center">
-                  {Math.round(completionStatus.formsRequiringSignature > 0 ? 
+                  {Math.round(completionStatus.formsRequiringSignature > 0 ?
                     (completionStatus.signedForms / completionStatus.formsRequiringSignature) * 100 : 0)}% Complete
                 </div>
               </div>
@@ -394,7 +393,7 @@ export default function SignaturePortalClient() {
               const StatusIcon = statusInfo.icon;
               const requiresSignature = form.formSubmission.form.requiresSignature;
               const isDownloading = downloadingForm === form.formSubmissionId;
-              
+
               return (
                 <div key={form.id} className="bg-gradient-to-r from-gray-50 to-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all duration-200 overflow-hidden">
                   <div className="p-4 sm:p-6">
@@ -405,7 +404,7 @@ export default function SignaturePortalClient() {
                             <FaFileAlt className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
                           </div>
                         </div>
-                        
+
                         <div className="ml-4 sm:ml-6 flex-1">
                           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 pr-2">
                             {form.formSubmission.form.title}
@@ -434,8 +433,8 @@ export default function SignaturePortalClient() {
                         {batchData.isCompleted && (
                           <button
                             onClick={() => handleDownloadForm(
-                              form.formSubmissionId, 
-                              form.formSubmission.form.id, 
+                              form.formSubmissionId,
+                              form.formSubmission.form.id,
                               form.formSubmission.form.title
                             )}
                             disabled={isDownloading}
@@ -454,13 +453,12 @@ export default function SignaturePortalClient() {
                         {/* View/Sign Button */}
                         <Link
                           href={`/forms/signature/${token}/${form.formSubmissionId}`}
-                          className={`inline-flex items-center justify-center px-4 sm:px-6 py-2.5 border-2 border-transparent text-sm font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            requiresSignature
+                          className={`inline-flex items-center justify-center px-4 sm:px-6 py-2.5 border-2 border-transparent text-sm font-medium rounded-lg sm:rounded-xl transition-all duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${requiresSignature
                               ? form.formSubmission.clientSignature === "true"
                                 ? 'text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 focus:ring-green-500'
                                 : 'text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500'
                               : 'text-blue-700 bg-gradient-to-r from-blue-100 to-indigo-100 hover:from-blue-200 hover:to-indigo-200 focus:ring-blue-500'
-                          }`}
+                            }`}
                         >
                           {requiresSignature ? (
                             form.formSubmission.clientSignature === "true" ? (
@@ -505,7 +503,7 @@ export default function SignaturePortalClient() {
             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-2xl mx-auto leading-relaxed px-2">
               If you have any queries about these forms, please contact our support team.
             </p>
-            
+
           </div>
         </div>
       </div>
