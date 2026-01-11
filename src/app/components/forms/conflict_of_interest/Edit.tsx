@@ -479,6 +479,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             return;
         }
 
+        // eslint-disable-next-line prefer-const
         let newValues = { ...localValues, [name]: value };
 
         // Handle field clearing for participant signature block
