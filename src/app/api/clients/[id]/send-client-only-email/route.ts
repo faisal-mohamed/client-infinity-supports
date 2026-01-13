@@ -133,7 +133,8 @@ export async function POST(
         OR: assignments.map(a => ({
           clientId: a.clientId,
           formId: a.formId,
-          formVersion: a.formVersion
+          formVersion: a.formVersion,
+          instanceNumber: a.instanceNumber, // ✅ Added instanceNumber for correct filtering
         }))
       },
       include: {
@@ -167,10 +168,10 @@ export async function POST(
     if (!notificationResponse.ok) {
       const errorData = await notificationResponse.json().catch(() => ({ error: 'Unknown error' }));
       console.error('❌ Failed to send internal email:', errorData);
-      
+
       // Return detailed error for frontend to parse
-      return NextResponse.json({ 
-        error: 'Failed to send email', 
+      return NextResponse.json({
+        error: 'Failed to send email',
         details: errorData.details || errorData.error || 'Email sending failed'
       }, { status: 500 });
     }

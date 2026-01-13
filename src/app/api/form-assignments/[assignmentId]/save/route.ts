@@ -81,7 +81,7 @@
 //         if (key in formData) {
 //           delete formData[key] // Or use: delete formData[key]
 //           console.log(`Removed signature field: ${key}`);
-          
+
 //         }
 //       });
 
@@ -144,9 +144,9 @@
 
 // console.log("✅ Signatures and form-specific data cleared successfully");
 
-          
 
-      
+
+
 //       clientSignature = null;
 //       clientSignedAt = null;
 //     } else if (hasAllSignatures) {
@@ -291,17 +291,24 @@ export async function POST(
       return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
     }
 
+    // Fetch existing submission to check if it was already signed
     const existingSubmission = await prisma.formSubmission.findUnique({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId: assignment.clientId,
           formId: assignment.formId,
           formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
         },
       },
     });
 
+
     const formKey = assignment.form.formKey;
+
+    console.log("existing: ", existingSubmission?.clientSignature);
+
+    // Validate signature status based on new formData
     const signatureValidation = validateFormSignatures(formKey, formData);
     const hasAllSignatures = signatureValidation.isComplete;
 
@@ -316,20 +323,20 @@ export async function POST(
       const signedAtFields = signatureConfigs.map(sig => sig.signedAtKey).filter(Boolean);
 
       const hasSignatureFields =
-        signatureFields.some((key : any ) => key in formData) ||
-        signedAtFields.some((key : any ) => key in formData);
+        signatureFields.some((key: any) => key in formData) ||
+        signedAtFields.some((key: any) => key in formData);
 
       if (hasSignatureFields) {
         console.log(`🔄 Resetting signature and timestamp fields for form: ${formKey}`);
 
-        signatureFields.forEach((key : any ) => {
+        signatureFields.forEach((key: any) => {
           if (key in formData) {
             delete formData[key];
             console.log(`🧹 Removed signature field: ${key}`);
           }
         });
 
-        signedAtFields.forEach((key : any ) => {
+        signedAtFields.forEach((key: any) => {
           if (key in formData) {
             delete formData[key];
             console.log(`🕒 Cleared signedAt timestamp field: ${key}`);
@@ -352,12 +359,12 @@ export async function POST(
       if (formData.capacityAssessmentRequired !== 'Yes') {
         formData.capacityActions = '';
       }
-      
+
       // Clear assessmentActions1 if additionalAssessment1 is not "Yes"
       if (formData.additionalAssessment1 !== 'Yes') {
         formData.assessmentActions1 = '';
       }
-      
+
       // Clear assessmentActions2 if additionalAssessment2 is not "Yes"
       if (formData.additionalAssessment2 !== 'Yes') {
         formData.assessmentActions2 = '';
@@ -366,16 +373,18 @@ export async function POST(
 
     const formSubmission = await prisma.formSubmission.upsert({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId: assignment.clientId,
           formId: assignment.formId,
           formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
         },
       },
       create: {
         clientId: assignment.clientId,
         formId: assignment.formId,
         formVersion: assignment.formVersion,
+        instanceNumber: assignment.instanceNumber,
         data: formData,
         filledByAdmin: true,
         adminFilledAt: new Date(),

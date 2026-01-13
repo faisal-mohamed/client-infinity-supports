@@ -77,10 +77,11 @@ export async function GET(
       assignments.map(async (assignment) => {
         const submission = await prisma.formSubmission.findUnique({
           where: {
-            clientId_formId_formVersion: {
+            clientId_formId_formVersion_instanceNumber: {
               clientId: assignment.clientId,
               formId: assignment.formId,
               formVersion: assignment.formVersion,
+              instanceNumber: assignment.instanceNumber,
             },
           },
           select: {
@@ -102,6 +103,7 @@ export async function GET(
           clientSignature: submission?.clientSignature,
           clientSignedAt: submission?.clientSignedAt,
           formData: submission?.data, // Include form data for signature validation
+          instanceNumber: assignment.instanceNumber, // Basic info
           // Include isCompleted from FormAssignment
           isCompleted: assignment.isCompleted,
         };

@@ -271,8 +271,13 @@ export default function FormItem({
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 group-hover:text-rose-600 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 group-hover:text-rose-600 transition-colors flex items-center gap-2">
                     {assignment.form.title}
+                    {assignment.instanceNumber > 1 && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
+                        #{assignment.instanceNumber}
+                      </span>
+                    )}
                   </h3>
                   <div className="flex flex-wrap items-center gap-3">
                     <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-md`}>

@@ -96,7 +96,7 @@
 //                   assignment => assignment.formId === form.id && assignment.formVersion === form.version
 //                 );
 //                 const isSelected = selectedFormsToAssign.includes(form.id);
-                
+
 //                 return (
 //                   <div
 //                     key={`${form.id}-${form.version}`}
@@ -153,7 +153,7 @@
 //                               </span>
 //                             </div>
 //                           </div>
-                          
+
 //                           {/* Status Badge */}
 //                           {isAlreadyAssigned && (
 //                             <div className="flex-shrink-0">
@@ -190,7 +190,7 @@
 //                 </div>
 //               </div>
 //             </div>
-            
+
 //             {/* Action Buttons */}
 //             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
 //               <button
@@ -233,7 +233,7 @@
 //             transform: scale(1) translateY(0);
 //           }
 //         }
-        
+
 //         @keyframes fadeInUp {
 //           from { 
 //             opacity: 0; 
@@ -244,7 +244,7 @@
 //             transform: translateY(0); 
 //           }
 //         }
-        
+
 //         .animate-modal-appear {
 //           animation: modal-appear 0.3s ease-out forwards;
 //         }
@@ -261,6 +261,8 @@
 
 import { FaTimes, FaFileAlt, FaSpinner, FaCheckCircle, FaPlus, FaUser } from 'react-icons/fa';
 import { AvailableForm, FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
+
+const MULTI_INSTANCE_FORM_KEYS = ['home_visit_risk_assessment'];
 
 interface FormAssignmentModalProps {
   isOpen: boolean;
@@ -358,14 +360,18 @@ export default function FormAssignmentModal({
                 return (
                   <div
                     key={`${form.id}-${form.version}`}
-                    className={`group relative p-6 border-2 rounded-2xl transition-all duration-300 cursor-pointer ${
-                      isAlreadyAssigned
-                        ? 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 opacity-60'
-                        : isSelected
+                    className={`group relative p-6 border-2 rounded-2xl transition-all duration-300 cursor-pointer ${isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)
+                      ? 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 opacity-60' // Disabled look for single-instance
+                      : isSelected
                         ? 'bg-gradient-to-br from-rose-50 to-rose-100 border-rose-300 shadow-lg scale-[1.02]'
                         : 'bg-white border-slate-200 hover:bg-gradient-to-br hover:from-slate-50 hover:to-slate-100 hover:border-slate-300 hover:shadow-md'
-                    }`}
-                    onClick={() => !isAlreadyAssigned && onFormSelection(form.id)}
+                      }`}
+                    onClick={() => {
+                      // Allow selection if NOT assigned OR if it supports multi-instance
+                      if (!isAlreadyAssigned || MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)) {
+                        onFormSelection(form.id);
+                      }
+                    }}
                     style={{
                       animationDelay: `${index * 50}ms`,
                       animation: 'fadeInUp 0.6s ease-out forwards'
@@ -377,19 +383,18 @@ export default function FormAssignmentModal({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => onFormSelection(form.id)}
-                          disabled={isAlreadyAssigned}
+                          disabled={isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)}
                           onClick={(e) => e.stopPropagation()}
                           className="h-5 w-5 text-rose-600 border-slate-300 rounded-lg shadow-sm disabled:opacity-50"
                         />
                       </div>
 
-                      <div className={`p-3 rounded-xl shadow-md flex-shrink-0 ${
-                        isAlreadyAssigned
-                          ? 'bg-slate-400 text-white'
-                          : isSelected
+                      <div className={`p-3 rounded-xl shadow-md flex-shrink-0 ${isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)
+                        ? 'bg-slate-400 text-white'
+                        : isSelected
                           ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white'
                           : 'bg-gradient-to-br from-sky-500 to-sky-600 text-white group-hover:from-sky-600 group-hover:to-sky-700'
-                      }`}>
+                        }`}>
                         <FaFileAlt className="h-5 w-5" />
                       </div>
 
@@ -409,10 +414,17 @@ export default function FormAssignmentModal({
                             </div>
                           </div>
                           {isAlreadyAssigned && (
-                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-md">
-                              <FaCheckCircle className="h-4 w-4" />
-                              Already Assigned
-                            </span>
+                            MULTI_INSTANCE_FORM_KEYS.includes(form.formKey) ? (
+                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-blue-100 text-blue-800 shadow-sm border border-blue-200">
+                                <FaPlus className="h-3 w-3" />
+                                Add Copy
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-md">
+                                <FaCheckCircle className="h-4 w-4" />
+                                Already Assigned
+                              </span>
+                            )
                           )}
                         </div>
                       </div>

@@ -49,10 +49,11 @@ export async function GET(
     // Get existing FormSubmission if it exists
     const existingSubmission = await prisma.formSubmission.findUnique({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId: assignment.clientId,
           formId: assignment.formId,
           formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
         },
       },
       select: {
@@ -115,6 +116,7 @@ export async function DELETE(
         clientId: true,
         formId: true,
         formVersion: true,
+        instanceNumber: true,
       },
     });
 
@@ -122,15 +124,16 @@ export async function DELETE(
       return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
     }
 
-    const { clientId, formId, formVersion } = assignment;
+    const { clientId, formId, formVersion, instanceNumber } = assignment;
 
     // Step 2: Fetch formSubmission ID (if exists)
     const submission = await prisma.formSubmission.findUnique({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId,
           formId,
           formVersion,
+          instanceNumber,
         },
       },
       select: { id: true },
@@ -156,9 +159,9 @@ export async function DELETE(
     }
 
     transactionSteps.push(
-      prisma.formProgress.deleteMany({
-        where: { clientId, formId, formVersion },
-      }),
+      // prisma.formProgress.deleteMany({
+      //   where: { clientId, formId, formVersion },
+      // }),
       prisma.formAssignment.delete({
         where: { id: assignmentIdNum },
       })

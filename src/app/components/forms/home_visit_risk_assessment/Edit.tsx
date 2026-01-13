@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/Toast";
 
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
 
-import {formatDateForStorage, formatDateForInput} from '@/lib/dateFormatHelper'
+import { formatDateForStorage, formatDateForInput } from '@/lib/dateFormatHelper'
 
 // Match Client Intake form's custom hourglass emoji for better visual consistency
 const FaHourglassHalf = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
@@ -38,7 +38,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-const FORM_SECTIONS : any  = [
+const FORM_SECTIONS: any = [
   {
     id: "metadata",
     title: "Basic Information",
@@ -102,7 +102,7 @@ const FORM_SECTIONS : any  = [
       "issue5", "riskScore5", "control5", "responsible5"
     ],
     requiredFields: [],
-     image: {
+    image: {
       src: "/home_risk_assessment.png",
       alt: "Home Risk Assessment Guide"
     }
@@ -122,9 +122,8 @@ const FORM_SECTIONS : any  = [
 const commonFieldsMapping: Record<string, string> = {
   name: "name",
   ndisNumber: "ndis",
-  dob: "dob", 
-  address: "street",
-  
+  dob: "dob",
+
 };
 
 // Helper function to check if a field is a common field
@@ -149,45 +148,45 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   handleSubmitForm, // New: separate submit function
   saving = false,
   onCommonFieldsUpdated,
-}: any ) => {
+}: any) => {
 
-// Helper function to get common field value
-const getCommonFieldValue = (fieldName: string): string => {
-  // For name field, combine first name and surname to show full name
-  if (fieldName === 'name') {
-    const firstName = commonFieldsData?.name || '';
-    const surname = commonFieldsData?.surname || '';
-    const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
-    if (fullName) {
-      return fullName;
+  // Helper function to get common field value
+  const getCommonFieldValue = (fieldName: string): string => {
+    // For name field, combine first name and surname to show full name
+    if (fieldName === 'name') {
+      const firstName = commonFieldsData?.name || '';
+      const surname = commonFieldsData?.surname || '';
+      const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
+      if (fullName) {
+        return fullName;
+      }
+      // Fallback to formData.name if it exists
+      if (formData?.[fieldName]) {
+        return String(formData[fieldName]);
+      }
+      // Last fallback: try to get just the first name from commonFieldsData
+      if (firstName) {
+        return firstName;
+      }
+      return '';
     }
-    // Fallback to formData.name if it exists
-    if (formData?.[fieldName]) {
-      return String(formData[fieldName]);
-    }
-    // Last fallback: try to get just the first name from commonFieldsData
-    if (firstName) {
-      return firstName;
-    }
-    return '';
-  }
-  
-  const commonKey = commonFieldsMapping[fieldName];
-  // Always prioritize current client details from database
+
+    const commonKey = commonFieldsMapping[fieldName];
+    // Always prioritize current client details from database
     if (commonKey && commonFieldsData?.[commonKey]) {
       return String(commonFieldsData[commonKey]);
     }
-    
+
     // Only fallback to saved form data if DB doesn't have the value
     return formData?.[fieldName] ? String(formData[fieldName]) : '';
-};
+  };
   useEffect(() => {
     console.log("Common fields data updated:", commonFieldsData);
   }, [commonFieldsData]);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [maxStep, setMaxStep] = useState(0);
-  
+
   // Signature canvas ref
   const sigCanvasRef = useRef<SignatureCanvasRef | null>(null);
 
@@ -196,9 +195,9 @@ const getCommonFieldValue = (fieldName: string): string => {
     name: commonFieldsData?.name || "",
     ndisNumber: commonFieldsData?.ndis || "",
     dob: commonFieldsData?.dob || "",
-    address: commonFieldsData?.address || "",
+    address: formData?.address || "",
     completionDate: new Date().toISOString().split("T")[0],
-    
+
     // Client and Family
     visitCompany: "",
     visitCompany_comments: "",
@@ -208,13 +207,13 @@ const getCommonFieldValue = (fieldName: string): string => {
     drugUseHistory_comments: "",
     careDirective: "",
     careDirective_comments: "",
-    
+
     // Environment
     petsRestrained: "",
     petsRestrained_comments: "",
     weaponsInHome: "",
     weaponsInHome_comments: "",
-    
+
     // Safety
     smokingAgreement: "",
     smokingAgreement_comments: "",
@@ -222,7 +221,7 @@ const getCommonFieldValue = (fieldName: string): string => {
     smokeDetectors_comments: "",
     fireHazards: "",
     fireHazards_comments: "",
-    
+
     // Location
     accessDifficulties: "",
     accessDifficulties_comments: "",
@@ -232,7 +231,7 @@ const getCommonFieldValue = (fieldName: string): string => {
     entryPoint_comments: "",
     mobileReception: "",
     mobileReception_comments: "",
-    
+
     // Risk Assessment Table
     issue1: "",
     riskScore1: "",
@@ -246,13 +245,13 @@ const getCommonFieldValue = (fieldName: string): string => {
     riskScore3: "",
     control3: "",
     responsible3: "",
-     riskScore4: "",
+    riskScore4: "",
     control4: "",
     responsible4: "",
-     riskScore5: "",
+    riskScore5: "",
     control5: "",
     responsible5: "",
-    
+
     // Signature
     authorName: "",
     designation: "",
@@ -268,7 +267,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   // 🎯 LOADING STATE FOR FORM SUBMISSION
   const [submitting, setSubmitting] = useState(false); // For form submission
   // Note: 'saving' state comes from parent component via props
-  
+
   // 🎯 UI BUSY ACTION STATE - Track which specific button action is in progress
   const [uiBusyAction, setUiBusyAction] = useState<'next' | 'save' | 'submit' | null>(null);
   const buttonsLocked = uiBusyAction !== null || saving || submitting;
@@ -306,7 +305,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   //   >
   // ) => {
   //   const { name, value } = e.target;
-    
+
   //   // Prevent changes to common fields
   //   if (isCommonField(name)) {
   //     showToast({
@@ -317,7 +316,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   //     });
   //     return;
   //   }
-    
+
   //   const newValues = { ...localValues, [name]: value };
   //   setLocalValues(newValues);
 
@@ -328,28 +327,28 @@ const getCommonFieldValue = (fieldName: string): string => {
 
 
 
-const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) => {
-  const { name, value, type } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
 
-  if (isCommonField(name)) {
-    showToast({
-      type: "info",
-      title: "Common Field",
-      message: "This field can only be updated from the client's common details section.",
-      duration: 3000,
-    });
-    return;
-  }
+    if (isCommonField(name)) {
+      showToast({
+        type: "info",
+        title: "Common Field",
+        message: "This field can only be updated from the client's common details section.",
+        duration: 3000,
+      });
+      return;
+    }
 
-  const formattedValue =
-    type === "date" && value ? formatDateForStorage(value) : value;
+    const formattedValue =
+      type === "date" && value ? formatDateForStorage(value) : value;
 
-  const newValues = { ...localValues, [name]: formattedValue };
-  setLocalValues(newValues);
-  onChange(newValues, name, isCommonField(name));
-};
+    const newValues = { ...localValues, [name]: formattedValue };
+    setLocalValues(newValues);
+    onChange(newValues, name, isCommonField(name));
+  };
 
   const handleNext = () => {
     if (currentStep < FORM_SECTIONS.length - 1) {
@@ -379,32 +378,32 @@ const handleChange = (
     return ((currentStep + 1) / FORM_SECTIONS.length) * 100;
   };
 
-  
+
 
   const isCurrentSectionComplete = () => {
-  const section = FORM_SECTIONS[currentStep];
-  const required = section.requiredFields || [];
+    const section = FORM_SECTIONS[currentStep];
+    const required = section.requiredFields || [];
 
-  return required.every((key : any ) => {
-    const meta = FIELD_METADATA[key];
-    const isCommon = isCommonField(key);
-    const value = isCommon ? getCommonFieldValue(key) : localValues[key];
+    return required.every((key: any) => {
+      const meta = FIELD_METADATA[key];
+      const isCommon = isCommonField(key);
+      const value = isCommon ? getCommonFieldValue(key) : localValues[key];
 
-    // If normal required field (common or not)
-    const isValid = value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
-    if (!isValid) return false;
+      // If normal required field (common or not)
+      const isValid = value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
+      if (!isValid) return false;
 
-    // If dropdown has showComments = true and value is "Yes" => require comments
-    if (meta?.showComments && value === "Yes") {
-      const commentsField = `${key}_comments`;
-      const commentsValue = localValues[commentsField];
-      const isCommentsFilled = commentsValue && commentsValue.trim() !== '';
-      if (!isCommentsFilled) return false;
-    }
+      // If dropdown has showComments = true and value is "Yes" => require comments
+      if (meta?.showComments && value === "Yes") {
+        const commentsField = `${key}_comments`;
+        const commentsValue = localValues[commentsField];
+        const isCommentsFilled = commentsValue && commentsValue.trim() !== '';
+        if (!isCommentsFilled) return false;
+      }
 
-    return true;
-  });
-};
+      return true;
+    });
+  };
 
 
   const handleNextSequential = async () => {
@@ -436,13 +435,13 @@ const handleChange = (
   //   const isCommon = isCommonField(name);
   //   const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
   //   const isFieldReadOnly = readOnly || isCommon;
-    
+
   //   return (
   //     <div className="flex flex-col gap-1">
   //       <label className="text-xs font-medium text-gray-700 mb-1">
   //         {label}
   //         {required && <span className="text-red-500 ml-1">*</span>}
-          
+
   //       </label>
   //       <input
   //         type={type}
@@ -459,7 +458,7 @@ const handleChange = (
   //               : "hover:border-accent/40"
   //         } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
   //       />
-       
+
   //       {fieldErrors[name] && (
   //         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
   //       )}
@@ -469,51 +468,50 @@ const handleChange = (
 
 
 
-const renderInput = (
-  label: string,
-  name: string,
-  type: string = "text",
-  placeholder?: string,
-  required?: boolean
-) => {
-  const isCommon = isCommonField(name);
-  let displayValue = isCommon
-    ? getCommonFieldValue(name)
-    : localValues[name] || "";
+  const renderInput = (
+    label: string,
+    name: string,
+    type: string = "text",
+    placeholder?: string,
+    required?: boolean
+  ) => {
+    const isCommon = isCommonField(name);
+    let displayValue = isCommon
+      ? getCommonFieldValue(name)
+      : localValues[name] || "";
 
-  const isFieldReadOnly = readOnly || isCommon;
+    const isFieldReadOnly = readOnly || isCommon;
 
-  if (type === 'date' && displayValue) {
-    displayValue = formatDateForInput(displayValue);
-  }
+    if (type === 'date' && displayValue) {
+      displayValue = formatDateForInput(displayValue);
+    }
 
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={displayValue}
-        onChange={isCommon ? undefined : handleChange}
-        placeholder={isCommon ? "Value from common fields" : placeholder}
-        disabled={isFieldReadOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-      />
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
-    </div>
-  );
-};
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <input
+          type={type}
+          name={name}
+          value={displayValue}
+          onChange={isCommon ? undefined : handleChange}
+          placeholder={isCommon ? "Value from common fields" : placeholder}
+          disabled={isFieldReadOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
+              ? "bg-blue-50 border-blue-200 text-blue-800"
+              : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+        />
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
+      </div>
+    );
+  };
 
 
   const renderTextArea = (
@@ -526,13 +524,13 @@ const renderInput = (
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
-    
+
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-         
+
         </label>
         <textarea
           name={name}
@@ -541,15 +539,14 @@ const renderInput = (
           placeholder={isCommon ? "Value from common fields" : placeholder}
           rows={rows}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
+              ? "bg-blue-50 border-blue-200 text-blue-800"
+              : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
-        
+
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
         )}
@@ -557,84 +554,83 @@ const renderInput = (
     );
   };
 
-const renderDropdown = (
-  label: string,
-  name: string,
-  options: string[],
-  showComments?: boolean,
-  required?: boolean
-) => {
-  const selectedValue = localValues[name];
-  const shouldShowComment = showComments && selectedValue === "Yes";
-  const commentFieldName = `${name}_comments`;
+  const renderDropdown = (
+    label: string,
+    name: string,
+    options: string[],
+    showComments?: boolean,
+    required?: boolean
+  ) => {
+    const selectedValue = localValues[name];
+    const shouldShowComment = showComments && selectedValue === "Yes";
+    const commentFieldName = `${name}_comments`;
 
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      <select
-        name={name}
-        value={selectedValue || ""}
-        onChange={handleChange}
-        disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-          fieldErrors[name]
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <select
+          name={name}
+          value={selectedValue || ""}
+          onChange={handleChange}
+          disabled={readOnly}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
             ? "border-red-300 bg-red-50"
             : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-      >
-        <option value="">Select an option</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
+            } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+        >
+          <option value="">Select an option</option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
 
-      {fieldErrors[name] && (
-        <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-      )}
+        {fieldErrors[name] && (
+          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
+        )}
 
-      {shouldShowComment && (
-        <div className="mt-3">
-          {renderTextArea(
-            "Comments",
-            commentFieldName,
-            2,
-            "Please provide more details...",
-            true // Make comments required if 'Yes'
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
+        {shouldShowComment && (
+          <div className="mt-3">
+            {renderTextArea(
+              "Comments",
+              commentFieldName,
+              2,
+              "Please provide more details...",
+              true // Make comments required if 'Yes'
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
-useEffect(() => {
-  const dropdownFieldsWithComments = Object.keys(FIELD_METADATA).filter(
-    (key) => FIELD_METADATA[key].type === "dropdown" && FIELD_METADATA[key].showComments
-  );
+  useEffect(() => {
+    const dropdownFieldsWithComments = Object.keys(FIELD_METADATA).filter(
+      (key) => FIELD_METADATA[key].type === "dropdown" && FIELD_METADATA[key].showComments
+    );
 
-  const updatedValues: Record<string, any> = { ...localValues };
-  let hasChanges = false;
+    const updatedValues: Record<string, any> = { ...localValues };
+    let hasChanges = false;
 
-  dropdownFieldsWithComments.forEach((fieldName) => {
-    const value = localValues[fieldName];
-    const commentField = `${fieldName}_comments`;
+    dropdownFieldsWithComments.forEach((fieldName) => {
+      const value = localValues[fieldName];
+      const commentField = `${fieldName}_comments`;
 
-    // If dropdown is not "Yes" and comment exists → clear it
-    if (value !== "Yes" && localValues[commentField]) {
-      updatedValues[commentField] = "";
-      hasChanges = true;
+      // If dropdown is not "Yes" and comment exists → clear it
+      if (value !== "Yes" && localValues[commentField]) {
+        updatedValues[commentField] = "";
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      setLocalValues(updatedValues);
     }
-  });
-
-  if (hasChanges) {
-    setLocalValues(updatedValues);
-  }
-}, [localValues]);
+  }, [localValues]);
 
 
   const renderMultiSelectCheckbox = (
@@ -646,9 +642,8 @@ useEffect(() => {
   ) => (
     <div className="flex flex-col gap-1">
       <label
-        className={`text-xs font-medium mb-1 ${
-          fieldErrors[name] ? "text-red-500" : "text-gray-700"
-        }`}
+        className={`text-xs font-medium mb-1 ${fieldErrors[name] ? "text-red-500" : "text-gray-700"
+          }`}
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -738,160 +733,160 @@ useEffect(() => {
     dob: { label: "Date of Birth", type: "date", placeholder: "Select date of birth" },
     address: { label: "Address", type: "textarea", placeholder: "Enter full address", rows: 2 },
     completionDate: { label: "Date of Completion of Risk Assessment", type: "date", placeholder: "Select completion date" },
-    
+
     // Client and Family
     visitCompany: { label: "Will anyone else be present during the visit?", type: "dropdown", options: yesNoOptions, showComments: true },
     aggressionHistory: { label: "Any history of verbal or physical aggression from the client or family?", type: "dropdown", options: yesNoOptions, showComments: true },
     drugUseHistory: { label: "Any history of alcohol or drug use?", type: "dropdown", options: yesNoOptions, showComments: true },
     careDirective: { label: "Is there an advanced care directive?", type: "dropdown", options: yesNoOptions, showComments: true },
-    
+
     // Environment
     petsRestrained: { label: "If there are any pets, has the client agreed to restrain them during the visit?", type: "dropdown", options: yesNoOptions, showComments: true },
     weaponsInHome: { label: "Are there any weapons in the home?", type: "dropdown", options: yesNoOptions, showComments: true },
-    
+
     // Safety
     smokingAgreement: { label: "If there are any smokers, have they agreed to refrain from smoking during the visit?", type: "dropdown", options: yesNoOptions, showComments: true },
     smokeDetectors: { label: "Are there smoke detectors present and in working condition?", type: "dropdown", options: yesNoOptions, showComments: true },
     fireHazards: { label: "Any apparent fire hazards?", type: "dropdown", options: yesNoOptions, showComments: true },
-    
+
     // Location
     accessDifficulties: { label: "Are there any difficulties locating the address/access to the building?", type: "dropdown", options: yesNoOptions, showComments: true },
     parking: { label: "Is there parking available? Street? Paid ?", type: "dropdown", options: yesNoOptions, showComments: true },
     entryPoint: { label: "Which door is used for entry?", type: "checkbox", options: entryPointOptions, showComments: true },
     mobileReception: { label: "Are there any issues with mobile phone reception?", type: "dropdown", options: yesNoOptions, showComments: true },
-    
+
     // Risk Assessment Table
     issue1: { label: "Issue/Task 1", type: "textarea", placeholder: "Describe the issue or task", rows: 2 },
     riskScore1: { label: "Risk Score 1", type: "text", placeholder: "Enter risk score" },
     control1: { label: "Control Measure 1", type: "textarea", placeholder: "Describe control measures", rows: 2 },
     responsible1: { label: "Person Responsible 1", type: "text", placeholder: "Enter responsible person" },
-    
+
     issue2: { label: "Issue/Task 2", type: "textarea", placeholder: "Describe the issue or task", rows: 2 },
     riskScore2: { label: "Risk Score 2", type: "text", placeholder: "Enter risk score" },
     control2: { label: "Control Measure 2", type: "textarea", placeholder: "Describe control measures", rows: 2 },
     responsible2: { label: "Person Responsible 2", type: "text", placeholder: "Enter responsible person" },
-    
+
     issue3: { label: "Issue/Task 3", type: "textarea", placeholder: "Describe the issue or task", rows: 2 },
     riskScore3: { label: "Risk Score 3", type: "text", placeholder: "Enter risk score" },
     control3: { label: "Control Measure 3", type: "textarea", placeholder: "Describe control measures", rows: 2 },
     responsible3: { label: "Person Responsible 3", type: "text", placeholder: "Enter responsible person" },
 
     issue4: {
-  label: "Issue/Task 4",
-  type: "textarea",
-  placeholder: "Describe the issue or task",
-  rows: 2
-},
-riskScore4: {
-  label: "Risk Score 4",
-  type: "text",
-  placeholder: "Enter risk score"
-},
-control4: {
-  label: "Control Measure 4",
-  type: "textarea",
-  placeholder: "Describe control measures",
-  rows: 2
-},
-responsible4: {
-  label: "Person Responsible 4",
-  type: "text",
-  placeholder: "Enter responsible person"
-},
+      label: "Issue/Task 4",
+      type: "textarea",
+      placeholder: "Describe the issue or task",
+      rows: 2
+    },
+    riskScore4: {
+      label: "Risk Score 4",
+      type: "text",
+      placeholder: "Enter risk score"
+    },
+    control4: {
+      label: "Control Measure 4",
+      type: "textarea",
+      placeholder: "Describe control measures",
+      rows: 2
+    },
+    responsible4: {
+      label: "Person Responsible 4",
+      type: "text",
+      placeholder: "Enter responsible person"
+    },
 
-issue5: {
-  label: "Issue/Task 5",
-  type: "textarea",
-  placeholder: "Describe the issue or task",
-  rows: 2
-},
-riskScore5: {
-  label: "Risk Score 5",
-  type: "text",
-  placeholder: "Enter risk score"
-},
-control5: {
-  label: "Control Measure 5",
-  type: "textarea",
-  placeholder: "Describe control measures",
-  rows: 2
-},
-responsible5: {
-  label: "Person Responsible 5",
-  type: "text",
-  placeholder: "Enter responsible person"
-},
+    issue5: {
+      label: "Issue/Task 5",
+      type: "textarea",
+      placeholder: "Describe the issue or task",
+      rows: 2
+    },
+    riskScore5: {
+      label: "Risk Score 5",
+      type: "text",
+      placeholder: "Enter risk score"
+    },
+    control5: {
+      label: "Control Measure 5",
+      type: "textarea",
+      placeholder: "Describe control measures",
+      rows: 2
+    },
+    responsible5: {
+      label: "Person Responsible 5",
+      type: "text",
+      placeholder: "Enter responsible person"
+    },
 
-    
+
     // Signature
-        authorName: { label: "Name", type: "text", placeholder: "Enter your Name" },
+    authorName: { label: "Name", type: "text", placeholder: "Enter your Name" },
 
     designation: { label: "Designation", type: "text", placeholder: "Enter your designation/title" },
     assessorSignature: { label: "Signature", type: "signature", placeholder: "Draw your signature in the box above" },
   };
 
   const validateRequiredFields = () => {
-  const missingFields: string[] = [];
+    const missingFields: string[] = [];
 
-  FORM_SECTIONS.forEach((section : any ) => {
-    section.requiredFields.forEach((fieldName : any ) => {
-      const value = isCommonField(fieldName)
-        ? getCommonFieldValue(fieldName)
-        : localValues[fieldName];
+    FORM_SECTIONS.forEach((section: any) => {
+      section.requiredFields.forEach((fieldName: any) => {
+        const value = isCommonField(fieldName)
+          ? getCommonFieldValue(fieldName)
+          : localValues[fieldName];
 
-      const meta = FIELD_METADATA[fieldName];
+        const meta = FIELD_METADATA[fieldName];
 
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
-        missingFields.push(`${fieldName}`);
-      }
-
-      // Check conditional comments field
-      if (meta?.showComments && value === "Yes") {
-        const commentsField = `${fieldName}_comments`;
-        const commentValue = localValues[commentsField];
-        if (!commentValue || commentValue.trim() === "") {
-          missingFields.push(`${commentsField}`);
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          missingFields.push(`${fieldName}`);
         }
-      }
+
+        // Check conditional comments field
+        if (meta?.showComments && value === "Yes") {
+          const commentsField = `${fieldName}_comments`;
+          const commentValue = localValues[commentsField];
+          if (!commentValue || commentValue.trim() === "") {
+            missingFields.push(`${commentsField}`);
+          }
+        }
+      });
     });
-  });
 
-  return {
-    isValid: missingFields.length === 0,
-    missingFields
+    return {
+      isValid: missingFields.length === 0,
+      missingFields
+    };
   };
-};
 
 
-  
+
 
 
   const handleFormSubmitCheckValidation = async () => {
-  try {
-    console.log("form submitted")
-    setSubmitting(true);
-    const validationResult = validateRequiredFields();
+    try {
+      console.log("form submitted")
+      setSubmitting(true);
+      const validationResult = validateRequiredFields();
 
-    if (validationResult.isValid) {
-      await handleSubmitForm(); // Awaiting if handleSaveProgress is async
-    } else {
+      if (validationResult.isValid) {
+        await handleSubmitForm(); // Awaiting if handleSaveProgress is async
+      } else {
+        showToast({
+          type: 'error',
+          title: "Missing Required Fields",
+          message: validationResult.missingFields.join(', ') // Formats the missing fields as a readable list
+        });
+      }
+    } catch (error) {
+      console.error("Validation or save failed:", error);
       showToast({
         type: 'error',
-        title: "Missing Required Fields",
-        message: validationResult.missingFields.join(', ') // Formats the missing fields as a readable list
+        title: "Error",
+        message: "Something went wrong during validation or saving."
       });
+    } finally {
+      setSubmitting(false);
     }
-  } catch (error) {
-    console.error("Validation or save failed:", error);
-    showToast({
-      type: 'error',
-      title: "Error",
-      message: "Something went wrong during validation or saving."
-    });
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
 
   // 🎯 LEGACY WRAPPER FUNCTION (for backward compatibility)
@@ -920,26 +915,26 @@ responsible5: {
 
 
   const getFilledRiskEntryCount = () => {
-  let count = 0;
-  for (let i = 1; i <= 5; i++) {
-    if (
-      formData?.[`issue${i}`] ||
-      formData?.[`riskScore${i}`] ||
-      formData?.[`control${i}`] ||
-      formData?.[`responsible${i}`]
-    ) {
-      count = i;
+    let count = 0;
+    for (let i = 1; i <= 5; i++) {
+      if (
+        formData?.[`issue${i}`] ||
+        formData?.[`riskScore${i}`] ||
+        formData?.[`control${i}`] ||
+        formData?.[`responsible${i}`]
+      ) {
+        count = i;
+      }
     }
-  }
-  return count || 1; // Default to 1 if none are filled
-};
+    return count || 1; // Default to 1 if none are filled
+  };
 
-const [riskEntryCount, setRiskEntryCount] = useState(getFilledRiskEntryCount);
+  const [riskEntryCount, setRiskEntryCount] = useState(getFilledRiskEntryCount);
 
-useEffect(() => {
-  const prefilled = getFilledRiskEntryCount();
-  setRiskEntryCount(prefilled);
-}, []);
+  useEffect(() => {
+    const prefilled = getFilledRiskEntryCount();
+    setRiskEntryCount(prefilled);
+  }, []);
 
 
 
@@ -952,7 +947,7 @@ useEffect(() => {
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section : any , idx : any ) => {
+          {FORM_SECTIONS.map((section: any, idx: any) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -992,31 +987,31 @@ useEffect(() => {
         <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8">
           {/* Section Header */}
           <div className="mb-4">
-  <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
-    {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
-    {FORM_SECTIONS[currentStep].title}
-  </h2>
-  <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
+              {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
+              {FORM_SECTIONS[currentStep].title}
+            </h2>
+            <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
 
- {FORM_SECTIONS[currentStep].image && (
-  <div className="mt-4 w-full flex justify-center">
-    <img
-      src={FORM_SECTIONS[currentStep].image.src}
-      alt={FORM_SECTIONS[currentStep].image.alt || ""}
-  className="w-full max-w-4xl h-auto rounded-xl border border-gray-200 shadow-md object-contain"
-      style={{ maxHeight: "600px" }} // You can adjust this height
-    />
-  </div>
-)}
+            {FORM_SECTIONS[currentStep].image && (
+              <div className="mt-4 w-full flex justify-center">
+                <img
+                  src={FORM_SECTIONS[currentStep].image.src}
+                  alt={FORM_SECTIONS[currentStep].image.alt || ""}
+                  className="w-full max-w-4xl h-auto rounded-xl border border-gray-200 shadow-md object-contain"
+                  style={{ maxHeight: "600px" }} // You can adjust this height
+                />
+              </div>
+            )}
 
-</div>
+          </div>
 
 
           <form
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault();
-              if(onSubmit) onSubmit(localValues);
+              if (onSubmit) onSubmit(localValues);
             }}
             className="flex flex-col gap-6"
           >
@@ -1025,14 +1020,14 @@ useEffect(() => {
               {FORM_SECTIONS[currentStep].id === "riskAssessment" ? (
                 // Special layout for risk assessment table
                 <div className="space-y-6">
-{Array.from({ length: riskEntryCount }, (_, i) => i + 1).map((num) => (
+                  {Array.from({ length: riskEntryCount }, (_, i) => i + 1).map((num) => (
                     <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <h3 className="text-lg font-semibold mb-4 text-gray-800">Risk Assessment Entry {num}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {[`issue${num}`, `riskScore${num}`, `control${num}`, `responsible${num}`].map((field) => {
                           const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                           const required = isFieldRequired(field);
-                          
+
                           if (meta.type === "textarea") {
                             return (
                               <div key={field} className="md:col-span-2">
@@ -1048,26 +1043,26 @@ useEffect(() => {
                         })}
                       </div>
                     </div>
-                    
+
                   ))}
                   {riskEntryCount < 5 && (
-  <button
-    type="button"
-    onClick={() => setRiskEntryCount(prev => prev + 1)}
-    className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded shadow transition"
-  >
-    + Add Another Risk Entry
-  </button>
-)}
+                    <button
+                      type="button"
+                      onClick={() => setRiskEntryCount(prev => prev + 1)}
+                      className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded shadow transition"
+                    >
+                      + Add Another Risk Entry
+                    </button>
+                  )}
 
                 </div>
               ) : (
                 // Standard grid layout for other sections
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field : any ) => {
+                  {FORM_SECTIONS[currentStep].fields.map((field: any) => {
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
-                    
+
                     if (meta.type === "textarea") {
                       return (
                         <div key={field} className="md:col-span-2">
@@ -1112,7 +1107,7 @@ useEffect(() => {
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_ : any , index : any ) => (
+            {FORM_SECTIONS.map((_: any, index: any) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}
