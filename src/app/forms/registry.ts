@@ -366,10 +366,25 @@ const formRegistry: Record<string, FormRegistryItem> = {
     signatures: [
       {
         id: "participant_signature",
-        label: "Participant/Authorised Rep Signature",
-        description: "Signature of the Participant or Authorised Representative",
-        required: true,
+        label: "Participant Signature",
+        description: "Signature of the Participant",
         dataKey: "participantSignature",
+        signedAtKey: "participantSignDate",
+        groupId: "participant_or_auth_rep",
+        groupRequirementType: "any",
+        groupRequired: true,
+        signerName: "participantName",
+      },
+      {
+        id: "auth_rep_signature",
+        label: "Authorised Representative Signature",
+        description: "Signature of the Authorised Representative",
+        dataKey: "authRepSignature",
+        signedAtKey: "authRepSignDate",
+        groupId: "participant_or_auth_rep",
+        groupRequirementType: "any",
+        groupRequired: true,
+        signerName: "authRepName",
       },
       {
         id: "employee_signature",
@@ -377,6 +392,8 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: "Signature of the Employee/Provider",
         required: true,
         dataKey: "employeeSignature",
+        signedAtKey: "employeeSignDate",
+        signerName: "employeeName",
       },
       {
         id: "manager_signature",
@@ -385,6 +402,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
         required: true,
         dataKey: "managerSignature",
         signedAtKey: "managerSignDate",
+        signerName: "managerName",
       }
     ],
   }

@@ -81,7 +81,7 @@ export async function POST(
       // Has signature requirements but not all complete
       newStatus = "in_progress"; // Keep as in_progress
       canSubmit = false;
-      submitMessage = `Cannot submit: ${signatureValidation.missingSignatures.length} signature(s) still required`;
+      submitMessage = `${signatureValidation.missingSignatures.length} signature(s) still required`;
     }
 
     console.log(
