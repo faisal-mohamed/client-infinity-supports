@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter, useParams } from "next/navigation";
 import {
     FaUser,
     FaBuilding,
@@ -352,6 +353,8 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
     saving = false,
 }: FormProps) => {
     const { showToast } = useToast();
+    const router = useRouter();
+    const params = useParams();
     const [currentStep, setCurrentStep] = useState(0);
     const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
     const [maxStep, setMaxStep] = useState(0);
@@ -1151,9 +1154,10 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             // Redirect after successful submission
             // Give user time to see the success toast (2 seconds)
             setTimeout(() => {
-                // Try to close the window (works if opened via window.open)
-                // Otherwise, go back to previous page
-                if (window.opener) {
+                if (params?.id) {
+                    router.push(`/admin/clients/${params.id}/forms`);
+                    router.refresh();
+                } else if (window.opener) {
                     window.close();
                 } else {
                     window.history.back();
