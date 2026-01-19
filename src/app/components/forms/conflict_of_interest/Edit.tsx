@@ -97,7 +97,13 @@ export const FORM_SECTIONS = [
 ];
 
 const FIELD_METADATA: Record<string, any> = {
-    participantName: { label: "Full Name", type: "text", legend: "Participant" },
+    participantName: {
+        label: "Full name",
+        type: "text",
+        readOnly: true,
+        defaultValueSource: "name_surname", // Custom flag to handle commonFieldsData merging
+        legend: "Participant"
+    },
     dob: { label: "Date of Birth (DD/MM/YYYY)", type: "date", legend: "Participant" },
     ndisNumber: { label: "NDIS Number", type: "text", legend: "Participant" },
     residentialAddress: { label: "Residential Address", type: "text", legend: "Participant" },
@@ -105,7 +111,7 @@ const FIELD_METADATA: Record<string, any> = {
     contactEmail: { label: "Contact Email", type: "email", legend: "Participant" },
 
     orgName: { label: "Organisation Name", type: "text", readOnly: true },
-    providerNo: { label: "Provider No", type: "text", readOnly: true },
+    providerNo: { label: "Provider Number", type: "text", readOnly: true },
     providerAddress: { label: "Address", type: "text", readOnly: true },
     providerContactEmail: {
         label: "Contact Email",
@@ -116,7 +122,7 @@ const FIELD_METADATA: Record<string, any> = {
             "admin@infinitysupportswa.org",
             "sc@infinitysupportswa.org"
         ],
-        legend: "Participant"
+        legend: "Staff"
     },
     providerContactPhone: {
         label: "Contact Phone Number",
@@ -126,7 +132,7 @@ const FIELD_METADATA: Record<string, any> = {
             "0493282661",
             "0419097777"
         ],
-        legend: "Participant"
+        legend: "Staff"
     },
 
     employeeName: { label: "Full Name", type: "text", legend: "Staff" },
@@ -135,7 +141,7 @@ const FIELD_METADATA: Record<string, any> = {
     employeePhone: { label: "Contact Phone Number", type: "text", legend: "Staff" },
     employeeEmail: { label: "Contact Email", type: "email", legend: "Staff" },
 
-    conflictIdentifiedDate: { label: "Date Conflict of Interest Identified", type: "date", legend: "Participant" },
+    conflictIdentifiedDate: { label: "Date Conflict of Interest Identified", type: "date", legend: "Staff" },
 
     conflictType: {
         label: "1. The conflict of interest has been identified as (Please tick all that apply):",
@@ -146,7 +152,7 @@ const FIELD_METADATA: Record<string, any> = {
             "a perceived conflict of interest – it seems like it has happened or might happen"
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     conflictRelatesTo: {
         label: "2. Indicate who the conflicted relationship relates to (Please tick all that apply):",
@@ -157,7 +163,7 @@ const FIELD_METADATA: Record<string, any> = {
             "a business owner"
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     conflictNature: {
         label: "3. What is the nature of the conflict of interest? (Please tick all that apply):",
@@ -168,19 +174,19 @@ const FIELD_METADATA: Record<string, any> = {
             "Personal. For example, a friend or family member benefits from the arrangement."
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     conflictDescription: {
         label: "4. Describe the conflict of interest including who is involved and the circumstances.",
         type: "textarea",
         rows: 6,
-        legend: "Participant"
+        legend: "Staff"
     },
     participantConcerns: {
         label: "5. Discuss and describe the participant’s concerns using their own words.",
         type: "textarea",
         rows: 6,
-        legend: "Participant"
+        legend: "Staff"
     },
     conflictAvoidable: {
         label: "6. Can the conflict be avoided? (Choose the best answer):",
@@ -193,19 +199,19 @@ const FIELD_METADATA: Record<string, any> = {
             "No, highly specialised services have few accredited providers that operate nationally."
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     conflictRisks: {
         label: "7. Describe the risk or impacts associated with the conflict.",
         type: "textarea",
         rows: 6,
-        legend: "Participant"
+        legend: "Staff"
     },
     alternativeOptions: {
         label: "8. List the alternative options that were explored and offered to the participant.",
         type: "textarea",
         rows: 10,
-        legend: "Participant"
+        legend: "Staff"
     },
     managementAction: {
         label: "9. Describe the management strategy and actions to be taken by the NDIS provider.",
@@ -218,13 +224,13 @@ const FIELD_METADATA: Record<string, any> = {
             "Remove. Conflicted person to be removed from delivering supports and services to participant named in section A."
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     managementPlan: {
         label: "",
         type: "textarea",
         rows: 15,
-        legend: "Participant"
+        legend: "Staff"
     },
     discussedWith: {
         label: "10. The conflict has been discussed with (Please tick all that apply):",
@@ -236,7 +242,7 @@ const FIELD_METADATA: Record<string, any> = {
             "other, please state"
         ],
         singleSelect: false,
-        legend: "Participant"
+        legend: "Staff"
     },
     participantAck: {
         label: "Participant or authorised person - I acknowledge the following:",
@@ -351,8 +357,23 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
     const [maxStep, setMaxStep] = useState(0);
 
     // Store the ORIGINAL formData (saved from DB) to determine workflow stage
-    // This prevents premature stage transitions when user draws signatures but hasn't submitted yet
-    const originalFormDataRef = useRef(formData);
+    // If the form was fully completed (Manager signed), we reset the original data ref as well
+    // so that getWorkflowStage() returns 0 (Start) and unlocks the fields for re-entry.
+    const originalFormDataRef = useRef(
+        formData?.managerSignature
+            ? {
+                ...formData,
+                participantSignature: "",
+                participantSignDate: "",
+                authRepSignature: "",
+                authRepSignDate: "",
+                employeeSignature: "",
+                employeeSignDate: "",
+                managerSignature: "",
+                managerSignDate: ""
+            }
+            : formData
+    );
 
     const [localValues, setLocalValues] = useState<any>({
         ...Object.keys(FIELD_METADATA).reduce((acc, key) => ({ ...acc, [key]: "" }), {}),
@@ -380,6 +401,19 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         })(),
 
         ...formData,
+
+        // If the form was fully completed (indicated by Manager's signature), clear ALL signatures.
+        // This ensures that if a completed form is edited, it must be re-signed by everyone to maintain validity.
+        ...(formData?.managerSignature ? {
+            participantSignature: "",
+            participantSignDate: "",
+            authRepSignature: "",
+            authRepSignDate: "",
+            employeeSignature: "",
+            employeeSignDate: "",
+            managerSignature: "",
+            managerSignDate: ""
+        } : {}),
 
         // Section C: Preserve Conflict Identification defaults if formData is empty
         conflictType: (formData?.conflictType && Array.isArray(formData.conflictType) && formData.conflictType.length > 0)
@@ -615,12 +649,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             return staticRequired;
         }
 
-        if (sectionId === 'providerDetails') {
-            // Stage 0: Staff Start - Provider details are locked and likely pre-filled (or meant to be).
-            // If they are empty, we shouldn't block Staff from proceeding since they can't edit them.
-            if (stage === 0) return [];
-            return staticRequired;
-        }
+
 
         if (sectionId === 'employee_declaration') {
             // Section F Logic
@@ -804,6 +833,27 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                             <span className="text-sm text-gray-700">{option}</span>
                         </label>
                     ))}
+                    {/* Handle "Other" text input */}
+                    {options.some(opt => opt.toLowerCase().includes("other") &&
+                        Array.isArray(localValues[name]) && localValues[name].includes(opt)) && (
+                            <div className="ml-6 mt-1">
+                                <input
+                                    type="text"
+                                    name={`${name}_other`}
+                                    value={localValues[`${name}_other`] || ""}
+                                    onChange={(e) => {
+                                        if (isFieldReadOnly) return;
+                                        const newValues = { ...localValues, [`${name}_other`]: e.target.value };
+                                        setLocalValues(newValues);
+                                        onChange(newValues, name, false);
+                                    }}
+                                    disabled={isFieldReadOnly}
+                                    placeholder="Please state..."
+                                    className={`w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isFieldReadOnly ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+                                        }`}
+                                />
+                            </div>
+                        )}
                 </div>
                 {errorMessage && (
                     <p className="text-xs text-red-500 mt-1">{errorMessage}</p>
@@ -1184,9 +1234,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {FORM_SECTIONS[currentStep].fields.map((field: string) => {
-                            // Conditional Rendering for Participant/Auth Rep Signatures
-                            if (field === 'participantName' || field === 'participantSignature' || field === 'participantSignDate') {
-                                if (localValues.participantSignerType !== 'Participant') return null;
+                            // Conditional Rendering for Participant/Auth Rep Signatures (ONLY in Declaration Section)
+                            if (FORM_SECTIONS[currentStep].id === 'participant_declaration') {
+                                if (field === 'participantName' || field === 'participantSignature' || field === 'participantSignDate') {
+                                    if (localValues.participantSignerType !== 'Participant') return null;
+                                }
                             }
                             if (field === 'authRepName' || field === 'authRepSignature' || field === 'authRepSignDate') {
                                 if (localValues.participantSignerType !== 'Authorised Representative') return null;

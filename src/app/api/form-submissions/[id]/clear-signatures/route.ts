@@ -37,10 +37,11 @@ export async function POST(
     // Assuming there's a unique assignment for this client, form, and version
     const formAssignment = await prisma.formAssignment.findUnique({
       where: {
-        clientId_formId_formVersion: { // Using the unique composite key
+        clientId_formId_formVersion_instanceNumber: {
           clientId: formSubmission.clientId,
           formId: formSubmission.formId,
           formVersion: formSubmission.formVersion,
+          instanceNumber: formSubmission.instanceNumber, // Include instanceNumber
         }
       },
       include: {
@@ -49,10 +50,10 @@ export async function POST(
     });
 
     if (!formAssignment) {
-        return NextResponse.json(
-            { error: 'Related form assignment not found' },
-            { status: 404 }
-        );
+      return NextResponse.json(
+        { error: 'Related form assignment not found' },
+        { status: 404 }
+      );
     }
 
     // Get form configuration to identify signature fields
@@ -65,7 +66,7 @@ export async function POST(
     }
 
     // Parse existing form data (assuming 'data' field is used for form data)
-    let formData : any;
+    let formData: any;
     try {
       formData = formSubmission.data; // Use 'data' field, not 'formData'
     } catch (error) {

@@ -3,14 +3,17 @@ import { prisma } from './prisma';
 /**
  * Get a form submission by ID with related data
  */
-export async function getFormSubmissionById(formId : number, clientId: number, formVersion : number) {
+export async function getFormSubmissionById(formId: number, clientId: number, formVersion: number, instanceNumber: number = 1) {
   try {
     const submission = await prisma.formSubmission.findUnique({
-      where: { clientId_formId_formVersion: {
+      where: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId,
           formId,
-          formVersion
-        }},
+          formVersion,
+          instanceNumber
+        }
+      },
       include: {
         client: true,
         form: true,

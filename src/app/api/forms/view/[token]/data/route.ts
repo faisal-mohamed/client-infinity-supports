@@ -41,11 +41,14 @@ export async function GET(
     //   );
     // }
     // Get existing form submission if any
-    const formSubmission = await prisma.formSubmission.findFirst({
+    const formSubmission = await prisma.formSubmission.findUnique({
       where: {
-        clientId: assignment.clientId,
-        formId: assignment.formId,
-        formVersion: assignment.formVersion,
+        clientId_formId_formVersion_instanceNumber: {
+          clientId: assignment.clientId,
+          formId: assignment.formId,
+          formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
+        },
       },
     });
     // Get next and previous forms in the batch if applicable
@@ -135,10 +138,11 @@ export async function PUT(
     // Update or create form submission
     const formSubmission = await prisma.formSubmission.upsert({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId: assignment.clientId,
           formId: assignment.formId,
           formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
         },
       },
       update: {
@@ -151,6 +155,7 @@ export async function PUT(
         clientId: assignment.clientId,
         formId: assignment.formId,
         formVersion: assignment.formVersion,
+        instanceNumber: assignment.instanceNumber,
         data: body.data,
         isSubmitted: body.isSubmitted || false,
         submittedAt: body.isSubmitted ? new Date() : null,

@@ -12,23 +12,23 @@ interface ContentBlock {
 }
 
 const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings }) => {
-  
+
   const formatDate = (value: string | undefined | null): string => {
     if (!value || typeof value !== 'string') return '';
-    
+
     try {
       const parsed = parseISO(value);
       if (isValid(parsed)) {
         return format(parsed, 'dd-MM-yyyy');
       }
-    } catch (e) {}
-    
+    } catch (e) { }
+
     const matchISO = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (matchISO) {
       const [, yyyy, mm, dd] = matchISO;
       return `${dd}-${mm}-${yyyy}`;
     }
-    
+
     return value;
   };
 
@@ -51,16 +51,16 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
       }
       return '';
     }
-    
+
     const commonFieldMap: Record<string, string> = {
       name: 'name',
       ndisNumber: 'ndis',
       dob: 'dob',
       address: 'street',
     };
-    
+
     const mappedKey = commonFieldMap[key];
-    const rawValue = mappedKey ? commonFieldsData?.[mappedKey] : formData?.[key];
+    const rawValue = formData?.[key] || (mappedKey ? commonFieldsData?.[mappedKey] : undefined);
 
     if (typeof rawValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       return formatDate(rawValue);
@@ -215,8 +215,8 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
                         </label>
                       ))}
                       {comments && (
-                        <div className="mt-1 italic text-xs" style={{ 
-                          wordWrap: 'break-word', 
+                        <div className="mt-1 italic text-xs" style={{
+                          wordWrap: 'break-word',
                           whiteSpace: 'normal',
                           lineHeight: '1.4'
                         }}>
@@ -235,7 +235,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
                   <div className="border border-black no-col" style={{ display: 'table-cell' }}>
                     {value?.toLowerCase() === "no" ? "✔️" : ""}
                   </div>
-                  <div className="border border-black p-2 comments-col text-xs" style={{ 
+                  <div className="border border-black p-2 comments-col text-xs" style={{
                     display: 'table-cell',
                     wordWrap: 'break-word',
                     whiteSpace: 'normal',
@@ -307,7 +307,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
     filledRiskRows.forEach((row) => {
       const issue = getFieldValue(`issue${row}`);
       const control = getFieldValue(`control${row}`);
-      
+
       // Calculate height based on content length
       let rowHeight = 50; // Base height
       if (issue && issue.length > 50) {
@@ -382,18 +382,18 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
         const value = formData?.[block.questionKey];
         const comments = formData?.[block.questionKey + "_comments"] || "";
         let height = 50; // Base row height
-        
+
         // Add height for long comments
         if (comments && comments.length > 0) {
           const lines = Math.ceil(comments.length / 50); // ~50 chars per line
           height += lines * 16; // 16px per line
         }
-        
+
         // Extra height for entry point checkboxes
         if (block.questionKey === 'entryPoint') {
           height += 80;
         }
-        
+
         return Math.max(height, 60); // Minimum 60px
       case 'risk_matrix':
         return 400;
@@ -403,14 +403,14 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
         const issue = getFieldValue(`issue${block.riskRow}`);
         const control = getFieldValue(`control${block.riskRow}`);
         let rowHeight = 50; // Base height
-        
+
         if (issue && issue.length > 50) {
           rowHeight += Math.ceil(issue.length / 50) * 16;
         }
         if (control && control.length > 100) {
           rowHeight += Math.ceil(control.length / 100) * 16;
         }
-        
+
         return Math.max(rowHeight, 60); // Minimum 60px
       case 'signature':
         return 120;
@@ -430,12 +430,12 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
   contentBlocks.forEach((block, index) => {
     const blockHeight = calculateContentHeight(block);
     const totalHeight = blockHeight + (currentPage.length > 0 ? BLOCK_SPACING : 0);
-    
+
     // Check if this block would exceed page height
     const wouldExceed = currentHeight + totalHeight > PAGE_HEIGHT;
-    
+
     console.log(`Block ${index} (${block.type}): height=${blockHeight}, total=${totalHeight}, current=${currentHeight}, wouldExceed=${wouldExceed}`);
-    
+
     // If block doesn't fit and we have content on current page, start new page
     if (wouldExceed && currentPage.length > 0) {
       console.log(`Moving block ${index} to new page`);
@@ -485,18 +485,18 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
           className="object-contain"
         />
       </div>
-      
+
       {/* Fixed spacer after header */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Content Area - overflow hidden to prevent scrolling */}
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
-      
+
       {/* Fixed spacer before footer */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Footer */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || ''}</span>

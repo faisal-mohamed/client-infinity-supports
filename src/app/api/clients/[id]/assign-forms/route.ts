@@ -10,14 +10,14 @@ export async function POST(
     const { id } = await params;
     const clientId = parseInt(id);
     const body = await req.json();
-const { formIds, adminId } = body;
+    const { formIds, adminId } = body;
 
-if (!adminId || isNaN(adminId)) {
-  return NextResponse.json(
-    { error: "Missing or invalid admin ID" },
-    { status: 400 }
-  );
-}
+    if (!adminId || isNaN(adminId)) {
+      return NextResponse.json(
+        { error: "Missing or invalid admin ID" },
+        { status: 400 }
+      );
+    }
 
 
     if (isNaN(clientId)) {
@@ -65,34 +65,31 @@ if (!adminId || isNaN(adminId)) {
       );
     }
 
-    // Check for existing assignments to avoid duplicates
-    const existingAssignments = await prisma.formAssignment.findMany({
-      where: {
-        clientId: clientId,
-        OR: forms.map(form => ({
+    // For each form, calculate the next instance number
+    const formsWithInstances = await Promise.all(forms.map(async (form) => {
+      // Find highest instance number for this form
+      const existingAssignments = await prisma.formAssignment.findMany({
+        where: {
+          clientId: clientId,
           formId: form.id,
           formVersion: form.version,
-        })),
-      },
-      select: {
-        formId: true,
-        formVersion: true,
-      },
-    });
+        },
+        orderBy: {
+          instanceNumber: 'desc',
+        },
+        take: 1,
+      });
 
-    // Filter out forms that are already assigned
-    const newFormsToAssign = forms.filter(form => 
-      !existingAssignments.some(existing => 
-        existing.formId === form.id && existing.formVersion === form.version
-      )
-    );
+      const nextInstanceNumber = (existingAssignments[0]?.instanceNumber || 0) + 1;
 
-    if (newFormsToAssign.length === 0) {
-      return NextResponse.json(
-        { error: "All selected forms are already assigned to this client" },
-        { status: 400 }
-      );
-    }
+      return {
+        ...form,
+        newInstanceNumber: nextInstanceNumber
+      };
+    }));
+
+    const newFormsToAssign = formsWithInstances; // All forms are assignable now as new instances
+
 
     // Generate unique batch token
     const batchToken = randomBytes(32).toString('hex');
@@ -120,8 +117,8 @@ if (!adminId || isNaN(adminId)) {
             formVersion: form.version,
             batchId: formBatch.id,
             displayOrder: index + 1,
-            assignedById: adminId, // ✅ NEW LINE
-
+            assignedById: adminId,
+            instanceNumber: form.newInstanceNumber, // ✅ NEW LINE
           },
         });
       })

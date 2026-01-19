@@ -34,10 +34,10 @@ export default function FormEditPageClient() {
   const router = useRouter();
   const { showToast } = useToast();
   const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
-  
+
   const clientId = parseInt(params.id as string);
   const assignmentId = parseInt(params.assignmentId as string);
-  
+
   const [assignment, setAssignment] = useState<FormAssignmentData | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [commonFieldsData, setCommonFieldsData] = useState<any>({});
@@ -54,11 +54,11 @@ export default function FormEditPageClient() {
   const loadAssignmentData = async () => {
     try {
       setLoading(true);
-      
+
       // Get assignment details and existing submission data
       const response = await fetch(`/api/form-assignments/${assignmentId}`);
       if (!response.ok) throw new Error('Failed to load assignment data');
-      
+
       const data = await response.json();
       console.log('Loaded assignment data:', data);
       console.log('hasSubmission:', data.assignment?.hasSubmission);
@@ -67,7 +67,7 @@ export default function FormEditPageClient() {
       setAssignment(data.assignment);
       setFormData(data.existingData || {});
       setCommonFieldsData(data.commonFields || {});
-      
+
     } catch (error) {
       console.error('Error loading assignment data:', error);
       showToast({
@@ -83,13 +83,13 @@ export default function FormEditPageClient() {
 
   const handleFormChange = (values: any, field?: string, isCommon?: boolean, fullReplace?: boolean) => {
     if (isCommon) {
-      setCommonFieldsData((prev : any)  => ({ ...prev, ...values }));
+      setCommonFieldsData((prev: any) => ({ ...prev, ...values }));
     } else {
       // If fullReplace is true, replace the entire formData instead of merging
       if (fullReplace) {
         setFormData(values);
-    } else {
-      setFormData((prev : any) => ({ ...prev, ...values }));
+      } else {
+        setFormData((prev: any) => ({ ...prev, ...values }));
       }
     }
   };
@@ -113,7 +113,7 @@ export default function FormEditPageClient() {
       });
 
       if (!response.ok) throw new Error('Failed to save form data');
-      
+
       const result = await response.json();
       console.log('Save progress result:', result);
 
@@ -162,7 +162,7 @@ export default function FormEditPageClient() {
       });
 
       if (!response.ok) throw new Error('Failed to save form data');
-      
+
       const result = await response.json();
       console.log('Save for next result:', result);
 
@@ -195,7 +195,7 @@ export default function FormEditPageClient() {
       });
 
       if (!response.ok) throw new Error('Failed to save form data');
-      
+
       const result = await response.json();
       console.log('Save for previous result:', result);
 
@@ -228,7 +228,7 @@ export default function FormEditPageClient() {
       });
 
       if (!response.ok) throw new Error('Failed to submit form');
-      
+
       const result = await response.json();
       console.log('Submit form result:', result);
 
@@ -239,17 +239,17 @@ export default function FormEditPageClient() {
           message: result.message,
           duration: 3000,
         });
-        
+
         // Navigate back to forms list after successful submission
         setTimeout(() => {
           router.push(`/admin/clients/${clientId}/forms`);
         }, 1000);
-        
+
       } else {
         // Submission failed due to missing requirements
         showToast({
           type: 'warning',
-          title: 'Submission Failed',
+          title: result.signatureStatus?.missingSignatures?.length > 0 ? 'Notification' : 'Submission Failed',
           message: result.message,
           duration: 5000,
         });
@@ -280,8 +280,8 @@ export default function FormEditPageClient() {
   // Handle form submission (when submit button is clicked)
   const handleFormSubmit = async (formValues: any) => {
     // Update local state with the latest form values
-    setFormData((prev : any) => ({ ...prev, ...formValues }));
-    
+    setFormData((prev: any) => ({ ...prev, ...formValues }));
+
     // Call save with submit = true
     await handleSave(true);
   };
@@ -295,8 +295,8 @@ export default function FormEditPageClient() {
           <p className="text-gray-600 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
       </div>
@@ -308,7 +308,7 @@ export default function FormEditPageClient() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Not Found</h1>
-          <Link 
+          <Link
             href={`/admin/clients/${clientId}/forms`}
             className="text-indigo-600 hover:text-indigo-800"
           >
@@ -323,11 +323,11 @@ export default function FormEditPageClient() {
   // Block if: form sent via link (filledByAdmin=false) AND staff hasn't submitted their portion yet
   // ONLY for Emergency Drill: check if support worker signature exists - if yes, staff submitted
   const staffHasSubmitted = formData?.supportWorkerSignature || formData?.clientSignature;
-  const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' && 
-                            !assignment.filledByAdmin && 
-                            assignment.hasSubmission && 
-                            !staffHasSubmitted;
-  
+  const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' &&
+    !assignment.filledByAdmin &&
+    assignment.hasSubmission &&
+    !staffHasSubmitted;
+
   if (isWaitingForStaff) {
     // Show modal and block access - signature link sent but staff hasn't submitted
     return (
@@ -336,7 +336,7 @@ export default function FormEditPageClient() {
           <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <Link 
+                <Link
                   href={`/admin/clients/${clientId}/forms`}
                   className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
                 >
@@ -377,7 +377,7 @@ export default function FormEditPageClient() {
           <p className="text-gray-600 mb-4">
             No edit component found for form: {assignment.form.formKey}
           </p>
-          <Link 
+          <Link
             href={`/admin/clients/${clientId}/forms`}
             className="text-indigo-600 hover:text-indigo-800"
           >
@@ -399,7 +399,7 @@ export default function FormEditPageClient() {
         <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Link 
+              <Link
                 href={`/admin/clients/${clientId}/forms`}
                 className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
               >

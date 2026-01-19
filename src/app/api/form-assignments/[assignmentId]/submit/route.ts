@@ -41,7 +41,7 @@ export async function POST(
     });
 
     const adminId = assignment?.assignedBy?.id;
-    
+
     // 🎯 Track previous status to detect admin completing a "pending_admin_review" form
     const previousStatus = assignment?.currentStatus;
 
@@ -81,7 +81,7 @@ export async function POST(
       // Has signature requirements but not all complete
       newStatus = "in_progress"; // Keep as in_progress
       canSubmit = false;
-      submitMessage = `Cannot submit: ${signatureValidation.missingSignatures.length} signature(s) still required`;
+      submitMessage = `${signatureValidation.missingSignatures.length} signature(s) still required`;
     }
 
     console.log(
@@ -94,31 +94,45 @@ export async function POST(
       if (formData.capacityAssessmentRequired !== 'Yes') {
         formData.capacityActions = '';
       }
-      
+
       // Clear assessmentActions1 if additionalAssessment1 is not "Yes"
       if (formData.additionalAssessment1 !== 'Yes') {
         formData.assessmentActions1 = '';
       }
-      
+
       // Clear assessmentActions2 if additionalAssessment2 is not "Yes"
       if (formData.additionalAssessment2 !== 'Yes') {
         formData.assessmentActions2 = '';
       }
     }
 
-    // Update or create FormSubmission
-    const formSubmission = await prisma.formSubmission.upsert({
+    // Check for existing submission to determine if it's an update or create
+    const existingSubmission = await prisma.formSubmission.findUnique({
       where: {
-        clientId_formId_formVersion: {
+        clientId_formId_formVersion_instanceNumber: {
           clientId: assignment.clientId,
           formId: assignment.formId,
           formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
+        },
+      },
+    });
+
+    // Update or create FormSubmission
+    const formSubmission = await prisma.formSubmission.upsert({
+      where: {
+        clientId_formId_formVersion_instanceNumber: {
+          clientId: assignment.clientId,
+          formId: assignment.formId,
+          formVersion: assignment.formVersion,
+          instanceNumber: assignment.instanceNumber,
         },
       },
       create: {
         clientId: assignment.clientId,
         formId: assignment.formId,
         formVersion: assignment.formVersion,
+        instanceNumber: assignment.instanceNumber,
         data: formData,
         filledByAdmin: true,
         adminFilledAt: new Date(),
@@ -206,7 +220,7 @@ export async function POST(
     if (previousStatus === 'pending_admin_review' && newStatus === 'completed') {
       console.log(`🎉 [ADMIN COMPLETED] Admin completed a pending_admin_review form!`);
       console.log(`🎉 [ADMIN COMPLETED] Form: ${assignment.form.title}`);
-      
+
       try {
         // Get client info
         const clientInfo = await prisma.client.findUnique({
@@ -262,7 +276,7 @@ export async function POST(
 
           const emailUrl = `${process.env.NEXTAUTH_URL || req.nextUrl.origin}/api/notifications/send-email/${adminId}`;
           console.log(`📧 [ADMIN COMPLETED] Email URL: ${emailUrl}`);
-          
+
           const emailResponse = await fetch(emailUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -392,10 +406,10 @@ export async function POST(
             `📊 [BATCH CHECK] Batch ${batch.id} status: ${completedAssignments.length}/${allAssignments.length} forms completed`
           );
           console.log(`📊 [BATCH CHECK] Completed form IDs:`, completedAssignments.map(a => a.id));
-          console.log(`📊 [BATCH CHECK] All form statuses:`, allAssignments.map(a => ({ 
-            id: a.id, 
-            title: a.form.title, 
-            status: a.currentStatus 
+          console.log(`📊 [BATCH CHECK] All form statuses:`, allAssignments.map(a => ({
+            id: a.id,
+            title: a.form.title,
+            status: a.currentStatus
           })));
 
           // If all forms in batch are completed, send email
@@ -405,17 +419,25 @@ export async function POST(
           ) {
             console.log(`🎉 [BATCH CHECK] ALL FORMS COMPLETED! Triggering email to admin + client...`);
             console.log(`🎉 [BATCH CHECK] Batch ${batch.id}: ${allAssignments.length} forms all done!`);
-            // console.log(
-            //   `🎉 Batch ${batch.id} is now fully completed! Sending email notification.`
-            // );
+
+            // 🔍 DEBUG LOGS ----------------------------------------------------------------
+            console.log("🔍 [DEBUG] All Assignments in Batch:", allAssignments.map(a => ({
+              id: a.id,
+              formId: a.formId,
+              instanceNumber: a.instanceNumber
+            })));
+            // -----------------------------------------------------------------------------
 
             // Get all completed form submissions for this batch
             const completedFormSubmissions =
               await prisma.formSubmission.findMany({
                 where: {
-                  clientId: batch.clientId,
-                  formId: { in: allAssignments.map((a) => a.formId) },
-                  formVersion: { in: allAssignments.map((a) => a.formVersion) },
+                  OR: allAssignments.map((a) => ({
+                    clientId: batch.clientId,
+                    formId: a.formId,
+                    formVersion: a.formVersion,
+                    instanceNumber: a.instanceNumber,
+                  })),
                   isSubmitted: true,
                 },
                 include: {
@@ -427,6 +449,12 @@ export async function POST(
                   },
                 },
               });
+
+            console.log("🔍 [DEBUG] Fetched Submissions:", completedFormSubmissions.map(s => ({
+              id: s.id,
+              formId: s.formId,
+              instanceNumber: s.instanceNumber
+            })));
 
             // Prepare completed forms data for email ----------------------------------------------
             const completedFormsData = completedFormSubmissions.map(
@@ -442,7 +470,7 @@ export async function POST(
 
             // Check if email was already sent for this batch
             const batchAlreadySent = batch.isCompleted && batch.completedAt;
-            
+
             if (batchAlreadySent) {
               console.log(`⚠️ [BATCH COMPLETE] Batch ${batch.id} was already completed at ${batch.completedAt}`);
               console.log(`⚠️ [BATCH COMPLETE] Email may have already been sent. Skipping duplicate email.`);
@@ -457,11 +485,10 @@ export async function POST(
               formsCount: completedFormsData.length,
               wasAlreadyCompleted: batchAlreadySent
             });
-            
+
             try {
               const emailResponse = await fetch(
-                `${
-                  process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
+                `${process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
                 }/api/notifications/send-email/${adminId}`,
                 {
                   method: "POST",

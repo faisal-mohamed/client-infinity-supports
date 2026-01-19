@@ -5,6 +5,7 @@ export interface FormAssignmentWithDetails {
   formVersion: number;
   assignedAt: string;
   displayOrder: number;
+  instanceNumber: number; // Add instanceNumber
   isCompleted: boolean; // Add this field
   form: {
     id: number;

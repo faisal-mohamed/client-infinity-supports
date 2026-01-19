@@ -9,19 +9,23 @@ datasource db {
 }
 
 model Admin {
-  id                      Int                          @id @default(autoincrement())
-  name                    String
-  email                   String                       @unique(map: "Admin_email_unique")
-  passwordHash            String
-  resetToken              String?
-  resetTokenExpiry        DateTime?
-  createdAt               DateTime                     @default(now())
-  updatedAt               DateTime                     @updatedAt
-  clients                 Client[]
-  logs                    FormActivityLog[]
-  assignedFormAssignments FormAssignment[]             @relation("AssignedForms")
-  notifications           FormSubmissionNotification[]
-  appSettings             AppSettings[]
+  id                          Int                           @id @default(autoincrement())
+  name                        String
+  email                       String                        @unique(map: "Admin_email_unique")
+  passwordHash                String
+  resetToken                  String?
+  resetTokenExpiry            DateTime?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  clients                     Client[]
+  logs                        FormActivityLog[]
+  assignedFormAssignments     FormAssignment[]              @relation("AssignedForms")
+  notifications               FormSubmissionNotification[]
+  Staff                       Staff[]
+  StaffActivityLog            StaffActivityLog[]
+  StaffFormAssignment         StaffFormAssignment[]
+  StaffSubmissionNotification StaffSubmissionNotification[]
+  appSettings                 AppSettings[]
 }
 
 model Client {
@@ -44,17 +48,20 @@ model Client {
 }
 
 model MasterForm {
-  id                Int              @id @default(autoincrement())
-  formKey           String           @unique
-  title             String
-  version           Int
-  schema            Json?
-  requiresSignature Boolean?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  FormAssignment    FormAssignment[]
-  formProgress      FormProgress[]
-  formSubmissions   FormSubmission[]
+  id                  Int                   @id @default(autoincrement())
+  formKey             String                @unique
+  title               String
+  version             Int
+  schema              Json?
+  requiresSignature   Boolean?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  FormAssignment      FormAssignment[]
+  formProgress        FormProgress[]
+  formSubmissions     FormSubmission[]
+  StaffFormAssignment StaffFormAssignment[]
+  StaffFormProgress   StaffFormProgress[]
+  StaffFormSubmission StaffFormSubmission[]
 
   @@unique([formKey, version])
 }
@@ -92,7 +99,9 @@ model FormAssignment {
   client                  Client     @relation(fields: [clientId], references: [id])
   form                    MasterForm @relation(fields: [formId], references: [id])
 
-  @@unique([clientId, formId, formVersion])
+  instanceNumber          Int        @default(1)
+
+  @@unique([clientId, formId, formVersion, instanceNumber])
 }
 
 model FormSubmission {
@@ -113,7 +122,9 @@ model FormSubmission {
   notifications    FormSubmissionNotification[]
   signatureBatches SignatureBatchForm[]
 
-  @@unique([clientId, formId, formVersion])
+  instanceNumber   Int                          @default(1)
+
+  @@unique([clientId, formId, formVersion, instanceNumber])
 }
 
 model FormProgress {
@@ -231,7 +242,7 @@ model Staff {
   id                                Int                                @id @default(autoincrement())
   firstName                         String
   surname                           String
-  email                             String                             @unique
+  email                             String
   phone                             String?
   role                              String?
   status                            String                             @default("pending")
@@ -240,17 +251,27 @@ model Staff {
   linkExpiresAt                     DateTime?
   createdAt                         DateTime                           @default(now())
   updatedAt                         DateTime
+  createdById                       Int?
+  Admin                             Admin?                             @relation(fields: [createdById], references: [id])
+  StaffActivityLog                  StaffActivityLog[]
   StaffBullyingHarassmentTraining   StaffBullyingHarassmentTraining?
   StaffBullyingTraining             StaffBullyingTraining?
+  StaffCommonField                  StaffCommonField?
   StaffConflictOfInterest           StaffConflictOfInterest?
   StaffDocumentationAcknowledgement StaffDocumentationAcknowledgement?
   StaffEmploymentDetails            StaffEmploymentDetails?
   StaffEmploymentWelcomeAck         StaffEmploymentWelcomeAck?
+  StaffFormAssignment               StaffFormAssignment[]
+  StaffFormBatch                    StaffFormBatch[]
+  StaffFormDownload                 StaffFormDownload[]
+  StaffFormProgress                 StaffFormProgress[]
   StaffFormSubmission               StaffFormSubmission[]
   StaffNdisCodeOfConduct            StaffNdisCodeOfConduct?
   StaffNdisWorkforceCapability      StaffNdisWorkforceCapability?
   StaffPreEmploymentMedical         StaffPreEmploymentMedical?
+  StaffSubmissionNotification       StaffSubmissionNotification[]
   StaffSupportWorker                StaffSupportWorker?
+  StaffVehicleSafetyInspection      StaffVehicleSafetyInspection?
 }
 
 model StaffBullyingHarassmentTraining {
@@ -305,6 +326,9 @@ model StaffEmploymentDetails {
   staffSignedAt  DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime
+  status         String?
+  adminSignature String?
+  adminSignedAt  DateTime?
   Staff          Staff     @relation(fields: [staffId], references: [id])
 }
 
@@ -320,14 +344,26 @@ model StaffEmploymentWelcomeAck {
 }
 
 model StaffFormSubmission {
-  id          Int       @id @default(autoincrement())
-  staffId     Int
-  formKey     String
-  data        Json
-  isSubmitted Boolean   @default(false)
-  submittedAt DateTime?
-  updatedAt   DateTime
-  Staff       Staff     @relation(fields: [staffId], references: [id])
+  id                          Int                           @id @default(autoincrement())
+  staffId                     Int
+  formKey                     String?
+  data                        Json
+  isSubmitted                 Boolean                       @default(false)
+  submittedAt                 DateTime?
+  updatedAt                   DateTime
+  adminFilledAt               DateTime?
+  filledByAdmin               Boolean                       @default(false)
+  formId                      Int?
+  formVersion                 Int?
+  staffSignature              String?
+  staffSignedAt               DateTime?
+  adminSignature              String?
+  adminSignedAt               DateTime?
+  createdAt                   DateTime                      @default(now())
+  MasterForm                  MasterForm?                   @relation(fields: [formId], references: [id])
+  Staff                       Staff                         @relation(fields: [staffId], references: [id])
+  StaffSignatureBatchForm     StaffSignatureBatchForm[]
+  StaffSubmissionNotification StaffSubmissionNotification[]
 
   @@unique([staffId, formKey])
 }
@@ -366,6 +402,141 @@ model StaffPreEmploymentMedical {
 }
 
 model StaffSupportWorker {
+  id             Int       @id @default(autoincrement())
+  staffId        Int       @unique
+  data           Json
+  staffSignature String?
+  staffSignedAt  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model StaffActivityLog {
+  id        Int      @id @default(autoincrement())
+  staffId   Int?
+  adminId   Int?
+  logType   LogType
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  Admin     Admin?   @relation(fields: [adminId], references: [id])
+  Staff     Staff?   @relation(fields: [staffId], references: [id])
+
+  @@index([staffId, adminId])
+}
+
+model StaffCommonField {
+  id                    Int      @id @default(autoincrement())
+  staffId               Int      @unique
+  firstName             String?
+  surname               String?
+  email                 String?
+  phone                 String?
+  address               String?
+  suburb                String?
+  state                 String?
+  postcode              String?
+  dob                   String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  tfn                   String?
+  abn                   String?
+  superannuation        String?
+  bankDetails           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime
+  Staff                 Staff    @relation(fields: [staffId], references: [id])
+}
+
+model StaffFormAssignment {
+  id                      Int            @id @default(autoincrement())
+  staffId                 Int
+  formId                  Int
+  formVersion             Int
+  assignedAt              DateTime       @default(now())
+  currentStatus           String         @default("not_started")
+  isCompleted             Boolean        @default(false)
+  isCommonFieldsCompleted Boolean        @default(false)
+  displayOrder            Int            @default(0)
+  batchId                 Int
+  assignedById            Int?
+  Admin                   Admin?         @relation(fields: [assignedById], references: [id])
+  StaffFormBatch          StaffFormBatch @relation(fields: [batchId], references: [id])
+  MasterForm              MasterForm     @relation(fields: [formId], references: [id])
+  Staff                   Staff          @relation(fields: [staffId], references: [id])
+
+  @@unique([staffId, formId, formVersion])
+}
+
+model StaffFormBatch {
+  id                      Int                       @id @default(autoincrement())
+  staffId                 Int
+  batchToken              String                    @unique
+  passcode                String?
+  expiresAt               DateTime
+  createdAt               DateTime                  @default(now())
+  isSignatureOnly         Boolean                   @default(false)
+  isCompleted             Boolean                   @default(false)
+  completedAt             DateTime?
+  adminNotified           Boolean                   @default(false)
+  StaffFormAssignment     StaffFormAssignment[]
+  Staff                   Staff                     @relation(fields: [staffId], references: [id])
+  StaffSignatureBatchForm StaffSignatureBatchForm[]
+}
+
+model StaffFormDownload {
+  id           Int       @id @default(autoincrement())
+  staffId      Int
+  formKey      String
+  downloadedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  Staff        Staff     @relation(fields: [staffId], references: [id])
+
+  @@index([staffId])
+}
+
+model StaffFormProgress {
+  id             Int        @id @default(autoincrement())
+  staffId        Int
+  formId         Int
+  formVersion    Int
+  currentSection String?
+  updatedAt      DateTime
+  MasterForm     MasterForm @relation(fields: [formId], references: [id])
+  Staff          Staff      @relation(fields: [staffId], references: [id])
+
+  @@unique([staffId, formId, formVersion])
+}
+
+model StaffSignatureBatchForm {
+  id                  Int                 @id @default(autoincrement())
+  batchId             Int
+  formSubmissionId    Int
+  createdAt           DateTime            @default(now())
+  StaffFormBatch      StaffFormBatch      @relation(fields: [batchId], references: [id])
+  StaffFormSubmission StaffFormSubmission @relation(fields: [formSubmissionId], references: [id])
+
+  @@unique([batchId, formSubmissionId])
+}
+
+model StaffSubmissionNotification {
+  id                  Int                 @id @default(autoincrement())
+  adminId             Int
+  staffId             Int
+  formSubmissionId    Int
+  isRead              Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  Admin               Admin               @relation(fields: [adminId], references: [id])
+  StaffFormSubmission StaffFormSubmission @relation(fields: [formSubmissionId], references: [id])
+  Staff               Staff               @relation(fields: [staffId], references: [id])
+
+  @@index([adminId, isRead])
+  @@index([createdAt])
+}
+
+model StaffVehicleSafetyInspection {
   id             Int       @id @default(autoincrement())
   staffId        Int       @unique
   data           Json

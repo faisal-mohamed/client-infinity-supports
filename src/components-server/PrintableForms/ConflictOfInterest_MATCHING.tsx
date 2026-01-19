@@ -438,11 +438,11 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         </View>
                         <View style={styles.tableRow}>
                             <View style={styles.tableCellLabel}><Text>Contact phone number</Text></View>
-                            <View style={styles.tableCellValue}><Text>{getFieldValue('providerPhone') || '0493282661'}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('providerContactPhone') || '0493282661'}</Text></View>
                         </View>
                         <View style={styles.tableRowLast}>
                             <View style={styles.tableCellLabel}><Text>Contact email</Text></View>
-                            <View style={styles.tableCellValue}><Text>{getFieldValue('providerEmail') || 'sharon@inifnitysupportswa.org'}</Text></View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('providerContactEmail') || 'sharon@infinitysupportswa.org'}</Text></View>
                         </View>
                     </View>
 
@@ -487,11 +487,11 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>1. The conflict of interest has been identified as:</Text>
                     <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
                     {[
-                        "an actual conflict of interest – it has happened or is happening",
+                        "an actual conflict of interest – it happened or is happening",
                         "a potential conflict of interest – it might happen",
-                        "a perceived conflict of interest – it seems like it has happened or might happen."
+                        "a perceived conflict of interest – it seems like it has happened or might happen"
                     ].map((opt) => {
-                        const isSelected = isOptionSelected('conflictType', opt.split('–')[0]);
+                        const isSelected = isOptionSelected('conflictType', opt);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
                                 <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
@@ -509,7 +509,7 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "a provider or organisation",
                         "a business owner."
                     ].map((opt) => {
-                        const isSelected = isOptionSelected('conflictRelatesTo', opt.split('–')[0]);
+                        const isSelected = isOptionSelected('conflictRelatesTo', opt);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
                                 <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
@@ -529,7 +529,7 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "Business. For example, there are multiple supports and services provided from the same or connected business or organisation.",
                         "Personal. For example, a friend or family member benefits from the arrangement."
                     ].map((opt) => {
-                        const isSelected = isOptionSelected('conflictNature', opt.split('.')[0]);
+                        const isSelected = isOptionSelected('conflictNature', opt);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
                                 <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
@@ -565,20 +565,7 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "No, services require specific cultural and religious choices and practices.",
                         "No, highly specialised services have few accredited providers that operate nationally."
                     ].map((opt) => {
-                        // Use basic option matching or specific logic for Yes/No starts
-                        let isSelected = isOptionSelected('conflictAvoidable', opt);
-                        // Fallback for simple yes/no match if text differs slightly
-                        if (!isSelected && formData?.conflictAvoidable) {
-                            const val = Array.isArray(formData.conflictAvoidable) ? formData.conflictAvoidable[0] : formData.conflictAvoidable;
-                            if (typeof val === 'string') {
-                                if (opt.toLowerCase().startsWith('yes') && val.toLowerCase().startsWith('yes')) isSelected = true;
-                                if (opt.toLowerCase().startsWith('no') && val.toLowerCase().startsWith('no')) isSelected = true;
-                                // But only if they match the specific yes/no option?
-                                // The original logic was loose. Let's stick to isOptionSelected first, which is fuzzy enough.
-                                // If val is "Yes, (outline...)" and opt is "Yes, (outline...)" it matches.
-                            }
-                        }
-
+                        const isSelected = isOptionSelected('conflictAvoidable', opt);
                         return (
                             <View style={styles.checkboxRow} key={opt}>
                                 <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
@@ -645,7 +632,7 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         "Restrict. Limit conflicted person’s involvement in delivering supports and services.",
                         "Remove. Conflicted person to be removed from delivering supports and services to participant named in section A."
                     ].map((opt) => {
-                        const isSelected = isOptionSelected('managementAction', opt.split('.')[0]);
+                        const isSelected = isOptionSelected('managementAction', opt);
                         return (
                             <View style={[styles.checkboxRow, { marginBottom: 6 }]} key={opt}>
                                 <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
@@ -662,21 +649,31 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                             Infinity Supports WA has a clear, structured plan to ensure transparency, independence, and safety when Support Coordination and Service Delivery are provided to the same participant.
                         </Text>
                         <View style={styles.listContainer}>
-                            {[
-                                "Different staff deliver Support Coordination and Direct Supports, maintaining strict role boundaries and avoiding overlap.",
-                                "Support Coordinators do not recommend Infinity Supports WA services unless the participant specifically requests them.",
-                                "Staff maintain separate participant files, supervision structures, and reporting lines to protect impartiality.",
-                                "Participants have direct access to directors (Sharon or Anand) for independent oversight and to raise concerns, along with full contact details for the NDIS Quality and Safeguards Commission.",
-                                "Participants are provided with written information about alternative providers and may change providers at any time. Full support is provided to transition to another provider upon request or during plan renewal.",
-                                "An independent check-in or review may be arranged to ensure the participant’s choices remain free and informed.",
-                                "The conflict is recorded in the Conflict-of-Interest Register, reviewed annually or sooner if circumstances change.",
-                                "All personal information is handled strictly in accordance with Infinity Supports WA’s Privacy and Confidentiality Policy."
-                            ].map((item, idx) => (
-                                <View style={[styles.listItem, { marginBottom: 6 }]} key={idx}>
-                                    <Text style={styles.bulletPoint}>•</Text>
-                                    <Text style={styles.listItemText}>{item}</Text>
-                                </View>
-                            ))}
+                            {(() => {
+                                const planText = getFieldValue('managementPlan');
+                                // If empty, fall back to default text or show nothing? 
+                                // Edit.tsx has a default, so planText should usually be populated.
+                                // Split by newline or bullet point to form list items
+                                const items = planText
+                                    ? planText.split(/\n|•/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+                                    : [
+                                        "Different staff deliver Support Coordination and Direct Supports, maintaining strict role boundaries and avoiding overlap.",
+                                        "Support Coordinators do not recommend Infinity Supports WA services unless the participant specifically requests them.",
+                                        "Staff maintain separate participant files, supervision structures, and reporting lines to protect impartiality.",
+                                        "Participants have direct access to directors (Sharon or Anand) for independent oversight and to raise concerns, along with full contact details for the NDIS Quality and Safeguards Commission.",
+                                        "Participants are provided with written information about alternative providers and may change providers at any time. Full support is provided to transition to another provider upon request or during plan renewal.",
+                                        "An independent check-in or review may be arranged to ensure the participant’s choices remain free and informed.",
+                                        "The conflict is recorded in the Conflict-of-Interest Register, reviewed annually or sooner if circumstances change.",
+                                        "All personal information is handled strictly in accordance with Infinity Supports WA’s Privacy and Confidentiality Policy."
+                                    ];
+
+                                return items.map((item: string, idx: number) => (
+                                    <View style={[styles.listItem, { marginBottom: 6 }]} key={idx}>
+                                        <Text style={styles.bulletPoint}>•</Text>
+                                        <Text style={styles.listItemText}>{item}</Text>
+                                    </View>
+                                ));
+                            })()}
                         </View>
                     </View>
 
@@ -686,9 +683,9 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
                         {[
                             "NDIS participant",
-                            "authorised representative or decision supporter", // Keeping text for now as blank seems wrong, can leave value blank if visually requested
+                            "an authorised representative or decision supporter",
                             "employee",
-                            "other, please state ."
+                            "other, please state"
                         ].map((opt, idx) => {
                             const isSelected = isOptionSelected('discussedWith', opt);
 
@@ -697,7 +694,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                                     <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
                                         {isSelected && <Text style={styles.checkMark}>X</Text>}
                                     </View>
-                                    <Text style={{ fontSize: 10 }}>{opt}</Text>
+                                    <Text style={{ fontSize: 10 }}>
+                                        {opt}
+                                        {isSelected && opt.toLowerCase().includes("other") && getFieldValue('discussedWith_other') ? ` - ${getFieldValue('discussedWith_other')}` : ''}
+                                    </Text>
                                 </View>
                             )
                         })}
@@ -823,18 +823,12 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         )
                     })}
 
-                    <View style={{ marginLeft: 30 }}>
+                    <View style={{ marginLeft: 30, marginBottom: 15 }}>
                         <View style={[styles.checkboxRow, { marginBottom: 5 }]}>
-                            <View style={[styles.checkboxBox, isOptionSelected('reviewPeriod', 'within 6 months') ? styles.checkboxChecked : {}]}>
-                                {isOptionSelected('reviewPeriod', 'within 6 months') && <Text style={styles.checkMark}>X</Text>}
+                            <View style={[styles.checkboxBox, styles.checkboxChecked]}>
+                                <Text style={styles.checkMark}>X</Text>
                             </View>
-                            <Text style={{ fontSize: 10 }}>within 6 months</Text>
-                        </View>
-                        <View style={[styles.checkboxRow, { marginBottom: 5 }]}>
-                            <View style={[styles.checkboxBox, isOptionSelected('reviewPeriod', 'within 12 months') ? styles.checkboxChecked : {}]}>
-                                {isOptionSelected('reviewPeriod', 'within 12 months') && <Text style={styles.checkMark}>X</Text>}
-                            </View>
-                            <Text style={{ fontSize: 10 }}>within 12 months</Text>
+                            <Text style={{ fontSize: 10 }}>{getFieldValue('reviewPeriod')}</Text>
                         </View>
                     </View>
 
