@@ -357,8 +357,23 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
     const [maxStep, setMaxStep] = useState(0);
 
     // Store the ORIGINAL formData (saved from DB) to determine workflow stage
-    // This prevents premature stage transitions when user draws signatures but hasn't submitted yet
-    const originalFormDataRef = useRef(formData);
+    // If the form was fully completed (Manager signed), we reset the original data ref as well
+    // so that getWorkflowStage() returns 0 (Start) and unlocks the fields for re-entry.
+    const originalFormDataRef = useRef(
+        formData?.managerSignature
+            ? {
+                ...formData,
+                participantSignature: "",
+                participantSignDate: "",
+                authRepSignature: "",
+                authRepSignDate: "",
+                employeeSignature: "",
+                employeeSignDate: "",
+                managerSignature: "",
+                managerSignDate: ""
+            }
+            : formData
+    );
 
     const [localValues, setLocalValues] = useState<any>({
         ...Object.keys(FIELD_METADATA).reduce((acc, key) => ({ ...acc, [key]: "" }), {}),
@@ -386,6 +401,19 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         })(),
 
         ...formData,
+
+        // If the form was fully completed (indicated by Manager's signature), clear ALL signatures.
+        // This ensures that if a completed form is edited, it must be re-signed by everyone to maintain validity.
+        ...(formData?.managerSignature ? {
+            participantSignature: "",
+            participantSignDate: "",
+            authRepSignature: "",
+            authRepSignDate: "",
+            employeeSignature: "",
+            employeeSignDate: "",
+            managerSignature: "",
+            managerSignDate: ""
+        } : {}),
 
         // Section C: Preserve Conflict Identification defaults if formData is empty
         conflictType: (formData?.conflictType && Array.isArray(formData.conflictType) && formData.conflictType.length > 0)
