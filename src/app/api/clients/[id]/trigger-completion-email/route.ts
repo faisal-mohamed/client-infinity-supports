@@ -87,10 +87,11 @@ export async function POST(
       completedAssignments.map(async (assignment) => {
         const submission = await prisma.formSubmission.findUnique({
           where: {
-            clientId_formId_formVersion: {
+            clientId_formId_formVersion_instanceNumber: {
               clientId: assignment.clientId,
               formId: assignment.formId,
               formVersion: assignment.formVersion,
+              instanceNumber: assignment.instanceNumber,
             },
           },
           include: {

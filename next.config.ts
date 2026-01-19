@@ -44,12 +44,12 @@ const nextConfig: NextConfig = {
         canvas: 'canvas',
       });
     }
-    
+
     // Ignore canvas module warnings
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias.canvas = false;
-    
+    // config.resolve.alias.canvas = false;
+
     return config;
   },
 };
