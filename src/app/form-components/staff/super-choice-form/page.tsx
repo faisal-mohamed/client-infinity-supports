@@ -238,7 +238,7 @@ const Checkbox = ({
     type="checkbox"
     checked={checked}
     onChange={(e) => onChange(e.target.checked)}
-    className="absolute"
+    className="absolute x-mark"
     style={{ 
       top, 
       left, 

@@ -465,7 +465,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                 type="checkbox"
                                         checked={data[item.key] === true}
                                         onChange={() => handleChange(item.key, true)}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                         title={`${item.label} - Yes`}
                               />
                                       <span className="text-sm text-gray-700">Yes</span>
@@ -477,7 +477,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                 type="checkbox"
                                         checked={data[item.key] === false}
                                         onChange={() => handleChange(item.key, false)}
-                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                         title={`${item.label} - No`}
                               />
                                       <span className="text-sm text-gray-700">No</span>
@@ -658,7 +658,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[key] === true}
                                       onChange={() => handleChange(key, true)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${question} - Yes`}
                                     />
                                   </td>
@@ -667,7 +667,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[key] === false}
                                       onChange={() => handleChange(key, false)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${question} - No`}
                                     />
                                   </td>
@@ -724,7 +724,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[key] === true}
                                       onChange={() => handleChange(key, true)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${condition} - Yes`}
                                     />
                                   </td>
@@ -733,7 +733,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[key] === false}
                                       onChange={() => handleChange(key, false)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${condition} - No`}
                                     />
                                   </td>
@@ -776,7 +776,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[item.key] === true}
                                       onChange={() => handleChange(item.key, true)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${item.label} - Yes`}
                                     />
                                   </td>
@@ -785,7 +785,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                       checked={data[item.key] === false}
                                       onChange={() => handleChange(item.key, false)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                       title={`${item.label} - No`}
                                     />
                                   </td>
@@ -843,7 +843,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                     checked={data[item.key] === true}
                                     onChange={() => handleChange(item.key, true)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                     title={`${item.question} - Yes`}
                                     />
                                   </td>
@@ -852,7 +852,7 @@ export default forwardRef<PreEmploymentMedicalFormRef, { token: string; onValidi
                                       type="checkbox"
                                     checked={data[item.key] === false}
                                     onChange={() => handleChange(item.key, false)}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
                                     title={`${item.question} - No`}
                                     />
                                   </td>
@@ -960,7 +960,7 @@ function ConsentCheckbox({ label, value, onChange }: { label: string; value: boo
             type="checkbox"
             checked={value === true}
             onChange={() => onChange(true)}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
           />
           Yes
         </label>
@@ -969,7 +969,7 @@ function ConsentCheckbox({ label, value, onChange }: { label: string; value: boo
             type="checkbox"
             checked={value === false}
             onChange={() => onChange(false)}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="w-4 h-4 x-mark border-gray-300 rounded focus:ring-blue-500"
           />
           No
         </label>

@@ -116,12 +116,21 @@ function generateTaxFormHTML(data: any): string {
           background: white; margin: 0;
         }
         .checkbox { 
-          width: 16px; height: 16px; border: 1px solid #666;
+          width: 16px; height: 16px; border: 1px solid #2563eb;
           background: white; position: relative;
         }
         .checkbox.checked::after {
-          content: '✔'; position: absolute; top: 50%; left: 50%;
-          transform: translate(-50%, -50%); font-size: 14px;
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 12px;
+          height: 12px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3 L21 21 M21 3 L3 21' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
         }
         .signature-img {
           position: absolute;
@@ -306,15 +315,17 @@ function generateABNBoxes(value: string, top: number, left: number): string {
 }
 
 function generateRadioBoxes(value: string, top: number, yesLeft: number, noLeft: number): string {
+  const boxSize = 20;
   return `
-    <div class="checkbox ${value === 'yes' ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${yesLeft}px;"></div>
-    <div class="checkbox ${value === 'no' ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${noLeft}px;"></div>
+    <div class="checkbox ${value === 'yes' ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${yesLeft}px; width: ${boxSize}px; height: ${boxSize}px;"></div>
+    <div class="checkbox ${value === 'no' ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${noLeft}px; width: ${boxSize}px; height: ${boxSize}px;"></div>
   `;
 }
 
 function generateMultiRadioBoxes(value: string, top: number, positions: number[]): string {
   const options = ['opt1', 'opt2', 'opt3', 'opt4', 'opt5'];
+  const boxSize = 19;
   return positions.map((left, i) => 
-    `<div class="checkbox ${value === options[i] ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${left}px;"></div>`
+    `<div class="checkbox ${value === options[i] ? 'checked' : ''}" style="position: absolute; top: ${top}px; left: ${left}px; width: ${boxSize}px; height: ${boxSize}px;"></div>`
   ).join('');
 }

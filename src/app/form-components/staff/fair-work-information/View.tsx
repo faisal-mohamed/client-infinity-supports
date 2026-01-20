@@ -249,7 +249,7 @@ export default function FairWorkInformationView({
                   type="checkbox"
                   checked={derivedAcknowledged}
                   readOnly
-                  className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 cursor-default"
+                  className="mt-1 w-5 h-5 rounded border-gray-300 cursor-default x-mark"
                 />
                 <label
                   htmlFor="fairworkAcknowledgementReadonly"
@@ -344,7 +344,7 @@ export default function FairWorkInformationView({
                     "fairworkAcknowledged",
                   ])
                 }
-                className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300"
+                className="mt-1 w-5 h-5 rounded border-gray-300 x-mark"
               />
               <label
                 htmlFor="fairworkAcknowledgementEditable"

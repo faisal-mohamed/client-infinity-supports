@@ -207,7 +207,7 @@ function BullyingHarassmentTrainingAckForm({ token, onValidityChange, onSubmitte
             id="readAcknowledgement"
             checked={data.readAcknowledgement}
             onChange={(e) => handleChange('readAcknowledgement', e.target.checked)}
-            className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer"
+            className="mt-1 w-5 h-5 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer x-mark"
           />
           <label htmlFor="readAcknowledgement" className="text-gray-700 cursor-pointer">
             I acknowledge that I have read and understood the Bullying & Harassment Training materials and agree to comply with the policies and procedures outlined.

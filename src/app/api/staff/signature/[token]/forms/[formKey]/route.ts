@@ -558,9 +558,26 @@ export async function POST(
       const { employeeSignature, employeeDate, ...restData } = data;
       formData = restData;
       if (employeeSignature) {
+        // Parse the date safely to avoid Prisma errors with malformed dates
+        let parsedDate: Date | null = null;
+        if (employeeDate) {
+          if (typeof employeeDate === 'string') {
+            // Skip if it's the string "Invalid Date" or contains invalid patterns
+            if (employeeDate !== 'Invalid Date' && 
+                !employeeDate.toLowerCase().includes('invalid') &&
+                !employeeDate.match(/^\+?\d{6,}/)) { // Skip malformed dates like "+020003-08-08"
+              const dateObj = new Date(employeeDate);
+              if (!isNaN(dateObj.getTime())) {
+                parsedDate = dateObj;
+              }
+            }
+          } else if (employeeDate instanceof Date) {
+            parsedDate = isNaN(employeeDate.getTime()) ? null : employeeDate;
+          }
+        }
         signatureData = {
           staffSignature: employeeSignature,
-          staffSignedAt: employeeDate ? new Date(employeeDate) : new Date()
+          staffSignedAt: parsedDate || new Date()
         };
       }
     } else if (!shouldClearSignature && formKey === 'fair_work_information') {

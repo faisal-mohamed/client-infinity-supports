@@ -329,13 +329,13 @@ export default function BullyingHarassmentTrainingView({
 
             <div className="space-y-6 text-[11pt]">
               <div className="flex items-start gap-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
-                <input
-                  id="readAcknowledgementReadonly"
-                  type="checkbox"
-                  checked={!!derivedAcknowledged}
-                  readOnly
-                  className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 cursor-default"
-                />
+              <input
+                id="readAcknowledgementReadonly"
+                type="checkbox"
+                checked={!!derivedAcknowledged}
+                readOnly
+                className="mt-1 w-5 h-5 rounded border-gray-300 cursor-default x-mark"
+              />
                 <label htmlFor="readAcknowledgementReadonly" className="leading-relaxed">
                   <strong>I acknowledge that:</strong>
                   <br />• I have completed the Bullying & Harassment Training
@@ -416,7 +416,7 @@ export default function BullyingHarassmentTrainingView({
                 onChange={(e) =>
                   handleInputChange('readAcknowledgement', e.target.checked, ['acknowledged'])
                 }
-                className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300"
+                className="mt-1 w-5 h-5 rounded border-gray-300 x-mark"
               />
               <label htmlFor="readAcknowledgementEditable" className="leading-relaxed">
                 <strong>I acknowledge that:</strong>

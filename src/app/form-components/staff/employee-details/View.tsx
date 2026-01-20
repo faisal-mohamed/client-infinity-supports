@@ -187,11 +187,11 @@ export default function EmployeeDetailsView({
                   <span className="text-xs font-medium text-gray-700 mr-4">Are you an Australian citizen?</span>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === true} readOnly className="w-4 h-4 border-gray-400" />
+                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === true} readOnly className="w-4 h-4 x-mark" />
                       <span className="text-xs">Yes</span>
                     </label>
                     <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === false} readOnly className="w-4 h-4 border-gray-400" />
+                      <input type="checkbox" checked={data?.data?.isAustralianCitizen === false} readOnly className="w-4 h-4 x-mark" />
                       <span className="text-xs">No</span>
                     </label>
                   </div>
@@ -203,11 +203,11 @@ export default function EmployeeDetailsView({
                     <span className="text-xs font-medium text-gray-700 mr-4">- Are you a permanent resident?</span>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.data?.isPermanentResident === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.isPermanentResident === true} readOnly className="w-4 h-4 x-mark" />
                         <span className="text-xs">Yes</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.data?.isPermanentResident === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.isPermanentResident === false} readOnly className="w-4 h-4 x-mark" />
                         <span className="text-xs">No</span>
                       </label>
                     </div>
@@ -217,11 +217,11 @@ export default function EmployeeDetailsView({
                     <span className="text-xs font-medium text-gray-700">- Do you have a Working Visa?</span>
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === true} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === true} readOnly className="w-4 h-4 x-mark" />
                         <span className="text-xs">Yes</span>
                       </label>
                       <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === false} readOnly className="w-4 h-4 border-gray-400" />
+                        <input type="checkbox" checked={data?.data?.hasWorkingVisa === false} readOnly className="w-4 h-4 x-mark" />
                         <span className="text-xs">No</span>
                       </label>
                     </div>
@@ -285,34 +285,49 @@ export default function EmployeeDetailsView({
                         <div className="space-y-2">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
-                              type="radio"
+                              type="checkbox"
                               name="employmentStatus"
                               value="FullTime"
                               checked={adminFormData.employmentStatus === 'FullTime'}
-                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
+                              onChange={(e) =>
+                                setAdminFormData({
+                                  ...adminFormData,
+                                  employmentStatus: e.target.checked ? 'FullTime' : '',
+                                })
+                              }
+                              className="w-4 h-4 x-mark"
                             />
                             <span className="text-xs">Full time</span>
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
-                              type="radio"
+                              type="checkbox"
                               name="employmentStatus"
                               value="PartTime"
                               checked={adminFormData.employmentStatus === 'PartTime'}
-                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
+                              onChange={(e) =>
+                                setAdminFormData({
+                                  ...adminFormData,
+                                  employmentStatus: e.target.checked ? 'PartTime' : '',
+                                })
+                              }
+                              className="w-4 h-4 x-mark"
                             />
                             <span className="text-xs">Part time</span>
                           </label>
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
-                              type="radio"
+                              type="checkbox"
                               name="employmentStatus"
                               value="Casual"
                               checked={adminFormData.employmentStatus === 'Casual'}
-                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
+                              onChange={(e) =>
+                                setAdminFormData({
+                                  ...adminFormData,
+                                  employmentStatus: e.target.checked ? 'Casual' : '',
+                                })
+                              }
+                              className="w-4 h-4 x-mark"
                             />
                             <span className="text-xs">Casual</span>
                           </label>
@@ -382,15 +397,15 @@ export default function EmployeeDetailsView({
                       <div className="text-xs font-medium text-gray-700 mb-2">Status:</div>
                       <div className="space-y-2">
                         <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={data?.data?.employmentStatus === 'FullTime'} readOnly className="w-4 h-4 border-gray-400" />
+                          <input type="checkbox" checked={data?.data?.employmentStatus === 'FullTime'} readOnly className="w-4 h-4 x-mark" />
                           <span className="text-xs">Full time</span>
                         </label>
                         <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={data?.data?.employmentStatus === 'PartTime'} readOnly className="w-4 h-4 border-gray-400" />
+                          <input type="checkbox" checked={data?.data?.employmentStatus === 'PartTime'} readOnly className="w-4 h-4 x-mark" />
                           <span className="text-xs">Part time</span>
                         </label>
                         <label className="flex items-center gap-2">
-                          <input type="checkbox" checked={data?.data?.employmentStatus === 'Casual'} readOnly className="w-4 h-4 border-gray-400" />
+                          <input type="checkbox" checked={data?.data?.employmentStatus === 'Casual'} readOnly className="w-4 h-4 x-mark" />
                           <span className="text-xs">Casual</span>
                         </label>
                       </div>

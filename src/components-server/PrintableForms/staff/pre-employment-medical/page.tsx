@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer';
+import PdfCheckbox from '../shared/PdfCheckbox';
 
 const styles = StyleSheet.create({
   page: {
@@ -149,23 +150,10 @@ const styles = StyleSheet.create({
     flex: 4,
     wrap: true,
   },
-  checkbox: {
+  checkboxWrapper: {
+    marginRight: 4,
     width: 10,
     height: 10,
-    border: '1 solid #000000',
-    marginRight: 4,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    width: 10,
-    height: 10,
-    border: '1 solid #000000',
-    marginRight: 4,
-    backgroundColor: '#87ceeb',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   textArea: {
     fontSize: 9,
@@ -318,9 +306,9 @@ const PreEmploymentMedicalPDF: React.FC<PreEmploymentMedicalPDFProps> = ({
   const renderCheckboxWithLabel = (checked: boolean | null, label: string) => {
     return (
       <View style={styles.tableCellYesNo}>
-        <View style={checked ? styles.checkboxChecked : styles.checkbox}>
-          {checked && <Text style={{ fontSize: 7 }}>✓</Text>}
-      </View>
+        <View style={styles.checkboxWrapper}>
+          <PdfCheckbox checked={!!checked} size={10} mark="X" />
+        </View>
         <Text style={{ fontSize: 8, marginLeft: 2 }}>{label}</Text>
       </View>
     );

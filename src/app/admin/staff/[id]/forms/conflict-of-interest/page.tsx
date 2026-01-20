@@ -267,6 +267,21 @@ export default function AdminConflictOfInterestViewPage() {
 
   const handleAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!adminFormData.reviewedBy?.trim() || 
+        !adminFormData.reviewerTitle?.trim() || 
+        !adminFormData.reviewerSignature ||
+        !adminFormData.hrDecision) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please fill all required fields: Reviewed By, Reviewer Title, HR Decision, and Reviewer Signature',
+        duration: 5000,
+      });
+      return;
+    }
+    
     setSaving(true);
     try {
       const response = await fetch(`/api/staff/${staffId}/forms/conflict-of-interest/admin`, {
@@ -516,37 +531,49 @@ export default function AdminConflictOfInterestViewPage() {
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio"
-                      name="hrDecision"
-                      value="noConflict"
+                      type="checkbox"
                       checked={adminFormData.hrDecision === 'noConflict'}
-                      onChange={(e) => setAdminFormData({...adminFormData, hrDecision: e.target.value as any})}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      required
+                      onChange={(e) => {
+                        // Single-select behavior: when checking, set to this value (others will auto-uncheck)
+                        // When unchecking, clear the value
+                        setAdminFormData({
+                          ...adminFormData, 
+                          hrDecision: e.target.checked ? 'noConflict' : '' as any
+                        });
+                      }}
+                      className="w-4 h-4 x-mark"
                     />
                     <span className="text-sm">No conflict found</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio"
-                      name="hrDecision"
-                      value="mitigation"
+                      type="checkbox"
                       checked={adminFormData.hrDecision === 'mitigation'}
-                      onChange={(e) => setAdminFormData({...adminFormData, hrDecision: e.target.value as any})}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      required
+                      onChange={(e) => {
+                        // Single-select behavior: when checking, set to this value (others will auto-uncheck)
+                        // When unchecking, clear the value
+                        setAdminFormData({
+                          ...adminFormData, 
+                          hrDecision: e.target.checked ? 'mitigation' : '' as any
+                        });
+                      }}
+                      className="w-4 h-4 x-mark"
                     />
                     <span className="text-sm">Conflict identified and mitigation plan implemented</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio"
-                      name="hrDecision"
-                      value="furtherReview"
+                      type="checkbox"
                       checked={adminFormData.hrDecision === 'furtherReview'}
-                      onChange={(e) => setAdminFormData({...adminFormData, hrDecision: e.target.value as any})}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      required
+                      onChange={(e) => {
+                        // Single-select behavior: when checking, set to this value (others will auto-uncheck)
+                        // When unchecking, clear the value
+                        setAdminFormData({
+                          ...adminFormData, 
+                          hrDecision: e.target.checked ? 'furtherReview' : '' as any
+                        });
+                      }}
+                      className="w-4 h-4 x-mark"
                     />
                     <span className="text-sm">Further review required</span>
                   </label>

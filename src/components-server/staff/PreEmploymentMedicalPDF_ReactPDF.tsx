@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Svg, Rect, Path } from '@react-pdf/renderer';
 import BasePDFLayout, { PDFMeta } from '@/components-server/pdf/layout/BasePDFLayout';
 import PDFSignatureBlock from '@/components-server/pdf/elements/PDFSignatureBlock';
+import PdfCheckbox from '../PrintableForms/staff/shared/PdfCheckbox';
 
 interface PreEmploymentMedicalPDFProps {
   data: any;
@@ -351,31 +352,10 @@ const renderDeclaration = (formData: any, signature?: string | null, signedAt?: 
   </View>
 );
 
-// SVG-based tick mark for Yes/No indicators in table cells
+// X-mark checkbox for Yes/No indicators in table cells
 const renderYesNoIndicator = (selected: boolean) => (
   <View style={styles.checkboxContainer}>
-    <Svg width={12} height={12} style={styles.checkboxSvg}>
-      <Rect
-        x={0.5}
-        y={0.5}
-        width={11}
-        height={11}
-        rx={2}
-        ry={2}
-        stroke="#1d4ed8"
-        strokeWidth={1}
-        fill={selected ? '#1d4ed8' : '#ffffff'}
-      />
-      {selected && (
-        <Path
-          d="M3 6.3 L5.2 8.5 L9 3.8"
-          stroke="#ffffff"
-          strokeWidth={1.4}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      )}
-    </Svg>
+    <PdfCheckbox checked={selected} size={12} mark="X" />
   </View>
 );
 

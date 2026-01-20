@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer';
+import PdfCheckbox from '../shared/PdfCheckbox';
 
 const styles = StyleSheet.create({
   title: {
@@ -47,6 +48,34 @@ const styles = StyleSheet.create({
     maxHeight: 50,
     objectFit: 'contain',
   },
+  ackContainer: {
+    marginTop: 24,
+    marginBottom: 24,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+  },
+  ackRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkboxWrapper: {
+    marginTop: 4,
+    width: 20,
+    height: 20,
+  },
+  ackLabel: {
+    fontSize: 11,
+    lineHeight: 1.5,
+    color: '#1f2937',
+    flex: 1,
+  },
+  ackBold: {
+    fontWeight: 700,
+  },
 });
 
 interface Page37Props {
@@ -56,6 +85,25 @@ interface Page37Props {
 }
 
 const Page37: React.FC<Page37Props> = ({ data = {}, staff = {}, showBlankForm = false }) => {
+  // Extract readAcknowledgement value - handle various formats and nested data structures
+  const formData = data?.data || data || {};
+  const readAcknowledgement = (() => {
+    // Check both data.readAcknowledgement and data.data.readAcknowledgement
+    const value = data.readAcknowledgement || formData.readAcknowledgement;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true' || value.toLowerCase() === 'yes';
+    }
+    return false;
+  })();
+  
+  console.log('[Page37] Data received:', {
+    hasData: !!data,
+    dataKeys: Object.keys(data || {}),
+    readAcknowledgement,
+    formDataKeys: Object.keys(formData || {}),
+  });
+
   return (
     <View>
       <Text style={styles.title}>Employee Handbook Acknowledgement Form</Text>
@@ -69,6 +117,23 @@ const Page37: React.FC<Page37Props> = ({ data = {}, staff = {}, showBlankForm = 
         A printed version of this handbook is also available. If you would like a printed version, 
         please contact us.
       </Text>
+
+      {/* Acknowledgement checkbox section - Always show when not blank form */}
+      {!showBlankForm && (
+        <View style={styles.ackContainer}>
+          <View style={styles.ackRow}>
+            <View style={styles.checkboxWrapper}>
+              <PdfCheckbox checked={readAcknowledgement} size={20} mark="X" />
+            </View>
+            <Text style={styles.ackLabel}>
+              <Text style={styles.ackBold}>I acknowledge that:</Text>
+              {'\n'}• I have received the Employee Handbook from Infinity Supports
+              {'\n'}• I have read and understood the content
+              {'\n'}• I agree to comply with all policies and procedures outlined in the handbook
+            </Text>
+          </View>
+        </View>
+      )}
 
       {/* Name field with dotted line */}
       <View style={styles.fieldRow}>

@@ -129,27 +129,39 @@ export default function ConflictOfInterestEdit({
   ) => {
     return (
       <div className="flex gap-6">
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
-            type="radio"
-            name={field}
-            value="yes"
+            type="checkbox"
             checked={value === 'yes'}
-            onChange={() => handleInputChange(field, 'yes')}
+            onChange={(e) => {
+              // Single-select behavior: if checking 'yes', set to 'yes' (this will automatically uncheck 'no' since only one can be true)
+              // If unchecking, clear the value
+              if (e.target.checked) {
+                handleInputChange(field, 'yes');
+              } else {
+                handleInputChange(field, '');
+              }
+            }}
             disabled={readOnly}
-            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+            className="w-4 h-4 x-mark"
           />
           <span>{yesLabel}</span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
-            type="radio"
-            name={field}
-            value="no"
+            type="checkbox"
             checked={value === 'no'}
-            onChange={() => handleInputChange(field, 'no')}
+            onChange={(e) => {
+              // Single-select behavior: if checking 'no', set to 'no' (this will automatically uncheck 'yes' since only one can be true)
+              // If unchecking, clear the value
+              if (e.target.checked) {
+                handleInputChange(field, 'no');
+              } else {
+                handleInputChange(field, '');
+              }
+            }}
             disabled={readOnly}
-            className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+            className="w-4 h-4 x-mark"
           />
           <span>{noLabel}</span>
         </label>
@@ -205,15 +217,21 @@ export default function ConflictOfInterestEdit({
     currentValue: string
   ) => {
     return (
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 cursor-pointer">
         <input
-          type="radio"
-          name={field}
-          value={value}
+          type="checkbox"
           checked={currentValue === value}
-          onChange={(e) => handleInputChange(field, e.target.value as any)}
+          onChange={(e) => {
+            // Single-select behavior: if checking, set to this value
+            // If unchecking, clear the value
+            if (e.target.checked) {
+              handleInputChange(field, value as any);
+            } else {
+              handleInputChange(field, '' as any);
+            }
+          }}
           disabled={readOnly}
-          className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"
+          className="w-4 h-4 x-mark"
         />
         <span>{label}</span>
       </label>
@@ -467,28 +485,28 @@ export default function ConflictOfInterestEdit({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <input
-                      type="radio"
+                      type="checkbox"
                       checked={formData.hrDecision === 'noConflict'}
                       readOnly
-                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
+                      className="w-4 h-4 x-mark cursor-not-allowed"
                     />
                     <span className="text-gray-500">No conflict found</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
-                      type="radio"
+                      type="checkbox"
                       checked={formData.hrDecision === 'mitigation'}
                       readOnly
-                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
+                      className="w-4 h-4 x-mark cursor-not-allowed"
                     />
                     <span className="text-gray-500">Conflict identified and mitigation plan implemented</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
-                      type="radio"
+                      type="checkbox"
                       checked={formData.hrDecision === 'furtherReview'}
                       readOnly
-                      className="w-4 h-4 text-blue-600 border-gray-300 cursor-not-allowed"
+                      className="w-4 h-4 x-mark cursor-not-allowed"
                     />
                     <span className="text-gray-500">Further review required</span>
                   </div>

@@ -440,7 +440,7 @@ export default function EmployeeWelcomeFormPage() {
                   type="checkbox"
                   checked={formData.readAcknowledgement}
                   onChange={(e) => handleChange('readAcknowledgement', e.target.checked)}
-                  className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                  className="mt-1 w-5 h-5 x-mark rounded border-gray-300 focus:ring-blue-500 focus:ring-2 cursor-pointer"
                 />
                 <label htmlFor="readAcknowledgement" className="text-[11pt] leading-relaxed">
                   <strong>I acknowledge that:</strong><br />

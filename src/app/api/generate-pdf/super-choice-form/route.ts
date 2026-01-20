@@ -135,12 +135,21 @@ function generateSuperChoiceFormHTML(data: any): string {
           color: black;
         }
         .checkbox { 
-          width: 20px; height: 20px; border: 1px solid #666;
+          width: 20px; height: 20px; border: 1px solid #2563eb;
           background: white; position: relative;
         }
         .checkbox.checked::after {
-          content: '✔'; position: absolute; top: 50%; left: 50%;
-          transform: translate(-50%, -50%); font-size: 16px;
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 14px;
+          height: 14px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 3 L21 21 M21 3 L3 21' stroke='%232563eb' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
         }
         .signature-img {
           position: absolute;

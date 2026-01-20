@@ -43,16 +43,23 @@ export const CheckboxItem: React.FC<{ checked: boolean; label: string }> = ({ ch
         ry={2}
         stroke="#1d4ed8"
         strokeWidth={1}
-        fill={checked ? '#1d4ed8' : '#ffffff'}
+        fill="#ffffff"
       />
       {checked && (
-        <Path
-          d="M3 6.3 L5.2 8.5 L9 3.8"
-          stroke="#ffffff"
-          strokeWidth={1.4}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <>
+          <Path
+            d="M3 3 L9 9"
+            stroke="#1d4ed8"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+          />
+          <Path
+            d="M9 3 L3 9"
+            stroke="#1d4ed8"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+          />
+        </>
       )}
     </Svg>
     <Text style={styles.optionLabel}>{label}</Text>

@@ -144,13 +144,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent1 === 'yes' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent1 === 'yes'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">Yes</span>
                               </div>
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent1 === 'no' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent1 === 'no'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">No</span>
                               </div>
                             </td>
@@ -161,13 +171,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent2 === 'yes' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent2 === 'yes'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">Yes</span>
                               </div>
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent2 === 'no' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent2 === 'no'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">No</span>
                               </div>
                             </td>
@@ -178,13 +198,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent3 === 'yes' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent3 === 'yes'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">Yes</span>
                               </div>
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent3 === 'no' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent3 === 'no'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">No</span>
                               </div>
                             </td>
@@ -195,13 +225,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent4 === 'yes' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent4 === 'yes'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">Yes</span>
                               </div>
                             </td>
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex flex-col items-center justify-center h-full">
-                                <div className={`w-5 h-5 rounded-full border-2 ${data.consent4 === 'no' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                <input
+                                  type="checkbox"
+                                  checked={data.consent4 === 'no'}
+                                  readOnly
+                                  className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                />
                                 <span className="text-xs mt-1 text-gray-700">No</span>
                               </div>
                             </td>
@@ -234,13 +274,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                           </td>
                           <td className="border border-black px-3 py-2 text-center w-20">
                             <div className="flex flex-col items-center justify-center h-full">
-                              <div className={`w-5 h-5 rounded-full border-2 ${data.educationalCheck === 'yes' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                              <input
+                                type="checkbox"
+                                checked={data.educationalCheck === 'yes'}
+                                readOnly
+                                className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                              />
                               <span className="text-xs mt-1 text-gray-700">Yes</span>
                             </div>
                           </td>
                           <td className="border border-black px-3 py-2 text-center w-20">
                             <div className="flex flex-col items-center justify-center h-full">
-                              <div className={`w-5 h-5 rounded-full border-2 ${data.educationalCheck === 'no' ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                              <input
+                                type="checkbox"
+                                checked={data.educationalCheck === 'no'}
+                                readOnly
+                                className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                              />
                               <span className="text-xs mt-1 text-gray-700">No</span>
                             </div>
                           </td>
@@ -387,13 +437,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                               <td className="border border-black px-3 py-2 text-sm text-gray-900">{question}</td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[key] === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[key] === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                               </td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[key] === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[key] === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </td>
@@ -419,13 +479,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                               <td className="border border-black px-3 py-2 text-sm text-gray-900">{bodyPart}</td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[key] === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[key] === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                               </td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[key] === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[key] === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </td>
@@ -470,13 +540,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                               <td className="border border-black px-3 py-2 text-sm text-gray-900">{condition}</td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[`${key}Condition`] === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[`${key}Condition`] === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                               </td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[`${key}Condition`] === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[`${key}Condition`] === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </td>
@@ -538,13 +618,23 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                               <td className="border border-black px-3 py-2 text-sm text-gray-900">{bodyPart}</td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[`${key}Issue`] === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[`${key}Issue`] === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                               </td>
                               <td className="border border-black px-3 py-2 text-center">
                                 <div className="flex flex-col items-center justify-center h-full">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data[`${key}Issue`] === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data[`${key}Issue`] === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </td>
@@ -584,11 +674,21 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex justify-center gap-6">
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.workInjury === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.workInjury === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.workInjury === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.workInjury === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </div>
@@ -606,11 +706,21 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex justify-center gap-6">
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.ppeDifficulties === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.ppeDifficulties === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.ppeDifficulties === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.ppeDifficulties === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </div>
@@ -628,11 +738,21 @@ export default function PreEmploymentMedicalView({ data: rawData = {}, staffInfo
                             <td className="border border-gray-400 px-3 py-2 text-center">
                               <div className="flex justify-center gap-6">
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.hazardousMaterials === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.hazardousMaterials === true}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">Yes</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                  <div className={`w-5 h-5 rounded-full border-2 ${data.hazardousMaterials === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+                                  <input
+                                    type="checkbox"
+                                    checked={data.hazardousMaterials === false}
+                                    readOnly
+                                    className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+                                  />
                                   <span className="text-xs mt-1 text-gray-700">No</span>
                                 </div>
                               </div>
@@ -715,11 +835,21 @@ function ConsentCheckbox({ label, value }: { label: string; value: boolean | nul
     <div className="flex items-start gap-4">
       <div className="flex gap-4 mt-1">
         <div className="flex flex-col items-center">
-          <div className={`w-5 h-5 rounded-full border-2 ${value === true ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+          <input
+            type="checkbox"
+            checked={value === true}
+            readOnly
+            className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+          />
           <span className="text-xs mt-1 text-gray-700">Yes</span>
         </div>
         <div className="flex flex-col items-center">
-          <div className={`w-5 h-5 rounded-full border-2 ${value === false ? 'bg-green-500 border-green-500' : 'bg-white border-gray-400'}`}></div>
+          <input
+            type="checkbox"
+            checked={value === false}
+            readOnly
+            className="w-5 h-5 x-mark rounded border-gray-300 cursor-default"
+          />
           <span className="text-xs mt-1 text-gray-700">No</span>
         </div>
       </div>

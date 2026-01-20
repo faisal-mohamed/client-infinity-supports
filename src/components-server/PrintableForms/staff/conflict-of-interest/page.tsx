@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer';
+import PdfCheckbox from '../shared/PdfCheckbox';
 
 const styles = StyleSheet.create({
   page: {
@@ -80,16 +81,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
   },
   checkbox: {
-    width: 8,
-    height: 8,
-    border: '1 solid #9ca3af',
-    marginRight: 4,
-  },
-  checkboxChecked: {
-    width: 8,
-    height: 8,
-    border: '1 solid #2563eb',
-    backgroundColor: '#2563eb',
+    width: 12,
+    height: 12,
     marginRight: 4,
   },
   checkboxContainer: {
@@ -162,6 +155,15 @@ const ConflictOfInterestPDF: React.FC<ConflictOfInterestPDFProps> = ({
 }) => {
   const formData = data?.data || data || {};
 
+  // Debug: Log form data to verify checkbox values
+  console.log('[Conflict PDF] Form data received:', {
+    hasConflict: formData.hasConflict,
+    hasVendorRelationship: formData.hasVendorRelationship,
+    hasOutsideEmployment: formData.hasOutsideEmployment,
+    hrDecision: formData.hrDecision,
+    dataKeys: Object.keys(formData),
+  });
+
   // Helper functions
   const getValue = (key: string): string => {
     return formData[key] || '';
@@ -169,8 +171,9 @@ const ConflictOfInterestPDF: React.FC<ConflictOfInterestPDFProps> = ({
 
   const getYesNo = (key: string): 'yes' | 'no' | '' => {
     const value = formData[key];
-    if (value === 'yes' || value === true) return 'yes';
-    if (value === 'no' || value === false) return 'no';
+    // Handle various formats: 'yes', 'no', true, false, 'Yes', 'No', etc.
+    if (value === 'yes' || value === 'Yes' || value === true || value === 'true' || value === 'YES') return 'yes';
+    if (value === 'no' || value === 'No' || value === false || value === 'false' || value === 'NO') return 'no';
     return '';
   };
 
@@ -186,8 +189,8 @@ const ConflictOfInterestPDF: React.FC<ConflictOfInterestPDFProps> = ({
 
   const renderCheckbox = (checked: boolean) => {
     return (
-      <View style={checked ? styles.checkboxChecked : styles.checkbox}>
-        {checked && <Text style={{ fontSize: 6, color: '#ffffff', fontWeight: 'bold' }}>✓</Text>}
+      <View style={styles.checkbox}>
+        <PdfCheckbox checked={checked} size={12} mark="X" />
       </View>
     );
   };

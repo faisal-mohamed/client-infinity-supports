@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Document, Page } from '@react-pdf/renderer';
+import PdfCheckbox from '../PrintableForms/staff/shared/PdfCheckbox';
 
 interface EmployeeWelcomePDFProps {
   data: any;
@@ -58,8 +59,8 @@ const EmployeeWelcomePDF: React.FC<EmployeeWelcomePDFProps> = ({ data }) => {
         {/* Acknowledgement checkbox section - matching view component */}
         <View style={styles.ackContainer}>
           <View style={styles.ackRow}>
-            <View style={readAcknowledgement ? [styles.checkbox, styles.checkboxChecked] : styles.checkbox}>
-              {readAcknowledgement && <Text style={styles.checkmark}>✓</Text>}
+            <View style={styles.checkboxWrapper}>
+              <PdfCheckbox checked={readAcknowledgement} size={20} mark="X" />
             </View>
             <Text style={styles.ackLabel}>
               <Text style={styles.ackBold}>I acknowledge that:</Text>
@@ -167,25 +168,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 12, // Matching view: gap-3 (3 * 4px = 12px)
   },
-  checkbox: {
+  checkboxWrapper: {
+    marginTop: 4, // Matching view: mt-1
     width: 20, // Matching view: w-5 (5 * 4px = 20px)
     height: 20, // Matching view: h-5
-    borderWidth: 1,
-    borderColor: '#d1d5db', // Matching view: border-gray-300
-    borderRadius: 4, // Matching view: rounded
-    marginTop: 4, // Matching view: mt-1
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-  },
-  checkboxChecked: {
-    backgroundColor: '#2563eb', // Matching view: accent-blue-600
-    borderColor: '#2563eb',
-  },
-  checkmark: {
-    fontSize: 12,
-    color: '#ffffff',
-    fontWeight: 'bold',
   },
   ackLabel: {
     fontSize: 12, // Matching view: text-[12pt]

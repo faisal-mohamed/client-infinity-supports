@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
+import PdfCheckbox from '../shared/PdfCheckbox';
 
 const styles = StyleSheet.create({
   page: {
@@ -70,19 +71,8 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 12,
     height: 12,
-    border: '1 solid #000',
     marginRight: 8,
     marginTop: 2,
-  },
-  checkboxChecked: {
-    width: 12,
-    height: 12,
-    border: '1 solid #2563eb',
-    backgroundColor: '#2563eb',
-    marginRight: 8,
-    marginTop: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   checkboxText: {
     fontSize: 11,
@@ -194,10 +184,8 @@ const BullyingHarassmentTrainingPDF: React.FC<BullyingHarassmentTrainingPDFProps
         {/* Acknowledgement Checkbox */}
         <View style={styles.acknowledgementBox}>
           <View style={styles.checkboxRow}>
-            <View style={(!showBlankForm && data?.readAcknowledgement) ? styles.checkboxChecked : styles.checkbox}>
-              {(!showBlankForm && data?.readAcknowledgement) && (
-                <Text style={{ fontSize: 8, color: '#ffffff', fontWeight: 'bold' }}>✓</Text>
-              )}
+            <View style={styles.checkbox}>
+              <PdfCheckbox checked={!showBlankForm && !!data?.readAcknowledgement} size={12} mark="X" />
             </View>
             <Text style={styles.checkboxText}>
               <Text style={{ fontWeight: 'bold' }}>I acknowledge that:</Text>{'\n'}

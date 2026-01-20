@@ -93,7 +93,12 @@ export async function GET(
       hasSubmission: !!submission,
       hasEmployeeSignature: !!formData.employeeSignature,
       hasReviewerSignature: !!formData.reviewerSignature,
-      dataKeys: Object.keys(formData)
+      dataKeys: Object.keys(formData),
+      // Debug checkbox values
+      hasConflict: formData.hasConflict,
+      hasVendorRelationship: formData.hasVendorRelationship,
+      hasOutsideEmployment: formData.hasOutsideEmployment,
+      hrDecision: formData.hrDecision,
     });
 
     // Encode images to base64

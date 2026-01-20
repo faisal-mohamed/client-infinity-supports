@@ -121,10 +121,12 @@ function OverlayCheckbox({
         type="checkbox"
         checked={checked}
         onChange={!readOnly ? (e) => onChange(e.target.checked) : undefined}
-        className="border border-gray-400"
+        className="x-mark"
         style={{
-          transform: `scale(${boxWidth / 16})`, // scales relative to default
-          transformOrigin: "top left",
+          width: boxWidth,
+          height: boxHeight,
+          border: '2px solid #2563eb',
+          borderRadius: '4px',
         }}
         disabled={readOnly}
       />
@@ -565,21 +567,20 @@ function OverlaySquareRadioGroup({
           className="absolute flex items-center space-x-1 text-sm"
           style={{ top: opt.top, left: opt.left }}
         >
-          <div
-            className={`flex items-center justify-center border border-gray-600 cursor-pointer`}
+          <input
+            type="checkbox"
+            checked={value === opt.value}
+            onChange={() => {
+              if (!readOnly) onChange(opt.value);
+            }}
+            className="x-mark cursor-pointer"
             style={{
               width: boxSize,
               height: boxSize,
-              backgroundColor: value === opt.value ? "#2563eb20" : "white", // light blue background if selected
             }}
-            onClick={() => {
-              if (!readOnly) onChange(opt.value);
-            }}
-          >
-            {value === opt.value && (
-              <span className="text-black text-xs font-bold">✔</span>
-            )}
-          </div>
+            disabled={readOnly}
+            readOnly={readOnly}
+          />
           <input
             type="radio"
             name={name}
@@ -627,23 +628,20 @@ function OverlaySquareRadioGroupFour({
             if (!readOnly) onChange(opt.value);
           }}
         >
-          <div
-            className="flex items-center justify-center border border-gray-600"
+          <input
+            type="checkbox"
+            checked={value === opt.value}
+            onChange={() => {
+              if (!readOnly) onChange(opt.value);
+            }}
+            className="x-mark cursor-pointer"
             style={{
               width: boxSize,
               height: boxSize,
-              backgroundColor: value === opt.value ? "#2563eb20" : "white", // light blue bg when selected
             }}
-          >
-            {value === opt.value && (
-              <span
-                className="text-xs font-bold"
-                style={{ color: tickColor }}
-              >
-                ✔
-              </span>
-            )}
-          </div>
+            disabled={readOnly}
+            readOnly={readOnly}
+          />
           <input
             type="radio"
             name={name}

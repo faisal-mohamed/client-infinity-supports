@@ -272,7 +272,7 @@ export default function OrientationView({
                   type="checkbox"
                   checked={!!derivedAcknowledged}
                   readOnly
-                  className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300 cursor-default"
+                  className="mt-1 w-5 h-5 x-mark rounded border-gray-300 cursor-default"
                 />
                 <label htmlFor="orientationAcknowledgementReadonly" className="leading-relaxed">
                   <strong>I acknowledge that:</strong>
@@ -359,7 +359,7 @@ export default function OrientationView({
                     'readOrientation',
                   ])
                 }
-                className="mt-1 w-5 h-5 accent-blue-600 rounded border-gray-300"
+                className="mt-1 w-5 h-5 x-mark rounded border-gray-300"
               />
               <label htmlFor="orientationAcknowledgementEditable" className="leading-relaxed">
                 <strong>I acknowledge that:</strong>
