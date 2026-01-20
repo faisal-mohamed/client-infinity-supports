@@ -99,7 +99,7 @@ async function main() {
       formKey: 'conflict_of_interest',
       title: 'Conflict of Interest',
       version: 1,
-      requiresSignature: false
+      requiresSignature: true
     }
   ];
 

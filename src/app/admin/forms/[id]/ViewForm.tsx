@@ -24,6 +24,7 @@ import ScheduleForSupportView from "@/components/support-action-plan/View";
 import ScheduleOfSupportsView from "@/components/schedule-of-supports/View";
 import MDTView from "@/components/mdt/View";
 import SASupportCoordination from "@/app/form-components/sa-support-coordination/page";
+import ConflictOfInterestView from "@/app/components/forms/conflict_of_interest/View";
 
 interface AppSetting {
   id: number;
@@ -98,35 +99,35 @@ export default function ViewFormClient({ formId }: { formId: string }) {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex justify-center items-center">
-         <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
-        <div className="flex justify-center items-center h-80">
-              <div className="text-center">
-                {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+          <div className="flex justify-center items-center h-80">
+            <div className="text-center">
+              {/* Spinner */}
+              <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
 
-                {/* Text */}
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
-                    View Form Loading
-                </h3>
-                <p className="text-slate-600 font-medium">
-                  Please wait while we load the form to view...
-                </p>
+              {/* Text */}
+              <h3 className="text-xl font-bold text-slate-800 mb-2">
+                View Form Loading
+              </h3>
+              <p className="text-slate-600 font-medium">
+                Please wait while we load the form to view...
+              </p>
 
-                {/* Bouncing dots */}
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
-                </div>
+              {/* Bouncing dots */}
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                <div
+                  className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
               </div>
             </div>
-      </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -211,21 +212,23 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                 <MDTView formKey={form.formKey} settings={settings} />
               ) : form.formKey === "schedule_of_supports" ? (
                 <ScheduleOfSupportsView formKey={form.formKey} settings={settings} />
-              ) : 
-              
-              form.formKey === "sa_support_coordination" ? (
-                <SASupportCoordination formKey={form.formKey} settings={settings}/>
-              ) : 
-              
-              (
-                <div className="text-center py-16">
-                  <div className="p-8 rounded-full bg-slate-100 w-28 h-28 mx-auto mb-4 flex items-center justify-center">
-                    <FaFileAlt className="text-slate-400 text-3xl" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">Preview Not Available</h3>
-                  <p className="text-slate-500 text-sm">This form type does not support preview yet.</p>
-                </div>
-              )}
+              ) :
+
+                form.formKey === "sa_support_coordination" ? (
+                  <SASupportCoordination formKey={form.formKey} settings={settings} />
+                ) : form.formKey === "conflict_of_interest" ? (
+                  <ConflictOfInterestView formKey={form.formKey} settings={settings} formData={form.data} />
+                ) :
+
+                  (
+                    <div className="text-center py-16">
+                      <div className="p-8 rounded-full bg-slate-100 w-28 h-28 mx-auto mb-4 flex items-center justify-center">
+                        <FaFileAlt className="text-slate-400 text-3xl" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-2">Preview Not Available</h3>
+                      <p className="text-slate-500 text-sm">This form type does not support preview yet.</p>
+                    </div>
+                  )}
             </div>
           </div>
         </div>
