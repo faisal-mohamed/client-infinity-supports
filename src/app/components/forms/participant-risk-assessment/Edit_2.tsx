@@ -281,8 +281,6 @@ export const FORM_SECTIONS: any = [
     icon: FaTable,
     description: "Hazard control and accountability",
     fields: [
-      "safeMeetingAddress",
-      "safeMeetingDescription",
       ...Array.from({ length: 10 }, (_, i) => [
         `issue${i + 1}`,
         `score${i + 1}`,
@@ -881,10 +879,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       {/* Conditional input for "Other" option */}
       {showIfOther && localValues[name] === "Other" && (
         <div className="mt-3 pl-4 border-l-4 border-indigo-300 bg-indigo-50 rounded-xl py-2">
-          {renderInput(
+          {renderTextArea(
             showIfOther.label,
             showIfOther.inputName,
-            "text",
+            2,
             "Please specify...",
             localValues[name] === "Other" // Make it required if selected
           )}
@@ -1116,18 +1114,21 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     },
     participantInvolvedReason: {
       label: "If no participant involved , Specify the reason",
-      type: "text",
+      type: "textarea",
       placeholder: "Reason for not involving participant",
+      rows: 2,
     },
     staffInvolved: {
       label: "Staff involved",
-      type: "text",
+      type: "textarea",
       placeholder: "Enter staff names",
+      rows: 2,
     },
     othersInvolved: {
       label: "Others involved",
-      type: "text",
+      type: "textarea",
       placeholder: "Enter other individuals involved",
+      rows: 2,
     },
 
     // Risk Fields (Yes/No type)
@@ -1241,8 +1242,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     },
     noiseSensitiveComment: {
       label: "Comment",
-      type: "text",
+      type: "textarea",
       placeholder: "Optional comment",
+      rows: 2,
     },
     noiseSensitiveRating: {
       label: "Risk Rating",
@@ -1279,8 +1281,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     },
     mobilityIssuesComment: {
       label: "Comment",
-      type: "text",
+      type: "textarea",
       placeholder: "Optional comment",
+      rows: 2,
     },
     mobilityIssuesRating: {
       label: "Risk Rating",
@@ -1295,8 +1298,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     },
     showeringToiletingHazardsComment: {
       label: "Comment",
-      type: "text",
+      type: "textarea",
       placeholder: "Optional comment",
+      rows: 2,
     },
     showeringToiletingHazardsRating: {
       label: "Risk Rating",
@@ -1311,11 +1315,13 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     },
     householdSafeAddress: {
       label: 'Address',
-      type: 'text',
+      type: 'textarea',
+      rows: 2,
     },
     householdSafeDesc: {
       label: 'Description',
-      type: 'text'
+      type: 'textarea',
+      rows: 2,
     },
 
     medicationRiskDepressionRating: {
@@ -1334,8 +1340,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
     medicationRiskDepressionComment: {
       label: "Medication Risk Control Comment",
-      type: "text",
+      type: "textarea",
       placeholder: "Enter risk controls or notes",
+      rows: 2,
     },
 
     // Medication Management
@@ -1434,23 +1441,27 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     // Communication Table
     scenario1: {
       label: "Scenario 1",
-      type: "text",
+      type: "textarea",
       placeholder: "Describe scenario",
+      rows: 2,
     },
     mode1: {
       label: "Mode of Communication 1",
-      type: "text",
+      type: "textarea",
       placeholder: "Communication method",
+      rows: 2,
     },
     scenario2: {
       label: "Scenario 2",
-      type: "text",
+      type: "textarea",
       placeholder: "Describe scenario",
+      rows: 2,
     },
     mode2: {
       label: "Mode of Communication 2",
-      type: "text",
+      type: "textarea",
       placeholder: "Communication method",
+      rows: 2,
     },
 
     // Signature Section
@@ -1575,14 +1586,14 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     };
 
     const renderQ2CommentInput = () => (
-      <input
-        type={commentMeta.type}
-        className="w-full border px-3 py-2 rounded disabled:bg-gray-100 disabled:text-gray-500"
-        placeholder={commentMeta.placeholder}
+      <AutoResizeTextArea
+        label=""
+        name={commentField}
         value={localValues[commentField] || ""}
         onChange={(e) => setLocalValues({ ...localValues, [commentField]: e.target.value })}
-        disabled={isQ2 && !isYes}
-        aria-label={commentMeta.label}
+        readOnly={isQ2 && !isYes}
+        placeholder={commentMeta.placeholder}
+        rows={2}
       />
     );
 
@@ -1624,10 +1635,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               {renderQ2CommentInput()}
             </div>
           ) : (
-            renderInput(
+            renderTextArea(
               "Comment",
               commentField,
-              commentMeta.type,
+              2,
               commentMeta.placeholder,
               false
             )
@@ -1752,10 +1763,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               {isBehaviorPractitioner ? (
                 // For behaviorPractitionerInvolved: render as text input in first column only
                 <>
-                  {renderInput(
+                  {renderTextArea(
                     meta.label,
                     key,
-                    "text",
+                    2,
                     meta.placeholder,
                     false
                   )}
@@ -1793,10 +1804,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                         false
                       )
                     ) : (
-                      renderInput(
+                      renderTextArea(
                         FIELD_METADATA[commentKey].label,
-                        commentKey,
-                        "text",
+                        actualCommentField,
+                        2,
                         FIELD_METADATA[commentKey].placeholder,
                         false
                       )
@@ -2163,9 +2174,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                           key={index}
                           className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
                         >
-                          {renderInput(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, "text", FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
-                          {renderInput(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, "text", FIELD_METADATA[`medicalEffect${index}`].placeholder)}
-                          {renderInput(FIELD_METADATA[`medicalTreatment${index}`].label, `medicalTreatment${index}`, "text", FIELD_METADATA[`medicalTreatment${index}`].placeholder)}
+                          {renderTextArea(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, 2, FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
+                          {renderTextArea(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, 2, FIELD_METADATA[`medicalEffect${index}`].placeholder)}
+                          {renderTextArea(FIELD_METADATA[`medicalTreatment${index}`].label, `medicalTreatment${index}`, 2, FIELD_METADATA[`medicalTreatment${index}`].placeholder)}
                         </div>
                       );
                     })}
