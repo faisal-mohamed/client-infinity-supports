@@ -36,11 +36,11 @@ const RiskTablePaginated: React.FC<{
   settings: any;
   images: any;
 }> = ({ rows, renderHeader, renderRow, availableHeight, rowHeight, settings, images }) => {
-  
+
   const pages: any[][] = [];
   let currentRows: any[] = [];
   let currentHeight = 60; // Header height
-  
+
   rows.forEach((row, index) => {
     if (currentHeight + rowHeight > availableHeight && currentRows.length > 0) {
       pages.push([...currentRows]);
@@ -51,15 +51,15 @@ const RiskTablePaginated: React.FC<{
       currentHeight += rowHeight;
     }
   });
-  
+
   if (currentRows.length > 0) {
     pages.push(currentRows);
   }
-  
+
   return (
     <>
       {pages.map((pageRows, pageIndex) => (
-        <A4PageWrapper 
+        <A4PageWrapper
           key={pageIndex}
           footer={<PRAFooter settings={settings} />}
         >
@@ -72,7 +72,7 @@ const RiskTablePaginated: React.FC<{
                 className="h-[60px] w-[150px] object-contain"
               />
             </div>
-            
+
             {/* Content */}
             <div className="flex-1 flex flex-col">
               <table className="w-full border border-black border-collapse text-xs" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
@@ -89,13 +89,13 @@ const RiskTablePaginated: React.FC<{
   );
 };
 
-const ParticipantRiskAssessmentComplete: React.FC<any> = ({ 
-  formData, 
-  commonFieldsData, 
-  images, 
-  settings 
+const ParticipantRiskAssessmentComplete: React.FC<any> = ({
+  formData,
+  commonFieldsData,
+  images,
+  settings
 }) => {
-  
+
   // Common field mapping
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
@@ -119,7 +119,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     if (mapped && commonFieldsData?.[mapped]) {
       return String(commonFieldsData[mapped]);
     }
-    
+
     // Only fallback to saved form data if DB doesn't have the value
     return formData?.[key] ? String(formData[key]) : "";
   };
@@ -259,7 +259,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
                 const specify = getValue(`medicalSpecify${i}`);
                 const effect = getValue(`medicalEffect${i}`);
                 const treatment = getValue(`medicalTreatment${i}`);
-                
+
                 if (specify || effect || treatment) {
                   filledRows.push(
                     <tr key={i}>
@@ -270,7 +270,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
                   );
                 }
               }
-              
+
               // If no rows have data, show at least one empty row for structure
               if (filledRows.length === 0) {
                 filledRows.push(
@@ -281,7 +281,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
                   </tr>
                 );
               }
-              
+
               return filledRows;
             })()}
           </tbody>
@@ -592,13 +592,13 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
           Risk Assessment Matrix
         </p>
         <div className="flex justify-center">
-          <img 
-            src="/home_risk_assessment.png" 
-            alt="Risk Assessment Matrix" 
-            style={{ 
-              width: '100%', 
-              maxHeight: '380px', 
-              objectFit: 'contain' 
+          <img
+            src="/home_risk_assessment.png"
+            alt="Risk Assessment Matrix"
+            style={{
+              width: '100%',
+              maxHeight: '380px',
+              objectFit: 'contain'
             }}
           />
         </div>
@@ -712,16 +712,16 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
           <tr>
             <td className="border border-black px-2 py-1">Mental Health Emergency Response Line</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
-              1300 555 788 (Perth)<br/>1300 676 822 (Peel)
+              1300 555 788 (Perth)<br />1300 676 822 (Peel)
             </td>
           </tr>
-          
+
           <tr className="bg-gray-300 font-bold text-xs">
             <td className="border border-black px-2 py-1" colSpan={3}>
               Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)
             </td>
           </tr>
-          
+
           <tr className="font-semibold">
             <td className="border border-black px-2 py-1">Emergency</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
@@ -758,7 +758,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
   });
 
   // Continue with more sections in next part...
-  
+
   // Add all remaining sections
   const riskQuestions = [
     { key: "risk1", label: "Is the client able to open door?", questionNum: 1 },
@@ -779,7 +779,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
 
   // Add risk table as single section - let measured pagination handle splitting naturally
   const riskTableSections = [{
-        type: "risk-table",
+    type: "risk-table",
     height: (riskQuestions.length * 50) + 80, // All 14 questions together
     questions: riskQuestions
   }];
@@ -823,17 +823,17 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       height: 240,
       content: () => (
         <table className="w-full border border-black border-collapse text-xs">
-              <thead>
-                <tr className="bg-gray-300 font-bold text-left">
-                  <th className="border border-black p-2" colSpan={4}>CONTROLS TABLE</th>
-                </tr>
-                <tr className="bg-gray-200 font-semibold text-left">
-                  <th className="border border-black p-2">Issue</th>
-                  <th className="border border-black p-2">Score</th>
-                  <th className="border border-black p-2">Control</th>
-                  <th className="border border-black p-2">Person Responsible</th>
-                </tr>
-              </thead>
+          <thead>
+            <tr className="bg-gray-300 font-bold text-left">
+              <th className="border border-black p-2" colSpan={4}>CONTROLS TABLE</th>
+            </tr>
+            <tr className="bg-gray-200 font-semibold text-left">
+              <th className="border border-black p-2">Issue</th>
+              <th className="border border-black p-2">Score</th>
+              <th className="border border-black p-2">Control</th>
+              <th className="border border-black p-2">Person Responsible</th>
+            </tr>
+          </thead>
           <tbody>
             {getFilledControlRows().map((row, index) => (
               <tr key={index}>
@@ -885,8 +885,12 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       const issue = getValue(`issue${i}`);
       const score = getValue(`score${i}`);
       const control = getValue(`control${i}`);
-      const person = getValue(`person${i}`);
-      
+      let person = getValue(`person${i}`);
+      if (person === "Other") {
+        const otherPerson = getValue(`person${i}Other`);
+        if (otherPerson) person = otherPerson;
+      }
+
       if (issue || score || control || person) {
         filledRows.push({ issue, score, control, person, index: i });
       }
@@ -904,21 +908,21 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
   const calculateControlRowHeight = (row: any) => {
     const issueLength = (row.issue || '').length;
     const controlLength = (row.control || '').length;
-    
+
     // Base height for table cell (padding + borders) - more conservative
     const baseHeight = 60; // More padding to prevent clipping
-    
+
     // Calculate lines needed based on content length - more conservative estimates
     const charsPerLine = 45; // Fewer chars per line (accounts for wrapping in narrow columns)
     const lineHeight = 20; // Larger line height for readability
-    
+
     const issueLines = Math.max(1, Math.ceil(issueLength / charsPerLine));
     const controlLines = Math.max(1, Math.ceil(controlLength / charsPerLine));
-    
+
     // Use the maximum lines from issue or control columns with margin
     const maxLines = Math.max(issueLines, controlLines) + 1; // Add buffer line
     const contentHeight = maxLines * lineHeight;
-    
+
     return baseHeight + contentHeight;
   };
 
@@ -929,10 +933,10 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     const pages: any[][] = [];
     let currentRows: any[] = [];
     let currentHeight = headerHeight;
-    
+
     filledControlRows.forEach((row, index) => {
       const rowHeight = calculateControlRowHeight(row);
-      
+
       // If adding this row would exceed page height and we have rows, start new page
       if (currentHeight + rowHeight > maxPageHeight && currentRows.length > 0) {
         pages.push([...currentRows]);
@@ -943,12 +947,12 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         currentHeight += rowHeight;
       }
     });
-    
+
     // Add last page if it has rows
     if (currentRows.length > 0) {
       pages.push(currentRows);
     }
-    
+
     return pages;
   }, [filledControlRows, calculateControlRowHeight]);
 
@@ -1045,8 +1049,8 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
                   <li>Assist participant in immediate danger.</li>
                   <li>Leave the building via the nearest safe route. </li>
                   <li>Obey all directions from emergency services.</li>
-                  <li>Move calmly to assembly point 
-</li>
+                  <li>Move calmly to assembly point
+                  </li>
                   <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
                   <li>Wait for the OK to re-enter the building</li>
                 </ul>
@@ -1071,20 +1075,20 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             <tr>
               <td className="border border-black p-2 align-top">
                 <ul className="list-disc list-inside space-y-1">
-                 <h1>Assess the situation:</h1>
-                <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
-                <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
-                <li>Arrange for the ambulance to be met.</li>
-                <li>Remain with the participant and administer first aid as appropriate until assistance arrives</li>
-                <li>Follow closely the instructions of emergency services personnel.</li>
+                  <h1>Assess the situation:</h1>
+                  <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
+                  <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
+                  <li>Arrange for the ambulance to be met.</li>
+                  <li>Remain with the participant and administer first aid as appropriate until assistance arrives</li>
+                  <li>Follow closely the instructions of emergency services personnel.</li>
                 </ul>
               </td>
               <td className="border border-black p-2 align-top">
                 <ul className="list-disc list-inside space-y-1">
-                   <li>Keep well clear of the disturbance and do not say or do anything that may encourage irrational behaviour.</li>
-                <li>Consider locking down the building to prevent unauthorised entry.</li>
-                <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
-                <li>Evacuate the building only if instructed to do so by emergency services personnel or campus warden</li>
+                  <li>Keep well clear of the disturbance and do not say or do anything that may encourage irrational behaviour.</li>
+                  <li>Consider locking down the building to prevent unauthorised entry.</li>
+                  <li>Follow closely the instructions of emergency services personnel and campus wardens.</li>
+                  <li>Evacuate the building only if instructed to do so by emergency services personnel or campus warden</li>
                 </ul>
               </td>
             </tr>
@@ -1167,14 +1171,14 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
               <td className="border border-black p-2 align-top">Is a copy supplied to the participant?</td>
               <td className="border border-black p-2 align-top">
                 <div className="flex flex-col items-start gap-1">
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copySupplied','yes')} readOnly className="w-3 h-3" />YES</label>
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copySupplied','no')} readOnly className="w-3 h-3" />NO</label>
+                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copySupplied', 'yes')} readOnly className="w-3 h-3" />YES</label>
+                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copySupplied', 'no')} readOnly className="w-3 h-3" />NO</label>
                 </div>
               </td>
               <td className="border border-black p-2 align-top">Copy placed on file?
                 <div className="mt-1 flex flex-col items-start gap-1">
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copyOnFile','yes')} readOnly className="w-3 h-3" />YES</label>
-                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copyOnFile','no')} readOnly className="w-3 h-3" />NO</label>
+                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copyOnFile', 'yes')} readOnly className="w-3 h-3" />YES</label>
+                  <label className="inline-flex items-center gap-2"><input type="checkbox" checked={isChecked('copyOnFile', 'no')} readOnly className="w-3 h-3" />NO</label>
                 </div>
               </td>
               <td className="border border-black p-2 align-top"><strong>Date for Review:</strong> {formatDate(getValue('reviewDate'))}</td>
@@ -1257,21 +1261,21 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     <table className="w-full border border-black border-collapse text-xs">
       {showHeader && (
         <>
-      <thead>
-        <tr>
-          <th className="border border-black w-[20%]"></th>
-          <th className="border border-black text-center font-bold p-2" colSpan={4}>
-            INDIVIDUAL RISK ASSESSMENTS
-          </th>
-        </tr>
-        <tr className="bg-gray-300 font-semibold">
-          <th className="border border-black p-2">No.</th>
-          <th className="border border-black p-2">Item</th>
-          <th className="border border-black p-2 w-[10%] text-center">Y/N</th>
-          <th className="border border-black p-2 w-[7%] text-center">Risk Rating</th>
-          <th className="border border-black p-2 w-[20%]">Comments/Controls</th>
-        </tr>
-      </thead>
+          <thead>
+            <tr>
+              <th className="border border-black w-[20%]"></th>
+              <th className="border border-black text-center font-bold p-2" colSpan={4}>
+                INDIVIDUAL RISK ASSESSMENTS
+              </th>
+            </tr>
+            <tr className="bg-gray-300 font-semibold">
+              <th className="border border-black p-2">No.</th>
+              <th className="border border-black p-2">Item</th>
+              <th className="border border-black p-2 w-[10%] text-center">Y/N</th>
+              <th className="border border-black p-2 w-[7%] text-center">Risk Rating</th>
+              <th className="border border-black p-2 w-[20%]">Comments/Controls</th>
+            </tr>
+          </thead>
         </>
       )}
       <tbody>
@@ -1286,7 +1290,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
                 <td className="border border-black p-2 align-top">
                   {/* Show question with medications in brackets - no checkboxes */}
                   <div className="text-sm">
-                    Does the participant take any of the following medications that can cause Respiratory Depression? 
+                    Does the participant take any of the following medications that can cause Respiratory Depression?
                     <span className="text-black"> ({medOptions.join(', ')})</span>
                   </div>
                 </td>
@@ -1309,55 +1313,55 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
               </tr>
             );
           }
-          
+
           // Standard question rendering
           return (
-          <tr key={question.key}>
-            <td className="border border-black p-2 align-top">{question.questionNum}</td>
-            <td className="border border-black p-2 align-top">{question.label}</td>
-            <td className="border border-black p-2 align-top text-center">
-              <div className="flex flex-col items-start gap-1">
-                <label className="inline-flex items-center space-x-1">
-                  <input type="checkbox" checked={isChecked(question.key, 'yes')} readOnly className="w-3 h-3" />
-                  <span>YES</span>
-                </label>
-                <label className="inline-flex items-center space-x-1">
-                  <input type="checkbox" checked={isChecked(question.key, 'no')} readOnly className="w-3 h-3" />
-                  <span>NO</span>
-                </label>
-              </div>
-            </td>
-            <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
-            <td className="border border-black p-2 align-top">
-              {/* For Question 11, include any comment text and the sub-question Yes/No */}
-              {question.hasSubQuestion && question.subQuestionKey ? (
-                <div>
-                  {(() => {
-                    const commentText = getValue(`${question.commentKey || `${question.key}Comment`}`);
-                    return commentText ? (
-                      <div className="mb-2">{commentText}</div>
-                    ) : null;
-                  })()}
-                  <div className="mb-1">Is there a behaviour practitioner involved?</div>
-                  <div className="flex flex-col items-start gap-1">
-                    <label className="inline-flex items-center space-x-1">
-                      <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
-                      <span>YES</span>
-                    </label>
-                    <label className="inline-flex items-center space-x-1">
-                      <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
-                      <span>NO</span>
-                    </label>
-                  </div>
+            <tr key={question.key}>
+              <td className="border border-black p-2 align-top">{question.questionNum}</td>
+              <td className="border border-black p-2 align-top">{question.label}</td>
+              <td className="border border-black p-2 align-top text-center">
+                <div className="flex flex-col items-start gap-1">
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={isChecked(question.key, 'yes')} readOnly className="w-3 h-3" />
+                    <span>YES</span>
+                  </label>
+                  <label className="inline-flex items-center space-x-1">
+                    <input type="checkbox" checked={isChecked(question.key, 'no')} readOnly className="w-3 h-3" />
+                    <span>NO</span>
+                  </label>
                 </div>
-              ) : (
-                <>
-                  {question.commentLabel ? `${question.commentLabel}: ` : ''}
-                  {getValue(`${question.commentKey || `${question.key}Comment`}`)}
-                </>
-              )}
-            </td>
-          </tr>
+              </td>
+              <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
+              <td className="border border-black p-2 align-top">
+                {/* For Question 11, include any comment text and the sub-question Yes/No */}
+                {question.hasSubQuestion && question.subQuestionKey ? (
+                  <div>
+                    {(() => {
+                      const commentText = getValue(`${question.commentKey || `${question.key}Comment`}`);
+                      return commentText ? (
+                        <div className="mb-2">{commentText}</div>
+                      ) : null;
+                    })()}
+                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
+                    <div className="flex flex-col items-start gap-1">
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
+                        <span>YES</span>
+                      </label>
+                      <label className="inline-flex items-center space-x-1">
+                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
+                        <span>NO</span>
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {question.commentLabel ? `${question.commentLabel}: ` : ''}
+                    {getValue(`${question.commentKey || `${question.key}Comment`}`)}
+                  </>
+                )}
+              </td>
+            </tr>
           );
         })}
       </tbody>
@@ -1371,16 +1375,16 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         {allSections.map((section: any, i: number) => (
           <div key={`measure-${i}`} ref={(el) => { if (el) sectionRefs.current[i] = el; }} style={{ width: 794 }}>
             <div style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-              {section.type === 'risk-table' ? renderRiskTable(section.questions || [], true) 
-               : section.type === 'controls-table-page' ? renderControlsTablePage(section.rows || [], section.isFirstPage || false)
-               : section.content?.()}
+              {section.type === 'risk-table' ? renderRiskTable(section.questions || [], true)
+                : section.type === 'controls-table-page' ? renderControlsTablePage(section.rows || [], section.isFirstPage || false)
+                  : section.content?.()}
             </div>
           </div>
         ))}
       </div>
 
       {(pages.length > 0 ? pages : []).map((pageSections, index) => (
-        <A4PageWrapper 
+        <A4PageWrapper
           key={index}
           footer={<PRAFooter settings={settings} />}
           fixedHeight={false}
@@ -1407,8 +1411,8 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             {/* Content */}
             <div className="flex-1 flex flex-col space-y-4" style={{ pageBreakInside: 'auto' }}>
               {pageSections.map((section: any, sectionIndex: number) => (
-              <div 
-                  key={sectionIndex} 
+                <div
+                  key={sectionIndex}
                   style={{
                     pageBreakInside: 'auto',
                     breakInside: 'avoid',
@@ -1429,10 +1433,10 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
           </div>
         </A4PageWrapper>
       ))}
-      
+
       {/* Controls table is now part of the main pages with proper pagination */}
-      
-       <style jsx global>{`
+
+      <style jsx global>{`
          table {
            border-collapse: collapse;
            page-break-inside: auto;

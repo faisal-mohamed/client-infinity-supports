@@ -11,13 +11,13 @@ const formatDate = (value: string) => {
   return value || "N/A";
 };
 
-export default function ParticipantRiskAssessmentPDF({ 
-  formData, 
-  commonFieldsData, 
-  images, 
-  settings 
+export default function ParticipantRiskAssessmentPDF({
+  formData,
+  commonFieldsData,
+  images,
+  settings
 }: any) {
-  
+
   // Debug logs for Q11 fields (visible in server logs)
   try {
     // eslint-disable-next-line no-console
@@ -26,7 +26,7 @@ export default function ParticipantRiskAssessmentPDF({
       familyBehavioralHistoryComment: formData?.familyBehavioralHistoryComment,
       behaviorPractitionerInvolved: formData?.behaviorPractitionerInvolved,
     });
-  } catch {}
+  } catch { }
 
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
@@ -92,8 +92,12 @@ export default function ParticipantRiskAssessmentPDF({
       const issue = getValue(`issue${i}`);
       const score = getValue(`score${i}`);
       const control = getValue(`control${i}`);
-      const person = getValue(`person${i}`);
-      
+      let person = getValue(`person${i}`);
+      if (person === "Other") {
+        const otherPerson = getValue(`person${i}Other`);
+        if (otherPerson) person = otherPerson;
+      }
+
       if (issue || score || control || person) {
         filledRows.push({ issue, score, control, person });
       }
@@ -110,7 +114,7 @@ export default function ParticipantRiskAssessmentPDF({
       const specify = getValue(`medicalSpecify${i}`);
       const effect = getValue(`medicalEffect${i}`);
       const treatment = getValue(`medicalTreatment${i}`);
-      
+
       if (specify || effect || treatment) {
         filledRows.push({ specify, effect, treatment });
       }
@@ -448,10 +452,10 @@ export default function ParticipantRiskAssessmentPDF({
           }
           return null;
         };
-        
+
         const selected = getSelectedRiskLevel();
         if (!selected) return null;
-        
+
         const meta: Record<string, any> = {
           Low: {
             description: "Participants have a low reliance on provider services to meet daily living needs.",
@@ -474,7 +478,7 @@ export default function ParticipantRiskAssessmentPDF({
             impact: "Disruptions in services would pose a critical threat to participants' health and safety.",
           }
         };
-        
+
         const m = meta[selected];
         return (
           <table style={tableStyle}>
@@ -552,9 +556,9 @@ export default function ParticipantRiskAssessmentPDF({
         <p style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '8px' }}>
           Risk Assessment Matrix
         </p>
-        <img 
-          src={images?.riskAssessmentMatrix || "/home_risk_assessment.png"} 
-          alt="Risk Assessment Matrix" 
+        <img
+          src={images?.riskAssessmentMatrix || "/home_risk_assessment.png"}
+          alt="Risk Assessment Matrix"
           style={{ width: '100%', maxHeight: '300px', objectFit: 'contain' }}
         />
       </div>

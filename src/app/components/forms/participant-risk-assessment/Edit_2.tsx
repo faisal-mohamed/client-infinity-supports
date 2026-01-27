@@ -24,22 +24,115 @@ import {
   FaComments,
   FaPenNib,
   FaListAlt,
-  
+
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
 import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
-import { RISK_LEVEL_DETAILS } from "./constants";
+import { RISK_LEVEL_DETAILS, RISK_TEMPLATES } from "./constants";
 import { showAsRequired } from "@jsonforms/core";
 
 
 
-//helper functions
 // Match Client Intake form's custom spinner (hourglass emoji)
 const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
 
+// Auto-resizing textarea component
+const AutoResizeTextArea: React.FC<{
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+  placeholder?: string;
+  required?: boolean;
+  maxWords?: number;
+  readOnly?: boolean;
+  fieldError?: string;
+}> = ({
+  label,
+  name,
+  value,
+  onChange,
+  rows = 3,
+  placeholder,
+  required,
+  maxWords,
+  readOnly,
+  fieldError
+}) => {
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize logic
+    const adjustHeight = React.useCallback(() => {
+      const textarea = textAreaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto'; // Reset height to recalculate
+        textarea.style.height = `${Math.max(textarea.scrollHeight, rows * 24)}px`; // Set to scrollHeight but respect min rows
+      }
+    }, [rows]);
+
+    // Adjust height on value change (initial load + dynamic updates)
+    React.useLayoutEffect(() => {
+      adjustHeight();
+    }, [value, adjustHeight]);
+
+    // Calculate word count
+    const wordCount = value ? value.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isOverLimit = maxWords ? wordCount > maxWords : false;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-xs font-medium text-gray-700">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {maxWords && (
+            <span className={`text-xs font-medium ${isOverLimit
+              ? 'text-red-600'
+              : wordCount > maxWords * 0.9
+                ? 'text-orange-500'
+                : 'text-gray-500'
+              }`}>
+              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
+            </span>
+          )}
+        </div>
+        <textarea
+          ref={textAreaRef}
+          name={name}
+          value={value}
+          onChange={(e) => {
+            onChange(e);
+            adjustHeight();
+          }}
+          onInput={adjustHeight}
+          placeholder={placeholder}
+          rows={rows}
+          style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
+          disabled={readOnly}
+          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-gray-200'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-indigo-500'
+            } focus:border-indigo-500 transition-all placeholder-gray-400 resize-none ${fieldError
+              ? "border-red-300 bg-red-50"
+              : "hover:border-indigo-400/40"
+            } ${readOnly ? "cursor-not-allowed" : ""}`}
+        />
+        {isOverLimit && maxWords && (
+          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
+          </p>
+        )}
+        {fieldError && (
+          <p className="text-xs text-red-500 mt-1">{fieldError}</p>
+        )}
+      </div>
+    );
+  };
 
 
 interface FormProps {
@@ -56,7 +149,7 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-export const FORM_SECTIONS : any = [
+export const FORM_SECTIONS: any = [
   {
     id: "participantDetails",
     title: "Participant Details",
@@ -81,7 +174,7 @@ export const FORM_SECTIONS : any = [
     title: "Medical Conditions",
     icon: FaNotesMedical,
     description: "Medical background of the participant",
-    fields: ["medicalSpecify1", "medicalEffect1", "medicalTreatment1","medicalSpecify2", "medicalEffect2", "medicalTreatment2","medicalSpecify3", "medicalEffect3", "medicalTreatment3",],
+    fields: ["medicalSpecify1", "medicalEffect1", "medicalTreatment1", "medicalSpecify2", "medicalEffect2", "medicalTreatment2", "medicalSpecify3", "medicalEffect3", "medicalTreatment3",],
     requiredFields: []
 
   },
@@ -96,8 +189,8 @@ export const FORM_SECTIONS : any = [
     requiredFields: []
 
   },
-  
-  
+
+
   {
     id: "personsInvolved",
     title: "Persons Involved",
@@ -165,14 +258,14 @@ export const FORM_SECTIONS : any = [
   },
 
   {
-  id: "riskLevelSummary",
-  title: "Risk Level Summary",
-  icon: FaListAlt,
-  description: "Select the final severity level and view guidance",
-  fields: ["selectedRiskLevel"],
-  requiredFields: [],
+    id: "riskLevelSummary",
+    title: "Risk Level Summary",
+    icon: FaListAlt,
+    description: "Select the final severity level and view guidance",
+    fields: ["selectedRiskLevel"],
+    requiredFields: [],
 
-},
+  },
   {
     id: 'participantSafe',
     title: 'Participant Household Safe Meeting Point',
@@ -197,7 +290,7 @@ export const FORM_SECTIONS : any = [
         `person${i + 1}`,
       ]).flat(),
     ],
-        requiredFields: []
+    requiredFields: []
 
   },
   {
@@ -269,23 +362,23 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 }: any) => {
   // Helper function to get common field value
   const formatDateForInput = (ddmmyyyy: string): string => {
-  if (!ddmmyyyy || typeof ddmmyyyy !== "string") return "";
-  const [dd, mm, yyyy] = ddmmyyyy.split("-");
-  if (!dd || !mm || !yyyy) return "";
-  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
-};
+    if (!ddmmyyyy || typeof ddmmyyyy !== "string") return "";
+    const [dd, mm, yyyy] = ddmmyyyy.split("-");
+    if (!dd || !mm || !yyyy) return "";
+    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+  };
 
-const getCommonFieldValue = (fieldName: string): string => {
-  const commonKey = commonFieldsMapping[fieldName];
-  const rawValue = commonFieldsData?.[commonKey] || "";
+  const getCommonFieldValue = (fieldName: string): string => {
+    const commonKey = commonFieldsMapping[fieldName];
+    const rawValue = commonFieldsData?.[commonKey] || "";
 
-  // If it's a date field, convert DD-MM-YYYY to YYYY-MM-DD
-  if (["dob", "dateOfBirth", "signatureDate", "guardianDate", "reviewDate"].includes(fieldName)) {
-    return formatDateForInput(rawValue);
-  }
+    // If it's a date field, convert DD-MM-YYYY to YYYY-MM-DD
+    if (["dob", "dateOfBirth", "signatureDate", "guardianDate", "reviewDate"].includes(fieldName)) {
+      return formatDateForInput(rawValue);
+    }
 
-  return rawValue;
-};
+    return rawValue;
+  };
 
 
   useEffect(() => {
@@ -298,42 +391,42 @@ const getCommonFieldValue = (fieldName: string): string => {
   const [navigatingPrev, setNavigatingPrev] = useState(false);
   const [showSaveSpinner, setShowSaveSpinner] = useState(false);
 
-    
 
-const addRiskRow = () => {
-  const next = Math.max(...activeRiskRows) + 1;
-  if (next <= 10) {
-    setActiveRiskRows((prev) => [...prev, next]);
-  }
-};
 
-const getInitialMedicalConditionCount = () => {
-  let count = 0;
-  for (let i = 1; i <= 3; i++) {
-    if (
-      formData?.[`medicalSpecify${i}`] ||
-      formData?.[`medicalEffect${i}`] ||
-      formData?.[`medicalTreatment${i}`]
-    ) {
-      count = i;
+  const addRiskRow = () => {
+    const next = Math.max(...activeRiskRows) + 1;
+    if (next <= 10) {
+      setActiveRiskRows((prev) => [...prev, next]);
     }
-  }
-  return count || 1; // Show at least 1 by default
-};
+  };
 
-const [medicalConditionCount, setMedicalConditionCount] = useState(getInitialMedicalConditionCount());
-const handleAddMoreMedicalCondition = () => {
-  if (medicalConditionCount < 3) {
-    setMedicalConditionCount(medicalConditionCount + 1);
-  }
-};
+  const getInitialMedicalConditionCount = () => {
+    let count = 0;
+    for (let i = 1; i <= 3; i++) {
+      if (
+        formData?.[`medicalSpecify${i}`] ||
+        formData?.[`medicalEffect${i}`] ||
+        formData?.[`medicalTreatment${i}`]
+      ) {
+        count = i;
+      }
+    }
+    return count || 1; // Show at least 1 by default
+  };
+
+  const [medicalConditionCount, setMedicalConditionCount] = useState(getInitialMedicalConditionCount());
+  const handleAddMoreMedicalCondition = () => {
+    if (medicalConditionCount < 3) {
+      setMedicalConditionCount(medicalConditionCount + 1);
+    }
+  };
 
 
 
 
   // Signature canvas ref
-  const sigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
-    const sigCanvasRefGuardian : any = useRef<SignatureCanvasRef | null>(null);
+  const sigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
+  const sigCanvasRefGuardian: any = useRef<SignatureCanvasRef | null>(null);
 
 
   const initialValues = {
@@ -443,11 +536,11 @@ const handleAddMoreMedicalCondition = () => {
     mode2: "",
 
     // Page 13: Signatures and Review
-   
+
 
     ...formData,
 
-     authorisedBy: "",
+    authorisedBy: "",
     role: "",
     signature: "",
     signatureDate: "",
@@ -460,21 +553,21 @@ const handleAddMoreMedicalCondition = () => {
 
 
   const getInitialRiskRows = (formValues: Record<string, any>) => {
-  const rows: number[] = [];
-  for (let i = 1; i <= 10; i++) {
-    const hasValue =
-      formValues[`issue${i}`] ||
-      formValues[`score${i}`] ||
-      formValues[`control${i}`] ||
-      formValues[`person${i}`];
-    if (hasValue) rows.push(i);
-  }
-  return rows.length > 0 ? rows : [1]; // fallback to 1 row if nothing is filled
-};
+    const rows: number[] = [];
+    for (let i = 1; i <= 10; i++) {
+      const hasValue =
+        formValues[`issue${i}`] ||
+        formValues[`score${i}`] ||
+        formValues[`control${i}`] ||
+        formValues[`person${i}`];
+      if (hasValue) rows.push(i);
+    }
+    return rows.length > 0 ? rows : [1]; // fallback to 1 row if nothing is filled
+  };
 
-const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
-  getInitialRiskRows(initialValues)
-);
+  const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
+    getInitialRiskRows(initialValues)
+  );
 
 
 
@@ -602,11 +695,12 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   };
 
   const isCurrentSectionComplete = () => {
-    const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key : any ) => {
-      let value;
+    const section = FORM_SECTIONS[currentStep];
+    const required = section.requiredFields || [];
 
-      // For common fields, get value from commonFieldsData
+    // 1. Check explicitly required fields
+    const requiredFilled = required.every((key: any) => {
+      let value;
       if (isCommonField(key)) {
         value = getCommonFieldValue(key);
       } else {
@@ -619,6 +713,20 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
         value !== "" &&
         !(Array.isArray(value) && value.length === 0)
       );
+    });
+
+    if (!requiredFilled) return false;
+
+    // 2. Check conditional "Other" fields: If "Other" is selected, the specific input must be filled
+    const fields = section.fields || [];
+    return fields.every((key: string) => {
+      const meta = FIELD_METADATA[key];
+      // If it's a dropdown with showIfOther config AND the current value is "Other"
+      if (meta?.type === "dropdown" && meta?.showIfOther && localValues[key] === "Other") {
+        const otherValue = localValues[meta.showIfOther.inputName];
+        return otherValue !== undefined && otherValue !== null && String(otherValue).trim() !== "";
+      }
+      return true;
     });
   };
 
@@ -682,13 +790,12 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
           disabled={isFieldReadOnly}
           inputMode={name === "emergencyContactPhone" ? "tel" : undefined}
           pattern={name === "emergencyContactPhone" ? "[0-9+()\\-\\s]*" : undefined}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            mergedError
-              ? "border-red-300 bg-red-50"
-              : isCommon
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${mergedError
+            ? "border-red-300 bg-red-50"
+            : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
               : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
 
         {mergedError && (
@@ -713,31 +820,17 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     const mergedError = (fieldErrors as any)?.[name] || localErrors[name];
 
     return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-        <textarea
-          name={name}
-          value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
-          rows={rows}
-          disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
-            mergedError
-              ? "border-red-300 bg-red-50"
-              : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
-              : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-        />
-
-        {mergedError && (
-          <p className="text-xs text-red-500 mt-1">{mergedError}</p>
-        )}
-      </div>
+      <AutoResizeTextArea
+        label={label}
+        name={name}
+        value={displayValue}
+        onChange={isCommon ? (() => { }) as any : handleChange}
+        rows={rows}
+        placeholder={placeholder}
+        required={required}
+        readOnly={isFieldReadOnly}
+        fieldError={mergedError}
+      />
     );
   };
 
@@ -746,7 +839,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     name: string,
     options: string[],
     showComments?: boolean,
-    required?: boolean
+    required?: boolean,
+    showIfOther?: { label: string; inputName: string }
   ) => (
     <div className="flex flex-col gap-1">
       <label className="text-xs font-medium text-gray-700 mb-1">
@@ -756,15 +850,22 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       <select
         name={name}
         value={localValues[name] || ""}
-        onChange={handleChange}
+        onChange={(e) => {
+          handleChange(e);
+          if (showIfOther && e.target.value !== "Other") {
+            setLocalValues((prev: Record<string, any>) => ({
+              ...prev,
+              [showIfOther.inputName]: "",
+            }));
+          }
+        }}
         disabled={readOnly}
         aria-label={`Select ${label}`}
         title={`Select ${label}`}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-          fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+          ? "border-red-300 bg-red-50"
+          : "hover:border-accent/40"
+          } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -776,6 +877,20 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       {fieldErrors[name] && (
         <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
       )}
+
+      {/* Conditional input for "Other" option */}
+      {showIfOther && localValues[name] === "Other" && (
+        <div className="mt-3 pl-4 border-l-4 border-indigo-300 bg-indigo-50 rounded-xl py-2">
+          {renderInput(
+            showIfOther.label,
+            showIfOther.inputName,
+            "text",
+            "Please specify...",
+            localValues[name] === "Other" // Make it required if selected
+          )}
+        </div>
+      )}
+
       {showComments && (
         <div className="mt-3">
           {renderTextArea(
@@ -798,9 +913,8 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   ) => (
     <div className="flex flex-col gap-1">
       <label
-        className={`text-xs font-medium mb-1 ${
-          fieldErrors[name] ? "text-red-500" : "text-gray-700"
-        }`}
+        className={`text-xs font-medium mb-1 ${fieldErrors[name] ? "text-red-500" : "text-gray-700"
+          }`}
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -856,7 +970,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
   const renderSignatureField = (
     label: string,
     name: string,
-        signatureRef: any,
+    signatureRef: any,
 
     placeholder?: string,
     required?: boolean,
@@ -890,7 +1004,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
   };
 
-  const FIELD_METADATA = {
+  const FIELD_METADATA: Record<string, any> = {
     // Participant Details
     ndisNumber: {
       label: "NDIS Number",
@@ -946,7 +1060,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       type: "text",
       placeholder: "Treatment given 1",
     },
-     medicalSpecify2: {
+    medicalSpecify2: {
       label: "Specify",
       type: "text",
       placeholder: "Specify condition 2",
@@ -961,7 +1075,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       type: "text",
       placeholder: "Treatment given 2",
     },
-     medicalSpecify3: {
+    medicalSpecify3: {
       label: "Specify",
       type: "text",
       placeholder: "Specify condition 3",
@@ -1216,7 +1330,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       options: yesNoOptions
     },
 
-    
+
 
     medicationRiskDepressionComment: {
       label: "Medication Risk Control Comment",
@@ -1228,19 +1342,19 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     promptMedicationRequired: {
       label: "Prompt Medication Required",
       type: "dropdown",
-            options: yesNoOptions
+      options: yesNoOptions
 
     },
     assistanceMedicationRequired: {
       label: "Assistance of Medication Required",
       type: "dropdown",
-            options: yesNoOptions
+      options: yesNoOptions
 
     },
     adminMedicationRequired: {
       label: "Administration of Medication Required",
       type: "dropdown",
-            options: yesNoOptions
+      options: yesNoOptions
 
     },
     noMedicationRequired: {
@@ -1249,11 +1363,11 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
       options: yesNoOptions
     },
 
-   selectedRiskLevel: {
-  label: "Select Severity Level",
-  type: "dropdown",
-  options: ["Low", "Moderate", "High", "Critical"]
-},
+    selectedRiskLevel: {
+      label: "Select Severity Level",
+      type: "dropdown",
+      options: ["Low", "Moderate", "High", "Critical"]
+    },
 
 
     // Household Meeting Point
@@ -1286,8 +1400,9 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             `score${idx}`,
             {
               label: `Risk Score ${idx}`,
-              type: "text",
-              placeholder: "Score (e.g., 1-5)",
+              type: "dropdown",
+              placeholder: "Select score",
+              options: ["1", "2", "3", "4"],
             },
           ],
           [
@@ -1303,8 +1418,13 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             `person${idx}`,
             {
               label: `Responsible Person ${idx}`,
-              type: "text",
-              placeholder: "Enter name",
+              type: "dropdown",
+              placeholder: "Select responsible person",
+              options: ["Support Worker", "Other"],
+              showIfOther: {
+                label: "Please specify",
+                inputName: `person${idx}Other`,
+              },
             },
           ],
         ];
@@ -1367,49 +1487,49 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
 
 
   const handleSeverityChange = (value: string) => {
-  setLocalValues((prev : any) => ({
-    ...prev,
-    selectedRiskLevel: value,
-    riskLevelLow: value === "Low",
-    riskLevelModerate: value === "Moderate",
-    riskLevelHigh: value === "High",
-    riskLevelCritical: value === "Critical"
-  }));
-};
+    setLocalValues((prev: any) => ({
+      ...prev,
+      selectedRiskLevel: value,
+      riskLevelLow: value === "Low",
+      riskLevelModerate: value === "Moderate",
+      riskLevelHigh: value === "High",
+      riskLevelCritical: value === "Critical"
+    }));
+  };
 
-const renderDropdownSeverityRisk = (
-  label: string,
-  field: string,
-  options: string[],
-  showComments: boolean = false,
-  required: boolean = false
-) => {
-  const isSeverityField = field === "selectedRiskLevel";
+  const renderDropdownSeverityRisk = (
+    label: string,
+    field: string,
+    options: string[],
+    showComments: boolean = false,
+    required: boolean = false
+  ) => {
+    const isSeverityField = field === "selectedRiskLevel";
 
-  return (
-    <div>
-      <label className="block font-medium mb-1">{label}</label>
-      <select
-        className="w-full border px-3 py-2 rounded"
-        value={localValues[field]}
-        onChange={(e) =>
-          isSeverityField
-            ? handleSeverityChange(e.target.value)
-            : setLocalValues({ ...localValues, [field]: e.target.value })
-        }
-        aria-label={`Select ${label}`}
-        title={`Select ${label}`}
-      >
-        <option value="">-- Select --</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-};
+    return (
+      <div>
+        <label className="block font-medium mb-1">{label}</label>
+        <select
+          className="w-full border px-3 py-2 rounded"
+          value={localValues[field]}
+          onChange={(e) =>
+            isSeverityField
+              ? handleSeverityChange(e.target.value)
+              : setLocalValues({ ...localValues, [field]: e.target.value })
+          }
+          aria-label={`Select ${label}`}
+          title={`Select ${label}`}
+        >
+          <option value="">-- Select --</option>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  };
 
 
   const handleSaveProgressButton = async () => {
@@ -1577,7 +1697,7 @@ const renderDropdownSeverityRisk = (
   //           false
   //         )}
   //       </div>
-        
+
 
   //       {/* medicationRespDepressionRating dropdown */}
   //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
@@ -1604,92 +1724,92 @@ const renderDropdownSeverityRisk = (
   // };
 
   // Validation function to check if all required fields are filled
-  
+
   const renderBehavioralAndMobilitySection = () => {
-  const fields = [
-    "noiseSensitive",
-    "familyBehavioralHistory",
-    "mobilityIssues",
-    "showeringToiletingHazards",
-    "medicationRiskDepression"
-  ];
+    const fields = [
+      "noiseSensitive",
+      "familyBehavioralHistory",
+      "mobilityIssues",
+      "showeringToiletingHazards",
+      "medicationRiskDepression"
+    ];
 
-  return (
-    <div className="space-y-6">
-      {fields.map((key) => {
-        const ratingKey = `${key}Rating`;
-        const commentKey = `${key}Comment`;
+    return (
+      <div className="space-y-6">
+        {fields.map((key) => {
+          const ratingKey = `${key}Rating`;
+          const commentKey = `${key}Comment`;
 
-        const isBehaviorPractitioner = key === "behaviorPractitionerInvolved";
-        const meta = FIELD_METADATA[key];
-        const fieldType = meta?.type || "dropdown";
+          const isBehaviorPractitioner = key === "behaviorPractitionerInvolved";
+          const meta = FIELD_METADATA[key];
+          const fieldType = meta?.type || "dropdown";
 
-        return (
-          <div
-            key={key}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
-          >
-            {isBehaviorPractitioner ? (
-              // For behaviorPractitionerInvolved: render as text input in first column only
-              <>
-                {renderInput(
-                  meta.label,
-                  key,
-                  "text",
-                  meta.placeholder,
-                  false
-                )}
-                <div></div>
-                <div></div>
-              </>
-            ) : (
-              <>
-                {/* ✅ Always render Yes/No dropdown */}
-                {renderDropdown(
-                  FIELD_METADATA[key].label,
-                  key,
-                  yesNoOptions,
-                  false
-                )}
+          return (
+            <div
+              key={key}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
+            >
+              {isBehaviorPractitioner ? (
+                // For behaviorPractitionerInvolved: render as text input in first column only
+                <>
+                  {renderInput(
+                    meta.label,
+                    key,
+                    "text",
+                    meta.placeholder,
+                    false
+                  )}
+                  <div></div>
+                  <div></div>
+                </>
+              ) : (
+                <>
+                  {/* ✅ Always render Yes/No dropdown */}
+                  {renderDropdown(
+                    FIELD_METADATA[key].label,
+                    key,
+                    yesNoOptions,
+                    false
+                  )}
 
-                {/* ✅ Render rating */}
-                {renderDropdown(
-                  FIELD_METADATA[ratingKey].label,
-                  ratingKey,
-                  ratingOptions,
-                  false
-                )}
+                  {/* ✅ Render rating */}
+                  {renderDropdown(
+                    FIELD_METADATA[ratingKey].label,
+                    ratingKey,
+                    ratingOptions,
+                    false
+                  )}
 
-                {/* ✅ Render comment */}
-                {(() => {
-                  // Special handling for familyBehavioralHistoryComment -> behaviorPractitionerInvolved
-                  const actualCommentField = commentKey === "familyBehavioralHistoryComment" ? "behaviorPractitionerInvolved" : commentKey;
-                  
-                  return FIELD_METADATA[commentKey]?.type === "dropdown" ? (
-                    renderDropdown(
-                      FIELD_METADATA[commentKey].label,
-                      actualCommentField,
-                      FIELD_METADATA[commentKey].options || [],
-                      false
-                    )
-                  ) : (
-                    renderInput(
-                      FIELD_METADATA[commentKey].label,
-                      commentKey,
-                      "text",
-                      FIELD_METADATA[commentKey].placeholder,
-                      false
-                    )
-                  );
-                })()}
-              </>
-            )}
-          </div>
-        );
-      })}
+                  {/* ✅ Render comment */}
+                  {(() => {
+                    // Special handling for familyBehavioralHistoryComment -> behaviorPractitionerInvolved
+                    const actualCommentField = commentKey === "familyBehavioralHistoryComment" ? "behaviorPractitionerInvolved" : commentKey;
 
-      {/* medicationRespDepression multi-checkbox */}
-      {/* <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+                    return FIELD_METADATA[commentKey]?.type === "dropdown" ? (
+                      renderDropdown(
+                        FIELD_METADATA[commentKey].label,
+                        actualCommentField,
+                        FIELD_METADATA[commentKey].options || [],
+                        false
+                      )
+                    ) : (
+                      renderInput(
+                        FIELD_METADATA[commentKey].label,
+                        commentKey,
+                        "text",
+                        FIELD_METADATA[commentKey].placeholder,
+                        false
+                      )
+                    );
+                  })()}
+                </>
+              )}
+            </div>
+          );
+        })}
+
+        {/* medicationRespDepression multi-checkbox */}
+        {/* <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
         {renderMultiSelectCheckbox(
           FIELD_METADATA.medicationRespDepression.label,
           "medicationRespDepression",
@@ -1725,17 +1845,18 @@ const renderDropdownSeverityRisk = (
           false
         )}
       </div> */}
-    </div>
-  );
-};
+      </div>
+    );
+  };
 
 
-  
+
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
 
-    FORM_SECTIONS.forEach((section : any ) => {
-      section.requiredFields.forEach((fieldName : any ) => {
+    FORM_SECTIONS.forEach((section: any) => {
+      // 1. Check explicit required fields
+      section.requiredFields.forEach((fieldName: any) => {
         let value;
 
         // For common fields, get value from commonFieldsData
@@ -1748,6 +1869,18 @@ const renderDropdownSeverityRisk = (
         // Check if field is empty, null, undefined, or empty string
         if (!value || (typeof value === "string" && value.trim() === "")) {
           missingFields.push(`${fieldName}`);
+        }
+      });
+
+      // 2. Check conditional "Other" requirements
+      (section.fields || []).forEach((fieldName: string) => {
+        const meta = FIELD_METADATA[fieldName];
+        if (meta?.type === "dropdown" && meta?.showIfOther && localValues[fieldName] === "Other") {
+          const otherName = meta.showIfOther.inputName;
+          const otherValue = localValues[otherName];
+          if (!otherValue || (typeof otherValue === "string" && otherValue.trim() === "")) {
+            missingFields.push(otherName);
+          }
         }
       });
     });
@@ -1796,7 +1929,7 @@ const renderDropdownSeverityRisk = (
     }
   };
 
- // Handle signature end (when user finishes drawing)
+  // Handle signature end (when user finishes drawing)
   const handleSignatureEnd = (fieldName: string, dataUrl: string) => {
     const newValues = { ...localValues, [fieldName]: dataUrl };
     setLocalValues(newValues);
@@ -1811,31 +1944,31 @@ const renderDropdownSeverityRisk = (
   };
 
   const renderRiskLevelInfoTable = (selected: string) => {
-  if (!selected || !RISK_LEVEL_DETAILS[selected]) return null;
+    if (!selected || !RISK_LEVEL_DETAILS[selected]) return null;
 
-  const data = RISK_LEVEL_DETAILS[selected];
+    const data = RISK_LEVEL_DETAILS[selected];
 
-  return (
-    <table className="w-full border border-gray-300 mt-4 text-sm">
-      <thead>
-        <tr className="bg-gray-100 text-left">
-          <th className="border p-2">Risk Level</th>
-          <th className="border p-2">Description</th>
-          <th className="border p-2">Criteria</th>
-          <th className="border p-2">Impact on Health-Safety</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="border p-2">{data.level}</td>
-          <td className="border p-2">{data.description}</td>
-          <td className="border p-2">{data.criteria}</td>
-          <td className="border p-2">{data.impact}</td>
-        </tr>
-      </tbody>
-    </table>
-  );
-};
+    return (
+      <table className="w-full border border-gray-300 mt-4 text-sm">
+        <thead>
+          <tr className="bg-gray-100 text-left">
+            <th className="border p-2">Risk Level</th>
+            <th className="border p-2">Description</th>
+            <th className="border p-2">Criteria</th>
+            <th className="border p-2">Impact on Health-Safety</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="border p-2">{data.level}</td>
+            <td className="border p-2">{data.description}</td>
+            <td className="border p-2">{data.criteria}</td>
+            <td className="border p-2">{data.impact}</td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  };
 
 
   return (
@@ -1850,7 +1983,7 @@ const renderDropdownSeverityRisk = (
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section : any , idx : any ) => {
+          {FORM_SECTIONS.map((section: any, idx: any) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -1861,26 +1994,24 @@ const renderDropdownSeverityRisk = (
                 <button
                   type="button"
                   onClick={() => handleStepClick(idx)}
-                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${
-                    active
-                      ? "text-indigo-700"
-                      : unlocked
+                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active
+                    ? "text-indigo-700"
+                    : unlocked
                       ? "text-green-600"
                       : "text-gray-400 opacity-50 cursor-not-allowed"
-                  }`}
+                    }`}
                   aria-current={active ? "step" : undefined}
                   aria-label={section.title}
                   disabled={!unlocked}
                   tabIndex={unlocked ? 0 : -1}
                 >
                   <span
-                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${
-                      active
-                        ? "bg-indigo-700 border-indigo-500 text-white scale-110"
-                        : unlocked
+                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active
+                      ? "bg-indigo-700 border-indigo-500 text-white scale-110"
+                      : unlocked
                         ? "bg-green-500 border-green-500 text-white"
                         : "bg-gray-200 border-gray-300 text-gray-400"
-                    }`}
+                      }`}
                   >
                     {completedSteps.has(idx) ? (
                       <FaCheck className="w-4 h-4" />
@@ -1935,175 +2066,206 @@ const renderDropdownSeverityRisk = (
             className="flex flex-col gap-6"
           >
             <div className="space-y-4 md:space-y-8">
-  {/* Dynamic Section Rendering */}
-  {FORM_SECTIONS[currentStep].id === "riskGroupQuestions" ? (
-    <div className="space-y-6">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => renderRiskQuestionBlock(num))}
-    </div>
-  ) : FORM_SECTIONS[currentStep].id === "behavioralAndMobility" ? (
-    renderBehavioralAndMobilitySection()
-  ) : FORM_SECTIONS[currentStep].id === "riskLevelSummary" ? (
-    <div className="space-y-6">
-      {renderDropdownSeverityRisk(
-        FIELD_METADATA["selectedRiskLevel"].label,
-        "selectedRiskLevel",
-        FIELD_METADATA["selectedRiskLevel"].options,
-        false
-      )}
-      {renderRiskLevelInfoTable(localValues.selectedRiskLevel)}
-    </div>
-  ) : FORM_SECTIONS[currentStep].id === "riskAssessmentTable" ? (
-    <>
-      <div className="space-y-6">
-        {activeRiskRows.map((num) => (
-          <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Risk Assessment Entry {num}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                [`issue${num}`, FIELD_METADATA[`issue${num}`]],
-                [`score${num}`, FIELD_METADATA[`score${num}`]],
-                [`control${num}`, FIELD_METADATA[`control${num}`]],
-                [`person${num}`, FIELD_METADATA[`person${num}`]],
-              ].map(([key, meta]) =>
-                meta?.type === "textarea" ? (
-                  <div key={key} className="md:col-span-2">
-                    {renderTextArea(meta.label, key, meta.rows || 3, meta.placeholder)}
+              {/* Dynamic Section Rendering */}
+              {FORM_SECTIONS[currentStep].id === "riskGroupQuestions" ? (
+                <div className="space-y-6">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => renderRiskQuestionBlock(num))}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "behavioralAndMobility" ? (
+                renderBehavioralAndMobilitySection()
+              ) : FORM_SECTIONS[currentStep].id === "riskLevelSummary" ? (
+                <div className="space-y-6">
+                  {renderDropdownSeverityRisk(
+                    FIELD_METADATA["selectedRiskLevel"].label,
+                    "selectedRiskLevel",
+                    FIELD_METADATA["selectedRiskLevel"].options,
+                    false
+                  )}
+                  {renderRiskLevelInfoTable(localValues.selectedRiskLevel)}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "riskAssessmentTable" ? (
+                <>
+                  <div className="space-y-6">
+                    {activeRiskRows.map((num) => (
+                      <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800">Risk Assessment Entry {num}</h3>
+                          <div className="w-1/2">
+                            <select
+                              className="w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              onChange={(e) => {
+                                const selectedIssue = e.target.value;
+                                if (!selectedIssue) return;
+
+                                const template = RISK_TEMPLATES.find(t => t.issue === selectedIssue);
+                                if (template) {
+                                  setLocalValues((prev: Record<string, any>) => ({
+                                    ...prev,
+                                    [`issue${num}`]: template.issue,
+                                    [`control${num}`]: template.control
+                                  }));
+                                }
+                              }}
+                              value=""
+                            >
+                              <option value="" disabled>✨ Quick Fill from Template...</option>
+                              {RISK_TEMPLATES.map((t, i) => (
+                                <option key={i} value={t.issue}>{t.issue}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {[
+                            [`issue${num}`, FIELD_METADATA[`issue${num}`]],
+                            [`score${num}`, FIELD_METADATA[`score${num}`]],
+                            [`control${num}`, FIELD_METADATA[`control${num}`]],
+                            [`person${num}`, FIELD_METADATA[`person${num}`]],
+                          ].map(([key, meta]) =>
+                            meta?.type === "textarea" ? (
+                              <div key={key} className="md:col-span-2">
+                                {renderTextArea(meta.label, key, meta.rows || 3, meta.placeholder)}
+                              </div>
+                            ) : meta?.type === "dropdown" ? (
+                              <div key={key}>
+                                {renderDropdown(meta.label, key, meta.options || [], false, false, meta.showIfOther)}
+                              </div>
+                            ) : (
+                              <div key={key}>
+                                {renderInput(meta.label, key, meta.type || "text", meta.placeholder)}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div key={key}>
-                    {renderInput(meta.label, key, meta.type || "text", meta.placeholder)}
+
+                  {activeRiskRows.length < 10 && (
+                    <button
+                      type="button"
+                      onClick={addRiskRow}
+                      className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+                    >
+                      + Add Risk Entry
+                    </button>
+                  )}
+                </>
+              ) :
+
+                FORM_SECTIONS[currentStep].id === "knownMedicalConditions" ? (
+                  <div className="space-y-6">
+                    {[...Array(medicalConditionCount)].map((_, i) => {
+                      const index = i + 1;
+                      return (
+                        <div
+                          key={index}
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
+                        >
+                          {renderInput(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, "text", FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
+                          {renderInput(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, "text", FIELD_METADATA[`medicalEffect${index}`].placeholder)}
+                          {renderInput(FIELD_METADATA[`medicalTreatment${index}`].label, `medicalTreatment${index}`, "text", FIELD_METADATA[`medicalTreatment${index}`].placeholder)}
+                        </div>
+                      );
+                    })}
+
+                    {medicalConditionCount < 3 && (
+                      <button
+                        type="button"
+                        onClick={handleAddMoreMedicalCondition}
+                        className="mt-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+                      >
+                        + Add Another Medical Condition
+                      </button>
+                    )}
                   </div>
-                )
-              )}
+                ) :
+
+
+                  (
+                    // Default layout
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {FORM_SECTIONS[currentStep].fields.map((field: any) => {
+                        // 🧠 Special logic for conditional display of participantInvolvedReason
+                        if (
+                          field === "participantInvolvedReason" &&
+                          localValues["participantInvolved"] !== "No"
+                        ) {
+                          return null; // Don't render unless participantInvolved === "No"
+                        }
+
+                        // Skip the comment and rating fields for behaviorPractitionerInvolved (only render the main question)
+                        if (field === "behaviorPractitionerInvolvedComment" || field === "behaviorPractitionerInvolvedRating") {
+                          return null;
+                        }
+
+                        const meta = FIELD_METADATA[field];
+                        if (!meta) {
+                          console.warn(`Field metadata not found for: ${field}`);
+                          return null;
+                        }
+                        const required = isFieldRequired(field);
+
+                        // Special handling for behaviorPractitionerInvolved to use the comment field
+                        let actualFieldName = field;
+                        if (field === "familyBehavioralHistoryComment") {
+                          // Use behaviorPractitionerInvolved field to store the data
+                          actualFieldName = "behaviorPractitionerInvolved";
+                        }
+
+                        if (meta.type === "textarea") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
+                            </div>
+                          );
+                        }
+
+                        if (meta.type === "dropdown") {
+                          // Use actualFieldName for behaviorPractitionerInvolved mapping
+                          const fieldToUse = actualFieldName !== field ? actualFieldName : field;
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderDropdown(meta.label, fieldToUse, meta.options || [], meta.showComments, required)}
+                            </div>
+                          );
+                        }
+
+                        if (meta.type === "checkbox") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderMultiSelectCheckbox(meta.label, field, meta.options || [], meta.showComments, required)}
+                            </div>
+                          );
+                        }
+
+                        if (meta.type === "signature") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderSignatureField(meta.label, "signature", sigCanvasRef, meta.placeholder, true)}
+                            </div>
+                          );
+                        }
+
+                        if (meta.type === "signatureGuardian") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div key={field}>
+                            {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+                          </div>
+                        );
+                      })}
+
+                    </div>
+                  )}
             </div>
-          </div>
-        ))}
-      </div>
-
-      {activeRiskRows.length < 10 && (
-        <button
-          type="button"
-          onClick={addRiskRow}
-          className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
-        >
-          + Add Risk Entry
-        </button>
-      )}
-    </>
-  ) : 
-  
-  FORM_SECTIONS[currentStep].id === "knownMedicalConditions" ? (
-  <div className="space-y-6">
-    {[...Array(medicalConditionCount)].map((_, i) => {
-      const index = i + 1;
-      return (
-        <div
-          key={index}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
-        >
-          {renderInput(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, "text", FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
-          {renderInput(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, "text", FIELD_METADATA[`medicalEffect${index}`].placeholder)}
-          {renderInput(FIELD_METADATA[`medicalTreatment${index}`].label, `medicalTreatment${index}`, "text", FIELD_METADATA[`medicalTreatment${index}`].placeholder)}
-        </div>
-      );
-    })}
-
-    {medicalConditionCount < 3 && (
-      <button
-        type="button"
-        onClick={handleAddMoreMedicalCondition}
-        className="mt-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
-      >
-        + Add Another Medical Condition
-      </button>
-    )}
-  </div>
-) :
-
-  
-  (
-    // Default layout
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {FORM_SECTIONS[currentStep].fields.map((field: any) => {
-  // 🧠 Special logic for conditional display of participantInvolvedReason
-  if (
-    field === "participantInvolvedReason" &&
-    localValues["participantInvolved"] !== "No"
-  ) {
-    return null; // Don't render unless participantInvolved === "No"
-  }
-
-  // Skip the comment and rating fields for behaviorPractitionerInvolved (only render the main question)
-  if (field === "behaviorPractitionerInvolvedComment" || field === "behaviorPractitionerInvolvedRating") {
-    return null;
-  }
-
-  const meta = FIELD_METADATA[field];
-  if (!meta) {
-    console.warn(`Field metadata not found for: ${field}`);
-    return null;
-  }
-  const required = isFieldRequired(field);
-  
-  // Special handling for behaviorPractitionerInvolved to use the comment field
-  let actualFieldName = field;
-  if (field === "familyBehavioralHistoryComment") {
-    // Use behaviorPractitionerInvolved field to store the data
-    actualFieldName = "behaviorPractitionerInvolved";
-  }
-
-  if (meta.type === "textarea") {
-    return (
-      <div key={field} className="md:col-span-2">
-        {renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required)}
-      </div>
-    );
-  }
-
-  if (meta.type === "dropdown") {
-    // Use actualFieldName for behaviorPractitionerInvolved mapping
-    const fieldToUse = actualFieldName !== field ? actualFieldName : field;
-    return (
-      <div key={field} className="md:col-span-2">
-        {renderDropdown(meta.label, fieldToUse, meta.options || [], meta.showComments, required)}
-      </div>
-    );
-  }
-
-  if (meta.type === "checkbox") {
-    return (
-      <div key={field} className="md:col-span-2">
-        {renderMultiSelectCheckbox(meta.label, field, meta.options || [], meta.showComments, required)}
-      </div>
-    );
-  }
-
-  if (meta.type === "signature") {
-    return (
-      <div key={field} className="md:col-span-2">
-        {renderSignatureField(meta.label, "signature", sigCanvasRef, meta.placeholder, true)}
-      </div>
-    );
-  }
-
-  if (meta.type === "signatureGuardian") {
-    return (
-      <div key={field} className="md:col-span-2">
-        {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
-      </div>
-    );
-  }
-
-  return (
-    <div key={field}>
-      {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
-    </div>
-  );
-})}
-
-    </div>
-  )}
-</div>
 
           </form>
         </section>
@@ -2112,16 +2274,15 @@ const renderDropdownSeverityRisk = (
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_ : any , index : any) => (
+            {FORM_SECTIONS.map((_: any, index: any) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${
-                  index === currentStep
-                    ? "bg-blue-600 border-blue-600 shadow"
-                    : index < currentStep
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep
+                  ? "bg-blue-600 border-blue-600 shadow"
+                  : index < currentStep
                     ? "bg-green-500 border-green-500"
                     : "bg-gray-200 border-gray-300"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -2131,11 +2292,10 @@ const renderDropdownSeverityRisk = (
               type="button"
               onClick={handlePreviousSequential}
               disabled={currentStep === 0 || navigatingPrev}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === 0 || navigatingPrev
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                  : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
-              }`}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
+                }`}
             >
               {navigatingPrev ? (
                 <FaSpinner className="w-4 h-4 animate-spin" />
@@ -2153,13 +2313,12 @@ const renderDropdownSeverityRisk = (
                 !isCurrentSectionComplete() ||
                 navigatingNext
               }
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === FORM_SECTIONS.length - 1 ||
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 ||
                 !isCurrentSectionComplete() ||
                 navigatingNext
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                  : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
-              }`}
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
+                }`}
             >
               <span>Next</span>
               {navigatingNext ? (
