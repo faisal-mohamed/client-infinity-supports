@@ -41,10 +41,10 @@ import { formatDateForInput, formatDateForStorage } from "@/lib/dateFormatHelper
 const format = (date: Date, formatStr: string): string => {
   if (!date || isNaN(date.getTime())) return '';
   if (formatStr === 'dd/MM/yyyy') {
-    return date.toLocaleDateString('en-AU', { 
-      day: '2-digit', 
-      month: '2-digit', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-AU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
     });
   }
   return date.toLocaleDateString();
@@ -92,6 +92,105 @@ interface FormProps {
 // ===========================
 // SHARED CONFIGURATION
 // ===========================
+
+// Custom Auto-Resize Text Area Component
+const AutoResizeTextArea: React.FC<{
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+  placeholder?: string;
+  required?: boolean;
+  maxWords?: number;
+  readOnly?: boolean;
+  fieldError?: string;
+  isCommon?: boolean;
+}> = ({
+  label,
+  name,
+  value,
+  onChange,
+  rows = 3,
+  placeholder,
+  required,
+  maxWords,
+  readOnly,
+  fieldError,
+  isCommon
+}) => {
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize logic
+    const adjustHeight = React.useCallback(() => {
+      const textarea = textAreaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto'; // Reset height to recalculate
+        textarea.style.height = `${Math.max(textarea.scrollHeight, rows * 24)}px`; // Set to scrollHeight but respect min rows
+      }
+    }, [rows]);
+
+    // Adjust height on value change (initial load + dynamic updates)
+    React.useLayoutEffect(() => {
+      adjustHeight();
+    }, [value, adjustHeight]);
+
+    // Calculate word count
+    const wordCount = value ? value.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isOverLimit = maxWords ? wordCount > maxWords : false;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-xs font-medium text-gray-700">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {maxWords && (
+            <span className={`text-xs font-medium ${isOverLimit
+              ? 'text-red-600'
+              : wordCount > maxWords * 0.9
+                ? 'text-orange-500'
+                : 'text-gray-500'
+              }`}>
+              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
+            </span>
+          )}
+        </div>
+        <textarea
+          ref={textAreaRef}
+          name={name}
+          value={value}
+          onChange={(e) => {
+            onChange(e);
+            adjustHeight();
+          }}
+          onInput={adjustHeight}
+          placeholder={isCommon ? "Value from common fields" : placeholder}
+          rows={rows}
+          style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
+          disabled={readOnly}
+          className={`w-full rounded-lg border ${isOverLimit && !isCommon ? 'border-red-400' : 'border-gray-200'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit && !isCommon ? 'focus:ring-red-400' : 'focus:ring-accent'
+            } focus:border-accent transition-all placeholder-gray-400 resize-none ${fieldError
+              ? "border-red-300 bg-red-50"
+              : isCommon
+                ? "bg-blue-50 border-blue-200 text-blue-800"
+                : "hover:border-accent/40"
+            } ${readOnly ? "cursor-not-allowed" : ""}`}
+        />
+        {isOverLimit && !isCommon && maxWords && (
+          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
+          </p>
+        )}
+        {fieldError && (
+          <p className="text-xs text-red-500 mt-1">{fieldError}</p>
+        )}
+      </div>
+    );
+  };
 
 const FORM_SECTIONS = [
   {
@@ -257,14 +356,14 @@ const FIELD_METADATA: Record<string, any> = {
   email: { label: "Email", type: "email", placeholder: "Enter your email address" },
   homePhone: { label: "Home Phone", type: "tel", placeholder: "Enter your home phone number" },
   mobile: { label: "Mobile", type: "tel", placeholder: "Enter your mobile number" },
-  disabilityConditions: { label: "Disability Conditions/Disability type(s)", type: "textarea", placeholder: "Please describe your disability conditions or types", rows: 3, maxWords: 500 },
+  disabilityConditions: { label: "Disability Conditions", type: "textarea", rows: 4, maxWords: 500, placeholder: "List conditions..." },
   medicalCentreName: { label: "Medical Centre Name", type: "text", placeholder: "Name of your medical centre" },
   medicalPhone: { label: "Medical Centre Phone", type: "tel", placeholder: "Medical centre phone number" },
   supportCoordinatorName: { label: "Support Coordinator Name", type: "text", placeholder: "Coordinator's name" },
-  supportCoordinatorEmail: { label: "Support Coordinator Email", type: "email", placeholder: "Coordinator's email" },
+  supportCoordinatorEmail: { label: "Support Coordinator Email", type: "text", placeholder: "Coordinator's email" },
   supportCoordinatorCompany: { label: "Support Coordinator Company", type: "text", placeholder: "Company name" },
   supportCoordinatorContact: { label: "Support Coordinator Contact", type: "tel", placeholder: "Contact number" },
-  otherSupports: { label: "What other supports including mainstream health services you receive at present", type: "textarea", placeholder: "Describe any other support services you receive", rows: 4, maxWords: 500 },
+  otherSupports: { label: "What other supports...", type: "textarea", rows: 4, maxWords: 500, placeholder: "List other supports..." },
   aboutMe: { label: "", type: "textarea", placeholder: "Tell us about yourself", rows: 4, maxWords: 1000 },
   advocateName: { label: "Advocate Name", type: "text", placeholder: "Advocate's full name" },
   advocateEmail: { label: "Advocate Email", type: "email", placeholder: "Advocate's email" },
@@ -273,7 +372,7 @@ const FIELD_METADATA: Record<string, any> = {
   advocateAddress: { label: "Advocate Address", type: "textarea", placeholder: "Enter advocate's full address", rows: 3 },
   advocatePostalAddress: { label: "Advocate Postal Address", type: "textarea", placeholder: "Enter advocate's postal address", rows: 3 },
   advocateOtherInfo: { label: "Additional Information", type: "textarea", placeholder: "Any additional information about your advocate", rows: 3, maxWords: 300 },
-  advocateRelationship: { label: "Relationship with Participant", type: "text", placeholder: "Relationship" },
+  advocateRelationship: { label: "Relationship with Participant", type: "textarea", rows: 2, placeholder: "Relationship..." },
   barriers: { label: "Are there any cultural, communication barriers or intimacy issues that need to be considered when delivering services", type: "dropdown", options: yesNoOptions },
   language: { label: "Language", type: "text", placeholder: "Primary language spoken" },
   interpreter: { label: "Verbal communication or spoken language - Is an interpreter needed?", type: "dropdown", options: yesNoOptions },
@@ -350,7 +449,7 @@ const ClientIntakeFormUnified: React.FC<FormProps> = ({
     if (commonKey && commonFieldsData?.[commonKey]) {
       return String(commonFieldsData[commonKey]);
     }
-    
+
     // Only fallback to saved form data if DB doesn't have the value
     return formData?.[fieldName] ? String(formData[fieldName]) : '';
   };
@@ -571,7 +670,7 @@ const InteractiveView: React.FC<any> = ({
 
     // Allow only digits, spaces, hyphens, parentheses, and plus sign
     const phoneRegex = /^[\d\s\-\(\)\+]+$/;
-    
+
     if (!phoneRegex.test(value)) {
       return {
         isValid: false,
@@ -604,7 +703,7 @@ const InteractiveView: React.FC<any> = ({
 
     // Basic email regex pattern
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailRegex.test(value)) {
       return {
         isValid: false,
@@ -737,12 +836,12 @@ const InteractiveView: React.FC<any> = ({
     // Get field type for validation
     const fieldType = getFieldType(name);
     let processedValue = value;
-    
+
     // For phone numbers: sanitize immediately (remove invalid characters as user types)
     if (fieldType === 'tel') {
       // Only allow digits, spaces, hyphens, parentheses, and plus sign
       processedValue = value.replace(/[^\d\s\-\(\)\+]/g, '');
-      
+
       // Trigger debounced validation (will show toast after user stops typing)
       performDebouncedValidation(name, processedValue, fieldType);
     }
@@ -755,7 +854,7 @@ const InteractiveView: React.FC<any> = ({
     // Check word count limit for text inputs
     const meta = FIELD_METADATA[name];
     let maxWords = meta?.maxWords;
-    
+
     // For Yes/No detail fields, check parent's showIfYes config
     if (!maxWords) {
       const parentField = Object.keys(FIELD_METADATA).find(key => {
@@ -766,10 +865,10 @@ const InteractiveView: React.FC<any> = ({
         maxWords = FIELD_METADATA[parentField]?.showIfYes?.maxWords;
       }
     }
-    
+
     if (maxWords && typeof processedValue === 'string') {
       const wordCount = processedValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
-      
+
       if (wordCount > maxWords) {
         showToast({
           type: "warning",
@@ -869,7 +968,7 @@ const InteractiveView: React.FC<any> = ({
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    
+
     // Check required fields are filled
     const allFilled = required.every((key) => {
       let value;
@@ -882,28 +981,28 @@ const InteractiveView: React.FC<any> = ({
 
       return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
     });
-    
+
     // Check no fields are over word limit in current section
     const noOverLimit = FORM_SECTIONS[currentStep].fields.every((key) => {
       const meta = FIELD_METADATA[key];
       if (!meta?.maxWords) return true; // No limit = OK
-      
+
       const value = localValues[key];
       if (!value || typeof value !== 'string') return true;
-      
+
       const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
       return wordCount <= meta.maxWords;
     });
-    
+
     // Also check Yes/No detail fields in current section
     const noDetailOverLimit = FORM_SECTIONS[currentStep].fields.every((key) => {
       const meta = FIELD_METADATA[key];
       if (!meta?.showIfYes?.inputName || !meta?.showIfYes?.maxWords) return true;
-      
+
       const detailFieldName = meta.showIfYes.inputName;
       const detailValue = localValues[detailFieldName];
       if (!detailValue || typeof detailValue !== 'string') return true;
-      
+
       const wordCount = detailValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
       return wordCount <= meta.showIfYes.maxWords;
     });
@@ -932,7 +1031,7 @@ const InteractiveView: React.FC<any> = ({
         if (!value || (typeof value === 'string' && value.trim() === '')) {
           missingFields.push(`${fieldName}`);
         }
-        
+
         // Check word count limits
         const meta = FIELD_METADATA[fieldName];
         if (meta?.maxWords && value && typeof value === 'string') {
@@ -942,12 +1041,12 @@ const InteractiveView: React.FC<any> = ({
           }
         }
       });
-      
+
       // Check word limits for all fields in section (including non-required)
       section.fields.forEach(fieldName => {
         const meta = FIELD_METADATA[fieldName];
         const value = localValues[fieldName];
-        
+
         // Check main field word limit
         if (meta?.maxWords && value && typeof value === 'string') {
           const wordCount = value.trim().split(/\s+/).filter((word: string) => word.length > 0).length;
@@ -955,7 +1054,7 @@ const InteractiveView: React.FC<any> = ({
             overLimitFields.push(`${meta.label || fieldName} (${wordCount}/${meta.maxWords} words)`);
           }
         }
-        
+
         // Check Yes/No detail field word limit
         if (meta?.showIfYes?.inputName && meta?.showIfYes?.maxWords) {
           const detailValue = localValues[meta.showIfYes.inputName];
@@ -981,28 +1080,28 @@ const InteractiveView: React.FC<any> = ({
     if (submit) {
       // Validate before submission
       const validation = validateRequiredFields();
-      
+
       if (!validation.isValid) {
         let errorMessage = '';
-        
+
         if (validation.missingFields.length > 0) {
           errorMessage += `Missing required fields:\n${validation.missingFields.join(', ')}\n\n`;
         }
-        
+
         if (validation.overLimitFields.length > 0) {
           errorMessage += `Fields exceeding word limit:\n${validation.overLimitFields.join('\n')}`;
         }
-        
+
         showToast({
           type: 'error',
           title: 'Validation Error',
           message: errorMessage,
           duration: 6000,
         });
-        
+
         return; // Prevent submission
       }
-      
+
       setSubmitting(true);
       await handleSubmitForm();
       setSubmitting(false);
@@ -1064,14 +1163,13 @@ const InteractiveView: React.FC<any> = ({
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 transition-all placeholder-gray-400 ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50 focus:ring-red-400"
-              : hasValidationWarning
+          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 transition-all placeholder-gray-400 ${fieldErrors[name]
+            ? "border-red-300 bg-red-50 focus:ring-red-400"
+            : hasValidationWarning
               ? "border-amber-300 bg-amber-50 focus:ring-amber-400 focus:border-amber-400"
-            : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800 focus:ring-blue-400"
-              : "border-gray-200 hover:border-accent/40 focus:ring-accent focus:border-accent"
+              : isCommon
+                ? "bg-blue-50 border-blue-200 text-blue-800 focus:ring-blue-400"
+                : "border-gray-200 hover:border-accent/40 focus:ring-accent focus:border-accent"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
         {fieldErrors[name] && (
@@ -1093,73 +1191,7 @@ const InteractiveView: React.FC<any> = ({
     );
   };
 
-  const renderTextArea = (
-    label: string,
-    name: string,
-    rows: number = 3,
-    placeholder?: string,
-    required?: boolean,
-    maxWords?: number
-  ) => {
-    const isCommon = isCommonField(name);
-    const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
-    const isFieldReadOnly = readOnly || isCommon;
 
-    // Calculate word count
-    const wordCount = displayValue ? displayValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
-    const isOverLimit = maxWords ? wordCount > maxWords : false;
-    const percentUsed = maxWords ? Math.min((wordCount / maxWords) * 100, 100) : 0;
-
-    return (
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-center mb-1">
-          <label className="text-xs font-medium text-gray-700">
-            {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
-          </label>
-          {maxWords && (
-            <span className={`text-xs font-medium ${
-              isOverLimit 
-                ? 'text-red-600' 
-                : wordCount > maxWords * 0.9 
-                  ? 'text-orange-500' 
-                  : 'text-gray-500'
-            }`}>
-              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
-            </span>
-          )}
-        </div>
-        <textarea
-          name={name}
-          value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
-          rows={rows}
-          disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border ${
-            isOverLimit && !isCommon ? 'border-red-400' : 'border-gray-200'
-          } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${
-            isOverLimit && !isCommon ? 'focus:ring-red-400' : 'focus:ring-accent'
-          } focus:border-accent transition-all placeholder-gray-400 resize-none ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-        />
-        {isOverLimit && !isCommon && maxWords && (
-          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-            <span>⚠️</span>
-            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
-          </p>
-        )}
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-        )}
-      </div>
-    );
-  };
 
   const renderDropdown = (
     label: string,
@@ -1174,9 +1206,6 @@ const InteractiveView: React.FC<any> = ({
   ) => {
     // Calculate word count for detail field
     const detailValue = showIfYes?.inputName ? (localValues[showIfYes.inputName] || "") : "";
-    const detailWordCount = detailValue ? detailValue.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
-    const isDetailOverLimit = showIfYes?.maxWords ? detailWordCount > showIfYes.maxWords : false;
-    const detailPercentUsed = showIfYes?.maxWords ? Math.min((detailWordCount / showIfYes.maxWords) * 100, 100) : 0;
 
     return (
       <div className="flex flex-col gap-1">
@@ -1207,52 +1236,25 @@ const InteractiveView: React.FC<any> = ({
         )}
         {showIfYes && localValues[name] === "Yes" && (
           <div className="mt-3 pl-4 border-l-4 border-accent/30 bg-accent/5 rounded-xl py-2">
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-medium text-accent">
+            {showIfYes.label && (
+              <label className="block text-xs font-medium text-accent mb-2">
                 {showIfYes.label}
               </label>
-              {showIfYes.maxWords && showIfYes.inputName && (
-                <span className={`text-xs font-medium ${
-                  isDetailOverLimit 
-                    ? 'text-red-600' 
-                    : detailWordCount > showIfYes.maxWords * 0.9 
-                      ? 'text-orange-500' 
-                      : 'text-gray-500'
-                }`}>
-                  {detailWordCount}/{showIfYes.maxWords} words {isDetailOverLimit && '⚠️'}
-                </span>
-              )}
-            </div>
+            )}
             {showIfYes.inputName && (
-              <>
-                <input
-                  type="text"
-                  name={showIfYes.inputName}
-                  value={localValues[showIfYes.inputName] || ""}
-                  onChange={handleChange}
-                  disabled={readOnly}
-                  className={`w-full rounded-xl border ${
-                    isDetailOverLimit ? 'border-red-400' : 'border-gray-200'
-                  } bg-white px-3 py-2 text-base shadow-sm focus:outline-none focus:ring-2 ${
-                    isDetailOverLimit ? 'focus:ring-red-400' : 'focus:ring-accent'
-                  } focus:border-accent transition-all placeholder-gray-400 ${
-                    fieldErrors[showIfYes.inputName]
-                      ? "border-red-300 bg-red-50"
-                      : "hover:border-accent/40"
-                  } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
-                />
-                {isDetailOverLimit && showIfYes.maxWords && (
-                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
-                    <span>⚠️</span>
-                    <span>Exceeds word limit by {detailWordCount - showIfYes.maxWords} words. Please reduce content.</span>
-                  </p>
-                )}
-                {fieldErrors[showIfYes.inputName] && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {fieldErrors[showIfYes.inputName]}
-                  </p>
-                )}
-              </>
+              <AutoResizeTextArea
+                label="" // Label is handled above for styling
+                name={showIfYes.inputName}
+                value={localValues[showIfYes.inputName] || ""}
+                onChange={handleChange}
+                rows={3}
+                placeholder="Please provide details..."
+                required={required} // Assume detail is required if parent is Yes
+                maxWords={showIfYes.maxWords}
+                readOnly={readOnly}
+                fieldError={fieldErrors[showIfYes.inputName]}
+                isCommon={false} // Detail fields are rarely common
+              />
             )}
           </div>
         )}
@@ -1410,24 +1412,58 @@ const InteractiveView: React.FC<any> = ({
                   {(() => {
                     const meta = FIELD_METADATA["aboutMe"];
                     const required = isFieldRequired("aboutMe");
-                    return renderTextArea(meta.label, "aboutMe", meta.rows || 4, meta.placeholder, required, meta.maxWords);
+                    const isCommon = isCommonField("aboutMe");
+                    return (
+                      <AutoResizeTextArea
+                        label={meta.label}
+                        name="aboutMe"
+                        value={isCommon ? getCommonFieldValue("aboutMe") : (localValues["aboutMe"] || "")}
+                        onChange={isCommon ? () => { } : handleChange}
+                        rows={meta.rows || 4}
+                        placeholder={meta.placeholder}
+                        required={required}
+                        maxWords={meta.maxWords}
+                        readOnly={readOnly || isCommon}
+                        fieldError={fieldErrors["aboutMe"]}
+                        isCommon={isCommon}
+                      />
+                    );
                   })()}
                 </div>
               ) : (
+                // 🔹 DEFAULT: Iterate over fields for other steps
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field) => {
-                    const meta = FIELD_METADATA[field] || { label: field, type: "text" };
-                    const required = isFieldRequired(field);
+                  {FORM_SECTIONS[currentStep].fields.map((fieldName: string) => {
+                    const meta = FIELD_METADATA[fieldName] || { label: fieldName, type: "text", placeholder: "" };
+                    const required = isFieldRequired(fieldName);
+
+                    // Dynamically use specific renderers based on metadata type
                     if (meta.type === "textarea") {
-                      return <React.Fragment key={field}>{renderTextArea(meta.label, field, meta.rows || 3, meta.placeholder, required, meta.maxWords)}</React.Fragment>;
+                      const isCommon = isCommonField(fieldName);
+                      return (
+                        <AutoResizeTextArea
+                          key={fieldName}
+                          label={meta.label}
+                          name={fieldName}
+                          value={isCommon ? getCommonFieldValue(fieldName) : (localValues[fieldName] || "")}
+                          onChange={isCommon ? () => { } : handleChange}
+                          rows={meta.rows}
+                          placeholder={meta.placeholder}
+                          required={required}
+                          maxWords={meta.maxWords}
+                          readOnly={readOnly || isCommon}
+                          fieldError={fieldErrors[fieldName]}
+                          isCommon={isCommon}
+                        />
+                      );
                     }
                     if (meta.type === "dropdown") {
-                      return <React.Fragment key={field}>{renderDropdown(meta.label, field, meta.options || [], meta.showIfYes, required)}</React.Fragment>;
+                      return <React.Fragment key={fieldName}>{renderDropdown(meta.label, fieldName, meta.options || [], meta.showIfYes, required)}</React.Fragment>;
                     }
                     if (meta.type === "checkbox") {
-                      return <React.Fragment key={field}>{renderMultiSelectCheckbox(meta.label, field, meta.options || [], required)}</React.Fragment>;
+                      return <React.Fragment key={fieldName}>{renderMultiSelectCheckbox(meta.label, fieldName, meta.options || [], required)}</React.Fragment>;
                     }
-                    return <React.Fragment key={field}>{renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}</React.Fragment>;
+                    return <React.Fragment key={fieldName}>{renderInput(meta.label, fieldName, meta.type || "text", meta.placeholder, required)}</React.Fragment>;
                   })}
                 </div>
               )}
@@ -1522,7 +1558,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
   console.log(`🔍 PDFView UPDATED - Using new renderAllFields() function - ${timestamp}`);
   console.log('📊 Form data keys:', Object.keys(formData || {}));
   console.log('🎯 Rendering ALL 71 fields with section headers');
-  
+
   // Use the same styling approach as ClientIntakev2Natural
   const cleanText = (text: string) => {
     if (!text) return '';
@@ -1534,10 +1570,10 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
     console.log('🚀 renderAllFields() called - rendering all sections');
     console.log('📋 FORM_SECTIONS:', FORM_SECTIONS.length, 'sections');
     console.log('🔧 FIELD_METADATA keys:', Object.keys(FIELD_METADATA).length, 'fields');
-    
+
     return FORM_SECTIONS.map((section, sectionIndex) => (
-      <div 
-        key={section.id} 
+      <div
+        key={section.id}
         className="mb-8"
         style={{
           marginTop: sectionIndex > 0 ? '24px' : '0px',
@@ -1551,9 +1587,9 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
           <h2 className="text-lg font-semibold">SECTION {sectionIndex + 1}: {section.title.toUpperCase()}</h2>
           <p className="text-blue-100 text-sm mt-1">{section.description}</p>
         </div>
-        
+
         {/* Section Content */}
-        <div 
+        <div
           className="border border-gray-200 border-t-0 rounded-b-lg p-6 bg-white"
           style={{
             breakInside: 'avoid',
@@ -1564,23 +1600,23 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
             {section.fields.map((fieldName: string) => {
               const meta = FIELD_METADATA[fieldName];
               if (!meta) return null;
-              
+
               const value = getFieldValue(fieldName);
               const displayValue = value || "";
-              
+
               // Handle different field types
               if (meta.type === "textarea") {
-                const isLongText = meta.label?.toLowerCase().includes('address') || 
-                                   meta.label?.toLowerCase().includes('additional') ||
-                                   fieldName?.includes('Other');
-                
+                const isLongText = meta.label?.toLowerCase().includes('address') ||
+                  meta.label?.toLowerCase().includes('additional') ||
+                  fieldName?.includes('Other');
+
                 return (
                   <div key={fieldName} className="md:col-span-2">
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         {meta.label}
                       </label>
-                      <div 
+                      <div
                         className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm"
                         style={{
                           minHeight: isLongText ? '100px' : '80px',
@@ -1597,12 +1633,12 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   </div>
                 );
               }
-              
+
               if (meta.type === "checkbox") {
                 const selectedOptions = Array.isArray(displayValue) ? displayValue : [];
                 const otherFieldName = fieldName + "Other";
                 const otherValue = getFieldValue(otherFieldName);
-                
+
                 return (
                   <div key={fieldName} className="md:col-span-2">
                     <div className="mb-4">
@@ -1633,11 +1669,11 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   </div>
                 );
               }
-              
+
               if (meta.type === "dropdown" && meta.options) {
                 const isYesNo = meta.options.includes("Yes") && meta.options.includes("No");
                 const detailsField = meta.showIfYes?.inputName;
-                
+
                 if (isYesNo) {
                   return (
                     <div key={fieldName} className="md:col-span-2">
@@ -1676,7 +1712,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                   );
                 }
               }
-              
+
               // Default text input
               return (
                 <div key={fieldName} className={meta.type === "textarea" ? "md:col-span-2" : ""}>
@@ -1684,7 +1720,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {meta.label}
                     </label>
-                    <div 
+                    <div
                       className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-sm"
                       style={{
                         whiteSpace: 'pre-wrap',
@@ -1993,7 +2029,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">CLIENT INTAKE FORM</h1>
         <p className="text-gray-600">All fields are displayed below - please review carefully</p>
-                    </div>
+      </div>
 
       {/* Form Sections */}
       {renderAllFields()}
