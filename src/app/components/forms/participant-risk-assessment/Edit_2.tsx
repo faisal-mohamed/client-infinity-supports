@@ -1427,7 +1427,17 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               label: `Responsible Person ${idx}`,
               type: "dropdown",
               placeholder: "Select responsible person",
-              options: ["Support Worker", "Other"],
+              options: [
+                "Participant",
+                "Family",
+                "Guardian/Nominee",
+                "Therapists",
+                "Plan Manager",
+                "Support Coordinator",
+                "Support Worker",
+                "Service Manager",
+                "Other",
+              ],
               showIfOther: {
                 label: "Please specify",
                 inputName: `person${idx}Other`,
@@ -2119,7 +2129,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                               }}
                               value=""
                             >
-                              <option value="" disabled>✨ Quick Fill from Template...</option>
+                              <option value="" disabled>Select Issue</option>
                               {RISK_TEMPLATES.map((t, i) => (
                                 <option key={i} value={t.issue}>{t.issue}</option>
                               ))}
