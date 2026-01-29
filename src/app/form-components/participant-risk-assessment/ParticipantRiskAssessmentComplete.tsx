@@ -885,10 +885,21 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       const issue = getValue(`issue${i}`);
       const score = getValue(`score${i}`);
       const control = getValue(`control${i}`);
-      let person = getValue(`person${i}`);
-      if (person === "Other") {
-        const otherPerson = getValue(`person${i}Other`);
-        if (otherPerson) person = otherPerson;
+      const personValue = formData?.[`person${i}`];
+      let person = "";
+
+      if (Array.isArray(personValue)) {
+        const otherVal = getValue(`person${i}Other`);
+        person = personValue
+          .map((p: string) => (p === "Other" ? otherVal : p))
+          .filter((p: string) => p && p !== "Other")
+          .join(", ");
+      } else {
+        person = getValue(`person${i}`);
+        if (person === "Other") {
+          const otherPerson = getValue(`person${i}Other`);
+          if (otherPerson) person = otherPerson;
+        }
       }
 
       if (issue || score || control || person) {

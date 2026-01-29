@@ -24,7 +24,7 @@ import {
   FaComments,
   FaPenNib,
   FaListAlt,
-
+  FaTrash,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 
@@ -32,9 +32,25 @@ import SignatureCanvas, {
   SignatureCanvasRef,
 } from "@/components/ui/SignatureCanvas";
 import { RISK_LEVEL_DETAILS, RISK_TEMPLATES } from "./constants";
-import { showAsRequired } from "@jsonforms/core";
+import { Listbox, Transition, Dialog } from "@headlessui/react";
+import { Fragment } from "react";
+import { FaChevronDown, FaTimes } from "react-icons/fa";
 
 
+
+// Lock body scroll when component is mounted/open
+const ScrollLock = ({ open }: { open: boolean }) => {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      // Add padding if needed to prevent layout shift, but effectively locking is key
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; }
+  }, [open]);
+  return null;
+};
 
 // Match Client Intake form's custom spinner (hourglass emoji)
 const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
@@ -45,6 +61,7 @@ const AutoResizeTextArea: React.FC<{
   name: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   rows?: number;
   placeholder?: string;
   required?: boolean;
@@ -56,6 +73,7 @@ const AutoResizeTextArea: React.FC<{
   name,
   value,
   onChange,
+  onKeyDown,
   rows = 3,
   placeholder,
   required,
@@ -109,6 +127,7 @@ const AutoResizeTextArea: React.FC<{
             onChange(e);
             adjustHeight();
           }}
+          onKeyDown={onKeyDown}
           onInput={adjustHeight}
           placeholder={placeholder}
           rows={rows}
@@ -345,6 +364,81 @@ const isCommonField = (fieldName: string): boolean => {
 const yesNoOptions = ["Yes", "No"];
 const ratingOptions = ["1", "2", "3", "4"];
 
+const ConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  confirmColor = "bg-red-600 hover:bg-red-700"
+}: any) => {
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-[9999]" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-medium leading-6 text-gray-900 flex items-center gap-2"
+                >
+                  <FaExclamationTriangle className="text-red-500" />
+                  {title}
+                </Dialog.Title>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    {message}
+                  </p>
+                </div>
+
+                <div className="mt-4 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    onClick={onClose}
+                  >
+                    {cancelText}
+                  </button>
+                  <button
+                    type="button"
+                    className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${confirmColor}`}
+                    onClick={onConfirm}
+                  >
+                    {confirmText}
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+};
+
 const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   formData,
   commonFieldsData,
@@ -391,12 +485,6 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
 
 
-  const addRiskRow = () => {
-    const next = Math.max(...activeRiskRows) + 1;
-    if (next <= 10) {
-      setActiveRiskRows((prev) => [...prev, next]);
-    }
-  };
 
   const getInitialMedicalConditionCount = () => {
     let count = 0;
@@ -522,7 +610,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           [`issue${index}`, ""],
           [`score${index}`, ""],
           [`control${index}`, ""],
-          [`person${index}`, ""],
+          [`person${index}`, []], // CHANGED: Now an array for multi-select
         ];
       }).flat()
     ),
@@ -566,6 +654,59 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     getInitialRiskRows(initialValues)
   );
+
+  // --- Confirmation Modal State ---
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<number | null>(null);
+
+  const handleAddRiskRow = () => {
+    if (activeRiskRows.length >= 10) return;
+    // Find first missing number
+    for (let i = 1; i <= 10; i++) {
+      if (!activeRiskRows.includes(i)) {
+        setActiveRiskRows(prev => [...prev, i].sort((a, b) => a - b));
+        break;
+      }
+    }
+  };
+
+  const confirmRemoveRow = () => {
+    if (rowToDelete === null) return;
+
+    setActiveRiskRows((prev) => {
+      const newRows = prev.filter((r) => r !== rowToDelete);
+      return newRows.length > 0 ? newRows : [1];
+    });
+
+    // Clear data
+    setLocalValues((prev: any) => {
+      const newValues = { ...prev };
+      newValues[`issue${rowToDelete}`] = "";
+      newValues[`score${rowToDelete}`] = "";
+      newValues[`control${rowToDelete}`] = "";
+      newValues[`person${rowToDelete}`] = [];
+      // Clear conditional "Other" text
+      if (newValues[`person${rowToDelete}Other`]) {
+        newValues[`person${rowToDelete}Other`] = "";
+      }
+      return newValues;
+    });
+
+    setDeleteModalOpen(false);
+    setRowToDelete(null);
+  };
+
+  const handleRemoveRiskRow = (rowNum: number) => {
+    if (activeRiskRows.length <= 1) {
+      if (!window.confirm("This is the last risk entry. Removing it will clear the data but keep one entry visible. Proceed?")) return;
+      setRowToDelete(rowNum);
+      confirmRemoveRow();
+      return;
+    }
+
+    setRowToDelete(rowNum);
+    setDeleteModalOpen(true);
+  };
 
 
 
@@ -719,10 +860,19 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     const fields = section.fields || [];
     return fields.every((key: string) => {
       const meta = FIELD_METADATA[key];
-      // If it's a dropdown with showIfOther config AND the current value is "Other"
+      // 1. Dropdown: If "Other" is selected
       if (meta?.type === "dropdown" && meta?.showIfOther && localValues[key] === "Other") {
         const otherValue = localValues[meta.showIfOther.inputName];
         return otherValue !== undefined && otherValue !== null && String(otherValue).trim() !== "";
+      }
+      // 2. Multi-Select: If "Other" is in the selected array
+      if (meta?.type === "multi-select-dropdown" && meta?.showIfOther) {
+        const value = localValues[key];
+        const isOtherSelected = Array.isArray(value) && value.includes("Other");
+        if (isOtherSelected) {
+          const otherValue = localValues[meta.showIfOther.inputName];
+          return otherValue !== undefined && otherValue !== null && String(otherValue).trim() !== "";
+        }
       }
       return true;
     });
@@ -808,7 +958,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     name: string,
     rows: number = 3,
     placeholder?: string,
-    required?: boolean
+    required?: boolean,
+    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   ) => {
     const isCommon = isCommonField(name);
     const displayValue = isCommon
@@ -826,9 +977,196 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         rows={rows}
         placeholder={placeholder}
         required={required}
+        onKeyDown={onKeyDown}
         readOnly={isFieldReadOnly}
         fieldError={mergedError}
       />
+    );
+  };
+
+  const renderMultiSelectDropdown = (
+    label: string,
+    name: string,
+    options: string[],
+    required?: boolean,
+    showIfOther?: { label: string; inputName: string }
+  ) => {
+    const selectedValues = Array.isArray(localValues[name]) ? localValues[name] : [];
+    const mergedError = (fieldErrors as any)?.[name] || localErrors[name];
+
+    const toggleOption = (option: string) => {
+      let newValues;
+      if (selectedValues.includes(option)) {
+        newValues = selectedValues.filter((v: string) => v !== option);
+      } else {
+        newValues = [...selectedValues, option];
+      }
+
+      const newValuesFinal = { ...localValues, [name]: newValues };
+      setLocalValues(newValuesFinal);
+      onChange(newValuesFinal, name, false);
+
+      // Handle "Other" field
+      if (showIfOther && option === "Other") {
+        if (selectedValues.includes("Other")) {
+          // If unselecting other, clear the other text field
+          const valuesWithOtherCleared = {
+            ...newValuesFinal,
+            [showIfOther.inputName]: "",
+          };
+          setLocalValues(valuesWithOtherCleared);
+          onChange(valuesWithOtherCleared, showIfOther.inputName, false);
+        }
+      }
+    };
+
+    const handleOtherKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const customValue = localValues[showIfOther?.inputName || '']?.trim();
+        if (customValue) {
+          // If value is provided, add it and automatically unselect "Other"
+          const alreadyExists = selectedValues.includes(customValue);
+          const newValues = selectedValues.filter((v: string) => v !== "Other");
+
+          if (!alreadyExists) {
+            newValues.push(customValue);
+          }
+
+          const newValuesFinal = {
+            ...localValues,
+            [name]: newValues,
+            [showIfOther?.inputName || '']: "" // Clear the input
+          };
+          setLocalValues(newValuesFinal);
+          onChange(newValuesFinal, name, false);
+        }
+      }
+    };
+
+    // Filter out the internal "Other" tag for display purposes
+    const displayValues = selectedValues.filter(v => v !== "Other");
+
+    return (
+      <div className="flex flex-col gap-1 w-full">
+        <label className="text-xs font-medium text-gray-700 mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+        <div className="relative">
+          <Listbox value={selectedValues} onChange={(val) => { }} multiple>
+            <div className="relative">
+              <Listbox.Button
+                as="div"
+                className={`w-full min-h-[42px] rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-left flex items-center justify-between cursor-pointer ${mergedError ? "border-red-300 bg-red-50" : "hover:border-accent/40"
+                  } ${readOnly ? "bg-gray-50 text-gray-400 cursor-not-allowed" : ""}`}
+                disabled={readOnly}
+              >
+                <div className="flex flex-wrap gap-1.5 pr-4">
+                  {displayValues.length === 0 ? (
+                    <span className="text-gray-400 py-1">Select options</span>
+                  ) : (
+                    displayValues.map((val) => (
+                      <span
+                        key={val}
+                        className="inline-flex items-center gap-1 bg-accent/10 text-accent px-2 py-0.5 rounded-md text-xs font-medium border border-accent/20"
+                      >
+                        {val}
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleOption(val);
+                            }}
+                            className="hover:bg-accent/20 rounded-full p-0.5 transition-colors"
+                          >
+                            <FaTimes className="h-2.5 w-2.5" />
+                          </button>
+                        )}
+                      </span>
+                    ))
+                  )}
+                </div>
+                <FaChevronDown className="h-3 w-3 text-gray-400 flex-shrink-0" />
+              </Listbox.Button>
+
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options
+                  className="absolute left-0 z-[100] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                >
+                  {options.map((option) => (
+                    <Listbox.Option
+                      key={option}
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-accent/10 text-accent" : "text-gray-900"
+                        }`
+                      }
+                      value={option}
+                      onClick={() => !readOnly && toggleOption(option)}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={`block truncate ${selected ? "font-medium" : "font-normal"
+                              }`}
+                          >
+                            {option}
+                          </span>
+                          {selected ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-accent">
+                              <FaCheck className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+
+                  {/* Move "Other" input inside the dropdown to prevent overlapping issues */}
+                  {showIfOther && selectedValues.includes("Other") && (
+                    <div
+                      className="p-3 border-t border-gray-100 bg-gray-50"
+                      onKeyDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                        {showIfOther.label}
+                      </label>
+                      <textarea
+                        autoFocus
+                        value={localValues[showIfOther.inputName] || ""}
+                        onChange={(e) => {
+                          const newValues = { ...localValues, [showIfOther.inputName]: e.target.value };
+                          setLocalValues(newValues);
+                          onChange(newValues, showIfOther.inputName, false);
+                        }}
+                        onKeyDown={handleOtherKeyDown}
+                        placeholder="Type and press Enter..."
+                        className="w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all resize-none"
+                        rows={2}
+                      />
+                    </div>
+                  )}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+        </div>
+        {mergedError && (
+          <p className="text-xs text-red-500 mt-1">{mergedError}</p>
+        )}
+
+        {/* Conditional input for "Other" option */}
+      </div>
     );
   };
 
@@ -1425,7 +1763,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
             `person${idx}`,
             {
               label: `Responsible Person ${idx}`,
-              type: "dropdown",
+              type: "multi-select-dropdown", // CHANGED: Now multi-select
               placeholder: "Select responsible person",
               options: [
                 "Participant",
@@ -1896,11 +2234,24 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       // 2. Check conditional "Other" requirements
       (section.fields || []).forEach((fieldName: string) => {
         const meta = FIELD_METADATA[fieldName];
-        if (meta?.type === "dropdown" && meta?.showIfOther && localValues[fieldName] === "Other") {
-          const otherName = meta.showIfOther.inputName;
-          const otherValue = localValues[otherName];
-          if (!otherValue || (typeof otherValue === "string" && otherValue.trim() === "")) {
-            missingFields.push(otherName);
+        if (
+          (meta?.type === "dropdown" || meta?.type === "multi-select-dropdown") &&
+          meta?.showIfOther
+        ) {
+          const value = localValues[fieldName];
+          const isOtherSelected = Array.isArray(value)
+            ? value.includes("Other")
+            : value === "Other";
+
+          if (isOtherSelected) {
+            const otherName = meta.showIfOther.inputName;
+            const otherValue = localValues[otherName];
+            if (
+              !otherValue ||
+              (typeof otherValue === "string" && otherValue.trim() === "")
+            ) {
+              missingFields.push(otherName);
+            }
           }
         }
       });
@@ -2063,8 +2414,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       </div>
 
       {/* Form Card */}
-      <main className="w-full flex flex-col items-center justify-center flex-1">
-        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8">
+      <main className="w-full flex flex-col items-center justify-center flex-1 relative overflow-visible">
+        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8 relative z-20">
           {/* Section Header */}
           <div className="mb-4">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -2111,7 +2462,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                       <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <div className="flex justify-between items-center mb-4">
                           <h3 className="text-lg font-semibold text-gray-800">Risk Assessment Entry {num}</h3>
-                          <div className="w-1/2">
+                          <div className="w-1/2 flex items-center gap-2 justify-end">
                             <select
                               className="w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                               onChange={(e) => {
@@ -2134,6 +2485,16 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                                 <option key={i} value={t.issue}>{t.issue}</option>
                               ))}
                             </select>
+                            {activeRiskRows.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRiskRow(num)}
+                                className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                title="Remove this entry"
+                              >
+                                <FaTrash className="h-4 w-4" />
+                              </button>
+                            )}
                           </div>
                         </div>
 
@@ -2152,6 +2513,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                               <div key={key}>
                                 {renderDropdown(meta.label, key, meta.options || [], false, false, meta.showIfOther)}
                               </div>
+                            ) : meta?.type === "multi-select-dropdown" ? (
+                              <div key={key}>
+                                {renderMultiSelectDropdown(meta.label, key, meta.options || [], false, meta.showIfOther)}
+                              </div>
                             ) : (
                               <div key={key}>
                                 {renderInput(meta.label, key, meta.type || "text", meta.placeholder)}
@@ -2166,7 +2531,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                   {activeRiskRows.length < 10 && (
                     <button
                       type="button"
-                      onClick={addRiskRow}
+                      onClick={handleAddRiskRow}
                       className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
                     >
                       + Add Risk Entry
@@ -2291,8 +2656,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           </form>
         </section>
 
+        <div className="h-20" /> {/* Spacer for dropdowns at the bottom */}
+
         {/* Navigation Buttons */}
-        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
+        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2 relative z-10">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
             {FORM_SECTIONS.map((_: any, index: any) => (
@@ -2328,15 +2695,46 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
             <button
               type="button"
-              onClick={handleNextSequential}
-              disabled={
-                currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete() ||
-                navigatingNext
-              }
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 ||
-                !isCurrentSectionComplete() ||
-                navigatingNext
+              onClick={() => {
+                if (isCurrentSectionComplete()) {
+                  handleNextSequential();
+                } else {
+                  // Find first missing field for better error message
+                  const section = FORM_SECTIONS[currentStep];
+                  const fields = section.fields || [];
+                  const missingField = fields.find((key: string) => {
+                    const meta = FIELD_METADATA[key];
+                    if (meta?.type === "dropdown" && meta?.showIfOther && localValues[key] === "Other") {
+                      const otherVal = localValues[meta.showIfOther.inputName];
+                      return !otherVal || String(otherVal).trim() === "";
+                    }
+                    if (meta?.type === "multi-select-dropdown" && meta?.showIfOther) {
+                      const val = localValues[key];
+                      if (Array.isArray(val) && val.includes("Other")) {
+                        const otherVal = localValues[meta.showIfOther.inputName];
+                        return !otherVal || String(otherVal).trim() === "";
+                      }
+                    }
+                    // Basic required check
+                    if (section.requiredFields?.includes(key)) {
+                      const val = localValues[key];
+                      return !val || (Array.isArray(val) && val.length === 0);
+                    }
+                    return false;
+                  });
+
+                  showToast({
+                    type: "error",
+                    title: "Incomplete Section",
+                    message: missingField
+                      ? `Please complete the required fields. For "Other" options, you must specify details.`
+                      : "Please complete all required fields before proceeding.",
+                    duration: 3000,
+                  });
+                }
+              }}
+              disabled={navigatingNext}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${navigatingNext
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
                 : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
                 }`}
@@ -2382,6 +2780,15 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
             </button>
           )}
         </footer>
+        <ConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={confirmRemoveRow}
+          title="Remove Risk Entry"
+          message="Are you sure you want to remove this risk entry? This action cannot be undone."
+          confirmText="Remove"
+          cancelText="Cancel"
+        />
       </main>
 
       {/* Custom Animations */}
