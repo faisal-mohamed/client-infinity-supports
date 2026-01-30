@@ -42,11 +42,11 @@ const getFieldValue = (formData: any, commonFieldsData: any, key: string): strin
     // Fallback to form data if commonFieldsData doesn't have name
     return formData?.[key] ? String(formData[key]) : '';
   }
-  
+
   const mapped = commonFieldMapping[key];
   // Always prioritize current client details from database
-  const raw = (mapped && commonFieldsData?.[mapped]) 
-    ? commonFieldsData[mapped] 
+  const raw = (mapped && commonFieldsData?.[mapped])
+    ? commonFieldsData[mapped]
     : formData?.[key];
   return raw ? String(raw) : '';
 };
@@ -86,11 +86,11 @@ const renderParticipantTable = (formData: any, commonFieldsData: any) => (
         <View style={styles.tableCellLast}>
           <Text style={{ fontSize: 8, fontWeight: 'bold' }}>Plan Dates:</Text>
           <Text style={{ fontSize: 8 }}>
-            {formData?.planStartDate && formData?.planEndDate 
+            {formData?.planStartDate && formData?.planEndDate
               ? `${formatDateForPDF(formData.planStartDate)} - ${formatDateForPDF(formData.planEndDate)}`
-              : formData?.planStartDate 
+              : formData?.planStartDate
                 ? `From: ${formatDateForPDF(formData.planStartDate)}`
-                : formData?.planEndDate 
+                : formData?.planEndDate
                   ? `To: ${formatDateForPDF(formData.planEndDate)}`
                   : ''}
           </Text>
@@ -114,12 +114,12 @@ const renderParticipantTable = (formData: any, commonFieldsData: any) => (
 const BlueTick = ({ checked }: { checked: boolean }) => {
   if (checked) {
     return (
-      <View style={{ 
-        width: 10, 
-        height: 10, 
-        border: '1 solid #2563eb', 
+      <View style={{
+        width: 10,
+        height: 10,
+        border: '1 solid #2563eb',
         backgroundColor: '#2563eb',
-        alignItems: 'center', 
+        alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 1
       }}>
@@ -128,12 +128,12 @@ const BlueTick = ({ checked }: { checked: boolean }) => {
     );
   }
   return (
-    <View style={{ 
-      width: 10, 
-      height: 10, 
-      border: '1 solid #000000', 
+    <View style={{
+      width: 10,
+      height: 10,
+      border: '1 solid #000000',
       backgroundColor: 'transparent',
-      alignItems: 'center', 
+      alignItems: 'center',
       justifyContent: 'center'
     }} />
   );
@@ -267,7 +267,7 @@ const renderPreferredContact = (formData: any) => {
 // Goals section (NDIS Participant's Goals) – legacy layout
 const renderGoalsSection = (formData: any) => {
   const mk = (k: string) => (formData?.[k] ? String(formData[k]) : '');
-  const goalKeys = ['goal1','goal2','goal3','goal4','goal5','goal6','goal7'];
+  const goalKeys = ['goal1', 'goal2', 'goal3', 'goal4', 'goal5', 'goal6', 'goal7'];
   return (
     <View style={styles.fieldContainer}>
       <Text style={styles.sectionHeader}>3. NDIS Participant's Goals</Text>
@@ -275,7 +275,7 @@ const renderGoalsSection = (formData: any) => {
         {goalKeys.map((gk, i) => (
           <View key={gk} style={i === 0 ? { flexDirection: 'row' } : [styles.tableRow, { borderTop: '1 solid #000000' }]}>
             <View style={[styles.tableCell, { width: '20%' }]}>
-              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>{`Goal ${i+1}`}</Text>
+              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>{`Goal ${i + 1}`}</Text>
             </View>
             <View style={[styles.tableCellLast, { width: '80%' }]}>
               <Text style={{ fontSize: 8 }}>{mk(gk)}</Text>
@@ -322,18 +322,10 @@ const renderSupportRequirements = (formData: any) => {
         items={(
           <View>
             <ConditionalText label="Support Required" value={get('coreSupportText')} />
-            {(hasValue(get('corePreferredProviders')) || hasValue(get('corePreferredProviders2'))) && (
-              <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Preferred providers</Text>
-            )}
-            <ConditionalProvider num={1} value={get('corePreferredProviders')} />
-            <ConditionalProvider num={2} value={get('corePreferredProviders2')} />
-            {(hasValue(get('coreAlternativeProviders')) || hasValue(get('coreAlternativeProviders2'))) && (
-              <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Alternative providers</Text>
-            )}
-            <ConditionalProvider num={1} value={get('coreAlternativeProviders')} />
-            <ConditionalProvider num={2} value={get('coreAlternativeProviders2')} />
+            <ConditionalText label="Preferred provider" value={get('corePreferredProviders')} />
+            <ConditionalText label="Alternative provider" value={get('coreAlternativeProviders')} />
             <YesNoRow label="Service Agreement developed/signed?" k="coreAgreementSigned" formData={formData} />
-            <ConditionalText label="Supports have commenced" value={get('coreSupportsCommenced')} />
+            <ConditionalText label="Support Co-ordinator Action" value={get('coreSupportsCommenced')} />
             <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="coreBudgetApproved" formData={formData} />
           </View>
         )}
@@ -343,16 +335,8 @@ const renderSupportRequirements = (formData: any) => {
         items={(
           <View>
             <ConditionalText label="Support Required" value={get('capacitySupportText')} />
-            {(hasValue(get('capacityPreferredProviders')) || hasValue(get('capacityPreferredProviders2'))) && (
-              <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Preferred providers</Text>
-            )}
-            <ConditionalProvider num={1} value={get('capacityPreferredProviders')} />
-            <ConditionalProvider num={2} value={get('capacityPreferredProviders2')} />
-            {(hasValue(get('capacityAlternativeProviders')) || hasValue(get('capacityAlternativeProviders2'))) && (
-              <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Alternative providers</Text>
-            )}
-            <ConditionalProvider num={1} value={get('capacityAlternativeProviders')} />
-            <ConditionalProvider num={2} value={get('capacityAlternativeProviders2')} />
+            <ConditionalText label="Preferred provider" value={get('capacityPreferredProviders')} />
+            <ConditionalText label="Alternative provider" value={get('capacityAlternativeProviders')} />
             <YesNoRow label="Service Agreement developed/signed?" k="capacityAgreementSigned" formData={formData} />
             <ConditionalText label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} />
             <YesNoRow label="Are additional assessments required to access this support type?" k="capacityAssessmentRequired" formData={formData} />
@@ -375,16 +359,8 @@ const renderCapitalSupports = (formData: any) => {
       </View>
       <View style={{ borderLeft: '1 solid #000000', borderRight: '1 solid #000000', borderBottom: '1 solid #000000', padding: 6 }}>
         <ConditionalText label="Support Required" value={get('supportRequired1')} />
-        {(hasValue(get('preferredProviders1')) || hasValue(get('preferredProvidersCapital2'))) && (
-          <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Preferred providers</Text>
-        )}
-        <ConditionalProvider num={1} value={get('preferredProviders1')} />
-        <ConditionalProvider num={2} value={get('preferredProvidersCapital2')} />
-        {(hasValue(get('alternativeProviders1')) || hasValue(get('alternativeProvidersCapital2'))) && (
-          <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Alternative providers</Text>
-        )}
-        <ConditionalProvider num={1} value={get('alternativeProviders1')} />
-        <ConditionalProvider num={2} value={get('alternativeProvidersCapital2')} />
+        <ConditionalText label="Preferred provider" value={get('preferredProviders1')} />
+        <ConditionalText label="Alternative provider" value={get('alternativeProviders1')} />
         <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement1" formData={formData} />
         <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment1" formData={formData} />
         {get('additionalAssessment1') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions1')} />}
@@ -405,16 +381,8 @@ const renderMainstreamSupports = (formData: any) => {
       </View>
       <View style={{ borderLeft: '1 solid #000000', borderRight: '1 solid #000000', borderBottom: '1 solid #000000', padding: 6 }}>
         <ConditionalText label="Support Required" value={get('supportRequired2')} />
-        {(hasValue(get('preferredProviders2')) || hasValue(get('preferredProvidersMainstream2'))) && (
-          <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Preferred providers</Text>
-        )}
-        <ConditionalProvider num={1} value={get('preferredProviders2')} />
-        <ConditionalProvider num={2} value={get('preferredProvidersMainstream2')} />
-        {(hasValue(get('alternativeProviders2')) || hasValue(get('alternativeProvidersMainstream2'))) && (
-          <Text style={{ fontWeight: 'bold', fontSize: 8, marginTop: 6 }}>Alternative providers</Text>
-        )}
-        <ConditionalProvider num={1} value={get('alternativeProviders2')} />
-        <ConditionalProvider num={2} value={get('alternativeProvidersMainstream2')} />
+        <ConditionalText label="Preferred provider" value={get('preferredProviders2')} />
+        <ConditionalText label="Alternative provider" value={get('alternativeProviders2')} />
         <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement2" formData={formData} />
         <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment2" formData={formData} />
         {get('additionalAssessment2') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions2')} />}
@@ -497,7 +465,7 @@ const renderSignatureGroup = (formData: any, commonFieldsData: any, block: Schem
   // Get date directly from formData - check both old and new field names
   const dateKey = meta.dateKey || '';
   let dateValue = formData?.[dateKey] || '';
-  
+
   // Handle API field name mismatches:
   // API returns participantSignatureDate but schema expects participantDate
   // API returns providerSignatureDate but schema expects authorDate
@@ -507,7 +475,7 @@ const renderSignatureGroup = (formData: any, commonFieldsData: any, block: Schem
   if (!dateValue && dateKey === 'authorDate') {
     dateValue = formData?.['providerSignatureDate'] || formData?.['authorSignatureDate'] || '';
   }
-  
+
   const formattedDate = formatDateForPDF(dateValue);
   return (
     <View style={styles.fieldContainer}>
@@ -594,7 +562,7 @@ const SupportActionPlanMatchingPDF: React.FC<Props> = ({ formData, commonFieldsD
         email: (formData || {}).email || (commonFieldsData || {}).email,
       }
     });
-  } catch {}
+  } catch { }
   const footerWebsite = settings?.company_website || '';
   const footerId = settings?.support_action_plan || '';
   const footerDate = settings?.review_date || '';
@@ -607,7 +575,7 @@ const SupportActionPlanMatchingPDF: React.FC<Props> = ({ formData, commonFieldsD
         </View>
         <View>
           <Text style={styles.title}>SUPPORT CO-ORDINATION ACTION PLAN</Text>
-          {(() => { try { console.log('[SAP PDF] blocks to render:', supportActionPlanSchema.length, supportActionPlanSchema.map(b=>b.type).slice(0,10)); } catch {} return null; })()}
+          {(() => { try { console.log('[SAP PDF] blocks to render:', supportActionPlanSchema.length, supportActionPlanSchema.map(b => b.type).slice(0, 10)); } catch { } return null; })()}
           {/* Page 1: Participant details */}
           {renderParticipantTable(formData, commonFieldsData)}
           {/* Page 1 (cont.): Preferred Contact */}

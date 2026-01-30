@@ -23,6 +23,104 @@ const FaSpinner = ({ className }: { className?: string }) => (
   <span className={className}>⏳</span>
 );
 
+// Auto-resizing textarea component
+const AutoResizeTextArea: React.FC<{
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+  placeholder?: string;
+  required?: boolean;
+  maxWords?: number;
+  readOnly?: boolean;
+  fieldError?: string;
+}> = ({
+  label,
+  name,
+  value,
+  onChange,
+  onKeyDown,
+  rows = 3,
+  placeholder,
+  required,
+  maxWords,
+  readOnly,
+  fieldError
+}) => {
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize logic
+    const adjustHeight = React.useCallback(() => {
+      const textarea = textAreaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto'; // Reset height to recalculate
+        textarea.style.height = `${Math.max(textarea.scrollHeight, rows * 24)}px`; // Set to scrollHeight but respect min rows
+      }
+    }, [rows]);
+
+    // Adjust height on value change (initial load + dynamic updates)
+    React.useLayoutEffect(() => {
+      adjustHeight();
+    }, [value, adjustHeight]);
+
+    // Calculate word count
+    const wordCount = value ? value.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isOverLimit = maxWords ? wordCount > maxWords : false;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-xs font-medium text-gray-700">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {maxWords && (
+            <span className={`text-xs font-medium ${isOverLimit
+              ? 'text-red-600'
+              : wordCount > maxWords * 0.9
+                ? 'text-orange-500'
+                : 'text-gray-500'
+              }`}>
+              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
+            </span>
+          )}
+        </div>
+        <textarea
+          ref={textAreaRef}
+          name={name}
+          value={value}
+          onChange={(e) => {
+            onChange(e);
+            adjustHeight();
+          }}
+          onKeyDown={onKeyDown}
+          onInput={adjustHeight}
+          placeholder={placeholder}
+          rows={rows}
+          style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
+          disabled={readOnly}
+          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-gray-200'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-indigo-500'
+            } focus:border-indigo-500 transition-all placeholder-gray-400 resize-none ${fieldError
+              ? "border-red-300 bg-red-50"
+              : "hover:border-indigo-400/40"
+            } ${readOnly ? "cursor-not-allowed" : ""}`}
+        />
+        {isOverLimit && maxWords && (
+          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
+          </p>
+        )}
+        {fieldError && (
+          <p className="text-xs text-red-500 mt-1">{fieldError}</p>
+        )}
+      </div>
+    );
+  };
+
 interface FormProps {
   formData: any;
   commonFieldsData: any;
@@ -98,9 +196,7 @@ const FORM_SECTIONS: any = [
     fields: [
       "coreSupportText",
       "corePreferredProviders",
-      "corePreferredProviders2",
       "coreAlternativeProviders",
-      "coreAlternativeProviders2",
       "coreAgreementSigned",
       "coreSupportsCommenced",
       "coreBudgetApproved",
@@ -114,9 +210,7 @@ const FORM_SECTIONS: any = [
     fields: [
       "capacitySupportText",
       "capacityPreferredProviders",
-      "capacityPreferredProviders2",
       "capacityAlternativeProviders",
-      "capacityAlternativeProviders2",
       "capacityAgreementSigned",
       "capacitySupportsInPlace",
       "capacityAssessmentRequired",
@@ -132,9 +226,7 @@ const FORM_SECTIONS: any = [
     fields: [
       "supportRequired1",
       "preferredProviders1",
-      "preferredProvidersCapital2",
       "alternativeProviders1",
-      "alternativeProvidersCapital2",
       "serviceAgreement1",
       "additionalAssessment1",
       "assessmentActions1",
@@ -149,9 +241,7 @@ const FORM_SECTIONS: any = [
     fields: [
       "supportRequired2",
       "preferredProviders2",
-      "preferredProvidersMainstream2",
       "alternativeProviders2",
-      "alternativeProvidersMainstream2",
       "serviceAgreement2",
       "additionalAssessment2",
       "assessmentActions2",
@@ -228,7 +318,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       const fullName = [firstName, surname].filter(Boolean).join(' ').trim();
       return fullName || '';
     }
-    
+
     const commonKey = commonFieldsMapping[fieldName];
     return commonFieldsData?.[commonKey] || "";
   };
@@ -402,7 +492,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
         return;
       }
     }
-    
+
     if (name === 'planStartDate' && value) {
       const endDate = localValues.planEndDate;
       if (endDate && value > endDate) {
@@ -422,22 +512,22 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     }
 
     const newValues = { ...localValues, [name]: newValue };
-    
+
     // Clear capacityActions if capacityAssessmentRequired is changed to "No"
     if (name === "capacityAssessmentRequired" && value === "No") {
       newValues.capacityActions = "";
     }
-    
+
     // Clear assessmentActions1 if additionalAssessment1 is changed to "No"
     if (name === "additionalAssessment1" && value === "No") {
       newValues.assessmentActions1 = "";
     }
-    
+
     // Clear assessmentActions2 if additionalAssessment2 is changed to "No"
     if (name === "additionalAssessment2" && value === "No") {
       newValues.assessmentActions2 = "";
     }
-    
+
     setLocalValues(newValues);
 
     const isCommon = !!commonFieldsMapping[name];
@@ -532,10 +622,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     const isPhoneField = /phone|mobile$/i.test(name) || ["phone", "contactPhone"].includes(name);
     const isEmailField = /email$/i.test(name) || ["email", "contactEmail"].includes(name);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    
+
     // Add min date constraint for planEndDate based on planStartDate
-    const minDate = (type === 'date' && name === 'planEndDate' && localValues.planStartDate) 
-      ? localValues.planStartDate 
+    const minDate = (type === 'date' && name === 'planEndDate' && localValues.planStartDate)
+      ? localValues.planStartDate
       : undefined;
 
     const handlePhoneBeforeInput = (e: any) => {
@@ -639,13 +729,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           pattern={isPhoneField ? "^\\+?\\d*$" : undefined}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name] || localEmailErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name] || localEmailErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
               : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
           aria-invalid={fieldErrors[name] || localEmailErrors[name] ? true : false}
         />
         {fieldErrors[name] && (
@@ -655,6 +744,34 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           <p className="text-xs text-red-500 mt-1">{localEmailErrors[name]}</p>
         )}
       </div>
+    );
+  };
+
+  const renderAutoResizeTextArea = (
+    label: string,
+    name: string,
+    placeholder?: string,
+    required?: boolean,
+    maxWords?: number
+  ) => {
+    const isCommon = isCommonField(name);
+    const displayValue = isCommon
+      ? getCommonFieldValue(name)
+      : localValues[name] || "";
+    const isFieldReadOnly = readOnly || isCommon;
+
+    return (
+      <AutoResizeTextArea
+        label={label}
+        name={name}
+        value={displayValue}
+        onChange={isCommon ? (undefined as any) : handleChange}
+        placeholder={isCommon ? "Value from common fields" : placeholder}
+        required={required}
+        readOnly={isFieldReadOnly}
+        maxWords={maxWords}
+        fieldError={fieldErrors[name]}
+      />
     );
   };
 
@@ -674,14 +791,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             checked={!!displayValue}
             onChange={isCommon ? undefined : handleChange}
             disabled={isFieldReadOnly}
-            className={`mt-1 scale-100 accent-accent ${
-              isFieldReadOnly ? "cursor-not-allowed" : "cursor-pointer"
-            }`}
+            className={`mt-1 scale-100 accent-accent ${isFieldReadOnly ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
           />
           <span
-            className={`text-sm leading-relaxed ${
-              isCommon ? "text-blue-800" : "text-gray-700"
-            }`}
+            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800" : "text-gray-700"
+              }`}
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
@@ -741,12 +856,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       ? getCommonFieldValue(name)
       : localValues[name] || "";
     // Ensure value is always a string (handle arrays, objects, null, undefined)
-    const displayValue = typeof rawValue === 'string' 
-      ? rawValue 
-      : Array.isArray(rawValue) 
-        ? rawValue[0] || "" 
-        : rawValue != null 
-          ? String(rawValue) 
+    const displayValue = typeof rawValue === 'string'
+      ? rawValue
+      : Array.isArray(rawValue)
+        ? rawValue[0] || ""
+        : rawValue != null
+          ? String(rawValue)
           : "";
     const isFieldReadOnly = readOnly || isCommon;
     const selectId = `select-${name}`;
@@ -764,13 +879,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           value={displayValue}
           onChange={isCommon ? undefined : handleChange}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
               : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         >
           <option value="">Select an option</option>
           {options.map((option) => (
@@ -858,20 +972,20 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     goal7: { label: "Goal 7", type: "text" },
     coreSupportText: { label: "Support Required: ", type: "textarea" },
     corePreferredProviders: {
-      label: "Preferred providers 1",
+      label: "Preferred providers",
       type: "textarea",
     },
     corePreferredProviders2: {
-      label: "Preferred providers 2",
+      label: "Preferred providers",
       type: "textarea",
     },
 
     coreAlternativeProviders: {
-      label: "Alternative providers 1",
+      label: "Alternative providers ",
       type: "textarea",
     },
     coreAlternativeProviders2: {
-      label: "Alternative providers 2",
+      label: "Alternative providers ",
       type: "textarea",
     },
 
@@ -880,29 +994,29 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       type: "dropdown",
       options: yesNoOptions,
     },
-    coreSupportsCommenced: { label: "Supports have commenced", type: "text" },
+    coreSupportsCommenced: { label: "Support Co-ordinator Action", type: "textarea" },
     coreBudgetApproved: {
       label: "Discussion held with Plan Manager and budget approved?",
       type: "dropdown",
       options: yesNoOptions,
     },
 
-     capacitySupportText: { label: "Supports Required: ", type: "textarea" },
+    capacitySupportText: { label: "Supports Required: ", type: "textarea" },
     capacityPreferredProviders: {
-      label: "Preferred providers 1",
+      label: "Preferred providers",
       type: "textarea",
     },
     capacityPreferredProviders2: {
-      label: "Preferred providers 2",
+      label: "Preferred providers ",
       type: "textarea",
     },
 
     capacityAlternativeProviders: {
-      label: "Alternative providers 1",
+      label: "Alternative providers ",
       type: "textarea",
     },
     capacityAlternativeProviders2: {
-      label: "Alternative providers 2",
+      label: "Alternative providers ",
       type: "textarea",
     },
 
@@ -928,17 +1042,17 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     },
 
     supportRequired1: { label: "Support Required", type: "textarea" },
-    preferredProviders1: { label: "Preferred providers 1", type: "textarea" },
+    preferredProviders1: { label: "Preferred providers ", type: "textarea" },
     preferredProvidersCapital2: {
-      label: "Prefered Providers 2",
+      label: "Prefered Providers ",
       type: "textarea",
     },
     alternativeProviders1: {
-      label: "Alternative providers 1",
+      label: "Alternative providers ",
       type: "textarea",
     },
     alternativeProvidersCapital2: {
-      label: "Alternate Providers 2",
+      label: "Alternate Providers ",
       type: "textarea",
     },
     serviceAgreement1: {
@@ -959,17 +1073,17 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     },
 
     supportRequired2: { label: "Support Required", type: "textarea" },
-    preferredProviders2: { label: "Preferred providers 1", type: "textarea" },
+    preferredProviders2: { label: "Preferred providers ", type: "textarea" },
     preferredProvidersMainstream2: {
-      label: "Preferred Providers 2",
+      label: "Preferred Providers ",
       type: "textarea",
     },
     alternativeProviders2: {
-      label: "Alternative providers 1",
+      label: "Alternative providers ",
       type: "textarea",
     },
     alternativeProvidersMainstream2: {
-      label: "Alternative Providers 2",
+      label: "Alternative Providers ",
       type: "textarea",
     },
     serviceAgreement2: {
@@ -1105,26 +1219,24 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 <button
                   type="button"
                   onClick={() => handleStepClick(idx)}
-                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${
-                    active
-                      ? "text-indigo-700"
-                      : unlocked
+                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active
+                    ? "text-indigo-700"
+                    : unlocked
                       ? "text-green-600"
                       : "text-gray-400 opacity-50 cursor-not-allowed"
-                  }`}
+                    }`}
                   aria-current={active ? "step" : undefined}
                   aria-label={section.title}
                   disabled={!unlocked}
                   tabIndex={unlocked ? 0 : -1}
                 >
                   <span
-                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${
-                      active
-                        ? "bg-indigo-700 border-indigo-500 text-white scale-110"
-                        : unlocked
+                    className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active
+                      ? "bg-indigo-700 border-indigo-500 text-white scale-110"
+                      : unlocked
                         ? "bg-green-500 border-green-500 text-white"
                         : "bg-gray-200 border-gray-300 text-gray-400"
-                    }`}
+                      }`}
                   >
                     {completedSteps.has(idx) ? (
                       <FaCheck className="w-4 h-4" />
@@ -1293,76 +1405,25 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Full width fields */}
                   <div className="md:col-span-2">
-                    {renderInput(
+                    {renderAutoResizeTextArea(
                       "Support Required",
-                      "coreSupportText",
-                      "textarea"
+                      "coreSupportText"
                     )}
                   </div>
 
                   <div className="md:col-span-2">
-                    {renderInput(
-                      "Preferred Providers 1",
-                      "corePreferredProviders",
-                      "textarea"
+                    {renderAutoResizeTextArea(
+                      "Preferred Providers ",
+                      "corePreferredProviders"
                     )}
                   </div>
-
-                  {visibleFields.corePreferred2 && (
-                    <div className="md:col-span-2">
-                      {renderInput(
-                        "Preferred Providers 2",
-                        "corePreferredProviders2",
-                        "textarea"
-                      )}
-                    </div>
-                  )}
-
-                  {!visibleFields.corePreferred2 &&
-                    !localValues.corePreferredProviders2 && (
-                      <div className="md:col-span-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            toggleFieldVisibility("corePreferred2")
-                          }
-                          className="text-sm text-blue-700 font-medium hover:underline"
-                        >
-                          + Add more Preferred Providers
-                        </button>
-                      </div>
-                    )}
 
                   <div className="md:col-span-2">
-                    {renderInput(
-                      "Alternative Providers 1",
-                      "coreAlternativeProviders",
-                      "textarea"
+                    {renderAutoResizeTextArea(
+                      "Alternative Providers ",
+                      "coreAlternativeProviders"
                     )}
                   </div>
-
-                  {visibleFields.coreAlt2 && (
-                    <div className="md:col-span-2">
-                      {renderInput(
-                        "Alternative Providers 2",
-                        "coreAlternativeProviders2",
-                        "textarea"
-                      )}
-                    </div>
-                  )}
-
-                  {!visibleFields.coreAlt2 &&
-                    !localValues.coreAlternativeProviders2 && (
-                      <div className="md:col-span-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleFieldVisibility("coreAlt2")}
-                          className="text-sm text-blue-700 font-medium hover:underline"
-                        >
-                          + Add more Alternative Providers
-                        </button>
-                      </div>
-                    )}
 
                   {/* Dropdown - full width */}
                   <div className="md:col-span-2">
@@ -1373,10 +1434,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                     )}
                   </div>
 
-                  {/* Side-by-side: Supports Commenced + Discussion */}
+                  {/* Side-by-side: Support Co-ordinator Action + Discussion */}
                   <div>
-                    {renderInput(
-                      "Supports have commenced",
+                    {renderAutoResizeTextArea(
+                      "Support Co-ordinator Action",
                       "coreSupportsCommenced"
                     )}
                   </div>
@@ -1389,183 +1450,144 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   </div>
                 </div>
               ) :
-              
-              FORM_SECTIONS[currentStep].id === "capacityBuilding" ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-     {renderInput(
-                      "Support Required",
-                      "capacitySupportText",
-                      "textarea"
-                    )}
-                  
-    <div className="md:col-span-2">{renderInput("Preferred Providers 1", "capacityPreferredProviders", "textarea")}</div>
-    {visibleFields.capacityPreferred2 && (
-      <div className="md:col-span-2">{renderInput("Preferred Providers 2", "capacityPreferredProviders2", "textarea")}</div>
-    )}
-    {!visibleFields.capacityPreferred2 && !localValues.capacityPreferredProviders2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("capacityPreferred2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Preferred Providers
-        </button>
-      </div>
-    )}
 
-    <div className="md:col-span-2">{renderInput("Alternative Providers 1", "capacityAlternativeProviders", "textarea")}</div>
-    {visibleFields.capacityAlt2 && (
-      <div className="md:col-span-2">{renderInput("Alternative Providers 2", "capacityAlternativeProviders2", "textarea")}</div>
-    )}
-    {!visibleFields.capacityAlt2 && !localValues.capacityAlternativeProviders2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("capacityAlt2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Alternative Providers
-        </button>
-      </div>
-    )}
+                FORM_SECTIONS[currentStep].id === "capacityBuilding" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      {renderAutoResizeTextArea(
+                        "Support Required",
+                        "capacitySupportText"
+                      )}
+                    </div>
 
-    {renderDropdown("Service Agreement developed/signed?", "capacityAgreementSigned", yesNoOptions)}
-    {renderInput("Supports in place at start of plan", "capacitySupportsInPlace")}
-    {renderDropdown("Are additional assessments required?", "capacityAssessmentRequired", yesNoOptions)}
-    {localValues.capacityAssessmentRequired === "Yes" && renderInput("If Yes - Actions", "capacityActions")}
-    {renderDropdown("Discussion held with Plan Manager and budget approved?", "capacityBudgetApproved", yesNoOptions)}
-  </div>
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "capacityPreferredProviders")}</div>
 
-) : FORM_SECTIONS[currentStep].id === "ndisFundedSupports" ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {renderInput("Support Required", "supportRequired1", "textarea")}
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "capacityAlternativeProviders")}</div>
 
-    <div className="md:col-span-2">{renderInput("Preferred Providers 1", "preferredProviders1", "textarea")}</div>
-    {visibleFields.capitalPreferred2 && (
-      <div className="md:col-span-2">{renderInput("Preferred Providers 2", "preferredProvidersCapital2", "textarea")}</div>
-    )}
-    {!visibleFields.capitalPreferred2 && !localValues.preferredProvidersCapital2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("capitalPreferred2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Preferred Providers
-        </button>
-      </div>
-    )}
+                    {renderDropdown("Service Agreement developed/signed?", "capacityAgreementSigned", yesNoOptions)}
+                    {renderInput("Supports in place at start of plan", "capacitySupportsInPlace")}
+                    {renderDropdown("Are additional assessments required?", "capacityAssessmentRequired", yesNoOptions)}
+                    {localValues.capacityAssessmentRequired === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "capacityActions")}
+                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "capacityBudgetApproved", yesNoOptions)}
+                  </div>
 
-    <div className="md:col-span-2">{renderInput("Alternative Providers 1", "alternativeProviders1", "textarea")}</div>
-    {visibleFields.capitalAlt2 && (
-      <div className="md:col-span-2">{renderInput("Alternative Providers 2", "alternativeProvidersCapital2", "textarea")}</div>
-    )}
-    {!visibleFields.capitalAlt2 && !localValues.alternativeProvidersCapital2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("capitalAlt2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Alternative Providers
-        </button>
-      </div>
-    )}
+                ) : FORM_SECTIONS[currentStep].id === "ndisFundedSupports" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      {renderAutoResizeTextArea("Support Required", "supportRequired1")}
+                    </div>
 
-    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement1", yesNoOptions)}
-    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment1", yesNoOptions)}
-    {localValues.additionalAssessment1 === "Yes" && renderInput("If Yes - Actions", "assessmentActions1")}
-    {renderDropdown("Discussion held with Plan Manager and budget approved?", "planManagerDiscussion1", yesNoOptions)}
-  </div>
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "preferredProviders1")}</div>
 
-) : FORM_SECTIONS[currentStep].id === "mainstreamSupports" ? (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {renderInput("Support Required", "supportRequired2", "textarea")}
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "alternativeProviders1")}</div>
+                    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement1", yesNoOptions)}
+                    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment1", yesNoOptions)}
+                    {localValues.additionalAssessment1 === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "assessmentActions1")}
+                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "planManagerDiscussion1", yesNoOptions)}
+                  </div>
 
-    <div className="md:col-span-2">{renderInput("Preferred Providers 1", "preferredProviders2", "textarea")}</div>
-    {visibleFields.mainstreamPreferred2 && (
-      <div className="md:col-span-2">{renderInput("Preferred Providers 2", "preferredProvidersMainstream2", "textarea")}</div>
-    )}
-    {!visibleFields.mainstreamPreferred2 && !localValues.preferredProvidersMainstream2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("mainstreamPreferred2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Preferred Providers
-        </button>
-      </div>
-    )}
+                ) : FORM_SECTIONS[currentStep].id === "mainstreamSupports" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      {renderAutoResizeTextArea("Support Required", "supportRequired2")}
+                    </div>
 
-    <div className="md:col-span-2">{renderInput("Alternative Providers 1", "alternativeProviders2", "textarea")}</div>
-    {visibleFields.mainstreamAlt2 && (
-      <div className="md:col-span-2">{renderInput("Alternative Providers 2", "alternativeProvidersMainstream2", "textarea")}</div>
-    )}
-    {!visibleFields.mainstreamAlt2 && !localValues.alternativeProvidersMainstream2 && (
-      <div className="md:col-span-2">
-        <button type="button" onClick={() => toggleFieldVisibility("mainstreamAlt2")} className="text-sm text-blue-700 font-medium hover:underline">
-          + Add more Alternative Providers
-        </button>
-      </div>
-    )}
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "preferredProviders2")}</div>
 
-    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement2", yesNoOptions)}
-    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment2", yesNoOptions)}
-    {localValues.additionalAssessment2 === "Yes" && renderInput("If Yes - Actions", "assessmentActions2")}
-    {renderDropdown("Discussion held with Plan Manager and budget approved?", "budgetApproval", yesNoOptions)}
-  </div>)
+                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "alternativeProviders2")}</div>
 
-              
-              
-              
-              
-              
-              
-              
-              : (
-                // Standard grid layout for other sections
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field: any) => {
-                    const meta = FIELD_METADATA[field] || {
-                      label: field,
-                      type: "text",
-                    };
-                    const required = isFieldRequired(field);
+                    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement2", yesNoOptions)}
+                    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment2", yesNoOptions)}
+                    {localValues.additionalAssessment2 === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "assessmentActions2")}
+                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "budgetApproval", yesNoOptions)}
+                  </div>)
 
-                    if (
-                      field === "fundingOther" &&
-                      localValues.funding !== "Other"
-                    ) {
-                      return null;
-                    }
 
-                    if (meta.type === "checkbox") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderCheckbox(meta.label, field, required)}
-                        </div>
-                      );
-                    }
-                    if (meta.type === "radio") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderRadioGroup(
-                            meta.label,
-                            field,
-                            meta.options || [],
-                            required
-                          )}
-                        </div>
-                      );
-                    }
-                    if (meta.type === "dropdown") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderDropdown(
-                            meta.label,
-                            field,
-                            meta.options || [],
-                            required
-                          )}
-                        </div>
-                      );
-                    }
-                    return (
-                      <div key={field}>
-                        {renderInput(
-                          meta.label,
-                          field,
-                          meta.type || "text",
-                          meta.placeholder,
-                          required
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+
+
+
+
+
+
+                  : (
+                    // Standard grid layout for other sections
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {FORM_SECTIONS[currentStep].fields.map((field: any) => {
+                        const meta = FIELD_METADATA[field] || {
+                          label: field,
+                          type: "text",
+                        };
+                        const required = isFieldRequired(field);
+
+                        if (
+                          field === "fundingOther" &&
+                          localValues.funding !== "Other"
+                        ) {
+                          return null;
+                        }
+
+                        if (meta.type === "checkbox") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderCheckbox(meta.label, field, required)}
+                            </div>
+                          );
+                        }
+                        if (meta.type === "radio") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderRadioGroup(
+                                meta.label,
+                                field,
+                                meta.options || [],
+                                required
+                              )}
+                            </div>
+                          );
+                        }
+                        if (meta.type === "dropdown") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderDropdown(
+                                meta.label,
+                                field,
+                                meta.options || [],
+                                required
+                              )}
+                            </div>
+                          );
+                        }
+                        if (
+                          field === "contactAddress" ||
+                          field === "address" ||
+                          field === "communicationConsiderations" ||
+                          field.startsWith("goal")
+                        ) {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderAutoResizeTextArea(
+                                meta.label,
+                                field,
+                                meta.placeholder,
+                                required
+                              )}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={field}>
+                            {renderInput(
+                              meta.label,
+                              field,
+                              meta.type || "text",
+                              meta.placeholder,
+                              required
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
             </div>
           </form>
         </section>
@@ -1577,13 +1599,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             {FORM_SECTIONS.map((_: any, index: any) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${
-                  index === currentStep
-                    ? "bg-blue-600 border-blue-600 shadow"
-                    : index < currentStep
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep
+                  ? "bg-blue-600 border-blue-600 shadow"
+                  : index < currentStep
                     ? "bg-green-500 border-green-500"
                     : "bg-gray-200 border-gray-300"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -1593,11 +1614,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               type="button"
               onClick={handlePreviousSequential}
               disabled={currentStep === 0 || isPrevLoading}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === 0 || navigatingPrev
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                  : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
-              }`}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
+                }`}
             >
               {isPrevLoading ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
               <span>Previous</span>
@@ -1611,13 +1631,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 !isCurrentSectionComplete() ||
                 isNextLoading
               }
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${
-                currentStep === FORM_SECTIONS.length - 1 ||
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 ||
                 !isCurrentSectionComplete() ||
                 isNextLoading
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                  : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
-              }`}
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
+                }`}
             >
               <span>Next</span>
               {isNextLoading ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}

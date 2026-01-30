@@ -5,7 +5,7 @@ import { supportActionPlanSchema, SchemaBlock } from "./schema";
 
 // Dynamic Support Action Plan view with measured pagination, header/footer, and spacing controls
 const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
-  try { 
+  try {
     console.log('[SAP View] Using SupportActionPlanDynamic.tsx');
     // DEBUG: Log initial formData received
     console.group('[SAP Component Debug] Component initialized');
@@ -24,7 +24,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     }
     console.log('Are signatures the same?', formData?.participantSignature === formData?.authorSignature);
     console.groupEnd();
-  } catch {}
+  } catch { }
 
   // DEBUG: Log whenever formData changes
   useEffect(() => {
@@ -70,12 +70,12 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       }
       return "";
     }
-    
+
     const mapped = commonFieldMapping[key];
     // Always prioritize current client details from database
-  const raw = mapped && commonFieldsData?.[mapped] 
-    ? commonFieldsData[mapped] 
-    : formData?.[key];
+    const raw = mapped && commonFieldsData?.[mapped]
+      ? commonFieldsData[mapped]
+      : formData?.[key];
     return raw ?? "";
   };
 
@@ -102,9 +102,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     return (
       <>
         <div className="font-bold">{label}</div>
-        <div 
-          className="mb-2 whitespace-pre-wrap break-words" 
-          style={{ 
+        <div
+          className="mb-2 whitespace-pre-wrap break-words"
+          style={{
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
             hyphens: 'auto'
@@ -196,10 +196,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const renderGoalRow = (goalKey: string, goalIndex: number, isFirst: boolean) => {
     const mk = (k: string) => (formData?.[k] ? String(formData[k]) : '');
     const goalValue = mk(goalKey);
-    
+
     // Don't render empty goals
     if (!hasValue(goalValue)) return null;
-    
+
     return (
       <div className={isFirst ? "mb-4" : "mb-0"}>
         {isFirst && (
@@ -220,11 +220,11 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   // Legacy renderer for goals section (when rendered as single block)
   const renderGoalsSection = () => {
     const mk = (k: string) => (formData?.[k] ? String(formData[k]) : '');
-    const goalKeys = ['goal1','goal2','goal3','goal4','goal5','goal6','goal7'];
+    const goalKeys = ['goal1', 'goal2', 'goal3', 'goal4', 'goal5', 'goal6', 'goal7'];
     const filledGoals = goalKeys.filter(gk => hasValue(mk(gk)));
-    
+
     if (filledGoals.length === 0) return null;
-    
+
     return (
       <div className="mb-4">
         <div className="font-bold underline text-sm mb-2">3. NDIS Participant's Goals</div>
@@ -234,10 +234,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
               const goalValue = mk(gk);
               if (!hasValue(goalValue)) return null;
               return (
-              <tr key={gk}>
-                <td className="border border-black px-2 py-2 align-top w-1/5 font-bold">{`Goal ${i+1}`}</td>
+                <tr key={gk}>
+                  <td className="border border-black px-2 py-2 align-top w-1/5 font-bold">{`Goal ${i + 1}`}</td>
                   <td className="border border-black px-2 py-2 align-top w-4/5" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{goalValue}</td>
-              </tr>
+                </tr>
               );
             })}
           </tbody>
@@ -248,7 +248,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
 
   // Shared helper: Check if Yes
   const isYes = (k: string) => formData?.[k] === 'Yes';
-  
+
   // Shared helper: Yes/No display component (shows both options)
   const YesNo = ({ k }: { k: string }) => {
     const checked = isYes(k);
@@ -271,14 +271,12 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="mb-3">
           <div className="bg-gray-300 border border-black px-2 py-1 font-bold text-xs">CORE SUPPORTS</div>
           <div className="border border-black border-t-0 p-2 text-xs">
-                  <div className="font-bold">4. Support Requirements</div>
+            <div className="font-bold">4. Support Requirements</div>
             <ConditionalField label="Support Required" value={get('coreSupportText')} />
-            <ConditionalField label="Preferred Providers 1" value={get('corePreferredProviders')} />
-            <ConditionalField label="Preferred Providers 2" value={get('corePreferredProviders2')} />
-            <ConditionalField label="Alternative Providers 1" value={get('coreAlternativeProviders')} />
-            <ConditionalField label="Alternative Providers 2" value={get('coreAlternativeProviders2')} />
+            <ConditionalField label="Preferred Providers " value={get('corePreferredProviders')} />
+            <ConditionalField label="Alternative Providers " value={get('coreAlternativeProviders')} />
             <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="coreAgreementSigned" /></div>
-            <ConditionalField label="Supports have commenced" value={get('coreSupportsCommenced')} />
+            <ConditionalField label="Support Co-ordinator Action" value={get('coreSupportsCommenced')} />
             <div className="font-bold mt-1">Discussion held with Plan Manager and budget approved? <YesNo k="coreBudgetApproved" /></div>
           </div>
         </div>
@@ -293,10 +291,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-gray-300 border border-black px-2 py-1 font-bold text-xs">CAPACITY BUILDING</div>
         <div className="border border-black border-t-0 p-2 text-xs">
           <ConditionalField label="Support Required" value={get('capacitySupportText')} />
-          <ConditionalField label="Preferred Providers 1" value={get('capacityPreferredProviders')} />
-          <ConditionalField label="Preferred Providers 2" value={get('capacityPreferredProviders2')} />
+          <ConditionalField label="Preferred Providers " value={get('capacityPreferredProviders')} />
           <ConditionalField label="Alternative Providers 1" value={get('capacityAlternativeProviders')} />
-          <ConditionalField label="Alternative Providers 2" value={get('capacityAlternativeProviders2')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="capacityAgreementSigned" /></div>
           <ConditionalField label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} />
           <div className="font-bold mt-1">Are additional assessments required? <YesNo k="capacityAssessmentRequired" /></div>
@@ -312,11 +308,11 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       <table className="w-full border border-black border-collapse text-xs" style={{ tableLayout: 'fixed', width: '100%' }}>
         <tbody>
           <tr className="bg-blue-200">
-            <td 
+            <td
               className="border border-black px-2 py-2 font-bold"
-              style={{ 
-                wordWrap: 'break-word', 
-                overflowWrap: 'break-word', 
+              style={{
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
                 whiteSpace: 'normal',
                 width: '100%',
                 maxWidth: 0 // Force table cell to wrap
@@ -337,10 +333,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-gray-300 border border-black px-2 py-1 font-bold text-xs">CAPITAL</div>
         <div className="border border-black border-t-0 p-2 text-xs">
           <ConditionalField label="Support Required" value={get('supportRequired1')} />
-          <ConditionalField label="Preferred Providers 1" value={get('preferredProviders1')} />
-          <ConditionalField label="Preferred Providers 2" value={get('preferredProvidersCapital2')} />
-          <ConditionalField label="Alternative Providers 1" value={get('alternativeProviders1')} />
-          <ConditionalField label="Alternative Providers 2" value={get('alternativeProvidersCapital2')} />
+          <ConditionalField label="Preferred Providers " value={get('preferredProviders1')} />
+          <ConditionalField label="Alternative Providers " value={get('alternativeProviders1')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="serviceAgreement1" /></div>
           <div className="font-bold mt-1">Are additional assessments required to access this support type? <YesNo k="additionalAssessment1" /></div>
           {get('additionalAssessment1') === 'Yes' && <ConditionalField label="If Yes - Actions" value={get('assessmentActions1')} />}
@@ -357,10 +351,8 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-gray-300 border border-black px-2 py-1 font-bold text-xs">MAINSTREAM SUPPORTS & SERVICES</div>
         <div className="border border-black border-t-0 p-2 text-xs">
           <ConditionalField label="Support Required" value={get('supportRequired2')} />
-          <ConditionalField label="Preferred Providers 1" value={get('preferredProviders2')} />
-          <ConditionalField label="Preferred Providers 2" value={get('preferredProvidersMainstream2')} />
-          <ConditionalField label="Alternative Providers 1" value={get('alternativeProviders2')} />
-          <ConditionalField label="Alternative Providers 2" value={get('alternativeProvidersMainstream2')} />
+          <ConditionalField label="Preferred Providers " value={get('preferredProviders2')} />
+          <ConditionalField label="Alternative Providers " value={get('alternativeProviders2')} />
           <div className="font-bold mt-1">Service Agreement developed/signed? <YesNo k="serviceAgreement2" /></div>
           <div className="font-bold mt-1">Are additional assessments required to access this support type? <YesNo k="additionalAssessment2" /></div>
           {get('additionalAssessment2') === 'Yes' && <ConditionalField label="If Yes - Actions" value={get('assessmentActions2')} />}
@@ -392,7 +384,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
     const goalsText = get('goalsText');
     const displayText = goalsText && goalsText.trim() ? goalsText : '___/___/____';
-    
+
     // Professional paragraph-style rendering with proper text wrapping
     return (
       <div className="mb-4">
@@ -402,9 +394,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
             <span className="font-bold text-xs">5. Goals and funding required for next plan</span>
           </div>
           {/* Content - Professional paragraph style */}
-          <div 
+          <div
             className="px-4 py-4 bg-white"
-            style={{ 
+            style={{
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',
               overflowWrap: 'break-word',
@@ -476,11 +468,11 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
               <td className="border border-black px-2 py-2 align-top" colSpan={3}>
                 <div className="font-bold text-xs">Plan Dates:</div>
                 <div className="text-xs" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-                  {formData?.planStartDate && formData?.planEndDate 
+                  {formData?.planStartDate && formData?.planEndDate
                     ? `${formatDateValue(formData.planStartDate)} - ${formatDateValue(formData.planEndDate)}`
-                    : formData?.planStartDate 
+                    : formData?.planStartDate
                       ? `From: ${formatDateValue(formData.planStartDate)}`
-                      : formData?.planEndDate 
+                      : formData?.planEndDate
                         ? `To: ${formatDateValue(formData.planEndDate)}`
                         : ''}
                 </div>
@@ -528,7 +520,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     const meta = block.meta || {};
     const signatureKey = meta.signatureKey || '';
     const title = meta.title || 'Unknown';
-    
+
     // DEBUG: Log all signature-related data
     console.group(`[SAP Signature Debug] Rendering ${title} (key: ${signatureKey})`);
     console.log('formData keys:', formData ? Object.keys(formData) : 'formData is null/undefined');
@@ -538,7 +530,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     console.log('formData.authorSignature value:', formData?.authorSignature ? formData.authorSignature.substring(0, 50) + '...' : 'EMPTY');
     console.log('signatureKey being used:', signatureKey);
     console.log('meta:', meta);
-    
+
     // CRITICAL: Get signature value directly from formData using the EXACT signatureKey
     // Do NOT use getFieldValue() as it might cause cross-contamination
     // Ensure we're getting the correct field for this specific signature group
@@ -547,19 +539,19 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     if (signatureKey === 'participantSignature') {
       // CRITICAL: Participant field should ONLY show participantSignature
       // If it's empty or same as authorSignature, show empty (user hasn't signed yet)
-      const participantSig = (formData && typeof formData.participantSignature === 'string' && formData.participantSignature.trim() !== '') 
-        ? formData.participantSignature 
+      const participantSig = (formData && typeof formData.participantSignature === 'string' && formData.participantSignature.trim() !== '')
+        ? formData.participantSignature
         : '';
-      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '') 
-        ? formData.authorSignature 
+      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '')
+        ? formData.authorSignature
         : '';
-      
+
       console.log('[Participant Field] participantSig exists:', !!participantSig);
       console.log('[Participant Field] authorSig exists:', !!authorSig);
       console.log('[Participant Field] Are they the same?', participantSig === authorSig);
       console.log('[Participant Field] participantSig length:', participantSig ? participantSig.length : 0);
       console.log('[Participant Field] authorSig length:', authorSig ? authorSig.length : 0);
-      
+
       // Only show participant signature if:
       // 1. It exists AND
       // 2. It's different from author signature (prevents showing author sig in participant field)
@@ -577,13 +569,13 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       }
     } else if (signatureKey === 'authorSignature') {
       // Author field should ONLY show authorSignature
-      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '') 
-        ? formData.authorSignature 
+      const authorSig = (formData && typeof formData.authorSignature === 'string' && formData.authorSignature.trim() !== '')
+        ? formData.authorSignature
         : '';
-      
+
       console.log('[Author Field] authorSig exists:', !!authorSig);
       console.log('[Author Field] authorSig length:', authorSig ? authorSig.length : 0);
-      
+
       // Show author signature if it exists
       sigValue = authorSig;
       if (authorSig) {
@@ -597,19 +589,19 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       console.log('[Fallback] signatureKey:', signatureKey);
       console.log('[Fallback] fallbackValue type:', typeof fallbackValue);
       console.log('[Fallback] fallbackValue exists:', !!fallbackValue);
-      sigValue = (formData && typeof formData[signatureKey] === 'string') 
-        ? formData[signatureKey] 
+      sigValue = (formData && typeof formData[signatureKey] === 'string')
+        ? formData[signatureKey]
         : '';
     }
-    
+
     console.log('[Final] sigValue for', title, ':', sigValue ? sigValue.substring(0, 50) + '...' : 'EMPTY');
     console.log('[Final] sigValue length:', sigValue ? sigValue.length : 0);
     console.groupEnd();
-    
+
     // Get date directly from formData - check both old and new field names
     const dateKey = meta.dateKey || '';
     let dateValue = formData?.[dateKey] || '';
-    
+
     // Handle API field name mismatches:
     // API returns participantSignatureDate but schema expects participantDate
     // API returns providerSignatureDate but schema expects authorDate
@@ -619,12 +611,12 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     if (!dateValue && dateKey === 'authorDate') {
       dateValue = formData?.['providerSignatureDate'] || formData?.['authorSignatureDate'] || '';
     }
-    
+
     const formattedDate = formatDateValue(dateValue);
-    
+
     // Use a unique key that includes both title and signatureKey to ensure React treats them as separate
     const uniqueKey = `sig-${signatureKey}-${meta.title || 'signature'}`;
-    
+
     return (
       <div key={uniqueKey} className="mb-4">
         {meta.title && (
@@ -640,9 +632,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
                   <div className="w-1/2">
                     <strong>{meta.signatureLabel || 'Signature'}:</strong><br />
                     {sigValue && sigValue.startsWith('data:image') ? (
-                      <img 
-                        src={sigValue} 
-                        alt={`${meta.title} Signature`} 
+                      <img
+                        src={sigValue}
+                        alt={`${meta.title} Signature`}
                         className="h-10 mt-1"
                         key={`img-${signatureKey}-${sigValue.substring(0, 20)}`} // Unique key for image to force re-render
                       />
@@ -768,7 +760,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       }
       case 'goals_section': {
         // Legacy: Goals can vary significantly - estimate based on actual goal count
-        const goalKeys = ['goal1','goal2','goal3','goal4','goal5','goal6','goal7'];
+        const goalKeys = ['goal1', 'goal2', 'goal3', 'goal4', 'goal5', 'goal6', 'goal7'];
         const filledGoals = goalKeys.filter(k => hasValue(formData?.[k])).length;
         // Base height + ~35px per filled goal (compact)
         return Math.max(80, 80 + filledGoals * 35);
@@ -776,14 +768,14 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       case 'support_requirements_question': return 45;
       case 'support_core': {
         // More accurate estimation - subtract ~20px per empty field (tighter)
-        const emptyCount = countEmptyFields(['coreSupportText', 'corePreferredProviders', 'corePreferredProviders2', 
+        const emptyCount = countEmptyFields(['coreSupportText', 'corePreferredProviders', 'corePreferredProviders2',
           'coreAlternativeProviders', 'coreAlternativeProviders2', 'coreSupportsCommenced']);
         // Reduced minimum and tighter spacing
         return Math.max(150, 300 - (emptyCount * 20));
       }
       case 'support_capacity': {
         const emptyCount = countEmptyFields(['capacitySupportText', 'capacityPreferredProviders', 'capacityPreferredProviders2',
-          'capacityAlternativeProviders', 'capacityAlternativeProviders2', 'capacitySupportsInPlace', 
+          'capacityAlternativeProviders', 'capacityAlternativeProviders2', 'capacitySupportsInPlace',
           'capacityAssessmentRequired', 'capacityActions']);
         return Math.max(160, 340 - (emptyCount * 20));
       }
@@ -817,9 +809,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       }
       case 'section_header': return 30;
       case 'paragraph': {
-        const len = (block.content || '').length; 
+        const len = (block.content || '').length;
         if (len === 0) return 0;
-        const lines = Math.ceil(len / 85); 
+        const lines = Math.ceil(len / 85);
         return 20 + lines * 17;
       }
       case 'list': {
@@ -834,25 +826,25 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   };
 
   // Create schema with individual goal blocks for better pagination
-  const goalKeys = ['goal1','goal2','goal3','goal4','goal5','goal6','goal7'];
+  const goalKeys = ['goal1', 'goal2', 'goal3', 'goal4', 'goal5', 'goal6', 'goal7'];
   const goalBlocks = goalKeys.map((gk, idx) => ({ type: 'goal', goalKey: gk, goalIndex: idx }));
-  
+
   const extendedSchema: any[] = useMemo(() => {
     const baseSchema = [
-    { type: 'table_participant' },
-    { type: 'preferred_contact' },
+      { type: 'table_participant' },
+      { type: 'preferred_contact' },
       // Insert individual goals instead of goals_section
       ...goalBlocks.filter((_, idx) => {
         const gk = goalKeys[idx];
         return hasValue(formData?.[gk]);
       }),
-    { type: 'support_requirements_question' },
-    { type: 'support_core' },
-    { type: 'support_capacity' },
-    { type: 'support_capital' },
+      { type: 'support_requirements_question' },
+      { type: 'support_core' },
+      { type: 'support_capacity' },
+      { type: 'support_capital' },
       { type: 'support_mainstream' }, // Budget approval is now inside this section
-    { type: 'next_plan_goals' },
-    ...supportActionPlanSchema
+      { type: 'next_plan_goals' },
+      ...supportActionPlanSchema
     ];
     return baseSchema;
   }, [formData]);
@@ -865,7 +857,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     const out: number[][] = [];
     let current: number[] = [];
     let h = 0;
-    
+
     heights.forEach((bh, idx) => {
       // Don't skip critical blocks like participant table, even if estimated height is low
       // Also don't skip next_plan_goals as it should always be visible
@@ -873,17 +865,17 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       const block = extendedSchema[idx];
       const isCriticalBlock = block?.type === 'table_participant' || block?.type === 'preferred_contact';
       const isAlwaysVisible = block?.type === 'next_plan_goals';
-      
+
       // Skip zero-height blocks only if they're not critical or always visible
       if (bh <= 0 && !isCriticalBlock && !isAlwaysVisible) return;
-      
+
       // Ensure critical blocks and always-visible blocks have minimum height
       const actualHeight = isCriticalBlock ? Math.max(bh, 200) : (isAlwaysVisible ? Math.max(bh, 110) : bh);
-      
+
       const spacing = current.length > 0 ? BLOCK_SPACING : 0;
       const next = actualHeight + spacing;
       const wouldExceed = h + next + SAFETY_BUFFER > PAGE_BUDGET;
-      
+
       // Improved pagination logic: Strict about page boundaries to prevent overflow
       // Only break if we truly cannot fit this block
       if (wouldExceed && current.length > 0) {
@@ -896,16 +888,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           h += next;
         } else {
           // Can't fit even with overflow, start new page
-          out.push(current); 
-          current = [idx]; 
+          out.push(current);
+          current = [idx];
           h = actualHeight;
         }
-      } else { 
-        current.push(idx); 
-        h += next; 
+      } else {
+        current.push(idx);
+        h += next;
       }
     });
-    
+
     if (current.length) out.push(current);
     return out;
   }, [measuredHeights, units, PAGE_BUDGET, formData]);
@@ -930,7 +922,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       });
       if (hs.some((x) => x && x > 0)) setMeasuredHeights(hs);
     }, 100);
-    
+
     return () => clearTimeout(timeoutId);
   }, [units, extendedSchema]);
 
@@ -942,10 +934,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         if (h && h > 0) setPageBudget(h);
       }
     };
-    
+
     // Measure immediately
     measureBudget();
-    
+
     // Also measure on resize to handle screen size changes
     window.addEventListener('resize', measureBudget);
     return () => window.removeEventListener('resize', measureBudget);
@@ -954,19 +946,19 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const A4Page = ({ children, pageNumber }: any) => (
     <div
       className="bg-white mx-auto shadow-md"
-      style={{ 
-        width: "794px", 
-        minWidth: "794px", 
+      style={{
+        width: "794px",
+        minWidth: "794px",
         maxWidth: "794px",
-        height: "1123px", 
+        height: "1123px",
         minHeight: "1123px",
         maxHeight: "1123px",
-        boxShadow: "0 0 10px rgba(0,0,0,0.1)", 
-        pageBreakAfter: "always", 
-        boxSizing: 'border-box', 
-        padding: "30px", 
-        marginBottom: "20px", 
-        display: 'flex', 
+        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        pageBreakAfter: "always",
+        boxSizing: 'border-box',
+        padding: "30px",
+        marginBottom: "20px",
+        display: 'flex',
         flexDirection: 'column',
         transform: 'scale(1)',
         transformOrigin: 'top center'
@@ -992,9 +984,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   );
 
   return (
-    <div 
+    <div
       className="print:p-0"
-      style={{ 
+      style={{
         width: '100%',
         maxWidth: '794px',
         margin: '0 auto',
@@ -1002,10 +994,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       }}
     >
       {/* Hidden measuring container - ensure proper width for accurate measurements */}
-      <div style={{ 
-        position: 'absolute', 
-        left: -10000, 
-        top: 0, 
+      <div style={{
+        position: 'absolute',
+        left: -10000,
+        top: 0,
         width: '794px',
         visibility: 'hidden',
         pointerEvents: 'none',
@@ -1019,20 +1011,20 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t"><span>Website:</span><span>SAP001</span><span>Review Date:</span></div>
         </div>
         {extendedSchema.map((b, i) => {
-          const isFirstGoal = b.type === 'goal' && (i === 0 || extendedSchema[i-1]?.type !== 'goal');
+          const isFirstGoal = b.type === 'goal' && (i === 0 || extendedSchema[i - 1]?.type !== 'goal');
           return (
-          <div key={`m-${i}`} ref={(el) => { measureRefs.current[i] = el; }} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
-            {b.type === 'preferred_contact' ? renderPreferredContact() 
+            <div key={`m-${i}`} ref={(el) => { measureRefs.current[i] = el; }} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
+              {b.type === 'preferred_contact' ? renderPreferredContact()
                 : b.type === 'goal' ? renderGoalRow(b.goalKey, b.goalIndex, isFirstGoal)
-              : b.type === 'goals_section' ? renderGoalsSection() 
-              : b.type === 'support_requirements_question' ? renderSupportRequirementsQuestion()
-              : b.type === 'support_core' ? renderCoreSupports() 
-              : b.type === 'support_capacity' ? renderCapacityBuilding() 
-              : b.type === 'support_capital' ? renderCapitalSupports()
-                : b.type === 'support_mainstream' ? renderMainstreamSupports() // Budget approval is inside this
-              : b.type === 'next_plan_goals' ? renderNextPlanGoals()
-              : renderBlock(b)}
-          </div>
+                  : b.type === 'goals_section' ? renderGoalsSection()
+                    : b.type === 'support_requirements_question' ? renderSupportRequirementsQuestion()
+                      : b.type === 'support_core' ? renderCoreSupports()
+                        : b.type === 'support_capacity' ? renderCapacityBuilding()
+                          : b.type === 'support_capital' ? renderCapitalSupports()
+                            : b.type === 'support_mainstream' ? renderMainstreamSupports() // Budget approval is inside this
+                              : b.type === 'next_plan_goals' ? renderNextPlanGoals()
+                                : renderBlock(b)}
+            </div>
           );
         })}
       </div>
@@ -1045,18 +1037,18 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
             const prevUnitIdx = idxInPage > 0 ? idxs[idxInPage - 1] : undefined;
             const isFirstGoal = b.type === 'goal' && (idxInPage === 0 || (prevUnitIdx !== undefined && extendedSchema[prevUnitIdx]?.type !== 'goal'));
             return (
-            <div key={`u-${unitIdx}`} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
-                {b.type === 'preferred_contact' ? renderPreferredContact() 
+              <div key={`u-${unitIdx}`} style={{ marginBottom: `${BLOCK_SPACING}px` }}>
+                {b.type === 'preferred_contact' ? renderPreferredContact()
                   : b.type === 'goal' ? renderGoalRow(b.goalKey, b.goalIndex, isFirstGoal)
-                  : b.type === 'goals_section' ? renderGoalsSection() 
-                  : b.type === 'support_requirements_question' ? renderSupportRequirementsQuestion()
-                  : b.type === 'support_core' ? renderCoreSupports() 
-                  : b.type === 'support_capacity' ? renderCapacityBuilding() 
-                  : b.type === 'support_capital' ? renderCapitalSupports()
-                  : b.type === 'support_mainstream' ? renderMainstreamSupports() // Budget approval is inside this
-                  : b.type === 'next_plan_goals' ? renderNextPlanGoals()
-                  : renderBlock(b)}
-            </div>
+                    : b.type === 'goals_section' ? renderGoalsSection()
+                      : b.type === 'support_requirements_question' ? renderSupportRequirementsQuestion()
+                        : b.type === 'support_core' ? renderCoreSupports()
+                          : b.type === 'support_capacity' ? renderCapacityBuilding()
+                            : b.type === 'support_capital' ? renderCapitalSupports()
+                              : b.type === 'support_mainstream' ? renderMainstreamSupports() // Budget approval is inside this
+                                : b.type === 'next_plan_goals' ? renderNextPlanGoals()
+                                  : renderBlock(b)}
+              </div>
             );
           })}
         </A4Page>
