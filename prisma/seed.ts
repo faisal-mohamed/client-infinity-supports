@@ -100,6 +100,12 @@ async function main() {
       title: 'Conflict of Interest',
       version: 1,
       requiresSignature: true
+    },
+    {
+      formKey: 'ndis_consent',
+      title: 'Consent for your NDIS information',
+      version: 1,
+      requiresSignature: true
     }
   ];
 

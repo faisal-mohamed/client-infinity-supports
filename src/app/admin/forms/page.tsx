@@ -26,7 +26,8 @@ const CLIENT_FORM_KEYS = [
   'schedule_of_supports',
   'sa_support_coordination',
   'multi_disciplinary_meeting',
-  'conflict_of_interest'
+  'conflict_of_interest',
+  'ndis_consent'
 ];
 
 // Enhanced skeleton loader row

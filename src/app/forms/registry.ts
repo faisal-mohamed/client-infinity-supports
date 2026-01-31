@@ -48,6 +48,9 @@ import SASupportCoordinationEdit from "../components/forms/sa-support-coordinati
 
 import ConflictOfInterestEdit from "../components/forms/conflict_of_interest/Edit";
 import ConflictOfInterestView from "../components/forms/conflict_of_interest/View";
+import NDISConsentEdit from "../components/forms/ndis_consent/Edit";
+import NDISConsentView from "../components/forms/ndis_consent/View";
+import NDISConsentPDF from "../../components-server/PrintableForms/NDISConsent_MATCHING";
 
 
 
@@ -404,6 +407,24 @@ const formRegistry: Record<string, FormRegistryItem> = {
         signedAtKey: "managerSignDate",
         signerName: "managerName",
       }
+    ],
+  },
+  ndis_consent: {
+    key: "ndis_consent",
+    name: "Consent for your NDIS information",
+    editComponent: NDISConsentEdit,
+    viewComponent: NDISConsentView,
+    pdfComponent: NDISConsentPDF,
+    signatures: [
+      {
+        id: "participant_signature",
+        label: "Participant/Signatory Signature",
+        description: "Please sign here to give your consent as indicated in this form.",
+        required: true,
+        dataKey: "signature",
+        signedAtKey: "signatureDate",
+        signerName: "signatoryName",
+      },
     ],
   }
 };

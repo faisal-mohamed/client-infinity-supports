@@ -18,6 +18,7 @@ import MDT from './mdt/page'  // Uses MDT_MATCHING.tsx internally
 import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_PDF';
 import SASupportCoordination from './SASupportCoordination_MATCHING';
 import ConflictOfInterest_MATCHING from './ConflictOfInterest_MATCHING';
+import NDISConsent_MATCHING from './NDISConsent_MATCHING';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -93,6 +94,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'conflict_of_interest',
     name: "Conflict of Interest",
     component: ConflictOfInterest_MATCHING
+  },
+  {
+    formKey: 'ndis_consent',
+    name: "Consent for your NDIS information",
+    component: NDISConsent_MATCHING
   }
 
 ];

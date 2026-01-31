@@ -28,18 +28,18 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onEnd, readOnly = false, in
   }, [initialValue]);
 
   const handleEnd = () => {
-  if (sigCanvasRef.current) {
-    try {
-      const canvas =
-        sigCanvasRef.current.getTrimmedCanvas?.() ??
-        sigCanvasRef.current.getCanvas(); // fallback if trimmed fails
-      const dataUrl = canvas.toDataURL("image/png");
-      onEnd(dataUrl);
-    } catch (err) {
-      console.error("Signature capture error:", err);
+    if (sigCanvasRef.current) {
+      try {
+        const canvas =
+          sigCanvasRef.current.getTrimmedCanvas?.() ??
+          sigCanvasRef.current.getCanvas(); // fallback if trimmed fails
+        const dataUrl = canvas.toDataURL("image/png");
+        onEnd(dataUrl);
+      } catch (err) {
+        console.error("Signature capture error:", err);
+      }
     }
-  }
-};
+  };
 
 
   const handleClear = () => {
@@ -48,13 +48,17 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onEnd, readOnly = false, in
   };
 
   return (
-    <div className="flex flex-col items-center space-y-2">
-      <div className="border-2 border-gray-300 rounded-lg bg-white">
+    <div className="flex flex-col items-center space-y-2 w-full">
+      <div className="border border-gray-200 rounded-lg bg-white w-full h-[200px] shadow-inner overflow-hidden">
         <SignatureCanvas
           ref={sigCanvasRef}
           penColor="black"
           backgroundColor="white"
-          canvasProps={{ width: 400, height: 150, className: "rounded-lg" }}
+          canvasProps={{
+            width: 800,
+            height: 200,
+            className: "w-full h-full"
+          }}
           onEnd={handleEnd}
         />
       </div>
