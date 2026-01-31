@@ -33,7 +33,10 @@ const PDFViewWrapper: React.FC<PDFViewWrapperProps> = ({ formData, commonFieldsD
     }
 
     if (instance.error) {
-        return <div className="p-8 text-red-500 border border-red-200 bg-red-50 rounded-lg">Error generating PDF: {instance.error.message}</div>;
+        const errorMessage = typeof instance.error === 'string'
+            ? instance.error
+            : (instance.error as any).message || 'Unknown error';
+        return <div className="p-8 text-red-500 border border-red-200 bg-red-50 rounded-lg">Error generating PDF: {errorMessage}</div>;
     }
 
     return (

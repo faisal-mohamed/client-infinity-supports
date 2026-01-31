@@ -568,7 +568,7 @@ const NDISConsentEdit: React.FC<FormProps> = ({
                                 onClick={(e) => {
                                     if (readOnly) return;
                                     if (metadata.singleSelect) {
-                                        let newValue = value === option ? "" : option;
+                                        const newValue = value === option ? "" : option;
 
                                         if (fieldName === "consentLength") {
                                             const updates: any = { [fieldName]: newValue };
