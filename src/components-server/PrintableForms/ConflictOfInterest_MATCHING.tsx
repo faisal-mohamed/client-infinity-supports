@@ -194,6 +194,20 @@ const styles = StyleSheet.create({
         fontSize: 10,
         color: '#000000',
     },
+    fieldLabel: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        marginTop: 8,
+    },
+    fieldValue: {
+        fontSize: 10,
+        marginBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#CCCCCC',
+        paddingBottom: 2,
+        minHeight: 14,
+    },
     checkboxRow: {
         flexDirection: 'row',
         alignItems: 'center',
