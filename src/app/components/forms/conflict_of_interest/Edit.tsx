@@ -107,13 +107,13 @@ const FIELD_METADATA: Record<string, any> = {
     },
     dob: { label: "Date of Birth (DD/MM/YYYY)", type: "date", legend: "Participant" },
     ndisNumber: { label: "NDIS Number", type: "text", legend: "Participant" },
-    residentialAddress: { label: "Residential Address", type: "text", legend: "Participant" },
+    residentialAddress: { label: "Residential Address", type: "textarea", rows: 2, legend: "Participant" },
     contactPhone: { label: "Contact Phone Number", type: "text", legend: "Participant" },
     contactEmail: { label: "Contact Email", type: "email", legend: "Participant" },
 
     orgName: { label: "Organisation Name", type: "text", readOnly: true },
     providerNo: { label: "Provider Number", type: "text", readOnly: true },
-    providerAddress: { label: "Address", type: "text", readOnly: true },
+    providerAddress: { label: "Address", type: "textarea", rows: 2, readOnly: true },
     providerContactEmail: {
         label: "Contact Email",
         type: "dropdown",
@@ -137,8 +137,8 @@ const FIELD_METADATA: Record<string, any> = {
     },
 
     employeeName: { label: "Full Name", type: "text", legend: "Staff" },
-    employeeRelationship: { label: "Relationship to Participant", type: "text", legend: "Staff" },
-    employeePosition: { label: "Job Title or Position", type: "text", legend: "Staff" },
+    employeeRelationship: { label: "Relationship to Participant", type: "textarea", rows: 1, legend: "Staff" },
+    employeePosition: { label: "Job Title or Position", type: "textarea", rows: 1, legend: "Staff" },
     employeePhone: { label: "Contact Phone Number", type: "text", legend: "Staff" },
     employeeEmail: { label: "Contact Email", type: "email", legend: "Staff" },
 
@@ -266,7 +266,12 @@ const FIELD_METADATA: Record<string, any> = {
     },
     participantSignature: { label: "Signature", type: "signature", legend: "Participant" },
     participantSignDate: { label: "Date (DD/MM/YYYY)", type: "date", legend: "Participant" },
-    authRepName: { label: "Authorised representative name", type: "text", legend: "Authorised Representative" },
+    authRepName: {
+        label: "Authorised representative name",
+        type: "textarea",
+        rows: 1,
+        legend: "Authorised Representative"
+    },
     authRepSignature: { label: "Signature", type: "signature", legend: "Authorised Representative" },
     authRepSignDate: { label: "Date (DD/MM/YYYY)", type: "date", legend: "Authorised Representative" },
 

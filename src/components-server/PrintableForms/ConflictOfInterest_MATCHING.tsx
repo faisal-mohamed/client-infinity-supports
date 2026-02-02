@@ -9,6 +9,7 @@ import {
     Font,
     Link
 } from '@react-pdf/renderer';
+import { NDISCheckbox } from './common/NDIS_Common';
 
 // Register Deja Vu Sans font
 Font.register({
@@ -145,11 +146,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderBottomColor: '#000000',
-        minHeight: 25, // Ensure rows have some height
+        minHeight: 30, // Increased for better spacing
+        alignItems: 'stretch',
     },
     tableRowLast: {
         flexDirection: 'row',
-        minHeight: 25,
+        minHeight: 30,
+        alignItems: 'stretch',
     },
     tableCellLabel: {
         width: '35%',
@@ -162,9 +165,11 @@ const styles = StyleSheet.create({
     },
     tableCellValue: {
         width: '65%',
-        padding: 5,
+        paddingVertical: 8,
+        paddingHorizontal: 8,
         fontSize: 10,
         justifyContent: 'center',
+        lineHeight: 1.3,
     },
 
     spacer: {
@@ -183,41 +188,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    // Dynamic Form Sections (C & D placeholders)
-    fieldLabel: {
+    standardPage: {
+        padding: 40,
+        fontFamily: 'DejaVuSans',
         fontSize: 10,
-        fontWeight: 'bold',
-        marginBottom: 4,
-        marginTop: 8,
-    },
-    fieldValue: {
-        fontSize: 10,
-        marginBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#CCCCCC',
-        paddingBottom: 2,
-        minHeight: 14,
+        color: '#000000',
     },
     checkboxRow: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 4,
-    },
-    checkboxBox: {
-        width: 12,
-        height: 12,
-        borderWidth: 1,
-        borderColor: '#000000',
-        marginRight: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    checkboxChecked: {
-        backgroundColor: NDIS_PURPLE,
-    },
-    checkMark: {
-        color: 'white',
-        fontSize: 8,
     },
 });
 
@@ -370,6 +350,10 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     <Text style={styles.bodyText}>
                         'Own interests' can include the interests of a person's family, friends, employer or other organisations they are involved with.
                     </Text>
+
+                    <Text style={[styles.bodyText, { marginTop: 10 }]}>
+                        A conflict of interest could be of a financial, business or personal nature, including any financial and/or corporate interest or conflicted relationship the NDIS provider may have with other entities, including businesses and organisations. A conflict of interest could also be of a personal nature, including but not limited to a cultural, religious, or social relationship.
+                    </Text>
                 </View>
 
                 {/* Footer */}
@@ -378,15 +362,9 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                 </View>
             </Page>
 
-            {/* Page 2 - Details */}
-            <Page size="A4" style={styles.page}>
-                {/* No header on subsequent pages based on screenshot? Or maybe there is? Assuming plain for now based on image 2 */}
-                <View style={[styles.contentContainer, { paddingTop: 40 }]}>
-
-                    <Text style={styles.bodyText}>
-                        A conflict of interest could be of a financial, business or personal nature, including any financial and/or corporate interest or conflicted relationship the NDIS provider may have with other entities, including businesses and organisations. A conflict of interest could also be of a personal nature, including but not limited to a cultural, religious, or social relationship.
-                    </Text>
-
+            {/* Page 2 - Section B */}
+            <Page size="A4" style={styles.standardPage}>
+                <View>
                     {/* Section B */}
                     <Text style={styles.sectionTitle}>Section B: Participant, provider and employee details</Text>
 
@@ -471,7 +449,17 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                             <View style={styles.tableCellValue}><Text>{getFieldValue('employeeEmail')}</Text></View>
                         </View>
                     </View>
+                </View>
 
+                {/* Footer */}
+                <View style={styles.footer} fixed>
+                    <Text style={styles.footerText}>ndis.gov.au</Text>
+                </View>
+            </Page>
+
+            {/* Page 3 Onwards - Continuous Natural Flow (C, D, E) */}
+            <Page size="A4" style={styles.standardPage}>
+                <View>
                     {/* Section C (Matching Style) */}
                     <Text style={styles.sectionTitle}>Section C: Identification of the conflict of interest</Text>
 
@@ -486,6 +474,7 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
 
                     <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>1. The conflict of interest has been identified as:</Text>
                     <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
+                    {/* Question 1 Options */}
                     {[
                         "an actual conflict of interest – it happened or is happening",
                         "a potential conflict of interest – it might happen",
@@ -493,11 +482,9 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt) => {
                         const isSelected = isOptionSelected('conflictType', opt);
                         return (
-                            <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10 }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start' }]} key={opt} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
@@ -511,16 +498,13 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt) => {
                         const isSelected = isOptionSelected('conflictRelatesTo', opt);
                         return (
-                            <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10 }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start' }]} key={opt} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
 
-                    <View break />
 
                     <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>3. What is the nature of the conflict of interest?</Text>
                     <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
@@ -531,204 +515,202 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt) => {
                         const isSelected = isOptionSelected('conflictNature', opt);
                         return (
-                            <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 6 }]} key={opt} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
 
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>4. Describe the conflict of interest including who is involved and the circumstances.</Text>
-                    <View style={[styles.table, { marginBottom: 10, minHeight: 80 }]}>
-                        <View style={styles.tableRowLast}>
-                            <View style={[styles.tableCellValue, { width: '100%', borderRightWidth: 0 }]}><Text>{getFieldValue('conflictDescription')}</Text></View>
-                        </View>
-                    </View>
-
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>5. Discuss and describe the participant’s concerns using their own words.</Text>
-                    <View style={[styles.table, { marginBottom: 10, minHeight: 80 }]}>
-                        <View style={styles.tableRowLast}>
-                            <View style={[styles.tableCellValue, { width: '100%', borderRightWidth: 0 }]}><Text>{getFieldValue('participantConcerns')}</Text></View>
-                        </View>
-                    </View>
-
-                    <View break />
-
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>6. Can the conflict be avoided?</Text>
-                    <Text style={{ fontSize: 10, marginBottom: 5 }}>Choose the best answer.</Text>
-                    {[
-                        "Yes, (outline strategies to avoid in Section D: Provider Management Plan).",
-                        "Yes, the participant has made an informed choice to receive supports from a specified provider after fully thinking about options available.",
-                        "No, limited-service options are available in regional, rural and remote areas.",
-                        "No, services require specific cultural and religious choices and practices.",
-                        "No, highly specialised services have few accredited providers that operate nationally."
-                    ].map((opt) => {
-                        const isSelected = isOptionSelected('conflictAvoidable', opt);
-                        return (
-                            <View style={styles.checkboxRow} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
+                    <View wrap={false}>
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>4. Describe the conflict of interest including who is involved and the circumstances.</Text>
+                        <View style={[styles.table, { marginBottom: 10, minHeight: 20 }]}>
+                            <View style={styles.tableRowLast}>
+                                <View style={[styles.tableCellValue, { width: '100%', borderRightWidth: 0 }]}><Text>{getFieldValue('conflictDescription')}</Text></View>
                             </View>
-                        )
-                    })}
-                </View>
-
-                {/* Footer */}
-                <View style={styles.footer} fixed>
-                    <Text style={styles.footerText}>ndis.gov.au</Text>
-                </View>
-            </Page>
-
-            {/* Page 3 - Section D */}
-            <Page size="A4" style={styles.page}>
-                <View style={[styles.contentContainer, { paddingTop: 40 }]}>
-                    <Text style={styles.sectionTitle}>Section D: Provider management plan</Text>
-
-                    {/* Question 7 */}
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>7. Describe the risk or impacts associated with the conflict.</Text>
-                    <View style={[styles.table, { marginBottom: 15, padding: 5, minHeight: 80 }]}>
-                        {/* Static content mimicking the image or dynamic if fields exist, but user wants 'like this' so I'll structure it primarily as a box */}
-                        <View style={styles.listContainer}>
-                            {(getFieldValue('conflictRisks') ? [getFieldValue('conflictRisks')] : [
-                                "Perceived reduced participant choice and control",
-                                "Perceived pressure to use other services from the same organization",
-                                "Perceived lack of impartial referrals or recommendations"
-                            ]).map((item: string, idx: number) => (
-                                <View style={styles.listItem} key={idx}>
-                                    <Text style={styles.bulletPoint}>•</Text>
-                                    <Text style={styles.listItemText}>{item}</Text>
-                                </View>
-                            ))}
                         </View>
                     </View>
 
-                    {/* Question 8 */}
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>8. List the alternative options that were explored and offered to the participant.</Text>
-                    <View style={[styles.table, { marginBottom: 15, padding: 5, minHeight: 80 }]}>
-                        <View style={styles.listContainer}>
-                            {(getFieldValue('alternativeOptions') ? [getFieldValue('alternativeOptions')] : [
-                                "The participant was previously with another organisation for service delivery whilst Infinity Supports provided Support Coordination. The family requested a change in provider due to lack of continuity and poor quality of care.",
-                                "Support Coordinator offered alternative providers in the local area as mentioned in the service agreement. The family requested services were provided by Infinity Supports due to reputation of quality services.",
-                                "The family were offered to be transferred to another Support Coordinator, but this was declined also."
-                            ]).map((item: string, idx: number) => (
-                                <View style={styles.listItem} key={idx}>
-                                    <Text style={styles.bulletPoint}>•</Text>
-                                    <Text style={styles.listItemText}>{item}</Text>
-                                </View>
-                            ))}
-                        </View>
-                    </View>
-
-                    {/* Question 9 */}
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>9. Describe the management strategy and actions to be taken by the NDIS provider.</Text>
-                    {[
-                        "Monitor. Implement close supervision.",
-                        "Monitor. No further action required.",
-                        "Implement. An independent third-party contact or review.",
-                        "Restrict. Limit conflicted person’s involvement in delivering supports and services.",
-                        "Remove. Conflicted person to be removed from delivering supports and services to participant named in section A."
-                    ].map((opt) => {
-                        const isSelected = isOptionSelected('managementAction', opt);
-                        return (
-                            <View style={[styles.checkboxRow, { marginBottom: 6 }]} key={opt}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10 }}>{opt}</Text>
+                    <View wrap={false}>
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>5. Discuss and describe the participant’s concerns using their own words.</Text>
+                        <View style={[styles.table, { marginBottom: 10, minHeight: 20 }]}>
+                            <View style={styles.tableRowLast}>
+                                <View style={[styles.tableCellValue, { width: '100%', borderRightWidth: 0 }]}><Text>{getFieldValue('participantConcerns')}</Text></View>
                             </View>
-                        )
-                    })}
-
-                    {/* Management Plan Box */}
-                    <View style={[styles.table, { marginTop: 10, padding: 5, minHeight: 150 }]}>
-                        <Text style={{ fontSize: 10, marginBottom: 5, fontFamily: 'Helvetica' }}>
-                            Infinity Supports WA has a clear, structured plan to ensure transparency, independence, and safety when Support Coordination and Service Delivery are provided to the same participant.
-                        </Text>
-                        <View style={styles.listContainer}>
-                            {(() => {
-                                const planText = getFieldValue('managementPlan');
-                                // If empty, fall back to default text or show nothing? 
-                                // Edit.tsx has a default, so planText should usually be populated.
-                                // Split by newline or bullet point to form list items
-                                const items = planText
-                                    ? planText.split(/\n|•/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
-                                    : [
-                                        "Different staff deliver Support Coordination and Direct Supports, maintaining strict role boundaries and avoiding overlap.",
-                                        "Support Coordinators do not recommend Infinity Supports WA services unless the participant specifically requests them.",
-                                        "Staff maintain separate participant files, supervision structures, and reporting lines to protect impartiality.",
-                                        "Participants have direct access to directors (Sharon or Anand) for independent oversight and to raise concerns, along with full contact details for the NDIS Quality and Safeguards Commission.",
-                                        "Participants are provided with written information about alternative providers and may change providers at any time. Full support is provided to transition to another provider upon request or during plan renewal.",
-                                        "An independent check-in or review may be arranged to ensure the participant’s choices remain free and informed.",
-                                        "The conflict is recorded in the Conflict-of-Interest Register, reviewed annually or sooner if circumstances change.",
-                                        "All personal information is handled strictly in accordance with Infinity Supports WA’s Privacy and Confidentiality Policy."
-                                    ];
-
-                                return items.map((item: string, idx: number) => (
-                                    <View style={[styles.listItem, { marginBottom: 6 }]} key={idx}>
-                                        <Text style={styles.bulletPoint}>•</Text>
-                                        <Text style={styles.listItemText}>{item}</Text>
-                                    </View>
-                                ));
-                            })()}
                         </View>
                     </View>
 
-                    {/* Question 10 */}
-                    <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>10. The conflict has been discussed with:</Text>
-                    <View style={{ marginBottom: 20 }}>
-                        <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
+
+                    <View wrap={false}>
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>6. Can the conflict be avoided?</Text>
+                        <Text style={{ fontSize: 10, marginBottom: 5 }}>Choose the best answer.</Text>
                         {[
-                            "NDIS participant",
-                            "an authorised representative or decision supporter",
-                            "employee",
-                            "other, please state"
-                        ].map((opt, idx) => {
-                            const isSelected = isOptionSelected('discussedWith', opt);
-
+                            "Yes, (outline strategies to avoid in Section D: Provider Management Plan).",
+                            "Yes, the participant has made an informed choice to receive supports from a specified provider after fully thinking about options available.",
+                            "No, limited-service options are available in regional, rural and remote areas.",
+                            "No, services require specific cultural and religious choices and practices.",
+                            "No, highly specialised services have few accredited providers that operate nationally."
+                        ].map((opt) => {
+                            const isSelected = isOptionSelected('conflictAvoidable', opt);
                             return (
-                                <View style={[styles.checkboxRow, { marginBottom: 6 }]} key={idx}>
-                                    <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                        {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                    </View>
-                                    <Text style={{ fontSize: 10 }}>
-                                        {opt}
-                                        {isSelected && opt.toLowerCase().includes("other") && getFieldValue('discussedWith_other') ? ` - ${getFieldValue('discussedWith_other')}` : ''}
-                                    </Text>
+                                <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 6 }]} key={opt} wrap={false}>
+                                    <NDISCheckbox checked={isSelected} />
+                                    <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                                 </View>
                             )
                         })}
                     </View>
 
-                </View>
+                    <Text style={styles.sectionTitle}>Section D: Provider management plan</Text>
 
-                {/* Footer */}
-                <View style={styles.footer} fixed>
-                    <Text style={styles.footerText}>ndis.gov.au</Text>
-                </View>
-            </Page>
-
-            {/* Page 4 - Section E */}
-            <Page size="A4" style={styles.page}>
-                <View style={[styles.contentContainer, { paddingTop: 40 }]}>
-                    <Text style={styles.sectionTitle}>Section E: Acknowledgement and declaration</Text>
-                    <Text style={styles.bodyText}>
-                        This form needs to be signed by relevant parties to acknowledge the information contained within this form is true and correct. This may be the:
-                    </Text>
-                    <View style={[styles.listContainer, { marginLeft: 10 }]}>
-                        {[
-                            "participant", "authorised representative", "nominee", "guardian", "employee", "provider operations manager or director."
-                        ].map((item, idx) => (
-                            <View style={styles.listItem} key={idx}>
-                                <Text style={styles.bulletPoint}>•</Text>
-                                <Text style={styles.listItemText}>{item}</Text>
+                    {/* Question 7 */}
+                    <View wrap={false}>
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>7. Describe the risk or impacts associated with the conflict.</Text>
+                        <View style={[styles.table, { marginBottom: 15, padding: 5, minHeight: 20 }]}>
+                            {/* Static content mimicking the image or dynamic if fields exist, but user wants 'like this' so I'll structure it primarily as a box */}
+                            <View style={styles.listContainer}>
+                                {(() => {
+                                    const risksText = getFieldValue('conflictRisks');
+                                    const items = risksText
+                                        ? risksText.split(/\n|•/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+                                        : [
+                                            "Perceived reduced participant choice and control",
+                                            "Perceived pressure to use other services from the same organization",
+                                            "Perceived lack of impartial referrals or recommendations"
+                                        ];
+                                    return items.map((item: string, idx: number) => (
+                                        <View style={styles.listItem} key={idx}>
+                                            <Text style={styles.bulletPoint}>•</Text>
+                                            <Text style={styles.listItemText}>{item}</Text>
+                                        </View>
+                                    ));
+                                })()}
                             </View>
-                        ))}
+                        </View>
                     </View>
 
+                    {/* Question 8 */}
+                    <View wrap={false}>
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>8. List the alternative options that were explored and offered to the participant.</Text>
+                        <View style={[styles.table, { marginBottom: 15, padding: 5, minHeight: 20 }]}>
+                            <View style={styles.listContainer}>
+                                {(() => {
+                                    const altText = getFieldValue('alternativeOptions');
+                                    const items = altText
+                                        ? altText.split(/\n|•/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+                                        : [
+                                            "The participant was previously with another organisation for service delivery whilst Infinity Supports provided Support Coordination. The family requested a change in provider due to lack of continuity and poor quality of care.",
+                                            "Support Coordinator offered alternative providers in the local area as mentioned in the service agreement. The family requested services were provided by Infinity Supports due to reputation of quality services.",
+                                            "The family were offered to be transferred to another Support Coordinator, but this was declined also."
+                                        ];
+                                    return items.map((item: string, idx: number) => (
+                                        <View style={styles.listItem} key={idx}>
+                                            <Text style={styles.bulletPoint}>•</Text>
+                                            <Text style={styles.listItemText}>{item}</Text>
+                                        </View>
+                                    ));
+                                })()}
+                            </View>
+                        </View>
+                    </View>
+
+                    <View wrap={false}>
+                        {/* Question 9 */}
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginBottom: 5 }]}>9. Describe the management strategy and actions to be taken by the NDIS provider.</Text>
+                        {[
+                            "Monitor. Implement close supervision.",
+                            "Monitor. No further action required.",
+                            "Implement. An independent third-party contact or review.",
+                            "Restrict. Limit conflicted person’s involvement in delivering supports and services.",
+                            "Remove. Conflicted person to be removed from delivering supports and services to participant named in section A."
+                        ].map((opt) => {
+                            const isSelected = isOptionSelected('managementAction', opt);
+                            return (
+                                <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 6 }]} key={opt} wrap={false}>
+                                    <NDISCheckbox checked={isSelected} />
+                                    <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
+                                </View>
+                            )
+                        })}
+                    </View>
+
+                    <View wrap={false}>
+                        {/* Management Plan Box */}
+                        <View style={[styles.table, { marginTop: 10, padding: 5, minHeight: 20 }]}>
+                            <Text style={{ fontSize: 10, marginBottom: 5, fontFamily: 'Helvetica' }}>
+                                Infinity Supports WA has a clear, structured plan to ensure transparency, independence, and safety when Support Coordination and Service Delivery are provided to the same participant.
+                            </Text>
+                            <View style={styles.listContainer}>
+                                {(() => {
+                                    const planText = getFieldValue('managementPlan');
+                                    const items = planText
+                                        ? planText.split(/\n|•/).map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+                                        : [
+                                            "Different staff deliver Support Coordination and Direct Supports, maintaining strict role boundaries and avoiding overlap.",
+                                            "Support Coordinators do not recommend Infinity Supports WA services unless the participant specifically requests them.",
+                                            "Staff maintain separate participant files, supervision structures, and reporting lines to protect impartiality.",
+                                            "Participants have direct access to directors (Sharon or Anand) for independent oversight and to raise concerns, along with full contact details for the NDIS Quality and Safeguards Commission.",
+                                            "Participants are provided with written information about alternative providers and may change providers at any time. Full support is provided to transition to another provider upon request or during plan renewal.",
+                                            "An independent check-in or review may be arranged to ensure the participant’s choices remain free and informed.",
+                                            "The conflict is recorded in the Conflict-of-Interest Register, reviewed annually or sooner if circumstances change.",
+                                            "All personal information is handled strictly in accordance with Infinity Supports WA’s Privacy and Confidentiality Policy."
+                                        ];
+
+                                    return items.map((item: string, idx: number) => (
+                                        <View style={[styles.listItem, { marginBottom: 6 }]} key={idx}>
+                                            <Text style={styles.bulletPoint}>•</Text>
+                                            <Text style={styles.listItemText}>{item}</Text>
+                                        </View>
+                                    ));
+                                })()}
+                            </View>
+                        </View>
+                    </View>
+
+                    <View wrap={false}>
+                        {/* Question 10 */}
+                        <Text style={[styles.fieldLabel, { color: NDIS_PURPLE, fontSize: 11, marginTop: 15, marginBottom: 5 }]}>10. The conflict has been discussed with:</Text>
+                        <View style={{ marginBottom: 20 }}>
+                            <Text style={{ fontSize: 10, marginBottom: 5 }}>Please tick all that apply.</Text>
+                            {[
+                                "NDIS participant",
+                                "an authorised representative or decision supporter",
+                                "employee",
+                                "other, please state"
+                            ].map((opt) => {
+                                const isSelected = isOptionSelected('discussedWith', opt);
+                                return (
+                                    <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 6 }]} key={opt} wrap={false}>
+                                        <NDISCheckbox checked={isSelected} />
+                                        <Text style={{ fontSize: 10, flex: 1 }}>
+                                            {opt}
+                                            {isSelected && opt.toLowerCase().includes("other") && getFieldValue('discussedWith_other') ? ` - ${getFieldValue('discussedWith_other')}` : ''}
+                                        </Text>
+                                    </View>
+                                )
+                            })}
+                        </View>
+                    </View>
+
+                </View>
+
+                {/* Section E is now part of the same natural flow container */}
+                <Text style={styles.sectionTitle}>Section E: Acknowledgement and declaration</Text>
+                <Text style={styles.bodyText}>
+                    This form needs to be signed by relevant parties to acknowledge the information contained within this form is true and correct. This may be the:
+                </Text>
+                <View style={[styles.listContainer, { marginLeft: 10 }]}>
+                    {[
+                        "participant", "authorised representative", "nominee", "guardian", "employee", "provider operations manager or director."
+                    ].map((item, idx) => (
+                        <View style={styles.listItem} key={idx}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.listItemText}>{item}</Text>
+                        </View>
+                    ))}
+                </View>
+
+                <View wrap={false}>
                     <Text style={[styles.sectionTitle, { fontSize: 12, marginTop: 10 }]}>Participant or authorised person</Text>
                     <Text style={[styles.bodyText, { marginBottom: 10 }]}>I acknowledge the following:</Text>
 
@@ -740,11 +722,9 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt, idx) => {
                         const isSelected = isOptionSelected('participantAck', opt);
                         return (
-                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8 }]} key={idx}>
-                                <View style={[styles.checkboxBox, { marginTop: 2 }, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8 }]} key={idx} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
@@ -784,9 +764,11 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                             <View style={styles.tableCellValue}><Text>{getFieldValue('authRepSignDate')}</Text></View>
                         </View>
                     </View>
+                </View>
 
-                    <View break />
 
+
+                <View wrap={false}>
                     <Text style={[styles.sectionTitle, { fontSize: 12, marginTop: 20 }]}>Employee and provider operations manager or director</Text>
                     <Text style={[styles.bodyText, { marginBottom: 10 }]}>I declare the following:</Text>
                     <Text style={[styles.bodyText, { marginBottom: 5 }]}>I have provided the above named participant or authorised representative with:</Text>
@@ -798,11 +780,9 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt, idx) => {
                         const isSelected = isOptionSelected('employeeProvided', opt);
                         return (
-                            <View style={[styles.checkboxRow, { marginBottom: 5, marginLeft: 15 }]} key={idx}>
-                                <View style={[styles.checkboxBox, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10 }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 5, marginLeft: 15 }]} key={idx} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
@@ -814,35 +794,26 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                     ].map((opt, idx) => {
                         const isSelected = isOptionSelected('employeeAck', opt);
                         return (
-                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8, marginTop: idx === 0 ? 10 : 0 }]} key={idx}>
-                                <View style={[styles.checkboxBox, { marginTop: 2 }, isSelected ? styles.checkboxChecked : {}]}>
-                                    {isSelected && <Text style={styles.checkMark}>X</Text>}
-                                </View>
-                                <Text style={{ fontSize: 10, width: '90%' }}>{opt}</Text>
+                            <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 8, marginTop: idx === 0 ? 10 : 0 }]} key={idx} wrap={false}>
+                                <NDISCheckbox checked={isSelected} />
+                                <Text style={{ fontSize: 10, flex: 1 }}>{opt}</Text>
                             </View>
                         )
                     })}
 
                     <View style={{ marginLeft: 30, marginBottom: 15 }}>
-                        <View style={[styles.checkboxRow, { marginBottom: 5 }]}>
-                            <View style={[styles.checkboxBox, styles.checkboxChecked]}>
-                                <Text style={styles.checkMark}>X</Text>
-                            </View>
+                        <View style={[styles.checkboxRow, { marginBottom: 5 }]} wrap={false}>
+                            <NDISCheckbox checked={true} />
                             <Text style={{ fontSize: 10 }}>{getFieldValue('reviewPeriod')}</Text>
                         </View>
                     </View>
 
-                    <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 15, marginTop: 5 }]}>
-                        <View style={[styles.checkboxBox, { marginTop: 2 }]}>
-                        </View>
-                        <Text style={{ fontSize: 10, width: '90%' }}>
+                    <View style={[styles.checkboxRow, { alignItems: 'flex-start', marginBottom: 15, marginTop: 5 }]} wrap={false}>
+                        <NDISCheckbox checked={false} />
+                        <Text style={{ fontSize: 10, flex: 1 }}>
                             I understand that personal information collected, managed and disclosed on this form will comply with requirements of the organisation’s privacy policy.
                         </Text>
                     </View>
-
-                    <Text style={{ fontSize: 10, marginBottom: 15 }}>
-                        The <Link src="https://www.ndiscommission.gov.au/rules-and-standards/ndis-code-conduct" style={{ color: 'blue', textDecoration: 'underline' }}>NDIS Code of Conduct</Link> promotes safe and ethical service delivery by setting out expectations for the conduct of both NDIS providers and workers. If you don’t abide by the obligations to disclose and manage conflicts of interest, this may constitute a breach of the NDIS Code of Conduct which may result in a report to the NDIS Quality and Safeguards Commission or National Disability Insurance Agency for non-compliant behaviour.
-                    </Text>
 
                     {/* Employee/Provider Signature Table */}
                     <View style={styles.table}>
@@ -880,15 +851,17 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                         </View>
                     </View>
 
-
+                    <Text style={{ fontSize: 10, marginTop: 15, marginBottom: 15 }}>
+                        The <Link src="https://www.ndiscommission.gov.au/rules-and-standards/ndis-code-conduct" style={{ color: 'blue', textDecoration: 'underline' }}>NDIS Code of Conduct</Link> requires NDIS providers and workers to act with integrity, honesty and transparency. This includes providing information to NDIS participants about any financial or other interest that may impact on the participant’s choice of provider.
+                    </Text>
                 </View>
                 {/* Footer */}
-                <View style={styles.footer} fixed>
+                < View style={styles.footer} fixed >
                     <Text style={styles.footerText}>ndis.gov.au</Text>
-                </View>
-            </Page>
+                </View >
+            </Page >
             {/* Page 5 - Contact Info */}
-            <Page size="A4" style={styles.page}>
+            < Page size="A4" style={styles.page} >
                 <View style={[styles.contentContainer, { paddingTop: 60 }]}>
                     <Text style={{ fontSize: 18, color: NDIS_PURPLE, fontWeight: 'bold', marginBottom: 10 }}>National Disability Insurance Agency</Text>
 
@@ -943,8 +916,8 @@ const ConflictOfInterest_MATCHING: React.FC<ConflictOfInterestPDFProps> = ({
                 <View style={styles.footer} fixed>
                     <Text style={styles.footerText}>ndis.gov.au</Text>
                 </View>
-            </Page>
-        </Document>
+            </Page >
+        </Document >
     );
 };
 
