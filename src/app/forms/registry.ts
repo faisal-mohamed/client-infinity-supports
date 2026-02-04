@@ -52,6 +52,10 @@ import NDISConsentEdit from "../components/forms/ndis_consent/Edit";
 import NDISConsentView from "../components/forms/ndis_consent/View";
 import NDISConsentPDF from "../../components-server/PrintableForms/NDISConsent_MATCHING";
 
+import ReviewOfDecisionEdit from "../components/forms/review_of_decision/Edit";
+import ReviewOfDecisionView from "../components/forms/review_of_decision/View";
+import ReviewOfDecisionPDF from "../../components-server/PrintableForms/ReviewOfDecisionPDF";
+
 
 
 // Signature requirement interface
@@ -426,6 +430,24 @@ const formRegistry: Record<string, FormRegistryItem> = {
         signerName: "signatoryName",
       },
     ],
+  },
+  review_of_decision: {
+    key: "review_of_decision",
+    name: "Review of a Reviewable Decision",
+    editComponent: ReviewOfDecisionEdit,
+    viewComponent: ReviewOfDecisionView,
+    pdfComponent: ReviewOfDecisionPDF,
+    signatures: [
+      {
+        id: "declaration_signature",
+        label: "Signature",
+        description: "Signature of the person making the declaration",
+        required: true,
+        dataKey: "signature",
+        signedAtKey: "declarationDate",
+        signerName: "declarationName"
+      }
+    ]
   }
 };
 

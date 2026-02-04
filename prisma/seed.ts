@@ -106,6 +106,12 @@ async function main() {
       title: 'Consent for your NDIS information',
       version: 1,
       requiresSignature: true
+    },
+    {
+      formKey: 'review_of_decision',
+      title: 'Review of a Reviewable Decision',
+      version: 1,
+      requiresSignature: true
     }
   ];
 

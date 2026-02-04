@@ -6,9 +6,9 @@ interface AutoExpandTextFieldProps {
   className?: string;
 }
 
-const AutoExpandTextField: React.FC<AutoExpandTextFieldProps> = ({ 
-  label, 
-  value, 
+const AutoExpandTextField: React.FC<AutoExpandTextFieldProps> = ({
+  label,
+  value,
   className = ''
 }) => {
   return (

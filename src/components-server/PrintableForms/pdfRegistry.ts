@@ -19,6 +19,7 @@ import ScheduleOfSupports from './schedule-of-supports/ScheduleOfSupports_REACT_
 import SASupportCoordination from './SASupportCoordination_MATCHING';
 import ConflictOfInterest_MATCHING from './ConflictOfInterest_MATCHING';
 import NDISConsent_MATCHING from './NDISConsent_MATCHING';
+import ReviewOfDecisionPDF from './ReviewOfDecisionPDF';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -99,6 +100,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'ndis_consent',
     name: "Consent for your NDIS information",
     component: NDISConsent_MATCHING
+  },
+  {
+    formKey: 'review_of_decision',
+    name: "Review of a Reviewable Decision",
+    component: ReviewOfDecisionPDF
   }
 
 ];

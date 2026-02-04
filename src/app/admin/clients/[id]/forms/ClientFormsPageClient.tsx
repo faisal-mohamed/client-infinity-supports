@@ -40,7 +40,8 @@ const CLIENT_FORM_KEYS = [
   'sa_support_coordination',
   'multi_disciplinary_meeting',
   'conflict_of_interest',
-  'ndis_consent'
+  'ndis_consent',
+  'review_of_decision'
 ];
 
 export default function ClientFormsPageClient() {
