@@ -23,8 +23,8 @@ export const FORM_SECTIONS = [
         title: "Applicant/Participant Details",
         icon: FaUser,
         description: "Your details",
-        fields: ["participantName", "participantDob", "ndisNumber", "participantPhone", "participantEmail"],
-        requiredFields: ["participantName", "participantDob", "ndisNumber", "participantPhone", "participantEmail"]
+        fields: ["participantName", "participantDob", "ndisNumber", "participantAddress", "participantPhone", "participantEmail"],
+        requiredFields: ["participantName", "participantDob", "ndisNumber", "participantAddress", "participantPhone", "participantEmail"]
     },
     {
         id: "partB",
@@ -55,7 +55,7 @@ export const FORM_SECTIONS = [
         fields: [
             "consentToOrg",
             "orgName", "orgContactFirstName", "orgContactSurname", "orgContactPosition",
-            "orgIsNdisProvider", "orgProvideSupports", "orgProviderNumber",
+            "orgIsNdisProvider", "orgProvideSupports", "orgProviderNumber", "orgAbn",
             "orgPhone", "orgEmail", "orgAddress"
         ],
         requiredFields: []
@@ -99,6 +99,7 @@ const FIELD_METADATA: Record<string, any> = {
     participantName: { label: "Full name", type: "text", required: true },
     participantDob: { label: "Date of birth (DD/MM/YYYY)", type: "date", required: true },
     ndisNumber: { label: "NDIS number", type: "text", required: true },
+    participantAddress: { label: "Residential address", type: "textarea", required: true },
     participantPhone: { label: "Contact phone number", type: "text", required: true },
     participantEmail: { label: "Contact email", type: "email", required: true },
 
@@ -161,6 +162,7 @@ const FIELD_METADATA: Record<string, any> = {
         singleSelect: true
     },
     orgProviderNumber: { label: "If they are an NDIS provider, what is their provider number?", type: "text", readOnly: true },
+    orgAbn: { label: "ABN", type: "text", readOnly: true },
     orgPhone: {
         label: "Phone",
         type: "select",
@@ -383,6 +385,10 @@ const NDISConsentEdit: React.FC<FormProps> = ({
         }
         if (!localValues.ndisNumber && commonFieldsData?.ndis) {
             updatedValues.ndisNumber = commonFieldsData.ndis;
+            changed = true;
+        }
+        if (!localValues.participantAddress && commonFieldsData?.address) {
+            updatedValues.participantAddress = commonFieldsData.address;
             changed = true;
         }
         if (!localValues.participantPhone && commonFieldsData?.phone) {
@@ -784,8 +790,8 @@ const NDISConsentEdit: React.FC<FormProps> = ({
             <main className="w-full flex flex-col items-center justify-center pt-2 px-4">
                 <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-6 md:p-10 flex flex-col gap-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-7 h-7 text-indigo-600" })}
+                        <h2 className="text-2xl font-bold text-[#5B2C6F] flex items-center gap-3">
+                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-7 h-7 text-[#5B2C6F]" })}
                             {FORM_SECTIONS[currentStep].title}
                         </h2>
                         <p className="text-sm text-gray-500 font-semibold mt-1.5">{FORM_SECTIONS[currentStep].description}</p>

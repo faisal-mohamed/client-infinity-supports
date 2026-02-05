@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 12,
         fontWeight: 'bold',
-        color: '#000000',
+        color: '#5B2C6F', // NDIS Purple
         marginTop: 10,
         marginBottom: 5,
     },
@@ -253,10 +253,24 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     <Text style={[styles.mainTitle, { fontSize: 18, marginBottom: 5 }]}>How do I return this form to the NDIA?</Text>
                     <Text style={styles.bodyText}>There are a few ways you can return this form to us:</Text>
                     <View style={styles.listContainer}>
-                        <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>email for applicants: NAT@ndis.gov.au</Text></View>
-                        <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>email for participants: enquiries@ndis.gov.au</Text></View>
-                        <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>mail: NDIA, GPO Box 700, Canberra ACT 2601</Text></View>
-                        <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>in person: Visit a local area coordinator, early childhood partner or NDIS office in your area.</Text></View>
+                        <View style={styles.listItem}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.listItemText}>email for applicants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>NAT@ndis.gov.au</Text></Text>
+                        </View>
+                        <View style={styles.listItem}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.listItemText}>email for participants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>enquiries@ndis.gov.au</Text></Text>
+                        </View>
+                        <View style={styles.listItem}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.listItemText}>mail: NDIA, GPO Box 700, Canberra ACT 2601</Text>
+                        </View>
+                        <View style={styles.listItem}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={styles.listItemText}>
+                                in person: Visit a <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>local area coordinator</Text>, <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>early childhood partner</Text> or <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>NDIS office</Text> in your area.
+                            </Text>
+                        </View>
                     </View>
                 </View>
 
@@ -267,34 +281,85 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Full name</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantName')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Date of birth (DD/MM/YYYY)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantDob')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>NDIS number</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('ndisNumber')}</Text></View></View>
+                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Residential address</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantAddress')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Contact phone number</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantPhone')}</Text></View></View>
                         <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Contact email</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantEmail')}</Text></View></View>
                     </View>
+
+                    {/* Instruction Text */}
+                    <View style={{ marginTop: 5, marginBottom: 15 }}>
+                        <Text style={styles.bodyText}>Once you have completed Part A (above):</Text>
+                        <View style={{ marginLeft: 20, marginTop: 5 }}>
+                            <View style={styles.listItem}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={styles.listItemText}>
+                                    If you’re the <Text style={{ fontWeight: 'bold' }}>applicant</Text> or <Text style={{ fontWeight: 'bold' }}>participant</Text>, complete <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text>, <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part D</Text> and <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part E</Text> then sign the declaration in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part F</Text>.
+                                </Text>
+                            </View>
+                            <View style={styles.listItem}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={styles.listItemText}>
+                                    If you’re the <Text style={{ fontWeight: 'bold' }}>child representative</Text>, <Text style={{ fontWeight: 'bold' }}>plan nominee</Text> or <Text style={{ fontWeight: 'bold' }}>other legally appointed decision maker</Text>, complete <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part B</Text>. <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text>, <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part D</Text> and <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part E</Text>. You’ll then need to sign the declaration in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part F</Text>.
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
                 </View>
 
-                {/* Part B Details */}
+                <NDISFooter />
+            </Page>
+
+            {/* Page 3: Part B Details */}
+            <Page size="A4" style={styles.page}>
+                <NDISHeader title="Form" />
                 <View style={{ marginTop: 10 }}>
                     <Text style={styles.sectionTitle}>Part B: child representative, plan nominee, legally appointed decision maker details</Text>
-                    <Text style={styles.bodyText}>Please provide your details if you’re completing this form on behalf of the applicant or participant.</Text>
+                    <Text style={styles.bodyText}>Please provide your details if you’re completing this form on behalf of the applicant or participant:</Text>
+
+                    <View style={{ marginLeft: 30, marginTop: 4, marginBottom: 10 }}>
+                        <View style={[styles.listItem, { marginBottom: 2 }]}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>under 18 years for whom you are a child representative, or</Text>
+                        </View>
+                        <View style={[styles.listItem, { marginBottom: 2 }]}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>for whom you are a plan nominee, or</Text>
+                        </View>
+                        <View style={[styles.listItem, { marginBottom: 2 }]}>
+                            <Text style={styles.bulletPoint}>•</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>for whom you are a legally appointed decision maker (for example, a guardian).</Text>
+                        </View>
+                    </View>
 
                     <View style={styles.table}>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Your full name</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('repName')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Your date of birth (DD/MM/YYYY)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('repDob')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Your phone number</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('repPhone')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Your email</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('repEmail')}</Text></View></View>
-                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>What is your relationship to the participant/ the applicant</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('repRelationship')}</Text></View></View>
+                        <View style={styles.tableRow}>
+                            <View style={styles.tableCellLabel}>
+                                <Text>What is your relationship to the participant/ the applicant</Text>
+                                <Text style={{ fontSize: 8, marginTop: 4 }}>e.g. child representative, plan nominee, legally appointed decision maker</Text>
+                            </View>
+                            <View style={styles.tableCellValue}><Text>{getFieldValue('repRelationship')}</Text></View>
+                        </View>
                         <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Employee number or logon (if you are completing this form as part of your job)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('employeeNumber')}</Text></View></View>
                     </View>
                 </View>
                 <NDISFooter />
             </Page>
 
-            {/* Page 3: Part C Person Details */}
+            {/* Page 4-7: Part C, D, E, F Details (Consolidated to avoid empty pages) */}
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
+
+                {/* Part C Person */}
                 <View>
                     <Text style={styles.sectionTitle}>Part C: give consent to a person or organisation</Text>
-                    <Text style={styles.bodyText}>Please complete the details of the person or organisation you’re giving consent to. If there are more people or organisations you want to give consent to, you’ll need to provide consent for each one separately.</Text>
+                    <Text style={styles.bodyText}>Please complete the details of the person or organisation you’re giving consent to.</Text>
+                    <Text style={[styles.bodyText, { marginTop: 4 }]}>If there are more people or organisations you want to give consent to, you’ll need to provide consent for each one separately. For example, if you want to give consent to two people, you’ll need to complete this page for each person you’re giving consent to.</Text>
+                    <Text style={[styles.bodyText, { marginTop: 4 }]}>You can also give your consent over the phone by calling <Text style={{ fontWeight: 'bold' }}>1800 800 110</Text>.</Text>
+                    <Text style={[styles.bodyText, { marginTop: 4 }]}>Please mark the correct box and complete the details below.</Text>
 
                     <View style={[commonStyles.checkboxRow, { marginTop: 10 }]}>
                         <NDISCheckbox checked={isOptionSelected('consentToPerson', 'I am giving consent to a person')} />
@@ -322,18 +387,18 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>If they are an NDIS provider, what is their provider number?</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personNdisProviderNumber')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Phone</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personPhone')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Email</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personEmail')}</Text></View></View>
-                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Address</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personAddress')}</Text></View></View>
+                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Address (include street or PO Box number, suburb, state and postcode)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personAddress')}</Text></View></View>
                         <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Relationship to participant/applicant</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personRelationship')}</Text></View></View>
                     </View>
                 </View>
-                <NDISFooter />
-            </Page>
 
-            {/* Page 4: Part C Organisation Details */}
-            <Page size="A4" style={styles.page}>
-                <NDISHeader title="Form" />
-                <View>
-                    <View style={commonStyles.checkboxRow}>
+                {/* Part C Organization */}
+                <View break>
+                    <Text style={styles.sectionTitle}>Part C: give consent to a person or organisation (continued)</Text>
+                    <Text style={styles.bodyText}>Consent is limited to 2 key contacts in the organisation. If your key contacts change, let us know so we can update who in the organisation you have given consent to. Contact us by calling <Text style={{ fontWeight: 'bold' }}>1800 800 110</Text> or in any of the ways listed under <Text style={{ fontWeight: 'bold' }}>How do I return this form to the NDIA.</Text></Text>
+                    <Text style={[styles.bodyText, { marginTop: 8 }]}>To give consent to an organisation you need to give us the details for at least one key contact below.</Text>
+
+                    <View style={[commonStyles.checkboxRow, { marginTop: 12 }]}>
                         <NDISCheckbox checked={isOptionSelected('consentToOrg', 'I am giving consent to an organisation')} />
                         <Text style={[styles.bodyText, { flex: 1 }]}>I am giving consent to an organisation</Text>
                     </View>
@@ -372,18 +437,16 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>ABN</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgAbn')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Phone</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgPhone')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Email</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgEmail')}</Text></View></View>
-                        <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Address</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgAddress')}</Text></View></View>
+                        <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Address (include street or PO Box number, suburb, state and postcode)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgAddress')}</Text></View></View>
                     </View>
                 </View>
-                <NDISFooter />
-            </Page>
 
-            {/* Page 5: Part D Consent Choices */}
-            <Page size="A4" style={styles.page}>
-                <NDISHeader title="Form" />
-                <View>
+                {/* Part D Consent Choices */}
+                <View break>
                     <Text style={styles.sectionTitle}>Part D: choose the consent types</Text>
-                    <Text style={styles.bodyText}>I am providing consent for the person or organisation named in Part C to have the following types of consent. Consent to share information about my:</Text>
+                    <Text style={styles.bodyText}>You can choose the types of consent you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have. To do this please mark the relevant boxes in the checklists below.</Text>
+                    <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>I am providing consent for the person or organisation named in Part C to have the following types of consent.</Text>
+                    <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>Consent to share information about my:</Text>
                     <View style={{ marginTop: 5 }}>
                         {[
                             "NDIS contact", "assessments and reports", "current NDIS plan, including my goals and aspirations",
@@ -416,15 +479,8 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                             </View>
                         ))}
                     </View>
-                </View>
-                <NDISFooter />
-            </Page>
 
-            {/* Page 6: Part D Continued & Signatures */}
-            <Page size="A4" style={styles.page}>
-                <NDISHeader title="Form" />
-                <View>
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginTop: 10 }}>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Consent to change my:</Text>
                         {["personal details", "communication preferences", "correspondence preferences", "all of the above"].map(opt => (
                             <View style={commonStyles.checkboxRow} key={opt}>
@@ -434,7 +490,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         ))}
                     </View>
 
-                    <View>
+                    <View wrap={false}>
                         <Text style={[styles.sectionTitle, { marginBottom: 5 }]}>Part D: choose the consent types (continued)</Text>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Are there other things you want the person to do on your behalf, or information you want to share:</Text>
                         <View style={[commonStyles.checkboxRow, { marginTop: 5 }]}>
@@ -454,35 +510,46 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     </View>
 
                     {/* Part E */}
-                    <View style={{ marginTop: 10 }}>
+                    <View style={{ marginTop: 10 }} break>
                         <Text style={styles.sectionTitle}>Part E: choose the consent length</Text>
-                        <Text style={styles.bodyText}>How long are you giving consent for?</Text>
-                        <View style={commonStyles.checkboxRow}>
-                            <NDISCheckbox checked={isOptionSelected('consentLength', 'One time only')} />
-                            <Text>One time only</Text>
+                        <Text style={styles.bodyText}>
+                            You can choose how long you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have consent. To do this please mark the relevant box. If you want the consent to end on a set date, please record this below.
+                        </Text>
+                        <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>How long are you giving consent for?</Text>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                            <View style={[commonStyles.checkboxRow, { marginBottom: 0, marginRight: 40 }]}>
+                                <NDISCheckbox checked={isOptionSelected('consentLength', 'One time only')} />
+                                <Text style={styles.bodyText}>One time only</Text>
+                            </View>
+                            <View style={[commonStyles.checkboxRow, { marginBottom: 0 }]}>
+                                <NDISCheckbox checked={isOptionSelected('consentLength', 'Until a set date (DD/MM/YYYY):')} />
+                                <Text style={styles.bodyText}>Until a set date (DD/MM/YYYY): </Text>
+                                <Text style={styles.bodyText}>
+                                    {getFieldValue('consentEndDate') || '____ / ____ / ________'}
+                                </Text>
+                            </View>
                         </View>
-                        <View style={commonStyles.checkboxRow}>
-                            <NDISCheckbox checked={isOptionSelected('consentLength', 'Until a set date (DD/MM/YYYY):')} />
-                            <Text>Until a set date (DD/MM/YYYY): {getFieldValue('consentEndDate')}</Text>
-                        </View>
+
                         <View style={commonStyles.checkboxRow}>
                             <NDISCheckbox checked={isOptionSelected('consentLength', 'Ongoing (enduring)')} />
-                            <Text>Ongoing (enduring)</Text>
+                            <Text style={styles.bodyText}>Ongoing (enduring)</Text>
                         </View>
                     </View>
 
-                    <View style={{ marginTop: 10 }}>
+                    <View style={{ marginTop: 15 }}>
                         <Text style={styles.sectionTitle}>Part F: your declaration</Text>
+                        <Text style={[styles.bodyText, { marginBottom: 8 }]}>This part needs to be signed by whoever completes this form. This may be the participant, applicant or child representative, plan nominee or legally appointed decision maker.</Text>
                         <Text style={styles.bodyText}>I confirm that:</Text>
                         <View style={styles.listContainer}>
                             {[
-                                "I understand I can get further information about how the NDIA handles my personal information from the Privacy Notice or Privacy Policy on the NDIS website.",
+                                "I understand I can get further information about how the NDIA handles my personal information from the Privacy Notice or Privacy Policy on the NDIS website. I can find this information on the NDIS website.",
                                 "I understand I have given the NDIA consent to give information about me to the third party or parties I have listed at Part C on this form.",
                                 "I understand that the third party or parties I have given consent to will be able to access my information and/or act on my behalf.",
-                                "I understand I can take away or change my consent at any time.",
+                                "I understand I can take away or change my consent to share information and/or my consent for a third party to act on my behalf at any time.",
                                 "I confirm the information provided in this form is complete and correct.",
                                 "I understand giving false or misleading information is a serious offence.",
-                                "I understand this information is protected by law and the NDIA can only share it where Commonwealth law allows, or where I give consent.",
+                                "I understand this information is protected by law and the NDIA can only share it with someone else where Commonwealth law allows, or requires it, or where I give consent.",
                                 "I have given my consent freely and no one has pressured me into doing so."
                             ].map((item, idx) => (
                                 <View style={styles.listItem} key={idx}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>{item}</Text></View>
@@ -490,8 +557,17 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         </View>
                     </View>
 
+                    <View style={{ marginTop: 10 }}>
+                        <Text style={[styles.bodyText, { fontSize: 8, marginBottom: 4 }]}>
+                            You can find out more about how we collect, use and disclose your personal and sensitive information on our website (ndis.gov.au). Select ‘About’, then select ‘Policies’, then ‘Freedom of Information’, then ‘Privacy’ from the menu on the right.
+                        </Text>
+                        <Text style={[styles.bodyText, { fontSize: 8, marginBottom: 8 }]}>
+                            If we don’t agree to your request, we’ll let you know and explain why.
+                        </Text>
+                    </View>
+
                     {/* Signature Box */}
-                    <View wrap={false} style={{ marginTop: 10 }}>
+                    <View wrap={false} style={{ marginTop: 5 }}>
                         <Text style={styles.bodyText}>Please sign here to give your consent as indicated in this form.</Text>
                         <View style={styles.table}>
                             <View style={styles.tableRow}>
@@ -507,7 +583,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                 </View>
                 <NDISFooter />
             </Page>
-        </Document>
+        </Document >
     );
 };
 
