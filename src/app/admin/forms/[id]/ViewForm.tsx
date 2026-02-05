@@ -26,6 +26,7 @@ import MDTView from "@/components/mdt/View";
 import SASupportCoordination from "@/app/form-components/sa-support-coordination/page";
 import ConflictOfInterestView from "@/app/components/forms/conflict_of_interest/View";
 import NDISConsentView from "@/app/components/forms/ndis_consent/View";
+import ReviewOfDecisionView from "@/app/components/forms/review_of_decision/View";
 
 interface AppSetting {
   id: number;
@@ -221,6 +222,8 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                   <ConflictOfInterestView formKey={form.formKey} settings={settings} formData={form.data} />
                 ) : form.formKey === "ndis_consent" ? (
                   <NDISConsentView formKey={form.formKey} settings={settings} formData={form.data} commonFieldsData={form.commonFields} />
+                ) : form.formKey === "review_of_decision" ? (
+                  <ReviewOfDecisionView formKey={form.formKey} settings={settings} formData={form.data} commonFieldsData={form.commonFields} />
                 ) :
 
                   (

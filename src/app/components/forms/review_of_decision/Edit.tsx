@@ -247,7 +247,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
     }, [commonFieldsData]);
 
     const handleChange = (name: string, value: any) => {
-        let finalValue = value;
+        const finalValue = value;
         const newValues = { ...localValues, [name]: finalValue };
         setLocalValues(newValues);
         if (onChange) {
