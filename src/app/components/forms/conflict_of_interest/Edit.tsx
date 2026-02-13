@@ -131,7 +131,7 @@ const FIELD_METADATA: Record<string, any> = {
         options: [
             "0493141688",
             "0493282661",
-            "0419097777"
+            "0493540924"
         ],
         legend: "Staff"
     },
@@ -410,17 +410,21 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
         ...formData,
 
+        // Set default current date for date fields if they are empty
+        conflictIdentifiedDate: formData?.conflictIdentifiedDate || new Date().toISOString().split('T')[0],
+        participantSignDate: formData?.participantSignDate || new Date().toISOString().split('T')[0],
+        authRepSignDate: formData?.authRepSignDate || new Date().toISOString().split('T')[0],
+        employeeSignDate: formData?.employeeSignDate || new Date().toISOString().split('T')[0],
+        managerSignDate: formData?.managerSignDate || new Date().toISOString().split('T')[0],
+
         // If the form was fully completed (indicated by Manager's signature), clear ALL signatures.
         // This ensures that if a completed form is edited, it must be re-signed by everyone to maintain validity.
         ...(formData?.managerSignature ? {
             participantSignature: "",
-            participantSignDate: "",
             authRepSignature: "",
-            authRepSignDate: "",
             employeeSignature: "",
-            employeeSignDate: "",
             managerSignature: "",
-            managerSignDate: ""
+            // We keep the dates as the current date (already defaulted above)
         } : {}),
 
         // Section C: Preserve Conflict Identification defaults if formData is empty

@@ -131,8 +131,22 @@ export const NDISFooter = () => (
     </View>
 );
 
-export const NDISCheckbox = ({ checked }: { checked: boolean }) => (
-    <View style={[ndisCommonStyles.checkboxBox, checked ? ndisCommonStyles.checkboxChecked : {}]}>
-        {checked && <Text style={ndisCommonStyles.checkMark}>X</Text>}
-    </View>
-);
+export const NDISCheckbox = ({ checked, color, size }: { checked: boolean; color?: string; size?: number }) => {
+    const activeColor = color || NDIS_PURPLE;
+    const boxSize = size || 14;
+    const fontSize = Math.floor(boxSize * 0.7); // Scale font size with box size
+
+    return (
+        <View style={[
+            ndisCommonStyles.checkboxBox,
+            {
+                width: boxSize,
+                height: boxSize,
+                borderColor: activeColor,
+            },
+            checked ? { backgroundColor: color ? '#edf2ff' : '#F3E8FF' } : {} // Use light blue for custom color (assuming blue), or default light purple
+        ]}>
+            {checked && <Text style={[ndisCommonStyles.checkMark, { color: activeColor, fontSize: fontSize }]}>X</Text>}
+        </View>
+    );
+};

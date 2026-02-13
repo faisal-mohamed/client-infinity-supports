@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
 import { supportActionPlanSchema, SchemaBlock } from '../../app/components/forms/support-action-plan/schema';
+import { NDISCheckbox } from './common/NDIS_Common';
 
 const styles = StyleSheet.create({
   page: { flexDirection: 'column', backgroundColor: '#ffffff', padding: 30, paddingTop: 120, paddingBottom: 50, fontFamily: 'Helvetica' },
@@ -110,32 +111,14 @@ const renderParticipantTable = (formData: any, commonFieldsData: any) => (
   </View>
 );
 
-// Small blue-tick checkbox for PDF - using View-based approach for better PDF rendering
+// REUSED NDISCheckbox from common, styled to match blue theme
 const BlueTick = ({ checked }: { checked: boolean }) => {
-  if (checked) {
-    return (
-      <View style={{
-        width: 10,
-        height: 10,
-        border: '1 solid #2563eb',
-        backgroundColor: '#2563eb',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 1
-      }}>
-        <Text style={{ color: '#ffffff', fontSize: 8, fontWeight: 'bold', lineHeight: 1, marginTop: -1 }}>✓</Text>
-      </View>
-    );
-  }
   return (
-    <View style={{
-      width: 10,
-      height: 10,
-      border: '1 solid #000000',
-      backgroundColor: 'transparent',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }} />
+    <NDISCheckbox
+      checked={checked}
+      color="#2563eb" // Blue to match the form theme
+      size={10}      // 10x10 sizing
+    />
   );
 };
 

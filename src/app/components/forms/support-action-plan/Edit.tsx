@@ -421,10 +421,12 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     ...formData,
     // Page 9
-    participantSignature: "",
-    participantDate: "",
-    authorSignature: "",
-    authorDate: "",
+    participantSignature: formData?.participantSignature || "",
+    participantDate: formData?.participantDate || formData?.participantSignatureDate || new Date().toISOString().split('T')[0],
+    participantSignatureDate: formData?.participantSignatureDate || formData?.participantDate || new Date().toISOString().split('T')[0],
+    authorSignature: formData?.authorSignature || "",
+    authorDate: formData?.authorDate || formData?.providerSignatureDate || new Date().toISOString().split('T')[0],
+    providerSignatureDate: formData?.providerSignatureDate || formData?.authorDate || new Date().toISOString().split('T')[0],
   };
 
   const [localValues, setLocalValues] = useState<any>(initialValues);
