@@ -4,6 +4,8 @@ export interface SignatureValidationResult {
   isComplete: boolean;
   completedSignatures: string[];
   missingSignatures: string[];
+  missingAdminSignatures: string[];
+  missingNonAdminSignatures: string[];
   totalRequired: number;
   completedCount: number;
 }
@@ -28,13 +30,17 @@ export function validateFormSignatures(
 
   const completedSignatures: string[] = [];
   const missingSignatures: string[] = [];
+  const missingAdminSignatures: string[] = [];
+  const missingNonAdminSignatures: string[] = [];
+
+  const adminSigIds = ["manager_signature", "supervisor_signature", "admin_signature"];
 
   // Track totals
   let totalRequired = 0;
   let completedCount = 0;
 
   const individualSigs = signatures.filter(
-    (sig) => !sig.groupId && sig.required
+    (sig) => !sig.groupId && (sig.required || (sig.condition && sig.condition(formData)))
   );
 
   const groupMap = new Map<
@@ -76,6 +82,11 @@ export function validateFormSignatures(
       completedCount++;
     } else {
       missingSignatures.push(sig.id);
+      if (adminSigIds.some(adminId => sig.id.includes(adminId))) {
+        missingAdminSignatures.push(sig.id);
+      } else {
+        missingNonAdminSignatures.push(sig.id);
+      }
     }
   }
 
@@ -83,42 +94,44 @@ export function validateFormSignatures(
   for (const [groupId, groupData] of groupMap.entries()) {
     if (!groupData.required) continue;
 
-    const { signatures, groupType } = groupData;
+    const { signatures: groupSignatures, groupType } = groupData;
 
     if (groupType === "any") {
       totalRequired++;
-      const anySigned = signatures.some((sig) => {
+      const signedSig = groupSignatures.find((sig) => {
         const signatureData = formData[sig.dataKey || sig.id];
-        const hasSignature =
+        return (
           signatureData &&
           typeof signatureData === "string" &&
           signatureData.trim() !== "" &&
-          signatureData.startsWith("data:image/");
-
-        if (hasSignature) {
-          completedSignatures.push(sig.id);
-        }
-
-        return hasSignature;
+          signatureData.startsWith("data:image/")
+        );
       });
 
-      if (anySigned) {
+      if (signedSig) {
+        completedSignatures.push(signedSig.id);
         completedCount++;
       } else {
-        // Push all group options into missing list for transparency
-        missingSignatures.push(
-          ...signatures.map((sig) => `${sig.id} (any group: ${groupId})`)
-        );
+        // Entire group is missing
+        missingSignatures.push(`Group: ${groupId}`);
+
+        // Check if this group is considered "admin" (usually not for groups, but be safe)
+        const isAnyAdmin = groupSignatures.some(sig => adminSigIds.some(adminId => sig.id.includes(adminId)));
+        if (isAnyAdmin) {
+          missingAdminSignatures.push(`Group: ${groupId}`);
+        } else {
+          missingNonAdminSignatures.push(`Group: ${groupId}`);
+        }
       }
     }
-
-    // Optional: support groupType === 'all' in future
   }
 
   return {
     isComplete: completedCount === totalRequired && totalRequired > 0,
     completedSignatures,
     missingSignatures,
+    missingAdminSignatures,
+    missingNonAdminSignatures,
     totalRequired,
     completedCount,
   };
@@ -134,14 +147,14 @@ export function getSignatureStatusText(validation: SignatureValidationResult): s
   }
 
   if (validation.isComplete) {
-    return validation.totalRequired === 1 
-      ? 'Signature Complete' 
+    return validation.totalRequired === 1
+      ? 'Signature Complete'
       : 'All Signatures Complete';
   }
 
   if (validation.completedCount === 0) {
-    return validation.totalRequired === 1 
-      ? 'Signature Required' 
+    return validation.totalRequired === 1
+      ? 'Signature Required'
       : `${validation.totalRequired} Signatures Required`;
   }
 

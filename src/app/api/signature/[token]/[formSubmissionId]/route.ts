@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getFormConfig } from "@/app/forms/registry";
+import { calculateFormStatus } from "@/lib/formStatusHelper";
 
 // GET - Fetch specific form for signature
 export async function GET(
@@ -685,14 +686,13 @@ export async function POST(
     });
 
     if (formAssignment) {
-      const required = getRequiredSignaturesWithGroups(signatures, updatedFormData);
-      const allComplete = required.every(sig => !!updatedFormData[sig.dataKey!]);
+      const newStatus = calculateFormStatus(formKey, updatedFormData, true, !!currentSubmission.isSubmitted);
 
       await prisma.formAssignment.update({
         where: { id: formAssignment.id },
         data: {
-          currentStatus: allComplete ? "completed" : "in_progress",
-          isCompleted: allComplete,
+          currentStatus: newStatus,
+          isCompleted: newStatus === "completed",
         },
       });
     }
@@ -872,10 +872,49 @@ export async function PUT(
         ...(isSubmitted && {
           isSubmitted: true,
           submittedAt: new Date(),
+          clientSignature: "true", // Placeholder to indicate signed status for progress calculation
+          clientSignedAt: new Date(),
         }),
       },
-      select: { id: true },
+      select: {
+        id: true,
+        clientId: true,
+        formId: true,
+        formVersion: true,
+        instanceNumber: true,
+        isSubmitted: true,
+        data: true
+      },
     });
+
+    // 🎯 Update FormAssignment status using centralized logic
+    const formAssignment = await prisma.formAssignment.findFirst({
+      where: {
+        clientId: updated.clientId,
+        formId: updated.formId,
+        formVersion: updated.formVersion,
+        instanceNumber: updated.instanceNumber,
+      },
+    });
+
+    if (formAssignment) {
+      const { calculateFormStatus } = await import('@/lib/formStatusHelper');
+      const newStatus = calculateFormStatus(
+        signatureForm.formSubmission?.form?.formKey,
+        updated.data,
+        true,
+        updated.isSubmitted
+      );
+
+      await prisma.formAssignment.update({
+        where: { id: formAssignment.id },
+        data: {
+          currentStatus: newStatus,
+          isCompleted: newStatus === 'completed',
+        },
+      });
+      console.log(`✅ [SIGNATURE PUT] Updated status for ${formAssignment.id} to ${newStatus}`);
+    }
 
     // 🔔 NOTIFICATION: When staff submits their part of the form, notify admin
     if (isSubmitted) {

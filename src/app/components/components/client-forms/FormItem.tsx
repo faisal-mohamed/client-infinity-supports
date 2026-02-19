@@ -215,10 +215,10 @@ export default function FormItem({
     // New status: Admin Review - Staff submitted, waiting for admin to complete
     if (status === "pending_admin_review") {
       return {
-        status: 'Admin Review',
-        color: 'from-yellow-300 to-yellow-400 text-yellow-900 border-yellow-500',
-        icon: FaExclamationTriangle,
-        bgColor: 'from-yellow-500 to-yellow-600',
+        status: 'Awaiting Manager',
+        color: 'from-amber-100 to-amber-200 text-amber-800 border-amber-300',
+        icon: FaSignature,
+        bgColor: 'from-amber-400 to-amber-500',
         iconColor: 'text-white'
       };
     }

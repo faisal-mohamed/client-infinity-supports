@@ -78,10 +78,30 @@ export async function POST(
 
     // Check if submission requirements are met
     if (signatureValidation.totalRequired > 0 && !hasAllSignatures) {
-      // Has signature requirements but not all complete
-      newStatus = "in_progress"; // Keep as in_progress
-      canSubmit = false;
-      submitMessage = `${signatureValidation.missingSignatures.length} signature(s) still required`;
+      // Get all signatures for this form from registry
+      const formConfig = (await import("@/app/forms/registry")).getFormConfig(assignment.form.formKey);
+      const allSigs = formConfig?.signatures || [];
+
+      // Identify admin vs non-admin signatures
+      const adminSigIds = ["manager_signature", "supervisor_signature", "admin_signature"];
+      const missingAdminSigs = signatureValidation.missingSignatures.filter(id =>
+        adminSigIds.some(adminId => id.includes(adminId))
+      );
+      const missingNonAdminSigs = signatureValidation.missingSignatures.filter(id =>
+        !adminSigIds.some(adminId => id.includes(adminId))
+      );
+
+      if (missingNonAdminSigs.length === 0 && missingAdminSigs.length > 0) {
+        // ONLY Admin signatures are missing
+        newStatus = "pending_admin_review";
+        canSubmit = true; // Allow submission to reach admin
+        submitMessage = "Form submitted! Awaiting administrator review.";
+      } else {
+        // Some non-admin signatures are still missing
+        newStatus = "in_progress";
+        canSubmit = false;
+        submitMessage = `${signatureValidation.missingSignatures.length} signature(s) still required`;
+      }
     }
 
     console.log(

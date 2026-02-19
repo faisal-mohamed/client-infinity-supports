@@ -1,13 +1,13 @@
 import { prisma } from '@/lib/prisma';
 import { validateFormSignatures } from './signatureValidation';
 
-export type FormStatus = 'not_started' | 'in_progress' | 'completed';
+export type FormStatus = 'not_started' | 'in_progress' | 'pending_admin_review' | 'completed';
 
 /**
  * Simple helper to update form assignment status
  */
 export async function updateFormAssignmentStatus(
-  assignmentId: number, 
+  assignmentId: number,
   newStatus: FormStatus
 ): Promise<void> {
   await prisma.formAssignment.update({
@@ -33,22 +33,29 @@ export function calculateFormStatus(
     return 'not_started';
   }
 
-  // If submitted, check signature completion
-  if (isSubmitted) {
-    const signatureValidation = validateFormSignatures(formKey, formData);
-    
-    // If no signatures required, it's completed when submitted
-    if (signatureValidation.totalRequired === 0) {
-      return 'completed';
-    }
-    
-    // If all signatures complete, it's completed
-    if (signatureValidation.isComplete) {
-      return 'completed';
-    }
+  // Calculate signature validation
+  const signatureValidation = validateFormSignatures(formKey, formData);
+
+  // 1. Check for 'completed'
+  // It's completed if all signatures are present (even if isSubmitted is false, 
+  // as signatures are the final step)
+  // OR if isSubmitted is true and no signatures are required.
+  if (signatureValidation.isComplete && (isSubmitted || signatureValidation.totalRequired > 0)) {
+    return 'completed';
   }
 
-  // Otherwise, it's in progress
+  if (isSubmitted && signatureValidation.totalRequired === 0) {
+    return 'completed';
+  }
+
+  // 2. Check for 'pending_admin_review'
+  // If all non-admin signatures are complete, but admin signatures are missing.
+  // We allow this even if isSubmitted is false, as signatures indicate a hand-off.
+  if (signatureValidation.missingNonAdminSignatures.length === 0 && signatureValidation.missingAdminSignatures.length > 0) {
+    return 'pending_admin_review';
+  }
+
+  // 3. Otherwise it's in progress
   return 'in_progress';
 }
 
@@ -68,6 +75,12 @@ export function getStatusDisplay(status: FormStatus) {
       color: 'bg-blue-100 text-blue-800 border-blue-200',
       icon: 'FaClock',
       description: 'Admin is working on the form'
+    },
+    'pending_admin_review': {
+      label: 'Pending Review',
+      color: 'bg-amber-100 text-amber-800 border-amber-200',
+      icon: 'FaUserShield',
+      description: 'Awaiting Administrator or Manager signature'
     },
     'completed': {
       label: 'Completed',

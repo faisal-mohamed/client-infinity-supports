@@ -605,7 +605,7 @@ export default function FormSignaturePageClient() {
                   const res = await fetch(`/api/signature/${formData.batchToken}/${formData.formSubmission.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ data: editedFormValues }),
+                    body: JSON.stringify({ data: editedFormValues, isSubmitted: true }),
                   });
                   if (!res.ok) throw new Error("Failed to save");
                   showToast({ type: "success", title: "Submitted", message: "Form submitted successfully", duration: 3000 });

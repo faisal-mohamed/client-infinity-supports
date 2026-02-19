@@ -94,6 +94,17 @@ const formRegistry: Record<string, FormRegistryItem> = {
     editComponent: ClientIntakeFormEdit,
     viewComponent: ClientIntakeFormView,
     pdfComponent: ClientIntakeFormPDF, // NEW: Improved HTML-based PDF renderer
+    signatures: [
+      {
+        id: "manager_signature",
+        label: "Manager Signature",
+        description: "Signature of the Manager/Administrator review",
+        required: true,
+        dataKey: "managerSignature",
+        signedAtKey: "managerSignDate",
+        signerName: "managerName",
+      },
+    ],
   },
   home_visit_risk_assessment: {
     key: "home_visit_risk_assessment",

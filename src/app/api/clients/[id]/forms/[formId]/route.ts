@@ -143,7 +143,7 @@ export async function GET(
 ) {
   try {
     const { id, formId } = await params;
-    
+
     // Make sure to parse params safely
     const clientId = parseInt(id || "0");
     const formIdInt = parseInt(formId || "0");
@@ -182,7 +182,7 @@ export async function PUT(
 ) {
   try {
     const { id, formId } = await params;
-    
+
     const clientId = parseInt(id || "0");
     const formIdInt = parseInt(formId || "0");
     const body = await req.json();
@@ -238,13 +238,18 @@ export async function PUT(
 
     // If the form is submitted, update the form assignment status
     if (isSubmitted) {
+      const { calculateFormStatus } = await import("@/lib/formStatusHelper");
+
+      const newStatus = calculateFormStatus(form.formKey, data, true, true);
+
       await prisma.formAssignment.updateMany({
         where: {
           clientId,
           formId: formIdInt,
         },
         data: {
-          isCompleted: true,
+          currentStatus: newStatus,
+          isCompleted: newStatus === "completed",
         },
       });
 
