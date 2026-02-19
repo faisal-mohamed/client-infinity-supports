@@ -14,7 +14,10 @@ import {
     FaSpinner,
     FaClipboardList,
     FaPenNib,
+    FaTimes,
+    FaChevronDown,
 } from "react-icons/fa";
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from "@headlessui/react";
 import SignatureCanvas from "@/components/ui/SignatureCanvas";
 import { useToast } from "@/components/ui/Toast";
 
@@ -116,7 +119,8 @@ const FIELD_METADATA: Record<string, any> = {
     providerAddress: { label: "Address", type: "textarea", rows: 2, readOnly: true },
     providerContactEmail: {
         label: "Contact Email",
-        type: "dropdown",
+        type: "suggestedInput",
+        inputType: "email",
         options: [
             "anand@infinitysupportswa.org",
             "sharon@infinitysupportswa.org",
@@ -127,7 +131,8 @@ const FIELD_METADATA: Record<string, any> = {
     },
     providerContactPhone: {
         label: "Contact Phone Number",
-        type: "dropdown",
+        type: "suggestedInput",
+        inputType: "tel",
         options: [
             "0493141688",
             "0493282661",
@@ -776,6 +781,120 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         );
     };
 
+    const renderSuggestedInput = (label: string, name: string, options: string[], required?: boolean, inputType: string = "text") => {
+        const isFieldReadOnly = calculateFieldReadOnly(name);
+        const currentValue = localValues[name] || "";
+        const errorMessage = fieldErrors[name] || validationErrors[name];
+
+        return (
+            <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-gray-700 flex items-center">
+                    {label}
+                    {required && <span className="text-red-500 ml-1">*</span>}
+                    {renderLegend(name)}
+                </label>
+
+                <div className="flex gap-2">
+                    {/* Text Input with Clear Button */}
+                    <div className="relative flex-1 group">
+                        <input
+                            type={inputType}
+                            name={name}
+                            value={currentValue}
+                            onChange={(e) => {
+                                handleChange(e);
+                                if (validationErrors[name]) {
+                                    setValidationErrors(prev => {
+                                        const newErrors = { ...prev };
+                                        delete newErrors[name];
+                                        return newErrors;
+                                    });
+                                }
+                            }}
+                            disabled={isFieldReadOnly}
+                            placeholder={`Enter ${label.toLowerCase()}...`}
+                            className={`w-full rounded-lg border border-gray-200 pl-3 pr-10 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${errorMessage
+                                ? "border-red-300 bg-red-50"
+                                : isFieldReadOnly
+                                    ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
+                                    : "bg-white hover:border-indigo-300"
+                                }`}
+                        />
+                        {!isFieldReadOnly && currentValue && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newValues = { ...localValues, [name]: "" };
+                                    setLocalValues(newValues);
+                                    onChange(newValues, name, false);
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                                aria-label="Clear field"
+                            >
+                                <FaTimes className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Suggestions Dropdown */}
+                    {!isFieldReadOnly && (
+                        <Menu as="div" className="relative inline-block text-left">
+                            <MenuButton className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 border border-indigo-100 hover:bg-indigo-100 transition-all shadow-sm">
+                                Suggestions
+                                <FaChevronDown className="w-3 h-3 pt-0.5" />
+                            </MenuButton>
+
+                            <Transition
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                            >
+                                <MenuItems
+                                    anchor="bottom end"
+                                    className="min-w-[240px] max-w-xs origin-top-right rounded-xl bg-white p-1 shadow-xl ring-1 ring-black/5 focus:outline-none z-50 [--anchor-gap:8px]"
+                                >
+                                    {options.map((opt) => (
+                                        <MenuItem key={opt}>
+                                            {({ active }) => (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newValues = { ...localValues, [name]: opt };
+                                                        setLocalValues(newValues);
+                                                        onChange(newValues, name, false);
+                                                        if (validationErrors[name]) {
+                                                            setValidationErrors(prev => {
+                                                                const newErrors = { ...prev };
+                                                                delete newErrors[name];
+                                                                return newErrors;
+                                                            });
+                                                        }
+                                                    }}
+                                                    className={`${active ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
+                                                        } group flex w-full items-center rounded-lg px-3 py-2.5 text-sm transition-colors duration-150 text-left truncate`}
+                                                    title={opt}
+                                                >
+                                                    <span className="truncate">{opt}</span>
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    ))}
+                                </MenuItems>
+                            </Transition>
+                        </Menu>
+                    )}
+                </div>
+
+                {errorMessage && (
+                    <p className="text-xs text-red-500 mt-1">{errorMessage}</p>
+                )}
+            </div>
+        );
+    };
+
     const renderMultiSelectCheckbox = (
         label: string,
         name: string,
@@ -1016,19 +1135,27 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         const meta = FIELD_METADATA[name];
         if (!meta) return null;
 
+        const val = String(value).trim();
+        if (!val) return null;
+
         // Email Validation
-        if (meta.type === 'email' || name.toLowerCase().includes('email')) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) return "Invalid email format";
+        if (meta.type === 'email' || meta.inputType === 'email' || name.toLowerCase().includes('email')) {
+            // More robust email regex
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(val)) return "Invalid email format (e.g., name@example.com)";
         }
 
         // Phone Validation
-        if (name.toLowerCase().includes('phone') || name.toLowerCase().includes('mobile')) {
+        if (meta.inputType === 'tel' || name.toLowerCase().includes('phone') || name.toLowerCase().includes('mobile')) {
             // Must contain at least 8 digits, allow spaces/+/-/()
             const phoneRegex = /^[\d\s\+\-\(\)]{8,20}$/;
-            if (!phoneRegex.test(value)) return "Invalid phone number";
+            if (!phoneRegex.test(val)) return "Invalid phone format (minimum 8 digits)";
             // Strictly no letters
-            if (/[a-zA-Z]/.test(value)) return "Phone number cannot contain letters";
+            if (/[a-zA-Z]/.test(val)) return "Phone number cannot contain letters";
+
+            // Ensure there are actually some digits
+            const digits = val.replace(/\D/g, '');
+            if (digits.length < 8) return "Phone number must contain at least 8 digits";
         }
 
         return null;
@@ -1264,6 +1391,9 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
                             if (meta.type === "dropdown") {
                                 return <div key={field} className="md:col-span-2">{renderDropdown(meta.label, field, meta.options || [], required)}</div>;
+                            }
+                            if (meta.type === "suggestedInput") {
+                                return <div key={field} className="md:col-span-2">{renderSuggestedInput(meta.label, field, meta.options || [], required, meta.inputType || "text")}</div>;
                             }
                             if (meta.type === "textarea") {
                                 return (

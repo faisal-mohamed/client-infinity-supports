@@ -786,18 +786,25 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     return (
       <div className="flex flex-col gap-1">
-        <label className="flex items-start gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            name={name}
-            checked={!!displayValue}
-            onChange={isCommon ? undefined : handleChange}
-            disabled={isFieldReadOnly}
-            className={`mt-1 scale-100 accent-accent ${isFieldReadOnly ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-          />
+        <label
+          className={`flex items-start gap-3 ${isFieldReadOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
+          onClick={() => {
+            if (!isFieldReadOnly) {
+              const newValue = !displayValue;
+              const event = {
+                target: { name, value: newValue }
+              } as any;
+              handleChange(event);
+            }
+          }}
+        >
+          <div className={`mt-1 w-5 h-5 border-2 rounded flex-shrink-0 flex items-center justify-center transition-all ${displayValue ? "border-indigo-600 bg-indigo-50" : "border-gray-300"}`}>
+            {displayValue && (
+              <span className="text-indigo-600 font-bold text-xs">X</span>
+            )}
+          </div>
           <span
-            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800" : "text-gray-700"
+            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800 font-medium" : "text-gray-700"
               }`}
           >
             {label}
@@ -996,7 +1003,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       type: "dropdown",
       options: yesNoOptions,
     },
-    coreSupportsCommenced: { label: "Support Co-ordinator Action", type: "textarea" },
+    coreSupportsCommenced: { label: "Supports have commenced", type: "textarea" },
     coreBudgetApproved: {
       label: "Discussion held with Plan Manager and budget approved?",
       type: "dropdown",
@@ -1032,11 +1039,11 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       type: "text",
     },
     capacityAssessmentRequired: {
-      label: "Are additional assessments required?",
+      label: "Are additional assessments required to access this support type?",
       type: "dropdown",
       options: yesNoOptions,
     },
-    capacityActions: { label: "If Yes - Actions", type: "text" },
+    capacityActions: { label: "Actions:", type: "text" },
     capacityBudgetApproved: {
       label: "Discussion held with Plan Manager and budget approved?",
       type: "dropdown",
@@ -1067,7 +1074,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       type: "dropdown",
       options: yesNoOptions,
     },
-    assessmentActions1: { label: "If Yes - Actions", type: "text" },
+    assessmentActions1: { label: "Actions:", type: "text" },
     planManagerDiscussion1: {
       label: "Discussion held with Plan Manager and budget approved?",
       type: "dropdown",
@@ -1098,7 +1105,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       type: "dropdown",
       options: yesNoOptions,
     },
-    assessmentActions2: { label: "If Yes - Actions", type: "text" },
+    assessmentActions2: { label: "Actions:", type: "text" },
 
     budgetApproval: {
       label: "Discussion held with Plan Manager and budget approved?",

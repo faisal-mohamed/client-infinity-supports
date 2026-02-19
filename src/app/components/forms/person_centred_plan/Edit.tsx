@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import {
   FaUser,
   FaHome,
@@ -18,6 +18,104 @@ import { useToast } from "@/components/ui/Toast";
 
 // Match Client Intake form's custom spinner (hourglass emoji)
 const FaSpinner = ({ className }: { className?: string }) => <span className={className}>⏳</span>;
+
+// Auto-resizing textarea component
+const AutoResizeTextArea: React.FC<{
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  rows?: number;
+  placeholder?: string;
+  required?: boolean;
+  maxWords?: number;
+  readOnly?: boolean;
+  fieldError?: string;
+}> = ({
+  label,
+  name,
+  value,
+  onChange,
+  onKeyDown,
+  rows = 3,
+  placeholder,
+  required,
+  maxWords,
+  readOnly,
+  fieldError
+}) => {
+    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize logic
+    const adjustHeight = useCallback(() => {
+      const textarea = textAreaRef.current;
+      if (textarea) {
+        textarea.style.height = 'auto'; // Reset height to recalculate
+        textarea.style.height = `${Math.max(textarea.scrollHeight, rows * 24)}px`; // Set to scrollHeight but respect min rows
+      }
+    }, [rows]);
+
+    // Adjust height on value change (initial load + dynamic updates)
+    useLayoutEffect(() => {
+      adjustHeight();
+    }, [value, adjustHeight]);
+
+    // Calculate word count
+    const wordCount = value ? value.trim().split(/\s+/).filter((word: string) => word.length > 0).length : 0;
+    const isOverLimit = maxWords ? wordCount > maxWords : false;
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center mb-1">
+          <label className="text-xs font-medium text-gray-700">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {maxWords && (
+            <span className={`text-xs font-medium ${isOverLimit
+              ? 'text-red-600'
+              : wordCount > maxWords * 0.9
+                ? 'text-orange-500'
+                : 'text-gray-500'
+              }`}>
+              {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
+            </span>
+          )}
+        </div>
+        <textarea
+          ref={textAreaRef}
+          name={name}
+          value={value}
+          onChange={(e) => {
+            onChange(e);
+            adjustHeight();
+          }}
+          onKeyDown={onKeyDown}
+          onInput={adjustHeight}
+          placeholder={placeholder}
+          rows={rows}
+          style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
+          disabled={readOnly}
+          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-gray-200'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-indigo-500'
+            } focus:border-indigo-500 transition-all placeholder-gray-400 resize-none ${fieldError
+              ? "border-red-300 bg-red-50"
+              : "hover:border-indigo-400/40"
+            } ${readOnly ? "cursor-not-allowed" : ""}`}
+        />
+        {isOverLimit && maxWords && (
+          <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+            <span>⚠️</span>
+            <span>Exceeds word limit by {wordCount - maxWords} words. Please reduce content.</span>
+          </p>
+        )}
+        {fieldError && (
+          <p className="text-xs text-red-500 mt-1">{fieldError}</p>
+        )}
+      </div>
+    );
+  };
 
 interface FormProps {
   formData: any;
@@ -44,7 +142,7 @@ const FORM_SECTIONS = [
     icon: FaUser,
     description: "Basic personal details and identification",
     fields: [
-      "name", "address", "dob", "guardian", "guardianAddress", 
+      "name", "address", "dob", "guardian", "guardianAddress",
       "contactNumber", "disability", "ndisNumber"
     ],
     requiredFields: ["name", "dob", "ndisNumber"],
@@ -65,7 +163,7 @@ const FORM_SECTIONS = [
     icon: FaHeart,
     description: "Health conditions and medical information",
     fields: [
-      "respiratoryHistory", "precautions", "healthConditions", 
+      "respiratoryHistory", "precautions", "healthConditions",
       "companionCard", "ambulanceCover", "healthcarePrompt"
     ],
     requiredFields: ["healthConditions"],
@@ -102,7 +200,7 @@ const FORM_SECTIONS = [
 const commonFieldsMapping: Record<string, string> = {
   name: "name",
   ndisNumber: "ndis",
-  dob: "dob", 
+  dob: "dob",
   address: "street",
   disability: "disability",
 };
@@ -153,13 +251,13 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       }
       return '';
     }
-    
+
     const commonKey = commonFieldsMapping[fieldName];
     // Always prioritize current client details from database
     if (commonKey && commonFieldsData?.[commonKey]) {
       return String(commonFieldsData[commonKey]);
     }
-    
+
     // Only fallback to saved form data if DB doesn't have the value
     return formData?.[fieldName] ? String(formData[fieldName]) : '';
   };
@@ -180,12 +278,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       let maxGoalNum = 0;
       // Check up to 20 goals to find the highest goal number with data
       for (let i = 1; i <= 20; i++) {
-        const hasGoal = 
-          formData[`goal${i}`] || 
-          formData[`rating${i}`] || 
-          formData[`actions${i}`] || 
-          formData[`byWhom${i}`] || 
-          formData[`byWhen${i}`] || 
+        const hasGoal =
+          formData[`goal${i}`] ||
+          formData[`rating${i}`] ||
+          formData[`actions${i}`] ||
+          formData[`byWhom${i}`] ||
+          formData[`byWhen${i}`] ||
           formData[`reviewDate${i}`];
         if (hasGoal) {
           maxGoalNum = i;
@@ -209,13 +307,13 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     contactNumber: "",
     disability: commonFieldsData?.disability || "",
     ndisNumber: commonFieldsData?.ndis || "",
-    
+
     // Personal Story & Strengths
     myStory: "",
     strengths: "",
     challenges: "",
     allergies: "",
-    
+
     // Health Information
     respiratoryHistory: "",
     precautions: "",
@@ -223,7 +321,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     companionCard: "",
     ambulanceCover: "",
     healthcarePrompt: "",
-    
+
     // Goals (3 goals with 6 fields each)
     goal1: "",
     rating1: "",
@@ -231,45 +329,45 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     byWhom1: "",
     byWhen1: "",
     reviewDate1: "",
-    
+
     goal2: "",
     rating2: "",
     actions2: "",
     byWhom2: "",
     byWhen2: "",
     reviewDate2: "",
-    
+
     goal3: "",
     rating3: "",
     actions3: "",
     byWhom3: "",
     byWhen3: "",
     reviewDate3: "",
-    
+
     // Support Information
     pbsSupportPlanIncluded: "",
     restrictivePractices: "",
     organizationName: "",
     contactPersonOrg: "",
     contactNumberOrg: "",
-    
+
     // Informal Supports (4 rows)
     support1: "",
     role1: "",
     frequency1: "",
-    
+
     support2: "",
     role2: "",
     frequency2: "",
-    
+
     support3: "",
     role3: "",
     frequency3: "",
-    
+
     support4: "",
     role4: "",
     frequency4: "",
-    
+
     ...formData,
   };
 
@@ -311,7 +409,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
-    
+
     // Prevent changes to common fields
     if (isCommonField(name)) {
       showToast({
@@ -322,7 +420,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       });
       return;
     }
-    
+
     const newValues = { ...localValues, [name]: value };
     setLocalValues(newValues);
 
@@ -344,12 +442,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     }
 
     // Check if goal has any data
-    const hasData = 
-      localValues[`goal${goalNumToRemove}`] || 
-      localValues[`rating${goalNumToRemove}`] || 
-      localValues[`actions${goalNumToRemove}`] || 
-      localValues[`byWhom${goalNumToRemove}`] || 
-      localValues[`byWhen${goalNumToRemove}`] || 
+    const hasData =
+      localValues[`goal${goalNumToRemove}`] ||
+      localValues[`rating${goalNumToRemove}`] ||
+      localValues[`actions${goalNumToRemove}`] ||
+      localValues[`byWhom${goalNumToRemove}`] ||
+      localValues[`byWhen${goalNumToRemove}`] ||
       localValues[`reviewDate${goalNumToRemove}`];
 
     if (hasData) {
@@ -365,7 +463,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
 
     // Proceed with removal
     const newValues = { ...localValues };
-    
+
     // Delete the selected goal's fields
     const fieldsToRemove = [
       `goal${goalNumToRemove}`,
@@ -375,12 +473,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       `byWhen${goalNumToRemove}`,
       `reviewDate${goalNumToRemove}`
     ];
-    
+
     // Remove these fields from newValues
     fieldsToRemove.forEach(field => {
       delete newValues[field];
     });
-    
+
     // Rename goals after the removed one
     // If we removed goal 2, then goal3→goal2, goal4→goal3, etc.
     for (let i = goalNumToRemove + 1; i <= numberOfGoals; i++) {
@@ -392,7 +490,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
         { old: `byWhen${i}`, new: `byWhen${i - 1}` },
         { old: `reviewDate${i}`, new: `reviewDate${i - 1}` }
       ];
-      
+
       fieldsToRename.forEach(({ old, new: newName }) => {
         if (newValues[old] !== undefined) {
           newValues[newName] = newValues[old];
@@ -400,14 +498,14 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
         }
       });
     }
-    
+
     // Update local state (already has deleted fields removed)
     setLocalValues(newValues);
-    
+
     // Update parent state - force full replacement to remove deleted fields
     // Pass newValues directly as full replacement (not merged)
     onChange(newValues, undefined, false, true);
-    
+
     // Show success message
     showToast({
       type: "success",
@@ -415,7 +513,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
       message: "The goal has been removed from the form.",
       duration: 3000,
     });
-    
+
     // Decrease the number of goals
     setNumberOfGoals(numberOfGoals - 1);
   };
@@ -452,14 +550,14 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
     return required.every((key) => {
       let value;
-      
+
       // For common fields, get value from commonFieldsData
       if (isCommonField(key)) {
         value = getCommonFieldValue(key);
       } else {
         value = localValues[key];
       }
-      
+
       return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
     });
   };
@@ -502,7 +600,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
-    
+
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
@@ -516,13 +614,12 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
           onChange={isCommon ? undefined : handleChange}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
+              ? "bg-blue-50 border-blue-200 text-blue-800"
+              : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
@@ -541,32 +638,20 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
-    
+    const mergedError = (fieldErrors as any)?.[name];
+
     return (
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-        <textarea
-          name={name}
-          value={displayValue}
-          onChange={isCommon ? undefined : handleChange}
-          placeholder={isCommon ? "Value from common fields" : placeholder}
-          rows={rows}
-          disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 resize-none ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
-        />
-        {fieldErrors[name] && (
-          <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
-        )}
-      </div>
+      <AutoResizeTextArea
+        label={label}
+        name={name}
+        value={displayValue}
+        onChange={isCommon ? (() => { }) as any : handleChange}
+        rows={rows}
+        placeholder={placeholder}
+        required={required}
+        readOnly={isFieldReadOnly}
+        fieldError={mergedError}
+      />
     );
   };
 
@@ -587,11 +672,10 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
         value={localValues[name] || ""}
         onChange={handleChange}
         disabled={readOnly}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-          fieldErrors[name]
-            ? "border-red-300 bg-red-50"
-            : "hover:border-accent/40"
-        } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+          ? "border-red-300 bg-red-50"
+          : "hover:border-accent/40"
+          } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -622,20 +706,20 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     contactNumber: { label: "Contact Number", type: "text", placeholder: "Enter contact number" },
     disability: { label: "Disability", type: "text", placeholder: "Enter disability information" },
     ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter NDIS number" },
-    
+
     // Personal Story & Strengths
     myStory: { label: "My Story", type: "textarea", placeholder: "Tell us about yourself...", rows: 4 },
     strengths: { label: "Strengths", type: "textarea", placeholder: "What are your strengths?", rows: 3 },
-    challenges: { label: "Challenges", type: "text", placeholder: "What challenges do you face?" },
-    allergies: { label: "Allergies", type: "text", placeholder: "List any allergies" },
-    
+    challenges: { label: "Challenges", type: "textarea", placeholder: "What challenges do you face?", rows: 3 },
+    allergies: { label: "Allergies", type: "textarea", placeholder: "List any allergies", rows: 3 },
+
     // Health Information
     respiratoryHistory: { label: "History of Respiratory Depression", type: "textarea", placeholder: "Describe any respiratory history", rows: 3 },
     precautions: { label: "Precautions", type: "textarea", placeholder: "List any precautions needed", rows: 3 },
     healthConditions: { label: "Health Conditions", type: "textarea", placeholder: "Describe health conditions", rows: 3 },
     companionCard: { label: "Companion Card", type: "textarea", placeholder: "Enter companion card details", rows: 2 },
     ambulanceCover: { label: "Ambulance Cover", type: "textarea", placeholder: "Enter ambulance cover details", rows: 2 },
-    healthcarePrompt: { label: "Does the participant require support to organize regular medical & dental check ups? (If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)", type: "dropdown" , options: yesNoOptions, placeholder: "Select option" },
+    healthcarePrompt: { label: "Does the participant require support to organize regular medical & dental check ups? (If yes, coordinator to set annual reminders to prompt and assist participant to organize annual health checks)", type: "dropdown", options: yesNoOptions, placeholder: "Select option" },
 
     // Goals (3 sets)
     goal1: { label: "Goal 1", type: "textarea", placeholder: "Describe your first goal", rows: 3 },
@@ -644,41 +728,41 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
     byWhom1: { label: "By Whom 1", type: "text", placeholder: "Who is responsible?" },
     byWhen1: { label: "By When 1", type: "date" },
     reviewDate1: { label: "Review Date 1", type: "date" },
-    
+
     goal2: { label: "Goal 2", type: "textarea", placeholder: "Describe your second goal", rows: 3 },
     rating2: { label: "Outcome Rating 2", type: "dropdown", options: outcomeRatingOptions },
     actions2: { label: "Actions & Resources 2", type: "textarea", placeholder: "What actions are needed?", rows: 3 },
     byWhom2: { label: "By Whom 2", type: "text", placeholder: "Who is responsible?" },
     byWhen2: { label: "By When 2", type: "date" },
     reviewDate2: { label: "Review Date 2", type: "date" },
-    
+
     goal3: { label: "Goal 3", type: "textarea", placeholder: "Describe your third goal", rows: 3 },
     rating3: { label: "Outcome Rating 3", type: "dropdown", options: outcomeRatingOptions },
     actions3: { label: "Actions & Resources 3", type: "textarea", placeholder: "What actions are needed?", rows: 3 },
     byWhom3: { label: "By Whom 3", type: "text", placeholder: "Who is responsible?" },
     byWhen3: { label: "By When 3", type: "date" },
     reviewDate3: { label: "Review Date 3", type: "date" },
-    
+
     // Support Information
     pbsSupportPlanIncluded: { label: "PBS Support Plan included?", type: "dropdown", options: yesNoOptions },
     restrictivePractices: { label: "Any Restrictive Practices?", type: "dropdown", options: yesNoOptions },
     organizationName: { label: "Name of organization", type: "text", placeholder: "Enter organization name" },
     contactPersonOrg: { label: "Contact person", type: "text", placeholder: "Enter contact person name" },
     contactNumberOrg: { label: "Contact number", type: "text", placeholder: "Enter contact number" },
-    
+
     // Informal Supports (4 rows)
     support1: { label: "Informal Support 1", type: "text", placeholder: "e.g., Mother, Friend" },
     role1: { label: "Role 1", type: "text", placeholder: "What role do they play?" },
     frequency1: { label: "Frequency 1", type: "text", placeholder: "How often? e.g., Daily, Weekly" },
-    
+
     support2: { label: "Informal Support 2", type: "text", placeholder: "e.g., Brother, Neighbor" },
     role2: { label: "Role 2", type: "text", placeholder: "What role do they play?" },
     frequency2: { label: "Frequency 2", type: "text", placeholder: "How often? e.g., Daily, Weekly" },
-    
+
     support3: { label: "Informal Support 3", type: "text", placeholder: "e.g., Friend, Cousin" },
     role3: { label: "Role 3", type: "text", placeholder: "What role do they play?" },
     frequency3: { label: "Frequency 3", type: "text", placeholder: "How often? e.g., Daily, Weekly" },
-    
+
     support4: { label: "Informal Support 4", type: "text", placeholder: "e.g., Neighbor, Colleague" },
     role4: { label: "Role 4", type: "text", placeholder: "What role do they play?" },
     frequency4: { label: "Frequency 4", type: "text", placeholder: "How often? e.g., Daily, Weekly" },
@@ -687,25 +771,25 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
   // Validation function to check if all required fields are filled
   const validateRequiredFields = () => {
     const missingFields: string[] = [];
-    
+
     FORM_SECTIONS.forEach(section => {
       section.requiredFields.forEach(fieldName => {
         let value;
-        
+
         // For common fields, get value from commonFieldsData
         if (isCommonField(fieldName)) {
           value = getCommonFieldValue(fieldName);
         } else {
           value = localValues[fieldName];
         }
-        
+
         // Check if field is empty, null, undefined, or empty string
         if (!value || (typeof value === 'string' && value.trim() === '')) {
           missingFields.push(`${fieldName}`);
         }
       });
     });
-    
+
     return {
       isValid: missingFields.length === 0,
       missingFields
@@ -801,7 +885,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault();
-              if(onSubmit) onSubmit(localValues);
+              if (onSubmit) onSubmit(localValues);
             }}
             className="flex flex-col gap-6"
           >
@@ -838,14 +922,14 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                           const meta = FIELD_METADATA[field.key] || {};
                           const required = isFieldRequired(field.key);
                           const spanClass = field.span === 2 ? "md:col-span-2" : "";
-                          
+
                           // Use field properties with meta as fallback
                           const label = field.label;
                           const fieldType = field.type || meta.type || "text";
                           const options = field.options || meta.options || [];
                           const rows = field.rows || meta.rows || 3;
                           const placeholder = field.placeholder || meta.placeholder;
-                          
+
                           if (fieldType === "textarea") {
                             return (
                               <div key={field.key} className={spanClass}>
@@ -869,7 +953,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Add Goal Button */}
                   <div className="flex justify-center mt-4">
                     <button
@@ -892,7 +976,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                       {["pbsSupportPlanIncluded", "restrictivePractices", "organizationName", "contactPersonOrg", "contactNumberOrg"].map((field) => {
                         const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                         const required = isFieldRequired(field);
-                        
+
                         if (meta.type === "dropdown") {
                           return (
                             <div key={field} className="md:col-span-2">
@@ -908,7 +992,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                       })}
                     </div>
                   </div>
-                  
+
                   {/* Informal Supports */}
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800">Informal Supports</h3>
@@ -919,7 +1003,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                           {[`support${num}`, `role${num}`, `frequency${num}`].map((field) => {
                             const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                             const required = isFieldRequired(field);
-                            
+
                             return (
                               <div key={field}>
                                 {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
@@ -937,7 +1021,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
                   {FORM_SECTIONS[currentStep].fields.map((field) => {
                     const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                     const required = isFieldRequired(field);
-                    
+
                     if (meta.type === "textarea") {
                       return (
                         <div key={field} className="md:col-span-2">
@@ -1017,7 +1101,7 @@ const PersonCentredPlanEdit: React.FC<FormProps> = ({
               disabled={saving || submitting}
             >
               <FaCheck className="w-4 h-4" />
-              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
+              {submitting ? <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
             </button>
           )}
         </footer>

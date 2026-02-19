@@ -11,18 +11,20 @@ const styles = StyleSheet.create({
   footer: { position: 'absolute', bottom: 15, left: 30, right: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, borderTop: '1 solid #d1d5db', paddingTop: 6 },
   footerText: { fontSize: 9, color: '#6b7280' },
   fieldContainer: { marginBottom: 8 },
-  fieldHeader: { backgroundColor: '#d1d5db', border: '1 solid #000000', borderBottom: 0, paddingVertical: 3, paddingHorizontal: 6 },
+  fieldHeader: { backgroundColor: '#b4c7e7', border: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 },
   fieldLabel: { fontWeight: 'bold', fontSize: 9 },
   fieldValue: { border: '1 solid #000000', borderTop: 0, padding: 6, backgroundColor: '#ffffff', fontSize: 8, lineHeight: 1.3, minHeight: 20 },
   tableRow: { flexDirection: 'row', border: '1 solid #000000', borderTop: 0 },
   tableCell: { padding: 4, borderRight: '1 solid #000000' },
   tableCellLast: { padding: 4 },
   sectionHeader: { fontSize: 10, fontWeight: 'bold', marginBottom: 8, textDecoration: 'underline' },
-  checkboxBox: { width: 8, height: 8, border: '1 solidrgb(111, 213, 218)', marginRight: 6 },
+  rowWithBorder: { borderBottom: '1 solid #000000', padding: 4 },
+  rowWithBorderLast: { padding: 4 },
+  checkboxBox: { width: 8, height: 8, border: '1 solid #000000', marginRight: 6 },
   noteText: { fontSize: 8, lineHeight: 1.4 },
   smallText: { fontSize: 7, lineHeight: 1.3 },
-  tickBox: { width: 10, height: 10, border: '1 solid #000000', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
-  tick: { color: '#2563eb', fontSize: 10, fontWeight: 'bold', lineHeight: 1 },
+  tickBox: { width: 10, height: 10, border: '1 solid #000000', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' },
+  tick: { color: '#2563eb', fontSize: 7, fontWeight: 'bold', lineHeight: 1 },
 });
 
 interface Props { formData: any; commonFieldsData: any; settings: any; logoDataUrl: string; }
@@ -111,16 +113,12 @@ const renderParticipantTable = (formData: any, commonFieldsData: any) => (
   </View>
 );
 
-// REUSED NDISCheckbox from common, styled to match blue theme
-const BlueTick = ({ checked }: { checked: boolean }) => {
-  return (
-    <NDISCheckbox
-      checked={checked}
-      color="#2563eb" // Blue to match the form theme
-      size={10}      // 10x10 sizing
-    />
-  );
-};
+// Square checkbox with tick - matches web view
+const BlueTick = ({ checked }: { checked: boolean }) => (
+  <View style={styles.tickBox}>
+    {checked && <Text style={styles.tick}>X</Text>}
+  </View>
+);
 
 // Helper: Check if field has value (strict check - handles whitespace, null, undefined, empty strings)
 const hasValue = (value: string | null | undefined): boolean => {
@@ -273,7 +271,7 @@ const renderGoalsSection = (formData: any) => {
 // Support Requirements Question (page 2 start)
 const renderSupportRequirementsQuestion = () => (
   <View style={styles.fieldContainer}>
-    <View style={[styles.tableRow, { backgroundColor: '#a9c1e0' }]}>
+    <View style={[styles.tableRow, { backgroundColor: '#b4c7e7', borderTop: '1 solid #000000' }]}>
       <View style={styles.tableCellLast}>
         <Text style={{ fontWeight: 'bold', fontSize: 9 }}>
           4. Consider, what support is required to assist you to achieve your goals? Are there any barriers preventing you from achieving your goals?
@@ -288,11 +286,11 @@ const renderSupportRequirements = (formData: any) => {
   const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
 
   const Section = ({ title, items }: { title: string; items: React.ReactNode }) => (
-    <View style={{ marginBottom: 8 }}>
-      <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-        <View style={styles.tableCellLast}><Text style={{ fontWeight: 'bold', fontSize: 9 }}>{title}</Text></View>
+    <View style={{ marginBottom: 8, border: '1 solid #000000' }}>
+      <View style={{ backgroundColor: '#b4c7e7', borderBottom: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 9 }}>{title}</Text>
       </View>
-      <View style={{ borderLeft: '1 solid #000000', borderRight: '1 solid #000000', borderBottom: '1 solid #000000', padding: 6 }}>
+      <View style={{ padding: 0 }}>
         {items}
       </View>
     </View>
@@ -304,12 +302,20 @@ const renderSupportRequirements = (formData: any) => {
         title="CORE SUPPORTS"
         items={(
           <View>
-            <ConditionalText label="Support Required" value={get('coreSupportText')} />
-            <ConditionalText label="Preferred provider" value={get('corePreferredProviders')} />
-            <ConditionalText label="Alternative provider" value={get('coreAlternativeProviders')} />
-            <YesNoRow label="Service Agreement developed/signed?" k="coreAgreementSigned" formData={formData} />
-            <ConditionalText label="Support Co-ordinator Action" value={get('coreSupportsCommenced')} />
-            <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="coreBudgetApproved" formData={formData} />
+            <View style={styles.rowWithBorder}><ConditionalText label="" value={get('coreSupportText')} /></View>
+            <View style={styles.rowWithBorder}>
+              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Preferred providers:</Text>
+              <ConditionalProvider num={1} value={get('corePreferredProviders')} />
+              <ConditionalProvider num={2} value={get('corePreferredProviders2')} />
+            </View>
+            <View style={styles.rowWithBorder}>
+              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Alternative providers:</Text>
+              <ConditionalProvider num={1} value={get('coreAlternativeProviders')} />
+              <ConditionalProvider num={2} value={get('coreAlternativeProviders2')} />
+            </View>
+            <View style={styles.rowWithBorder}><YesNoRow label="Service Agreement developed/signed?" k="coreAgreementSigned" formData={formData} /></View>
+            <View style={styles.rowWithBorder}><ConditionalText label="Supports have commenced" value={get('coreSupportsCommenced')} /></View>
+            <View style={styles.rowWithBorderLast}><YesNoRow label="Discussion held with Plan Manager and budget approved?" k="coreBudgetApproved" formData={formData} /></View>
           </View>
         )}
       />
@@ -317,14 +323,22 @@ const renderSupportRequirements = (formData: any) => {
         title="CAPACITY BUILDING"
         items={(
           <View>
-            <ConditionalText label="Support Required" value={get('capacitySupportText')} />
-            <ConditionalText label="Preferred provider" value={get('capacityPreferredProviders')} />
-            <ConditionalText label="Alternative provider" value={get('capacityAlternativeProviders')} />
-            <YesNoRow label="Service Agreement developed/signed?" k="capacityAgreementSigned" formData={formData} />
-            <ConditionalText label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} />
-            <YesNoRow label="Are additional assessments required to access this support type?" k="capacityAssessmentRequired" formData={formData} />
-            {get('capacityAssessmentRequired') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('capacityActions')} />}
-            <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="capacityBudgetApproved" formData={formData} />
+            <View style={styles.rowWithBorder}><ConditionalText label="" value={get('capacitySupportText')} /></View>
+            <View style={styles.rowWithBorder}>
+              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Preferred providers:</Text>
+              <ConditionalProvider num={1} value={get('capacityPreferredProviders')} />
+              <ConditionalProvider num={2} value={get('capacityPreferredProviders2')} />
+            </View>
+            <View style={styles.rowWithBorder}>
+              <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Alternative providers:</Text>
+              <ConditionalProvider num={1} value={get('capacityAlternativeProviders')} />
+              <ConditionalProvider num={2} value={get('capacityAlternativeProviders2')} />
+            </View>
+            <View style={styles.rowWithBorder}><YesNoRow label="Service Agreement developed/signed?" k="capacityAgreementSigned" formData={formData} /></View>
+            <View style={styles.rowWithBorder}><ConditionalText label="Supports in place at start of plan" value={get('capacitySupportsInPlace')} /></View>
+            <View style={styles.rowWithBorder}><YesNoRow label="Are additional assessments required to access this support type?" k="capacityAssessmentRequired" formData={formData} /></View>
+            {get('capacityAssessmentRequired') === 'Yes' && <View style={styles.rowWithBorder}><ConditionalText label="Actions:" value={get('capacityActions')} /></View>}
+            <View style={styles.rowWithBorderLast}><YesNoRow label="Discussion held with Plan Manager and budget approved?" k="capacityBudgetApproved" formData={formData} /></View>
           </View>
         )}
       />
@@ -337,17 +351,27 @@ const renderCapitalSupports = (formData: any) => {
   const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
   return (
     <View style={styles.fieldContainer}>
-      <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-        <View style={styles.tableCellLast}><Text style={{ fontWeight: 'bold', fontSize: 9 }}>CAPITAL</Text></View>
-      </View>
-      <View style={{ borderLeft: '1 solid #000000', borderRight: '1 solid #000000', borderBottom: '1 solid #000000', padding: 6 }}>
-        <ConditionalText label="Support Required" value={get('supportRequired1')} />
-        <ConditionalText label="Preferred provider" value={get('preferredProviders1')} />
-        <ConditionalText label="Alternative provider" value={get('alternativeProviders1')} />
-        <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement1" formData={formData} />
-        <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment1" formData={formData} />
-        {get('additionalAssessment1') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions1')} />}
-        <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="planManagerDiscussion1" formData={formData} />
+      <View style={{ border: '1 solid #000000' }}>
+        <View style={{ backgroundColor: '#b4c7e7', borderBottom: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 9 }}>CAPITAL</Text>
+        </View>
+        <View style={{ padding: 0 }}>
+          <View style={styles.rowWithBorder}><ConditionalText label="" value={get('supportRequired1')} /></View>
+          <View style={styles.rowWithBorder}>
+            <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Preferred providers:</Text>
+            <ConditionalProvider num={1} value={get('preferredProviders1')} />
+            <ConditionalProvider num={2} value={get('preferredProvidersCapital2')} />
+          </View>
+          <View style={styles.rowWithBorder}>
+            <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Alternative providers:</Text>
+            <ConditionalProvider num={1} value={get('alternativeProviders1')} />
+            <ConditionalProvider num={2} value={get('alternativeProvidersCapital2')} />
+          </View>
+          <View style={styles.rowWithBorder}><YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement1" formData={formData} /></View>
+          <View style={styles.rowWithBorder}><YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment1" formData={formData} /></View>
+          {get('additionalAssessment1') === 'Yes' && <View style={styles.rowWithBorder}><ConditionalText label="Actions:" value={get('assessmentActions1')} /></View>}
+          <View style={styles.rowWithBorderLast}><YesNoRow label="Discussion held with Plan Manager and budget approved?" k="planManagerDiscussion1" formData={formData} /></View>
+        </View>
       </View>
     </View>
   );
@@ -356,22 +380,28 @@ const renderCapitalSupports = (formData: any) => {
 // Mainstream Supports section
 const renderMainstreamSupports = (formData: any) => {
   const get = (k: string) => (formData?.[k] ? String(formData[k]) : '');
-  const isYes = formData?.['budgetApproval'] === 'Yes';
   return (
     <View style={styles.fieldContainer}>
-      <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
-        <View style={styles.tableCellLast}><Text style={{ fontWeight: 'bold', fontSize: 9 }}>MAINSTREAM SUPPORTS & SERVICES</Text></View>
-      </View>
-      <View style={{ borderLeft: '1 solid #000000', borderRight: '1 solid #000000', borderBottom: '1 solid #000000', padding: 6 }}>
-        <ConditionalText label="Support Required" value={get('supportRequired2')} />
-        <ConditionalText label="Preferred provider" value={get('preferredProviders2')} />
-        <ConditionalText label="Alternative provider" value={get('alternativeProviders2')} />
-        <YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement2" formData={formData} />
-        <YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment2" formData={formData} />
-        {get('additionalAssessment2') === 'Yes' && <ConditionalText label="If Yes - Actions" value={get('assessmentActions2')} />}
-        {/* Budget Approval question moved INSIDE MAINSTREAM section */}
-        <View style={{ marginTop: 6 }}>
-          <YesNoRow label="Discussion held with Plan Manager and budget approved?" k="budgetApproval" formData={formData} />
+      <View style={{ border: '1 solid #000000' }}>
+        <View style={{ backgroundColor: '#b4c7e7', borderBottom: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 9 }}>MAINSTREAM SUPPORTS & SERVICES</Text>
+        </View>
+        <View style={{ padding: 0 }}>
+          <View style={styles.rowWithBorder}><ConditionalText label="" value={get('supportRequired2')} /></View>
+          <View style={styles.rowWithBorder}>
+            <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Preferred providers:</Text>
+            <ConditionalProvider num={1} value={get('preferredProviders2')} />
+            <ConditionalProvider num={2} value={get('preferredProvidersMainstream2')} />
+          </View>
+          <View style={styles.rowWithBorder}>
+            <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Alternative providers:</Text>
+            <ConditionalProvider num={1} value={get('alternativeProviders2')} />
+            <ConditionalProvider num={2} value={get('alternativeProvidersMainstream2')} />
+          </View>
+          <View style={styles.rowWithBorder}><YesNoRow label="Service Agreement developed/signed?" k="serviceAgreement2" formData={formData} /></View>
+          <View style={styles.rowWithBorder}><YesNoRow label="Are additional assessments required to access this support type?" k="additionalAssessment2" formData={formData} /></View>
+          {get('additionalAssessment2') === 'Yes' && <View style={styles.rowWithBorder}><ConditionalText label="Actions:" value={get('assessmentActions2')} /></View>}
+          <View style={styles.rowWithBorderLast}><YesNoRow label="Discussion held with Plan Manager and budget approved?" k="budgetApproval" formData={formData} /></View>
         </View>
       </View>
     </View>
@@ -412,13 +442,11 @@ const renderNextPlanGoals = (formData: any) => {
   if (!hasValue(goalsText)) return null;
   return (
     <View style={styles.fieldContainer}>
-      <View style={[styles.tableRow, { backgroundColor: '#a9c1e0' }]}>
-        <View style={styles.tableCellLast}>
+      <View style={{ border: '1 solid #000000' }}>
+        <View style={{ backgroundColor: '#b4c7e7', borderBottom: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 9 }}>5. Goals and funding required for next plan</Text>
         </View>
-      </View>
-      <View style={styles.tableRow}>
-        <View style={styles.tableCellLast}>
+        <View style={{ padding: 6 }}>
           <Text style={{ fontSize: 8, lineHeight: 1.5 }}>{goalsText}</Text>
         </View>
       </View>

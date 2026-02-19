@@ -100,7 +100,7 @@ export default function ClientsPageClient() {
   // Available states for filter
   const stateMapping = {
     "ACT": "Australian Capital Territory",
-    "NSW": "New South Wales", 
+    "NSW": "New South Wales",
     "NT": "Northern Territory",
     "QLD": "Queensland",
     "SA": "South Australia",
@@ -159,16 +159,18 @@ export default function ClientsPageClient() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-gray-200 bg-white py-1 text-sm shadow-xl focus:outline-none">
+            <Listbox.Options
+              anchor="bottom start"
+              className="z-50 w-[var(--button-width)] overflow-auto rounded-xl border border-gray-200 bg-white py-1 text-sm shadow-xl focus:outline-none [--anchor-gap:8px] [--anchor-max-height:240px]"
+            >
               {options.map((opt) => (
                 <Listbox.Option
                   key={opt.value + opt.label}
                   value={opt.value}
                   className={({ active, selected }) =>
-                    `cursor-pointer select-none px-4 py-2 ${
-                      selected
-                        ? "bg-rose-50 text-rose-700 font-semibold"
-                        : active
+                    `cursor-pointer select-none px-4 py-2 ${selected
+                      ? "bg-rose-50 text-rose-700 font-semibold"
+                      : active
                         ? "bg-gray-50 text-gray-900"
                         : "text-gray-700"
                     }`
@@ -256,45 +258,45 @@ export default function ClientsPageClient() {
 
   // Apply sorting to clients (only if not sorting by name, since API already sorts by name)
   // For name field, API handles sorting, so we just use clients as-is
-  const sortedClients = sortField === "name" 
+  const sortedClients = sortField === "name"
     ? clients // API already sorted by name, no need to sort again
     : [...clients].sort((a: any, b: any) => {
-        let aValue: any = a[sortField as keyof Client];
-        let bValue: any = b[sortField as keyof Client];
+      let aValue: any = a[sortField as keyof Client];
+      let bValue: any = b[sortField as keyof Client];
 
-        // Handle nested fields
-        if (sortField.includes(".")) {
-          const [parent, child] = sortField.split(".");
-          aValue = a[parent as keyof Client]?.[child as any] || "";
-          bValue = b[parent as keyof Client]?.[child as any] || "";
-        }
+      // Handle nested fields
+      if (sortField.includes(".")) {
+        const [parent, child] = sortField.split(".");
+        aValue = a[parent as keyof Client]?.[child as any] || "";
+        bValue = b[parent as keyof Client]?.[child as any] || "";
+      }
 
-        // Handle null values
-        if (aValue === null) aValue = "";
-        if (bValue === null) bValue = "";
+      // Handle null values
+      if (aValue === null) aValue = "";
+      if (bValue === null) bValue = "";
 
-        try {
-          // Compare values
-          if (typeof aValue === "string") {
-            // Use case-insensitive comparison with locale support
-            const comparison = aValue.localeCompare(bValue, 'en-AU', { 
-              sensitivity: 'base',
-              numeric: true
-            });
-            return sortDirection === "asc" ? comparison : -comparison;
-          } else {
-            return sortDirection === "asc"
-              ? aValue > bValue ? 1 : -1
-              : bValue > aValue ? 1 : -1;
-          }
-        } catch (error) {
-          // Fallback to simple comparison if localeCompare fails
-          const aStr = String(aValue || "").toLowerCase();
-          const bStr = String(bValue || "").toLowerCase();
-          const comparison = aStr.localeCompare(bStr);
+      try {
+        // Compare values
+        if (typeof aValue === "string") {
+          // Use case-insensitive comparison with locale support
+          const comparison = aValue.localeCompare(bValue, 'en-AU', {
+            sensitivity: 'base',
+            numeric: true
+          });
           return sortDirection === "asc" ? comparison : -comparison;
+        } else {
+          return sortDirection === "asc"
+            ? aValue > bValue ? 1 : -1
+            : bValue > aValue ? 1 : -1;
         }
-      });
+      } catch (error) {
+        // Fallback to simple comparison if localeCompare fails
+        const aStr = String(aValue || "").toLowerCase();
+        const bStr = String(bValue || "").toLowerCase();
+        const comparison = aStr.localeCompare(bStr);
+        return sortDirection === "asc" ? comparison : -comparison;
+      }
+    });
 
   const handleDeleteClient = async (id: number) => {
     if (isDeleting) return;
@@ -431,9 +433,8 @@ export default function ClientsPageClient() {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = `infinity_support_clients_${
-        new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      link.download = `infinity_support_clients_${new Date().toISOString().split("T")[0]
+        }.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -516,11 +517,10 @@ export default function ClientsPageClient() {
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-6 py-4 border rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 ${
-                  showFilters
+                className={`flex items-center gap-2 px-6 py-4 border rounded-xl transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 ${showFilters
                     ? "bg-gradient-to-r from-rose-50 to-rose-100 border-rose-300 text-rose-700"
                     : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <FaFilter className="h-4 w-4" />
                 Filters
@@ -703,9 +703,9 @@ export default function ClientsPageClient() {
                     <thead className="bg-white">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider border-b-2 border-slate-500">
-                          <input 
-                            type="checkbox" 
-                            className="accent-rose-500" 
+                          <input
+                            type="checkbox"
+                            className="accent-rose-500"
                             checked={selectAll}
                             onChange={handleSelectAll}
                           />
@@ -836,10 +836,10 @@ export default function ClientsPageClient() {
                             <td className="px-6 py-4">
                               {(() => {
                                 // Handle both array and object structures for commonFields
-                                const state = Array.isArray(client?.commonFields) 
-                                  ? client?.commonFields[0]?.state 
+                                const state = Array.isArray(client?.commonFields)
+                                  ? client?.commonFields[0]?.state
                                   : client?.commonFields?.state;
-                                
+
                                 return state ? (
                                   <span className="inline-block text-xs font-medium bg-rose-100 text-rose-700 px-2 py-1 rounded-full">
                                     {stateMapping[state as keyof typeof stateMapping] || state}
@@ -864,59 +864,59 @@ export default function ClientsPageClient() {
                                 )}
                               </div>
                             </td>
-                           <td className="px-6 py-4 text-right">
-  <Menu as="div" className="relative inline-block text-left">
-    <MenuButton className="text-slate-500 hover:text-rose-600 transition">
-      <FaEllipsisV className="w-5 h-5" />
-    </MenuButton>
+                            <td className="px-6 py-4 text-right">
+                              <Menu as="div" className="relative inline-block text-left">
+                                <MenuButton className="text-slate-500 hover:text-rose-600 transition">
+                                  <FaEllipsisV className="w-5 h-5" />
+                                </MenuButton>
 
-    <MenuItems className="absolute right-0 mt-2 w-44 origin-top-right bg-white border border-gray-200 rounded-xl shadow-lg focus:outline-none z-50">
-      <div className="py-1 text-sm text-slate-700">
-        <MenuItem>
-          {({ active } : any ) => (
-            <Link
-              href={`/admin/clients/${client.id}`}
-              className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-50 ${
-                active ? "text-slate-600" : ""
-              }`}
-            >
-              <FaEye className="w-4 h-4" />
-              View
-            </Link>
-          )}
-        </MenuItem>
+                                <MenuItems
+                                  anchor="bottom end"
+                                  className="w-44 origin-top-right bg-white border border-gray-200 rounded-xl shadow-lg focus:outline-none z-50 [--anchor-gap:8px]"
+                                >
+                                  <div className="py-1 text-sm text-slate-700">
+                                    <MenuItem>
+                                      {({ active }: any) => (
+                                        <Link
+                                          href={`/admin/clients/${client.id}`}
+                                          className={`flex items-center gap-2 px-4 py-2 hover:bg-slate-50 ${active ? "text-slate-600" : ""
+                                            }`}
+                                        >
+                                          <FaEye className="w-4 h-4" />
+                                          View
+                                        </Link>
+                                      )}
+                                    </MenuItem>
 
-        <MenuItem>
-          {({ active } : any ) => (
-            <Link
-              href={`/admin/clients/${client.id}/forms`}
-              className={`flex items-center gap-2 px-4 py-2 hover:bg-green-50 ${
-                active ? "text-green-600" : ""
-              }`}
-            >
-              <FaFileAlt className="w-4 h-4" />
-              Forms
-            </Link>
-          )}
-        </MenuItem>
+                                    <MenuItem>
+                                      {({ active }: any) => (
+                                        <Link
+                                          href={`/admin/clients/${client.id}/forms`}
+                                          className={`flex items-center gap-2 px-4 py-2 hover:bg-green-50 ${active ? "text-green-600" : ""
+                                            }`}
+                                        >
+                                          <FaFileAlt className="w-4 h-4" />
+                                          Forms
+                                        </Link>
+                                      )}
+                                    </MenuItem>
 
-        <MenuItem>
-          {({ active }) => (
-            <button
-              onClick={() => handleDeleteClient(client.id)}
-              className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-red-50 ${
-                active ? "text-red-600" : ""
-              }`}
-            >
-              <FaTrash className="w-4 h-4" />
-              Delete
-            </button>
-          )}
-        </MenuItem>
-      </div>
-    </MenuItems>
-  </Menu>
-</td>
+                                    <MenuItem>
+                                      {({ active }) => (
+                                        <button
+                                          onClick={() => handleDeleteClient(client.id)}
+                                          className={`flex items-center gap-2 px-4 py-2 w-full text-left hover:bg-red-50 ${active ? "text-red-600" : ""
+                                            }`}
+                                        >
+                                          <FaTrash className="w-4 h-4" />
+                                          Delete
+                                        </button>
+                                      )}
+                                    </MenuItem>
+                                  </div>
+                                </MenuItems>
+                              </Menu>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -980,11 +980,10 @@ export default function ClientsPageClient() {
                     <button
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={!pagination.hasPreviousPage}
-                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
-                        pagination.hasPreviousPage
+                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${pagination.hasPreviousPage
                           ? "bg-white text-rose-600 border border-gray-300 hover:bg-rose-50"
                           : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       ‹ Prev
                     </button>
@@ -1004,11 +1003,10 @@ export default function ClientsPageClient() {
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={!pagination.hasNextPage}
-                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
-                        pagination.hasNextPage
+                      className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${pagination.hasNextPage
                           ? "bg-white text-rose-600 border border-gray-300 hover:bg-rose-50"
                           : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       Next ›
                     </button>
