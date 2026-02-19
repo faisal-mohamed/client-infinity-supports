@@ -13,13 +13,6 @@ export interface SignatureValidationResult {
 /**
  * Validates if all required signatures are present in form data
  */
-export interface SignatureValidationResult {
-  isComplete: boolean;
-  completedSignatures: string[];
-  missingSignatures: string[];
-  totalRequired: number;
-  completedCount: number;
-}
 
 export function validateFormSignatures(
   formKey: string,

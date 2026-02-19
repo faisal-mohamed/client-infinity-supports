@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export const ADMIN_REVIEW_FORMS = ['client_intake_form', 'emergency_drill', 'conflict_of_interest'];
+export const ADMIN_REVIEW_FORMS = ['emergency_drill', 'conflict_of_interest'];
 
 export async function getAdminReviewData({
     status = "pending_admin_review",

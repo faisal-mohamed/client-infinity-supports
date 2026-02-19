@@ -348,6 +348,7 @@ interface FormProps {
     handleSaveProgress?: () => Promise<void>;
     handleSubmitForm?: () => Promise<void>;
     saving?: boolean;
+    isSignatureLink?: boolean;
     onCommonFieldsUpdated?: () => void;
 }
 
@@ -361,6 +362,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
     handleSaveProgress,
     handleSubmitForm,
     saving = false,
+    isSignatureLink = false,
 }: FormProps) => {
     const { showToast } = useToast();
     const router = useRouter();
@@ -621,7 +623,6 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             if (isManagerLegend) return false; // Manager can edit their fields
 
             // Allow Participant/AuthRep to clear their signature to unlock the form (revert to Stage 1)
-            // This is crucial if they sign but want to edit before submitting.
             if (name === 'participantSignature' || name === 'authRepSignature') return false;
 
             return true; // Everything else locked
@@ -629,9 +630,15 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
         // Stage 1: Client Fill Mode (Employee has signed)
         if (stage === 1) {
-            // Employee has signed. Staff fields should be locked. Participant fields unlocked.
-            if (isParticipantLegend) return false; // Participant can edit
-            return true; // Staff and Manager fields locked
+            // If accessed via signature link, participant fields are open
+            if (isSignatureLink) {
+                if (isParticipantLegend) return false;
+                return true;
+            }
+
+            // If accessed via admin/staff dashboard
+            if (isParticipantLegend) return false; // Staff can also edit participant fields (fallback)
+            return true; // Staff fields already signed, locked. Manager fields locked.
         }
 
         // Stage 0: Initial/Staff Start Mode (No Employee Signature yet)
@@ -640,18 +647,9 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             if (isManagerLegend) return true; // Manager fields locked
             if (isParticipantLegend) return true; // Participant fields locked (until Staff submits)
 
-            // Staff fields (and fields without explicit legend like provider details if any check skipped) are open
-            // Note: Provider Details usually has no legend or implicit. 
-            // FIELD_METADATA has 'Staff' for Employee Details.
-            // Provider Contact Email/etc has 'Participant' legend? Wait, let me check metadata.
-            // providerContactEmail has legend "Participant" in current metadata (lines 110-120).
-            // That might optionally block Staff from filling it?
-            // User requested strict flow. Staff fills Staff sections. Participant fills Participant.
-
             return false;
         }
-        // Allow all staff fields (which includes anything not explicitly Manager/Participant)
-        if (isManagerLegend || isParticipantLegend) return true;
+
         return false;
     };
 
@@ -659,14 +657,6 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
     const getDynamicRequiredFields = (sectionId: string): string[] => {
         const stage = getWorkflowStage();
         const staticRequired = FORM_SECTIONS.find(s => s.id === sectionId)?.requiredFields || [];
-
-        if (sectionId === 'employee_details') {
-            // In all stages, these are technically required if we are editing them.
-            // But in Stage 1/2/3 they are read-only anyway.
-            return staticRequired;
-        }
-
-
 
         if (sectionId === 'employee_declaration') {
             // Section F Logic
@@ -679,8 +669,6 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             if (stage === 2) { // Manager Review - Require Manager fields ONLY
                 return ["managerName", "managerSignature", "managerSignDate"];
             }
-            // Stage 0: Staff Start - If we are in Sec F (why?), nothing is strictly required to "complete" Stage 0?
-            // But if user tries to submit Sec F, stick to Staff fields.
             return [
                 "employeeProvided", "employeeAck", "reviewPeriod", "employeePrivacyAck",
                 "employeeSignature", "employeeSignDate"
@@ -1104,6 +1092,13 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         for (const field of allFields) {
             // Skip validations for read-only fields
             if (calculateFieldReadOnly(field)) continue;
+
+            // If not a signature link, staff can skip participant signatures
+            if (!isSignatureLink) {
+                const legend = FIELD_METADATA[field]?.legend;
+                const isParticipantLegend = legend === 'Participant' || legend === 'Authorised Representative' || legend === 'Participant/Auth Rep';
+                if (isParticipantLegend) continue;
+            }
 
             // Check for conditional Participant/Auth Rep fields
             const meta = FIELD_METADATA[field];

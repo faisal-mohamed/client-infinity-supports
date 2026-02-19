@@ -50,8 +50,12 @@ export function calculateFormStatus(
 
   // 2. Check for 'pending_admin_review'
   // If all non-admin signatures are complete, but admin signatures are missing.
-  // We allow this even if isSubmitted is false, as signatures indicate a hand-off.
-  if (signatureValidation.missingNonAdminSignatures.length === 0 && signatureValidation.missingAdminSignatures.length > 0) {
+  // We also allow this if the form has been explicitly submitted by staff, even if some
+  // non-admin signatures are still pending (as it's now in the manager's queue).
+  const allNonAdminSignaturesComplete = signatureValidation.missingNonAdminSignatures.length === 0;
+  const hasMissingAdminSignatures = signatureValidation.missingAdminSignatures.length > 0;
+
+  if ((allNonAdminSignaturesComplete || isSubmitted) && hasMissingAdminSignatures) {
     return 'pending_admin_review';
   }
 
