@@ -224,7 +224,8 @@ const FIELD_METADATA: Record<string, any> = {
     additionalInfo: {
         label: "Do you have any additional information?",
         type: "checkbox",
-        options: ["Yes", "No"]
+        options: ["Yes", "No"],
+        singleSelect: true
     },
     additionalInfoDetails: {
         label: "If yes, please attach your information when you return this form (or describe here)",
@@ -392,6 +393,11 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
             });
         }
 
+        // Logic for Part H: Clear details if additionalInfo is "No"
+        if (name === "additionalInfo" && value === "No") {
+            newValues.additionalInfoDetails = "";
+        }
+
         setLocalValues(newValues);
         if (onChange) {
             onChange(newValues, name, false);
@@ -449,6 +455,16 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
             }
         }
 
+        // Conditional validation for Part H
+        if (section.id === "partH") {
+            if (localValues.additionalInfo === "Yes") {
+                if (!localValues.additionalInfoDetails) {
+                    newErrors.additionalInfoDetails = "Please describe your additional information";
+                    isValid = false;
+                }
+            }
+        }
+
         if (!isValid) {
             setLocalErrors(newErrors);
         } else {
@@ -464,6 +480,10 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
 
         if (section.id === "partD" && localValues.changeType === "Temporary") {
             if (fieldName === "partD_startDate" || fieldName === "partD_endDate") return true;
+        }
+
+        if (section.id === "partH" && localValues.additionalInfo === "Yes") {
+            if (fieldName === "additionalInfoDetails") return true;
         }
 
         return false;
@@ -740,7 +760,13 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {FORM_SECTIONS[currentStep].fields.map(fieldName => renderInput(fieldName))}
+                        {FORM_SECTIONS[currentStep].fields.map(fieldName => {
+                            // Conditional visibility for Part H
+                            if (fieldName === "additionalInfoDetails" && localValues.additionalInfo !== "Yes") {
+                                return null;
+                            }
+                            return renderInput(fieldName);
+                        })}
                     </div>
                 </section>
 

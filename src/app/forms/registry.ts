@@ -466,7 +466,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
         description: "Signature of the person making the declaration",
         required: true,
         dataKey: "signature",
-        signedAtKey: "declarationDate",
+        signedAtKey: "partI_declarationDate",
         signerName: "declarationName"
       }
     ]
