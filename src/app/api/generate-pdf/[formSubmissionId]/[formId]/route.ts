@@ -573,7 +573,7 @@ export async function GET(
     console.log('🔍 [PDF DEBUG] Submission ID:', submissionId);
 
     // Use @react-pdf/renderer for these forms (others default to Playwright HTML)
-    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment' || form.formKey === 'multi_disciplinary_meeting' || form.formKey === 'conflict_of_interest' || form.formKey === 'ndis_consent' || form.formKey === 'review_of_decision') {
+    if (form.formKey === 'emergency_drill' || form.formKey === 'person_centred_plan' || form.formKey === 'client_intake_form' || form.formKey === 'sa_delivery_of_supports' || form.formKey === 'individual_risk_assessment' || form.formKey === 'support_action_plan' || form.formKey === 'schedule_of_supports' || form.formKey === 'sa_support_coordination' || form.formKey === 'welcome_form' || form.formKey === 'home_visit_risk_assessment' || form.formKey === 'multi_disciplinary_meeting' || form.formKey === 'conflict_of_interest' || form.formKey === 'ndis_consent' || form.formKey === 'review_of_decision' || form.formKey === 'change_of_details') {
       console.log('✅ [PDF DEBUG] Using @react-pdf/renderer for:', form.formKey);
       console.log('✅ [PDF DEBUG] Settings keys available:', Object.keys(settings || {}));
       console.time('⏱️ @react-pdf/renderer PDF Generation');

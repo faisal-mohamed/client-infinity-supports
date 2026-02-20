@@ -20,6 +20,7 @@ import SASupportCoordination from './SASupportCoordination_MATCHING';
 import ConflictOfInterest_MATCHING from './ConflictOfInterest_MATCHING';
 import NDISConsent_MATCHING from './NDISConsent_MATCHING';
 import ReviewOfDecisionPDF from './ReviewOfDecisionPDF';
+import ChangeOfDetailsPDF from './ChangeOfDetailsPDF';
 
 // Interface for PDF form components
 interface PDFFormComponent {
@@ -105,6 +106,11 @@ const pdfFormRegistry: PDFFormComponent[] = [
     formKey: 'review_of_decision',
     name: "Review of a Reviewable Decision",
     component: ReviewOfDecisionPDF
+  },
+  {
+    formKey: 'change_of_details',
+    name: "Change of Details or Change of Situation",
+    component: ChangeOfDetailsPDF
   }
 
 ];

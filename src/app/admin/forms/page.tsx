@@ -28,7 +28,8 @@ const CLIENT_FORM_KEYS = [
   'multi_disciplinary_meeting',
   'conflict_of_interest',
   'ndis_consent',
-  'review_of_decision'
+  'review_of_decision',
+  'change_of_details'
 ];
 
 // Enhanced skeleton loader row

@@ -56,6 +56,10 @@ import ReviewOfDecisionEdit from "../components/forms/review_of_decision/Edit";
 import ReviewOfDecisionView from "../components/forms/review_of_decision/View";
 import ReviewOfDecisionPDF from "../../components-server/PrintableForms/ReviewOfDecisionPDF";
 
+import ChangeOfDetailsEdit from "../components/forms/change_of_details/Edit";
+import ChangeOfDetailsView from "../components/forms/change_of_details/View";
+import ChangeOfDetailsPDF from "../../components-server/PrintableForms/ChangeOfDetailsPDF";
+
 
 
 // Signature requirement interface
@@ -437,6 +441,24 @@ const formRegistry: Record<string, FormRegistryItem> = {
     editComponent: ReviewOfDecisionEdit,
     viewComponent: ReviewOfDecisionView,
     pdfComponent: ReviewOfDecisionPDF,
+    signatures: [
+      {
+        id: "declaration_signature",
+        label: "Signature",
+        description: "Signature of the person making the declaration",
+        required: true,
+        dataKey: "signature",
+        signedAtKey: "declarationDate",
+        signerName: "declarationName"
+      }
+    ]
+  },
+  change_of_details: {
+    key: "change_of_details",
+    name: "Change of Details or Change of Situation",
+    editComponent: ChangeOfDetailsEdit,
+    viewComponent: ChangeOfDetailsView,
+    pdfComponent: ChangeOfDetailsPDF,
     signatures: [
       {
         id: "declaration_signature",

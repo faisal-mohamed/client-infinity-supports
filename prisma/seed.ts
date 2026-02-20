@@ -112,6 +112,12 @@ async function main() {
       title: 'Review of a Reviewable Decision',
       version: 1,
       requiresSignature: true
+    },
+    {
+      formKey: 'change_of_details',
+      title: 'Change of Details or Change of Situation',
+      version: 1,
+      requiresSignature: true
     }
   ];
 
