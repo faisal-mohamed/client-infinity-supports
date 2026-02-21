@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         fontSize: 10,
-        lineHeight: 1.5,
-        marginBottom: 8,
+        lineHeight: 1.4,
+        marginBottom: 6,
         color: '#000000',
     },
     bold: {
@@ -63,27 +63,21 @@ const styles = StyleSheet.create({
     },
     table: {
         width: '100%',
+        borderWidth: 0.8,
+        borderColor: '#000000',
         marginBottom: 15,
     },
     tableRow: {
         flexDirection: 'row',
         borderBottomWidth: 0.8,
         borderBottomColor: '#000000',
-        borderLeftWidth: 0.8,
-        borderLeftColor: '#000000',
-        borderRightWidth: 0.8,
-        borderRightColor: '#000000',
         minHeight: 25,
+        width: '100%',
     },
     tableRowLast: {
         flexDirection: 'row',
         minHeight: 25,
-        borderLeftWidth: 0.8,
-        borderLeftColor: '#000000',
-        borderRightWidth: 0.8,
-        borderRightColor: '#000000',
-        borderBottomWidth: 0.8,
-        borderBottomColor: '#000000',
+        width: '100%',
     },
     tableCellLabel: {
         width: '35%',
@@ -125,7 +119,7 @@ const styles = StyleSheet.create({
     },
     checkboxRow: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         marginBottom: 6,
     },
     checkbox: {
@@ -134,13 +128,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#000',
         marginRight: 8,
-        marginTop: 2,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    checkboxLabel: {
+        fontSize: 10,
+        color: '#000000',
     },
     checkMark: {
         fontSize: 8,
         fontWeight: 'bold',
+        lineHeight: 1,
     }
 });
 
@@ -250,7 +248,12 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                 <View style={{ marginLeft: 20 }}>
                     <Text style={styles.bodyText}>• Calling us</Text>
                     <Text style={styles.bodyText}>• Sending us a letter or email</Text>
+                    <Text style={styles.bodyText}>• Sending us a completed <Text style={{ color: 'blue', textDecoration: 'underline' }}>Consent for a Third Party to Act on Behalf of a Person form</Text> from the ‘<Text style={styles.bold}>Consent forms</Text>’ website.</Text>
                 </View>
+
+                <Text style={styles.bodyText}>
+                    When we have consent from you they can complete <Text style={styles.bold}>Part A, Part B, Part C</Text>, and <Text style={styles.bold}>Part I</Text> for you. We can’t accept a form from someone who fills it in for you without your consent.
+                </Text>
 
                 <NDISFooter />
             </Page>
@@ -258,12 +261,6 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
             {/* Page 2: Return Instructions & Part A */}
             <Page size="A4" style={styles.page}>
                 <NDISHeader />
-                <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                    <Text style={styles.bodyText}>• Sending us a completed <Text style={{ color: 'blue', textDecoration: 'underline' }}>Consent for a Third Party to Act on Behalf of a Person form</Text> from the ‘<Text style={styles.bold}>Consent forms</Text>’ website.</Text>
-                </View>
-                <Text style={styles.bodyText}>
-                    When we have consent from you they can complete <Text style={styles.bold}>Part A, Part B, Part C</Text>, and <Text style={styles.bold}>Part I</Text> for you. We can’t accept a form from someone who fills it in for you without your consent.
-                </Text>
 
                 <Text style={[styles.sectionTitle, styles.purple]}>How Do I Return This Form To The NDIA?</Text>
                 <Text style={styles.bodyText}>You can return this form to us by:</Text>
@@ -284,7 +281,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                 <Text style={styles.bodyText}>Once we receive your form, we will:</Text>
                 <View style={{ marginLeft: 20 }}>
                     <Text style={styles.bodyText}>• Let you know if we have approved your request for a change to your plan and if we are doing a plan variation or a plan reassessment</Text>
-                    <Text style={styles.bodyText}>or we will</Text>
+                    <Text style={styles.bodyText}>Or we will</Text>
                     <Text style={styles.bodyText}>• Contact you to discuss.</Text>
                 </View>
 
@@ -302,7 +299,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                     <FormRow label="Preferred Contact Details (Phone Number, Email Address, Etc.)" value={getFieldValue('contactDetails')} isLast={true} />
                 </View>
 
-                <NDISFooter pageNumber={2} />
+                <NDISFooter />
             </Page>
 
             {/* Page 3: Part B & Part C */}
@@ -340,12 +337,12 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                     ].map(opt => (
                         <View key={opt} style={styles.checkboxRow}>
                             <CheckBox selected={isChecked("changes", opt)} />
-                            <Text style={styles.bodyText}>{opt}</Text>
+                            <Text style={styles.checkboxLabel}>{opt}</Text>
                         </View>
                     ))}
                 </View>
 
-                <NDISFooter pageNumber={3} />
+                <NDISFooter />
             </Page>
 
             {/* Page 4: Part D & Part E & Part F */}
@@ -366,11 +363,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                             <View style={styles.tableCellValue}>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={formData.changeType === "Permanent"} />
-                                    <Text style={styles.bodyText}>Permanent</Text>
+                                    <Text style={styles.checkboxLabel}>Permanent</Text>
                                 </View>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={formData.changeType === "Temporary"} />
-                                    <Text style={styles.bodyText}>Temporary.</Text>
+                                    <Text style={styles.checkboxLabel}>Temporary.</Text>
                                 </View>
                             </View>
                         </View>
@@ -406,11 +403,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                             <View style={styles.tableCellValue}>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("reassessmentDateType", "Extended")} />
-                                    <Text style={styles.bodyText}>Extended</Text>
+                                    <Text style={styles.checkboxLabel}>Extended</Text>
                                 </View>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("reassessmentDateType", "Shortened")} />
-                                    <Text style={styles.bodyText}>Shortened.</Text>
+                                    <Text style={styles.checkboxLabel}>Shortened.</Text>
                                 </View>
                             </View>
                         </View>
@@ -425,7 +422,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                     </View>
                 </View>
 
-                <NDISFooter pageNumber={4} />
+                <NDISFooter />
             </Page>
 
             {/* Page 5: Part G & Part H */}
@@ -447,11 +444,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                             <View style={styles.tableCellValue}>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("rpm_Managed", "All supports")} />
-                                    <Text style={styles.bodyText}>All supports</Text>
+                                    <Text style={styles.checkboxLabel}>All supports</Text>
                                 </View>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("rpm_Managed", "Specific supports - please list supports below:")} />
-                                    <Text style={styles.bodyText}>Specific supports - please list supports below:</Text>
+                                    <Text style={styles.checkboxLabel}>Specific supports - please list supports below:</Text>
                                 </View>
                                 <Text style={[styles.bodyText, { marginLeft: 20, color: formData.rpm_Details ? '#000' : '#666' }]}>
                                     {getFieldValue('rpm_Details') || 'Click or tap here to enter text.'}
@@ -467,11 +464,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                             <View style={styles.tableCellValue}>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("sm_Managed", "All supports")} />
-                                    <Text style={styles.bodyText}>All supports</Text>
+                                    <Text style={styles.checkboxLabel}>All supports</Text>
                                 </View>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("sm_Managed", "Specific supports - please list supports below:")} />
-                                    <Text style={styles.bodyText}>Specific supports - please list supports below:</Text>
+                                    <Text style={styles.checkboxLabel}>Specific supports - Please list supports below:</Text>
                                 </View>
                                 <Text style={[styles.bodyText, { marginLeft: 20, color: formData.sm_Details ? '#000' : '#666' }]}>
                                     {getFieldValue('sm_Details') || 'Click or tap here to enter text.'}
@@ -487,11 +484,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                             <View style={styles.tableCellValue}>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("agency_Managed", "All supports")} />
-                                    <Text style={styles.bodyText}>All supports</Text>
+                                    <Text style={styles.checkboxLabel}>All supports</Text>
                                 </View>
                                 <View style={styles.checkboxRow}>
                                     <CheckBox selected={isChecked("agency_Managed", "Specific supports - please list supports below:")} />
-                                    <Text style={styles.bodyText}>Specific supports - please list supports below:</Text>
+                                    <Text style={styles.checkboxLabel}>Specific supports - Please list supports below:</Text>
                                 </View>
                                 <Text style={[styles.bodyText, { marginLeft: 20, color: formData.agency_Details ? '#000' : '#666' }]}>
                                     {getFieldValue('agency_Details') || 'Click or tap here to enter text.'}
@@ -516,7 +513,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                                 ].map(opt => (
                                     <View key={opt} style={styles.checkboxRow}>
                                         <CheckBox selected={isChecked("situationChangeType", opt)} />
-                                        <Text style={styles.bodyText}>{opt}</Text>
+                                        <Text style={styles.checkboxLabel}>{opt}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -531,7 +528,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                                 ].map(opt => (
                                     <View key={opt} style={styles.checkboxRow}>
                                         <CheckBox selected={isChecked("planChangeRequest", opt)} />
-                                        <Text style={styles.bodyText}>{opt}</Text>
+                                        <Text style={styles.checkboxLabel}>{opt}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -539,7 +536,7 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                     </View>
                 </View>
 
-                <NDISFooter pageNumber={5} />
+                <NDISFooter />
             </Page>
 
             {/* Page 6: Part H cont. */}
@@ -575,12 +572,14 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                         <View style={styles.tableCellValue}>
                             <View style={styles.checkboxRow}>
                                 <CheckBox selected={isChecked("additionalInfo", "Yes")} />
-                                <Text style={styles.bodyText}>Yes. <Text style={{ color: '#666' }}>{getFieldValue('additionalInfoDetails') || 'Click or tap here to enter text.'}</Text></Text>
+                                <Text style={styles.checkboxLabel}>Yes. <Text style={{ color: '#666' }}>{getFieldValue('additionalInfoDetails') || 'Click or tap here to enter text.'}</Text></Text>
                             </View>
-                            <Text style={{ fontSize: 8, marginTop: -4, marginBottom: 4 }}>Please attach your information when you return this form</Text>
+                            <View style={{ marginLeft: 20, marginBottom: 8 }}>
+                                <Text style={{ fontSize: 8 }}>Please attach your information when you return this form</Text>
+                            </View>
                             <View style={styles.checkboxRow}>
                                 <CheckBox selected={isChecked("additionalInfo", "No")} />
-                                <Text style={styles.bodyText}>No.</Text>
+                                <Text style={styles.checkboxLabel}>No.</Text>
                             </View>
                         </View>
                     </View>
@@ -590,9 +589,11 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                         <View style={styles.tableCellValue}>
                             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                                 {["Under 1 month", "Under 3 months", "Under 6 months", "Permanent."].map(opt => (
-                                    <View key={opt} style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15, marginBottom: 5 }}>
-                                        <CheckBox selected={isChecked("partH_endDate", opt.replace('.', ''))} />
-                                        <Text style={styles.bodyText}>{opt}</Text>
+                                    <View key={opt} style={{ flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 8 }}>
+                                        <View style={{ width: 20 }}>
+                                            <CheckBox selected={isChecked("partH_endDate", opt.replace('.', ''))} />
+                                        </View>
+                                        <Text style={styles.checkboxLabel}>{opt}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -610,14 +611,14 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
                 <Text style={styles.bodyText}>I confirm that the information provided in this form is complete and correct.</Text>
                 <Text style={styles.bodyText}>I understand that:</Text>
                 <View style={{ marginLeft: 20 }}>
-                    <Text style={styles.bodyText}>• giving false or misleading information is a serious offence</Text>
-                    <Text style={styles.bodyText}>• this information is protected by law and can only be given to someone else where Commonwealth law allows, or requires it, or where I give permission.</Text>
+                    <Text style={styles.bodyText}>• Giving false or misleading information is a serious offence</Text>
+                    <Text style={styles.bodyText}>• This information is protected by law and can only be given to someone else where Commonwealth law allows, or requires it, or where I give permission.</Text>
                 </View>
 
                 <Text style={styles.bodyText}>If this is a request for a change to my plan, I also understand that if the NDIA decides:</Text>
                 <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                    <Text style={styles.bodyText}>• to vary or reassess my plan, they will consider the information I have provided, my new situation and new support needs, and decide what changes or supports to include in my new or varied plan.</Text>
-                    <Text style={styles.bodyText}>• not to vary or reassess my plan, can ask for an internal review of that decision.</Text>
+                    <Text style={styles.bodyText}>• To vary or reassess my plan, they will consider the information I have provided, my new situation and new support needs, and decide what changes or supports to include in my new or varied plan.</Text>
+                    <Text style={styles.bodyText}>• Not to vary or reassess my plan, can ask for an internal review of that decision.</Text>
                 </View>
 
                 <View style={styles.table}>
@@ -644,9 +645,9 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
 
                 <Text style={[styles.sectionTitle, styles.purple, { fontSize: 11 }]}>The NDIA’s Privacy Policy Describes</Text>
                 <View style={{ marginLeft: 20 }}>
-                    <Text style={styles.bodyText}>• how we use your personal information.</Text>
-                    <Text style={styles.bodyText}>• why some personal information may be given to other organisations from time to time.</Text>
-                    <Text style={styles.bodyText}>• how you can access the personal information we have about you on our system.</Text>
+                    <Text style={styles.bodyText}>• How we use your personal information.</Text>
+                    <Text style={styles.bodyText}>• Why some personal information may be given to other organisations from time to time.</Text>
+                    <Text style={styles.bodyText}>• How you can access the personal information we have about you on our system.</Text>
                 </View>
 
                 <NDISFooter />
@@ -656,8 +657,8 @@ const ChangeOfDetailsPDF: React.FC<any> = ({ formData = {}, commonFieldsData = {
             <Page size="A4" style={styles.page}>
                 <NDISHeader />
                 <View style={{ marginLeft: 20 }}>
-                    <Text style={styles.bodyText}>• how you can complain about a privacy breach, and how the NDIA deals with the complaint.</Text>
-                    <Text style={styles.bodyText}>• how you can get your personal information corrected if it is wrong.</Text>
+                    <Text style={styles.bodyText}>• How you can complain about a privacy breach, and how the NDIA deals with the complaint.</Text>
+                    <Text style={styles.bodyText}>• How you can get your personal information corrected if it is wrong.</Text>
                 </View>
                 <Text style={styles.bodyText}>
                     You can read the policy at the <Text style={{ color: 'blue', textDecoration: 'underline' }}>www.ndis.gov.au/privacy</Text>.

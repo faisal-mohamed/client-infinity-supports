@@ -174,7 +174,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
   settings,
   logoDataUrl,
 }) => {
-  
+
   const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const date = new Date(value);
@@ -206,13 +206,13 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
 
         {/* Content */}
         <View style={styles.content}>
-          
+
           {/* Section 1: Participant Details */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { textAlign: 'center' }]}>SERVICE AGREEMENT SUPPORT COORDINATION</Text>
             <Text style={[styles.sectionTitle, { textAlign: 'center' }]}>SECTION 1</Text>
             <Text style={styles.staticContent}>Date: {formatDate(getValue('date'))}</Text>
-            
+
             {/* Participant Details - Bordered Block */}
             <View style={{ border: '0.5 solid #000', marginTop: 8, marginBottom: 12 }}>
               {/* Grey Header */}
@@ -220,7 +220,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
                 <Text style={{ fontSize: 10, fontWeight: 'bold' }}>Participant Details</Text>
                 <Text style={{ fontSize: 10, fontWeight: 'bold' }}>NDIS Number: {commonFieldsData?.ndis || getValue('ndisNumber')}</Text>
               </View>
-              
+
               {/* Table Rows */}
               <View style={styles.tableRow}>
                 <Text style={[styles.tableCell, { fontWeight: 'bold' }]}>Surname:</Text>
@@ -334,9 +334,9 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
             <Text style={styles.staticContent}>
               1. Support the independence and social and economic participation of people with disability and enable people with a disability to exercise choice and control in the pursuit of their goals and the planning and delivery of their supports.
             </Text>
-            
+
             <Text style={[styles.staticTitle, { textDecoration: 'underline' }]}>SCHEDULE OF SUPPORT</Text>
-            
+
             {/* Schedule Table - Bordered Block */}
             <View style={{ border: '0.5 solid #000', marginBottom: 12 }} wrap={false}>
               <View style={{ flexDirection: 'row', backgroundColor: '#e5e7eb', borderBottom: '0.5 solid #000', paddingVertical: 6, paddingHorizontal: 6 }}>
@@ -349,10 +349,10 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
               {['07_001_0106_8_3 Level 1 Support Connection', '07_002_0106_8_3 Level 2 Support Coordination', '07_101_0106_6_3 Psychosocial Recovery Coaching'].map((category, i) => (
                 <View key={i} style={{ flexDirection: 'row', borderBottom: '0.5 solid #000', paddingVertical: 6, paddingHorizontal: 6 }}>
                   <Text style={{ flex: 2, fontSize: 9 }}>{category}</Text>
-                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_weeks`)}</Text>
-                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_totalHours`)}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i + 1}_weeks`)}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i + 1}_totalHours`)}</Text>
                   <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{['$74.63', '$100.14', '$98.30'][i]}</Text>
-                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i+1}_totalCost`) ? `$${getValue(`row${i+1}_totalCost`)}` : ''}</Text>
+                  <Text style={{ flex: 1, fontSize: 9, textAlign: 'center' }}>{getValue(`row${i + 1}_totalCost`) ? `$${getValue(`row${i + 1}_totalCost`)}` : ''}</Text>
                 </View>
               ))}
             </View>
@@ -360,17 +360,17 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
             {/* Schedule of Supports Explanation */}
             <Text style={[styles.staticTitle, { textDecoration: 'underline', marginTop: 12 }]}>SCHEDULE OF SUPPORTS</Text>
             <Text style={styles.staticContent}>
-              All figures quoted above are based on NDIS pricing. Infinity Supports WA agrees to provide the individual 
-              named in Section 1 with the following Support Coordination. The supports and their prices are set out in 
-              the Schedule of Supports above. All supports are as per the NDIS Price Guide and are GST inclusive 
-              (if applicable) and include the cost of providing the supports. All figures quoted are based on NDIS 
-              pricing and the individual's NDIS plan at the time of agreement. Prices, funding totals and hours will 
+              All figures quoted above are based on NDIS pricing. Infinity Supports WA agrees to provide the individual
+              named in Section 1 with the following Support Coordination. The supports and their prices are set out in
+              the Schedule of Supports above. All supports are as per the NDIS Price Guide and are GST inclusive
+              (if applicable) and include the cost of providing the supports. All figures quoted are based on NDIS
+              pricing and the individual's NDIS plan at the time of agreement. Prices, funding totals and hours will
               be adjusted periodically to reflect changes to NDIS pricing and the individual's NDIS plan.
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
-              If changes to the services or their delivery are required, the Parties agree to discuss and review this 
-              Service Agreement. The Parties agree that any changes to this Service Agreement will be in writing, signed, 
+              If changes to the services or their delivery are required, the Parties agree to discuss and review this
+              Service Agreement. The Parties agree that any changes to this Service Agreement will be in writing, signed,
               and dated by the Parties.
             </Text>
 
@@ -405,25 +405,25 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
                 {(getValue('conflictOption1') || getValue('conflictOption2') || getValue('conflictOption3')) && (
                   <>
                     <Text style={[styles.staticTitle, { marginTop: 12 }]}>Conflict of Interest - Providers Considered:</Text>
-                    
+
                     {getValue('conflictOption1') && (
                       <View style={{ marginBottom: 8 }}>
                         <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>1. Providers Considered:</Text>
                         <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
                           <Text style={{ fontSize: 8 }}>{getValue('conflictOption1')}</Text>
                         </View>
-                </View>
+                      </View>
                     )}
-                    
+
                     {getValue('conflictOption2') && (
                       <View style={{ marginBottom: 8 }}>
                         <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>2. Providers Considered:</Text>
                         <View style={[styles.inputField, { minHeight: 40, marginBottom: 4, padding: 4, borderBottom: '0.5 solid #000' }]}>
                           <Text style={{ fontSize: 8 }}>{getValue('conflictOption2')}</Text>
                         </View>
-                  </View>
+                      </View>
                     )}
-                    
+
                     {getValue('conflictOption3') && (
                       <View style={{ marginBottom: 8 }}>
                         <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 4 }}>3. Providers Considered:</Text>
@@ -436,7 +436,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
                 )}
 
                 <Text style={[styles.staticContent, { marginTop: 8 }]}>
-                  I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery. 
+                  I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery.
                   My choice will be recorded on the Conflict-of-Interest Register.
                 </Text>
 
@@ -579,7 +579,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
             <Text style={styles.staticContent}>
               If the Individual wishes to give <Text style={styles.redText}>Infinity Supports WA</Text> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to <Text style={{ textDecoration: 'underline' }}>Sharon Mays</Text> Director or <Text style={{ textDecoration: 'underline' }}>Anand Sekar</Text> Director 0493282661; Email: <Text style={{ textDecoration: 'underline' }}>admin@infinitysupportswa.org</Text>.
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
               If the <Text style={{ textDecoration: 'underline' }}>Individual</Text> is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <Text style={{ textDecoration: 'underline' }}>www.ndis.gov.au</Text> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <Text style={{ textDecoration: 'underline' }}>www.disability.wa.gov.au</Text>
             </Text>
@@ -588,35 +588,35 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
           {/* EMERGENCY PREPAREDNESS - Comprehensive */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>EMERGENCY PREPAREDNESS</Text>
-            
+
             <Text style={styles.staticContent}>
               <Text style={styles.redText}>Infinity Supports WA</Text>, will develop a to respond to any unplanned event that can cause:
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 4 }]}>• Deaths; or</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Significant injuries to employees or occupants; and/or</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Shut down the business; and/or</Text>
             <Text style={[styles.staticContent, { marginLeft: 10 }]}>• Disruption to operations; and/or</Text>
             <Text style={[styles.staticContent, { marginLeft: 10, marginBottom: 8 }]}>• Physical or environmental damage</Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
               For your peace of mind, all our support workers are trained on how to respond in case of an emergency, and they will receive a copy of your Individual Disaster Management Plan so that they are fully aware of your health condition and the required action plans in case of an emergency.
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
               Individual Disaster Management Plan and Risk Assessment will be developed and signed by <Text style={styles.redText}>Infinity Supports WA</Text> and the Individual and/or representative. Providers' Responsibility related to participants Individual Disaster Management Plan and Risk Assessment is subject to 73G requirements.
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
               It is the provider's responsibility to document the assessment of the participant's risk factors using Intake Form, Support Plan, and Participant, Home, and Community Risk Assessment forms.
             </Text>
-            
+
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 8 }]}>• A copy of the Individual Disaster Management Plan and Risk Assessment will be provided to the participant and another copy should be kept in their file.</Text>
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 4 }]}>• The Individual Disaster Management Plan and Risk Assessment will be reviewed every year or when the participant's circumstances change. If there is any update on the Individual Disaster Management Plan and Risk Assessment, a copy of the new Individual Disaster Management Plan and Risk Assessment will be provided to the client and a copy will be kept in their folder.</Text>
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 4 }]}>• It is the provider's responsibility to mention the rights and responsibilities of the participant and the provider on the service agreement.</Text>
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 4 }]}>• Using the Human Resource Management process will assist the provider to ensure that the participant's support worker has been screened.</Text>
             <Text style={[styles.staticContent, { marginLeft: 10, marginTop: 4 }]}>• Participants who are subject to this requirement will be registered on the High-Risk Participant Register and some specific support workers will be delegated to those who are registered on this form.</Text>
-            
+
             <Text style={[styles.staticContent, { marginTop: 8 }]}>
               <Text style={styles.redText}>Infinity Supports WA PTY Ltd</Text> will be required to complete an audit with NDIS, as a participant you may be asked to provide comments and feedback regarding your service. This is an OPT IN or OUT option to be completed in the following section.
             </Text>
@@ -625,7 +625,7 @@ const SASupportCoordination: React.FC<SASupportCoordinationProps> = ({
           {/* Consent Section - Keep Together */}
           <View style={styles.section} wrap={false}>
             <Text style={styles.staticTitle}>Consent</Text>
-            
+
             {/* Consent 1: Media */}
             <View style={{ borderBottom: '0.5 solid #666', paddingVertical: 6, marginBottom: 8 }} wrap={false}>
               <Text style={{ fontSize: 9, marginBottom: 6 }}>

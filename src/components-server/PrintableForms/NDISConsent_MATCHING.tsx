@@ -165,7 +165,14 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
             orgAddress: "PO Box 4275 BALDIVIS WA 6171",
         };
 
-        return formData?.[key] || commonFieldsData?.[key] || defaults[key] || '';
+        const value = formData?.[key] || commonFieldsData?.[key] || defaults[key] || '';
+
+        // Auto-capitalize first letter for consistency (e.g. for addresses, names, relationships)
+        if (typeof value === 'string' && value.length > 0) {
+            return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+
+        return value;
     };
 
     const isOptionSelected = (field: string, option: string) => {
@@ -208,13 +215,13 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     <View style={styles.listItem}>
                         <Text style={styles.bulletPoint}>•</Text>
                         <Text style={styles.listItemText}>
-                            the National Disability Insurance Agency (NDIA) to share your National Disability Insurance Scheme (NDIS) information with a person or organisation you choose
+                            The National Disability Insurance Agency (NDIA) to share your National Disability Insurance Scheme (NDIS) information with a person or organisation you choose
                         </Text>
                     </View>
                     <View style={styles.listItem}>
                         <Text style={styles.bulletPoint}>•</Text>
                         <Text style={styles.listItemText}>
-                            a person or organisation (third party) to do things for you with the NDIS.
+                            A person or organisation (third party) to do things for you with the NDIS.
                         </Text>
                     </View>
                 </View>
@@ -223,10 +230,10 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                 <Text style={styles.bodyText}>You can give consent if you’re the:</Text>
 
                 <View style={styles.listContainer}>
-                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>applicant</Text></View>
-                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>participant</Text></View>
-                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>child representative or plan nominee for the participant</Text></View>
-                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>legally appointed decision maker for an applicant.</Text></View>
+                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>Applicant</Text></View>
+                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>Participant</Text></View>
+                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>Child representative or plan nominee for the participant</Text></View>
+                    <View style={styles.listItem}><Text style={styles.bulletPoint}>•</Text><Text style={styles.listItemText}>Legally appointed decision maker for an applicant.</Text></View>
                 </View>
 
                 <Text style={styles.bodyText}>When we say applicant, we mean someone who is applying to the NDIS.</Text>
@@ -255,20 +262,20 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     <View style={styles.listContainer}>
                         <View style={styles.listItem}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={styles.listItemText}>email for applicants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>NAT@ndis.gov.au</Text></Text>
+                            <Text style={styles.listItemText}>Email for applicants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>NAT@ndis.gov.au</Text></Text>
                         </View>
                         <View style={styles.listItem}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={styles.listItemText}>email for participants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>enquiries@ndis.gov.au</Text></Text>
+                            <Text style={styles.listItemText}>Email for participants: <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>enquiries@ndis.gov.au</Text></Text>
                         </View>
                         <View style={styles.listItem}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={styles.listItemText}>mail: NDIA, GPO Box 700, Canberra ACT 2601</Text>
+                            <Text style={styles.listItemText}>Mail: NDIA, GPO Box 700, Canberra ACT 2601</Text>
                         </View>
                         <View style={styles.listItem}>
                             <Text style={styles.bulletPoint}>•</Text>
                             <Text style={styles.listItemText}>
-                                in person: Visit a <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>local area coordinator</Text>, <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>early childhood partner</Text> or <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>NDIS office</Text> in your area.
+                                In person: Visit a <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>local area coordinator</Text>, <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>early childhood partner</Text> or <Text style={{ color: '#5B2C6F', fontWeight: 'bold' }}>NDIS office</Text> in your area.
                             </Text>
                         </View>
                     </View>
@@ -276,7 +283,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
 
                 {/* Part A Details */}
                 <View style={{ marginTop: 10 }}>
-                    <Text style={styles.sectionTitle}>Part A: applicant/participant details</Text>
+                    <Text style={styles.sectionTitle}>Part A: Applicant/participant details</Text>
                     <View style={styles.table}>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Full name</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantName')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Date of birth (DD/MM/YYYY)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('participantDob')}</Text></View></View>
@@ -313,21 +320,21 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
                 <View style={{ marginTop: 10 }}>
-                    <Text style={styles.sectionTitle}>Part B: child representative, plan nominee, legally appointed decision maker details</Text>
+                    <Text style={styles.sectionTitle}>Part B: Child representative, plan nominee, legally appointed decision maker details</Text>
                     <Text style={styles.bodyText}>Please provide your details if you’re completing this form on behalf of the applicant or participant:</Text>
 
                     <View style={{ marginLeft: 30, marginTop: 4, marginBottom: 10 }}>
                         <View style={[styles.listItem, { marginBottom: 2 }]}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>under 18 years for whom you are a child representative, or</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>Under 18 years for whom you are a child representative, or</Text>
                         </View>
                         <View style={[styles.listItem, { marginBottom: 2 }]}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>for whom you are a plan nominee, or</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>For whom you are a plan nominee, or</Text>
                         </View>
                         <View style={[styles.listItem, { marginBottom: 2 }]}>
                             <Text style={styles.bulletPoint}>•</Text>
-                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>for whom you are a legally appointed decision maker (for example, a guardian).</Text>
+                            <Text style={[styles.listItemText, { fontSize: 9.5 }]}>For whom you are a legally appointed decision maker (for example, a guardian).</Text>
                         </View>
                     </View>
 
@@ -339,7 +346,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRow}>
                             <View style={styles.tableCellLabel}>
                                 <Text>What is your relationship to the participant/ the applicant</Text>
-                                <Text style={{ fontSize: 8, marginTop: 4 }}>e.g. child representative, plan nominee, legally appointed decision maker</Text>
+                                <Text style={{ fontSize: 8, marginTop: 4 }}>E.g. child representative, plan nominee, legally appointed decision maker</Text>
                             </View>
                             <View style={styles.tableCellValue}><Text>{getFieldValue('repRelationship')}</Text></View>
                         </View>
@@ -349,13 +356,11 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                 <NDISFooter />
             </Page>
 
-            {/* Page 4-7: Part C, D, E, F Details (Consolidated to avoid empty pages) */}
+            {/* Page 4: Part C Details (Person) */}
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
-
-                {/* Part C Person */}
                 <View>
-                    <Text style={styles.sectionTitle}>Part C: give consent to a person or organisation</Text>
+                    <Text style={styles.sectionTitle}>Part C: Give consent to a person or organisation</Text>
                     <Text style={styles.bodyText}>Please complete the details of the person or organisation you’re giving consent to.</Text>
                     <Text style={[styles.bodyText, { marginTop: 4 }]}>If there are more people or organisations you want to give consent to, you’ll need to provide consent for each one separately. For example, if you want to give consent to two people, you’ll need to complete this page for each person you’re giving consent to.</Text>
                     <Text style={[styles.bodyText, { marginTop: 4 }]}>You can also give your consent over the phone by calling <Text style={{ fontWeight: 'bold' }}>1800 800 110</Text>.</Text>
@@ -387,14 +392,18 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>If they are an NDIS provider, what is their provider number?</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personNdisProviderNumber')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Phone</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personPhone')}</Text></View></View>
                         <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Email</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personEmail')}</Text></View></View>
-                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Address (include street or PO Box number, suburb, state and postcode)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personAddress')}</Text></View></View>
-                        <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Relationship to participant/applicant</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personRelationship')}</Text></View></View>
+                        <View style={styles.tableRow}><View style={styles.tableCellLabel}><Text>Address (Include street or PO Box number, Suburb, State and Postcode)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personAddress')}</Text></View></View>
+                        <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Relationship to Participant/Applicant</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('personRelationship')}</Text></View></View>
                     </View>
                 </View>
+                <NDISFooter />
+            </Page>
 
-                {/* Part C Organization */}
-                <View break>
-                    <Text style={styles.sectionTitle}>Part C: give consent to a person or organisation (continued)</Text>
+            {/* Page 5: Part C Details (Organisation) */}
+            <Page size="A4" style={styles.page}>
+                <NDISHeader title="Form" />
+                <View>
+                    <Text style={styles.sectionTitle}>Part C: Give consent to a person or organisation (continued)</Text>
                     <Text style={styles.bodyText}>Consent is limited to 2 key contacts in the organisation. If your key contacts change, let us know so we can update who in the organisation you have given consent to. Contact us by calling <Text style={{ fontWeight: 'bold' }}>1800 800 110</Text> or in any of the ways listed under <Text style={{ fontWeight: 'bold' }}>How do I return this form to the NDIA.</Text></Text>
                     <Text style={[styles.bodyText, { marginTop: 8 }]}>To give consent to an organisation you need to give us the details for at least one key contact below.</Text>
 
@@ -440,23 +449,28 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                         <View style={styles.tableRowLast}><View style={styles.tableCellLabel}><Text>Address (include street or PO Box number, suburb, state and postcode)</Text></View><View style={styles.tableCellValue}><Text>{getFieldValue('orgAddress')}</Text></View></View>
                     </View>
                 </View>
+                <NDISFooter />
+            </Page>
 
-                {/* Part D Consent Choices */}
-                <View break>
-                    <Text style={styles.sectionTitle}>Part D: choose the consent types</Text>
+
+            {/* Page 6: Part D Consent Choices */}
+            <Page size="A4" style={styles.page}>
+                <NDISHeader title="Form" />
+                <View>
+                    <Text style={styles.sectionTitle}>Part D: Choose the consent types</Text>
                     <Text style={styles.bodyText}>You can choose the types of consent you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have. To do this please mark the relevant boxes in the checklists below.</Text>
                     <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>I am providing consent for the person or organisation named in Part C to have the following types of consent.</Text>
                     <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>Consent to share information about my:</Text>
                     <View style={{ marginTop: 5 }}>
                         {[
-                            "NDIS contact", "assessments and reports", "current NDIS plan, including my goals and aspirations",
-                            "NDIS application outcome", "NDIS application form", "current NDIS funding", "previous NDIS funding",
-                            "previous NDIS plans, including my goals and aspirations", "bank account details",
-                            "name, date of birth, NDIS participant number and NDIS participant status",
-                            "address, email and phone number", "communication preferences",
-                            "correspondence preferences – for example, if I prefer to receive NDIS information in an email, letter or over the phone",
-                            "disability or disabilities that are recorded in the NDIS system",
-                            "informal supports", "service providers", "all of the above"
+                            "NDIS contact", "Assessments and reports", "Current NDIS plan, including my goals and aspirations",
+                            "NDIS application outcome", "NDIS application form", "Current NDIS funding", "Previous NDIS funding",
+                            "Previous NDIS plans, including my goals and aspirations", "Bank account details",
+                            "Name, date of birth, NDIS participant number and NDIS participant status",
+                            "Address, email and phone number", "Communication preferences",
+                            "Correspondence preferences – for example, if I prefer to receive NDIS information in an email, letter or over the phone",
+                            "Disability or disabilities that are recorded in the NDIS system",
+                            "Informal supports", "Service providers", "All of the above"
                         ].map(opt => (
                             <View style={commonStyles.checkboxRow} key={opt}>
                                 <NDISCheckbox checked={isOptionSelected('consentTypes', opt)} />
@@ -468,10 +482,10 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     <Text style={[styles.bodyText, { marginTop: 15 }]}>Consent to do these things on my behalf:</Text>
                     <View style={{ marginTop: 5 }}>
                         {[
-                            "submit an NDIS application", "submit a request for assistive technology, home modifications, or other specific supports",
-                            "submit additional information requested by the NDIA", "make a complaint or give feedback to the NDIA",
-                            "tell the NDIA about change in my disability", "submit claims for my current plan",
-                            "ask to review a decision made by the NDIA", "ask for a plan change", "all of the above"
+                            "Submit an NDIS application", "Submit a request for assistive technology, home modifications, or other specific supports",
+                            "Submit additional information requested by the NDIA", "Make a complaint or give feedback to the NDIA",
+                            "Tell the NDIA about change in my disability", "Submit claims for my current plan",
+                            "Ask to review a decision made by the NDIA", "Ask for a plan change", "All of the above"
                         ].map(opt => (
                             <View style={commonStyles.checkboxRow} key={opt}>
                                 <NDISCheckbox checked={isOptionSelected('consentBehalf', opt)} />
@@ -482,36 +496,43 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
 
                     <View style={{ marginTop: 10 }}>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Consent to change my:</Text>
-                        {["personal details", "communication preferences", "correspondence preferences", "all of the above"].map(opt => (
+                        {["Personal details", "Communication preferences", "Correspondence preferences", "All of the above"].map(opt => (
                             <View style={commonStyles.checkboxRow} key={opt}>
                                 <NDISCheckbox checked={isOptionSelected('consentChange', opt)} />
                                 <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
                             </View>
                         ))}
                     </View>
+                </View>
+                <NDISFooter />
+            </Page>
 
-                    <View wrap={false}>
-                        <Text style={[styles.sectionTitle, { marginBottom: 5 }]}>Part D: choose the consent types (continued)</Text>
+            {/* Page 7: Part D Continued & Part E */}
+            <Page size="A4" style={styles.page}>
+                <NDISHeader title="Form" />
+                <View>
+                    <View>
+                        <Text style={[styles.sectionTitle, { marginBottom: 5 }]}>Part D: Choose the consent types (continued)</Text>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Are there other things you want the person to do on your behalf, or information you want to share:</Text>
                         <View style={[commonStyles.checkboxRow, { marginTop: 5 }]}>
                             <NDISCheckbox checked={isOptionSelected('consentOtherCheck', 'If so, please tell us what this is below:')} />
                             <Text style={{ fontSize: 9 }}>If so, please tell us what this is below:</Text>
                         </View>
                         {isOptionSelected('consentOtherCheck', 'If so, please tell us what this is below:') && (
-                            <>
-                                <View style={[styles.table, { minHeight: 60, padding: 10, marginTop: 5 }]}>
+                            <View style={{ marginTop: 5 }}>
+                                <View style={[styles.table, { minHeight: 60, padding: 10 }]}>
                                     <Text style={{ lineHeight: 1.4 }}>{getFieldValue('consentOtherDetails')}</Text>
                                 </View>
                                 <Text style={[styles.bodyText, { fontSize: 8, marginTop: 5 }]}>
                                     We’ll do our best to include these other things. If we’re unable to do this, we’ll let you know and explain why.
                                 </Text>
-                            </>
+                            </View>
                         )}
                     </View>
 
                     {/* Part E */}
-                    <View style={{ marginTop: 10 }} break>
-                        <Text style={styles.sectionTitle}>Part E: choose the consent length</Text>
+                    <View style={{ marginTop: 10 }}>
+                        <Text style={styles.sectionTitle}>Part E: Choose the consent length</Text>
                         <Text style={styles.bodyText}>
                             You can choose how long you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have consent. To do this please mark the relevant box. If you want the consent to end on a set date, please record this below.
                         </Text>
@@ -536,9 +557,16 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                             <Text style={styles.bodyText}>Ongoing (enduring)</Text>
                         </View>
                     </View>
+                </View>
+                <NDISFooter />
+            </Page>
 
-                    <View style={{ marginTop: 15 }}>
-                        <Text style={styles.sectionTitle}>Part F: your declaration</Text>
+            {/* Page 8: Part F & Signature */}
+            <Page size="A4" style={styles.page}>
+                <NDISHeader title="Form" />
+                <View>
+                    <View style={{ marginTop: 5 }}>
+                        <Text style={styles.sectionTitle}>Part F: Your declaration</Text>
                         <Text style={[styles.bodyText, { marginBottom: 8 }]}>This part needs to be signed by whoever completes this form. This may be the participant, applicant or child representative, plan nominee or legally appointed decision maker.</Text>
                         <Text style={styles.bodyText}>I confirm that:</Text>
                         <View style={styles.listContainer}>
@@ -583,6 +611,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                 </View>
                 <NDISFooter />
             </Page>
+
         </Document >
     );
 };

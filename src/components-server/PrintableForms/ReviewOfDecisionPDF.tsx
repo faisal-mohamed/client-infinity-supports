@@ -152,11 +152,11 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
 
                 <Text style={styles.bodyText}>You can use this form when:</Text>
                 <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                    <Text style={styles.bodyText}>• we have told you about a decision we have made</Text>
-                    <Text style={styles.bodyText}>• you do not think our decision is right and want to ask for a review</Text>
-                    <Text style={styles.bodyText}>• you are directly affected by the decision or have authority to ask for a review</Text>
-                    <Text style={styles.bodyText}>• this request is within 3 months of the decision</Text>
-                    <Text style={styles.bodyText}>• the decision is one that is reviewable under the law for the NDIS.</Text>
+                    <Text style={styles.bodyText}>• We have told you about a decision we have made</Text>
+                    <Text style={styles.bodyText}>• You do not think our decision is right and want to ask for a review</Text>
+                    <Text style={styles.bodyText}>• You are directly affected by the decision or have authority to ask for a review</Text>
+                    <Text style={styles.bodyText}>• This request is within 3 months of the decision</Text>
+                    <Text style={styles.bodyText}>• The decision is one that is reviewable under the law for the NDIS.</Text>
                 </View>
 
                 <Text style={styles.bodyText}>
@@ -175,9 +175,9 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
                     You can ask someone to complete this form for you but you must let us know that they have your permission before they can do this, by:
                 </Text>
                 <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                    <Text style={styles.bodyText}>• calling us</Text>
-                    <Text style={styles.bodyText}>• sending us a letter or email</Text>
-                    <Text style={styles.bodyText}>• sending us a completed <Text style={{ color: 'blue', textDecoration: 'underline' }}>Consent for a Third Party to Act on Behalf of a Participant form</Text> from the ‘<Text style={{ fontWeight: 'bold' }}>Consent forms</Text>’ website.</Text>
+                    <Text style={styles.bodyText}>• Calling us</Text>
+                    <Text style={styles.bodyText}>• Sending us a letter or email</Text>
+                    <Text style={styles.bodyText}>• Sending us a completed <Text style={{ color: 'blue', textDecoration: 'underline' }}>Consent for a Third Party to Act on Behalf of a Participant form</Text> from the ‘<Text style={{ fontWeight: 'bold' }}>Consent forms</Text>’ website.</Text>
                 </View>
 
                 <Text style={styles.bodyText}>
@@ -237,9 +237,9 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
 
                     <Text style={styles.bodyText}>You can ask for a review of a decision for someone else if you can provide evidence that:</Text>
                     <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                        <Text style={styles.bodyText}>• you have <Text style={{ fontWeight: 'bold' }}>parental responsibility</Text> for them;</Text>
-                        <Text style={styles.bodyText}>• you are their <Text style={{ fontWeight: 'bold' }}>legally authorised representative or legal guardian</Text>; or</Text>
-                        <Text style={styles.bodyText}>• they let us know that you have permission to do this (see <Text style={{ color: 'blue', textDecoration: 'underline' }}>How to use this form</Text>).</Text>
+                        <Text style={styles.bodyText}>• You have <Text style={{ fontWeight: 'bold' }}>parental responsibility</Text> for them;</Text>
+                        <Text style={styles.bodyText}>• You are their <Text style={{ fontWeight: 'bold' }}>legally authorised representative or legal guardian</Text>; or</Text>
+                        <Text style={styles.bodyText}>• They let us know that you have permission to do this (see <Text style={{ color: 'blue', textDecoration: 'underline' }}>How to use this form</Text>).</Text>
                     </View>
 
                     <View style={styles.table}>
@@ -256,7 +256,7 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
                 <View>
-                    <Text style={[styles.sectionTitle, { color: '#6A1B9A' }]}>Part C: Information about your request</Text>
+                    <Text style={[styles.sectionTitle, { color: '#6A1B9A' }]}>Part C: Information About Your Request</Text>
                     <Text style={[styles.bodyText, { marginBottom: 10 }]}>Please complete <Text style={{ fontWeight: 'bold' }}>Part C</Text> to give us more information about your request.</Text>
 
                     <View style={styles.table}>
@@ -321,12 +321,12 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
                 <View>
-                    <Text style={styles.sectionTitle}>Part D: Your declaration</Text>
+                    <Text style={styles.sectionTitle}>Part D: Your Declaration</Text>
                     <Text style={styles.bodyText}>I confirm that the information provided in this form is complete and correct.</Text>
                     <Text style={styles.bodyText}>I understand that:</Text>
                     <View style={{ marginLeft: 20, marginBottom: 15 }}>
-                        <Text style={styles.bodyText}>• giving false or misleading information is a serious offence</Text>
-                        <Text style={styles.bodyText}>• this information is protected by law and can only be given to someone else where Commonwealth law allows, or requires it, or where I give permission.</Text>
+                        <Text style={styles.bodyText}>• Giving false or misleading information is a serious offence</Text>
+                        <Text style={styles.bodyText}>• This information is protected by law and can only be given to someone else where Commonwealth law allows, or requires it, or where I give permission.</Text>
                     </View>
 
                     {/* Signature Box */}
@@ -350,33 +350,33 @@ const ReviewOfDecisionPDF: React.FC<ReviewOfDecisionPDFProps> = ({
                     </View>
 
                     {/* Privacy Section */}
-                    <Text style={[styles.sectionTitle, { fontSize: 14, marginBottom: 8 }]}>Privacy and your personal information</Text>
+                    <Text style={[styles.sectionTitle, { fontSize: 14, marginBottom: 8 }]}>Privacy And Your Personal Information</Text>
 
-                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Collection of your personal information</Text>
+                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Collection Of Your Personal Information</Text>
                     <Text style={styles.bodyText}>
                         The National Disability Insurance Agency (NDIA) would like some personal information from you to simplify your engagement with the NDIS. Any personal information you provide to the NDIA is safe under the National Disability Insurance Scheme Act 2013 and the Privacy Act 1988. You can also ask to see what personal information (if any) we hold about you at any time and can seek correction if the information is wrong.
                     </Text>
 
-                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Personal information use and disclosure</Text>
+                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Personal Information Use And Disclosure</Text>
                     <Text style={styles.bodyText}>The NDIA will use your information to support your involvement in the NDIS.</Text>
                     <Text style={styles.bodyText}>
                         The NDIA will NOT use any of your personal information for any other purpose or disclose your personal information to any other organisations or individuals (including any overseas recipients), unless authorised by law or you provide your consent for us to do so.
                     </Text>
 
-                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>The NDIA’s privacy policy describes</Text>
+                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>The NDIA’s Privacy Policy Describes</Text>
                     <View style={{ marginLeft: 20, marginBottom: 10 }}>
-                        <Text style={styles.bodyText}>• how we use your personal information.</Text>
-                        <Text style={styles.bodyText}>• why some personal information may be given to other organisations from time to time.</Text>
-                        <Text style={styles.bodyText}>• how you can access the personal information we have about you on our system.</Text>
-                        <Text style={styles.bodyText}>• how you can complain about a privacy breach, and how the NDIA deals with the complaint.</Text>
-                        <Text style={styles.bodyText}>• how you can get your personal information corrected if it is wrong.</Text>
+                        <Text style={styles.bodyText}>• How we use your personal information.</Text>
+                        <Text style={styles.bodyText}>• Why some personal information may be given to other organisations from time to time.</Text>
+                        <Text style={styles.bodyText}>• How you can access the personal information we have about you on our system.</Text>
+                        <Text style={styles.bodyText}>• How you can complain about a privacy breach, and how the NDIA deals with the complaint.</Text>
+                        <Text style={styles.bodyText}>• How you can get your personal information corrected if it is wrong.</Text>
                     </View>
 
                     <Text style={styles.bodyText}>
                         You can read the policy at the <Text style={{ color: 'blue', textDecoration: 'underline' }}>www.ndis.gov.au/privacy</Text>.
                     </Text>
 
-                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Personal information storage</Text>
+                    <Text style={[styles.sectionTitle, { color: '#6A1B9A', fontSize: 11 }]}>Personal Information Storage</Text>
                     <Text style={styles.bodyText}>
                         The NDIA uses an Australian Government computer system to store personal information. System users, other than NDIA staff, may at times be able to see your name when they perform program duties, however they can’t record, use or disclose information, and they will not know if you become an NDIS participant. State or territory government officials may also have personal information access as part of the agreement between governments to assist the states and territories in their NDIS evaluation.
                     </Text>
