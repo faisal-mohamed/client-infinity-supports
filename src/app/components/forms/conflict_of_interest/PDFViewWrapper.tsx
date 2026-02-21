@@ -6,7 +6,7 @@ import ConflictOfInterestPDF from '../../../../components-server/PrintableForms/
 
 
 // Set worker to internal source to avoid CDN issues
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 interface PDFViewWrapperProps {
     formData: any;

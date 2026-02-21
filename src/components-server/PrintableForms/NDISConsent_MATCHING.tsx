@@ -453,66 +453,68 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
             </Page>
 
 
-            {/* Page 6: Part D Consent Choices */}
+            {/* Page 6-8: Consent Choices, Other Details, Length, and Declaration */}
             <Page size="A4" style={styles.page}>
                 <NDISHeader title="Form" />
+
+                {/* Part D: Choices */}
                 <View>
                     <Text style={styles.sectionTitle}>Part D: Choose the consent types</Text>
                     <Text style={styles.bodyText}>You can choose the types of consent you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have. To do this please mark the relevant boxes in the checklists below.</Text>
                     <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>I am providing consent for the person or organisation named in Part C to have the following types of consent.</Text>
-                    <Text style={[styles.bodyText, { marginTop: 8, fontWeight: 'bold' }]}>Consent to share information about my:</Text>
-                    <View style={{ marginTop: 5 }}>
-                        {[
-                            "NDIS contact", "Assessments and reports", "Current NDIS plan, including my goals and aspirations",
-                            "NDIS application outcome", "NDIS application form", "Current NDIS funding", "Previous NDIS funding",
-                            "Previous NDIS plans, including my goals and aspirations", "Bank account details",
-                            "Name, date of birth, NDIS participant number and NDIS participant status",
-                            "Address, email and phone number", "Communication preferences",
-                            "Correspondence preferences – for example, if I prefer to receive NDIS information in an email, letter or over the phone",
-                            "Disability or disabilities that are recorded in the NDIS system",
-                            "Informal supports", "Service providers", "All of the above"
-                        ].map(opt => (
-                            <View style={commonStyles.checkboxRow} key={opt}>
-                                <NDISCheckbox checked={isOptionSelected('consentTypes', opt)} />
-                                <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
-                            </View>
-                        ))}
+
+                    <View wrap={false} style={{ marginTop: 8 }}>
+                        <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Consent to share information about my:</Text>
+                        <View style={{ marginTop: 5 }}>
+                            {[
+                                "NDIS contact", "Assessments and reports", "Current NDIS plan, including my goals and aspirations",
+                                "NDIS application outcome", "NDIS application form", "Current NDIS funding", "Previous NDIS funding",
+                                "Previous NDIS plans, including my goals and aspirations", "Bank account details",
+                                "Name, date of birth, NDIS participant number and NDIS participant status",
+                                "Address, email and phone number", "Communication preferences",
+                                "Correspondence preferences – for example, if I prefer to receive NDIS information in an email, letter or over the phone",
+                                "Disability or disabilities that are recorded in the NDIS system",
+                                "Informal supports", "Service providers", "All of the above"
+                            ].map(opt => (
+                                <View style={commonStyles.checkboxRow} key={opt}>
+                                    <NDISCheckbox checked={isOptionSelected('consentTypes', opt)} />
+                                    <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
 
-                    <Text style={[styles.bodyText, { marginTop: 15 }]}>Consent to do these things on my behalf:</Text>
-                    <View style={{ marginTop: 5 }}>
-                        {[
-                            "Submit an NDIS application", "Submit a request for assistive technology, home modifications, or other specific supports",
-                            "Submit additional information requested by the NDIA", "Make a complaint or give feedback to the NDIA",
-                            "Tell the NDIA about change in my disability", "Submit claims for my current plan",
-                            "Ask to review a decision made by the NDIA", "Ask for a plan change", "All of the above"
-                        ].map(opt => (
-                            <View style={commonStyles.checkboxRow} key={opt}>
-                                <NDISCheckbox checked={isOptionSelected('consentBehalf', opt)} />
-                                <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
-                            </View>
-                        ))}
+                    <View wrap={false} style={{ marginTop: 15 }}>
+                        <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Consent to do these things on my behalf:</Text>
+                        <View style={{ marginTop: 5 }}>
+                            {[
+                                "Submit an NDIS application", "Submit a request for assistive technology, home modifications, or other specific supports",
+                                "Submit additional information requested by the NDIA", "Make a complaint or give feedback to the NDIA",
+                                "Tell the NDIA about change in my disability", "Submit claims for my current plan",
+                                "Ask to review a decision made by the NDIA", "Ask for a plan change", "All of the above"
+                            ].map(opt => (
+                                <View style={commonStyles.checkboxRow} key={opt}>
+                                    <NDISCheckbox checked={isOptionSelected('consentBehalf', opt)} />
+                                    <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
 
-                    <View style={{ marginTop: 10 }}>
+                    <View wrap={false} style={{ marginTop: 15 }}>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Consent to change my:</Text>
-                        {["Personal details", "Communication preferences", "Correspondence preferences", "All of the above"].map(opt => (
-                            <View style={commonStyles.checkboxRow} key={opt}>
-                                <NDISCheckbox checked={isOptionSelected('consentChange', opt)} />
-                                <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
-                            </View>
-                        ))}
+                        <View style={{ marginTop: 5 }}>
+                            {["Personal details", "Communication preferences", "Correspondence preferences", "All of the above"].map(opt => (
+                                <View style={commonStyles.checkboxRow} key={opt}>
+                                    <NDISCheckbox checked={isOptionSelected('consentChange', opt)} />
+                                    <Text style={{ fontSize: 9, flex: 1 }}>{opt}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
-                </View>
-                <NDISFooter />
-            </Page>
 
-            {/* Page 7: Part D Continued & Part E */}
-            <Page size="A4" style={styles.page}>
-                <NDISHeader title="Form" />
-                <View>
-                    <View>
-                        <Text style={[styles.sectionTitle, { marginBottom: 5 }]}>Part D: Choose the consent types (continued)</Text>
+                    {/* Part D Continued: Other things */}
+                    <View style={{ marginTop: 15 }}>
                         <Text style={[styles.bodyText, { fontWeight: 'bold' }]}>Are there other things you want the person to do on your behalf, or information you want to share:</Text>
                         <View style={[commonStyles.checkboxRow, { marginTop: 5 }]}>
                             <NDISCheckbox checked={isOptionSelected('consentOtherCheck', 'If so, please tell us what this is below:')} />
@@ -531,7 +533,7 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                     </View>
 
                     {/* Part E */}
-                    <View style={{ marginTop: 10 }}>
+                    <View wrap={false} style={{ marginTop: 15 }}>
                         <Text style={styles.sectionTitle}>Part E: Choose the consent length</Text>
                         <Text style={styles.bodyText}>
                             You can choose how long you want the person or organisation in <Text style={{ color: '#0055BB', textDecoration: 'underline' }}>Part C</Text> to have consent. To do this please mark the relevant box. If you want the consent to end on a set date, please record this below.
@@ -557,15 +559,9 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                             <Text style={styles.bodyText}>Ongoing (enduring)</Text>
                         </View>
                     </View>
-                </View>
-                <NDISFooter />
-            </Page>
 
-            {/* Page 8: Part F & Signature */}
-            <Page size="A4" style={styles.page}>
-                <NDISHeader title="Form" />
-                <View>
-                    <View style={{ marginTop: 5 }}>
+                    {/* Part F */}
+                    <View style={{ marginTop: 15 }}>
                         <Text style={styles.sectionTitle}>Part F: Your declaration</Text>
                         <Text style={[styles.bodyText, { marginBottom: 8 }]}>This part needs to be signed by whoever completes this form. This may be the participant, applicant or child representative, plan nominee or legally appointed decision maker.</Text>
                         <Text style={styles.bodyText}>I confirm that:</Text>
@@ -611,7 +607,6 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
                 </View>
                 <NDISFooter />
             </Page>
-
         </Document >
     );
 };

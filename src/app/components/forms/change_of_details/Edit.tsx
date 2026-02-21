@@ -373,7 +373,7 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
     }, [commonFieldsData]);
 
     const handleChange = (name: string, value: any) => {
-        let newValues = { ...localValues, [name]: value };
+        const newValues = { ...localValues, [name]: value };
 
         // Data Clearing Logic: Reset Parts D-H if Part C selection changes
         if (name === "changes") {

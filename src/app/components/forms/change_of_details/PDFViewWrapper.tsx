@@ -5,7 +5,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import ChangeOfDetailsPDF from '../../../../components-server/PrintableForms/ChangeOfDetailsPDF';
 
 // Set worker to internal source to avoid CDN issues
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 interface PDFViewWrapperProps {
     formData: any;
