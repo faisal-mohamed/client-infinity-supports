@@ -37,13 +37,15 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f0f0f0',
-    borderBottom: '1 solid #000',
+    border: '1 solid #000',
     paddingVertical: 4,
     paddingHorizontal: 2,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottom: '1 solid #000',
+    borderLeft: '1 solid #000',
+    borderRight: '1 solid #000',
     paddingVertical: 3,
     paddingHorizontal: 2,
     minHeight: 20,
@@ -52,10 +54,10 @@ const styles = StyleSheet.create({
     fontSize: 9,
     paddingHorizontal: 2,
   },
-  col1: { width: '40%' },
-  col2: { width: '10%', textAlign: 'center' },
-  col3: { width: '15%', textAlign: 'center' },
-  col4: { width: '15%', textAlign: 'right' },
+  col1: { width: '40%', borderRight: '1 solid #000' },
+  col2: { width: '10%', textAlign: 'center', borderRight: '1 solid #000' },
+  col3: { width: '15%', textAlign: 'center', borderRight: '1 solid #000' },
+  col4: { width: '15%', textAlign: 'right', borderRight: '1 solid #000' },
   col5: { width: '20%', textAlign: 'right' },
   section: {
     marginBottom: 12,
@@ -82,7 +84,7 @@ const styles = StyleSheet.create({
   },
   checkboxX: {
     fontSize: 9,
-    color: '#0066cc',
+    color: '#000000',
     fontWeight: 'bold',
     lineHeight: 1,
   },
@@ -193,7 +195,7 @@ export default function ScheduleOfSupports({
 
         {/* Info Row - Fixed to repeat */}
         <View style={styles.infoRow} fixed>
-          <Text>NDIS number: {commonFieldsData?.ndis || ""}</Text>
+          <Text>NDIS Number: {commonFieldsData?.ndis || ""}</Text>
           <Text>Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}</Text>
         </View>
 

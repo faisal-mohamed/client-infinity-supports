@@ -35,6 +35,7 @@ import WelcomeForm_MATCHING from "../../components-server/PrintableForms/Welcome
 
 import ScheduleForSupportEdit from "../components/forms/support-action-plan/Edit";
 import SupportActionPlanView from "../components/forms/support-action-plan/SupportActionPlanView";
+import SupportActionPlanMatchingPDF from "../../components-server/PrintableForms/SupportActionPlan_MATCHING";
 
 import MDTEdit from "../components/forms/mdt/Edit";
 import MDTView from "@/components/mdt/View";
@@ -252,6 +253,7 @@ const formRegistry: Record<string, FormRegistryItem> = {
     name: "Support Action Plan",
     viewComponent: SupportActionPlanView,
     editComponent: ScheduleForSupportEdit,
+    pdfComponent: SupportActionPlanMatchingPDF,
     signatures: [
       {
         id: "author_signature",

@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     border: '0.5 solid #000',
     marginRight: 4,
-    backgroundColor: '#2563eb',
+    backgroundColor: '#000000',
   },
   radioLabel: {
     fontSize: 9,
@@ -210,7 +210,7 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
       }
       return '';
     }
-    
+
     if (commonFieldMapping?.[key]) {
       return commonFieldsData?.[commonFieldMapping[key]] ?? '';
     }
@@ -263,167 +263,167 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
           <View style={{ borderBottom: '0.5 solid #999', marginBottom: 16, marginTop: 12 }} />
 
           {/* Section 1: General Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>1. General Information:</Text>
-          
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Date of Drill:</Text>
-            <Text style={styles.fieldValue}>{formatDate(getValue('drillDate'))}</Text>
-          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>1. General Information:</Text>
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Time of Drill:</Text>
-            <Text style={styles.fieldValue}>{getValue('drillTime')}</Text>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Client's Name (if applicable):</Text>
-            <Text style={styles.fieldValue}>{getValue('clientName')}</Text>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Support Worker(s) Involved:</Text>
-            <Text style={styles.fieldValue}>{getValue('supportWorkers')}</Text>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Supervisor/Manager Notified:</Text>
-            {renderRadioGroup('supervisorNotified', ['Yes', 'No'])}
-          </View>
-        </View>
-
-        {/* Section 2: Type of Emergency Drill */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>2. Type of Emergency Drill Conducted:</Text>
-          
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Selected Drill Type:</Text>
-            <Text style={styles.fieldValue}>
-              {getValue('selectedDrillType') || 'No selection made'}
-            </Text>
-          </View>
-
-          {getValue('selectedDrillType') === 'Other (specify)' && (
             <View style={styles.fieldRow}>
-              <Text style={styles.fieldLabel}>Please specify:</Text>
-              <Text style={styles.fieldValue}>{getValue('otherDrill')}</Text>
+              <Text style={styles.fieldLabel}>Date of Drill:</Text>
+              <Text style={styles.fieldValue}>{formatDate(getValue('drillDate'))}</Text>
             </View>
-          )}
-        </View>
 
-        {/* Section 3: Drill Execution Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>3. Drill Execution Details:</Text>
-          
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Was the emergency plan followed?</Text>
-            {renderRadioGroup('planFollowed', ['Yes', 'No'])}
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Time of Drill:</Text>
+              <Text style={styles.fieldValue}>{getValue('drillTime')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Client's Name (if applicable):</Text>
+              <Text style={styles.fieldValue}>{getValue('clientName')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Support Worker(s) Involved:</Text>
+              <Text style={styles.fieldValue}>{getValue('supportWorkers')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Supervisor/Manager Notified:</Text>
+              {renderRadioGroup('supervisorNotified', ['Yes', 'No'])}
+            </View>
           </View>
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>
-              Were all safety measures and protocols implemented?
-            </Text>
-            {renderRadioGroup('safetyProtocols', ['Yes', 'No'])}
+          {/* Section 2: Type of Emergency Drill */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>2. Type of Emergency Drill Conducted:</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Selected Drill Type:</Text>
+              <Text style={styles.fieldValue}>
+                {getValue('selectedDrillType') || 'No selection made'}
+              </Text>
+            </View>
+
+            {getValue('selectedDrillType') === 'Other (specify)' && (
+              <View style={styles.fieldRow}>
+                <Text style={styles.fieldLabel}>Please specify:</Text>
+                <Text style={styles.fieldValue}>{getValue('otherDrill')}</Text>
+              </View>
+            )}
           </View>
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>
-              Emergency services contacted? (if applicable)
-            </Text>
-            {renderRadioGroup('servicesContacted', ['Yes', 'No'])}
-          </View>
+          {/* Section 3: Drill Execution Details */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>3. Drill Execution Details:</Text>
 
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>Client response and involvement:</Text>
-            <Text style={styles.textAreaValue}>{getValue('clientResponse')}</Text>
-          </View>
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Was the emergency plan followed?</Text>
+              {renderRadioGroup('planFollowed', ['Yes', 'No'])}
+            </View>
 
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>Support worker actions:</Text>
-            <Text style={styles.textAreaValue}>{getValue('supportAction')}</Text>
-          </View>
-        </View>
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>
+                Were all safety measures and protocols implemented?
+              </Text>
+              {renderRadioGroup('safetyProtocols', ['Yes', 'No'])}
+            </View>
 
-        {/* Section 4: Observations & Challenges */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Observations & Challenges:</Text>
-          
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>What went well?</Text>
-            <Text style={styles.textAreaValue}>{getValue('whatWentWell')}</Text>
-          </View>
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>
+                Emergency services contacted? (if applicable)
+              </Text>
+              {renderRadioGroup('servicesContacted', ['Yes', 'No'])}
+            </View>
 
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>
-              What difficulties or challenges were encountered?
-            </Text>
-            <Text style={styles.textAreaValue}>{getValue('challenges')}</Text>
-          </View>
-
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>Any unexpected issues?</Text>
-            <Text style={styles.textAreaValue}>{getValue('unexpectedIssues')}</Text>
-          </View>
-        </View>
-
-        {/* Section 5: Recommendations & Improvements */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. Recommendations & Improvements:</Text>
-          
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>Suggested changes to procedures:</Text>
-            <Text style={styles.textAreaValue}>{getValue('procedureChanges')}</Text>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>
-              Additional training or support required?
-            </Text>
-            {renderRadioGroup('additionalTrainingRequired', ['Yes', 'No'])}
-          </View>
-
-          {getValue('additionalTrainingRequired') === 'Yes' && (
             <View style={styles.textAreaField}>
-              <Text style={styles.textAreaLabel}>If yes, specify:</Text>
-              <Text style={styles.textAreaValue}>{getValue('trainingDetails')}</Text>
+              <Text style={styles.textAreaLabel}>Client response and involvement:</Text>
+              <Text style={styles.textAreaValue}>{getValue('clientResponse')}</Text>
             </View>
-          )}
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>
-              Updates needed for the client's emergency plan?
-            </Text>
-            {renderRadioGroup('planUpdateNeeded', ['Yes', 'No'])}
-          </View>
-
-          {getValue('planUpdateNeeded') === 'Yes' && (
             <View style={styles.textAreaField}>
-              <Text style={styles.textAreaLabel}>If yes, specify:</Text>
-              <Text style={styles.textAreaValue}>{getValue('planUpdateDetails')}</Text>
+              <Text style={styles.textAreaLabel}>Support worker actions:</Text>
+              <Text style={styles.textAreaValue}>{getValue('supportAction')}</Text>
             </View>
-          )}
-        </View>
-
-        {/* Section 6: Follow-Up Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. Follow-Up Actions:</Text>
-          
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Debrief conducted?</Text>
-            {renderRadioGroup('debriefConducted', ['Yes', 'No'])}
           </View>
 
-          <View style={styles.textAreaField}>
-            <Text style={styles.textAreaLabel}>Supervisor/Manager Comments:</Text>
-            <Text style={styles.textAreaValue}>{getValue('supervisorComments')}</Text>
+          {/* Section 4: Observations & Challenges */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>4. Observations & Challenges:</Text>
+
+            <View style={styles.textAreaField}>
+              <Text style={styles.textAreaLabel}>What went well?</Text>
+              <Text style={styles.textAreaValue}>{getValue('whatWentWell')}</Text>
+            </View>
+
+            <View style={styles.textAreaField}>
+              <Text style={styles.textAreaLabel}>
+                What difficulties or challenges were encountered?
+              </Text>
+              <Text style={styles.textAreaValue}>{getValue('challenges')}</Text>
+            </View>
+
+            <View style={styles.textAreaField}>
+              <Text style={styles.textAreaLabel}>Any unexpected issues?</Text>
+              <Text style={styles.textAreaValue}>{getValue('unexpectedIssues')}</Text>
+            </View>
           </View>
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Date of Next Scheduled Drill:</Text>
-            <Text style={styles.fieldValue}>{formatDate(getValue('nextDrillDate'))}</Text>
+          {/* Section 5: Recommendations & Improvements */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>5. Recommendations & Improvements:</Text>
+
+            <View style={styles.textAreaField}>
+              <Text style={styles.textAreaLabel}>Suggested changes to procedures:</Text>
+              <Text style={styles.textAreaValue}>{getValue('procedureChanges')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>
+                Additional training or support required?
+              </Text>
+              {renderRadioGroup('additionalTrainingRequired', ['Yes', 'No'])}
+            </View>
+
+            {getValue('additionalTrainingRequired') === 'Yes' && (
+              <View style={styles.textAreaField}>
+                <Text style={styles.textAreaLabel}>If yes, specify:</Text>
+                <Text style={styles.textAreaValue}>{getValue('trainingDetails')}</Text>
+              </View>
+            )}
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>
+                Updates needed for the client's emergency plan?
+              </Text>
+              {renderRadioGroup('planUpdateNeeded', ['Yes', 'No'])}
+            </View>
+
+            {getValue('planUpdateNeeded') === 'Yes' && (
+              <View style={styles.textAreaField}>
+                <Text style={styles.textAreaLabel}>If yes, specify:</Text>
+                <Text style={styles.textAreaValue}>{getValue('planUpdateDetails')}</Text>
+              </View>
+            )}
           </View>
-        </View>
+
+          {/* Section 6: Follow-Up Actions */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>6. Follow-Up Actions:</Text>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Debrief conducted?</Text>
+              {renderRadioGroup('debriefConducted', ['Yes', 'No'])}
+            </View>
+
+            <View style={styles.textAreaField}>
+              <Text style={styles.textAreaLabel}>Supervisor/Manager Comments:</Text>
+              <Text style={styles.textAreaValue}>{getValue('supervisorComments')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Date of Next Scheduled Drill:</Text>
+              <Text style={styles.fieldValue}>{formatDate(getValue('nextDrillDate'))}</Text>
+            </View>
+          </View>
         </View>
 
         {/* Section 7: Signatures - Support Worker (wrap={false} to prevent splitting) */}

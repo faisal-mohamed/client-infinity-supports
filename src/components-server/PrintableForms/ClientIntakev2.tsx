@@ -166,11 +166,11 @@ const styles = StyleSheet.create({
     height: 10,
     border: '1 solid #000000',
     marginRight: 4,
-    backgroundColor: '#87ceeb',
+    backgroundColor: '#000000',
   },
   tickMark: {
     fontSize: 10,
-    color: '#2563eb',
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   pageBreak: {
@@ -261,7 +261,7 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
 
   // Get form ID - no fallback
   const getFormId = (): string => {
-    const formId = settings?.client_intake_form_id ;
+    const formId = settings?.client_intake_form_id;
     return formId || '';
   };
 
@@ -544,8 +544,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{
                   fontSize: 10,
                   lineHeight: 1.4,
-                  
-                  
+
+
                 }}>
                   {getValue('disabilityConditions') || ' '}
                 </Text>
@@ -634,8 +634,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
               <Text style={{
                 fontSize: 10,
                 lineHeight: 1.4,
-                
-                
+
+
                 flexShrink: 1
               }}>
                 {getValue('otherSupports') || ' '}
@@ -669,8 +669,8 @@ const ClientIntakev2: React.FC<ClientIntakePDFProps> = ({
                 <Text style={{
                   fontSize: 10,
                   lineHeight: 1.4,
-                  
-                  
+
+
                 }}>
                   {getValue('aboutMe') || ' '}
                 </Text>

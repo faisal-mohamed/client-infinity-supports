@@ -246,7 +246,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
       <View key="section1" style={styles.fieldContainer}>
         {/* Section 1 Header */}
         <Text style={styles.sectionHeader}>Section 1</Text>
-        
+
         {/* Main Form Table - Using table structure */}
         <View style={{ marginBottom: 8, border: '1 solid #000000' }}>
           {/* Date Row */}
@@ -258,7 +258,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('agreementDate') || ''}</Text>
             </View>
           </View>
-          
+
           {/* Participant Details Header */}
           <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
             <View style={[styles.tableCellHeader, { width: '60%' }]}>
@@ -270,7 +270,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               </Text>
             </View>
           </View>
-          
+
           {/* Name and Sex Row */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: '25%' }]}>
@@ -291,7 +291,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               ))}
             </View>
           </View>
-          
+
           {/* Pronoun Row */}
           <View style={styles.tableRow}>
             <View style={styles.tableCellLast}>
@@ -299,7 +299,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('pronoun') || ''}</Text>
             </View>
           </View>
-          
+
           {/* Indigenous Status Row */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: '75%' }]}>
@@ -314,7 +314,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               ))}
             </View>
           </View>
-          
+
           {/* Preferred Name and DOB Row */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: '50%' }]}>
@@ -326,14 +326,14 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('dob') || ''}</Text>
             </View>
           </View>
-          
+
           {/* Address Header */}
           <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
             <View style={styles.tableCellHeaderLast}>
               <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Residential Address Details</Text>
             </View>
           </View>
-          
+
           {/* Street Address Row */}
           <View style={styles.tableRow}>
             <View style={styles.tableCellLast}>
@@ -341,7 +341,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('street') || ''}</Text>
             </View>
           </View>
-          
+
           {/* State and Postcode Row */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: '50%' }]}>
@@ -353,14 +353,14 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('postcode') || ''}</Text>
             </View>
           </View>
-          
+
           {/* Contact Details Header */}
           <View style={[styles.tableRow, { backgroundColor: '#d1d5db' }]}>
             <View style={styles.tableCellHeaderLast}>
               <Text style={{ fontWeight: 'bold', fontSize: 8 }}>Participant Contact Details</Text>
             </View>
           </View>
-          
+
           {/* Email Row */}
           <View style={styles.tableRow}>
             <View style={styles.tableCellLast}>
@@ -368,7 +368,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontSize: 8 }}>{getFieldValue('email') || ''}</Text>
             </View>
           </View>
-          
+
           {/* Phone Numbers Row */}
           <View style={styles.tableRow}>
             <View style={[styles.tableCell, { width: '50%' }]}>
@@ -405,7 +405,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
       <View key="consent_table" style={styles.fieldContainer}>
         {/* Consent Header */}
         <Text style={styles.sectionHeader}>Consent</Text>
-        
+
         {/* Table structure using Views */}
         <View style={{ marginBottom: 8 }}>
           {/* Header Row */}
@@ -417,7 +417,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <Text style={{ fontWeight: 'bold', fontSize: 9 }}>Response</Text>
             </View>
           </View>
-          
+
           {/* Consent Rows */}
           {(block.items as any[]).map((consentItem: any, idx: number) => {
             const value = getFieldValue(consentItem.key);
@@ -429,8 +429,8 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
                     <View style={{ marginTop: 4, marginLeft: 10 }}>
                       {consentItem.subItems.map((item: string, subIdx: number) => (
                         <Text key={subIdx} style={{ fontSize: 7, lineHeight: 1.3 }}>
-                          • {item === 'Others' 
-                            ? `Others: ${getFieldValue('othersInfoSharingConsent') || '__________________________'}` 
+                          • {item === 'Others'
+                            ? `Others: ${getFieldValue('othersInfoSharingConsent') || '__________________________'}`
                             : item}
                         </Text>
                       ))}
@@ -504,17 +504,17 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
     switch (block.type) {
       case 'section1_table':
         return renderSection1();
-      
+
       case 'consent_table':
         return renderConsentTable(block);
-      
+
       case 'signature_group':
         return renderSignatureGroup(block);
-      
+
       case 'section_header':
         const headerLabelPDF = block.label || '';
         const hasRedInHeaderPDF = headerLabelPDF.includes('<red>');
-        
+
         return (
           <View key={block.label} style={styles.fieldContainer}>
             <Text style={styles.sectionHeader}>
@@ -533,13 +533,13 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             </Text>
           </View>
         );
-      
+
       case 'section_with_list':
         const listLabelPDF = block.label || '';
         const listContentPDF = block.content || '';
         const hasRedInLabelPDF = listLabelPDF.includes('<red>');
         const hasRedInContentPDF = listContentPDF.includes('<red>');
-        
+
         return (
           <View key={block.label} style={styles.fieldContainer}>
             <Text style={styles.staticTitle}>
@@ -580,7 +580,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             })}
           </View>
         );
-      
+
       case 'paragraph':
         const content = block.content || '';
         return (
@@ -588,47 +588,47 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             <Text style={styles.staticContent}>{content}</Text>
           </View>
         );
-      
+
       case 'styled_paragraph':
         const styledContent = block.content || '';
         // Parse styled content for PDF with tags: <red>, <underline>, <link>
         const parseStyledTextPDF = (text: string) => {
           const parts: any[] = [];
           let remaining = text;
-          
+
           while (remaining.length > 0) {
             const redMatch = remaining.match(/<red>(.*?)<\/red>/);
             const underlineMatch = remaining.match(/<underline>(.*?)<\/underline>/);
             const linkMatch = remaining.match(/<link>(.*?)<\/link>/);
-            
+
             const matches = [
               redMatch ? { match: redMatch, type: 'red', index: remaining.indexOf(redMatch[0]) } : null,
               underlineMatch ? { match: underlineMatch, type: 'underline', index: remaining.indexOf(underlineMatch[0]) } : null,
               linkMatch ? { match: linkMatch, type: 'link', index: remaining.indexOf(linkMatch[0]) } : null
             ].filter(Boolean).sort((a, b) => a!.index - b!.index);
-            
+
             if (matches.length === 0) {
               parts.push({ text: remaining, style: 'normal' });
               break;
             }
-            
+
             const firstMatch = matches[0]!;
-            
+
             if (firstMatch.index > 0) {
               parts.push({ text: remaining.substring(0, firstMatch.index), style: 'normal' });
             }
-            
+
             const innerText = firstMatch.match[1];
             parts.push({ text: innerText, style: firstMatch.type });
-            
+
             remaining = remaining.substring(firstMatch.index + firstMatch.match[0].length);
           }
-          
+
           return parts;
         };
-        
+
         const parsedParts = parseStyledTextPDF(styledContent);
-        
+
         return (
           <View key={styledContent.substring(0, 50)} style={styles.fieldContainer}>
             <Text style={styles.staticContent}>
@@ -647,7 +647,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
                   );
                 } else if (part.style === 'link') {
                   return (
-                    <Text key={idx} style={{ color: '#2563EB', textDecoration: 'underline' }}>
+                    <Text key={idx} style={{ color: '#000000', textDecoration: 'underline' }}>
                       {part.text}
                     </Text>
                   );
@@ -658,7 +658,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             </Text>
           </View>
         );
-      
+
       case 'list':
         return (
           <View key={(block.items || []).filter(i => typeof i === 'string').join('|').substring(0, 50)} style={styles.fieldContainer}>
@@ -670,7 +670,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
             })}
           </View>
         );
-      
+
       case 'checkbox': {
         const isChecked = !!getFieldValue(block.key || '');
         return (
@@ -680,7 +680,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
           </View>
         );
       }
-      
+
       case 'radio': {
         const value = getFieldValue(block.key || '');
         // Only render string items (filter out consent table objects)
@@ -692,8 +692,8 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
               <View style={{ marginLeft: 10, marginBottom: 4 }}>
                 {block.subItems.map((item, idx) => (
                   <Text key={idx} style={styles.staticContent}>
-                    • {item === 'Others' 
-                      ? `Others: ${getFieldValue('othersInfoSharingConsent') || '__________________________'}` 
+                    • {item === 'Others'
+                      ? `Others: ${getFieldValue('othersInfoSharingConsent') || '__________________________'}`
                       : item}
                   </Text>
                 ))}
@@ -708,7 +708,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
           </View>
         );
       }
-      
+
       case 'signature': {
         const sigValue = getFieldValue(block.key || '');
         return (
@@ -726,7 +726,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
           </View>
         );
       }
-      
+
       case 'text': {
         const value = getFieldValue(block.key || '');
         const valueStr = value && String(value).trim() !== '' ? String(value) : 'No information provided';
@@ -750,7 +750,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
           </View>
         );
       }
-      
+
       case 'date': {
         const value = getFieldValue(block.key || '');
         return (
@@ -764,7 +764,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
           </View>
         );
       }
-      
+
       default:
         return null;
     }
@@ -774,7 +774,7 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
   const footerWebsite = settings?.company_website || '';
   const footerId = settings?.sa_delivery_of_supports || '';
   const footerDate = formatDate(settings?.review_date || '');
-  try { console.log('[PDF SA Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) }); } catch {}
+  try { console.log('[PDF SA Footer]', { footerWebsite, footerId, footerDate, keys: Object.keys(settings || {}) }); } catch { }
 
   return (
     <Document>
@@ -789,16 +789,16 @@ const SADeliverySupportsMatching: React.FC<SADeliverySupportsProps> = ({
         <View>
           {/* Title only once at the start of content (not in fixed header) */}
           <Text style={styles.title}>SERVICE AGREEMENT FOR SERVICE DELIVERY</Text>
-          {(() => { try { console.log('PDF SADelivery: blocks', saDeliverySchema.length); } catch (e) {} return null; })()}
+          {(() => { try { console.log('PDF SADelivery: blocks', saDeliverySchema.length); } catch (e) { } return null; })()}
           {saDeliverySchema.map((block, idx) => renderBlock(block))}
         </View>
 
         {/* Fixed Footer on all pages - matches Client Intake Form pattern */}
-       <View style={styles.footer} fixed>
-         <Text style={styles.footerText}>Website: {footerWebsite}</Text>
-         <Text style={styles.footerText}>{footerId}</Text>
-         <Text style={styles.footerText}>Review Date: {footerDate}</Text>
-       </View>
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+          <Text style={styles.footerText}>{footerId}</Text>
+          <Text style={styles.footerText}>Review Date: {footerDate}</Text>
+        </View>
       </Page>
     </Document>
   );

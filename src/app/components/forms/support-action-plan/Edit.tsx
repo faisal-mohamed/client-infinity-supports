@@ -197,9 +197,7 @@ const FORM_SECTIONS: any = [
       "coreSupportText",
       "corePreferredProviders",
       "coreAlternativeProviders",
-      "coreAgreementSigned",
-      "coreSupportsCommenced",
-      "coreBudgetApproved",
+      "coreCoordinatorAction",
     ],
     icon: FaUser,
     requiredFields: [],
@@ -211,11 +209,7 @@ const FORM_SECTIONS: any = [
       "capacitySupportText",
       "capacityPreferredProviders",
       "capacityAlternativeProviders",
-      "capacityAgreementSigned",
-      "capacitySupportsInPlace",
-      "capacityAssessmentRequired",
-      "capacityActions",
-      "capacityBudgetApproved",
+      "capacityCoordinatorAction",
     ],
     icon: FaUser,
     requiredFields: [],
@@ -227,10 +221,7 @@ const FORM_SECTIONS: any = [
       "supportRequired1",
       "preferredProviders1",
       "alternativeProviders1",
-      "serviceAgreement1",
-      "additionalAssessment1",
-      "assessmentActions1",
-      "planManagerDiscussion1",
+      "capitalCoordinatorAction",
     ],
     icon: FaUser,
     requiredFields: [],
@@ -242,10 +233,7 @@ const FORM_SECTIONS: any = [
       "supportRequired2",
       "preferredProviders2",
       "alternativeProviders2",
-      "serviceAgreement2",
-      "additionalAssessment2",
-      "assessmentActions2",
-      "budgetApproval",
+      "mainstreamCoordinatorAction",
     ],
     icon: FaUser,
     requiredFields: [],
@@ -375,52 +363,33 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     // Page 4
     coreSupportText: "",
     corePreferredProviders: "",
-    corePreferredProviders2: "",
     coreAlternativeProviders: "",
-    coreAlternativeProviders2: "",
-    coreAgreementSigned: "",
-    coreSupportsCommenced: "",
-    coreBudgetApproved: "",
+    coreCoordinatorAction: "",
 
     // Page 5
     capacitySupportText: "",
     capacityPreferredProviders: "",
-    capacityPreferredProviders2: "",
     capacityAlternativeProviders: "",
-    capacityAlternativeProviders2: "",
-    capacityAgreementSigned: "",
-    capacitySupportsInPlace: "",
-    capacityAssessmentRequired: "",
-    capacityActions: "",
-    capacityBudgetApproved: "",
+    capacityCoordinatorAction: "",
 
     // Page 6
     supportRequired1: "",
     preferredProviders1: "",
-    preferredProvidersCapital2: "",
     alternativeProviders1: "",
-    alternativeProvidersCapital2: "",
-    serviceAgreement1: "",
-    additionalAssessment1: "",
-    assessmentActions1: "",
-    planManagerDiscussion1: "",
+    capitalCoordinatorAction: "",
 
     // Page 7
     supportRequired2: "",
     preferredProviders2: "",
-    preferredProvidersMainstream2: "",
     alternativeProviders2: "",
-    alternativeProvidersMainstream2: "",
-    serviceAgreement2: "",
-    additionalAssessment2: "",
-    assessmentActions2: "",
+    mainstreamCoordinatorAction: "",
 
     // Page 8
     budgetApproval: "",
     goalsText: "",
 
     ...formData,
-    // Page 9
+    // Page 9 (Signatures)
     participantSignature: formData?.participantSignature || "",
     participantDate: formData?.participantDate || formData?.participantSignatureDate || new Date().toISOString().split('T')[0],
     participantSignatureDate: formData?.participantSignatureDate || formData?.participantDate || new Date().toISOString().split('T')[0],
@@ -979,133 +948,55 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     goal5: { label: "Goal 5", type: "text" },
     goal6: { label: "Goal 6", type: "text" },
     goal7: { label: "Goal 7", type: "text" },
-    coreSupportText: { label: "Support Required: ", type: "textarea" },
+    coreSupportText: { label: "Support Required", type: "textarea" },
     corePreferredProviders: {
-      label: "Preferred providers",
+      label: "Preferred Providers",
       type: "textarea",
     },
-    corePreferredProviders2: {
-      label: "Preferred providers",
-      type: "textarea",
-    },
-
     coreAlternativeProviders: {
-      label: "Alternative providers ",
+      label: "Alternative Providers",
       type: "textarea",
     },
-    coreAlternativeProviders2: {
-      label: "Alternative providers ",
+    coreCoordinatorAction: {
+      label: "Support Coordinator's Action",
       type: "textarea",
     },
 
-    coreAgreementSigned: {
-      label: "Service Agreement developed/signed?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    coreSupportsCommenced: { label: "Supports have commenced", type: "textarea" },
-    coreBudgetApproved: {
-      label: "Discussion held with Plan Manager and budget approved?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-
-    capacitySupportText: { label: "Supports Required: ", type: "textarea" },
+    capacitySupportText: { label: "Support Required", type: "textarea" },
     capacityPreferredProviders: {
-      label: "Preferred providers",
+      label: "Preferred Providers",
       type: "textarea",
     },
-    capacityPreferredProviders2: {
-      label: "Preferred providers ",
-      type: "textarea",
-    },
-
     capacityAlternativeProviders: {
-      label: "Alternative providers ",
+      label: "Alternative Providers",
       type: "textarea",
     },
-    capacityAlternativeProviders2: {
-      label: "Alternative providers ",
+    capacityCoordinatorAction: {
+      label: "Support Coordinator's Action",
       type: "textarea",
-    },
-
-    capacityAgreementSigned: {
-      label: "Service Agreement developed/signed?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    capacitySupportsInPlace: {
-      label: "Supports in place at start of plan",
-      type: "text",
-    },
-    capacityAssessmentRequired: {
-      label: "Are additional assessments required to access this support type?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    capacityActions: { label: "Actions:", type: "text" },
-    capacityBudgetApproved: {
-      label: "Discussion held with Plan Manager and budget approved?",
-      type: "dropdown",
-      options: yesNoOptions,
     },
 
     supportRequired1: { label: "Support Required", type: "textarea" },
-    preferredProviders1: { label: "Preferred providers ", type: "textarea" },
-    preferredProvidersCapital2: {
-      label: "Prefered Providers ",
-      type: "textarea",
-    },
+    preferredProviders1: { label: "Preferred Providers", type: "textarea" },
     alternativeProviders1: {
-      label: "Alternative providers ",
+      label: "Alternative Providers",
       type: "textarea",
     },
-    alternativeProvidersCapital2: {
-      label: "Alternate Providers ",
+    capitalCoordinatorAction: {
+      label: "Support Coordinator's Action",
       type: "textarea",
-    },
-    serviceAgreement1: {
-      label: "Service Agreement developed/signed?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    additionalAssessment1: {
-      label: "Are additional assessments required to access this support type?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    assessmentActions1: { label: "Actions:", type: "text" },
-    planManagerDiscussion1: {
-      label: "Discussion held with Plan Manager and budget approved?",
-      type: "dropdown",
-      options: yesNoOptions,
     },
 
     supportRequired2: { label: "Support Required", type: "textarea" },
-    preferredProviders2: { label: "Preferred providers ", type: "textarea" },
-    preferredProvidersMainstream2: {
-      label: "Preferred Providers ",
-      type: "textarea",
-    },
+    preferredProviders2: { label: "Preferred Providers", type: "textarea" },
     alternativeProviders2: {
-      label: "Alternative providers ",
+      label: "Alternative Providers",
       type: "textarea",
     },
-    alternativeProvidersMainstream2: {
-      label: "Alternative Providers ",
+    mainstreamCoordinatorAction: {
+      label: "Support Coordinator's Action",
       type: "textarea",
     },
-    serviceAgreement2: {
-      label: "Service Agreement developed/signed?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    additionalAssessment2: {
-      label: "Are additional assessments required to access this support type?",
-      type: "dropdown",
-      options: yesNoOptions,
-    },
-    assessmentActions2: { label: "Actions:", type: "text" },
 
     budgetApproval: {
       label: "Discussion held with Plan Manager and budget approved?",
@@ -1411,192 +1302,121 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   </div>
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "coreSupports" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Full width fields */}
-                  <div className="md:col-span-2">
-                    {renderAutoResizeTextArea(
-                      "Support Required",
-                      "coreSupportText"
-                    )}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    {renderAutoResizeTextArea(
-                      "Preferred Providers ",
-                      "corePreferredProviders"
-                    )}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    {renderAutoResizeTextArea(
-                      "Alternative Providers ",
-                      "coreAlternativeProviders"
-                    )}
-                  </div>
-
-                  {/* Dropdown - full width */}
-                  <div className="md:col-span-2">
-                    {renderDropdown(
-                      "Service Agreement developed/signed?",
-                      "coreAgreementSigned",
-                      yesNoOptions
-                    )}
-                  </div>
-
-                  {/* Side-by-side: Support Co-ordinator Action + Discussion */}
-                  <div>
-                    {renderAutoResizeTextArea(
-                      "Support Co-ordinator Action",
-                      "coreSupportsCommenced"
-                    )}
-                  </div>
-                  <div>
-                    {renderDropdown(
-                      "Discussion held with Plan Manager and budget approved?",
-                      "coreBudgetApproved",
-                      yesNoOptions
-                    )}
-                  </div>
+                <div className="flex flex-col gap-6">
+                  {renderAutoResizeTextArea("Support Required", "coreSupportText")}
+                  {renderAutoResizeTextArea("Preferred Providers", "corePreferredProviders")}
+                  {renderAutoResizeTextArea("Alternative Providers", "coreAlternativeProviders")}
+                  {renderAutoResizeTextArea("Support Coordinator's Action", "coreCoordinatorAction")}
                 </div>
-              ) :
+              ) : FORM_SECTIONS[currentStep].id === "capacityBuilding" ? (
+                <div className="flex flex-col gap-6">
+                  {renderAutoResizeTextArea("Support Required", "capacitySupportText")}
+                  {renderAutoResizeTextArea("Preferred Providers", "capacityPreferredProviders")}
+                  {renderAutoResizeTextArea("Alternative Providers", "capacityAlternativeProviders")}
+                  {renderAutoResizeTextArea("Support Coordinator's Action", "capacityCoordinatorAction")}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "ndisFundedSupports" ? (
+                <div className="flex flex-col gap-6">
+                  {renderAutoResizeTextArea("Support Required", "supportRequired1")}
+                  {renderAutoResizeTextArea("Preferred Providers", "preferredProviders1")}
+                  {renderAutoResizeTextArea("Alternative Providers", "alternativeProviders1")}
+                  {renderAutoResizeTextArea("Support Coordinator's Action", "capitalCoordinatorAction")}
+                </div>
+              ) : FORM_SECTIONS[currentStep].id === "mainstreamSupports" ? (
+                <div className="flex flex-col gap-6">
+                  {renderAutoResizeTextArea("Support Required", "supportRequired2")}
+                  {renderAutoResizeTextArea("Preferred Providers", "preferredProviders2")}
+                  {renderAutoResizeTextArea("Alternative Providers", "alternativeProviders2")}
+                  {renderAutoResizeTextArea("Support Coordinator's Action", "mainstreamCoordinatorAction")}
+                </div>
+              )
 
-                FORM_SECTIONS[currentStep].id === "capacityBuilding" ? (
+
+
+
+
+
+
+
+                : (
+                  // Standard grid layout for other sections
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      {renderAutoResizeTextArea(
-                        "Support Required",
-                        "capacitySupportText"
-                      )}
-                    </div>
+                    {FORM_SECTIONS[currentStep].fields.map((field: any) => {
+                      const meta = FIELD_METADATA[field] || {
+                        label: field,
+                        type: "text",
+                      };
+                      const required = isFieldRequired(field);
 
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "capacityPreferredProviders")}</div>
+                      if (
+                        field === "fundingOther" &&
+                        localValues.funding !== "Other"
+                      ) {
+                        return null;
+                      }
 
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "capacityAlternativeProviders")}</div>
-
-                    {renderDropdown("Service Agreement developed/signed?", "capacityAgreementSigned", yesNoOptions)}
-                    {renderInput("Supports in place at start of plan", "capacitySupportsInPlace")}
-                    {renderDropdown("Are additional assessments required?", "capacityAssessmentRequired", yesNoOptions)}
-                    {localValues.capacityAssessmentRequired === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "capacityActions")}
-                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "capacityBudgetApproved", yesNoOptions)}
-                  </div>
-
-                ) : FORM_SECTIONS[currentStep].id === "ndisFundedSupports" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      {renderAutoResizeTextArea("Support Required", "supportRequired1")}
-                    </div>
-
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "preferredProviders1")}</div>
-
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "alternativeProviders1")}</div>
-                    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement1", yesNoOptions)}
-                    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment1", yesNoOptions)}
-                    {localValues.additionalAssessment1 === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "assessmentActions1")}
-                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "planManagerDiscussion1", yesNoOptions)}
-                  </div>
-
-                ) : FORM_SECTIONS[currentStep].id === "mainstreamSupports" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      {renderAutoResizeTextArea("Support Required", "supportRequired2")}
-                    </div>
-
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Preferred Providers ", "preferredProviders2")}</div>
-
-                    <div className="md:col-span-2">{renderAutoResizeTextArea("Alternative Providers ", "alternativeProviders2")}</div>
-
-                    {renderDropdown("Service Agreement developed/signed?", "serviceAgreement2", yesNoOptions)}
-                    {renderDropdown("Are additional assessments required to access this support type?", "additionalAssessment2", yesNoOptions)}
-                    {localValues.additionalAssessment2 === "Yes" && renderAutoResizeTextArea("If Yes - Actions", "assessmentActions2")}
-                    {renderDropdown("Discussion held with Plan Manager and budget approved?", "budgetApproval", yesNoOptions)}
-                  </div>)
-
-
-
-
-
-
-
-
-                  : (
-                    // Standard grid layout for other sections
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {FORM_SECTIONS[currentStep].fields.map((field: any) => {
-                        const meta = FIELD_METADATA[field] || {
-                          label: field,
-                          type: "text",
-                        };
-                        const required = isFieldRequired(field);
-
-                        if (
-                          field === "fundingOther" &&
-                          localValues.funding !== "Other"
-                        ) {
-                          return null;
-                        }
-
-                        if (meta.type === "checkbox") {
-                          return (
-                            <div key={field} className="md:col-span-2">
-                              {renderCheckbox(meta.label, field, required)}
-                            </div>
-                          );
-                        }
-                        if (meta.type === "radio") {
-                          return (
-                            <div key={field} className="md:col-span-2">
-                              {renderRadioGroup(
-                                meta.label,
-                                field,
-                                meta.options || [],
-                                required
-                              )}
-                            </div>
-                          );
-                        }
-                        if (meta.type === "dropdown") {
-                          return (
-                            <div key={field} className="md:col-span-2">
-                              {renderDropdown(
-                                meta.label,
-                                field,
-                                meta.options || [],
-                                required
-                              )}
-                            </div>
-                          );
-                        }
-                        if (
-                          field === "contactAddress" ||
-                          field === "address" ||
-                          field === "communicationConsiderations" ||
-                          field.startsWith("goal")
-                        ) {
-                          return (
-                            <div key={field} className="md:col-span-2">
-                              {renderAutoResizeTextArea(
-                                meta.label,
-                                field,
-                                meta.placeholder,
-                                required
-                              )}
-                            </div>
-                          );
-                        }
+                      if (meta.type === "checkbox") {
                         return (
-                          <div key={field}>
-                            {renderInput(
+                          <div key={field} className="md:col-span-2">
+                            {renderCheckbox(meta.label, field, required)}
+                          </div>
+                        );
+                      }
+                      if (meta.type === "radio") {
+                        return (
+                          <div key={field} className="md:col-span-2">
+                            {renderRadioGroup(
                               meta.label,
                               field,
-                              meta.type || "text",
+                              meta.options || [],
+                              required
+                            )}
+                          </div>
+                        );
+                      }
+                      if (meta.type === "dropdown") {
+                        return (
+                          <div key={field} className="md:col-span-2">
+                            {renderDropdown(
+                              meta.label,
+                              field,
+                              meta.options || [],
+                              required
+                            )}
+                          </div>
+                        );
+                      }
+                      if (
+                        field === "contactAddress" ||
+                        field === "address" ||
+                        field === "communicationConsiderations" ||
+                        field.startsWith("goal")
+                      ) {
+                        return (
+                          <div key={field} className="md:col-span-2">
+                            {renderAutoResizeTextArea(
+                              meta.label,
+                              field,
                               meta.placeholder,
                               required
                             )}
                           </div>
                         );
-                      })}
-                    </div>
-                  )}
+                      }
+                      return (
+                        <div key={field}>
+                          {renderInput(
+                            meta.label,
+                            field,
+                            meta.type || "text",
+                            meta.placeholder,
+                            required
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
             </div>
           </form>
         </section>
@@ -1609,7 +1429,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep
-                  ? "bg-blue-600 border-blue-600 shadow"
+                  ? "bg-black border-black shadow"
                   : index < currentStep
                     ? "bg-green-500 border-green-500"
                     : "bg-gray-200 border-gray-300"
@@ -1663,7 +1483,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-black to-gray-600 text-white hover:from-gray-900 hover:to-gray-700 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

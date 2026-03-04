@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
-    color: '#2563eb',
+    color: '#000000',
     fontWeight: 'bold',
   },
   qaNoCell: {
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
-    color: '#2563eb',
+    color: '#000000',
     fontWeight: 'bold',
   },
   qaCommentsCell: {
@@ -279,13 +279,13 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 10,
     height: 10,
-    border: '1 solid #2563eb',
+    border: '1 solid #000000',
     marginRight: 3,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#000000',
   },
   checkboxTick: {
     color: '#ffffff',
@@ -322,21 +322,21 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   // Helper function to remove duplicate consecutive text
   const deduplicateText = (text: string): string => {
     if (!text || text.length < 10) return text;
-    
+
     // Remove patterns like "Comments: X Comments: X Comments: X"
     // by finding the shortest repeating unit
     const trimmed = text.trim();
-    
+
     // Try to find if text is duplicated by looking for patterns
     for (let len = Math.floor(trimmed.length / 2); len >= 20; len--) {
       const pattern = trimmed.substring(0, len);
       const regex = new RegExp(`^(${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})+`, 'g');
-      
+
       if (regex.test(trimmed)) {
         return pattern.trim();
       }
     }
-    
+
     return trimmed;
   };
 
@@ -360,18 +360,18 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       }
       return '';
     }
-    
+
     // Common field mappings - match web view exactly
     const commonFieldMap: Record<string, string> = {
       name: 'name',
       ndisNumber: 'ndis',        // Web view uses 'ndis'
       dob: 'dob',
       address: 'street',          // Web view uses 'street'
-  };
+    };
 
     // Try form data first, then common fields with proper mapping
     let rawValue = formData?.[key];
-    
+
     if (!rawValue && commonFieldMap[key]) {
       rawValue = commonFieldsData?.[commonFieldMap[key]];
     }
@@ -390,7 +390,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     if (typeof rawValue === 'string') {
       // Remove "start" and "end" markers that might be added accidentally
       rawValue = rawValue.replace(/^start\s*/i, '').replace(/\s*end$/i, '');
-      
+
       // Remove duplicate consecutive text patterns
       const cleanedValue = deduplicateText(rawValue);
       return cleanedValue;
@@ -415,7 +415,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
   const footerWebsite = settings?.company_website || '';
   const footerId = settings?.home_visit_form_id || '';
   const footerDate = formatDate(settings?.review_date || '');
-  
+
   console.log('🦶 [PDF Footer]', { footerWebsite, footerId, footerDate });
 
   const logoSrc = images?.infinityLogo || '/infinity_logo.png';
@@ -456,7 +456,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
 
     const value = getFieldValue(q.key);
     const comments = getFieldValue(`${q.key}_comments`);
-    
+
     // Debug logging - safe for arrays
     console.log(`[PDF DEBUG] Question: ${q.key}, Value: "${value}", Type: ${typeof value}`);
 
@@ -465,7 +465,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
       const entryOptions: string[] = ['Left side', 'Right Side', 'Rear', 'Front Door', 'Other'];
       const rawValue = formData?.[q.key];
       const selectedOptions: string[] = Array.isArray(rawValue) ? rawValue : [];
-      
+
       return (
         <View style={styles.qaRow} key={q.key} wrap={false}>
           <View style={styles.qaQuestionCell}>
@@ -498,14 +498,14 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     const normalizedValue = String(value || '').toLowerCase().trim();
     let isYes = normalizedValue === 'yes';
     let isNo = normalizedValue === 'no';
-    
+
     // 🔧 FIX: Smart inference - if YES/NO is empty but comments exist, infer "Yes"
     if (!isYes && !isNo && comments && comments.trim() !== '') {
       console.log(`[PDF RENDER] ⚠️ ${q.key}: YES/NO empty but comments exist. Inferring YES.`);
       isYes = true;
       isNo = false;
     }
-    
+
     // Extensive debug logging
     console.log(`[PDF RENDER] Key: ${q.key}`);
     console.log(`[PDF RENDER] Raw value: "${value}"`);
@@ -514,21 +514,21 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     console.log(`[PDF RENDER] isYes: ${isYes}, isNo: ${isNo}`);
     console.log(`[PDF RENDER] Will render YES tick: ${isYes ? 'YES ✓' : 'NO'}`);
     console.log(`[PDF RENDER] Will render NO tick: ${isNo ? 'YES ✓' : 'NO'}`);
-    
+
     // 🔧 FIX: Use same checkmark style as working checkbox (blue background + white tick)
     console.log(`[PDF RENDER] Will render: YES=${isYes}, NO=${isNo}`);
     console.log('---');
-    
+
     return (
       <View style={styles.qaRow} key={q.key} wrap={false}>
         <View style={styles.qaQuestionCell}>
           <Text>{q.label}</Text>
         </View>
         <View style={styles.qaYesCell}>
-          {isYes && <Text style={{ color: '#2563eb', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
+          {isYes && <Text style={{ color: '#000000', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
         </View>
         <View style={styles.qaNoCell}>
-          {isNo && <Text style={{ color: '#2563eb', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
+          {isNo && <Text style={{ color: '#000000', fontSize: 14, fontFamily: 'DejaVuSans' }}>✓</Text>}
         </View>
         <View style={styles.qaCommentsCell}>
           <Text style={{ fontSize: 7, lineHeight: 1.5 }}>{comments || ''}</Text>
@@ -546,28 +546,28 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
     const riskScore = getFieldValue(`riskScore${row}`);
     const control = getFieldValue(`control${row}`);
     const responsible = getFieldValue(`responsible${row}`);
-    
+
     // Skip if row is empty
     if (!issue && !riskScore && !control && !responsible) {
       return false;
     }
-    
+
     // Skip if essential data is missing (issue must exist)
     if (!issue || issue.trim() === '') {
       return false;
     }
-    
+
     // 🔧 FIX: Check for duplicates - skip if same issue appears earlier
     const isDuplicate = self.slice(0, index).some(prevRow => {
       const prevIssue = getFieldValue(`issue${prevRow}`);
       return prevIssue && issue && prevIssue.toLowerCase().trim() === issue.toLowerCase().trim();
     });
-    
+
     if (isDuplicate) {
       console.warn(`⚠️ [PDF] Duplicate risk entry detected for row ${row}: "${issue}"`);
       return false;
     }
-    
+
     return true;
   });
 
@@ -660,7 +660,7 @@ const HomeVisitRiskAssessment_MATCHING: React.FC<HomeVisitFormPDFProps> = ({
             <Text style={[styles.legendBlockTitle, { color: '#991b1b' }]}>HIGH RED</Text>
             <Text style={styles.legendBlockText}>
               Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.
-                </Text>
+            </Text>
           </View>
 
           {/* Risk Assessment Table - Only show if there are filled rows */}

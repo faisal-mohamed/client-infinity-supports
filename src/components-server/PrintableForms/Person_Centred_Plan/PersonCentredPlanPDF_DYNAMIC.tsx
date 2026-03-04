@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#000000',
   },
-  
+
   // Regular page styles
   page: {
     flexDirection: 'column',
@@ -169,10 +169,10 @@ const styles = StyleSheet.create({
   questionBlockWithSpacing: {
     marginBottom: 32, // Normal spacing + 2-line spacing (8 + 24 = 32pt)
   },
-  
+
   // ✅ Uniform Box Layout for Health Information
   healthQuestionContainer: {
-    border: '1.5 solid #3b82f6',
+    border: '1.5 solid #000000',
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     position: 'relative', // Enable positioning for border continuity
     breakInside: 'auto', // Allow natural page breaks to prevent overflow
   },
-  
+
   // Container continuity styles for page breaks - maintaining rounded rectangle shape
   longAnswerValueContinuous: {
     fontSize: 10,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     breakInside: 'auto', // Allow natural page breaks
   },
-  
+
   // Style for My Story without container box
   longAnswerValueNoBox: {
     fontSize: 10,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30, // 2-line space after text
     breakInside: 'auto', // Allow natural page breaks
   },
-  
+
   // Enhanced container styles with better page break handling - maintaining rounded rectangle shape
   longAnswerValueWithBottomBorder: {
     fontSize: 10,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     breakInside: 'auto', // Allow natural page breaks to prevent overflow
     marginBottom: 24, // 2-line spacing before next content
   },
-  
+
   // Container that ends on page - with proper closing
   longAnswerValueEnding: {
     fontSize: 10,
@@ -332,12 +332,12 @@ const styles = StyleSheet.create({
     breakInside: 'auto', // Allow natural page breaks to prevent overflow
     marginBottom: 24, // 2-line spacing after container ends
   },
-  
+
   // Goal card styles - DYNAMIC
   goalCard: {
     marginBottom: 15,
     padding: 12,
-    border: '1.5 solid #3b82f6',
+    border: '1.5 solid #000000',
     borderRadius: 8,
     backgroundColor: '#eff6ff',
   },
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
     paddingBottom: 6,
-    borderBottom: '1 solid #3b82f6',
+    borderBottom: '1 solid #000000',
   },
   goalTitle: {
     fontSize: 11,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     fontStyle: 'italic',
   },
-  
+
   // Support table styles
   supportTable: {
     marginBottom: 15,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#111827',
   },
-  
+
   // Informal supports table - DYNAMIC
   table: {
     marginTop: 10,
@@ -436,8 +436,8 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#3b82f6',
-    borderBottom: '1.5 solid #2563eb',
+    backgroundColor: '#000000',
+    borderBottom: '1.5 solid #000000',
   },
   tableHeaderCell: {
     flex: 1,
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     color: '#111827',
     textAlign: 'center',
   },
-  
+
   // Checkbox styles
   radioGroup: {
     flexDirection: 'row',
@@ -485,7 +485,7 @@ const styles = StyleSheet.create({
     height: 10,
     border: '1 solid #000000',
     marginRight: 4,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#000000',
   },
   checkboxLabel: {
     fontSize: 9,
@@ -539,7 +539,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         }
         return '';
       }
-      
+
       let result = '';
       if (commonFieldMapping[key]) {
         result = commonFieldsData?.[commonFieldMapping[key]] || '';
@@ -569,10 +569,10 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return String(dateString);
-      return date.toLocaleDateString('en-AU', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit' 
+      return date.toLocaleDateString('en-AU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
       });
     } catch {
       return String(dateString);
@@ -598,7 +598,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   // ✅ QUESTION SPACING RULE IMPLEMENTATION
   // Smart spacing logic to add 2-line gaps between questions
   // Only adds spacing if next question fits on same page
-  
+
   // Helper function to estimate content height
   const estimateContentHeight = (text: string, baseHeight: number = 20): number => {
     if (!text) return 0;
@@ -621,7 +621,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   // Helper function to render long answer with container continuity
   const renderLongAnswerWithContinuity = (label: string, value: string, isContinuation: boolean = false, hasPageBreak: boolean = false, isEnding: boolean = false) => {
     let valueStyle = styles.longAnswerValue;
-    
+
     if (isContinuation) {
       valueStyle = styles.longAnswerValueContinuous;
     } else if (hasPageBreak) {
@@ -629,7 +629,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
     } else if (isEnding) {
       valueStyle = styles.longAnswerValueEnding;
     }
-    
+
     return (
       <View style={styles.longAnswer}>
         <Text style={styles.longAnswerLabel}>{label}</Text>
@@ -644,7 +644,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
   const renderContainerWithPageBreak = (label: string, value: string, shouldSplit: boolean = false, questionNumber?: number) => {
     // Add question numbering if provided
     const displayLabel = questionNumber ? `(${questionNumber}) ${label}` : label;
-    
+
     // For sections without container boxes - just label and text
     const noBoxSections = [
       'My Story:',
@@ -658,7 +658,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
       'Ambulance Cover:',
       'Proactive & preventative healthcare prompts:'
     ];
-    
+
     if (noBoxSections.includes(label)) {
       return (
         <View style={styles.longAnswer}>
@@ -669,7 +669,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
       );
     }
-    
+
     // For other sections - use container box (like Goals)
     return (
       <View style={styles.longAnswer}>
@@ -746,14 +746,14 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         <View style={styles.coverHeader}>
           <Image src={logoDataUrl} style={styles.coverHeaderLogo} />
         </View>
-        
+
         <View style={styles.coverBlueCircle1} />
         <View style={styles.coverBlueCircle2} />
-        
+
         <View style={styles.coverMainCircle}>
           <Text style={styles.coverTitle}>PERSON{'\n'}CENTRED PLAN</Text>
         </View>
-        
+
         <View style={styles.coverFooter}>
           <Text style={styles.coverFooterText}>{getWebsite()}</Text>
           <Text style={styles.coverFooterText}>{getFormId()}</Text>
@@ -772,7 +772,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         <View style={styles.header} fixed>
           <Image src={logoDataUrl} style={styles.headerLogo} />
         </View>
-        
+
         <View style={styles.content}>
           {/* ========================================
               SECTION 1: PERSONAL INFORMATION
@@ -820,16 +820,16 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>2. About Me</Text>
-            
+
             {renderContainerWithPageBreak('My Story:', getValue('myStory'), true, 1)}
             {renderQuestionSpacing(true)}
-            
+
             {renderContainerWithPageBreak('Strengths:', getValue('strengths') || 'No information provided', false, 2)}
             {renderQuestionSpacing(true)}
-            
+
             {renderContainerWithPageBreak('Challenges:', getValue('challenges') || 'No information provided', false, 3)}
             {renderQuestionSpacing(true)}
-            
+
             {renderContainerWithPageBreak('Allergies:', getValue('allergies') || 'No information provided', false, 4)}
           </View>
 
@@ -839,27 +839,27 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>3. Health Information</Text>
-            
+
             {/* Question 1: History of Respiratory Depression */}
             {renderContainerWithPageBreak('History of Respiratory Depression:', getValue('respiratoryHistory') || 'None specified', false, 1)}
             {renderQuestionSpacing(true)}
-            
+
             {/* Question 2: Precautions */}
             {renderContainerWithPageBreak('Precautions:', getValue('precautions') || 'None specified', false, 2)}
             {renderQuestionSpacing(true)}
-            
+
             {/* Question 3: Health Conditions */}
             {renderContainerWithPageBreak('Health Conditions:', getValue('healthConditions') || 'None specified', false, 3)}
             {renderQuestionSpacing(true)}
-            
+
             {/* Question 4: Companion Card */}
             {renderContainerWithPageBreak('Companion Card:', getValue('companionCard') || 'No', false, 4)}
             {renderQuestionSpacing(true)}
-            
+
             {/* Question 5: Ambulance Cover */}
             {renderContainerWithPageBreak('Ambulance Cover:', getValue('ambulanceCover') || 'No', false, 5)}
             {renderQuestionSpacing(true)}
-            
+
             {/* Question 6: Proactive & preventative healthcare prompts (Last question - no spacing after) */}
             {renderContainerWithPageBreak('Proactive & preventative healthcare prompts:', getValue('healthcarePrompt') || 'No', false, 6)}
           </View>
@@ -873,7 +873,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>4. Goals</Text>
-            
+
             {goals.length > 0 ? (
               goals.map((goal, index) => (
                 <React.Fragment key={index}>
@@ -883,17 +883,17 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                       <Text style={styles.goalTitle}>Goal {goal.number}</Text>
                       <Text style={styles.outcomeRating}>OUTCOME RATING: {goal.rating}</Text>
                     </View>
-                    
+
                     <View style={styles.goalDescription}>
                       <Text style={styles.goalDescriptionLabel}>Goal Description:</Text>
                       <Text style={styles.goalDescriptionValue}>{goal.goal}</Text>
                     </View>
-                    
+
                     <View style={styles.goalActions}>
                       <Text style={styles.goalActionsLabel}>Actions & Resources:</Text>
                       <Text style={styles.goalActionsValue}>{goal.actions}</Text>
                     </View>
-                    
+
                     <View style={styles.goalMetadata}>
                       <Text style={styles.goalMetadataItem}>By Whom: {goal.byWhom}</Text>
                       <Text style={styles.goalMetadataItem}>
@@ -904,7 +904,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                       </Text>
                     </View>
                   </View>
-                  
+
                   {/* Question Spacing - Add 2-line spacing between goals (not after last one) */}
                   {renderQuestionSpacing(shouldAddSpacing(index, goals.length))}
                 </React.Fragment>
@@ -922,8 +922,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           {renderFullPageSection(
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>5. Support Information</Text>
-              
+              <Text style={styles.sectionTitle}>5. Support Information</Text>
+
               <View style={styles.supportTable}>
                 <View style={styles.supportTableRow}>
                   <Text style={styles.supportTableLabel}>1) Is a PBS Support Plan included?</Text>
@@ -931,28 +931,28 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                     {getValue('pbsSupportPlanIncluded') || 'No'}
                   </Text>
                 </View>
-                
+
                 <View style={styles.supportTableRow}>
                   <Text style={styles.supportTableLabel}>2) Does the participant have any Restrictive Practices in their support plan?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('restrictivePractices') || 'No'}
                   </Text>
                 </View>
-                
+
                 <View style={styles.supportTableRow}>
                   <Text style={styles.supportTableLabel}>3) Name of organization providing support?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('organizationName') || 'Not specified'}
                   </Text>
                 </View>
-                
+
                 <View style={styles.supportTableRow}>
                   <Text style={styles.supportTableLabel}>4) Contact person from the organization?</Text>
                   <Text style={styles.supportTableValue}>
                     {getValue('contactPersonOrg') || 'Not specified'}
                   </Text>
                 </View>
-                
+
                 <View style={styles.supportTableRow}>
                   <Text style={styles.supportTableLabel}>5) Contact number for the organization?</Text>
                   <Text style={styles.supportTableValue}>
@@ -973,8 +973,8 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
           ======================================== */}
           {renderFullPageSection(
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>6. Informal Supports</Text>
-              
+              <Text style={styles.sectionTitle}>6. Informal Supports</Text>
+
               {informalSupports.length > 0 ? (
                 <View style={styles.table}>
                   {/* Table Header */}
@@ -983,7 +983,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                     <Text style={styles.tableHeaderCell}>Role</Text>
                     <Text style={styles.tableHeaderCell}>Frequency</Text>
                   </View>
-                  
+
                   {/* Dynamic Table Rows with Question Spacing */}
                   {informalSupports.map((support, index) => (
                     <React.Fragment key={index}>
@@ -993,7 +993,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
                         <Text style={styles.tableCell}>{support.role}</Text>
                         <Text style={styles.tableCell}>{support.frequency}</Text>
                       </View>
-                      
+
                       {/* Question Spacing - Add 2-line spacing between support rows (not after last one) */}
                       {renderQuestionSpacing(shouldAddSpacing(index, informalSupports.length))}
                     </React.Fragment>
@@ -1007,7 +1007,7 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
             </View>
           )}
         </View>
-        
+
         {/* Fixed footer on all content pages */}
         <View style={styles.footer} fixed>
           <Text style={styles.footerText}>{getWebsite()}</Text>

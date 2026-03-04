@@ -55,30 +55,29 @@ const formSchema: any = {
       {
         title: "CORE SUPPORTS",
         fields: [
-          { key: "coreSupportText", label: "", type: "textarea" },
-          { key: "corePreferredProviders", label: "Preferred providers", type: "textarea" },
-          { key: "coreAlternativeProviders", label: "Alternative providers", type: "textarea" },
-          { key: "coreAgreementSigned", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
-          { key: "coreSupportsCommenced", label: "Supports have commenced", type: "text" },
-          { key: "coreBudgetApproved", label: "Discussion held with Plan Manager and budget approved?", type: "checkbox-yes-no" }
+          { key: "coreSupportText", label: "Support Required", type: "textarea" },
+          { key: "corePreferredProviders", label: "Preferred Providers", type: "textarea" },
+          { key: "coreAlternativeProviders", label: "Alternative Providers", type: "textarea" },
+          { key: "coreCoordinatorAction", label: "Support Coordinator's Action", type: "textarea" }
         ]
       },
       {
         title: "CAPACITY BUILDING",
         fields: [
-          { key: "capacitySupportText", label: "", type: "textarea" },
-          { key: "capacityPreferredProviders", label: "Preferred providers", type: "textarea" },
-          { key: "capacityAlternativeProviders", label: "Alternative providers", type: "textarea" },
-          { key: "capacityAgreementSigned", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
-          { key: "capacitySupportsInPlace", label: "Supports in place at start of plan", type: "text" },
-          { key: "capacityAssessmentRequired", label: "Are additional assessments required?", type: "checkbox-dual", options: ["Yes", "No"] },
-          { key: "capacityActions", label: "If Yes - Actions", type: "text" },
-          { key: "capacityBudgetApproved", label: "Discussion held with Plan Manager and budget approved?", type: "checkbox-yes-no" }
+          { key: "capacitySupportText", label: "Support Required", type: "textarea" },
+          { key: "capacityPreferredProviders", label: "Preferred Providers", type: "textarea" },
+          { key: "capacityAlternativeProviders", label: "Alternative Providers", type: "textarea" },
+          { key: "capacityCoordinatorAction", label: "Support Coordinator's Action", type: "textarea" }
         ]
       },
       {
         title: "CAPITAL",
-        fields: [] // Can be filled as needed later
+        fields: [
+          { key: "supportRequired1", label: "Support Required", type: "textarea" },
+          { key: "preferredProviders1", label: "Preferred Providers", type: "textarea" },
+          { key: "alternativeProviders1", label: "Alternative Providers", type: "textarea" },
+          { key: "capitalCoordinatorAction", label: "Support Coordinator's Action", type: "textarea" }
+        ]
       }
     ]
   },
@@ -86,35 +85,12 @@ const formSchema: any = {
     title: "Support Coordination Action Plan",
     sections: [
       {
-        // title: "NDIS FUNDED SUPPORTS",
-        fields: [
-          { key: "supportRequired1", label: "Support Required", type: "textarea" },
-          { key: "preferredProviders1", label: "Preferred providers ", type: "textarea" },
-
-          { key: "preferredProvidersCapital2", label: "Preferred providers ", type: "textarea" },
-
-          { key: "alternativeProviders1", label: "Alternative providers ", type: "textarea" },
-          { key: "alternativeProvidersCapital2", label: "Alternative providers 2", type: "textarea" },
-
-          { key: "serviceAgreement1", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
-          { key: "additionalAssessment1", label: "Are additional assessments required to access this support type?", type: "checkbox-dual", options: ["Yes", "No"] },
-          { key: "assessmentActions1", label: "If Yes - Actions", type: "text" },
-          { key: "planManagerDiscussion1", label: "Discussion held with Plan Manager and budget approved?", type: "checkbox-yes-no" }
-        ]
-      },
-      {
         title: "MAINSTREAM SUPPORTS & SERVICES",
         fields: [
           { key: "supportRequired2", label: "Support Required", type: "textarea" },
-          { key: "preferredProviders2", label: "Preferred providers ", type: "textarea" },
-
-          { key: "preferredProvidersMainstream2", label: "Preferred providers", type: "textarea" },
-          { key: "alternativeProviders2", label: "Alternative providers ", type: "textarea" },
-
-          { key: "alternativeProvidersMainstream2", label: "Alternative providers ", type: "textarea" },
-          { key: "serviceAgreement2", label: "Service Agreement developed/signed?", type: "checkbox-yes-no" },
-          { key: "additionalAssessment2", label: "Are additional assessments required to access this support type?", type: "checkbox-dual", options: ["Yes", "No"] },
-          { key: "assessmentActions2", label: "If Yes - Actions", type: "text" }
+          { key: "preferredProviders2", label: "Preferred Providers", type: "textarea" },
+          { key: "alternativeProviders2", label: "Alternative Providers", type: "textarea" },
+          { key: "mainstreamCoordinatorAction", label: "Support Coordinator's Action", type: "textarea" }
         ]
       }
     ]

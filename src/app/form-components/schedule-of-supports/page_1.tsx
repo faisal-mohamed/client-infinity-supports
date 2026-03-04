@@ -56,7 +56,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
 
         {/* NDIS & Plan Dates */}
         <div className="flex justify-between mb-2 px-2" style={{ fontSize: '12px' }}>
-          <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
+          <span>NDIS Number: {commonFieldsData?.ndis || ""}</span>
           <span>
             Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
           </span>

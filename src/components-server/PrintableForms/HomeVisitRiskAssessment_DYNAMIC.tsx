@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-  
+
   // Metadata table
   metadataTable: {
     border: '1 solid #000000',
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 8,
   },
-  
+
   // Section header
   sectionHeader: {
     backgroundColor: '#d1d5db',
@@ -94,14 +94,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 4,
   },
-  
+
   // Table header row
   tableHeader: {
     border: '1 solid #000000',
     backgroundColor: '#f3f4f6',
     borderBottom: '1 solid #000000',
   },
-  
+
   // Individual question row - EACH QUESTION IS SEPARATE
   questionRow: {
     flexDirection: 'row',
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
-    color: '#2563eb',
+    color: '#000000',
   },
   noCell: {
     width: '10%',
@@ -130,14 +130,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: 'center',
     borderRight: '1 solid #000000',
-    color: '#2563eb',
+    color: '#000000',
   },
   commentsCell: {
     width: '40%',
     padding: 5,
     fontSize: 7,
   },
-  
+
   // Risk table
   riskTableHeader: {
     border: '1 solid #000000',
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     padding: 5,
     fontSize: 7,
   },
-  
+
   riskMatrix: {
     width: 500,
     height: 220,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     objectFit: 'contain',
   },
-  
+
   legendBlock: {
     marginBottom: 4,
   },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 7,
   },
-  
+
   // Signature
   signatureGrid: {
     flexDirection: 'row',
@@ -223,7 +223,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
   settings = {},
   images = {}
 }) => {
-  
+
   const formatDate = (value: string): string => {
     if (!value || typeof value !== 'string') return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -252,27 +252,27 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
       }
       return '';
     }
-    
+
     const commonFieldMap: Record<string, string> = {
       name: 'name',
       ndisNumber: 'ndis',
       dob: 'dob',
       address: 'street',
     };
-    
+
     const mappedKey = commonFieldMap[key];
     const rawValue = mappedKey ? commonFieldsData?.[mappedKey] : formData?.[key];
-    
+
     if (typeof rawValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
       return formatDate(rawValue);
     }
-    
+
     return rawValue ?? '';
   };
 
   const logoSrc = images?.infinityLogo || '/infinity_logo.png';
   const riskMatrixSrc = images?.riskMatrix || '/home_risk_assessment.png';
-  
+
   const footerWebsite = settings?.company_website || '';
   const footerId = settings?.home_visit_form_id || '';
   const footerDate = formatDate(settings?.review_date || '');
@@ -318,16 +318,16 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
   const renderQuestionRow = (question: any) => {
     const value = formData?.[question.key];
     const comments = formData?.[question.key + "_comments"] || "";
-    
+
     // Safely check if value is string before using toLowerCase
     const normalizedValue = typeof value === 'string' ? value.toLowerCase() : '';
     const isYes = normalizedValue === 'yes';
     const isNo = normalizedValue === 'no';
-    
+
     if (question.key === 'entryPoint') {
       const entryOptions = ['Left side', 'Right Side', 'Rear', 'Front Door', 'Other'];
       const selectedOptions = Array.isArray(value) ? value : [];
-      
+
       return (
         <View style={styles.questionRow} key={question.key} wrap={false}>
           <View style={styles.questionCell}>
@@ -346,7 +346,7 @@ const HomeVisitRiskAssessment_DYNAMIC: React.FC<HomeVisitProps> = ({
         </View>
       );
     }
-    
+
     return (
       <View style={styles.questionRow} key={question.key} wrap={false}>
         <View style={styles.questionCell}>

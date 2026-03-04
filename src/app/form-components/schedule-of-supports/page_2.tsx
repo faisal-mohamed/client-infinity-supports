@@ -45,7 +45,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2 flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked('transportOption1') ? 'X' : ''}
             </span>
             <span>
@@ -54,7 +54,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2 flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked('transportOption2') ? 'X' : ''}
             </span>
             <span>
@@ -63,7 +63,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2 flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked('transportOption3') ? 'X' : ''}
             </span>
             <span>
@@ -77,7 +77,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-2 flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked('establishmentFeeAgreement') ? 'X' : ''}
             </span>
             <span>
@@ -99,7 +99,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
           </p>
 
           <p className="mb-6 flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked('agreeNonFaceToFace') ? 'X' : ''}
             </span>
             <span>I agree to Infinity Supports Non-Face-to-Face charges as above.</span>

@@ -5,15 +5,15 @@ import { format, parseISO, isValid } from "date-fns";
 
 // Dynamic SA Support Coordination View - Matches Model PDF with Dynamic Pagination
 const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings, isReadOnly = true }) => {
-  
-// Constants for pagination
+
+  // Constants for pagination
   const PAGE_BUDGET = 1000; // Available height per page in pixels (1123px - header - footer - padding)
-const BLOCK_SPACING = 16; // Space between blocks
+  const BLOCK_SPACING = 16; // Space between blocks
   const SAFETY_BUFFER = 100; // Safety margin for header + footer
-  
+
   const commonFieldMapping: Record<string, string> = {
     givenNames: "name",
-    surname: "surname", 
+    surname: "surname",
     address: "street",
     dob: "dob",
     disability: "disability",
@@ -32,7 +32,7 @@ const BLOCK_SPACING = 16; // Space between blocks
   const getFieldValue = (key: string): string => {
     // Always prioritize current client details from database
     const mapped = commonFieldMapping[key];
-    let rawValue = mapped && commonFieldsData?.[mapped] 
+    let rawValue = mapped && commonFieldsData?.[mapped]
       ? commonFieldsData[mapped]
       : formData?.[key];
 
@@ -72,7 +72,7 @@ const BLOCK_SPACING = 16; // Space between blocks
   // Support categories and costs (from model PDF)
   const supportCategories = [
     "07_001_0106_8_3 Level 1 Support Connection",
-    "07_002_0106_8_3 Level 2 Support Coordination", 
+    "07_002_0106_8_3 Level 2 Support Coordination",
     "07_101_0106_6_3 Psychosocial Recovery Coaching"
   ];
   const costPerHr = ["$74.63", "$100.14", "$98.30"];
@@ -90,11 +90,11 @@ const BLOCK_SPACING = 16; // Space between blocks
             <p className="font-bold underline text-sm">SERVICE AGREEMENT SUPPORT COORDINATION</p>
             <p className="font-bold underline text-sm mt-1">SECTION 1</p>
           </div>
-          
+
           <div className="mb-4">
             <span className="font-bold text-xs">Date:</span>
             <div className="border-b border-black inline-block ml-2 min-w-[200px] text-xs">
-                  {getFieldValue('date') || ''}
+              {getFieldValue('date') || ''}
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                 <span className="font-bold">NDIS Number:</span> {getFieldValue('ndisNumber') || ''}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-2 border-b border-black">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">Surname:</div>
@@ -131,29 +131,29 @@ const BLOCK_SPACING = 16; // Space between blocks
                 <div className="font-bold text-xs mb-1">Sex:</div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <label className="flex items-center text-xs">
-                    <input 
-                      type="checkbox" 
-                      checked={getFieldValue('sex') === 'Male'} 
-                      readOnly 
-                      className="mr-1 w-3 h-3 accent-blue-600"
+                    <input
+                      type="checkbox"
+                      checked={getFieldValue('sex') === 'Male'}
+                      readOnly
+                      className="mr-1 w-3 h-3 accent-black"
                     />
                     Male
                   </label>
                   <label className="flex items-center text-xs">
-                    <input 
-                      type="checkbox" 
-                      checked={getFieldValue('sex') === 'Female'} 
-                      readOnly 
-                      className="mr-1 w-3 h-3 accent-blue-600"
+                    <input
+                      type="checkbox"
+                      checked={getFieldValue('sex') === 'Female'}
+                      readOnly
+                      className="mr-1 w-3 h-3 accent-black"
                     />
                     Female
                   </label>
                   <label className="flex items-center text-xs">
-                    <input 
-                      type="checkbox" 
-                      checked={getFieldValue('sex') === 'Prefer not to say'} 
-                      readOnly 
-                      className="mr-1 w-3 h-3 accent-blue-600"
+                    <input
+                      type="checkbox"
+                      checked={getFieldValue('sex') === 'Prefer not to say'}
+                      readOnly
+                      className="mr-1 w-3 h-3 accent-black"
                     />
                     Prefer not to say
                   </label>
@@ -176,20 +176,20 @@ const BLOCK_SPACING = 16; // Space between blocks
                 <div className="font-bold text-xs mb-1">Are you of Aboriginal or Torres Strait Islander descent?</div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center text-xs">
-                    <input 
-                      type="checkbox" 
-                      checked={getFieldValue('indigenousDescent') === 'Yes'} 
-                      readOnly 
-                      className="mr-1 w-3 h-3 accent-blue-600"
+                    <input
+                      type="checkbox"
+                      checked={getFieldValue('indigenousDescent') === 'Yes'}
+                      readOnly
+                      className="mr-1 w-3 h-3 accent-black"
                     />
                     Yes
                   </label>
                   <label className="flex items-center text-xs">
-                    <input 
-                      type="checkbox" 
-                      checked={getFieldValue('indigenousDescent') === 'No'} 
-                      readOnly 
-                      className="mr-1 w-3 h-3 accent-blue-600"
+                    <input
+                      type="checkbox"
+                      checked={getFieldValue('indigenousDescent') === 'No'}
+                      readOnly
+                      className="mr-1 w-3 h-3 accent-black"
                     />
                     No
                   </label>
@@ -222,7 +222,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="bg-gray-200 border-b border-black p-2">
               <span className="font-bold text-xs">Residential Address Details</span>
             </div>
-            
+
             <div className="p-2 border-b border-black">
               <div className="font-bold text-xs mb-1">Number / Street:</div>
               <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('address') || ''}</div>
@@ -253,7 +253,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <div className="bg-gray-200 border-b border-black p-2">
               <span className="font-bold text-xs">Participant Contact Details</span>
             </div>
-            
+
             <div className="p-2 border-b border-black">
               <div className="font-bold text-xs mb-1">Email address:</div>
               <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('email') || ''}</div>
@@ -281,11 +281,11 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => (
         <div className="mb-2">
           <div className="flex items-start">
-            <input 
-              type="checkbox" 
-              checked={getBooleanFieldValue('noCopyRequested')} 
-              readOnly 
-              className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+            <input
+              type="checkbox"
+              checked={getBooleanFieldValue('noCopyRequested')}
+              readOnly
+              className="mr-2 w-4 h-4 accent-black mt-1"
               aria-label="No copy requested"
             />
             <span className="text-xs leading-relaxed">
@@ -303,11 +303,11 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => (
         <div className="mb-2">
           <div className="flex items-start">
-            <input 
-              type="checkbox" 
-              checked={getBooleanFieldValue('planAttached')} 
-              readOnly 
-              className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+            <input
+              type="checkbox"
+              checked={getBooleanFieldValue('planAttached')}
+              readOnly
+              className="mr-2 w-4 h-4 accent-black mt-1"
               aria-label="Plan attached"
             />
             <span className="text-xs leading-relaxed">
@@ -325,11 +325,11 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => (
         <div className="mb-2">
           <div className="flex items-start">
-            <input 
-              type="checkbox" 
-              checked={getBooleanFieldValue('planNotAttached')} 
-              readOnly 
-              className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+            <input
+              type="checkbox"
+              checked={getBooleanFieldValue('planNotAttached')}
+              readOnly
+              className="mr-2 w-4 h-4 accent-black mt-1"
               aria-label="Plan not attached"
             />
             <span className="text-xs leading-relaxed">
@@ -359,8 +359,8 @@ const BLOCK_SPACING = 16; // Space between blocks
         <ol className="list-decimal list-inside mb-4 text-xs leading-relaxed">
           <li>
             Support the independence and social and economic participation of people with disability and enable people with a disability to exercise choice and control in the pursuit of their goals and the planning and delivery of their supports.
-            </li>
-          </ol>
+          </li>
+        </ol>
       )
     },
 
@@ -376,16 +376,16 @@ const BLOCK_SPACING = 16; // Space between blocks
               <tr className="bg-gray-200">
                 <th className="border border-black p-2 text-left font-bold">Support Category</th>
                 <th className="border border-black p-2 text-center font-bold">Weeks</th>
-                <th className="border border-black p-2 text-center font-bold">Total<br/>Hours</th>
-                <th className="border border-black p-2 text-center font-bold">Cost per<br/>hr</th>
-                <th className="border border-black p-2 text-center font-bold">Total<br/>Cost</th>
+                <th className="border border-black p-2 text-center font-bold">Total<br />Hours</th>
+                <th className="border border-black p-2 text-center font-bold">Cost per<br />hr</th>
+                <th className="border border-black p-2 text-center font-bold">Total<br />Cost</th>
               </tr>
             </thead>
             <tbody>
               {[1, 2, 3].map((i) => (
                 <tr key={i}>
                   <td className="border border-black p-2 align-top">
-                    {supportCategories[i-1]}
+                    {supportCategories[i - 1]}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
                     {getFieldValue(`row${i}_weeks`) || ''}
@@ -394,7 +394,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                     {getFieldValue(`row${i}_totalHours`) || ''}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
-                    {costPerHr[i-1]}
+                    {costPerHr[i - 1]}
                   </td>
                   <td className="border border-black p-2 text-center align-top">
                     {getFieldValue(`row${i}_totalCost`) ? `$${getFieldValue(`row${i}_totalCost`)}` : ''}
@@ -415,20 +415,20 @@ const BLOCK_SPACING = 16; // Space between blocks
         <div className="mb-4">
           <p className="font-bold text-sm mb-2 underline">SCHEDULE OF SUPPORTS</p>
           <p className="text-xs leading-relaxed mb-2">
-            All figures quoted above are based on NDIS pricing. Infinity Supports WA agrees to provide the individual 
-            named in Section 1 with the following Support Coordination. The supports and their prices are set out in 
-            the Schedule of Supports above. All supports are as per the NDIS Price Guide and are GST inclusive 
-            (if applicable) and include the cost of providing the supports. All figures quoted are based on NDIS 
-            pricing and the individual's NDIS plan at the time of agreement. Prices, funding totals and hours will 
+            All figures quoted above are based on NDIS pricing. Infinity Supports WA agrees to provide the individual
+            named in Section 1 with the following Support Coordination. The supports and their prices are set out in
+            the Schedule of Supports above. All supports are as per the NDIS Price Guide and are GST inclusive
+            (if applicable) and include the cost of providing the supports. All figures quoted are based on NDIS
+            pricing and the individual's NDIS plan at the time of agreement. Prices, funding totals and hours will
             be adjusted periodically to reflect changes to NDIS pricing and the individual's NDIS plan.
           </p>
-          
+
           <p className="text-xs leading-relaxed mb-4">
-            If changes to the services or their delivery are required, the Parties agree to discuss and review this 
-            Service Agreement. The Parties agree that any changes to this Service Agreement will be in writing, signed, 
+            If changes to the services or their delivery are required, the Parties agree to discuss and review this
+            Service Agreement. The Parties agree that any changes to this Service Agreement will be in writing, signed,
             and dated by the Parties.
           </p>
-            </div>
+        </div>
       )
     },
 
@@ -443,11 +443,10 @@ const BLOCK_SPACING = 16; // Space between blocks
           <div className="flex items-center gap-4 mt-2">
             {/* YES Option */}
             <div className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                formData?.isConflictOfInterest === 'Yes' 
-                  ? 'bg-blue-600 border-blue-600' 
-                  : 'border-blue-600'
-              }`}>
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData?.isConflictOfInterest === 'Yes'
+                ? 'bg-black border-black'
+                : 'border-black'
+                }`}>
                 {formData?.isConflictOfInterest === 'Yes' && (
                   <span className="text-white text-xs font-bold">✓</span>
                 )}
@@ -456,11 +455,10 @@ const BLOCK_SPACING = 16; // Space between blocks
             </div>
             {/* NO Option */}
             <div className="flex items-center gap-2">
-              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                formData?.isConflictOfInterest === 'No' 
-                  ? 'bg-blue-600 border-blue-600' 
-                  : 'border-blue-600'
-              }`}>
+              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData?.isConflictOfInterest === 'No'
+                ? 'bg-blue-600 border-blue-600'
+                : 'border-blue-600'
+                }`}>
                 {formData?.isConflictOfInterest === 'No' && (
                   <span className="text-white text-xs font-bold">✓</span>
                 )}
@@ -538,7 +536,7 @@ const BLOCK_SPACING = 16; // Space between blocks
       height: 40,
       content: () => (
         <p className="text-xs leading-relaxed mb-4">
-          I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery. 
+          I request that Infinity Supports WA manage my Support Coordination as well as my Service Delivery.
           My choice will be recorded on the Conflict-of-Interest Register.
         </p>
       )
@@ -548,7 +546,7 @@ const BLOCK_SPACING = 16; // Space between blocks
       height: 100,
       content: () => {
         const signature = getFieldValue('signature');
-        
+
         return (
           <table className="w-full border border-black border-collapse text-xs mb-4">
             <tbody>
@@ -557,9 +555,9 @@ const BLOCK_SPACING = 16; // Space between blocks
                 <td className="border border-black p-2">
                   {signature ? (
                     <div className="h-16 flex items-center justify-center py-1">
-                      <img 
-                        src={signature} 
-                        alt="Signature" 
+                      <img
+                        src={signature}
+                        alt="Signature"
                         className="max-h-full max-w-full object-contain"
                       />
                     </div>
@@ -609,11 +607,11 @@ const BLOCK_SPACING = 16; // Space between blocks
 
           <div className="space-y-2">
             <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getBooleanFieldValue('selfManaged')} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+              <input
+                type="checkbox"
+                checked={getBooleanFieldValue('selfManaged')}
+                readOnly
+                className="mr-2 w-4 h-4 accent-black mt-1"
                 aria-label="Self-managed funding"
               />
               <span className="text-xs leading-relaxed">
@@ -622,11 +620,11 @@ const BLOCK_SPACING = 16; // Space between blocks
             </div>
 
             <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getBooleanFieldValue('nomineeManaged')} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+              <input
+                type="checkbox"
+                checked={getBooleanFieldValue('nomineeManaged')}
+                readOnly
+                className="mr-2 w-4 h-4 accent-black mt-1"
                 aria-label="Nominee managed funding"
               />
               <span className="text-xs leading-relaxed">
@@ -635,11 +633,11 @@ const BLOCK_SPACING = 16; // Space between blocks
             </div>
 
             <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getBooleanFieldValue('ndiaManaged')} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+              <input
+                type="checkbox"
+                checked={getBooleanFieldValue('ndiaManaged')}
+                readOnly
+                className="mr-2 w-4 h-4 accent-black mt-1"
                 aria-label="NDIA managed funding"
               />
               <span className="text-xs leading-relaxed">
@@ -648,11 +646,11 @@ const BLOCK_SPACING = 16; // Space between blocks
             </div>
 
             <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                checked={getBooleanFieldValue('planManagerManaged')} 
-                readOnly 
-                className="mr-2 w-4 h-4 accent-blue-600 mt-1"
+              <input
+                type="checkbox"
+                checked={getBooleanFieldValue('planManagerManaged')}
+                readOnly
+                className="mr-2 w-4 h-4 accent-black mt-1"
                 aria-label="Plan Manager managed funding"
               />
               <span className="text-xs leading-relaxed">
@@ -670,17 +668,17 @@ const BLOCK_SPACING = 16; // Space between blocks
       height: 70,
       content: () => (
         <table className="w-full border border-black border-collapse text-xs mb-4">
-            <tbody>
-              <tr>
-                <td className="border border-black p-2 font-bold w-1/3">Plan Manager Name:</td>
-                <td className="border border-black p-2">{getFieldValue('planManagerName') || ''}</td>
-              </tr>
-              <tr>
-                <td className="border border-black p-2 font-bold">Email:</td>
-                <td className="border border-black p-2">{getFieldValue('planManagerEmail') || ''}</td>
-              </tr>
-            </tbody>
-          </table>
+          <tbody>
+            <tr>
+              <td className="border border-black p-2 font-bold w-1/3">Plan Manager Name:</td>
+              <td className="border border-black p-2">{getFieldValue('planManagerName') || ''}</td>
+            </tr>
+            <tr>
+              <td className="border border-black p-2 font-bold">Email:</td>
+              <td className="border border-black p-2">{getFieldValue('planManagerEmail') || ''}</td>
+            </tr>
+          </tbody>
+        </table>
       )
     }] : []),
 
@@ -770,11 +768,11 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => (
         <div className="mb-4">
           <h3 className="font-bold text-sm mb-2 underline">EMERGENCY PREPAREDNESS</h3>
-          
+
           <p className="text-xs leading-relaxed mb-2">
             <span className="font-bold text-red-600">Infinity Supports WA</span>, will develop a to respond to any unplanned event that can cause:
           </p>
-          
+
           <ul className="list-disc list-inside text-xs leading-relaxed space-y-1 ml-4 mb-3">
             <li>Deaths; or</li>
             <li>Significant injuries to employees or occupants; and/or</li>
@@ -782,15 +780,15 @@ const BLOCK_SPACING = 16; // Space between blocks
             <li>Disruption to operations; and/or</li>
             <li>Physical or environmental damage</li>
           </ul>
-          
+
           <p className="text-xs leading-relaxed mb-3">
             For your peace of mind, all our support workers are trained on how to respond in case of an emergency, and they will receive a copy of your Individual Disaster Management Plan so that they are fully aware of your health condition and the required action plans in case of an emergency.
           </p>
-          
+
           <p className="text-xs leading-relaxed mb-3">
             Individual Disaster Management Plan and Risk Assessment will be developed and signed by <span className="font-bold text-red-600">Infinity Supports WA</span> and the Individual and/or representative. Providers' Responsibility related to participants Individual Disaster Management Plan and Risk Assessment is subject to 73G requirements.
           </p>
-          
+
           <p className="text-xs leading-relaxed">
             It is the provider's responsibility to document the assessment of the participant's risk factors using Intake Form, Support Plan, and Participant, Home, and Community Risk Assessment forms.
           </p>
@@ -892,7 +890,7 @@ const BLOCK_SPACING = 16; // Space between blocks
             <tbody>
               <tr>
                 <td className="border border-black p-3 align-top">
-                  Hereby give consent to Infinity Supports WA to obtain and use images and likeness 
+                  Hereby give consent to Infinity Supports WA to obtain and use images and likeness
                   of myself on media releases, including social media and promotion.
                 </td>
                 <td className="border border-black p-3 align-top">
@@ -902,7 +900,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentMedia") === "Yes"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       Yes
                     </label>
@@ -911,7 +909,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentMedia") === "No"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       No
                     </label>
@@ -930,7 +928,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentProfile") === "Yes"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       Yes
                     </label>
@@ -939,7 +937,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentProfile") === "No"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       No
                     </label>
@@ -949,7 +947,7 @@ const BLOCK_SPACING = 16; // Space between blocks
 
               <tr>
                 <td className="border border-black p-3 align-top">
-                  Hereby give consent to Infinity Supports WA to obtain & share relevant documented 
+                  Hereby give consent to Infinity Supports WA to obtain & share relevant documented
                   information regarding my service. This may include but not limited to:
                   <ul className="list-disc list-inside ml-4 mt-1">
                     <li>Legal Guardian/Next of Kin</li>
@@ -966,7 +964,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentInfoShare") === "Yes"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       Yes
                     </label>
@@ -975,7 +973,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentInfoShare") === "No"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       No
                     </label>
@@ -994,7 +992,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentAudit") === "Yes"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       Yes
                     </label>
@@ -1003,7 +1001,7 @@ const BLOCK_SPACING = 16; // Space between blocks
                         type="radio"
                         checked={getFieldValue("consentAudit") === "No"}
                         readOnly
-                        className="mr-2 w-4 h-4 accent-blue-600"
+                        className="mr-2 w-4 h-4 accent-black"
                       />
                       No
                     </label>
@@ -1023,10 +1021,10 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => {
         const participantSig = getFieldValue('participantSignature');
         const signatureRole = formData?.signatureRole;
-        
+
         // Only show if signatureRole is "Participant" AND has signature
         if (signatureRole !== 'Participant' || !participantSig) return null;
-        
+
         return (
           <div className="mb-4">
             <div className="border border-black p-3">
@@ -1036,9 +1034,9 @@ const BLOCK_SPACING = 16; // Space between blocks
                   <p className="text-xs mb-1">Signature of participant:</p>
                   <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
                     {participantSig ? (
-                      <img 
-                        src={participantSig} 
-                        alt="Participant Signature" 
+                      <img
+                        src={participantSig}
+                        alt="Participant Signature"
                         className="max-h-full max-w-full object-contain"
                       />
                     ) : (
@@ -1070,10 +1068,10 @@ const BLOCK_SPACING = 16; // Space between blocks
       content: () => {
         const nomineeSig = getFieldValue('nomineeSignature');
         const signatureRole = formData?.signatureRole;
-        
+
         // Only show if signatureRole is "Nominee" AND has signature
         if (signatureRole !== 'Nominee' || !nomineeSig) return null;
-        
+
         return (
           <div className="mb-4">
             <div className="border border-black p-3">
@@ -1086,9 +1084,9 @@ const BLOCK_SPACING = 16; // Space between blocks
                   <p className="text-xs mb-1">Signature of Nominee:</p>
                   <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
                     {nomineeSig ? (
-                      <img 
-                        src={nomineeSig} 
-                        alt="Nominee Signature" 
+                      <img
+                        src={nomineeSig}
+                        alt="Nominee Signature"
                         className="max-h-full max-w-full object-contain"
                       />
                     ) : (
@@ -1122,9 +1120,9 @@ const BLOCK_SPACING = 16; // Space between blocks
               <div>
                 <p className="text-xs mb-1">Signature on behalf of Infinity Supports WA:</p>
                 {getFieldValue('providerSignature') ? (
-                  <img 
-                    src={getFieldValue('providerSignature')} 
-                    alt="Provider Signature" 
+                  <img
+                    src={getFieldValue('providerSignature')}
+                    alt="Provider Signature"
                     className="h-14 max-w-[200px] border border-gray-300"
                   />
                 ) : (
@@ -1152,7 +1150,7 @@ const BLOCK_SPACING = 16; // Space between blocks
   // Build pages using measured heights - smart pagination that fills pages efficiently
   const pages = useMemo(() => {
     const heights = measuredHeights ?? contentBlocks.map(block => block.height);
-    
+
     const pageGroups: number[][] = [];
     let currentPage: number[] = [];
     let currentHeight = 0;
@@ -1160,17 +1158,17 @@ const BLOCK_SPACING = 16; // Space between blocks
 
     heights.forEach((height, index) => {
       const blockHeight = height + BLOCK_SPACING;
-      
+
       // Check if adding this block would exceed the page budget
       if (currentHeight + blockHeight > effectivePageBudget) {
         // If current page has content, finish it and start a new page
         if (currentPage.length > 0) {
-        pageGroups.push(currentPage);
-        currentPage = [index];
+          pageGroups.push(currentPage);
+          currentPage = [index];
           currentHeight = blockHeight;
-      } else {
+        } else {
           // First block on page is too tall - still add it (will overflow gracefully)
-        currentPage.push(index);
+          currentPage.push(index);
           currentHeight = blockHeight;
         }
       } else {
@@ -1179,7 +1177,7 @@ const BLOCK_SPACING = 16; // Space between blocks
         currentHeight += blockHeight;
       }
     });
-    
+
     // Add the last page if it has content
     if (currentPage.length) {
       pageGroups.push(currentPage);
@@ -1191,19 +1189,19 @@ const BLOCK_SPACING = 16; // Space between blocks
   // Measure actual heights after render
   useEffect(() => {
     const measureHeights = () => {
-    const heights = contentBlocks.map((_, i) => {
-      const el = measureRefs.current[i];
+      const heights = contentBlocks.map((_, i) => {
+        const el = measureRefs.current[i];
         if (el) {
           const actualHeight = el.scrollHeight || el.offsetHeight;
           return actualHeight > 0 ? actualHeight : contentBlocks[i].height;
         }
         return contentBlocks[i].height;
-    });
-    setMeasuredHeights(heights);
+      });
+      setMeasuredHeights(heights);
     };
 
     const timer = setTimeout(measureHeights, 300);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -1216,7 +1214,7 @@ const BLOCK_SPACING = 16; // Space between blocks
 
     setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
-    
+
     const timer = setTimeout(() => {
       if (windowWidth > 0) {
         const heights = contentBlocks.map((_, i) => {
@@ -1238,14 +1236,14 @@ const BLOCK_SPACING = 16; // Space between blocks
   }, [windowWidth]);
 
   // A4 Page Component - MATCHES SA Delivery working approach
-  const A4Page: React.FC<{ children: React.ReactNode; pageNumber: number; totalPages: number }> = ({ 
-    children, 
-    pageNumber, 
-    totalPages 
+  const A4Page: React.FC<{ children: React.ReactNode; pageNumber: number; totalPages: number }> = ({
+    children,
+    pageNumber,
+    totalPages
   }) => (
     <div
       className="bg-white mx-auto shadow-md"
-         style={{ 
+      style={{
         width: "794px",
         height: "1123px",
         boxShadow: "0 0 10px rgba(0,0,0,0.1)",
@@ -1270,7 +1268,7 @@ const BLOCK_SPACING = 16; // Space between blocks
 
       {/* Fixed spacer after header */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Content Area - overflow hidden to prevent scrolling */}
       <div className="flex-1 overflow-hidden">
         {children}
@@ -1278,7 +1276,7 @@ const BLOCK_SPACING = 16; // Space between blocks
 
       {/* Fixed spacer before footer */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Footer - in normal flow like SA Delivery */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || ''}</span>
@@ -1315,11 +1313,11 @@ const BLOCK_SPACING = 16; // Space between blocks
           margin: 0;
         }
       `}</style>
-      
+
       {/* Hidden measurement elements */}
-      <div style={{ 
-        position: 'absolute', 
-        left: '-9999px', 
+      <div style={{
+        position: 'absolute',
+        left: '-9999px',
         top: '-9999px',
         width: '794px',
         padding: '30px'

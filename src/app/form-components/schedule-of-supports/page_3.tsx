@@ -62,7 +62,7 @@ const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData 
         <div className="flex-1 space-y-6">
           {/* Provider Travel */}
           <p className="flex items-start">
-            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-black font-bold text-[10px] leading-none mt-1">
               {isChecked("providerTravelAgreement") ? 'X' : ''}
             </span>
             <span>I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.</span>

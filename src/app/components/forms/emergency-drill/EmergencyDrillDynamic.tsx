@@ -55,7 +55,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
       }
       return '';
     }
-    
+
     if (commonFieldMapping?.[key]) {
       return commonFieldsData?.[commonFieldMapping?.[key]] ?? '';
     }
@@ -131,7 +131,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('supervisorNotified') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Supervisor Notified ${opt}`}
                     />
                     {opt}
@@ -186,7 +186,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('planFollowed') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Plan Followed ${opt}`}
                     />
                     {opt}
@@ -203,7 +203,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('safetyProtocols') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Safety Protocols ${opt}`}
                     />
                     {opt}
@@ -220,7 +220,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('servicesContacted') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Services Contacted ${opt}`}
                     />
                     {opt}
@@ -299,7 +299,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('additionalTrainingRequired') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Additional Training ${opt}`}
                     />
                     {opt}
@@ -324,7 +324,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('planUpdateNeeded') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Plan Update Needed ${opt}`}
                     />
                     {opt}
@@ -362,7 +362,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
                       type="radio"
                       checked={getFieldValue('debriefConducted') === opt}
                       readOnly
-                      className="mr-1 w-4 h-4 accent-blue-600"
+                      className="mr-1 w-4 h-4 accent-black"
                       aria-label={`Debrief Conducted ${opt}`}
                     />
                     {opt}
@@ -468,7 +468,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
   // Build pages using measured heights
   const pages = useMemo(() => {
     const heights = measuredHeights ?? contentBlocks.map(block => block.height);
-    
+
     const pageGroups: number[][] = [];
     let currentPage: number[] = [];
     let currentHeight = 0;
@@ -520,10 +520,10 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
   }, []);
 
   // A4Page Component
-  const A4Page: React.FC<{ children: React.ReactNode; pageNumber: number; totalPages: number }> = ({ 
-    children, 
-    pageNumber, 
-    totalPages 
+  const A4Page: React.FC<{ children: React.ReactNode; pageNumber: number; totalPages: number }> = ({
+    children,
+    pageNumber,
+    totalPages
   }) => (
     <div
       className="bg-white mx-auto shadow-md"
@@ -549,18 +549,18 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
           className="object-contain"
         />
       </div>
-      
+
       {/* Fixed spacer after header */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Content Area - overflow hidden to prevent scrolling */}
       <div className="flex-1 overflow-hidden">
         {children}
       </div>
-      
+
       {/* Fixed spacer before footer */}
       <div style={{ height: '24px' }} />
-      
+
       {/* Footer - in normal flow like SA Support Coordination */}
       <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || ''}</span>

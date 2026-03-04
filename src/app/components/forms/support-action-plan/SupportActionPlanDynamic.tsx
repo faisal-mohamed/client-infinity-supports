@@ -95,7 +95,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     >
       {checked && (
         <span style={{
-          color: '#2563eb',
+          color: '#000000',
           fontSize: '11px',
           fontWeight: '900',
           lineHeight: '1',
@@ -290,39 +290,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-[#b4c7e7] border border-black px-2 py-1 font-bold text-xs">CORE SUPPORTS</div>
         <div className="border border-black border-t-0 text-xs">
           <div className="p-2 border-b border-black">
-            <ConditionalField label="" value={get('coreSupportText')} />
+            <ConditionalField label="Support Required" value={get('coreSupportText')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Preferred providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('corePreferredProviders')}</div>
-              {hasValue(get('corePreferredProviders2')) && <div className="flex gap-2"><span>2.</span> {get('corePreferredProviders2')}</div>}
-            </div>
+            <ConditionalField label="Preferred Providers" value={get('corePreferredProviders')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Alternative providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('coreAlternativeProviders')}</div>
-              {hasValue(get('coreAlternativeProviders2')) && <div className="flex gap-2"><span>2.</span> {get('coreAlternativeProviders2')}</div>}
-            </div>
+            <ConditionalField label="Alternative Providers" value={get('coreAlternativeProviders')} />
           </div>
-          <div className="p-2 border-b border-black flex items-center gap-4">
-            <div className="font-bold">Service Agreement developed/signed?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('coreAgreementSigned')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.coreAgreementSigned === 'No'} /> No</div>
-            </div>
-          </div>
-          <div className="p-2 border-b border-black">
-            <div className="font-bold">Supports have commenced</div>
-            <div className="mt-1">{get('coreSupportsCommenced')}</div>
-          </div>
-          <div className="p-2 flex items-center justify-between">
-            <div className="font-bold">Discussion held with Plan Manager and budget approved?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('coreBudgetApproved')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.coreBudgetApproved === 'No'} /> No</div>
-            </div>
+          <div className="p-2">
+            <ConditionalField label="Support Coordinator's Action" value={get('coreCoordinatorAction')} />
           </div>
         </div>
       </div>
@@ -336,54 +313,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-[#b4c7e7] border border-black px-2 py-1 font-bold text-xs">CAPACITY BUILDING</div>
         <div className="border border-black border-t-0 text-xs">
           <div className="p-2 border-b border-black">
-            <ConditionalField label="" value={get('capacitySupportText')} />
+            <ConditionalField label="Support Required" value={get('capacitySupportText')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Preferred providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('capacityPreferredProviders')}</div>
-              {hasValue(get('capacityPreferredProviders2')) && <div className="flex gap-2"><span>2.</span> {get('capacityPreferredProviders2')}</div>}
-            </div>
+            <ConditionalField label="Preferred Providers" value={get('capacityPreferredProviders')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Alternative providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('capacityAlternativeProviders')}</div>
-              {hasValue(get('capacityAlternativeProviders2')) && <div className="flex gap-2"><span>2.</span> {get('capacityAlternativeProviders2')}</div>}
-            </div>
+            <ConditionalField label="Alternative Providers" value={get('capacityAlternativeProviders')} />
           </div>
-          <div className="p-2 border-b border-black flex items-center gap-4">
-            <div className="font-bold">Service Agreement developed/signed?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('capacityAgreementSigned')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.capacityAgreementSigned === 'No'} /> No</div>
-            </div>
-          </div>
-          <div className="p-2 border-b border-black">
-            <div className="font-bold">Supports in place at start of plan</div>
-            <div className="mt-1">{get('capacitySupportsInPlace')}</div>
-          </div>
-          <div className="p-2 border-b border-black">
-            <div className="flex items-center justify-between">
-              <div className="font-bold">Are additional assessments required to access this support type?</div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1"><BlueTick checked={isYes('capacityAssessmentRequired')} /> Yes</div>
-                <div className="flex items-center gap-1"><BlueTick checked={formData?.capacityAssessmentRequired === 'No'} /> No</div>
-              </div>
-            </div>
-            {isYes('capacityAssessmentRequired') && (
-              <div className="mt-2 text-xs">
-                <div className="font-bold">Actions:</div>
-                <div className="mt-1">{get('capacityActions')}</div>
-              </div>
-            )}
-          </div>
-          <div className="p-2 flex items-center justify-between">
-            <div className="font-bold">Discussion held with Plan Manager and budget approved?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('capacityBudgetApproved')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.capacityBudgetApproved === 'No'} /> No</div>
-            </div>
+          <div className="p-2">
+            <ConditionalField label="Support Coordinator's Action" value={get('capacityCoordinatorAction')} />
           </div>
         </div>
       </div>
@@ -420,51 +359,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-[#b4c7e7] border border-black px-2 py-1 font-bold text-xs">CAPITAL</div>
         <div className="border border-black border-t-0 text-xs">
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Support Required:</div>
-            <div className="mt-1">{get('supportRequired1')}</div>
+            <ConditionalField label="Support Required" value={get('supportRequired1')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Preferred providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('preferredProviders1')}</div>
-              {hasValue(get('preferredProvidersCapital2')) && <div className="flex gap-2"><span>2.</span> {get('preferredProvidersCapital2')}</div>}
-            </div>
+            <ConditionalField label="Preferred Providers" value={get('preferredProviders1')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Alternative providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('alternativeProviders1')}</div>
-              {hasValue(get('alternativeProvidersCapital2')) && <div className="flex gap-2"><span>2.</span> {get('alternativeProvidersCapital2')}</div>}
-            </div>
+            <ConditionalField label="Alternative Providers" value={get('alternativeProviders1')} />
           </div>
-          <div className="p-2 border-b border-black flex items-center gap-4">
-            <div className="font-bold">Service Agreement developed/signed?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('serviceAgreement1')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.serviceAgreement1 === 'No'} /> No</div>
-            </div>
-          </div>
-          <div className="p-2 border-b border-black">
-            <div className="flex items-center justify-between">
-              <div className="font-bold">Are additional assessments required to access this support type?</div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1"><BlueTick checked={isYes('additionalAssessment1')} /> Yes</div>
-                <div className="flex items-center gap-1"><BlueTick checked={formData?.additionalAssessment1 === 'No'} /> No</div>
-              </div>
-            </div>
-            {isYes('additionalAssessment1') && (
-              <div className="mt-2 text-xs">
-                <div className="font-bold">Actions:</div>
-                <div className="mt-1">{get('assessmentActions1')}</div>
-              </div>
-            )}
-          </div>
-          <div className="p-2 flex items-center justify-between">
-            <div className="font-bold">Discussion held with Plan Manager and budget approved?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('planManagerDiscussion1')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.planManagerDiscussion1 === 'No'} /> No</div>
-            </div>
+          <div className="p-2">
+            <ConditionalField label="Support Coordinator's Action" value={get('capitalCoordinatorAction')} />
           </div>
         </div>
       </div>
@@ -478,51 +382,16 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         <div className="bg-[#b4c7e7] border border-black px-2 py-1 font-bold text-xs">MAINSTREAM SUPPORTS & SERVICES</div>
         <div className="border border-black border-t-0 text-xs">
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Support Required:</div>
-            <div className="mt-1">{get('supportRequired2')}</div>
+            <ConditionalField label="Support Required" value={get('supportRequired2')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Preferred providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('preferredProviders2')}</div>
-              {hasValue(get('preferredProvidersMainstream2')) && <div className="flex gap-2"><span>2.</span> {get('preferredProvidersMainstream2')}</div>}
-            </div>
+            <ConditionalField label="Preferred Providers" value={get('preferredProviders2')} />
           </div>
           <div className="p-2 border-b border-black">
-            <div className="font-bold">Alternative providers:</div>
-            <div className="ml-4 mt-1">
-              <div className="flex gap-2"><span>1.</span> {get('alternativeProviders2')}</div>
-              {hasValue(get('alternativeProvidersMainstream2')) && <div className="flex gap-2"><span>2.</span> {get('alternativeProvidersMainstream2')}</div>}
-            </div>
+            <ConditionalField label="Alternative Providers" value={get('alternativeProviders2')} />
           </div>
-          <div className="p-2 border-b border-black flex items-center gap-4">
-            <div className="font-bold">Service Agreement developed/signed?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('serviceAgreement2')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.serviceAgreement2 === 'No'} /> No</div>
-            </div>
-          </div>
-          <div className="p-2 border-b border-black">
-            <div className="flex items-center justify-between">
-              <div className="font-bold">Are additional assessments required to access this support type?</div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1"><BlueTick checked={isYes('additionalAssessment2')} /> Yes</div>
-                <div className="flex items-center gap-1"><BlueTick checked={formData?.additionalAssessment2 === 'No'} /> No</div>
-              </div>
-            </div>
-            {isYes('additionalAssessment2') && (
-              <div className="mt-2 text-xs">
-                <div className="font-bold">Actions:</div>
-                <div className="mt-1">{get('assessmentActions2')}</div>
-              </div>
-            )}
-          </div>
-          <div className="p-2 flex items-center justify-between">
-            <div className="font-bold">Discussion held with Plan Manager and budget approved?</div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1"><BlueTick checked={isYes('budgetApproval')} /> Yes</div>
-              <div className="flex items-center gap-1"><BlueTick checked={formData?.budgetApproval === 'No'} /> No</div>
-            </div>
+          <div className="p-2">
+            <ConditionalField label="Support Coordinator's Action" value={get('mainstreamCoordinatorAction')} />
           </div>
         </div>
       </div>
@@ -905,14 +774,17 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
   const estimateHeight = (block: any) => {
     switch (block.type) {
       case 'table_participant': {
-        // Always ensure participant table has minimum height, even if some fields are empty
-        // Base height for table structure + rows
-        let baseHeight = 120; // Header + basic rows
-        // Add height for conditional rows if they exist
+        // Base height for header + basic participant info rows
+        let baseHeight = 150;
+        // Add height for conditional rows
         if (formData?.planStartDate || formData?.planEndDate) baseHeight += 35;
-        if (formData?.preferredContactPerson) baseHeight += 35;
-        if (formData?.communicationConsiderations) baseHeight += 35;
-        return Math.max(220, baseHeight); // Minimum 220px to ensure it's always visible
+        if (formData?.preferredContactPerson) baseHeight += 38;
+        if (formData?.communicationConsiderations) {
+          const len = String(formData.communicationConsiderations).length;
+          const lines = Math.ceil(len / 80);
+          baseHeight += 20 + (lines * 18);
+        }
+        return Math.max(220, baseHeight);
       }
       case 'preferred_contact': return 220;
       case 'goal': {
@@ -920,9 +792,9 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         const goalValue = formData?.[block.goalKey];
         if (!hasValue(goalValue)) return 0;
         const goalText = String(goalValue);
-        // Estimate: header (~20px) + text lines (~18px per line, max ~60px for long text)
-        const estimatedLines = Math.min(Math.ceil(goalText.length / 50), 3);
-        return 20 + (estimatedLines * 18);
+        // Improved estimate: roughly 1 line per 50-60 chars
+        const estimatedLines = Math.ceil(goalText.length / 55);
+        return 25 + (estimatedLines * 18);
       }
       case 'goals_section': {
         // Legacy: Goals can vary significantly - estimate based on actual goal count
@@ -1169,7 +1041,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         pointerEvents: 'none',
         zIndex: -1
       }} aria-hidden>
-        <div style={{ width: '794px', height: '1123px', boxSizing: 'border-box', padding: '30px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '794px', height: 'auto', minHeight: '1123px', boxSizing: 'border-box', padding: '30px', display: 'flex', flexDirection: 'column' }}>
           <div className="flex justify-center mb-0"><img alt="Infinity Logo" src={images?.infinityLogo || '/infinity_logo.png'} width={180} height={70} className="object-contain" /></div>
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
