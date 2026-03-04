@@ -6,31 +6,32 @@ import Page3 from './page_3'
 
 const formSchema = {
   page1: {
-      tableRows :  [
-  { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },
-  { key: "row1", description: '01_013_0107_1_1 Assistance with Self-care weekday daytime', cost: '$70.23' },
-  { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$77.38' },
-  { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$98.83' },
-  { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$127.43' },
-  { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$156.03' },
-  { key: "row6", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' },
-  { key: "row7", description: '01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime', cost: '$75.98' },
-  { key: "row8", description: '04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime', cost: '$70.23' },
-  { key: "row9", description: '04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening', cost: '$77.38' },
-  { key: "row10", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$98.83' },
-  { key: "row11", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$127.43' },
-  { key: "row12", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$156.03' },
-  { key: "row13", description: '09-009-0117-6-3 Skill Development and Training', cost: '$80.06' },
-  { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$70.23' },
-  {
-    key: "row15",
-    description: '04-590-0125-6-1 Activity based Transport',
-    cost: '$1 Per km',
-    isPerKm: true
-  },
-  { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
-  { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' }
-],
+    tableRows: [
+      { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },
+      { key: "row1", description: '01_013_0107_1_1 Assistance with Self-care weekday daytime', cost: '$70.23' },
+      { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$77.38' },
+      { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$98.83' },
+      { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$127.43' },
+      { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$156.03' },
+      { key: "row6", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' },
+      { key: "row7", description: '01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime', cost: '$75.98' },
+      { key: "row8", description: '04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime', cost: '$70.23' },
+      { key: "row9", description: '04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening', cost: '$77.38' },
+      { key: "row10", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$98.83' },
+      { key: "row11", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$127.43' },
+      { key: "row12", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$156.03' },
+      { key: "row13", description: '09-009-0117-6-3 Skill Development and Training', cost: '$80.06' },
+      { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$70.23' },
+      {
+        key: "row15",
+        description: '04-590-0125-6-1 Activity based Transport',
+        cost: '$1 Per km',
+        isPerKm: true
+      },
+      { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
+      { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' },
+      { key: "row18", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' }
+    ],
 
   },
   page2: {
@@ -59,38 +60,38 @@ const formSchema = {
   },
   page3: {
     fields: [
-    {
-      key: 'providerTravelAgreement',
-      type: 'checkbox',
-      label: 'I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.',
-    },
-    {
-      key: 'participantSignatureDate',
-      type: 'date',
-      label: 'Signature of participant – Date',
-    },
-    {
-      key: 'participantName',
-      type: 'text',
-      label: 'Participant Name',
-    },
-    {
-      key: 'nomineeSignatureDate',
-      type: 'date',
-      label: 'Signature of Nominee – Date',
-    },
-    {
-      key: 'nomineeName',
-      type: 'text',
-      label: 'Nominee Name',
-    },
-    {
-      key: 'representativeSignatureDate',
-      type: 'date',
-      label: 'Signature of Infinity Support WA Representative – Date',
-    }
-  ]
-}
+      {
+        key: 'providerTravelAgreement',
+        type: 'checkbox',
+        label: 'I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.',
+      },
+      {
+        key: 'participantSignatureDate',
+        type: 'date',
+        label: 'Signature of participant – Date',
+      },
+      {
+        key: 'participantName',
+        type: 'text',
+        label: 'Participant Name',
+      },
+      {
+        key: 'nomineeSignatureDate',
+        type: 'date',
+        label: 'Signature of Nominee – Date',
+      },
+      {
+        key: 'nomineeName',
+        type: 'text',
+        label: 'Nominee Name',
+      },
+      {
+        key: 'representativeSignatureDate',
+        type: 'date',
+        label: 'Signature of Infinity Support WA Representative – Date',
+      }
+    ]
+  }
 };
 
 
@@ -180,7 +181,7 @@ const formSchema = {
 
 
 
-const ScheduleOfSupports = ({formData, settings, commonFieldsData} : any ) => {
+const ScheduleOfSupports = ({ formData, settings, commonFieldsData }: any) => {
   // Auto-detect signatureRole if missing (for backward compatibility with old data)
   if (!formData?.signatureRole) {
     if (formData?.nomineeSignature) {
@@ -195,8 +196,8 @@ const ScheduleOfSupports = ({formData, settings, commonFieldsData} : any ) => {
       {/* Fixed width container that will zoom out on mobile */}
       <div className="w-[900px] mx-auto py-8 print:py-0">
         <Page1 formData={formData} schema={formSchema.page1} commonFieldsData={commonFieldsData} settings={settings} />
-        <Page2 formData={formData} schema={formSchema.page2} commonFieldsData={commonFieldsData} settings={settings}/>
-        <Page3 data={formData} schema = {formSchema.page3} commonFieldsData={commonFieldsData}settings={settings} />
+        <Page2 formData={formData} schema={formSchema.page2} commonFieldsData={commonFieldsData} settings={settings} />
+        <Page3 data={formData} schema={formSchema.page3} commonFieldsData={commonFieldsData} settings={settings} />
       </div>
     </div>
   )

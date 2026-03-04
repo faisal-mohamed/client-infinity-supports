@@ -24,8 +24,8 @@ interface Page1Props {
 const MAX_ROWS = 18;
 
 // --- Standardized Header Component ---
-const StandardHeader = ({ images, title, commonFieldsData, formData }: { 
-  images?: any, 
+const StandardHeader = ({ images, title, commonFieldsData, formData }: {
+  images?: any,
   title?: string,
   commonFieldsData?: any,
   formData?: any
@@ -51,7 +51,7 @@ const StandardHeader = ({ images, title, commonFieldsData, formData }: {
           height={STANDARD_LOGO.height}
           className={STANDARD_LOGO.className}
         />
-      </div> 
+      </div>
 
       {/* Title */}
       <div className={`text-center ${A4_PDF_TYPOGRAPHY.sectionHeader}`}>
@@ -107,29 +107,29 @@ const Page1: React.FC<Page1Props> = ({
   return (
     <A4PageWrapper>
       <div className="flex flex-col w-full h-full px-1  font-montserrat justify-between" style={{ minHeight: "100%", height: "100%" }}>
-        
-        <StandardHeader 
-          images={images} 
-          commonFieldsData={commonFieldsData} 
-          formData={formData} 
+
+        <StandardHeader
+          images={images}
+          commonFieldsData={commonFieldsData}
+          formData={formData}
         />
 
         {/* Table - Optimized for 18 rows */}
-        <div className="flex-1 flex flex-col" style={{ 
+        <div className="flex-1 flex flex-col" style={{
           maxHeight: "calc(297mm - 60mm)", // Total height minus header/footer space
           overflow: "hidden"
         }}>
-          <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`} 
-                 style={{ 
-                   height: "100%",
-                   tableLayout: "fixed"
-                 }}>
+          <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}
+            style={{
+              height: "100%",
+              tableLayout: "fixed"
+            }}>
             <thead>
               <tr style={{ height: "12mm" }}> {/* Fixed header height */}
                 <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-left w-[40%]`}>Support Item</th>
                 <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-[10%]`}>Weeks</th>
                 <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-[15%]`}>Total Hours</th>
-                <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-[15%]`}>Cost per hr</th>
+                <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-[15%]`}>Cost/hour</th>
                 <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-center w-[20%]`}>Total Cost</th>
               </tr>
             </thead>

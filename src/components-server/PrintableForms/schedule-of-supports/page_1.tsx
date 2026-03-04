@@ -74,8 +74,8 @@ const Page1: React.FC<Page1Props> = ({
           <div className="flex justify-between text-[9px] px-1">
             <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
             <span>
-  Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
-</span>
+              Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
+            </span>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ const Page1: React.FC<Page1Props> = ({
                 <th className={`${cellClass} text-left w-[40%]`}>Support Item</th>
                 <th className={`${cellClass} text-center w-[10%]`}>Weeks</th>
                 <th className={`${cellClass} text-center w-[15%]`}>Total Hours</th>
-                <th className={`${cellClass} text-center w-[15%]`}>Cost per hr</th>
+                <th className={`${cellClass} text-center w-[15%]`}>Cost/hour</th>
                 <th className={`${cellClass} text-center w-[20%]`}>Total Cost</th>
               </tr>
             </thead>
@@ -146,7 +146,7 @@ const Page1: React.FC<Page1Props> = ({
         <div className="flex justify-between text-[9px] px-1 text-gray-600">
           <span>Website: {settings?.company_website}</span>
           <span>{settings?.schedule_of_supports}</span>
-<span>Review Date: {formatDate(settings?.review_date)}</span>
+          <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>

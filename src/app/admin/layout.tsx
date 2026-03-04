@@ -30,10 +30,12 @@ export default function AdminRootLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const isFormEditOrViewPage = pathname.includes('/forms/edit/') || pathname.includes('/forms/view/');
+  const isLoginPage = pathname === '/admin/login';
+  const hideLayoutElements = isFormEditOrViewPage || isLoginPage;
 
   return (
     <div className={`min-h-screen bg-white text-black ${montserrat.className}`}>
-      {!isFormEditOrViewPage && (
+      {!hideLayoutElements && (
         <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 text-white flex items-center justify-between px-4 shadow z-30">
           <div className="flex items-center gap-3">
             <Image src="/client_logo.png" alt="Logo" width={40} height={30} />
@@ -45,7 +47,7 @@ export default function AdminRootLayout({
         </div>
       )}
 
-      {mobileMenuOpen && !isFormEditOrViewPage && (
+      {mobileMenuOpen && !hideLayoutElements && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)} />
           <aside className="relative w-64 bg-slate-900 text-white h-full shadow-xl z-50 flex flex-col">
@@ -97,7 +99,7 @@ export default function AdminRootLayout({
       )}
 
       <div className="flex min-h-screen pt-16 lg:pt-0">
-        {!isFormEditOrViewPage && (
+        {!hideLayoutElements && (
           <aside className="hidden lg:flex lg:w-72 flex-col fixed inset-y-0 bg-slate-900 text-white border-r border-slate-800 shadow-xl">
             <div className="h-20 flex items-center justify-center bg-slate-800 border-b border-slate-700">
               <div className="flex flex-col items-center">
@@ -141,7 +143,7 @@ export default function AdminRootLayout({
           </aside>
         )}
 
-        <main className={`flex-1 bg-white transition-all duration-300 ${isFormEditOrViewPage ? 'p-0' : 'p-8 pt-28 lg:pt-8 lg:ml-72'}`}>
+        <main className={`flex-1 bg-white transition-all duration-300 ${hideLayoutElements ? 'p-0' : 'p-8 pt-28 lg:pt-8 lg:ml-72'}`}>
           <ConfirmProvider>{children}</ConfirmProvider>
         </main>
       </div>

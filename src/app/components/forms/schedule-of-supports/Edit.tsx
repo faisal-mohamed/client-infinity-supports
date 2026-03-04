@@ -11,6 +11,8 @@ import {
   FaChevronRight,
   FaCheck,
   FaSave,
+  FaPlus,
+  FaTimes,
 } from "react-icons/fa";
 import { useToast } from "@/components/ui/Toast";
 import SignatureCanvas, { SignatureCanvasRef } from '@/components/ui/SignatureCanvas';
@@ -38,39 +40,42 @@ interface FormProps {
   onCommonFieldsUpdated?: () => void;
 }
 
-export const FORM_SECTIONS : any = [
+export const FORM_SECTIONS: any = [
 
-{
+  {
     id: "generalInfo",
     title: "1. General Info",
-    fields: ["supportFor", "ndisNumber","planDatesFrom","planDatesTo"],
+    fields: ["supportFor", "ndisNumber", "planDatesFrom", "planDatesTo"],
     icon: FaUser,
     requiredFields: []
-},
-{
-  id: "scheduleTable",
-  title: "2. Schedule of Supports",
-  fields: [
-    "row0_weeks", "row0_totalHours",
-    "row1_weeks", "row1_totalHours",
-    "row2_weeks", "row2_totalHours",
-    "row3_weeks", "row3_totalHours",
-    "row4_weeks", "row4_totalHours",
-    "row5_weeks", "row5_totalHours",
-    "row6_weeks", "row6_totalHours",
-    "row7_weeks", "row7_totalHours",
-    "row8_weeks", "row8_totalHours",
-    "row9_weeks", "row9_totalHours",
-    "row10_weeks", "row10_totalHours",
-    "row11_weeks", "row11_totalHours",
-    "row12_totalKms",
-    "row13_weeks", "row13_totalHours",
-    "row14_weeks", "row14_totalHours",
-    "row15_weeks", "row15_totalHours",
-  ],
-  icon: FaUser,
-  requiredFields: [],
-},
+  },
+  {
+    id: "scheduleTable",
+    title: "2. Schedule of Supports",
+    fields: [
+      "row0_weeks", "row0_totalHours",
+      "row1_weeks", "row1_totalHours",
+      "row2_weeks", "row2_totalHours",
+      "row3_weeks", "row3_totalHours",
+      "row4_weeks", "row4_totalHours",
+      "row5_weeks", "row5_totalHours",
+      "row6_weeks", "row6_totalHours",
+      "row7_weeks", "row7_totalHours",
+      "row8_weeks", "row8_totalHours",
+      "row9_weeks", "row9_totalHours",
+      "row10_weeks", "row10_totalHours",
+      "row11_weeks", "row11_totalHours",
+      "row12_totalKms",
+      "row13_weeks", "row13_totalHours",
+      "row14_weeks", "row14_totalHours",
+      "row15_weeks", "row15_totalHours",
+      "row16_weeks", "row16_totalHours",
+      "row17_weeks", "row17_totalHours",
+      "row18_weeks", "row18_totalHours",
+    ],
+    icon: FaUser,
+    requiredFields: [],
+  },
 
   {
     id: "transportAgreements",
@@ -80,11 +85,11 @@ export const FORM_SECTIONS : any = [
       "transportOption2", "transportValue2", "transportOver2",
       "transportOption3",
       "establishmentFeeAgreement",
-    //   "agreeNonFaceToFace",
-          "providerTravelAgreement",
+      //   "agreeNonFaceToFace",
+      "providerTravelAgreement",
 
     ],
-     icon: FaUser,
+    icon: FaUser,
     requiredFields: []
   },
   {
@@ -96,7 +101,7 @@ export const FORM_SECTIONS : any = [
       "nomineeSignature", "nomineeSignatureDate", "nomineeName",
       "representativeSignature", "representativeSignatureDate", "representativeName"
     ],
-     icon: FaUser,
+    icon: FaUser,
     requiredFields: []
   }
 ];
@@ -156,87 +161,33 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   const [maxStep, setMaxStep] = useState(0);
 
   // Signature canvas refs
-  const participantSigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
-  const nomineeSigCanvasRef  : any = useRef<SignatureCanvasRef | null>(null);
-  const providerSigCanvasRef : any = useRef<SignatureCanvasRef | null>(null);
+  const participantSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
+  const nomineeSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
+  const providerSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
   const prevSignatureRoleRef = useRef<string>("");
 
   // Combine first name and surname for full name
   const fullName = [commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ').trim();
 
-  const initialValues: Record<string, string> = {
+  const initialValues: Record<string, any> = {
+    ...formData,
+    supportFor: formData?.supportFor || fullName || commonFieldsData?.name || '',
+    ndisNumber: formData?.ndisNumber || commonFieldsData?.ndis || '',
 
-  supportFor: fullName || commonFieldsData?.name || '',
-  ndisNumber: commonFieldsData?.ndis || '',
-  planDatesFrom: "",
-  planDatesTo: "",
+    signatureRole: formData?.signatureRole || "",
+    participantSignature: formData?.participantSignature || "",
+    participantSignatureDate: formData?.participantSignatureDate || "",
+    participantName: formData?.participantName || "",
 
-  row0_weeks: "",
-  row0_totalHours: "",
-  row1_weeks: "",
-  row1_totalHours: "",
-  row2_weeks: "",
-  row2_totalHours: "",
-  row3_weeks: "",
-  row3_totalHours: "",
-  row4_weeks: "",
-  row4_totalHours: "",
-  row5_weeks: "",
-  row5_totalHours: "",
-  row6_weeks: "",
-  row6_totalHours: "",
-  row7_weeks: "",
-  row7_totalHours: "",
-  row8_weeks: "",
-  row8_totalHours: "",
-  row9_weeks: "",
-  row9_totalHours: "",
-  row10_weeks: "",
-  row10_totalHours: "",
-  row11_weeks: "",
-  row11_totalHours: "",
-  row12_totalKms: "",
-  row13_weeks: "",
-  row13_totalHours: "",
-  row14_weeks: "",
-  row14_totalHours: "",
-  row15_weeks: "",
-  row15_totalHours: "",
+    nomineeSignature: formData?.nomineeSignature || "",
+    nomineeSignatureDate: formData?.nomineeSignatureDate || "",
+    nomineeName: formData?.nomineeName || "",
 
-  // Page 2 – Transport & Agreement
-  transportOption1: "",
-  transportValue1: "",
-  transportOver1: "",
-
-  transportOption2: "",
-  transportValue2: "",
-  transportOver2: "",
-
-  transportOption3: "",
-  establishmentFeeAgreement: "",
-//   agreeNonFaceToFace: "",
-
-  // Page 3 – Signatures
-  providerTravelAgreement: "",
-
-
-  
-
-
-  ...formData,
-  signatureRole: "",
-  participantSignature: "",
-  participantSignatureDate: "",
-  participantName: "",
-
-  nomineeSignature: "",
-  nomineeSignatureDate: "",
-  nomineeName: "",
-
-  representativeSignature: "",
-  representativeSignatureDate: new Date().toISOString().split("T")[0],
-  representativeName: ""
-};
+    representativeSignature: formData?.representativeSignature || "",
+    representativeSignatureDate: formData?.representativeSignatureDate || new Date().toISOString().split("T")[0],
+    representativeName: formData?.representativeName || "",
+    customSupportItems: formData?.customSupportItems || []
+  };
 
 
   const [localValues, setLocalValues] = useState<any>(initialValues);
@@ -263,7 +214,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     >
   ) => {
     const { name, value, type } = e.target;
-    
+
     // Prevent changes to common fields
     if (isCommonField(name)) {
       showToast({
@@ -274,7 +225,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
       });
       return;
     }
-    
+
     // Validate plan dates - end date must be after start date
     if (name === 'planDatesTo' && value) {
       const fromDate = localValues.planDatesFrom;
@@ -288,7 +239,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
         return;
       }
     }
-    
+
     if (name === 'planDatesFrom' && value) {
       const toDate = localValues.planDatesTo;
       if (toDate && value > toDate) {
@@ -301,12 +252,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
         return;
       }
     }
-    
-    let newValue : any = value;
+
+    let newValue: any = value;
     if (type === 'checkbox') {
       newValue = (e.target as HTMLInputElement).checked;
     }
-    
+
     const newValues = { ...localValues, [name]: newValue };
     setLocalValues(newValues);
 
@@ -340,15 +291,15 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
   const isCurrentSectionComplete = () => {
     const required = FORM_SECTIONS[currentStep].requiredFields || [];
-    return required.every((key: any ) => {
+    return required.every((key: any) => {
       let value;
-      
+
       if (isCommonField(key)) {
         value = getCommonFieldValue(key);
       } else {
         value = localValues[key];
       }
-      
+
       return value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && value.length === 0);
     });
   };
@@ -390,12 +341,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     const isFieldReadOnly = readOnly || isCommon;
-    
+
     // Add min date constraint for planDatesTo based on planDatesFrom
-    const minDate = (type === 'date' && name === 'planDatesTo' && localValues.planDatesFrom) 
-      ? localValues.planDatesFrom 
+    const minDate = (type === 'date' && name === 'planDatesTo' && localValues.planDatesFrom)
+      ? localValues.planDatesFrom
       : undefined;
-    
+
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
@@ -410,13 +361,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
           min={minDate}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
+              ? "bg-blue-50 border-blue-200 text-blue-800"
+              : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
         {fieldErrors[name] && (
           <p className="text-xs text-red-500 mt-1">{fieldErrors[name]}</p>
@@ -433,7 +383,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     const isCommon = isCommonField(name);
     const displayValue = isCommon ? getCommonFieldValue(name) : localValues[name];
     const isFieldReadOnly = readOnly || isCommon;
-    
+
     return (
       <div className="flex flex-col gap-1">
         <label className="flex items-start gap-3 cursor-pointer">
@@ -499,15 +449,15 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     const isCommon = isCommonField(name);
     const rawValue = isCommon ? getCommonFieldValue(name) : (localValues[name] || "");
     // Ensure value is always a string (handle arrays, objects, null, undefined)
-    const displayValue = typeof rawValue === 'string' 
-      ? rawValue 
-      : Array.isArray(rawValue) 
-        ? rawValue[0] || "" 
-        : rawValue != null 
-          ? String(rawValue) 
+    const displayValue = typeof rawValue === 'string'
+      ? rawValue
+      : Array.isArray(rawValue)
+        ? rawValue[0] || ""
+        : rawValue != null
+          ? String(rawValue)
           : "";
     const isFieldReadOnly = readOnly || isCommon;
-    
+
     return (
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-700 mb-1">
@@ -519,13 +469,12 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
           value={displayValue}
           onChange={isCommon ? undefined : handleChange}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${
-            fieldErrors[name]
-              ? "border-red-300 bg-red-50"
-              : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
-                : "hover:border-accent/40"
-          } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
+          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+            ? "border-red-300 bg-red-50"
+            : isCommon
+              ? "bg-blue-50 border-blue-200 text-blue-800"
+              : "hover:border-accent/40"
+            } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         >
           <option value="">Select an option</option>
           {options.map((option) => (
@@ -561,45 +510,67 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   useEffect(() => {
     const currentRole = localValues["signatureRole"];
     const prevRole = prevSignatureRoleRef.current;
-    
-    // Only clear fields if role actually changed
-    if (currentRole !== prevRole && prevRole !== "") {
+
+    // Only proceed if role actually changed
+    if (currentRole !== prevRole) {
+      const today = new Date().toISOString().split('T')[0];
       let updated = { ...localValues };
       let hasChanges = false;
-      
+
+      // 1. Always default the date if role is selected and date is currently empty
       if (currentRole === "Participant") {
-        // Clear Nominee fields and canvas
-        if (localValues["nomineeSignature"] || localValues["nomineeSignatureDate"] || localValues["nomineeName"]) {
-          updated = { ...updated, nomineeSignature: "", nomineeSignatureDate: "", nomineeName: "" };
+        if (!localValues["participantSignatureDate"]) {
+          updated = { ...updated, participantSignatureDate: today };
           hasChanges = true;
-        }
-        // Clear the Nominee signature canvas visually
-        if (nomineeSigCanvasRef.current) {
-          nomineeSigCanvasRef.current.clear();
         }
       } else if (currentRole === "Nominee") {
-        // Clear Participant fields and canvas
-        if (localValues["participantSignature"] || localValues["participantSignatureDate"] || localValues["participantName"]) {
-          updated = { ...updated, participantSignature: "", participantSignatureDate: "", participantName: "" };
+        if (!localValues["nomineeSignatureDate"]) {
+          updated = { ...updated, nomineeSignatureDate: today };
           hasChanges = true;
         }
-        // Clear the Participant signature canvas visually
-        if (participantSigCanvasRef.current) {
-          participantSigCanvasRef.current.clear();
+      }
+
+      // 2. ONLY clear fields if shifting FROM a different role (prevRole was not empty)
+      if (prevRole !== "" && prevRole !== currentRole) {
+        if (currentRole === "Participant") {
+          // Clear Nominee fields
+          if (localValues["nomineeSignature"] || localValues["nomineeSignatureDate"] || localValues["nomineeName"]) {
+            updated = { ...updated, nomineeSignature: "", nomineeSignatureDate: "", nomineeName: "" };
+            hasChanges = true;
+          }
+          if (nomineeSigCanvasRef.current) nomineeSigCanvasRef.current.clear();
+        } else if (currentRole === "Nominee") {
+          // Clear Participant fields
+          if (localValues["participantSignature"] || localValues["participantSignatureDate"] || localValues["participantName"]) {
+            updated = { ...updated, participantSignature: "", participantSignatureDate: "", participantName: "" };
+            hasChanges = true;
+          }
+          if (participantSigCanvasRef.current) participantSigCanvasRef.current.clear();
         }
       }
-      
+
       if (hasChanges) {
         setLocalValues(updated);
       }
     }
-    
+
     // Update the ref for next comparison
     prevSignatureRoleRef.current = currentRole;
   }, [localValues["signatureRole"]]);
 
+  // Effect to default provider signature date if empty
+  useEffect(() => {
+    if (!localValues["representativeSignatureDate"]) {
+      const today = new Date().toISOString().split('T')[0];
+      setLocalValues((prev: any) => ({
+        ...prev,
+        representativeSignatureDate: today
+      }));
+    }
+  }, []);
 
-const renderSignatureField = (
+
+  const renderSignatureField = (
     label: string,
     name: string,
     canvasRef: React.RefObject<SignatureCanvasRef>,
@@ -635,220 +606,247 @@ const renderSignatureField = (
   };
 
   const FIELD_METADATA: Record<string, any> = {
-  // Page 1 – Table row fields (explicitly defined)
-      supportFor: { label: "Schedule of Support for ", type: "text", placeholder: "Enter the Participant Name" },
-      ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter NDIS number" },
-        planDatesFrom: { label: "Plan of Date from", type: "date", placeholder: "Select Plan of Date from" },
-            planDatesTo: { label: "Plan of Date Till", type: "date", placeholder: "Select Plan of Date till" },
+    // Page 1 – Table row fields (explicitly defined)
+    supportFor: { label: "Schedule of Support for ", type: "text", placeholder: "Enter the Participant Name" },
+    ndisNumber: { label: "NDIS Number", type: "text", placeholder: "Enter NDIS number" },
+    planDatesFrom: { label: "Plan of Date from", type: "date", placeholder: "Select Plan of Date from" },
+    planDatesTo: { label: "Plan of Date Till", type: "date", placeholder: "Select Plan of Date till" },
 
 
 
-  row0_weeks: {
-    label: "Total weeks for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
-    type: "text",
-  },
-  row0_totalHours: {
-    label: "Total Hours for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
-    type: "text",
-  },
+    row0_weeks: {
+      label: "Total weeks for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
+      type: "text",
+    },
+    row0_totalHours: {
+      label: "Total Hours for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
+      type: "text",
+    },
 
-  row1_weeks: {
-    label: "Weeks for Assistance with Self-care weekday daytime ($67.56/hr)",
-    type: "text",
-  },
-  row1_totalHours: {
-    label: "Total Hours for Assistance with Self-care weekday daytime ($67.56/hr)",
-    type: "text",
-  },
+    row1_weeks: {
+      label: "Weeks for Assistance with Self-care weekday daytime ($67.56/hr)",
+      type: "text",
+    },
+    row1_totalHours: {
+      label: "Total Hours for Assistance with Self-care weekday daytime ($67.56/hr)",
+      type: "text",
+    },
 
-  row2_weeks: {
-    label: "Weeks for Assistance with Self-care weekday Evening ($74.44/hr)",
-    type: "text",
-  },
-  row2_totalHours: {
-    label: "Total Hours for Assistance with Self-care weekday Evening ($74.44/hr)",
-    type: "text",
-  },
+    row2_weeks: {
+      label: "Weeks for Assistance with Self-care weekday Evening ($74.44/hr)",
+      type: "text",
+    },
+    row2_totalHours: {
+      label: "Total Hours for Assistance with Self-care weekday Evening ($74.44/hr)",
+      type: "text",
+    },
 
-  row3_weeks: {
-    label: "Weeks for Assistance with Self-care Saturday ($95.07/hr)",
-    type: "text",
-  },
-  row3_totalHours: {
-    label: "Total Hours for Assistance with Self-care Saturday ($95.07/hr)",
-    type: "text",
-  },
+    row3_weeks: {
+      label: "Weeks for Assistance with Self-care Saturday ($95.07/hr)",
+      type: "text",
+    },
+    row3_totalHours: {
+      label: "Total Hours for Assistance with Self-care Saturday ($95.07/hr)",
+      type: "text",
+    },
 
-  row4_weeks: {
-    label: "Weeks for Assistance with Self-care Sunday ($122.59/hr)",
-    type: "text",
-  },
-  row4_totalHours: {
-    label: "Total Hours for Assistance with Self-care Sunday ($122.59/hr)",
-    type: "text",
-  },
+    row4_weeks: {
+      label: "Weeks for Assistance with Self-care Sunday ($122.59/hr)",
+      type: "text",
+    },
+    row4_totalHours: {
+      label: "Total Hours for Assistance with Self-care Sunday ($122.59/hr)",
+      type: "text",
+    },
 
-  row5_weeks: {
-    label: "Weeks for Assistance with Self-care Public Holiday ($150.10/hr)",
-    type: "text",
-  },
-  row5_totalHours: {
-    label: "Total Hours for Assistance with Self-care Public Holiday ($150.10/hr)",
-    type: "text",
-  },
+    row5_weeks: {
+      label: "Weeks for Assistance with Self-care Public Holiday ($150.10/hr)",
+      type: "text",
+    },
+    row5_totalHours: {
+      label: "Total Hours for Assistance with Self-care Public Holiday ($150.10/hr)",
+      type: "text",
+    },
 
-  row6_weeks: {
-    label: "Weeks for Access Community and Rec weekday ($67.56/hr)",
-    type: "text",
-  },
-  row6_totalHours: {
-    label: "Total Hours for Access Community and Rec weekday ($67.56/hr)",
-    type: "text",
-  },
+    row6_weeks: {
+      label: "Weeks for Access Community and Rec weekday ($67.56/hr)",
+      type: "text",
+    },
+    row6_totalHours: {
+      label: "Total Hours for Access Community and Rec weekday ($67.56/hr)",
+      type: "text",
+    },
 
-  row7_weeks: {
-    label: "Weeks for Access Community and Rec Saturday ($95.07/hr)",
-    type: "text",
-  },
-  row7_totalHours: {
-    label: "Total Hours for Access Community and Rec Saturday ($95.07/hr)",
-    type: "text",
-  },
+    row7_weeks: {
+      label: "Weeks for Access Community and Rec Saturday ($95.07/hr)",
+      type: "text",
+    },
+    row7_totalHours: {
+      label: "Total Hours for Access Community and Rec Saturday ($95.07/hr)",
+      type: "text",
+    },
 
-  row8_weeks: {
-    label: "Weeks for Access Community and Rec Sunday ($122.59/hr)",
-    type: "text",
-  },
-  row8_totalHours: {
-    label: "Total Hours for Access Community and Rec Sunday ($122.59/hr)",
-    type: "text",
-  },
+    row8_weeks: {
+      label: "Weeks for Access Community and Rec Sunday ($122.59/hr)",
+      type: "text",
+    },
+    row8_totalHours: {
+      label: "Total Hours for Access Community and Rec Sunday ($122.59/hr)",
+      type: "text",
+    },
 
-  row9_weeks: {
-    label: "Weeks for Access Community and Rec Public Holiday ($150.10/hr)",
-    type: "text",
-  },
-  row9_totalHours: {
-    label: "Total Hours for Access Community and Rec Public Holiday ($150.10/hr)",
-    type: "text",
-  },
+    row9_weeks: {
+      label: "Weeks for Access Community and Rec Public Holiday ($150.10/hr)",
+      type: "text",
+    },
+    row9_totalHours: {
+      label: "Total Hours for Access Community and Rec Public Holiday ($150.10/hr)",
+      type: "text",
+    },
 
-  row10_weeks: {
-    label: "Weeks for Specialised Home-based care for a child ($57.23/hr)",
-    type: "text",
-  },
-  row10_totalHours: {
-    label: "Total Hours for Specialised Home-based care for a child ($57.23/hr)",
-    type: "text",
-  },
+    row10_weeks: {
+      label: "Weeks for Specialised Home-based care for a child ($57.23/hr)",
+      type: "text",
+    },
+    row10_totalHours: {
+      label: "Total Hours for Specialised Home-based care for a child ($57.23/hr)",
+      type: "text",
+    },
 
-  row11_weeks: {
-    label: "Weeks for Skill Development and Training ($77.00/hr)",
-    type: "text",
-  },
-  row11_totalHours: {
-    label: "Total Hours for Skill Development and Training ($77.00/hr)",
-    type: "text",
-  },
+    row11_weeks: {
+      label: "Weeks for Skill Development and Training ($77.00/hr)",
+      type: "text",
+    },
+    row11_totalHours: {
+      label: "Total Hours for Skill Development and Training ($77.00/hr)",
+      type: "text",
+    },
 
-  row12_totalKms: {
-    label: "Total Kilometers for Activity based Transport ($1 per km)",
-    type: "text",
-  },
-  row13_weeks: {
-    label: "Weeks for Non-Face-to-Face ($67.56/hr)",
-    type: "text",
-  },
-  row13_totalHours: {
-    label: "Total Hours for Non-Face-to-Face ($67.56/hr)",
-    type: "text",
-  },
+    row12_totalKms: {
+      label: "Total Kilometers for Activity based Transport ($1 per km)",
+      type: "text",
+    },
+    row13_weeks: {
+      label: "Weeks for Non-Face-to-Face ($67.56/hr)",
+      type: "text",
+    },
+    row13_totalHours: {
+      label: "Total Hours for Non-Face-to-Face ($67.56/hr)",
+      type: "text",
+    },
 
-  row14_weeks: {
-    label: "Weeks for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
-    type: "text",
-  },
-  row14_totalHours: {
-    label: "Total Hours for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
-    type: "text",
-  },
+    row14_weeks: {
+      label: "Weeks for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      type: "text",
+    },
+    row14_totalHours: {
+      label: "Total Hours for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      type: "text",
+    },
 
-  row15_weeks: {
-    label: "Weeks for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
-    type: "text",
-  },
-  row15_totalHours: {
-    label: "Total Hours for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
-    type: "text",
-  },
+    row15_weeks: {
+      label: "Weeks for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      type: "text",
+    },
+    row15_totalHours: {
+      label: "Total Hours for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      type: "text",
+    },
 
-  //page2
-  transportOption1: { label: "Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget", type: "dropdown", options: yesNoOptions },
-  transportValue1: { label: "Transport Services provided to the value of _", type: "text" },
-  transportOver1: { label: "Anything over this amount will be", type: "text" },
+    row16_weeks: {
+      label: "Weeks for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      type: "text",
+    },
+    row16_totalHours: {
+      label: "Total Hours for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      type: "text",
+    },
 
-  transportOption2: { label: " Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget.", type: "dropdown", options: yesNoOptions },
-  transportValue2: { label: "For Transport Services provided to the value of", type: "text" },
-  transportOver2: { label: "Anything over this amount will be", type: "text" },
+    row17_weeks: {
+      label: "Weeks for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      type: "text",
+    },
+    row17_totalHours: {
+      label: "Total Hours for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      type: "text",
+    },
 
-  transportOption3: { label: "For any transport services provided. Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.", type: "dropdown", options: yesNoOptions },
+    row18_weeks: {
+      label: "Weeks for Specialised Home-based care for a child ($59.06/hr)",
+      type: "text",
+    },
+    row18_totalHours: {
+      label: "Total Hours for Specialised Home-based care for a child ($59.06/hr)",
+      type: "text",
+    },
 
-  establishmentFeeAgreement: {
-    label: " If you are a new participant to NDIS or Infinity Supports WA, you will be charged $654.70 as per the NDIS Price Guide. ",
-    type: "dropdown",
-    options: yesNoOptions,
-  },
-  providerTravelAgreement: {
-    label: "I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.",
-    type: "dropdown",
-    options: yesNoOptions,
-  },
+    //page2
+    transportOption1: { label: "Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget", type: "dropdown", options: yesNoOptions },
+    transportValue1: { label: "Transport Services provided to the value of _", type: "text" },
+    transportOver1: { label: "Anything over this amount will be", type: "text" },
 
-//   agreeNonFaceToFace: {
-//     label: "Agreement to Non-Face-to-Face Charges",
-//     type: "dropdown",
-//     options: yesNoOptions,
-//   },
+    transportOption2: { label: " Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget.", type: "dropdown", options: yesNoOptions },
+    transportValue2: { label: "For Transport Services provided to the value of", type: "text" },
+    transportOver2: { label: "Anything over this amount will be", type: "text" },
 
-  // Page 3 – Signatures & Agreements
-  
-  participantSignature: {
-    label: "Participant Signature",
-    type: "signature",
-  },
-  participantSignatureDate: {
-    label: "Participant Signature Date",
-    type: "date",
-  },
-  participantName: {
-    label: "Participant Name",
-    type: "text",
-  },
-  nomineeSignature: {
-    label: "Nominee Signature",
-    type: "signature",
-  },
-  nomineeSignatureDate: {
-    label: "Nominee Signature Date",
-    type: "date",
-  },
-  nomineeName: {
-    label: "Nominee Name",
-    type: "text",
-  },
-  representativeSignature: {
-    label: "Representative Signature",
-    type: "signature",
-  },
-  representativeSignatureDate: {
-    label: "Representative Signature Date",
-    type: "date",
-  },
-  representativeName: {
-    label: "Representative Name",
-    type: 'text'
-  }
-};
+    transportOption3: { label: "For any transport services provided. Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.", type: "dropdown", options: yesNoOptions },
+
+    establishmentFeeAgreement: {
+      label: " If you are a new participant to NDIS or Infinity Supports WA, you will be charged $654.70 as per the NDIS Price Guide. ",
+      type: "dropdown",
+      options: yesNoOptions,
+    },
+    providerTravelAgreement: {
+      label: "I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.",
+      type: "dropdown",
+      options: yesNoOptions,
+    },
+
+    //   agreeNonFaceToFace: {
+    //     label: "Agreement to Non-Face-to-Face Charges",
+    //     type: "dropdown",
+    //     options: yesNoOptions,
+    //   },
+
+    // Page 3 – Signatures & Agreements
+
+    participantSignature: {
+      label: "Participant Signature",
+      type: "signature",
+    },
+    participantSignatureDate: {
+      label: "Participant Signature Date",
+      type: "date",
+    },
+    participantName: {
+      label: "Participant Name",
+      type: "text",
+    },
+    nomineeSignature: {
+      label: "Nominee Signature",
+      type: "signature",
+    },
+    nomineeSignatureDate: {
+      label: "Nominee Signature Date",
+      type: "date",
+    },
+    nomineeName: {
+      label: "Nominee Name",
+      type: "text",
+    },
+    representativeSignature: {
+      label: "Representative Signature",
+      type: "signature",
+    },
+    representativeSignatureDate: {
+      label: "Representative Signature Date",
+      type: "date",
+    },
+    representativeName: {
+      label: "Representative Name",
+      type: 'text'
+    }
+  };
 
 
 
@@ -856,26 +854,26 @@ const renderSignatureField = (
   // Validation function to check if all required fields are filled
   // const validateRequiredFields = () => {
   //   const missingFields: string[] = [];
-    
+
   //   FORM_SECTIONS.forEach((section: any ) => {
   //     section.requiredFields.forEach((fieldName: any ) => {
   //       let value;
-        
+
   //       // For common fields, get value from commonFieldsData
   //       if (isCommonField(fieldName)) {
   //         value = getCommonFieldValue(fieldName);
   //       } else {
   //         value = localValues[fieldName];
   //       }
-        
+
   //       // Check if field is empty, null, undefined, or empty string
   //       if (!value || (typeof value === 'string' && value.trim() === '')) {
   //         missingFields.push(`${fieldName}`);
   //       }
   //     });
-      
+
   //   });
-    
+
   //   return {
   //     isValid: missingFields.length === 0,
   //     missingFields
@@ -883,56 +881,56 @@ const renderSignatureField = (
   // };
 
 
-   const validateRequiredFields = () => {
-  const missingFields: string[] = [];
+  const validateRequiredFields = () => {
+    const missingFields: string[] = [];
 
-  // Validate required fields defined per section
-  FORM_SECTIONS.forEach((section : any ) => {
-    section.requiredFields.forEach((fieldName : any ) => {
-      let value;
+    // Validate required fields defined per section
+    FORM_SECTIONS.forEach((section: any) => {
+      section.requiredFields.forEach((fieldName: any) => {
+        let value;
 
-      if (isCommonField(fieldName)) {
-        value = getCommonFieldValue(fieldName);
-      } else {
-        value = localValues[fieldName];
-      }
+        if (isCommonField(fieldName)) {
+          value = getCommonFieldValue(fieldName);
+        } else {
+          value = localValues[fieldName];
+        }
 
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
-        missingFields.push(fieldName);
-      }
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          missingFields.push(fieldName);
+        }
+      });
     });
-  });
 
-  // Conditional signature validation
-  if (localValues.signatureRole === "Participant") {
-    ["participantSignature", "participantSignatureDate", "participantName"].forEach(field => {
-      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
-        missingFields.push(field);
-      }
-    });
-  } else if (localValues.signatureRole === "Nominee") {
-    ["nomineeSignature", "nomineeSignatureDate", "nomineeName"].forEach(field => {
-      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
-        missingFields.push(field);
-      }
-    });
-  } else {
-    // signatureRole not selected
-    missingFields.push("signatureRole");
-  }
-
-  // Always required provider fields
-  ["representativeSignature", "representativeSignatureDate", "representativeName"].forEach(field => {
-    if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
-      missingFields.push(field);
+    // Conditional signature validation
+    if (localValues.signatureRole === "Participant") {
+      ["participantSignature", "participantSignatureDate", "participantName"].forEach(field => {
+        if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+          missingFields.push(field);
+        }
+      });
+    } else if (localValues.signatureRole === "Nominee") {
+      ["nomineeSignature", "nomineeSignatureDate", "nomineeName"].forEach(field => {
+        if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+          missingFields.push(field);
+        }
+      });
+    } else {
+      // signatureRole not selected
+      missingFields.push("signatureRole");
     }
-  });
 
-  return {
-    isValid: missingFields.length === 0,
-    missingFields
+    // Always required provider fields
+    ["representativeSignature", "representativeSignatureDate", "representativeName"].forEach(field => {
+      if (!localValues[field] || (typeof localValues[field] === 'string' && localValues[field].trim() === '')) {
+        missingFields.push(field);
+      }
+    });
+
+    return {
+      isValid: missingFields.length === 0,
+      missingFields
+    };
   };
-};
 
 
   const handleFormSubmitCheckValidation = async () => {
@@ -978,26 +976,27 @@ const renderSignatureField = (
     onChange(newValues, fieldName, false);
   };
 
-const supportLineItems = [
-  { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 702.30 },
-  { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 70.23 },
-  { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 77.38 },
-  { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 98.83 },
-  { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 127.43 },
-  { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 156.03 },
-  { code: "row6", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
-  { code: "row7", label: "01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime", rate: 75.98 },
-  { code: "row8", label: "04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime", rate: 70.23 },
-  { code: "row9", label: "04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening", rate: 77.38 },
-  { code: "row10", label: "04_105_0125_6_1 Access community and Rec Saturday", rate: 98.83 },
-  { code: "row11", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 127.43 },
-  { code: "row12", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 156.03 },
-  { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 80.06 },
-  { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 70.23 },
-  { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.0 }, // Assuming this is per km
-  { code: "row16", label: "01_002_0107_1_1 Provider Travel", rate: 17.55 },
-  { code: "row17", label: "04_104_0125_6_1 Provider Travel", rate: 17.55 },
-];
+  const supportLineItems = [
+    { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 702.30 },
+    { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 70.23 },
+    { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 77.38 },
+    { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 98.83 },
+    { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 127.43 },
+    { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 156.03 },
+    { code: "row6", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
+    { code: "row7", label: "01_400_0107_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime", rate: 75.98 },
+    { code: "row8", label: "04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime", rate: 70.23 },
+    { code: "row9", label: "04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening", rate: 77.38 },
+    { code: "row10", label: "04_105_0125_6_1 Access community and Rec Saturday", rate: 98.83 },
+    { code: "row11", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 127.43 },
+    { code: "row12", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 156.03 },
+    { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 80.06 },
+    { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 70.23 },
+    { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.0 }, // Assuming this is per km
+    { code: "row16", label: "01-002-0107-1-1 Provider Travel", rate: 17.55 },
+    { code: "row17", label: "04-104-0125-6-1 Provider Travel", rate: 17.55 },
+    { code: "row18", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
+  ];
 
 
 
@@ -1012,7 +1011,7 @@ const supportLineItems = [
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
-          {FORM_SECTIONS.map((section: any , idx: any ) => {
+          {FORM_SECTIONS.map((section: any, idx: any) => {
             const active = idx === currentStep;
             const unlocked = idx <= maxStep;
             return (
@@ -1063,7 +1062,7 @@ const supportLineItems = [
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault();
-              if(onSubmit) onSubmit(localValues);
+              if (onSubmit) onSubmit(localValues);
             }}
             className="flex flex-col gap-6"
           >
@@ -1078,7 +1077,7 @@ const supportLineItems = [
                       {["selfManaged", "nomineeManaged", "ndiaManaged", "planManagerManaged"].map((field) => {
                         const meta = FIELD_METADATA[field] || { label: field, type: "checkbox" };
                         const required = isFieldRequired(field);
-                        
+
                         return (
                           <div key={field}>
                             {renderCheckbox(meta.label, field, required)}
@@ -1087,7 +1086,7 @@ const supportLineItems = [
                       })}
                     </div>
                   </div>
-                  
+
                   {/* Additional fields for plan manager */}
                   {localValues.planManagerManaged && (
                     <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
@@ -1096,7 +1095,7 @@ const supportLineItems = [
                         {["planManagerName", "fundingSource"].map((field) => {
                           const meta = FIELD_METADATA[field] || { label: field, type: "text" };
                           const required = isFieldRequired(field);
-                          
+
                           return (
                             <div key={field}>
                               {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
@@ -1109,42 +1108,42 @@ const supportLineItems = [
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "signatures" ? (
                 // Special layout for signatures section
-               <div className="space-y-6">
+                <div className="space-y-6">
                   {renderDropdown(
-  "Who is signing this agreement?",
-  "signatureRole",
-  ["Participant", "Nominee"],
-  true
-)}
+                    "Who is signing this agreement?",
+                    "signatureRole",
+                    ["Participant", "Nominee"],
+                    true
+                  )}
 
                   {/* Participant Signature */}
                   {localValues.signatureRole === "Participant" && (
-  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-    <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
-    <div className="space-y-4">
-      {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature")}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {renderInput("Date of participant signature", "participantSignatureDate", "date")}
-        {renderInput("Name of participant", "participantName", "text", "Enter participant name")}
-      </div>
-    </div>
-  </div>
-)}
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-800">Participant Signature</h3>
+                      <div className="space-y-4">
+                        {renderSignatureField("Signature of participant", "participantSignature", participantSigCanvasRef, "Draw participant signature")}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {renderInput("Date of participant signature", "participantSignatureDate", "date")}
+                          {renderInput("Name of participant", "participantName", "text", "Enter participant name")}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-{localValues.signatureRole === "Nominee" && (
-  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-    <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature</h3>
-    <div className="space-y-4">
-      {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
-        {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
-      </div>
-    </div>
-  </div>
-)}
+                  {localValues.signatureRole === "Nominee" && (
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-800">Nominee Signature</h3>
+                      <div className="space-y-4">
+                        {renderSignatureField("Signature of nominee", "nomineeSignature", nomineeSigCanvasRef, "Draw nominee signature")}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {renderInput("Date of nominee signature", "nomineeSignatureDate", "date")}
+                          {renderInput("Name of nominee", "nomineeName", "text", "Enter nominee name")}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                  
+
                   {/* Provider Signature */}
                   <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <h3 className="text-lg font-semibold mb-4 text-gray-800">Provider Signature</h3>
@@ -1158,182 +1157,280 @@ const supportLineItems = [
                   </div>
                 </div>
               ) :
-              
 
-              FORM_SECTIONS[currentStep].id === "scheduleTable" ? (
-  <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
-        <table className="w-full text-sm text-left text-gray-700">
-          <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase">
-            <tr>
-              <th className="px-4 py-2">Support Item</th>
-              <th className="px-4 py-2">Weeks / KMs</th>
-              <th className="px-4 py-2">Total Hours</th>
-              <th className="px-4 py-2">Rate</th>
-              <th className="px-4 py-2 text-right">Total Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            {supportLineItems.map((item) => {
-              const isKmBased = item.code === "row15";
-              const weeksOrKms = parseFloat(localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || "0");
-              const hours = isKmBased ? 0 : parseFloat(localValues[`${item.code}_totalHours`] || "0");
-              const total = isKmBased ? weeksOrKms * item.rate : hours * item.rate;
 
-              return (
-                <tr key={item.code} className="border-t border-gray-200">
-                  <td className="px-4 py-2">{item.label}</td>
-                  <td className="px-4 py-2">
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      name={`${item.code}_${isKmBased ? "totalKms" : "weeks"}`}
-                      value={localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || ""}
-                      onChange={handleChange}
-                      className="w-full px-2 py-1 border rounded-md text-sm"
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    {isKmBased ? "-" : (
-                      <input
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        name={`${item.code}_totalHours`}
-                        value={localValues[`${item.code}_totalHours`] || ""}
-                        onChange={handleChange}
-                        className="w-full px-2 py-1 border rounded-md text-sm"
-                      />
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-right">${item.rate.toFixed(2)}</td>
-                  <td className="px-4 py-2 text-right font-semibold">${total.toFixed(2)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-) : 
+                FORM_SECTIONS[currentStep].id === "scheduleTable" ? (
+                  <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+                    <table className="w-full text-sm text-left text-gray-700">
+                      <thead className="bg-gray-100 text-xs font-semibold text-gray-600 uppercase">
+                        <tr>
+                          <th className="px-4 py-2">Support Item</th>
+                          <th className="px-4 py-2">Weeks / KMs</th>
+                          <th className="px-4 py-2">Total Hours</th>
+                          <th className="px-4 py-2">Cost/hour</th>
+                          <th className="px-4 py-2 text-right">Total Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {supportLineItems.map((item) => {
+                          const isKmBased = item.code === "row15";
+                          const weeksOrKms = parseFloat(localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || "0");
+                          const hours = isKmBased ? 0 : parseFloat(localValues[`${item.code}_totalHours`] || "0");
+                          const total = isKmBased ? weeksOrKms * item.rate : hours * item.rate;
 
-(FORM_SECTIONS[currentStep].id === "transportAgreements") ? 
-<div className="space-y-6">
-      <div className="space-y-4">
-        {/* Transport Option 1 */}
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          {renderDropdown(
-            "Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget",
-            "transportOption1",
-            yesNoOptions
-          )}
+                          return (
+                            <tr key={item.code} className="border-t border-gray-200 hover:bg-gray-50 transition-colors">
+                              <td className="px-4 py-2 text-gray-800">{item.label}</td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  min="0"
+                                  name={`${item.code}_${isKmBased ? "totalKms" : "weeks"}`}
+                                  value={localValues[`${item.code}_${isKmBased ? "totalKms" : "weeks"}`] || ""}
+                                  onChange={handleChange}
+                                  placeholder={isKmBased ? "KMs" : "Weeks"}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                {isKmBased ? (
+                                  <div className="text-center text-gray-400">-</div>
+                                ) : (
+                                  <input
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    name={`${item.code}_totalHours`}
+                                    value={localValues[`${item.code}_totalHours`] || ""}
+                                    onChange={handleChange}
+                                    placeholder="Hours"
+                                    className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                  />
+                                )}
+                              </td>
+                              <td className="px-4 py-2 text-right text-gray-600">${item.rate.toFixed(2)}</td>
+                              <td className="px-4 py-2 text-right font-semibold text-gray-900">${total.toFixed(2)}</td>
+                            </tr>
+                          );
+                        })}
 
-          {localValues.transportOption1 === "Yes" && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {renderInput(
-                "Transport Services provided to the value of",
-                "transportValue1",
-                "text",
-                "$ amount"
-              )}
-              {renderInput(
-                "Anything over this amount will be",
-                "transportOver1",
-                "text",
-                "Excess policy"
-              )}
-            </div>
-          )}
-        </div>
+                        {/* Dynamic Custom Rows */}
+                        {localValues.customSupportItems?.map((item: any, index: number) => {
+                          const total = (parseFloat(item.weeks || "0") || parseFloat(item.totalKms || "0")) * (parseFloat(item.rate || "0"));
+                          return (
+                            <tr key={`custom-${index}`} className="border-t border-gray-200 bg-blue-50/30 hover:bg-blue-50/50 transition-colors">
+                              <td className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  placeholder="Custom Support Description"
+                                  value={item.label || ""}
+                                  onChange={(e) => {
+                                    const newCustom = [...localValues.customSupportItems];
+                                    newCustom[index].label = e.target.value;
+                                    setLocalValues({ ...localValues, customSupportItems: newCustom });
+                                  }}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="Wk/KM"
+                                  value={item.weeks || item.totalKms || ""}
+                                  onChange={(e) => {
+                                    const newCustom = [...localValues.customSupportItems];
+                                    newCustom[index].weeks = e.target.value;
+                                    setLocalValues({ ...localValues, customSupportItems: newCustom });
+                                  }}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="Hours"
+                                  value={item.totalHours || ""}
+                                  onChange={(e) => {
+                                    const newCustom = [...localValues.customSupportItems];
+                                    newCustom[index].totalHours = e.target.value;
+                                    setLocalValues({ ...localValues, customSupportItems: newCustom });
+                                  }}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Rate"
+                                  value={item.rate || ""}
+                                  onChange={(e) => {
+                                    const newCustom = [...localValues.customSupportItems];
+                                    newCustom[index].rate = e.target.value;
+                                    setLocalValues({ ...localValues, customSupportItems: newCustom });
+                                  }}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none"
+                                />
+                              </td>
+                              <td className="px-4 py-2 text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <span className="font-semibold text-gray-900">${total.toFixed(2)}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newCustom = localValues.customSupportItems.filter((_: any, i: number) => i !== index);
+                                      setLocalValues({ ...localValues, customSupportItems: newCustom });
+                                    }}
+                                    className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                                    title="Remove item"
+                                  >
+                                    <FaTimes className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
 
-        {/* Transport Option 2 */}
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          {renderDropdown(
-            "Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget",
-            "transportOption2",
-            yesNoOptions
-          )}
+                    <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newCustom = [...(localValues.customSupportItems || []), { label: "", weeks: "", totalHours: "", rate: "" }];
+                          setLocalValues({ ...localValues, customSupportItems: newCustom });
+                        }}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all shadow-md text-sm font-semibold active:scale-95"
+                      >
+                        <FaPlus className="w-4 h-4" />
+                        <span>Add Custom Support Item</span>
+                      </button>
+                    </div>
+                  </div>
+                ) :
 
-          {localValues.transportOption2 === "Yes" && (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {renderInput(
-                "For Transport Services provided to the value of",
-                "transportValue2",
-                "text",
-                "$ amount"
-              )}
-              {renderInput(
-                "Anything over this amount will be",
-                "transportOver2",
-                "text",
-                "Excess policy"
-              )}
-            </div>
-          )}
-        </div>
+                  (FORM_SECTIONS[currentStep].id === "transportAgreements") ?
+                    <div className="space-y-6">
+                      <div className="space-y-4">
+                        {/* Transport Option 1 */}
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          {renderDropdown(
+                            "Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget",
+                            "transportOption1",
+                            yesNoOptions
+                          )}
 
-        {/* Transport Option 3 */}
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          {renderDropdown(
-            "Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.",
-            "transportOption3",
-            yesNoOptions
-          )}
-        </div>
-
-        {/* Establishment Fee & Travel */}
-        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          {renderDropdown(
-            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.",
-            "establishmentFeeAgreement",
-            yesNoOptions
-          )}
-          {renderDropdown(
-            "I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.",
-            "providerTravelAgreement",
-            yesNoOptions
-          )}
-        </div>
-      </div>
-    </div>
-
-              
-              
-             : (
-                // Standard grid layout for other sections
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {FORM_SECTIONS[currentStep].fields.map((field: any ) => {
-                    const meta = FIELD_METADATA[field] || { label: field, type: "text" };
-                    const required = isFieldRequired(field);
-                    
-                    if (meta.type === "checkbox") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderCheckbox(meta.label, field, required)}
+                          {localValues.transportOption1 === "Yes" && (
+                            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {renderInput(
+                                "Transport Services provided to the value of",
+                                "transportValue1",
+                                "text",
+                                "$ amount"
+                              )}
+                              {renderInput(
+                                "Anything over this amount will be",
+                                "transportOver1",
+                                "text",
+                                "Excess policy"
+                              )}
+                            </div>
+                          )}
                         </div>
-                      );
-                    }
-                    if (meta.type === "radio") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderRadioGroup(meta.label, field, meta.options || [], required)}
+
+                        {/* Transport Option 2 */}
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          {renderDropdown(
+                            "Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget",
+                            "transportOption2",
+                            yesNoOptions
+                          )}
+
+                          {localValues.transportOption2 === "Yes" && (
+                            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {renderInput(
+                                "For Transport Services provided to the value of",
+                                "transportValue2",
+                                "text",
+                                "$ amount"
+                              )}
+                              {renderInput(
+                                "Anything over this amount will be",
+                                "transportOver2",
+                                "text",
+                                "Excess policy"
+                              )}
+                            </div>
+                          )}
                         </div>
-                      );
-                    }
-                    if (meta.type === "dropdown") {
-                      return (
-                        <div key={field} className="md:col-span-2">
-                          {renderDropdown(meta.label, field, meta.options || [], required)}
+
+                        {/* Transport Option 3 */}
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          {renderDropdown(
+                            "Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.",
+                            "transportOption3",
+                            yesNoOptions
+                          )}
                         </div>
-                      );
-                    }
-                    return (
-                      <div key={field}>
-                        {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+
+                        {/* Establishment Fee & Travel */}
+                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                          {renderDropdown(
+                            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.",
+                            "establishmentFeeAgreement",
+                            yesNoOptions
+                          )}
+                          {renderDropdown(
+                            "I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.",
+                            "providerTravelAgreement",
+                            yesNoOptions
+                          )}
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+
+
+
+                    : (
+                      // Standard grid layout for other sections
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {FORM_SECTIONS[currentStep].fields.map((field: any) => {
+                          const meta = FIELD_METADATA[field] || { label: field, type: "text" };
+                          const required = isFieldRequired(field);
+
+                          if (meta.type === "checkbox") {
+                            return (
+                              <div key={field} className="md:col-span-2">
+                                {renderCheckbox(meta.label, field, required)}
+                              </div>
+                            );
+                          }
+                          if (meta.type === "radio") {
+                            return (
+                              <div key={field} className="md:col-span-2">
+                                {renderRadioGroup(meta.label, field, meta.options || [], required)}
+                              </div>
+                            );
+                          }
+                          if (meta.type === "dropdown") {
+                            return (
+                              <div key={field} className="md:col-span-2">
+                                {renderDropdown(meta.label, field, meta.options || [], required)}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={field}>
+                              {renderInput(meta.label, field, meta.type || "text", meta.placeholder, required)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
             </div>
           </form>
         </section>
@@ -1342,7 +1439,7 @@ const supportLineItems = [
         <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
-            {FORM_SECTIONS.map((_: any , index: any ) => (
+            {FORM_SECTIONS.map((_: any, index: any) => (
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-gray-200 border-gray-300"}`}
@@ -1391,7 +1488,7 @@ const supportLineItems = [
               disabled={saving || submitting}
             >
               <FaCheck className="w-4 h-4" />
-              {submitting ?   <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
+              {submitting ? <FaSpinner className="w-4 h-4 animate-spin" /> : "Submit Form"}
             </button>
           )}
         </footer>

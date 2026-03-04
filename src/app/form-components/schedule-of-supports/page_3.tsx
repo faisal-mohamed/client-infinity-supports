@@ -18,31 +18,33 @@ interface Page3Props {
 
 
 const Page3: React.FC<Page3Props> = ({ schema, data, settings, commonFieldsData }) => {
-const getValue = (key: string): string => {
-  const rawValue = data?.[key] ?? "";
+  const getValue = (key: string): string => {
+    const rawValue = data?.[key] ?? "";
 
-  if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
-    const parsed = parseISO(rawValue);
-    if (isValid(parsed)) {
-      return format(parsed, "dd-MM-yyyy");
-    }
-  }
-
-  return rawValue;
-};
-
-  const isChecked = (key: string) =>
-    getValue(key)?.toString().toLowerCase() === "yes";
-
-     const formatDate = (value: string) => {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const parsed = parseISO(value);
-        if (isValid(parsed)) {
-          return format(parsed, "dd-MM-yyyy");
-        }
+    if (typeof rawValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(rawValue)) {
+      const parsed = parseISO(rawValue);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
       }
-      return value;
-    };
+    }
+
+    return rawValue;
+  };
+
+  const isChecked = (key: string) => {
+    const val = data?.[key];
+    return val === true || val === 'true' || (typeof val === 'string' && val.toLowerCase() === 'yes');
+  };
+
+  const formatDate = (value: string) => {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
+    }
+    return value;
+  };
 
   return (
     <A4PageWrapper>
@@ -59,19 +61,12 @@ const getValue = (key: string): string => {
         {/* Content */}
         <div className="flex-1 space-y-6">
           {/* Provider Travel */}
-          <div>
-            <p className="font-bold mb-1">Provider Travel</p>
-            <p>
-              <input
-                type="checkbox"
-                className="mr-2 accent-blue-600"
-                checked={isChecked("providerTravelAgreement")}
-                readOnly
-                style={{verticalAlign: 'middle'}}
-              />
-              I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.
-            </p>
-          </div>
+          <p className="flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked("providerTravelAgreement") ? 'X' : ''}
+            </span>
+            <span>I agree to Infinity Supports WA charging 15 minutes Provider Travel per day.</span>
+          </p>
 
           {/* Short Notice Cancellation */}
           <div>
@@ -88,11 +83,11 @@ const getValue = (key: string): string => {
           <div>
             <p className="font-bold mb-1">Schedule of Support price structure</p>
             <p className="text-[13px] leading-relaxed">
-              The prices for Service Delivery are set in accordance with NDIS pricing guide and can change 
-in response to the Annual Price Review conducted by NDIS with the new prices outlined by 
-NDIA, effective 1 July every year.  NDIA Increases the participants funding supports to 
-accommodate for this price change and hence should not impact on the level support 
-received.
+              The prices for Service Delivery are set in accordance with NDIS pricing guide and can change
+              in response to the Annual Price Review conducted by NDIS with the new prices outlined by
+              NDIA, effective 1 July every year.  NDIA Increases the participants funding supports to
+              accommodate for this price change and hence should not impact on the level support
+              received.
             </p>
           </div>
 
@@ -187,7 +182,7 @@ received.
         <footer className="flex justify-between text-[10px] mt-auto px-1 pt-6">
           <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
-<span>Review Date: {formatDate(settings?.review_date)}</span>
+          <span>Review Date: {formatDate(settings?.review_date)}</span>
         </footer>
       </div>
     </A4PageWrapper>

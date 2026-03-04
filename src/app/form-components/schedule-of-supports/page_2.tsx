@@ -10,9 +10,12 @@ interface Page2Props {
 }
 
 const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
-  const isChecked = (key: string) => formData?.[key] === 'Yes';
+  const isChecked = (key: string) => {
+    const val = formData?.[key];
+    return val === true || val === 'true' || (typeof val === 'string' && val.toLowerCase() === 'yes');
+  };
 
-   const formatDate = (value: string) => {
+  const formatDate = (value: string) => {
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const parsed = parseISO(value);
       if (isValid(parsed)) {
@@ -21,7 +24,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
     }
     return value;
   };
-  
+
 
   return (
     <A4PageWrapper>
@@ -41,19 +44,31 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
             Transport Payments (not applicable client has own vehicle)
           </p>
 
-          <p className="mb-2">
-            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption1')} readOnly />
-            Transport Services provided to the value of <strong>{formData?.transportValue1 || '__________________'}</strong>. Infinity Supports WA will claim payment for those supports from the NDIA using the Transport funding Budget. Anything over this amount will be: <strong>{formData?.transportOver1 || '__________________'}</strong>.
+          <p className="mb-2 flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked('transportOption1') ? 'X' : ''}
+            </span>
+            <span>
+              Transport Services provided to the value of <strong>{formData?.transportValue1 || '______'}</strong>. Infinity Supports WA will claim payment from the NDIA using the Transport funding Budget. Anything over this amount will be: <strong>{formData?.transportOver1 || '______'}</strong>.
+            </span>
           </p>
 
-          <p className="mb-2">
-            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption2')} readOnly />
-            For Transport Services provided to the value of <strong>{formData?.transportValue2 || '____________'}</strong>. Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget. Anything over this amount will be: <strong>{formData?.transportOver2 || '__________________'}</strong>.
+          <p className="mb-2 flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked('transportOption2') ? 'X' : ''}
+            </span>
+            <span>
+              For Transport Services provided to the value of <strong>{formData?.transportValue2 || '____________'}</strong>. Infinity Supports WA will claim payment for those supports from the NDIA using the Core support funding Budget. Anything over this amount will be: <strong>{formData?.transportOver2 || '__________________'}</strong>.
+            </span>
           </p>
 
-          <p className="mb-2">
-            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('transportOption3')} readOnly />
-            For any transport services provided. Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.
+          <p className="mb-2 flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked('transportOption3') ? 'X' : ''}
+            </span>
+            <span>
+              For any transport services provided. Infinity Supports WA will send the Individual/Plan Manager an invoice for those supports for the Individual/Plan Manager to pay. The Individual/Plan Manager will pay the invoice within 14 days.
+            </span>
           </p>
 
           <p className="font-bold mt-4 mb-1">NDIS Establishment Fee</p>
@@ -61,9 +76,13 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
             This fee applies to all New NDIS Participants in their first plan where they receive at least 20 hours of personal care/ community access support per month. This payment is to cover non-ongoing costs for providers establishing arrangements and assisting participants in implementing their plan.
           </p>
 
-          <p className="mb-2">
-            <input type="checkbox" className="mr-2 accent-blue-600" checked={isChecked('establishmentFeeAgreement')} readOnly />
-            If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
+          <p className="mb-2 flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked('establishmentFeeAgreement') ? 'X' : ''}
+            </span>
+            <span>
+              If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
+            </span>
           </p>
 
           <p className="font-bold mt-4 mb-1">Non-Face-to-Face Support Provision</p>
@@ -79,8 +98,11 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
             By signing the Schedule of Supports you agree to Infinity Supports claiming the above Non-Face-to-Face charges in line with the NDIS Guidelines.
           </p>
 
-          <p className="mb-6">
-            X I agree to Infinity Supports Non-Face-to-Face charges as above.
+          <p className="mb-6 flex items-start">
+            <span className="inline-flex items-center justify-center min-w-[14px] w-[14px] h-[14px] border border-black mr-2 text-blue-600 font-bold text-[10px] leading-none mt-1">
+              {isChecked('agreeNonFaceToFace') ? 'X' : ''}
+            </span>
+            <span>I agree to Infinity Supports Non-Face-to-Face charges as above.</span>
           </p>
         </div>
 
@@ -88,7 +110,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
         <div className="mt-auto pt-4 text-xs flex justify-between">
           <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
-<span>Review Date: {formatDate(settings?.review_date)}</span>
+          <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>

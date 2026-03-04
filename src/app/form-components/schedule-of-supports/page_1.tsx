@@ -18,21 +18,21 @@ interface Page1Props {
   settings: any;
 }
 
-const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings } : any) => {
+const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, settings }: any) => {
   const getCostNumber = (cost: string) => {
     const parsed = parseFloat(cost?.replace(/[^0-9.]/g, "") || "");
     return isNaN(parsed) ? 0 : parsed;
   };
 
   const formatDate = (value: string) => {
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const parsed = parseISO(value);
-    if (isValid(parsed)) {
-      return format(parsed, "dd-MM-yyyy");
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = parseISO(value);
+      if (isValid(parsed)) {
+        return format(parsed, "dd-MM-yyyy");
+      }
     }
-  }
-  return value;
-};
+    return value;
+  };
 
 
   const cellClass = "border border-black px-1 py-1 leading-relaxed";
@@ -58,8 +58,8 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         <div className="flex justify-between mb-2 px-2" style={{ fontSize: '12px' }}>
           <span>NDIS number: {commonFieldsData?.ndis || ""}</span>
           <span>
-  Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
-</span>
+            Plan dates from: {formatDate(formData?.planDatesFrom)} - {formatDate(formData?.planDatesTo)}
+          </span>
 
         </div>
 
@@ -76,7 +76,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                   Total Hours
                 </th>
                 <th className={`${cellClass} text-center w-[15%]`}>
-                  Cost per hr
+                  Cost/hour
                 </th>
                 <th className={`${cellClass} text-center w-[20%]`}>
                   Total Cost
@@ -84,7 +84,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
               </tr>
             </thead>
             <tbody className="align-top">
-              {schema?.tableRows?.map((item: any, index : any ) => {
+              {schema?.tableRows?.map((item: any, index: any) => {
                 const key = item?.key || `row${index}`;
                 const weeks = formData?.[`${key}_weeks`] || "";
                 const totalHours = formData?.[`${key}_totalHours`] || "";
@@ -122,7 +122,33 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
                     <td className={`${cellClass} text-center`}>{displayWeeks}</td>
                     <td className={`${cellClass} text-center`}>{displayHours}</td>
                     <td className={`${cellClass} text-right`}>{item?.cost}</td>
-                    <td className={`${cellClass} text-right`}>{totalCost}</td>
+                    <td className={`${cellClass} text-right font-semibold`}>{totalCost}</td>
+                  </tr>
+                );
+              })}
+
+              {/* Dynamic Custom Rows */}
+              {formData?.customSupportItems?.map((item: any, idx: number) => {
+                const hours = parseFloat(item.totalHours || "0");
+                const weeks = parseFloat(item.weeks || "0");
+                const totalKms = parseFloat(item.totalKms || "0");
+                const rate = parseFloat(item.rate || "0");
+
+                // If hours is provided, we assume it's hourly. If only weeks/KMs and rate, we calculate it.
+                // To be safe, follow the Edit.tsx logic: (weeks || totalKms) * rate OR totalHours * rate
+                const total = (hours || weeks || totalKms) * rate;
+
+                return (
+                  <tr key={`custom-${idx}`}>
+                    <td className={`${cellClass} text-left`}>
+                      {item.label || "Custom Support"}
+                    </td>
+                    <td className={`${cellClass} text-center`}>{item.weeks || item.totalKms || ""}</td>
+                    <td className={`${cellClass} text-center`}>{item.totalHours || ""}</td>
+                    <td className={`${cellClass} text-right`}>${rate.toFixed(2)}</td>
+                    <td className={`${cellClass} text-right font-semibold`}>
+                      ${total.toFixed(2)}
+                    </td>
                   </tr>
                 );
               })}
@@ -134,7 +160,7 @@ const Page1: React.FC<Page1Props> = ({ formData, schema, commonFieldsData, setti
         <div className="flex justify-between text-xs px-2 text-gray-600">
           <span>Website: {settings?.company_website || ''}</span>
           <span>{settings?.schedule_of_supports}</span>
-<span>Review Date: {formatDate(settings?.review_date)}</span>
+          <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </A4PageWrapper>
