@@ -161,6 +161,10 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#666',
   },
+  footerText: {
+    fontSize: 9,
+    color: '#666',
+  },
 });
 
 interface EmergencyDrillPDFProps {
@@ -476,9 +480,9 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text>Website: {settings?.company_website || ''}</Text>
-          <Text>{settings?.emergency_drill || ''}</Text>
-          <Text>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</Text>
+          <Text style={styles.footerText}>Website: {settings?.company_website || ''}</Text>
+          <Text style={[styles.footerText, { fontWeight: 'bold' }]}>{settings?.emergency_drill || ''}</Text>
+          <Text style={styles.footerText}>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</Text>
         </View>
       </Page>
     </Document>

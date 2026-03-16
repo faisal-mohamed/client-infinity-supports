@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer';
+import { format } from 'date-fns';
 import { supportActionPlanSchema, SchemaBlock } from '../../app/components/forms/support-action-plan/schema';
 import { NDISCheckbox } from './common/NDIS_Common';
 
@@ -8,7 +9,7 @@ const styles = StyleSheet.create({
   header: { position: 'absolute', top: 20, left: 0, right: 0, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' },
   headerLogo: { width: 180, height: 70, objectFit: 'contain' },
   title: { fontSize: 14, fontWeight: 'bold', textAlign: 'center', marginTop: 8, marginBottom: 4, textDecoration: 'underline' },
-  footer: { position: 'absolute', bottom: 15, left: 30, right: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, borderTop: '1 solid #d1d5db', paddingTop: 6 },
+  footer: { position: 'absolute', bottom: 15, left: 30, right: 30, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, borderTop: '1px solid #e5e7eb', paddingTop: 6 },
   footerText: { fontSize: 9, color: '#6b7280' },
   fieldContainer: { marginBottom: 8 },
   fieldHeader: { backgroundColor: '#b4c7e7', border: '1 solid #000000', paddingVertical: 3, paddingHorizontal: 6 },
@@ -569,9 +570,9 @@ const SupportActionPlanMatchingPDF: React.FC<Props> = ({ formData, commonFieldsD
           ))}
         </View>
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{footerWebsite}</Text>
-          <Text style={styles.footerText}>{footerId}</Text>
-          <Text style={styles.footerText}>Review Date: {footerDate}</Text>
+          <Text style={styles.footerText}>Website: {footerWebsite}</Text>
+          <Text style={[styles.footerText, { fontWeight: 'bold' }]}>{footerId}</Text>
+          <Text style={styles.footerText}>Review Date: {footerDate ? format(new Date(footerDate), 'dd/MM/yyyy') : ''}</Text>
         </View>
       </Page>
     </Document>

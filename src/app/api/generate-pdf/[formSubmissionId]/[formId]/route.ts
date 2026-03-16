@@ -687,10 +687,10 @@ export async function GET(
 
         // Footer: 3 columns with proper left/center/right alignment like sample image
         pdfOptions.footerTemplate = `
-          <div style="font-size: 9px; padding: 10px 18px 5px 18px; width: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 8px; font-family: sans-serif; color: #666; padding: 10px 18px 5px 18px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; padding-top: 8px;">
               <span style="text-align: left; flex: 1;">Website: ${website}</span>
-              <span style="text-align: center; flex: 0; padding: 0 30px;">${formId}</span>
+              <span style="text-align: center; flex: 1; font-weight: bold;">${formId}</span>
               <span style="text-align: right; flex: 1;">Review Date: ${reviewDate}</span>
             </div>
           </div>

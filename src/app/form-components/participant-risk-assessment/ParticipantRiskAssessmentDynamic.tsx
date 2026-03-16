@@ -641,10 +641,10 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
       
       {/* Footer - matching PRAFooter component exactly */}
       <div className="pt-4 mt-auto">
-        <div className="flex justify-between text-xs px-2 border-t border-gray-300 pt-2">
-          <div>Website: {settings?.company_website || ''}</div>
-          <div>{settings?.participant_risk_assessment || ''}</div>
-          <div>Review Date: {formatDate(settings?.review_date)}</div>
+        <div className="flex justify-between text-[10px] text-gray-600 px-2 border-t border-gray-300 pt-2">
+          <span>Website: {settings?.company_website || ''}</span>
+          <span className="font-medium">{settings?.participant_risk_assessment || ''}</span>
+          <span>Review Date: {formatDate(settings?.review_date)}</span>
         </div>
       </div>
     </div>

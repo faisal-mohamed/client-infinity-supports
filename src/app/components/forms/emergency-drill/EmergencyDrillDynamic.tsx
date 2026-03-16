@@ -562,9 +562,9 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
       <div style={{ height: '24px' }} />
 
       {/* Footer - in normal flow like SA Support Coordination */}
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
+      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-300">
         <span>Website: {settings?.company_website || ''}</span>
-        <span>{settings?.emergency_drill || ''}</span>
+        <span className="font-medium">{settings?.emergency_drill || ''}</span>
         <span>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</span>
       </div>
     </div>

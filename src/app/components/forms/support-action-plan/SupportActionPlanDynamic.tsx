@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { supportActionPlanSchema, SchemaBlock } from "./schema";
+import { format } from "date-fns";
 
 // Dynamic Support Action Plan view with measured pagination, header/footer, and spacing controls
 const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
@@ -1013,10 +1014,10 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       )}
       <div className="flex-1" style={{ overflow: 'hidden', minHeight: 0, maxHeight: '100%' }}>{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>{settings?.company_website || ''}</span>
-        <span>{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span>
-        <span>Review Date: {settings?.review_date || ''}</span>
+      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t">
+        <span>Website: {settings?.company_website || ''}</span>
+        <span className="font-bold">{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span>
+        <span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span>
       </div>
     </div>
   );
@@ -1046,7 +1047,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
-          <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t"><span>Website:</span><span>SAP001</span><span>Review Date:</span></div>
+          <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t"><span>Website: {settings?.company_website || ''}</span><span className="font-bold">{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span><span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span></div>
         </div>
         {extendedSchema.map((b, i) => {
           const isFirstGoal = b.type === 'goal' && (i === 0 || extendedSchema[i - 1]?.type !== 'goal');

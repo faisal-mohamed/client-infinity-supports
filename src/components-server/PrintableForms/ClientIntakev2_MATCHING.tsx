@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer';
+import { format } from 'date-fns';
 
 // Matching PDF generation - matches ClientIntakeFormDynamic.tsx web view design
 // Natural flow with automatic page breaks (no manual pagination)
@@ -362,9 +363,9 @@ const ClientIntakev2Matching: React.FC<ClientIntakeFormMatchingProps> = ({
 
         {/* Fixed Footer on all pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{settings?.company_website || ''}</Text>
-          <Text style={styles.footerText}>{settings?.client_intake_form_id || ''}</Text>
-          <Text style={styles.footerText}>Review Date: {settings?.review_date || ''}</Text>
+          <Text style={styles.footerText}>Website: {settings?.company_website || ''}</Text>
+          <Text style={[styles.footerText, { fontWeight: 'bold' }]}>{settings?.client_intake_form_id || ''}</Text>
+          <Text style={styles.footerText}>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</Text>
         </View>
       </Page>
     </Document>

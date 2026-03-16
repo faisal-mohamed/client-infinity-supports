@@ -30,9 +30,9 @@ export default function PdfPageLayout({
       </div>
 
       {/* fixed footer for ALL pages */}
-      <footer className="pdf-footer-fixed" aria-hidden="true">
-        <span>{footerData?.website || ''}</span>
-        <span>{footerData?.formId || ''}</span>
+      <footer className="pdf-footer-fixed" aria-hidden="true" style={{ fontSize: '9px', color: '#666', borderTop: '1px solid #e5e7eb', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingLeft: '40px', paddingRight: '40px', boxSizing: 'border-box' }}>
+        <span>Website: {footerData?.website || 'www.infinitysupports.com.au'}</span>
+        <span style={{ fontWeight: 'bold' }}>{footerData?.formId || ''}</span>
         <span>Review Date: {formattedDate}</span>
       </footer>
 

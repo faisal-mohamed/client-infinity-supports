@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
 } from '@react-pdf/renderer';
+import { format } from 'date-fns';
 
 // ✅ TRULY DYNAMIC PDF GENERATION
 // - Single Page component with natural content flow
@@ -755,9 +756,9 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
         </View>
 
         <View style={styles.coverFooter}>
-          <Text style={styles.coverFooterText}>{getWebsite()}</Text>
-          <Text style={styles.coverFooterText}>{getFormId()}</Text>
-          <Text style={styles.coverFooterText}>Date of Report: {getReportDate()}</Text>
+          <Text style={styles.coverFooterText}>Website: {getWebsite()}</Text>
+          <Text style={[styles.coverFooterText, { fontWeight: 'bold' }]}>{getFormId()}</Text>
+          <Text style={styles.coverFooterText}>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</Text>
         </View>
       </Page>
 
@@ -1010,9 +1011,9 @@ const PersonCentredPlanPDF: React.FC<PersonCentredPlanPDFProps> = ({
 
         {/* Fixed footer on all content pages */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>{getWebsite()}</Text>
-          <Text style={styles.footerText}>{getFormId()}</Text>
-          <Text style={styles.footerText}>Date of Report: {getReportDate()}</Text>
+          <Text style={styles.footerText}>Website: {getWebsite()}</Text>
+          <Text style={[styles.footerText, { fontWeight: 'bold' }]}>{getFormId()}</Text>
+          <Text style={styles.footerText}>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</Text>
         </View>
       </Page>
     </Document>

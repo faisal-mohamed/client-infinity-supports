@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { format } from "date-fns";
 
 // Dynamic PDF View - Multiple A4 pages with auto page breaks
 const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, images, settings }) => {
@@ -298,10 +299,10 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
       </div>
       
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
-        <span>{settings?.company_website || ''}</span>
-        <span>{settings?.client_intake_form_id || ''}</span>
-        <span>Review Date: {settings?.review_date ? new Date(settings.review_date).toLocaleDateString() : ''}</span>
+      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-300">
+        <span>Website: {settings?.company_website || ''}</span>
+        <span className="font-medium">{settings?.client_intake_form_id || ''}</span>
+        <span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span>
       </div>
     </div>
   );
