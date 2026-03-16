@@ -31,7 +31,8 @@ export default function AdminRootLayout({
   const pathname = usePathname();
   const isFormEditOrViewPage = pathname.includes('/forms/edit/') || pathname.includes('/forms/view/');
   const isLoginPage = pathname === '/admin/login';
-  const hideLayoutElements = isFormEditOrViewPage || isLoginPage;
+  const isRegisterPage = pathname === '/admin/register';
+  const hideLayoutElements = isFormEditOrViewPage || isLoginPage || isRegisterPage;
 
   return (
     <div className={`min-h-screen bg-white text-black ${montserrat.className}`}>
