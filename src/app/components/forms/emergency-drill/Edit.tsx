@@ -47,11 +47,14 @@ export const FORM_SECTIONS : any = [
       "drillDate",
       "drillTime",
       "clientName",
+      "numberStreet",
+      "state",
+      "pincode",
       "supportWorkers",
       "supervisorNotified"
     ],
     icon: FaHome,
-    requiredFields: ["drillDate", "drillTime", "clientName", "supportWorkers", "supervisorNotified"] // All fields required
+    requiredFields: ["drillDate", "drillTime", "clientName", "numberStreet", "state", "pincode", "supportWorkers", "supervisorNotified"] // All fields required
   },
   {
     id: "drillTypes",
@@ -264,6 +267,9 @@ const getCommonFieldValue = (fieldName: string): string => {
   drillDate: "",
   drillTime: "",
   clientName: "",
+  numberStreet: formData?.numberStreet || "",
+  state: formData?.state || "",
+  pincode: formData?.pincode || "",
   supportWorkers: "",
   supervisorNotified: "",
 
@@ -1230,7 +1236,10 @@ const getCommonFieldValue = (fieldName: string): string => {
    const FIELD_METADATA: any  = {
   drillDate: { label: "Date of Drill", type: "date" },
   drillTime: { label: "Time of Drill", type: "time" },
-  clientName: { label: "Client’s Name  (if applicable)", type: "text" },
+  clientName: { label: "Client's Name", type: "text", placeholder: "Enter client's name" },
+  numberStreet: { label: "Number/Street", type: "textarea", placeholder: "Street address", rows: 2, autoResize: true },
+  state: { label: "State", type: "text", placeholder: "Enter state" },
+  pincode: { label: "Pincode", type: "number", placeholder: "Enter pincode" },
   supportWorkers: { label: "Support Worker(s) Involved", type: "text" },
   supervisorNotified: { label: "Supervisor/Manager Notified", type: "dropdown", options: ["Yes", "No"] },
 
@@ -1267,6 +1276,7 @@ const getCommonFieldValue = (fieldName: string): string => {
   planUpdateDetails: { label: "If yes, specify", type: "textarea", rows: 3, autoResize: true, placeholder: "Specify updates needed for the emergency plan..." },
 
   debriefConducted: { label: "Debrief conducted?", type: "dropdown", options: ["Yes", "No"] },
+  address: { label: "Address", type: "textarea", placeholder: "Enter full address", rows: 2 },
   supervisorComments: { label: "Supervisor/Manager Comments", type: "textarea", rows: 3, autoResize: true, placeholder: "Add supervisor/manager comments..." },
   nextDrillDate: { label: "Date of Next Scheduled Drill", type: "date" },
 

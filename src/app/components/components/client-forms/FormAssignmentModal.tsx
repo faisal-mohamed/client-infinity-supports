@@ -262,7 +262,7 @@
 import { FaTimes, FaFileAlt, FaSpinner, FaCheckCircle, FaPlus, FaUser } from 'react-icons/fa';
 import { AvailableForm, FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types';
 
-const MULTI_INSTANCE_FORM_KEYS = ['home_visit_risk_assessment'];
+const MULTI_INSTANCE_FORM_KEYS = ['home_visit_risk_assessment', 'emergency_drill'];
 
 interface FormAssignmentModalProps {
   isOpen: boolean;

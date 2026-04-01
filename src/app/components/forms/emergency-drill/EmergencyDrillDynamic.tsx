@@ -28,9 +28,6 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
     disability: 'disability',
     phoneNumber: 'phone',
     ndisNumber: 'ndis',
-    state: 'state',
-    street: 'street',
-    postcode: 'postCode',
     email: 'email',
     homePhone: 'phone',
     sex: 'sex'
@@ -72,6 +69,19 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
       return dateString || '';
     }
   };
+
+  const renderChoices = (fieldName: string, options: string[]) => (
+    <div className="flex gap-6 ml-2">
+      {options.map((option) => (
+        <div key={option} className="flex items-center gap-1">
+          <div className="w-3 h-3 border border-black flex items-center justify-center bg-white text-black">
+            {getFieldValue(fieldName) === option && <span className="text-[10px] font-bold">X</span>}
+          </div>
+          <span className="text-xs">{option}</span>
+        </div>
+      ))}
+    </div>
+  );
 
   // Content Blocks - Granular like SA Support Coordination
   const contentBlocks = [
@@ -117,6 +127,24 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
               </span>
             </div>
             <div className="flex items-start">
+              <span className="min-w-[220px] font-medium text-xs">Number/Street:</span>
+              <span className="border-b border-black flex-1 ml-2 text-xs">
+                {getFieldValue('numberStreet')}
+              </span>
+            </div>
+            <div className="flex items-start">
+              <span className="min-w-[220px] font-medium text-xs">State:</span>
+              <span className="border-b border-black flex-1 ml-2 text-xs">
+                {getFieldValue('state')}
+              </span>
+            </div>
+            <div className="flex items-start">
+              <span className="min-w-[220px] font-medium text-xs">Pincode:</span>
+              <span className="border-b border-black flex-1 ml-2 text-xs">
+                {getFieldValue('pincode')}
+              </span>
+            </div>
+            <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Support Worker(s) Involved:</span>
               <span className="border-b border-black flex-1 ml-2 text-xs">
                 {getFieldValue('supportWorkers')}
@@ -124,20 +152,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Supervisor/Manager Notified:</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('supervisorNotified') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Supervisor Notified ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('supervisorNotified', ['Yes', 'No'])}
             </div>
           </div>
         </div>
@@ -179,54 +194,15 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
           <div className="space-y-3">
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Was the emergency plan followed?</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('planFollowed') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Plan Followed ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('planFollowed', ['Yes', 'No'])}
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Were all safety measures and protocols implemented?</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('safetyProtocols') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Safety Protocols ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('safetyProtocols', ['Yes', 'No'])}
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Emergency services contacted? (if applicable)</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('servicesContacted') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Services Contacted ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('servicesContacted', ['Yes', 'No'])}
             </div>
             <div className="flex flex-col">
               <span className="font-medium text-xs mb-1">Client response and involvement:</span>
@@ -292,20 +268,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Additional training or support required?</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('additionalTrainingRequired') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Additional Training ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('additionalTrainingRequired', ['Yes', 'No'])}
             </div>
             {getFieldValue('additionalTrainingRequired') === 'Yes' && (
               <div className="flex flex-col">
@@ -317,20 +280,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
             )}
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Updates needed for the client's emergency plan?</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('planUpdateNeeded') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Plan Update Needed ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('planUpdateNeeded', ['Yes', 'No'])}
             </div>
             {getFieldValue('planUpdateNeeded') === 'Yes' && (
               <div className="flex flex-col">
@@ -355,20 +305,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
           <div className="space-y-3">
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Debrief conducted?</span>
-              <div className="flex gap-4 ml-2">
-                {['Yes', 'No'].map((opt) => (
-                  <label key={opt} className="inline-flex items-center text-xs">
-                    <input
-                      type="radio"
-                      checked={getFieldValue('debriefConducted') === opt}
-                      readOnly
-                      className="mr-1 w-4 h-4 accent-black"
-                      aria-label={`Debrief Conducted ${opt}`}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
+              {renderChoices('debriefConducted', ['Yes', 'No'])}
             </div>
             <div className="flex flex-col">
               <span className="font-medium text-xs mb-1">Supervisor/Manager Comments:</span>

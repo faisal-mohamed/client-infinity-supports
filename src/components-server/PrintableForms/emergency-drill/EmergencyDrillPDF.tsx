@@ -77,21 +77,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  radioCircle: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  choiceBox: {
+    width: 12,
+    height: 12,
     border: '0.5 solid #000',
     marginRight: 4,
     backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  radioCircleSelected: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    border: '0.5 solid #000',
-    marginRight: 4,
-    backgroundColor: '#000000',
+  choiceMark: {
+    fontSize: 9,
+    fontWeight: 'bold',
   },
   radioLabel: {
     fontSize: 9,
@@ -187,9 +184,6 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
     disability: 'disability',
     phoneNumber: 'phone',
     ndisNumber: 'ndis',
-    state: 'state',
-    street: 'street',
-    postcode: 'postCode',
     email: 'email',
     homePhone: 'phone',
     sex: 'sex'
@@ -236,13 +230,11 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
     <View style={styles.radioGroup}>
       {options.map((option) => (
         <View key={option} style={styles.radioItem}>
-          <View
-            style={
-              getValue(fieldName) === option
-                ? styles.radioCircleSelected
-                : styles.radioCircle
-            }
-          />
+          <View style={styles.choiceBox}>
+            {getValue(fieldName) === option && (
+              <Text style={styles.choiceMark}>X</Text>
+            )}
+          </View>
           <Text style={styles.radioLabel}>{option}</Text>
         </View>
       ))}
@@ -283,6 +275,21 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Client's Name (if applicable):</Text>
               <Text style={styles.fieldValue}>{getValue('clientName')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Number/Street:</Text>
+              <Text style={styles.fieldValue}>{getValue('numberStreet')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>State:</Text>
+              <Text style={styles.fieldValue}>{getValue('state')}</Text>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Pincode:</Text>
+              <Text style={styles.fieldValue}>{getValue('pincode')}</Text>
             </View>
 
             <View style={styles.fieldRow}>

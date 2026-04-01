@@ -107,11 +107,13 @@ export async function POST(
       formSubmissions.map(async (sub) => {
         if (!sub.submissionId && formsAllowedWithoutAdminFill.includes(sub.formKey)) {
           // Create FormSubmission for these forms
+          const assignment = assignments.find(a => a.id === sub.assignmentId)!;
           const newSubmission = await prisma.formSubmission.create({
             data: {
               clientId: clientId,
-              formId: assignments.find(a => a.id === sub.assignmentId)!.formId,
-              formVersion: assignments.find(a => a.id === sub.assignmentId)!.formVersion,
+              formId: assignment.formId,
+              formVersion: assignment.formVersion,
+              instanceNumber: assignment.instanceNumber, // Crucial: Fixes #1 vs #2 collision
               data: {}, // Empty data - will be filled by client
               filledByAdmin: false, // Not filled by admin yet
               isSubmitted: false,
