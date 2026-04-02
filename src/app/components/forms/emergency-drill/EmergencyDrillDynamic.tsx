@@ -128,20 +128,20 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Number/Street:</span>
-              <span className="border-b border-black flex-1 ml-2 text-xs">
-                {getFieldValue('numberStreet')}
+              <span className="border-b border-black flex-1 ml-2 text-xs min-h-[18px]">
+                {getFieldValue('numberStreet') || '\u00A0'}
               </span>
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">State:</span>
-              <span className="border-b border-black flex-1 ml-2 text-xs">
-                {getFieldValue('state')}
+              <span className="border-b border-black flex-1 ml-2 text-xs min-h-[18px]">
+                {getFieldValue('state') || '\u00A0'}
               </span>
             </div>
             <div className="flex items-start">
               <span className="min-w-[220px] font-medium text-xs">Pincode:</span>
-              <span className="border-b border-black flex-1 ml-2 text-xs">
-                {getFieldValue('pincode')}
+              <span className="border-b border-black flex-1 ml-2 text-xs min-h-[18px]">
+                {getFieldValue('pincode') || '\u00A0'}
               </span>
             </div>
             <div className="flex items-start">

@@ -279,17 +279,17 @@ const EmergencyDrillPDF: React.FC<EmergencyDrillPDFProps> = ({
 
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Number/Street:</Text>
-              <Text style={styles.fieldValue}>{getValue('numberStreet')}</Text>
+              <Text style={styles.fieldValue}>{getValue('numberStreet') || '\u00A0'}</Text>
             </View>
 
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>State:</Text>
-              <Text style={styles.fieldValue}>{getValue('state')}</Text>
+              <Text style={styles.fieldValue}>{getValue('state') || '\u00A0'}</Text>
             </View>
 
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Pincode:</Text>
-              <Text style={styles.fieldValue}>{getValue('pincode')}</Text>
+              <Text style={styles.fieldValue}>{getValue('pincode') || '\u00A0'}</Text>
             </View>
 
             <View style={styles.fieldRow}>
