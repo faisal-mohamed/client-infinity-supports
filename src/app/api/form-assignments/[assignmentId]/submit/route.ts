@@ -294,7 +294,7 @@ export async function POST(
             title: assignment.form.title,
           }];
 
-          const emailUrl = `${process.env.NEXTAUTH_URL || req.nextUrl.origin}/api/notifications/send-email/${adminId}`;
+          const emailUrl = `${process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL || req.nextUrl.origin}/api/notifications/send-email/${adminId}`;
           console.log(`📧 [ADMIN COMPLETED] Email URL: ${emailUrl}`);
 
           const emailResponse = await fetch(emailUrl, {
@@ -508,8 +508,7 @@ export async function POST(
 
             try {
               const emailResponse = await fetch(
-                `${process.env.NEXTAUTH_URL || `${req.nextUrl.origin}`
-                }/api/notifications/send-email/${adminId}`,
+                `${process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL || req.nextUrl.origin}/api/notifications/send-email/${adminId}`,
                 {
                   method: "POST",
                   headers: {

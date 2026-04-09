@@ -138,7 +138,7 @@ export async function POST(
 
     // Send dual notification email
     const emailResponse = await fetch(
-      `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`,
+      `${process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

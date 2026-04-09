@@ -150,7 +150,7 @@ export async function POST(
 
     // Send the client confirmation email via internal API
     const notificationResponse = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/notifications/send-email/${adminId}`,
+      `${process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL}/api/notifications/send-email/${adminId}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
