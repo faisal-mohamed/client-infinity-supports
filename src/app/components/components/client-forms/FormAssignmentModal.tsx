@@ -291,10 +291,10 @@ export default function FormAssignmentModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden border border-gray-200 animate-modal-appear">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden border border-gray-200 animate-modal-appear">
 
         {/* Header */}
-        <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-rose-50 via-rose-100 to-rose-50 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-rose-50 via-rose-100 to-rose-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
               <div className="p-3 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg">
@@ -320,7 +320,7 @@ export default function FormAssignmentModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 sm:p-8 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 220px)' }}>
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {availableForms.length === 0 ? (
             <div className="text-center py-12">
               <div className="p-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
@@ -437,7 +437,7 @@ export default function FormAssignmentModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-slate-50 to-slate-100 border-t border-gray-200">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-slate-50 to-slate-100 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-rose-100 text-rose-600">
@@ -454,22 +454,22 @@ export default function FormAssignmentModal({
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={onClose}
-                className="px-6 py-3 text-slate-700 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                className="w-full sm:w-auto text-center px-6 py-3 text-slate-700 bg-white border-2 border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 Cancel
               </button>
               <button
                 onClick={onAssignForms}
                 disabled={selectedFormsToAssign.length === 0 || assigning}
-                className="px-8 py-3 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-xl hover:from-rose-700 hover:to-rose-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-xl hover:from-rose-700 hover:to-rose-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
               >
                 {assigning ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <FaSpinner className="h-4 w-4 animate-spin" />
                     Assigning Forms...
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center gap-2">
                     <FaPlus className="h-4 w-4" />
                     Assign {selectedFormsToAssign.length} Form{selectedFormsToAssign.length !== 1 ? 's' : ''}
                   </div>

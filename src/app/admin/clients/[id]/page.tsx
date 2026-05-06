@@ -125,35 +125,35 @@ export default function ClientDetailPage() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         
         {/* Enhanced Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl hover:border-rose-300 transition-shadow duration-300">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="flex items-center gap-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-3 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-700 hover:from-slate-200 hover:to-slate-300 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="p-2.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                 aria-label="Go back"
               >
                 <FaArrowLeft className="h-5 w-5" />
               </button>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="h-20 w-20 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-3xl font-bold text-white">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 bg-brand-50 rounded-xl flex items-center justify-center">
+                    <span className="text-lg sm:text-xl font-semibold text-brand-600">
                       {client?.name?.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2 break-words leading-tight">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 break-words">
                     {client?.commonFields?.name && client?.commonFields?.surname 
                       ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
                       : client?.name || 'Unknown Client'
                     }
                   </h1>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-brand-500 rounded-full"></div>
                       <span className="font-medium">ID: {client.id}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -167,7 +167,7 @@ export default function ClientDetailPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/clients/${id}/forms`}
-                className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+                className="flex items-center gap-2 text-sm text-white bg-brand-600 hover:bg-brand-700 transition-colors px-4 py-2.5 rounded-lg font-medium"
               >
                 <FaFileAlt className="h-4 w-4" /> 
                 Client Forms

@@ -295,31 +295,31 @@ export default function SignatureLinksPageClient() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
         <div className="mb-8">
-  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-    <div className="flex items-center mb-6">
+  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+    <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <Link 
         href={`/admin/clients/${clientId}/forms`}
-        className="mr-6 p-3 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all duration-200 hover:scale-105"
+        className="self-start p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
       >
         <FaArrowLeft className="h-5 w-5 text-slate-600" />
       </Link>
       <div className="flex-1">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
-            <FaLink className="h-6 w-6 text-white" />
+        <div className="flex flex-wrap items-center gap-3 mb-2">
+          <div className="p-2.5 bg-brand-50 rounded-lg">
+            <FaLink className="h-5 w-5 text-brand-600" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
             Signature Links Management
           </h1>
         </div>
-        <div className="flex items-center text-slate-600 space-x-4">
+        <div className="flex flex-wrap items-center text-gray-500 gap-x-3 gap-y-1 text-sm">
           <div className="flex items-center">
-            <FaUser className="h-4 w-4 mr-2 text-rose-500" />
+            <FaUser className="h-4 w-4 mr-2 text-brand-500" />
             <span className="font-semibold">{client?.name}</span>
           </div>
-          <span className="text-slate-400">•</span>
+          <span className="text-gray-300">•</span>
           <div className="flex items-center">
-            <FaShieldAlt className="h-4 w-4 mr-2 text-rose-500" />
+            <FaShieldAlt className="h-4 w-4 mr-2 text-brand-500" />
             <span>{client?.email}</span>
           </div>
         </div>
@@ -378,15 +378,15 @@ export default function SignatureLinksPageClient() {
   </div>
 
   {/* Action Bar */}
-  <div className="mt-6 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+  <div className="mt-4 bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
     <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
       <div className="flex items-center space-x-4">
-        <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
-          <FaInfoCircle className="h-5 w-5 text-white" />
+        <div className="p-2.5 bg-brand-50 rounded-lg">
+          <FaInfoCircle className="h-4 w-4 text-brand-600" />
         </div>
         <div>
-          <p className="font-bold text-slate-900 text-lg">Signature Links Overview</p>
-          <p className="text-slate-600">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
+          <p className="font-semibold text-gray-900 text-base">Signature Links Overview</p>
+          <p className="text-gray-500 text-sm">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
         </div>
       </div>
     </div>
@@ -541,18 +541,18 @@ export default function SignatureLinksPageClient() {
                           <FaClock className="h-4 w-4 text-white" />
                         </div>
                         {editingExpiry === batch.id ? (
-                          <div className="flex items-center space-x-3 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 flex-1">
                             <div>
                               <span className="font-semibold text-gray-900 block">Expires</span>
                               <input
                                 type="datetime-local"
                                 value={newExpiryDate}
                                 onChange={(e) => setNewExpiryDate(e.target.value)}
-                                className="text-sm border-2 border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white shadow-sm"
+                                className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 w-full sm:w-auto focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white shadow-sm"
                                 min={new Date().toISOString().slice(0, 16)}
                               />
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex gap-2">
                               <button
                                 onClick={() => updateExpiry(batch.id)}
                                 className="p-2 text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -588,7 +588,7 @@ export default function SignatureLinksPageClient() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex items-center justify-between pt-6 border-t-2 border-gray-200">
+                    <div className="flex flex-col gap-4 pt-4 border-t border-gray-200">
                       <div className="flex items-center space-x-3">
                         <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg">
                           <FaInfoCircle className="h-4 w-4 text-white" />
@@ -599,10 +599,10 @@ export default function SignatureLinksPageClient() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-3">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => copyLinkToClipboard(batch.batchToken)}
-                          className="inline-flex items-center px-5 py-3 border-2 border-gray-300 text-sm font-semibold rounded-xl text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-500/20 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                          className="inline-flex items-center px-3 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                           title="Copy link to clipboard"
                         >
                           <FaCopy className="mr-2 h-4 w-4" />

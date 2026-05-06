@@ -90,9 +90,9 @@ export default function CommonFieldsWarningModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-gray-200 animate-modal-appear">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-modal-appear">
         {/* Enhanced Header */}
-        <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
               <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
@@ -123,7 +123,7 @@ export default function CommonFieldsWarningModal({
         </div>
 
         {/* Enhanced Content */}
-        <div className="p-6 sm:p-8 overflow-y-auto max-h-[60vh]">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {/* Warning Information Card */}
           <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-2 border-amber-200 rounded-2xl p-6 mb-8 shadow-md">
             <div className="flex items-start gap-4">
@@ -354,7 +354,7 @@ export default function CommonFieldsWarningModal({
         </div>
 
         {/* Enhanced Footer */}
-        <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Status Information */}
             <div className="flex items-center gap-3">
@@ -379,7 +379,7 @@ export default function CommonFieldsWarningModal({
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={onClose}
-                className="px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                className="w-full sm:w-auto text-center px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
               >
                 Cancel
               </button>
@@ -387,7 +387,7 @@ export default function CommonFieldsWarningModal({
               {completedForms.length > 0 && !allDownloaded && (
                 <button
                   onClick={onProceed}
-                  className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Skip Downloads & Proceed
                 </button>
@@ -396,7 +396,7 @@ export default function CommonFieldsWarningModal({
               {completedForms.length > 0 && allDownloaded && (
                 <button
                   onClick={onProceed}
-                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 text-white rounded-xl hover:from-amber-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-600 text-white rounded-xl hover:from-amber-700 hover:to-green-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   All Downloaded. Now Proceed
                 </button>
@@ -405,7 +405,7 @@ export default function CommonFieldsWarningModal({
               {assignments.length === 0 && (
                 <button
                   onClick={onProceed}
-                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Proceed to Edit Common Fields
                 </button>
@@ -414,7 +414,7 @@ export default function CommonFieldsWarningModal({
               {assignments.length > 0 && completedForms.length === 0 && (
                 <button
                   onClick={onProceed}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Proceed to Edit Common Fields
                 </button>

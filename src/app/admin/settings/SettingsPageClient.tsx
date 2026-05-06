@@ -497,8 +497,8 @@ export default function SettingsPageClient() {
 
       {/* Title & Description */}
       <div className="flex gap-4 items-center">
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-400 text-white shadow-lg">
-          <FaCog className="h-7 w-7" />
+        <div className="p-3 sm:p-4 rounded-xl bg-brand-50 text-brand-600">
+          <FaCog className="h-5 w-5 sm:h-7 sm:w-7" />
         </div>
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-1">
@@ -577,7 +577,7 @@ export default function SettingsPageClient() {
                       <button
                         key={category}
                         onClick={() => setActiveCategory(category)}
-                        className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-4 rounded-xl text-left transition-all duration-200 min-w-[200px] lg:min-w-0 ${
+                        className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-3 sm:p-4 rounded-xl text-left transition-all duration-200 min-w-[160px] lg:min-w-0 ${
                           isActive
                             ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-2 border-indigo-200 shadow-md'
                             : 'text-gray-700 hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-md'
@@ -587,7 +587,7 @@ export default function SettingsPageClient() {
                           animation: 'fadeInLeft 0.6s ease-out forwards'
                         }}
                       >
-                        <div className={`p-3 rounded-xl mr-4 bg-gradient-to-br ${config.color} text-white shadow-md flex-shrink-0`}>
+                        <div className={`p-2 sm:p-3 rounded-lg mr-3 bg-gradient-to-br ${config.color} text-white flex-shrink-0`}>
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -622,9 +622,9 @@ export default function SettingsPageClient() {
                   const Icon = config.icon;
                   
                   return (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className={`p-4 rounded-2xl bg-gradient-to-br ${config.color} text-white shadow-lg`}>
-                        <Icon className="h-7 w-7" />
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-lg bg-gradient-to-br ${config.color} text-white`}>
+                        <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{config.label}</h2>
