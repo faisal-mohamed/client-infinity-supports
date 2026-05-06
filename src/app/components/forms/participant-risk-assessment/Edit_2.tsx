@@ -104,7 +104,7 @@ const AutoResizeTextArea: React.FC<{
     return (
       <div className="flex flex-col gap-1">
         <div className="flex justify-between items-center mb-1">
-          <label className="text-xs font-medium text-gray-700">
+          <label className="text-xs font-medium text-azure-600">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -113,7 +113,7 @@ const AutoResizeTextArea: React.FC<{
               ? 'text-red-600'
               : wordCount > maxWords * 0.9
                 ? 'text-orange-500'
-                : 'text-gray-500'
+                : 'text-azure-400'
               }`}>
               {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
             </span>
@@ -133,11 +133,11 @@ const AutoResizeTextArea: React.FC<{
           rows={rows}
           style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
           disabled={readOnly}
-          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-gray-200'
-            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-indigo-500'
-            } focus:border-indigo-500 transition-all placeholder-gray-400 resize-none ${fieldError
+          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-azure-100'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-gold-500'
+            } focus:border-azure-600 transition-all placeholder-azure-300 resize-none ${fieldError
               ? "border-red-300 bg-red-50"
-              : "hover:border-indigo-400/40"
+              : "hover:border-azure-500/40"
             } ${readOnly ? "cursor-not-allowed" : ""}`}
         />
         {isOverLimit && maxWords && (
@@ -403,13 +403,13 @@ const ConfirmationModal = ({
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900 flex items-center gap-2"
+                  className="text-lg font-medium leading-6 text-azure-700 flex items-center gap-2"
                 >
                   <FaExclamationTriangle className="text-red-500" />
                   {title}
                 </Dialog.Title>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-azure-400">
                     {message}
                   </p>
                 </div>
@@ -417,7 +417,7 @@ const ConfirmationModal = ({
                 <div className="mt-4 flex justify-end gap-3">
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="inline-flex justify-center rounded-md border border-azure-200 bg-white px-4 py-2 text-sm font-medium text-azure-600 hover:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     onClick={onClose}
                   >
                     {cancelText}
@@ -925,7 +925,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
+        <label className="text-xs font-medium text-azure-600 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -938,7 +938,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           disabled={isFieldReadOnly}
           inputMode={name === "emergencyContactPhone" ? "tel" : undefined}
           pattern={name === "emergencyContactPhone" ? "[0-9+()\\-\\s]*" : undefined}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${mergedError
+          className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-azure-300 ${mergedError
             ? "border-red-300 bg-red-50"
             : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -1049,7 +1049,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
     return (
       <div className="flex flex-col gap-1 w-full">
-        <label className="text-xs font-medium text-gray-700 mb-1">
+        <label className="text-xs font-medium text-azure-600 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -1058,13 +1058,13 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
             <div className="relative">
               <Listbox.Button
                 as="div"
-                className={`w-full min-h-[42px] rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-left flex items-center justify-between cursor-pointer ${mergedError ? "border-red-300 bg-red-50" : "hover:border-accent/40"
-                  } ${readOnly ? "bg-gray-50 text-gray-400 cursor-not-allowed" : ""}`}
+                className={`w-full min-h-[42px] rounded-lg border border-azure-100 bg-white px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all text-left flex items-center justify-between cursor-pointer ${mergedError ? "border-red-300 bg-red-50" : "hover:border-accent/40"
+                  } ${readOnly ? "bg-azure-50 text-azure-300 cursor-not-allowed" : ""}`}
                 disabled={readOnly}
               >
                 <div className="flex flex-wrap gap-1.5 pr-4">
                   {displayValues.length === 0 ? (
-                    <span className="text-gray-400 py-1">Select options</span>
+                    <span className="text-azure-300 py-1">Select options</span>
                   ) : (
                     displayValues.map((val) => (
                       <span
@@ -1091,7 +1091,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                     ))
                   )}
                 </div>
-                <FaChevronDown className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                <FaChevronDown className="h-3 w-3 text-azure-300 flex-shrink-0" />
               </Listbox.Button>
 
               <Transition
@@ -1107,7 +1107,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                     <Listbox.Option
                       key={option}
                       className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-accent/10 text-accent" : "text-gray-900"
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-accent/10 text-accent" : "text-azure-700"
                         }`
                       }
                       value={option}
@@ -1134,11 +1134,11 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                   {/* Move "Other" input inside the dropdown to prevent overlapping issues */}
                   {showIfOther && selectedValues.includes("Other") && (
                     <div
-                      className="p-3 border-t border-gray-100 bg-gray-50"
+                      className="p-3 border-t border-azure-50 bg-azure-50"
                       onKeyDown={(e) => e.stopPropagation()}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <label className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2 block">
+                      <label className="text-[10px] font-semibold text-azure-400 uppercase tracking-wider mb-2 block">
                         {showIfOther.label}
                       </label>
                       <textarea
@@ -1151,7 +1151,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                         }}
                         onKeyDown={handleOtherKeyDown}
                         placeholder="Type and press Enter..."
-                        className="w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all resize-none"
+                        className="w-full rounded-md border border-azure-100 bg-white px-2 py-1.5 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all resize-none"
                         rows={2}
                       />
                     </div>
@@ -1179,7 +1179,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     showIfOther?: { label: string; inputName: string }
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
+      <label className="text-xs font-medium text-azure-600 mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -1198,10 +1198,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         disabled={readOnly}
         aria-label={`Select ${label}`}
         title={`Select ${label}`}
-        className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+        className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
           ? "border-red-300 bg-red-50"
           : "hover:border-accent/40"
-          } ${readOnly ? "bg-gray-50 text-gray-400" : ""}`}
+          } ${readOnly ? "bg-azure-50 text-azure-300" : ""}`}
       >
         <option value="">Select an option</option>
         {options.map((option) => (
@@ -1216,7 +1216,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
       {/* Conditional input for "Other" option */}
       {showIfOther && localValues[name] === "Other" && (
-        <div className="mt-3 pl-4 border-l-4 border-indigo-300 bg-indigo-50 rounded-xl py-2">
+        <div className="mt-3 pl-4 border-l-4 border-gold-300 bg-azure-50 rounded-xl py-2">
           {renderTextArea(
             showIfOther.label,
             showIfOther.inputName,
@@ -1249,7 +1249,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   ) => (
     <div className="flex flex-col gap-1">
       <label
-        className={`text-xs font-medium mb-1 ${fieldErrors[name] ? "text-red-500" : "text-gray-700"
+        className={`text-xs font-medium mb-1 ${fieldErrors[name] ? "text-red-500" : "text-azure-600"
           }`}
       >
         {label}
@@ -1259,7 +1259,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         {options.map((option) => (
           <label
             key={option}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer w-full"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-azure-100 shadow-sm hover:shadow-md transition-all cursor-pointer w-full"
           >
             <input
               type="checkbox"
@@ -1281,9 +1281,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                 });
               }}
               disabled={readOnly}
-              className="accent-accent h-4 w-4 rounded border-gray-300 focus:ring-accent"
+              className="accent-accent h-4 w-4 rounded border-azure-200 focus:ring-accent"
             />
-            <span className="text-sm text-gray-700">{option}</span>
+            <span className="text-sm text-azure-600">{option}</span>
           </label>
         ))}
       </div>
@@ -1313,11 +1313,11 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
+      <label className="text-xs font-medium text-azure-600 mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      <div className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="w-full rounded-lg border border-azure-100 bg-white p-4 shadow-sm">
         <SignatureCanvas
           ref={signatureRef}
           onSignatureEnd={(dataUrl: string) => handleSignatureEnd(name, dataUrl)}
@@ -1948,9 +1948,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     return (
       <div
         key={index}
-        className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+        className="border border-azure-100 rounded-lg p-4 bg-azure-50"
       >
-        <h3 className="text-base font-semibold text-gray-800 mb-4">
+        <h3 className="text-base font-semibold text-azure-700 mb-4">
           {riskMeta.label}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2014,7 +2014,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   //         return (
   //           <div
   //             key={key}
-  //             className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
+  //             className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-azure-100 p-4 rounded-md bg-azure-50"
   //           >
   //             {renderDropdown(
   //               FIELD_METADATA[key].label,
@@ -2040,7 +2040,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   //       })}
 
   //       {/* medicationRespDepression multi-checkbox */}
-  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //       <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
   //         {renderMultiSelectCheckbox(
   //           FIELD_METADATA.medicationRespDepression.label,
   //           "medicationRespDepression",
@@ -2048,7 +2048,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   //           false
   //         )}
   //       </div>
-  //         <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //         <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
   //         {renderDropdown(
   //           FIELD_METADATA.medicationRiskYesNo.label,
   //           "medicationRiskYesNo",
@@ -2059,7 +2059,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
 
   //       {/* medicationRespDepressionRating dropdown */}
-  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //       <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
   //         {renderDropdown(
   //           FIELD_METADATA.medicationRespDepressionRating.label,
   //           "medicationRespDepressionRating",
@@ -2069,7 +2069,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   //       </div>
 
   //       {/* medicationRiskComment text input */}
-  //       <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+  //       <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
   //         {renderInput(
   //           FIELD_METADATA.medicationRiskComment.label,
   //           "medicationRiskComment",
@@ -2106,7 +2106,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           return (
             <div
               key={key}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-azure-100 p-4 rounded-md bg-azure-50"
             >
               {isBehaviorPractitioner ? (
                 // For behaviorPractitionerInvolved: render as text input in first column only
@@ -2168,7 +2168,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         })}
 
         {/* medicationRespDepression multi-checkbox */}
-        {/* <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+        {/* <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
         {renderMultiSelectCheckbox(
           FIELD_METADATA.medicationRespDepression.label,
           "medicationRespDepression",
@@ -2177,7 +2177,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         )}
       </div>
 
-      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+      <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
         {renderDropdown(
           FIELD_METADATA.medicationRiskYesNo.label,
           "medicationRiskYesNo",
@@ -2186,7 +2186,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         )}
       </div>
 
-      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+      <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
         {renderDropdown(
           FIELD_METADATA.medicationRespDepressionRating.label,
           "medicationRespDepressionRating",
@@ -2195,7 +2195,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         )}
       </div>
 
-      <div className="border border-gray-200 p-4 rounded-md bg-gray-50">
+      <div className="border border-azure-100 p-4 rounded-md bg-azure-50">
         {renderInput(
           FIELD_METADATA.medicationRiskComment.label,
           "medicationRiskComment",
@@ -2321,9 +2321,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     const data = RISK_LEVEL_DETAILS[selected];
 
     return (
-      <table className="w-full border border-gray-300 mt-4 text-sm">
+      <table className="w-full border border-azure-200 mt-4 text-sm">
         <thead>
-          <tr className="bg-gray-100 text-left">
+          <tr className="bg-azure-100 text-left">
             <th className="border p-2">Risk Level</th>
             <th className="border p-2">Description</th>
             <th className="border p-2">Criteria</th>
@@ -2347,9 +2347,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     <div className="">
       {/* Progress Bar */}
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
-        <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
+        <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
           <div
-            className="h-2 bg-gradient-to-r from-indigo-500 to-green-400 rounded-full transition-all"
+            className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all"
             style={{ width: `${getProgressPercentage()}%` }}
           />
         </div>
@@ -2367,10 +2367,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                   type="button"
                   onClick={() => handleStepClick(idx)}
                   className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active
-                    ? "text-indigo-700"
+                    ? "text-azure-700"
                     : unlocked
                       ? "text-green-600"
-                      : "text-gray-400 opacity-50 cursor-not-allowed"
+                      : "text-azure-300 opacity-50 cursor-not-allowed"
                     }`}
                   aria-current={active ? "step" : undefined}
                   aria-label={section.title}
@@ -2379,10 +2379,10 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                 >
                   <span
                     className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active
-                      ? "bg-indigo-700 border-indigo-500 text-white scale-110"
+                      ? "bg-azure-800 border-azure-600 text-white scale-110"
                       : unlocked
                         ? "bg-green-500 border-green-500 text-white"
-                        : "bg-gray-200 border-gray-300 text-gray-400"
+                        : "bg-azure-200 border-azure-200 text-azure-300"
                       }`}
                   >
                     {completedSteps.has(idx) ? (
@@ -2395,17 +2395,17 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                   </span>
                   <span className="text-[10px] font-medium">{idx + 1}</span>
                   {!unlocked && (
-                    <span className="text-[10px] text-gray-400 mt-1">
+                    <span className="text-[10px] text-azure-300 mt-1">
                       Locked
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
                 <div className="absolute left-1/2 -translate-x-1/2 top-12 z-20 hidden group-hover:flex group-focus-within:flex flex-col items-center pointer-events-none">
-                  <span className="bg-gray-900 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
+                  <span className="bg-azure-700 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
                     {section.title}
                   </span>
-                  <span className="w-2 h-2 bg-gray-900 rotate-45 mt-[-4px]"></span>
+                  <span className="w-2 h-2 bg-azure-700 rotate-45 mt-[-4px]"></span>
                 </div>
               </div>
             );
@@ -2415,16 +2415,16 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
       {/* Form Card */}
       <main className="w-full flex flex-col items-center justify-center flex-1 relative overflow-visible">
-        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8 relative z-20">
+        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-azure-50 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8 relative z-20">
           {/* Section Header */}
           <div className="mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <h2 className="text-xl md:text-2xl font-bold text-azure-700 flex items-center gap-3">
               {React.createElement(FORM_SECTIONS[currentStep].icon, {
-                className: "w-6 h-6 text-indigo-600",
+                className: "w-6 h-6 text-azure-700",
               })}
               {FORM_SECTIONS[currentStep].title}
             </h2>
-            <p className="text-sm text-gray-500 font-medium mt-1">
+            <p className="text-sm text-azure-400 font-medium mt-1">
               {FORM_SECTIONS[currentStep].description}
             </p>
           </div>
@@ -2459,12 +2459,12 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                 <>
                   <div className="space-y-6">
                     {activeRiskRows.map((num) => (
-                      <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div key={num} className="border border-azure-100 rounded-lg p-4 bg-azure-50">
                         <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-semibold text-gray-800">Risk Assessment Entry {num}</h3>
+                          <h3 className="text-lg font-semibold text-azure-700">Risk Assessment Entry {num}</h3>
                           <div className="w-1/2 flex items-center gap-2 justify-end">
                             <select
-                              className="w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              className="w-full border border-azure-200 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
                               onChange={(e) => {
                                 const selectedIssue = e.target.value;
                                 if (!selectedIssue) return;
@@ -2532,7 +2532,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                     <button
                       type="button"
                       onClick={handleAddRiskRow}
-                      className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+                      className="mt-4 px-4 py-2 rounded-full bg-azure-700 hover:bg-azure-800 text-white text-sm font-medium shadow"
                     >
                       + Add Risk Entry
                     </button>
@@ -2547,7 +2547,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                       return (
                         <div
                           key={index}
-                          className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-gray-200 p-4 rounded-md bg-gray-50"
+                          className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-azure-100 p-4 rounded-md bg-azure-50"
                         >
                           {renderTextArea(FIELD_METADATA[`medicalSpecify${index}`].label, `medicalSpecify${index}`, 2, FIELD_METADATA[`medicalSpecify${index}`].placeholder)}
                           {renderTextArea(FIELD_METADATA[`medicalEffect${index}`].label, `medicalEffect${index}`, 2, FIELD_METADATA[`medicalEffect${index}`].placeholder)}
@@ -2560,7 +2560,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                       <button
                         type="button"
                         onClick={handleAddMoreMedicalCondition}
-                        className="mt-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+                        className="mt-2 px-4 py-2 rounded-full bg-azure-700 hover:bg-azure-800 text-white text-sm font-medium shadow"
                       >
                         + Add Another Medical Condition
                       </button>
@@ -2659,7 +2659,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
         <div className="h-20" /> {/* Spacer for dropdowns at the bottom */}
 
         {/* Navigation Buttons */}
-        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2 relative z-10">
+        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-azure-50 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2 relative z-10">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
             {FORM_SECTIONS.map((_: any, index: any) => (
@@ -2669,7 +2669,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                   ? "bg-blue-600 border-blue-600 shadow"
                   : index < currentStep
                     ? "bg-green-500 border-green-500"
-                    : "bg-gray-200 border-gray-300"
+                    : "bg-azure-200 border-azure-200"
                   }`}
               />
             ))}
@@ -2681,8 +2681,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               onClick={handlePreviousSequential}
               disabled={currentStep === 0 || navigatingPrev}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
+                ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
+                : "bg-gradient-to-r from-azure-600 to-azure-800 text-white border-azure-600 hover:from-azure-700 hover:to-black"
                 }`}
             >
               {navigatingPrev ? (
@@ -2735,8 +2735,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               }}
               disabled={navigatingNext}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${navigatingNext
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
+                ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
+                : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"
                 }`}
             >
               <span>Next</span>
@@ -2750,7 +2750,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
             <button
               onClick={handleSaveProgressButton}
               disabled={saving || submitting || showSaveSpinner}
-              className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
+              className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-azure-500 hover:bg-azure-600 text-white shadow border border-azure-600 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
               {showSaveSpinner ? <FaSpinner className="w-4 h-4 animate-pulse" /> : <FaSave className="w-4 h-4" />}
               {showSaveSpinner ? "Saving..." : "Save Progress"}

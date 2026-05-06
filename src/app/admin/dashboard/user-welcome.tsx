@@ -37,16 +37,14 @@ export default function UserWelcome() {
       <div className="flex items-start gap-4">
         <div className="relative">
           {session?.user?.image ? (
-            <div className="relative">
-              <img
-                src={session.user.image}
-                alt={session?.user?.name || 'User'}
-                className="h-14 w-14 rounded-xl border-2 border-gray-100 object-cover"
-              />
-            </div>
+            <img
+              src={session.user.image}
+              alt={session?.user?.name || 'User'}
+              className="h-14 w-14 rounded-xl border-2 border-azure-100 object-cover"
+            />
           ) : (
-            <div className="h-14 w-14 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600">
-              <FaUserCircle className="h-8 w-8" />
+            <div className="h-14 w-14 bg-azure-700 rounded-xl flex items-center justify-center">
+              <FaUserCircle className="h-8 w-8 text-gold-400" />
             </div>
           )}
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center">
@@ -54,10 +52,10 @@ export default function UserWelcome() {
           </div>
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-bold text-azure-700">
             Welcome back, {session?.user?.name || 'Admin'}!
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-azure-400 mt-0.5">
             Here&apos;s a quick look at your latest activity and stats.
           </p>
         </div>
@@ -66,15 +64,15 @@ export default function UserWelcome() {
       <div className="flex items-center space-x-4">
         <Link href="/admin/notifications">
           <div className="relative cursor-pointer group">
-            <div className="p-3 rounded-xl border border-gray-200 hover:border-brand-200 hover:bg-brand-50 transition-all duration-200">
+            <div className="p-3 rounded-xl border border-azure-100 hover:border-gold-300 hover:bg-gold-50 transition-all duration-200">
               <FaBell
                 className={`h-5 w-5 ${
-                  unreadCount > 0 ? 'text-brand-600' : 'text-gray-400'
-                } group-hover:text-brand-600 transition-colors`}
+                  unreadCount > 0 ? 'text-gold-500' : 'text-azure-300'
+                } group-hover:text-gold-600 transition-colors`}
               />
             </div>
             {unreadCount > 0 && (
-              <div className="absolute -top-1.5 -right-1.5 bg-brand-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              <div className="absolute -top-1.5 -right-1.5 bg-gold-500 text-azure-700 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </div>
             )}

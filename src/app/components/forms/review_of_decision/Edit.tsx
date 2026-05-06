@@ -311,7 +311,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
         if (metadata.type === "signature") {
             return (
                 <div key={fieldName} className="md:col-span-2 flex flex-col gap-2">
-                    <label className="text-xs font-medium text-gray-700 flex items-center">
+                    <label className="text-xs font-medium text-azure-600 flex items-center">
                         {metadata.label} {isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
                     <SignatureCanvas
@@ -336,10 +336,10 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
         if (metadata.type === "textarea") {
             return (
                 <div key={fieldName} className="md:col-span-2 flex flex-col gap-1">
-                    <label className="text-xs font-medium text-gray-700 mb-1 flex items-center">
+                    <label className="text-xs font-medium text-azure-600 mb-1 flex items-center">
                         {metadata.label} {isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                    {metadata.helpText && <p className="text-xs text-gray-500 mb-1 italic">{metadata.helpText}</p>}
+                    {metadata.helpText && <p className="text-xs text-azure-400 mb-1 italic">{metadata.helpText}</p>}
                     <textarea
                         value={value}
                         ref={(el) => { if (el) adjustHeight(el); }}
@@ -350,7 +350,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                         disabled={readOnly}
                         placeholder={metadata.placeholder || "Click or tap here to enter text."}
                         rows={1}
-                        className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-gray-400 resize-none overflow-hidden ${error ? "border-red-300 bg-red-50" : readOnly ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white hover:border-indigo-300"}`}
+                        className={`w-full rounded-lg border border-azure-100 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all placeholder-azure-300 resize-none overflow-hidden ${error ? "border-red-300 bg-red-50" : readOnly ? "bg-azure-100 text-azure-400 cursor-not-allowed" : "bg-white hover:border-gold-300"}`}
                     />
                     {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
                 </div>
@@ -360,16 +360,16 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
         if (metadata.type === "date") {
             return (
                 <div key={fieldName} className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-gray-700 flex items-center">
+                    <label className="text-xs font-medium text-azure-600 flex items-center">
                         {metadata.label} {isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
-                    {metadata.helpText && <p className="text-xs text-gray-500 mb-1 italic">{metadata.helpText}</p>}
+                    {metadata.helpText && <p className="text-xs text-azure-400 mb-1 italic">{metadata.helpText}</p>}
                     <input
                         type="date"
                         value={value}
                         onChange={(e) => handleChange(fieldName, e.target.value)}
                         disabled={readOnly}
-                        className={`w-full p-2 border rounded-md text-sm transition-colors ${error ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-gray-200 focus:border-indigo-500 focus:ring-indigo-100"} focus:outline-none focus:ring-2 shadow-sm`}
+                        className={`w-full p-2 border rounded-md text-sm transition-colors ${error ? "border-red-300 focus:border-red-500 focus:ring-red-200" : "border-azure-100 focus:border-azure-600 focus:ring-gold-100"} focus:outline-none focus:ring-2 shadow-sm`}
                     />
                     {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
                 </div>
@@ -378,7 +378,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
 
         return (
             <div key={fieldName} className="md:col-span-2 flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700 flex items-center">
+                <label className="text-xs font-medium text-azure-600 flex items-center">
                     {metadata.label} {isRequired && <span className="text-red-500 ml-1">*</span>}
                 </label>
                 <input
@@ -387,7 +387,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                     onChange={(e) => handleChange(fieldName, e.target.value)}
                     placeholder="Click or tap here to enter text."
                     disabled={readOnly}
-                    className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-gray-400 ${error ? "border-red-300 bg-red-50" : readOnly ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white hover:border-indigo-300"}`}
+                    className={`w-full rounded-lg border border-azure-100 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all placeholder-azure-300 ${error ? "border-red-300 bg-red-50" : readOnly ? "bg-azure-100 text-azure-400 cursor-not-allowed" : "bg-white hover:border-gold-300"}`}
                 />
                 {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
             </div>
@@ -399,9 +399,9 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
             {/* Steps Header */}
             {/* Progress Bar & Stepper */}
             <div className="w-full max-w-2xl mx-auto pt-6 px-4">
-                <div className="w-full h-2 bg-gray-200 rounded-full mb-6">
+                <div className="w-full h-2 bg-azure-200 rounded-full mb-6">
                     <div
-                        className="h-2 bg-gradient-to-r from-indigo-500 to-green-400 rounded-full transition-all duration-500"
+                        className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all duration-500"
                         style={{ width: `${((currentStep + 1) / FORM_SECTIONS.length) * 100}%` }}
                     />
                 </div>
@@ -418,21 +418,21 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                                     type="button"
                                     onClick={() => unlocked && setCurrentStep(idx)}
                                     disabled={!unlocked}
-                                    className={`flex flex-col items-center min-w-[50px] focus:outline-none transition-all duration-200 ${active ? 'text-indigo-700' : unlocked ? 'text-emerald-600' : 'text-gray-400 opacity-50 cursor-not-allowed'}`}
+                                    className={`flex flex-col items-center min-w-[50px] focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-emerald-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
                                 >
-                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 transition-all duration-300 ${active ? 'bg-indigo-700 border-indigo-500 text-white scale-110 shadow-lg' : completed ? 'bg-emerald-500 border-emerald-500 text-white' : unlocked ? 'bg-white border-indigo-300 text-indigo-500' : 'bg-gray-100 border-gray-300 text-gray-400'}`}>
+                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 transition-all duration-300 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110 shadow-lg' : completed ? 'bg-emerald-500 border-emerald-500 text-white' : unlocked ? 'bg-white border-gold-300 text-azure-600' : 'bg-azure-100 border-azure-200 text-azure-300'}`}>
                                         {completed ? <FaCheck className="w-3 h-3" /> : React.createElement(section.icon, { className: "w-3 h-3" })}
                                     </span>
                                     <span className="text-[10px] font-bold">{idx + 1}</span>
-                                    {!unlocked && <span className="text-[9px] text-gray-400 font-medium">Locked</span>}
+                                    {!unlocked && <span className="text-[9px] text-azure-300 font-medium">Locked</span>}
                                 </button>
 
                                 {/* Tooltip */}
                                 <div className="absolute left-1/2 -translate-x-1/2 top-14 z-20 hidden group-hover:flex flex-col items-center pointer-events-none">
-                                    <span className="bg-gray-800 text-white text-[10px] rounded px-2 py-1 shadow-xl whitespace-nowrap">
+                                    <span className="bg-azure-700 text-white text-[10px] rounded px-2 py-1 shadow-xl whitespace-nowrap">
                                         {section.title}
                                     </span>
-                                    <span className="w-1.5 h-1.5 bg-gray-800 rotate-45 mt-[-3px]"></span>
+                                    <span className="w-1.5 h-1.5 bg-azure-700 rotate-45 mt-[-3px]"></span>
                                 </div>
                             </div>
                         );
@@ -442,13 +442,13 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
 
             {/* Content Area */}
             <main className="w-full flex flex-col items-center justify-center pt-2 px-4">
-                <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-6 md:p-10 flex flex-col gap-6">
+                <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-azure-50 p-6 md:p-10 flex flex-col gap-6">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-7 h-7 text-indigo-600" })}
+                        <h2 className="text-2xl font-bold text-azure-700 flex items-center gap-3">
+                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-7 h-7 text-azure-700" })}
                             {FORM_SECTIONS[currentStep].title}
                         </h2>
-                        <p className="text-sm text-gray-500 font-semibold mt-1.5">{FORM_SECTIONS[currentStep].description}</p>
+                        <p className="text-sm text-azure-400 font-semibold mt-1.5">{FORM_SECTIONS[currentStep].description}</p>
                     </div>
 
                     {/* Part D Specific Header */}
@@ -467,12 +467,12 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                         {FORM_SECTIONS[currentStep].fields.map(fieldName => renderInput(fieldName))}
                     </div>
                 </section>
-                <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-6 py-6 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl mt-4">
+                <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-azure-50 px-6 py-6 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl mt-4">
                     <div className="flex flex-col w-full gap-3 md:flex-row md:justify-between items-center">
                         <button
                             onClick={handleBack}
                             disabled={currentStep === 0 || navigatingPrev}
-                            className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-full font-bold transition-all text-sm shadow-md border duration-200 w-full md:w-auto min-w-[140px] ${currentStep === 0 || navigatingPrev ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-slate-800 text-white hover:bg-slate-900 border-slate-800 active:scale-95"}`}
+                            className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-full font-bold transition-all text-sm shadow-md border duration-200 w-full md:w-auto min-w-[140px] ${currentStep === 0 || navigatingPrev ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-azure-700 text-white hover:bg-azure-800 border-azure-700 active:scale-95"}`}
                         >
                             <FaChevronLeft className="w-3.5 h-3.5" />
                             <span>Previous</span>
@@ -481,7 +481,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                         <button
                             onClick={handleNext}
                             disabled={currentStep === FORM_SECTIONS.length - 1 || navigatingNext}
-                            className={`flex items-center justify-center gap-2 px-10 py-2.5 rounded-full font-bold transition-all text-sm shadow-lg border duration-300 w-full md:w-auto min-w-[160px] ${currentStep === FORM_SECTIONS.length - 1 || navigatingNext ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300" : "bg-gradient-to-r from-indigo-600 to-emerald-400 text-white hover:shadow-indigo-200 border-transparent active:scale-95"}`}
+                            className={`flex items-center justify-center gap-2 px-10 py-2.5 rounded-full font-bold transition-all text-sm shadow-lg border duration-300 w-full md:w-auto min-w-[160px] ${currentStep === FORM_SECTIONS.length - 1 || navigatingNext ? "bg-azure-200 text-azure-300 cursor-not-allowed border-azure-200" : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white hover:shadow-gold border-transparent active:scale-95"}`}
                         >
                             <span>Next</span>
                             <FaChevronRight className="w-3.5 h-3.5" />
@@ -490,7 +490,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                         <button
                             onClick={() => handleSaveProgress?.()}
                             disabled={saving || readOnly}
-                            className="flex items-center justify-center gap-2 px-8 py-2.5 rounded-full font-bold text-sm bg-slate-700 hover:bg-slate-800 text-white shadow-md border border-slate-700 transition-all duration-200 w-full md:w-auto min-w-[140px] active:scale-95"
+                            className="flex items-center justify-center gap-2 px-8 py-2.5 rounded-full font-bold text-sm bg-azure-600 hover:bg-azure-700 text-white shadow-md border border-azure-600 transition-all duration-200 w-full md:w-auto min-w-[140px] active:scale-95"
                         >
                             {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
                             <span>{saving ? "Saving..." : "Save Progress"}</span>
@@ -502,7 +502,7 @@ const ReviewOfDecisionEdit: React.FC<FormProps> = ({
                             onClick={handleSubmitForm}
                             disabled={saving}
                             className={`w-full mt-2 flex items-center justify-center gap-3 px-6 py-3 rounded-full font-bold text-base shadow-xl transition-all duration-300 ${saving
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+                                ? "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
                                 : "bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-blue-200 active:scale-[0.98]"
                                 }`}
                         >

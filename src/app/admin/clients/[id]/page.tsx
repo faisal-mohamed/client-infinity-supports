@@ -27,8 +27,8 @@ function InfoDisplay({
     green: 'bg-green-50 border-green-100',
     purple: 'bg-purple-50 border-purple-100',
     amber: 'bg-amber-50 border-amber-100',
-    rose: 'bg-rose-50 border-rose-100',
-    indigo: 'bg-indigo-50 border-indigo-100'
+    rose: 'bg-gold-50 border-gold-100',
+    indigo: 'bg-azure-50 border-azure-100'
   };
 
   const iconColors = {
@@ -36,18 +36,18 @@ function InfoDisplay({
     green: 'text-green-600',
     purple: 'text-purple-600',
     amber: 'text-amber-600',
-    rose: 'text-rose-600',
-    indigo: 'text-indigo-600'
+    rose: 'text-gold-600',
+    indigo: 'text-azure-700'
   };
 
   return (
     <div className={`p-4 rounded-lg border ${colorClasses[color]}`}>
       <div className="flex items-center gap-3 mb-1">
         <Icon className={`h-4 w-4 ${iconColors[color]} flex-shrink-0`} />
-        <p className="text-xs font-medium text-gray-500">{title}</p>
+        <p className="text-xs font-medium text-azure-400">{title}</p>
       </div>
       <p
-        className="text-sm font-semibold text-gray-900 break-words"
+        className="text-sm font-semibold text-azure-700 break-words"
         title={value || 'Not provided'}
       >
         {value || 'Not provided'}
@@ -89,10 +89,10 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-azure-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading client details...</p>
+          <div className="w-12 h-12 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-azure-500">Loading client details...</p>
         </div>
       </div>
     );
@@ -100,7 +100,7 @@ export default function ClientDetailPage() {
 
   if (error || !client) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-azure-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-6 text-center max-w-md w-full">
           <FaUser className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h1 className="text-xl font-bold text-red-800 mb-2">Client Not Found</h1>
@@ -121,43 +121,43 @@ export default function ClientDetailPage() {
     : client?.name || 'Unknown Client';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-azure-50">
       <div className="max-w-6xl mx-auto px-4 py-6">
         
         {/* Enhanced Header */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 mb-6">
+        <div className="bg-white rounded-xl border border-azure-100 p-4 sm:p-6 mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                className="p-2.5 rounded-lg bg-azure-100 text-azure-500 hover:bg-azure-200 transition-colors"
                 aria-label="Go back"
               >
                 <FaArrowLeft className="h-5 w-5" />
               </button>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="h-12 w-12 sm:h-14 sm:w-14 bg-brand-50 rounded-xl flex items-center justify-center">
-                    <span className="text-lg sm:text-xl font-semibold text-brand-600">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 bg-azure-50 rounded-xl flex items-center justify-center">
+                    <span className="text-lg sm:text-xl font-semibold text-gold-600">
                       {client?.name?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 break-words">
+                  <h1 className="text-lg sm:text-xl font-semibold text-azure-700 mb-1 break-words">
                     {client?.commonFields?.name && client?.commonFields?.surname 
                       ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
                       : client?.name || 'Unknown Client'
                     }
                   </h1>
-                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-azure-500">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-brand-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-azure-500 rounded-full"></div>
                       <span className="font-medium">ID: {client.id}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="h-3 w-3 text-gray-400" />
+                      <FaCalendarAlt className="h-3 w-3 text-azure-300" />
                       <span>Created: {new Date(client?.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -167,7 +167,7 @@ export default function ClientDetailPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/clients/${id}/forms`}
-                className="flex items-center gap-2 text-sm text-white bg-brand-600 hover:bg-brand-700 transition-colors px-4 py-2.5 rounded-lg font-medium"
+                className="flex items-center gap-2 text-sm text-white bg-azure-700 hover:bg-azure-800 transition-colors px-4 py-2.5 rounded-lg font-medium"
               >
                 <FaFileAlt className="h-4 w-4" /> 
                 Client Forms
@@ -184,7 +184,7 @@ export default function ClientDetailPage() {
             <div className="px-6 py-4 border-b bg-blue-50">
               <div className="flex items-center gap-3">
                 <FaUser className="h-5 w-5 text-blue-600" />
-                <h2 className="font-semibold text-gray-900">Basic Information</h2>
+                <h2 className="font-semibold text-azure-700">Basic Information</h2>
               </div>
             </div>
             <div className="p-6 space-y-4">
@@ -224,7 +224,7 @@ export default function ClientDetailPage() {
             <div className="px-6 py-4 border-b bg-green-50">
               <div className="flex items-center gap-3">
                 <FaIdCard className="h-5 w-5 text-green-600" />
-                <h2 className="font-semibold text-gray-900">Personal Details</h2>
+                <h2 className="font-semibold text-azure-700">Personal Details</h2>
               </div>
             </div>
             <div className="p-6">
@@ -251,8 +251,8 @@ export default function ClientDetailPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <FaIdCard className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No personal details available</p>
+                  <FaIdCard className="h-8 w-8 text-azure-300 mx-auto mb-2" />
+                  <p className="text-azure-400">No personal details available</p>
                 </div>
               )}
             </div>
@@ -263,7 +263,7 @@ export default function ClientDetailPage() {
             <div className="px-6 py-4 border-b bg-amber-50">
               <div className="flex items-center gap-3">
                 <FaMapMarkerAlt className="h-5 w-5 text-amber-600" />
-                <h2 className="font-semibold text-gray-900">Address Information</h2>
+                <h2 className="font-semibold text-azure-700">Address Information</h2>
               </div>
             </div>
             <div className="p-6">
@@ -290,8 +290,8 @@ export default function ClientDetailPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <FaMapMarkerAlt className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No address information available</p>
+                  <FaMapMarkerAlt className="h-8 w-8 text-azure-300 mx-auto mb-2" />
+                  <p className="text-azure-400">No address information available</p>
                 </div>
               )}
             </div>
@@ -303,12 +303,12 @@ export default function ClientDetailPage() {
               <div className="px-6 py-4 border-b bg-purple-50">
                 <div className="flex items-center gap-3">
                   <FaClipboardList className="h-5 w-5 text-purple-600" />
-                  <h2 className="font-semibold text-gray-900">Disability & Conditions</h2>
+                  <h2 className="font-semibold text-azure-700">Disability & Conditions</h2>
                 </div>
               </div>
               <div className="p-6">
                 <div className="bg-purple-50 rounded-lg p-4">
-                  <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
+                  <p className="text-azure-600 whitespace-pre-line text-sm leading-relaxed">
                     {client?.commonFields?.disability}
                   </p>
                 </div>

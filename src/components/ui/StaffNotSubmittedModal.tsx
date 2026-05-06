@@ -20,14 +20,14 @@ export default function StaffNotSubmittedModal({
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">
       
       {/* Header */}
-      <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 rounded-t-2xl">
+      <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-azure-50 border-b border-azure-100 rounded-t-2xl">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-azure-700 text-white shadow-lg">
             <FaClock className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Waiting for Staff Submission</h3>
-            <p className="text-sm text-gray-600 mt-1">Form not yet completed by client/staff</p>
+            <h3 className="text-xl font-bold text-azure-700">Waiting for Staff Submission</h3>
+            <p className="text-sm text-azure-500 mt-1">Form not yet completed by client/staff</p>
           </div>
         </div>
       </div>
@@ -49,8 +49,8 @@ export default function StaffNotSubmittedModal({
           </div>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-          <p className="text-sm text-gray-700">
+        <div className="bg-azure-50 border border-azure-100 rounded-xl p-4 mb-4">
+          <p className="text-sm text-azure-600">
             <span className="font-semibold">Form:</span> {formTitle}
           </p>
         </div>
@@ -63,11 +63,11 @@ export default function StaffNotSubmittedModal({
       </div>
       
       {/* Footer Actions */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-2xl flex justify-end gap-3">
+      <div className="px-6 py-4 bg-azure-50 border-t border-azure-100 rounded-b-2xl flex justify-end gap-3">
         {onResendLink && (
           <button
             onClick={onResendLink}
-            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-azure-700 to-azure-800 rounded-xl hover:from-azure-800 hover:to-azure-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <FaPaperPlane className="inline mr-2 h-4 w-4" />
             Resend Link
@@ -76,7 +76,7 @@ export default function StaffNotSubmittedModal({
         
         <button
           onClick={onClose}
-          className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-md hover:shadow-lg"
+          className="px-6 py-3 text-sm font-semibold text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 shadow-md hover:shadow-lg"
         >
           Close
         </button>

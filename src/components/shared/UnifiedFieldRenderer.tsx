@@ -27,7 +27,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
   if (mode === 'pdf') {
     return (
       <div className="unified-field page-break-field" style={{ breakInside: 'auto', pageBreakInside: 'auto' }}>
-        <div className="bg-gray-300 border border-black px-2 py-1">
+        <div className="bg-azure-200 border border-black px-2 py-1">
           <span className="unified-label font-bold text-sm">{label}</span>
         </div>
         <div 
@@ -51,7 +51,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
 
   return (
     <div className="unified-field mb-4">
-      <label className="unified-label block text-sm font-medium text-gray-700 mb-2">
+      <label className="unified-label block text-sm font-medium text-azure-600 mb-2">
         {label}
       </label>
       {type === 'text' ? (
@@ -60,7 +60,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
           value={processedValue}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
-          className="unified-content w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       ) : (
         <textarea
@@ -68,7 +68,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           rows={type === 'longtext' ? 6 : 3}
-          className="unified-content w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
           style={{ 
             minHeight: type === 'longtext' ? '120px' : '80px',
             height: 'auto',
@@ -77,7 +77,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
         />
       )}
       {maxWords && (
-        <div className="text-sm text-gray-500 mt-1">
+        <div className="text-sm text-azure-400 mt-1">
           {wordCount}/{maxWords} words
         </div>
       )}

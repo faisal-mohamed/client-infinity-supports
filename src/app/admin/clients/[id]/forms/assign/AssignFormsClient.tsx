@@ -117,7 +117,7 @@
   
 //   if (loading) {
 //     return (
-//       <div className="flex justify-center items-center min-h-screen bg-gray-50">
+//       <div className="flex justify-center items-center min-h-screen bg-azure-50">
 //         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
 //       </div>
 //     );
@@ -127,12 +127,12 @@
 //     return (
 //       <div className="container mx-auto px-4 py-8">
 //         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-//           <div className="px-6 py-4 border-b border-gray-200 bg-green-50">
+//           <div className="px-6 py-4 border-b border-azure-100 bg-green-50">
 //             <div className="flex items-center">
 //               <div className="rounded-full bg-green-100 p-2 mr-3">
 //                 <FaCheck className="text-green-600" />
 //               </div>
-//               <h1 className="text-xl font-bold text-gray-900">Forms Assigned Successfully</h1>
+//               <h1 className="text-xl font-bold text-azure-700">Forms Assigned Successfully</h1>
 //             </div>
 //           </div>
           
@@ -152,11 +152,11 @@
 //               })}
 //             </ul>
             
-//             <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6">
+//             <div className="bg-azure-50 border border-azure-100 rounded-md p-4 mb-6">
 //               <h2 className="text-lg font-semibold mb-2">Access Information</h2>
               
 //               <div className="mb-4">
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 <label className="block text-sm font-medium text-azure-600 mb-1">
 //                   Access Link
 //                 </label>
 //                 <div className="flex items-center">
@@ -164,7 +164,7 @@
 //                     type="text"
 //                     value={`${assignmentResult.accessLink}`}
 //                     readOnly
-//                     className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md bg-gray-50"
+//                     className="flex-1 px-4 py-2 border border-azure-200 rounded-l-md bg-azure-50"
 //                   />
 //                   <button
 //                     onClick={() => copyToClipboard(assignmentResult.accessLink, 'link')}
@@ -176,7 +176,7 @@
 //               </div>
               
 //               <div className="mb-4">
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 <label className="block text-sm font-medium text-azure-600 mb-1">
 //                   Passcode
 //                 </label>
 //                 <div className="flex items-center">
@@ -184,7 +184,7 @@
 //                     type="text"
 //                     value={assignmentResult.passcode}
 //                     readOnly
-//                     className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md bg-gray-50"
+//                     className="flex-1 px-4 py-2 border border-azure-200 rounded-l-md bg-azure-50"
 //                   />
 //                   <button
 //                     onClick={() => copyToClipboard(assignmentResult.passcode, 'passcode')}
@@ -196,14 +196,14 @@
 //               </div>
               
 //               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">
+//                 <label className="block text-sm font-medium text-azure-600 mb-1">
 //                   Expires At
 //                 </label>
 //                 <input
 //                   type="text"
 //                   value={new Date(assignmentResult.batch.expiresAt).toLocaleString()}
 //                   readOnly
-//                   className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50"
+//                   className="w-full px-4 py-2 border border-azure-200 rounded-md bg-azure-50"
 //                 />
 //               </div>
 //             </div>
@@ -211,7 +211,7 @@
 //             <div className="flex justify-between">
 //               <button
 //                 onClick={() => router.push(`/admin/clients/${clientId}/forms`)}
-//                 className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md"
+//                 className="bg-azure-500 hover:bg-azure-600 text-white py-2 px-4 rounded-md"
 //               >
 //                 Back to Forms
 //               </button>
@@ -232,9 +232,9 @@
 //   return (
 //     <div className="container mx-auto px-4 py-8">
 //       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-//         <div className="px-6 py-4 border-b border-gray-200">
-//           <h1 className="text-xl font-bold text-gray-900">Assign Forms to {client?.name}</h1>
-//           <p className="mt-1 text-sm text-gray-500">
+//         <div className="px-6 py-4 border-b border-azure-100">
+//           <h1 className="text-xl font-bold text-azure-700">Assign Forms to {client?.name}</h1>
+//           <p className="mt-1 text-sm text-azure-400">
 //             Select forms to assign to this client and set an expiry date.
 //           </p>
 //         </div>
@@ -247,7 +247,7 @@
 //           )}
           
 //           <div className="mb-6">
-//             <label className="block text-sm font-medium text-gray-700 mb-2">
+//             <label className="block text-sm font-medium text-azure-600 mb-2">
 //               Expiry Date and Time
 //             </label>
 //             <div className="flex space-x-4 max-w-xs">
@@ -255,25 +255,25 @@
 //                 type="date"
 //                 value={expiryDate}
 //                 onChange={(e) => setExpiryDate(e.target.value)}
-//                 className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 //               />
 //               <input
 //                 type="time"
 //                 value={expiryTime}
 //                 onChange={(e) => setExpiryTime(e.target.value)}
-//                 className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 //               />
 //             </div>
-//             <p className="mt-1 text-sm text-gray-500">
+//             <p className="mt-1 text-sm text-azure-400">
 //               The link will expire after this time.
 //             </p>
 //           </div>
           
 //           <div className="mb-6">
-//             <label className="block text-sm font-medium text-gray-700 mb-2">
+//             <label className="block text-sm font-medium text-azure-600 mb-2">
 //               Select Forms
 //             </label>
-//             <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-md p-4">
+//             <div className="space-y-2 max-h-96 overflow-y-auto border border-azure-100 rounded-md p-4">
 //               {forms.map(form => (
 //                 <div key={form.id} className="flex items-center">
 //                   <input
@@ -281,16 +281,16 @@
 //                     id={`form-${form.id}`}
 //                     checked={selectedForms.includes(form.id)}
 //                     onChange={() => handleFormSelection(form.id)}
-//                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+//                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-azure-200 rounded"
 //                   />
-//                   <label htmlFor={`form-${form.id}`} className="ml-2 block text-sm text-gray-900">
+//                   <label htmlFor={`form-${form.id}`} className="ml-2 block text-sm text-azure-700">
 //                     {form.title} (v{form.version})
 //                   </label>
 //                 </div>
 //               ))}
               
 //               {forms.length === 0 && (
-//                 <p className="text-gray-500 text-sm">No forms available.</p>
+//                 <p className="text-azure-400 text-sm">No forms available.</p>
 //               )}
 //             </div>
 //           </div>
@@ -298,7 +298,7 @@
 //           <div className="flex justify-between">
 //             <button
 //               onClick={() => router.push(`/admin/clients/${clientId}/forms`)}
-//               className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md"
+//               className="bg-azure-500 hover:bg-azure-600 text-white py-2 px-4 rounded-md"
 //             >
 //               Cancel
 //             </button>

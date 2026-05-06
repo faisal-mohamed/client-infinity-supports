@@ -388,19 +388,19 @@ export default function FormSignaturePageClient() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Form</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
+          <div className="w-20 h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-bold text-azure-700 mb-2">Loading Form</h3>
+          <p className="text-azure-500 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"></div>
             <div
-              className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+              className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"
               style={{ animationDelay: "0.1s" }}
             ></div>
             <div
-              className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+              className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"
               style={{ animationDelay: "0.2s" }}
             ></div>
           </div>
@@ -411,18 +411,18 @@ export default function FormSignaturePageClient() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+      <div className="min-h-screen bg-azure-50 flex justify-center items-center">
         <div className="max-w-md mx-auto text-center bg-white p-8 rounded-lg shadow-sm">
           <div className="text-red-500 mb-4">
             <FaSignature className="h-16 w-16 mx-auto" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-azure-700 mb-4">
             Access Error
           </h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-azure-500 mb-6">{error}</p>
           <Link
             href={`/forms/signature/${token}`}
-            className="text-indigo-600 hover:text-indigo-800"
+            className="text-azure-700 hover:text-azure-800"
           >
             Back to Forms List
           </Link>
@@ -433,9 +433,9 @@ export default function FormSignaturePageClient() {
 
   if (!formData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+      <div className="min-h-screen bg-azure-50 flex justify-center items-center">
         <div className="text-center">
-          <p className="text-gray-600">Form data not found.</p>
+          <p className="text-azure-500">Form data not found.</p>
         </div>
       </div>
     );
@@ -458,18 +458,18 @@ export default function FormSignaturePageClient() {
   } catch (error) {
     console.log("error : ", error);
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+      <div className="min-h-screen bg-azure-50 flex justify-center items-center">
         <div className="max-w-md mx-auto text-center bg-white p-8 rounded-lg shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-azure-700 mb-4">
             Form Component Not Found
           </h1>
-          <p className="text-gray-600 mb-4">
+          <p className="text-azure-500 mb-4">
             Unable to display this form type:{" "}
             {formData.formSubmission.form.formKey}
           </p>
           <Link
             href={`/forms/signature/${token}`}
-            className="text-indigo-600 hover:text-indigo-800"
+            className="text-azure-700 hover:text-azure-800"
           >
             Back to Forms List
           </Link>
@@ -494,7 +494,7 @@ export default function FormSignaturePageClient() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-azure-50">
       {/* Fixed width container that will zoom out on mobile */}
       <div className="w-[1200px] mx-auto px-8 py-8">
         {/* Header */}
@@ -503,15 +503,15 @@ export default function FormSignaturePageClient() {
             <div className="flex items-center">
               <Link
                 href={`/forms/signature/${token}`}
-                className="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="mr-4 p-2 rounded-lg hover:bg-azure-100 transition-colors"
               >
-                <FaArrowLeft className="h-5 w-5 text-gray-600" />
+                <FaArrowLeft className="h-5 w-5 text-azure-500" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-azure-700">
                   {formData.formSubmission.form.title}
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-azure-500 mt-1">
                   {formData.client.name} • {formData.client.email}
                 </p>
               </div>
@@ -637,10 +637,10 @@ export default function FormSignaturePageClient() {
         {/* Action Section - Only show for forms requiring signature (hidden for editable forms) */}
         {requiresSignature && !isEditableForm && !showSignaturePad && !allSignaturesComplete && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-azure-700 mb-4">
               Review Complete
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-azure-500 mb-6">
               Please review the information above. If everything looks correct,
               proceed to sign the document.
               {requiredSignatures.length > 1 && (
@@ -651,7 +651,7 @@ export default function FormSignaturePageClient() {
             </p>
             <button
               onClick={handleReviewComplete}
-              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-azure-700 text-white font-medium rounded-lg hover:bg-azure-800 transition-colors"
             >
               <FaSignature className="mr-2" />
               Proceed to Sign
@@ -665,11 +665,11 @@ export default function FormSignaturePageClient() {
           !allSignaturesComplete &&
           requiredSignatures.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-azure-700 mb-4">
                 {currentSig?.label || "Provide Your Signature"}
               </h3>
               {currentSig?.description && (
-                <p className="text-gray-600 mb-6">
+                <p className="text-azure-500 mb-6">
                   {currentSig.description}
                 </p>
               )}
@@ -677,12 +677,12 @@ export default function FormSignaturePageClient() {
               {/* Optional dropdown for group 'any' */}
               {isGroupAny && (
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-azure-600 mb-1">
                     Select Signature Type
                   </label>
                   <select
                     title="Select signature type"
-                    className="w-full border border-gray-300 rounded px-3 py-2"
+                    className="w-full border border-azure-200 rounded px-3 py-2"
                     onChange={(e) => {
                       const selectedId = e.target.value;
                       setSelectedGroupSignatureId(selectedId);
@@ -715,12 +715,12 @@ export default function FormSignaturePageClient() {
                     {/* Name Input (only if required by config) */}
                     {needsName && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-azure-600 mb-1">
                           Your Name <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
-                          className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="w-full border border-azure-200 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
                           placeholder="Enter your full name"
                           value={signatureName}
                           onChange={(e) => setSignatureName(e.target.value)}
@@ -730,12 +730,12 @@ export default function FormSignaturePageClient() {
 
                     {/* Date Input */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-azure-600 mb-1">
                         Signature Date <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="date"
-                        className="w-full border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-azure-200 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
                         value={signatureDate}
                         onChange={(e) => setSignatureDate(e.target.value)}
                         max={new Date().toISOString().split('T')[0]}
@@ -744,10 +744,10 @@ export default function FormSignaturePageClient() {
 
                     {/* Signature Pad */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-azure-600 mb-1">
                         {currentSig?.label || "Your Signature"} <span className="text-red-500">*</span>
                       </label>
-                      <div className="border border-gray-300 rounded-md shadow-sm bg-white pb-12 relative">
+                      <div className="border border-azure-200 rounded-md shadow-sm bg-white pb-12 relative">
                         <SignatureCanvas
                           ref={(ref) => {
                             if (
@@ -766,7 +766,7 @@ export default function FormSignaturePageClient() {
                           className="w-full h-64 rounded-md"
                         />
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-azure-400 mt-2">
                         Sign above using your finger, stylus, or mouse
                       </p>
                     </div>
@@ -776,7 +776,7 @@ export default function FormSignaturePageClient() {
                       <button
                         onClick={() => submitSignature(activeSignatureId)}
                         disabled={submitting}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50"
+                        className="bg-azure-700 hover:bg-azure-800 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50"
                       >
                         {submitting ? (
                           <span className="flex items-center">
@@ -799,10 +799,10 @@ export default function FormSignaturePageClient() {
         {/* View Only Message - For forms that don't require signature */}
         {!requiresSignature && (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-azure-700 mb-4">
               Review Complete
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-azure-500 mb-6">
               This form has been provided for your review. No signature is
               required.
             </p>
@@ -822,10 +822,10 @@ export default function FormSignaturePageClient() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FaCheck className="h-8 w-8 text-green-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-azure-700 mb-4">
               All Signatures Complete
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-azure-500 mb-6">
               Thank you! All required signatures have been collected for this
               form.
               {requiredSignatures.length > 1 && (

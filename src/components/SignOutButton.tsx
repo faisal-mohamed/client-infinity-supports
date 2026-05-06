@@ -7,10 +7,7 @@ export default function SignOutButton() {
   const router = useRouter();
   
   const handleSignOut = async () => {
-    // Get the current origin (includes protocol, domain, and port)
     const origin = window.location.origin;
-    
-    // Sign out and then redirect to the login page on the same origin
     await signOut({ redirect: false });
     router.push(`${origin}/admin/login`);
   };
@@ -18,11 +15,11 @@ export default function SignOutButton() {
   return (
     <button
       onClick={handleSignOut}
-      className="flex w-full items-center px-4 py-2 text-white hover:bg-indigo-600 rounded-lg transition duration-150"
+      className="flex w-full items-center px-4 py-2.5 text-azure-400 hover:bg-azure-50 hover:text-azure-700 rounded-xl transition-all duration-200 text-sm font-medium"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5 mr-3"
+        className="h-4 w-4 mr-3"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

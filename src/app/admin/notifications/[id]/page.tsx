@@ -163,37 +163,37 @@ export default function NotificationDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gray-300 rounded-xl"></div>
+              <div className="w-12 h-12 bg-azure-200 rounded-xl"></div>
               <div className="space-y-2">
-                <div className="h-8 bg-gray-300 rounded w-64"></div>
-                <div className="h-4 bg-gray-200 rounded w-48"></div>
+                <div className="h-8 bg-azure-200 rounded w-64"></div>
+                <div className="h-4 bg-azure-200 rounded w-48"></div>
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  <div className="h-6 bg-azure-200 rounded w-3/4 mb-4"></div>
+                  <div className="h-4 bg-azure-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-azure-200 rounded w-2/3"></div>
                 </div>
                 <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="h-6 bg-gray-300 rounded w-1/2 mb-4"></div>
+                  <div className="h-6 bg-azure-200 rounded w-1/2 mb-4"></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="h-16 bg-gray-200 rounded"></div>
-                    <div className="h-16 bg-gray-200 rounded"></div>
+                    <div className="h-16 bg-azure-200 rounded"></div>
+                    <div className="h-16 bg-azure-200 rounded"></div>
                   </div>
                 </div>
               </div>
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-4"></div>
+                  <div className="h-6 bg-azure-200 rounded w-3/4 mb-4"></div>
                   <div className="space-y-3">
-                    <div className="h-4 bg-gray-200 rounded"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-azure-200 rounded"></div>
+                    <div className="h-4 bg-azure-200 rounded w-2/3"></div>
                   </div>
                 </div>
               </div>
@@ -206,7 +206,7 @@ export default function NotificationDetailPage() {
 
   if (error || !notification) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 text-center">
             <div className="p-6 rounded-full bg-red-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
@@ -226,23 +226,23 @@ export default function NotificationDetailPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Modern Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
             <Link href="/admin/notifications">
-              <button className="p-3 rounded-xl bg-white shadow-lg border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-200">
-                <FaArrowLeft className="h-4 w-4 text-gray-600" />
+              <button className="p-3 rounded-xl bg-white shadow-lg border border-azure-100 hover:shadow-xl hover:scale-105 transition-all duration-200">
+                <FaArrowLeft className="h-4 w-4 text-azure-500" />
               </button>
             </Link>
             <div className="flex items-center gap-4">
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-azure-600 to-azure-800 text-white shadow-lg">
                 <FaFileAlt className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-1">Notification Details</h1>
-                <p className="text-gray-600">Form submission information and client details</p>
+                <h1 className="text-3xl font-bold text-azure-700 mb-1">Notification Details</h1>
+                <p className="text-azure-500">Form submission information and client details</p>
               </div>
             </div>
           </div>
@@ -252,30 +252,30 @@ export default function NotificationDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Enhanced Notification Summary */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-8 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-start gap-6">
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 text-white shadow-lg">
                   <FaSignature className="h-8 w-8" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Form Signed & Submitted</h2>
+                    <h2 className="text-2xl font-bold text-azure-700">Form Signed & Submitted</h2>
                     <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md">
                       <FaCheck className="h-3 w-3 mr-2" />
                       Completed
                     </span>
                   </div>
-                  <p className="text-gray-700 mb-6 text-lg leading-relaxed">
-                    <span className="font-bold text-indigo-700">{notification.client.name}</span> has successfully signed and submitted{' '}
-                    <span className="font-semibold text-gray-900">{notification.formSubmission.form.title}</span>
+                  <p className="text-azure-600 mb-6 text-lg leading-relaxed">
+                    <span className="font-bold text-azure-700">{notification.client.name}</span> has successfully signed and submitted{' '}
+                    <span className="font-semibold text-azure-700">{notification.formSubmission.form.title}</span>
                   </p>
-                  <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-4">
-                    <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
+                  <div className="flex items-center gap-3 bg-azure-50 rounded-xl p-4">
+                    <div className="p-2 rounded-lg bg-azure-100 text-azure-700">
                       <FaClock className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Received</p>
-                      <p className="text-gray-900 font-semibold">{formatRelativeTime(notification.createdAt)}</p>
+                      <p className="text-sm font-medium text-azure-400">Received</p>
+                      <p className="text-azure-700 font-semibold">{formatRelativeTime(notification.createdAt)}</p>
                     </div>
                   </div>
                 </div>
@@ -283,54 +283,54 @@ export default function NotificationDetailPage() {
             </div>
 
             {/* Enhanced Form Details */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-8 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-azure-600 to-azure-800 text-white shadow-md">
                   <FaFileAlt className="h-6 w-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900">Form Information</h3>
+                <h3 className="text-2xl font-bold text-azure-700">Form Information</h3>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2">Form Title</label>
-                  <p className="text-gray-900 font-bold text-lg">{notification.formSubmission.form.title}</p>
+                <div className="bg-azure-50 rounded-xl p-4">
+                  <label className="block text-sm font-semibold text-azure-400 mb-2">Form Title</label>
+                  <p className="text-azure-700 font-bold text-lg">{notification.formSubmission.form.title}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2">Form Version</label>
+                <div className="bg-azure-50 rounded-xl p-4">
+                  <label className="block text-sm font-semibold text-azure-400 mb-2">Form Version</label>
                   <div className="flex items-center gap-2">
-                    <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">
+                    <span className="bg-azure-100 text-azure-700 px-3 py-1 rounded-full text-sm font-bold">
                       v{notification.formSubmission.form.version}
                     </span>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2">Submitted At</label>
-                  <p className="text-gray-900 font-semibold">{formatDate(notification.formSubmission.submittedAt)}</p>
+                <div className="bg-azure-50 rounded-xl p-4">
+                  <label className="block text-sm font-semibold text-azure-400 mb-2">Submitted At</label>
+                  <p className="text-azure-700 font-semibold">{formatDate(notification.formSubmission.submittedAt)}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2">Signed At</label>
+                <div className="bg-azure-50 rounded-xl p-4">
+                  <label className="block text-sm font-semibold text-azure-400 mb-2">Signed At</label>
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-green-100 text-green-600">
                       <FaSignature className="h-4 w-4" />
                     </div>
-                    <p className="text-gray-900 font-semibold">{formatDate(notification.formSubmission.clientSignedAt)}</p>
+                    <p className="text-azure-700 font-semibold">{formatDate(notification.formSubmission.clientSignedAt)}</p>
                   </div>
                 </div>
               </div>
 
               {/* Enhanced Download Section */}
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+              <div className="bg-gradient-to-r from-azure-50 to-azure-50 rounded-xl p-6 border border-azure-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-2">Download Form PDF</h4>
-                    <p className="text-gray-600">Get a complete PDF copy of the submitted form with signature</p>
+                    <h4 className="text-lg font-bold text-azure-700 mb-2">Download Form PDF</h4>
+                    <p className="text-azure-500">Get a complete PDF copy of the submitted form with signature</p>
                   </div>
                   <br />
                   <button
                     onClick={downloadPdf}
                     disabled={downloadingPdf}
-                    className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     <FaDownload className="h-5 w-5" />
                     {downloadingPdf ? 'Generating PDF...' : 'Download PDF'}
@@ -343,30 +343,30 @@ export default function NotificationDetailPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Enhanced Client Information */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
                   <FaUser className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Client Details</h3>
+                <h3 className="text-xl font-bold text-azure-700">Client Details</h3>
               </div>
               
               <div className="space-y-5">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2">Full Name</label>
-                  <p className="text-gray-900 font-bold text-lg">{notification.client.name}</p>
+                <div className="bg-azure-50 rounded-xl p-4">
+                  <label className="block text-sm font-semibold text-azure-400 mb-2">Full Name</label>
+                  <p className="text-azure-700 font-bold text-lg">{notification.client.name}</p>
                 </div>
                 
                 {notification.client.email && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-sm font-semibold text-gray-500 mb-2">Email Address</label>
+                  <div className="bg-azure-50 rounded-xl p-4">
+                    <label className="block text-sm font-semibold text-azure-400 mb-2">Email Address</label>
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-indigo-100 text-indigo-600">
+                      <div className="p-2 rounded-lg bg-azure-100 text-azure-700">
                         <FaEnvelope className="h-4 w-4" />
                       </div>
                       <a 
                         href={`mailto:${notification.client.email}`}
-                        className="text-indigo-600 hover:text-indigo-800 transition-colors font-semibold hover:underline"
+                        className="text-azure-700 hover:text-azure-800 transition-colors font-semibold hover:underline"
                       >
                         {notification.client.email}
                       </a>
@@ -375,8 +375,8 @@ export default function NotificationDetailPage() {
                 )}
                 
                 {notification.client.phone && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <label className="block text-sm font-semibold text-gray-500 mb-2">Phone Number</label>
+                  <div className="bg-azure-50 rounded-xl p-4">
+                    <label className="block text-sm font-semibold text-azure-400 mb-2">Phone Number</label>
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-green-100 text-green-600">
                         <FaPhone className="h-4 w-4" />
@@ -393,9 +393,9 @@ export default function NotificationDetailPage() {
               </div>
 
               {/* Enhanced View Client Button */}
-              <div className="mt-6 pt-4 border-t border-gray-100">
+              <div className="mt-6 pt-4 border-t border-azure-50">
                 <Link href={`/admin/clients/${notification.client.id}`}>
-                  <button className="w-full px-4 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105">
+                  <button className="w-full px-4 py-3 bg-gradient-to-r from-azure-100 to-azure-200 text-azure-600 rounded-xl hover:from-azure-200 hover:to-azure-200 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105">
                     View Complete Client Profile
                   </button>
                 </Link>
@@ -403,12 +403,12 @@ export default function NotificationDetailPage() {
             </div>
 
             {/* Enhanced Timeline */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-800 text-white shadow-md">
                   <FaCalendarAlt className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Activity Timeline</h3>
+                <h3 className="text-xl font-bold text-azure-700">Activity Timeline</h3>
               </div>
               
               <div className="space-y-6">
@@ -429,7 +429,7 @@ export default function NotificationDetailPage() {
                   <div className="flex items-start gap-4">
                     <div className="relative">
                       <div className="w-4 h-4 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full shadow-lg"></div>
-                      <div className="absolute left-2 top-6 w-0.5 h-8 bg-gradient-to-b from-blue-300 to-gray-200"></div>
+                      <div className="absolute left-2 top-6 w-0.5 h-8 bg-gradient-to-b from-blue-300 to-azure-200"></div>
                     </div>
                     <div className="bg-blue-50 rounded-xl p-4 flex-1 border border-blue-100">
                       <p className="text-sm font-bold text-blue-800 mb-1">Notification Created</p>
@@ -440,10 +440,10 @@ export default function NotificationDetailPage() {
                 
                 <div className="relative">
                   <div className="flex items-start gap-4">
-                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-400 to-indigo-600 rounded-full shadow-lg animate-pulse"></div>
-                    <div className="bg-indigo-50 rounded-xl p-4 flex-1 border border-indigo-100">
-                      <p className="text-sm font-bold text-indigo-800 mb-1">Notification Viewed</p>
-                      <p className="text-xs text-indigo-600 font-medium">Just now</p>
+                    <div className="w-4 h-4 bg-gradient-to-r from-azure-500 to-azure-700 rounded-full shadow-lg animate-pulse"></div>
+                    <div className="bg-azure-50 rounded-xl p-4 flex-1 border border-azure-100">
+                      <p className="text-sm font-bold text-azure-800 mb-1">Notification Viewed</p>
+                      <p className="text-xs text-azure-700 font-medium">Just now</p>
                     </div>
                   </div>
                 </div>

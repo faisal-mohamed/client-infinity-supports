@@ -101,15 +101,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white px-4 py-12 font-sans">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-azure-50 to-white px-4 py-12 font-sans">
       {/* Background blobs */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-indigo-100 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-azure-100 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-100 rounded-full filter blur-3xl opacity-40 animate-pulse delay-1000"></div>
 
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 sm:p-10 z-10">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-azure-50 p-8 sm:p-10 z-10">
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 rounded-full  flex items-center justify-center">
-            {/* <span className="text-indigo-600 text-2xl font-bold">IS</span> */}
+            {/* <span className="text-azure-700 text-2xl font-bold">IS</span> */}
             <Image
             src={'/client_full_logo.jpg'}
             alt='Infinity Support WA'
@@ -117,7 +117,7 @@ export default function RegisterPage() {
             height={60}
             />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Register to access the admin dashboard</p>
+          <p className="text-sm text-azure-400 mt-1">Register to access the admin dashboard</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -137,33 +137,33 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+            <label htmlFor="name" className="block text-sm font-medium text-azure-600">Full Name</label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+              className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-azure-600">Email</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+              className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-azure-600">Password</label>
             <div className="relative">
               <input
                 id="password"
@@ -176,32 +176,32 @@ export default function RegisterPage() {
                     ? 'border-green-300 focus:ring-green-400'
                     : password
                     ? 'border-yellow-300 focus:ring-yellow-400'
-                    : 'border-gray-300 focus:ring-indigo-500'
+                    : 'border-azure-200 focus:ring-gold-500'
                 }`}
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-azure-400 hover:text-azure-600 focus:outline-none transition-colors duration-200"
                 title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
               </button>
             </div>
-            <div className="mt-2 text-xs text-gray-600 space-y-1">
+            <div className="mt-2 text-xs text-azure-500 space-y-1">
               <p className="font-medium">Password Requirements:</p>
               <ul className="space-y-1 ml-3">
-                <li className={password.length >= 15 ? 'text-green-600' : 'text-gray-500'}>
+                <li className={password.length >= 15 ? 'text-green-600' : 'text-azure-400'}>
                   {password.length >= 15 ? '✅' : '○'} At least 15 characters ({password.length}/15)
                 </li>
-                <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}>
+                <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
                   {/[A-Z]/.test(password) ? '✅' : '○'} At least one uppercase letter (A-Z)
                 </li>
-                <li className={/[0-9]/.test(password) ? 'text-green-600' : 'text-gray-500'}>
+                <li className={/[0-9]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
                   {/[0-9]/.test(password) ? '✅' : '○'} At least one number (0-9)
                 </li>
-                <li className={/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? 'text-green-600' : 'text-gray-500'}>
+                <li className={/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
                   {/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? '✅' : '○'} At least one special character
                 </li>
               </ul>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-azure-600">Confirm Password</label>
             <div className="relative">
               <input
                 id="confirmPassword"
@@ -217,13 +217,13 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="mt-1 w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+                className="mt-1 w-full px-4 py-3 pr-12 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-azure-400 hover:text-azure-600 focus:outline-none transition-colors duration-200"
                 title={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
@@ -234,7 +234,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
+            className="w-full bg-azure-700 hover:bg-azure-800 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
           >
             {isLoading ? (
               <>
@@ -250,9 +250,9 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-azure-400">
           Already have an account?{' '}
-          <Link href="/admin/login" className="text-indigo-600 font-medium hover:underline">
+          <Link href="/admin/login" className="text-azure-700 font-medium hover:underline">
             Sign in
           </Link>
         </div>

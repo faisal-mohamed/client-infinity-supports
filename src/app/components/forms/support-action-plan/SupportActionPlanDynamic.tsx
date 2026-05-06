@@ -457,7 +457,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     <div className="mb-4">
       <table className="w-full border border-black border-collapse text-xs">
         <tbody>
-          <tr className="bg-gray-300">
+          <tr className="bg-azure-200">
             <td className="border border-black px-2 py-2 font-bold align-top" colSpan={2}>Participant Details</td>
             <td className="border border-black px-2 py-2 font-bold text-right align-top">NDIS Number: <span className="font-normal">{getFieldValue('ndisNumber') || ''}</span></td>
           </tr>
@@ -725,7 +725,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         const valueStr = value && String(value).trim() !== '' ? String(value) : '';
         return (
           <div key={block.key} className="mb-3">
-            <div className="bg-gray-300 border border-black px-2 py-1">
+            <div className="bg-azure-200 border border-black px-2 py-1">
               <span className="font-bold text-xs">{block.label}:</span>
             </div>
             <div className="border border-black border-t-0 p-2 bg-white text-xs">
@@ -738,7 +738,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         const value = getFieldValue(block.key || '');
         return (
           <div key={block.key} className="mb-3">
-            <div className="bg-gray-300 border border-black px-2 py-1">
+            <div className="bg-azure-200 border border-black px-2 py-1">
               <span className="font-bold text-xs">{block.label}:</span>
             </div>
             <div className="border border-black border-t-0 p-2 bg-white text-xs">{value || '___/___/____'}</div>
@@ -1014,7 +1014,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       )}
       <div className="flex-1" style={{ overflow: 'hidden', minHeight: 0, maxHeight: '100%' }}>{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
-      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t">
+      <div className="flex justify-between text-[10px] text-azure-500 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || ''}</span>
         <span className="font-bold">{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span>
         <span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span>
@@ -1047,7 +1047,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
-          <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t"><span>Website: {settings?.company_website || ''}</span><span className="font-bold">{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span><span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span></div>
+          <div className="flex justify-between text-[10px] text-azure-500 mt-4 pt-2 border-t"><span>Website: {settings?.company_website || ''}</span><span className="font-bold">{settings?.support_action_plan_id || settings?.support_action_plan || ''}</span><span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span></div>
         </div>
         {extendedSchema.map((b, i) => {
           const isFirstGoal = b.type === 'goal' && (i === 0 || extendedSchema[i - 1]?.type !== 'goal');

@@ -71,23 +71,23 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
     >
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-azure-100">
           <div className="flex items-center gap-3">
-            <FaSignature className="w-6 h-6 text-indigo-600" />
+            <FaSignature className="w-6 h-6 text-azure-700" />
             <div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-azure-700">
                 {currentSignature?.label || "Signature Required"}
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-azure-400">
                 Please provide your signature to complete the form
               </p>
             </div>
           </div>
           <button
             onClick={handleCancel}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-azure-100 rounded-full transition-colors"
           >
-            <FaTimes className="w-5 h-5 text-gray-500" />
+            <FaTimes className="w-5 h-5 text-azure-400" />
           </button>
         </div>
 
@@ -104,7 +104,7 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
 
           {/* Name Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-azure-600 mb-2">
               Full Name *
             </label>
             <input
@@ -112,16 +112,16 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
               value={signedBy}
               onChange={(e) => setSignedBy(e.target.value)}
               placeholder="Enter your full name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-azure-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-azure-600"
             />
           </div>
 
           {/* Signature Pad */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-azure-600 mb-2">
               Signature *
             </label>
-            <div className="flex justify-center bg-gray-50 p-4 rounded-lg">
+            <div className="flex justify-center bg-azure-50 p-4 rounded-lg">
               <div 
                 style={{ 
                   pointerEvents: 'auto',
@@ -134,11 +134,11 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
                 />
               </div>
             </div>
-            <p className="text-xs text-gray-500 text-center mt-2">
+            <p className="text-xs text-azure-400 text-center mt-2">
               Draw your signature in the box above
             </p>
             {/* Debug info */}
-            <div className="text-xs text-gray-400 mt-1">
+            <div className="text-xs text-azure-300 mt-1">
               Has signature: {hasSignature ? "Yes" : "No"}
               <br />
               Signature data length: {signatureData.length}
@@ -155,30 +155,30 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
 
           {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-azure-600 mb-2">
               Date
             </label>
             <input
               type="text"
               value={new Date().toLocaleDateString()}
               disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+              className="w-full px-3 py-2 border border-azure-200 rounded-lg bg-azure-50 text-azure-400"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-azure-100">
           <button
             onClick={handleCancel}
-            className="px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="px-4 py-2 text-azure-600 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSaveSignature}
             disabled={!hasSignature || !signedBy.trim()}
-            className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-6 py-2 bg-azure-700 hover:bg-azure-800 disabled:bg-azure-200 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
           >
             <FaCheck className="w-4 h-4" />
             Save Signature

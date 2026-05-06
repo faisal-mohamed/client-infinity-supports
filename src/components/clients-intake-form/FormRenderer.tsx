@@ -126,7 +126,7 @@ const formSchema : any = {
       { "type": "sectionHeader", "label": "GP Medical Contact", "colSpan": 2 },
       { "label": "Medical Centre Name:", "key": "medicalCentreName", "type": "text", "colSpan": 2 },
       { "label": "Phone:", "key": "medicalPhone", "type": "text", "colSpan": 2 },
-      { "type": "sectionHeader", "label": "Support Coordinator", "colSpan": 2, "bgColor": "bg-gray-100" },
+      { "type": "sectionHeader", "label": "Support Coordinator", "colSpan": 2, "bgColor": "bg-azure-100" },
       { "label": "Name:", "key": "supportCoordinatorName", "type": "text", "width": "50%" },
       { "label": "Email Address:", "key": "supportCoordinatorEmail", "type": "text", "width": "50%" },
       { "label": "Company:", "key": "supportCoordinatorCompany", "type": "text", "width": "50%" },
@@ -135,7 +135,7 @@ const formSchema : any = {
         "type": "sectionHeader",
         "label": "What other supports including mainstream health services you receive at present",
         "colSpan": 2,
-        "bgColor": "bg-gray-300"
+        "bgColor": "bg-azure-200"
       },
       {
         "label": "",
@@ -496,7 +496,7 @@ const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             {pageSchema.fields.map((field: any, idx: any) => {
               if (field.type === "sectionHeader") {
                 return (
-                  <tr key={idx} className="bg-gray-300 font-semibold text-xs">
+                  <tr key={idx} className="bg-azure-200 font-semibold text-xs">
                     <td className="border border-black px-1 py-0.5" colSpan={field.colSpan || 3}>
                       {field.label}
                     </td>
@@ -558,7 +558,7 @@ const Page1 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         {pageSchema.footer && (
-          <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
+          <div className="flex justify-between text-[10px] text-azure-500 mt-4 px-1">
             <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
@@ -625,7 +625,7 @@ const Page2 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             {pageSchema.fields.map((field: any, idx: any) => {
               if (field.type === "sectionHeader") {
                 return (
-                  <tr key={idx} className={`${field.bgColor || "bg-gray-300"} font-bold text-[13px]`}>
+                  <tr key={idx} className={`${field.bgColor || "bg-azure-200"} font-bold text-[13px]`}>
                     <td className="border border-black px-2 py-1" colSpan={field.colSpan || 2}>
                       {field.label}
                     </td>
@@ -688,7 +688,7 @@ const Page2 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         {pageSchema.footer && (
-          <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-1">
+          <div className="flex justify-between text-[10px] text-azure-500 mt-4 px-1">
                 <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
             <div>
@@ -781,7 +781,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         <table className="w-full flex-1 border border-black border-collapse text-[11px]">
           <tbody>
             <tr>
-              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-azure-200" colSpan={2}>
                 {pageSchema.sections.allAboutMe.title}
               </th>
             </tr>
@@ -793,7 +793,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
             {/* Advocate Details */}
             <tr>
-              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-azure-200" colSpan={2}>
                 {pageSchema.sections.advocateDetails.title}
               </th>
             </tr>
@@ -833,7 +833,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
             {/* Personal Situation */}
             <tr>
-              <th className="border border-black text-left font-bold px-1 py-0.5 bg-gray-300" colSpan={2}>
+              <th className="border border-black text-left font-bold px-1 py-0.5 bg-azure-200" colSpan={2}>
                 {pageSchema.sections.personalSituation.title}
               </th>
             </tr>
@@ -850,7 +850,7 @@ const Page3 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         </table>
 
         {/* Footer */}
-        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-2">
+        <div className="flex justify-between text-[11px] text-azure-500 mt-4 px-2">
               <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
@@ -929,7 +929,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
             {pageSchema.fields.map((field: any, idx: number) => {
               if (field.type === "contactHeader") {
                 return (
-                  <tr key={idx} className="bg-gray-300 font-bold text-[13px]">
+                  <tr key={idx} className="bg-azure-200 font-bold text-[13px]">
                     <td className="border border-black px-2 py-1">{field.label}</td>
                     <td className="border border-black px-2 py-1"></td>
                     <td className="border border-black px-2 py-1"></td>
@@ -972,7 +972,7 @@ const Page4 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
 
         {/* Footer */}
         {pageSchema.footer && (
-          <div className="flex justify-between text-[10px] text-gray-600 mt-4 px-2">
+          <div className="flex justify-between text-[10px] text-azure-500 mt-4 px-2">
             <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
@@ -1025,7 +1025,7 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border border-black border-collapse text-[12px]">
           <thead>
-            <tr className="bg-gray-300">
+            <tr className="bg-azure-200">
               <th className="border border-black p-1 text-left font-semibold">
                 {pageSchema.title}
               </th>
@@ -1081,7 +1081,7 @@ const Page5 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         </table>
 
         {/* Footer */}
-        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
+        <div className="flex justify-between text-[11px] text-azure-500 mt-4 px-1">
           <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
@@ -1131,7 +1131,7 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
       <div className="px-6 flex-1 flex flex-col">
         <table className="w-full flex-1 border border-black border-collapse text-[12px]">
           <thead>
-            <tr className="bg-gray-300">
+            <tr className="bg-azure-200">
               <th className="border border-black p-1 text-left font-semibold">
                 {pageSchema.title}
               </th>
@@ -1187,7 +1187,7 @@ const Page6 = ({ formSchema, formData = {}, commonFieldsData = {}, settings }: a
         </table>
 
         {/* Footer */}
-        <div className="flex justify-between text-[11px] text-gray-600 mt-4 px-1">
+        <div className="flex justify-between text-[11px] text-azure-500 mt-4 px-1">
           <div>{settings?.company_website || ''}</div>
             <div>{settings?.client_intake_form_id}</div>
 <div>
@@ -1222,7 +1222,7 @@ const FormRenderer = ({ formKey, formData = {}, commonFieldsData, onChange, sett
 
   
     return (
-      <div className="space-y-12 bg-gray-100 py-8 flex flex-col items-center">
+      <div className="space-y-12 bg-azure-100 py-8 flex flex-col items-center">
         <Page1
           formSchema={formSchema}
           formData={formData}

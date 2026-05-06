@@ -27,15 +27,15 @@
 //   sendingEmail
 // }: ActionButtonsProps) {
 //   return (
-//     <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
+//     <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
+//         <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
 //           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
 //             {/* Responsive Button Group */}
 //             <div className="flex flex-wrap gap-4 w-full lg:max-w-4xl">
 //               <button
 //                 onClick={onShowAssignModal}
-//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
+//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-azure-700 to-azure-800 text-white font-semibold rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                   <FaPlus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-200" />
@@ -105,14 +105,14 @@
 //             {/* Responsive Status Display */}
 //             <div className="w-full lg:w-auto">
 //               {selectedForms.length === 0 && (
-//                 <div className="mt-2 sm:mt-4 lg:mt-0 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4 shadow-md">
+//                 <div className="mt-2 sm:mt-4 lg:mt-0 bg-gradient-to-r from-azure-50 to-azure-100 border border-azure-100 rounded-xl p-4 shadow-md">
 //                   <div className="flex items-center gap-3">
-//                     <div className="p-2 rounded-lg bg-gray-400 text-white shadow-md">
+//                     <div className="p-2 rounded-lg bg-azure-300 text-white shadow-md">
 //                       <FaLink className="h-5 w-5" />
 //                     </div>
 //                     <div>
-//                       <div className="text-sm font-semibold text-gray-700">Ready to Generate</div>
-//                       <div className="text-xs text-gray-500">Select forms below to create signature links</div>
+//                       <div className="text-sm font-semibold text-azure-600">Ready to Generate</div>
+//                       <div className="text-xs text-azure-400">Select forms below to create signature links</div>
 //                     </div>
 //                   </div>
 //                 </div>
@@ -121,7 +121,7 @@
 //           </div>
 
 //           {/* Help Section */}
-//           <div className="mt-8 pt-6 border-t border-gray-200">
+//           <div className="mt-8 pt-6 border-t border-azure-100">
 //             <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
 //               <div className="flex items-start gap-3">
 //                 <div className="p-2 rounded-lg bg-blue-500 text-white shadow-md flex-shrink-0">
@@ -178,16 +178,16 @@ export default function ActionButtons({
   onTriggerCompletionEmail
 }: ActionButtonsProps) {
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-b border-gray-200">
+    <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
+        <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             {/* Buttons */}
             <div className="flex flex-wrap gap-4 w-full lg:max-w-4xl">
               {/* Assign Forms */}
               <button
                 onClick={onShowAssignModal}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold-600 text-white rounded-xl font-semibold hover:bg-gold-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <FaPlus className="h-4 w-4" />
                 Assign Forms
@@ -196,7 +196,7 @@ export default function ActionButtons({
               {/* Update Common Details */}
               <button
                 onClick={onShowCommonFieldsWarning}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <FaUserEdit className="h-4 w-4" />
                 Update Details
@@ -205,7 +205,7 @@ export default function ActionButtons({
               {/* Manage Links */}
               <Link
                 href={`/admin/clients/${clientId}/signature-links`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <FaCog className="h-4 w-4" />
                 Manage Links
@@ -216,7 +216,7 @@ export default function ActionButtons({
                 <button
                   onClick={onGenerateSignatureLink}
                   disabled={generatingLink}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold-600 text-white rounded-xl font-semibold hover:bg-gold-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {generatingLink ? (
                     <FaSpinner className="h-4 w-4 animate-spin" />
@@ -232,7 +232,7 @@ export default function ActionButtons({
                 <button
                   onClick={sendEmailNotification}
                   disabled={sendingEmail}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sendingEmail ? (
                     <FaSpinner className="h-4 w-4 animate-spin" />
@@ -265,14 +265,14 @@ export default function ActionButtons({
 
             {/* Status Display */}
             {selectedForms.length === 0 && (
-              <div className="mt-4 lg:mt-0 bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+              <div className="mt-4 lg:mt-0 bg-azure-50 border border-azure-100 rounded-xl p-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-slate-300 text-white">
+                  <div className="p-2 rounded-lg bg-azure-200 text-white">
                     <FaLink className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">Ready to Generate</p>
-                    <p className="text-xs text-gray-500">Select forms below to create signature links</p>
+                    <p className="text-sm font-medium text-azure-600">Ready to Generate</p>
+                    <p className="text-xs text-azure-400">Select forms below to create signature links</p>
                   </div>
                 </div>
               </div>
@@ -280,15 +280,15 @@ export default function ActionButtons({
           </div>
 
           {/* Help Section */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="bg-rose-50 rounded-xl p-4 border border-rose-200">
+          <div className="mt-8 pt-6 border-t border-azure-100">
+            <div className="bg-gold-50 rounded-xl p-4 border border-gold-200">
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-rose-600 text-white">
+                <div className="p-2 rounded-lg bg-gold-600 text-white">
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <div className="flex-1 text-sm text-rose-700">
+                <div className="flex-1 text-sm text-gold-700">
                   <p className="font-semibold mb-1">Quick Actions Guide</p>
                   <ul className="space-y-1 list-disc list-inside">
                     <li><strong>Assign Forms:</strong> Add forms to client</li>

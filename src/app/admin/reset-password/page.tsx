@@ -155,12 +155,12 @@
 //   };
 
 //   return (
-//     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-white px-4 py-12 font-sans">
+//     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-azure-50 to-white px-4 py-12 font-sans">
 //       {/* Background blobs */}
-//       <div className="absolute top-0 left-0 w-72 h-72 bg-indigo-100 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
+//       <div className="absolute top-0 left-0 w-72 h-72 bg-azure-100 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
 //       <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-100 rounded-full filter blur-3xl opacity-40 animate-pulse delay-1000"></div>
 
-//       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 sm:p-10 z-10">
+//       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-azure-50 p-8 sm:p-10 z-10">
 //         <div className="text-center mb-8">
 //           <div className="mx-auto mb-4 rounded-full flex items-center justify-center">
 //             <Image
@@ -170,10 +170,10 @@
 //               height={60}
 //             />
 //           </div>
-//           <h1 className="text-2xl font-bold text-gray-900 mb-2">
+//           <h1 className="text-2xl font-bold text-azure-700 mb-2">
 //             {step === 'verify' ? 'Verify Code' : 'Reset Password'}
 //           </h1>
-//           <p className="text-sm text-gray-500">
+//           <p className="text-sm text-azure-400">
 //             {step === 'verify' 
 //               ? 'Enter the 6-digit code sent to your email' 
 //               : 'Enter your new password'
@@ -202,21 +202,21 @@
 //         {step === 'verify' ? (
 //           <form onSubmit={handleVerifyCode} className="space-y-6">
 //             <div>
-//               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+//               <label htmlFor="email" className="block text-sm font-medium text-azure-600">Email Address</label>
 //               <input
 //                 id="email"
 //                 type="email"
 //                 value={email}
 //                 onChange={(e) => setEmail(e.target.value)}
 //                 required
-//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
 //                 placeholder="you@example.com"
 //                 disabled={isLoading}
 //               />
 //             </div>
 
 //             <div>
-//               <label htmlFor="code" className="block text-sm font-medium text-gray-700">Verification Code</label>
+//               <label htmlFor="code" className="block text-sm font-medium text-azure-600">Verification Code</label>
 //               <input
 //                 id="code"
 //                 type="text"
@@ -224,17 +224,17 @@
 //                 onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
 //                 required
 //                 maxLength={6}
-//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition text-center text-2xl tracking-widest"
+//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition text-center text-2xl tracking-widest"
 //                 placeholder="000000"
 //                 disabled={isLoading}
 //               />
-//               <p className="text-xs text-gray-500 mt-1">Enter the 6-digit code sent to your email</p>
+//               <p className="text-xs text-azure-400 mt-1">Enter the 6-digit code sent to your email</p>
 //             </div>
 
 //             <button
 //               type="submit"
 //               disabled={isLoading}
-//               className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
+//               className="w-full bg-azure-700 hover:bg-azure-800 disabled:bg-azure-500 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
 //             >
 //               {isLoading ? (
 //                 <>
@@ -254,7 +254,7 @@
 //                 type="button"
 //                 onClick={handleResendCode}
 //                 disabled={isLoading}
-//                 className="text-sm text-indigo-600 hover:underline disabled:text-gray-400"
+//                 className="text-sm text-azure-700 hover:underline disabled:text-azure-300"
 //               >
 //                 Didn't receive the code? Resend
 //               </button>
@@ -263,7 +263,7 @@
 //         ) : (
 //           <form onSubmit={handleResetPassword} className="space-y-6">
 //             <div>
-//               <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
+//               <label htmlFor="newPassword" className="block text-sm font-medium text-azure-600">New Password</label>
 //               <input
 //                 id="newPassword"
 //                 type="password"
@@ -271,15 +271,15 @@
 //                 onChange={(e) => setNewPassword(e.target.value)}
 //                 required
 //                 minLength={6}
-//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
 //                 placeholder="••••••••"
 //                 disabled={isLoading}
 //               />
-//               <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters long</p>
+//               <p className="text-xs text-azure-400 mt-1">Must be at least 6 characters long</p>
 //             </div>
 
 //             <div>
-//               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+//               <label htmlFor="confirmPassword" className="block text-sm font-medium text-azure-600">Confirm New Password</label>
 //               <input
 //                 id="confirmPassword"
 //                 type="password"
@@ -287,7 +287,7 @@
 //                 onChange={(e) => setConfirmPassword(e.target.value)}
 //                 required
 //                 minLength={6}
-//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+//                 className="mt-1 w-full px-4 py-3 rounded-xl border border-azure-200 focus:ring-2 focus:ring-gold-500 focus:outline-none transition"
 //                 placeholder="••••••••"
 //                 disabled={isLoading}
 //               />
@@ -296,7 +296,7 @@
 //             <button
 //               type="submit"
 //               disabled={isLoading}
-//               className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
+//               className="w-full bg-azure-700 hover:bg-azure-800 disabled:bg-azure-500 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 flex items-center justify-center"
 //             >
 //               {isLoading ? (
 //                 <>
@@ -313,9 +313,9 @@
 //           </form>
 //         )}
 
-//         <div className="mt-6 text-center text-sm text-gray-500">
+//         <div className="mt-6 text-center text-sm text-azure-400">
 //           Remember your password?{' '}
-//           <Link href="/admin/login" className="text-indigo-600 font-medium hover:underline">
+//           <Link href="/admin/login" className="text-azure-700 font-medium hover:underline">
 //             Back to Login
 //           </Link>
 //         </div>

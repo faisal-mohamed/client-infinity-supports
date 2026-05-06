@@ -70,7 +70,7 @@ export function getStatusDisplay(status: FormStatus) {
   const statusMap = {
     'not_started': {
       label: 'Not Started',
-      color: 'bg-gray-100 text-gray-800 border-gray-200',
+      color: 'bg-azure-100 text-azure-700 border-azure-100',
       icon: 'FaTimesCircle',
       description: 'Form assigned but not started'
     },

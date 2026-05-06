@@ -105,10 +105,10 @@ export default function CommonFieldsModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-gray-200 animate-in zoom-in-95 duration-300 flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-azure-100 animate-in zoom-in-95 duration-300 flex flex-col">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-white">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 via-purple-600/90 to-pink-600/90"></div>
+        <div className="relative bg-gradient-to-r from-azure-700 via-purple-600 to-pink-600 p-8 text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-azure-700/90 via-purple-600/90 to-pink-600/90"></div>
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
@@ -138,23 +138,23 @@ export default function CommonFieldsModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-8 overflow-y-auto bg-gradient-to-br from-gray-50 to-white">
+        <div className="flex-1 p-8 overflow-y-auto bg-gradient-to-br from-azure-50 to-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Personal Information Section */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+              <div className="bg-gradient-to-r from-blue-50 to-azure-50 rounded-2xl p-6 border border-blue-100">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-blue-500 to-azure-500 rounded-xl shadow-lg">
                     <FaUser className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="text-xl font-bold text-gray-900">
+                  <h4 className="text-xl font-bold text-azure-700">
                     Personal Information
                   </h4>
                 </div>
 
                 <div className="space-y-5">
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaUser className="h-4 w-4 text-blue-500" />
                       <span>First Name</span>
                     </label>
@@ -164,13 +164,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("name", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter First name"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaUser className="h-4 w-4 text-blue-500" />
                       <span>Surname</span>
                     </label>
@@ -180,13 +180,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("surname", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter Surname"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaCalendarAlt className="h-4 w-4 text-blue-500" />
                       <span>Date of Birth</span>
                       <div className="flex items-center space-x-1 ml-2">
@@ -205,15 +205,15 @@ export default function CommonFieldsModal({
                           formatDateForStorage(e.target.value)
                         )
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
-                      <FaCalendarAlt className="h-4 w-4 text-gray-400" />
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
+                      <FaCalendarAlt className="h-4 w-4 text-azure-300" />
                       <span>Age</span>
-                      <span className="text-xs text-gray-500 font-medium ml-2">
+                      <span className="text-xs text-azure-400 font-medium ml-2">
                         (Auto-calculated from Date of Birth)
                       </span>
                     </label>
@@ -227,17 +227,17 @@ export default function CommonFieldsModal({
                             : "Not calculated"
                         }
                         readOnly
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 text-gray-600 cursor-not-allowed focus:outline-none shadow-sm"
+                        className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl bg-gradient-to-r from-azure-50 to-azure-100 text-azure-500 cursor-not-allowed focus:outline-none shadow-sm"
                         placeholder="Age will be calculated from date of birth"
                       />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <div className="w-2 h-2 bg-azure-300 rounded-full"></div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaUserCircle className="h-4 w-4 text-blue-500" />
                       <span>Sex/Gender</span>
                     </label>
@@ -246,7 +246,7 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("sex", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                     >
                       <option value="">Select gender</option>
                       <option value="Male">Male</option>
@@ -259,7 +259,7 @@ export default function CommonFieldsModal({
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaIdCard className="h-4 w-4 text-blue-500" />
                       <span>NDIS Number</span>
                     </label>
@@ -269,13 +269,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("ndis", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter NDIS number"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaInfoCircle className="h-4 w-4 text-blue-500" />
                       <span>Disability Information</span>
                     </label>
@@ -285,7 +285,7 @@ export default function CommonFieldsModal({
                         handleFieldChangeWithAge("disability", e.target.value)
                       }
                       rows={4}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
                       placeholder="Enter disability information"
                     />
                   </div>
@@ -300,14 +300,14 @@ export default function CommonFieldsModal({
                   <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-lg">
                     <FaEnvelope className="h-5 w-5 text-white" />
                   </div>
-                  <h4 className="text-xl font-bold text-gray-900">
+                  <h4 className="text-xl font-bold text-azure-700">
                     Contact & Address
                   </h4>
                 </div>
 
                 <div className="space-y-5">
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaEnvelope className="h-4 w-4 text-emerald-500" />
                       <span>Email Address</span>
                     </label>
@@ -317,13 +317,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("email", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter email address"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaPhone className="h-4 w-4 text-emerald-500" />
                       <span>Phone Number</span>
                     </label>
@@ -333,13 +333,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("phone", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter phone number"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaMapMarkerAlt className="h-4 w-4 text-emerald-500" />
                       <span>Street Address</span>
                     </label>
@@ -349,13 +349,13 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("street", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter street address"
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                       <FaMapMarkerAlt className="h-4 w-4 text-emerald-500" />
                       <span>Full Address</span>
                     </label>
@@ -365,14 +365,14 @@ export default function CommonFieldsModal({
                         handleFieldChangeWithAge("address", e.target.value)
                       }
                       rows={3}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
                       placeholder="Enter complete address"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                      <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                         <FaMapMarkerAlt className="h-4 w-4 text-emerald-500" />
                         <span>State</span>
                       </label>
@@ -381,7 +381,7 @@ export default function CommonFieldsModal({
                         onChange={(e) =>
                           handleFieldChangeWithAge("state", e.target.value)
                         }
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                        className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       >
                         <option value="">Select state</option>
                         <option value="Australian Capital Territory">
@@ -402,7 +402,7 @@ export default function CommonFieldsModal({
                     </div>
 
                     <div>
-                      <label className="flex items-center space-x-2 text-sm font-semibold text-gray-700 mb-3">
+                      <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
                         <FaMapMarkerAlt className="h-4 w-4 text-emerald-500" />
                         <span>Post Code</span>
                       </label>
@@ -412,7 +412,7 @@ export default function CommonFieldsModal({
                         onChange={(e) =>
                           handleFieldChangeWithAge("postCode", e.target.value)
                         }
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                        className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                         placeholder="Enter post code"
                         maxLength={4}
                       />
@@ -425,17 +425,17 @@ export default function CommonFieldsModal({
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200 p-8">
+        <div className="flex-shrink-0 bg-gradient-to-r from-azure-50 to-white border-t border-azure-100 p-8">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-lg">
                 <FaInfoCircle className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-700">
+                <p className="text-sm font-semibold text-azure-600">
                   Shared Information
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-azure-400">
                   These details will be shared across all forms for this client
                 </p>
               </div>
@@ -443,7 +443,7 @@ export default function CommonFieldsModal({
             <div className="flex space-x-4">
               <button
                 onClick={onClose}
-                className="px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-semibold shadow-sm hover:shadow-md transform hover:scale-105"
+                className="px-6 py-3 text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 font-semibold shadow-sm hover:shadow-md transform hover:scale-105"
               >
                 Cancel
               </button>
@@ -456,7 +456,7 @@ export default function CommonFieldsModal({
                   }
                 }}
                 disabled={isUpdating}
-                className="px-8 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-xl hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                className="px-8 py-3 bg-gradient-to-r from-azure-700 via-purple-600 to-pink-600 text-white rounded-xl hover:from-azure-800 hover:via-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
               >
                 {isUpdating ? (
                   <>

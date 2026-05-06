@@ -108,7 +108,7 @@
 //       <div className="mb-6 flex justify-between items-center">
 //         <button
 //           onClick={() => router.back()}
-//           className="flex items-center text-gray-600 hover:text-gray-900"
+//           className="flex items-center text-azure-500 hover:text-azure-700"
 //         >
 //           <FaArrowLeft className="mr-2" /> Back to Forms
 //         </button>
@@ -116,7 +116,7 @@
 //         <div className="flex space-x-4">
 //           {/* <button
 //             onClick={handlePrint}
-//             className="flex items-center bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md"
+//             className="flex items-center bg-azure-100 hover:bg-azure-200 text-azure-700 py-2 px-4 rounded-md"
 //           >
 //             <FaPrint className="mr-2" /> Print
 //           </button> */}
@@ -154,9 +154,9 @@
 //       </div>
       
 //       <div className="bg-white shadow-md rounded-lg overflow-hidden">
-//         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-//           <h1 className="text-xl font-bold text-gray-900">{formSubmission.form.title}</h1>
-//           <p className="text-sm text-gray-500">
+//         <div className="px-6 py-4 border-b border-azure-100 bg-azure-50">
+//           <h1 className="text-xl font-bold text-azure-700">{formSubmission.form.title}</h1>
+//           <p className="text-sm text-azure-400">
 //             Submitted on {new Date(formSubmission.submittedAt).toLocaleDateString()} by {formSubmission.client.name}
 //           </p>
 //         </div>

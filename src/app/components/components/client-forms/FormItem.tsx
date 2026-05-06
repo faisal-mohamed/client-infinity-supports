@@ -233,9 +233,9 @@ export default function FormItem({
     }
     return {
       status: 'Not Started',
-      color: 'from-slate-100 to-slate-200 text-slate-800 border-slate-300',
+      color: 'from-azure-100 to-azure-200 text-azure-700 border-azure-200',
       icon: FaClock,
-      bgColor: 'from-slate-500 to-slate-600',
+      bgColor: 'from-azure-500 to-azure-500',
       iconColor: 'text-white'
     };
   };
@@ -246,11 +246,11 @@ export default function FormItem({
 
   return (
     <>
-      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${isSelected ? 'bg-gradient-to-r from-rose-50 to-rose-100 border-l-4 border-rose-500' : 'bg-white'
-        } border border-gray-100 rounded-2xl`}>
+      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${isSelected ? 'bg-gradient-to-r from-gold-50 to-gold-100 border-l-4 border-gold-500' : 'bg-white'
+        } border border-azure-50 rounded-2xl`}>
         {generatingLink && (
           <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-gold-300 border-t-gold-600 rounded-full animate-spin" />
           </div>
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
@@ -260,7 +260,7 @@ export default function FormItem({
                 type="checkbox"
                 checked={isSelected}
                 onChange={(e) => onFormSelect(assignment.id, e.target.checked)}
-                className="h-5 w-5 text-rose-600 focus:ring-rose-500 border-gray-300 rounded-lg shadow-sm hover:scale-110 transition-transform"
+                className="h-5 w-5 text-gold-600 focus:ring-gold-500 border-azure-200 rounded-lg shadow-sm hover:scale-110 transition-transform"
               />
             ) : <div className="w-5 h-5" />}
 
@@ -271,7 +271,7 @@ export default function FormItem({
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 group-hover:text-rose-600 transition-colors flex items-center gap-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-azure-800 mb-2 group-hover:text-gold-600 transition-colors flex items-center gap-2">
                     {assignment.form.title}
                     {assignment.instanceNumber > 1 && (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
@@ -284,7 +284,7 @@ export default function FormItem({
                       {statusInfo.status}
                     </span>
                     {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
-                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 border-2 border-rose-300 shadow-md">
+                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 border-2 border-gold-300 shadow-md">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>
                         <span className="sm:hidden">Sig Req</span>
@@ -294,15 +294,15 @@ export default function FormItem({
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+              <div className="bg-azure-50 rounded-xl p-4 border border-azure-100">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
-                    <span className="font-medium text-slate-700">Version {assignment.form.version}</span>
+                    <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
+                    <span className="font-medium text-azure-600">Version {assignment.form.version}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <FaCalendarAlt className="h-3 w-3 text-gray-500" />
-                    <span className="text-gray-600">
+                    <FaCalendarAlt className="h-3 w-3 text-azure-400" />
+                    <span className="text-azure-500">
                       <span className="hidden sm:inline">Assigned </span>
                       {new Date(assignment.assignedAt).toLocaleDateString()}
                     </span>
@@ -337,7 +337,7 @@ export default function FormItem({
                 e.stopPropagation();
                 setActiveActionMenu(!activeActionMenu);
               }}
-              className="p-3 text-slate-400 hover:text-rose-600 hover:bg-white hover:shadow-md rounded-xl transition-all group-hover:bg-white"
+              className="p-3 text-azure-300 hover:text-gold-600 hover:bg-white hover:shadow-md rounded-xl transition-all group-hover:bg-white"
               title="Form actions"
             >
               <FaCog className="h-5 w-5 hover:rotate-90 transition-transform duration-300" />

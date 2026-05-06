@@ -54,7 +54,7 @@ const categoryConfig = {
     label: 'Form IDs',
     icon: FaCog,
     description: 'IDs assigned to different forms',
-    color: 'from-gray-500 to-gray-600'
+    color: 'from-azure-500 to-azure-500'
   },
   
 };
@@ -270,7 +270,7 @@ export default function SettingsPageClient() {
   const renderSettingInput = (setting: AppSetting) => {
     const currentValue = editedValues[setting.key] ?? setting.value ?? setting.defaultValue ?? '';
     
-    const baseInputClasses = "w-full px-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md";
+    const baseInputClasses = "w-full px-4 py-4 border border-azure-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-azure-600 transition-all duration-200 shadow-sm hover:shadow-md";
     
     switch (setting.type) {
       case 'url':
@@ -327,7 +327,7 @@ export default function SettingsPageClient() {
               <button
                 type="button"
                 onClick={() => togglePasswordVisibility(setting.key)}
-                className="absolute right-4 top-4 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 transition-colors duration-200"
+                className="absolute right-4 top-4 p-2 text-azure-400 hover:text-azure-600 focus:outline-none focus:text-azure-600 transition-colors duration-200"
                 title={showPasswords[setting.key] ? "Hide password" : "Show password"}
               >
                 {showPasswords[setting.key] ? (
@@ -409,14 +409,14 @@ export default function SettingsPageClient() {
         
       case 'boolean':
         return (
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+          <div className="flex items-center gap-4 p-4 bg-azure-50 rounded-xl">
             <button
               type="button"
               onClick={() => handleValueChange(setting.key, currentValue === 'true' ? 'false' : 'true')}
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-200 shadow-md ${
                 currentValue === 'true' 
-                  ? 'bg-gradient-to-r from-indigo-500 to-indigo-600' 
-                  : 'bg-gray-300'
+                  ? 'bg-gradient-to-r from-azure-600 to-azure-700' 
+                  : 'bg-azure-200'
               }`}
             >
               <span
@@ -426,7 +426,7 @@ export default function SettingsPageClient() {
               />
             </button>
             <span className={`text-sm font-semibold ${
-              currentValue === 'true' ? 'text-indigo-700' : 'text-gray-600'
+              currentValue === 'true' ? 'text-azure-700' : 'text-azure-500'
             }`}>
               {currentValue === 'true' ? 'Enabled' : 'Disabled'}
             </span>
@@ -452,29 +452,29 @@ export default function SettingsPageClient() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
         <div className="flex justify-center items-center h-80">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3 className="text-xl font-bold text-azure-700 mb-2">
                   Loading Settings
                 </h3>
-                <p className="text-slate-600 font-medium">
+                <p className="text-azure-500 font-medium">
                   Please wait while we fetch your app settings...
                 </p>
 
                 {/* Bouncing dots */}
                 <div className="mt-4 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                 </div>
@@ -488,8 +488,8 @@ export default function SettingsPageClient() {
   const currentSettings = settings[activeCategory] || [];
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
+        <div className="bg-white rounded-2xl shadow-lg border border-azure-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 w-full">
     {/* Left Section with back button, icon and title */}
     <div className="flex items-start gap-5 w-full md:w-auto">
@@ -497,17 +497,17 @@ export default function SettingsPageClient() {
 
       {/* Title & Description */}
       <div className="flex gap-4 items-center">
-        <div className="p-3 sm:p-4 rounded-xl bg-brand-50 text-brand-600">
+        <div className="p-3 sm:p-4 rounded-xl bg-azure-50 text-gold-600">
           <FaCog className="h-5 w-5 sm:h-7 sm:w-7" />
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-azure-700 mb-1">
             Application Settings
           </h1>
-          <p className="text-sm sm:text-base text-slate-600">
+          <p className="text-sm sm:text-base text-azure-500">
             Manage application settings and form metadata
           </p>
-          <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm">
+          <div className="flex items-center gap-2 mt-2 text-azure-400 text-sm">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             <span className="font-medium">Configuration panel</span>
           </div>
@@ -520,7 +520,7 @@ export default function SettingsPageClient() {
       <div className="flex items-center gap-3 w-full md:w-auto">
         <button
           onClick={resetChanges}
-          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-azure-600 bg-white border border-azure-200 rounded-xl hover:bg-azure-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
         >
           <FaTimes className="h-4 w-4" />
           Reset
@@ -529,7 +529,7 @@ export default function SettingsPageClient() {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
           {saving ? (
             <FaSpinner className="h-4 w-4 animate-spin" />
@@ -550,13 +550,13 @@ export default function SettingsPageClient() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Enhanced Sidebar Navigation - Mobile: Full width, Desktop: Fixed width */}
           <div className="w-full lg:w-80 lg:flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden lg:sticky lg:top-8 hover:shadow-xl transition-shadow duration-300">
-              <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden lg:sticky lg:top-8 hover:shadow-xl transition-shadow duration-300">
+              <div className="px-6 py-4 bg-gradient-to-r from-azure-50 to-azure-100 border-b border-azure-100">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                     <FaCog className="h-5 w-5" />
                   </div>
-                  <h3 className="font-bold text-gray-900 text-lg">Settings Categories</h3>
+                  <h3 className="font-bold text-azure-700 text-lg">Settings Categories</h3>
                 </div>
               </div>
               
@@ -568,7 +568,7 @@ export default function SettingsPageClient() {
                       label: category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
                       icon: FaCog,
                       description: '',
-                      color: 'from-gray-500 to-gray-600'
+                      color: 'from-azure-500 to-azure-500'
                     };
                     const Icon = config.icon;
                     const isActive = activeCategory === category;
@@ -579,8 +579,8 @@ export default function SettingsPageClient() {
                         onClick={() => setActiveCategory(category)}
                         className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-3 sm:p-4 rounded-xl text-left transition-all duration-200 min-w-[160px] lg:min-w-0 ${
                           isActive
-                            ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border-2 border-indigo-200 shadow-md'
-                            : 'text-gray-700 hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-azure-50 to-azure-50 text-azure-700 border-2 border-azure-200 shadow-md'
+                            : 'text-azure-600 hover:bg-azure-50 border-2 border-transparent hover:border-azure-100 hover:shadow-md'
                         }`}
                         style={{
                           animationDelay: `${index * 50}ms`,
@@ -593,11 +593,11 @@ export default function SettingsPageClient() {
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-base truncate">{config.label}</div>
                           {config.description && (
-                            <div className="text-sm text-gray-500 mt-1 hidden lg:block">{config.description}</div>
+                            <div className="text-sm text-azure-400 mt-1 hidden lg:block">{config.description}</div>
                           )}
                         </div>
                         {isActive && (
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0"></div>
+                          <div className="w-2 h-2 bg-azure-600 rounded-full flex-shrink-0"></div>
                         )}
                       </button>
                     );
@@ -609,15 +609,15 @@ export default function SettingsPageClient() {
 
           {/* Enhanced Main Content - Responsive width */}
           <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
               {/* Enhanced Category Header */}
-              <div className="px-4 sm:px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <div className="px-4 sm:px-8 py-6 bg-gradient-to-r from-azure-50 to-azure-100 border-b border-azure-100">
                 {(() => {
                   const config = categoryConfig[activeCategory as keyof typeof categoryConfig] || {
                     label: activeCategory.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
                     icon: FaCog,
                     description: '',
-                    color: 'from-gray-500 to-gray-600'
+                    color: 'from-azure-500 to-azure-500'
                   };
                   const Icon = config.icon;
                   
@@ -627,9 +627,9 @@ export default function SettingsPageClient() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{config.label}</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold text-azure-700 truncate">{config.label}</h2>
                         {config.description && (
-                          <p className="text-gray-600 mt-1 text-sm sm:text-base">{config.description}</p>
+                          <p className="text-azure-500 mt-1 text-sm sm:text-base">{config.description}</p>
                         )}
                       </div>
                     </div>
@@ -641,11 +641,11 @@ export default function SettingsPageClient() {
               <div className="p-4 sm:p-8">
                 {currentSettings.length === 0 ? (
                   <div className="text-center py-12 sm:py-16">
-                    <div className="p-6 sm:p-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 flex items-center justify-center">
-                      <FaCog className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400" />
+                    <div className="p-6 sm:p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 flex items-center justify-center">
+                      <FaCog className="h-12 w-12 sm:h-16 sm:w-16 text-azure-300" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">No Settings Found</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto leading-relaxed text-sm sm:text-base px-4">
+                    <h3 className="text-lg sm:text-xl font-bold text-azure-700 mb-3">No Settings Found</h3>
+                    <p className="text-azure-500 mb-6 max-w-md mx-auto leading-relaxed text-sm sm:text-base px-4">
                       No settings are configured for this category yet. Initialize default settings to get started.
                     </p>
                     
@@ -653,7 +653,7 @@ export default function SettingsPageClient() {
                     <button
                       onClick={initializeAllSettings}
                       disabled={initializing}
-                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
                     >
                       {initializing ? (
                         <>
@@ -679,7 +679,7 @@ export default function SettingsPageClient() {
                     {currentSettings.map((setting, index) => (
                       <div 
                         key={setting.id} 
-                        className="border-2 border-gray-200 rounded-2xl p-4 sm:p-8 hover:border-indigo-200 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-gray-50"
+                        className="border-2 border-azure-100 rounded-2xl p-4 sm:p-8 hover:border-azure-200 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-azure-50"
                         style={{
                           animationDelay: `${index * 100}ms`,
                           animation: 'fadeInUp 0.6s ease-out forwards'
@@ -687,14 +687,14 @@ export default function SettingsPageClient() {
                       >
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
                           <div className="flex-1 min-w-0">
-                            <label className="block text-base sm:text-lg font-bold text-gray-900 mb-2">
+                            <label className="block text-base sm:text-lg font-bold text-azure-700 mb-2">
                               {setting.label}
                               {setting.isRequired && (
                                 <span className="text-red-500 ml-2 text-xl">*</span>
                               )}
                             </label>
                             {setting.description && (
-                              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{setting.description}</p>
+                              <p className="text-sm sm:text-base text-azure-500 mb-4 leading-relaxed">{setting.description}</p>
                             )}
                           </div>
                           
@@ -714,16 +714,16 @@ export default function SettingsPageClient() {
                         </div>
                         
                         {/* Enhanced Setting metadata - Responsive layout */}
-                        <div className="mt-6 pt-4 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                        <div className="mt-6 pt-4 border-t border-azure-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                            <span className="bg-gray-100 px-3 py-1 rounded-full font-mono text-gray-700 text-xs sm:text-sm inline-block">
+                            <span className="bg-azure-100 px-3 py-1 rounded-full font-mono text-azure-600 text-xs sm:text-sm inline-block">
                               {setting.key}
                             </span>
-                            <span className="text-gray-500 text-xs sm:text-sm">
+                            <span className="text-azure-400 text-xs sm:text-sm">
                               Type: <span className="font-semibold">{setting.type}</span>
                             </span>
                           </div>
-                          <span className="text-gray-500 text-xs sm:text-sm">
+                          <span className="text-azure-400 text-xs sm:text-sm">
                             Updated: {new Date(setting.updatedAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'short',
@@ -743,16 +743,16 @@ export default function SettingsPageClient() {
 
       {/* Enhanced Responsive Sticky Save Bar */}
       {hasChanges && (
-       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-azure-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       
       {/* Alert Message */}
       <div className="flex items-center gap-3 text-sm sm:text-base">
-        <div className="p-2 rounded-xl bg-rose-100 text-rose-600">
+        <div className="p-2 rounded-xl bg-gold-100 text-gold-600">
           <FaExclamationTriangle className="h-5 w-5" />
         </div>
-        <span className="font-semibold text-slate-800">
+        <span className="font-semibold text-azure-700">
           You have unsaved changes
         </span>
       </div>
@@ -761,7 +761,7 @@ export default function SettingsPageClient() {
       <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
         <button
           onClick={resetChanges}
-          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-azure-600 bg-white border border-azure-200 rounded-xl hover:bg-azure-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
         >
           <FaTimes className="h-4 w-4" />
           <span className="hidden sm:inline">Reset Changes</span>
@@ -771,7 +771,7 @@ export default function SettingsPageClient() {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl hover:from-rose-600 hover:to-rose-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-xl hover:from-gold-600 hover:to-gold-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
         >
           {saving ? (
             <FaSpinner className="h-4 w-4 animate-spin" />

@@ -167,11 +167,11 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
           <div className="rounded-full bg-gradient-to-br from-blue-100 to-blue-200 p-3 shadow-md mr-3">
             <FaKey className="text-blue-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Form Access Details</h1>
+          <h1 className="text-2xl font-bold text-azure-700">Form Access Details</h1>
         </div>
         <button
           onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-gray-900"
+          className="flex items-center text-azure-500 hover:text-azure-700"
         >
           <FaArrowLeft className="mr-1" /> Back
         </button>
@@ -180,11 +180,11 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
       <div className="p-6">
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-2">Client Information</h2>
-          <p className="text-gray-700">
+          <p className="text-azure-600">
             <span className="font-medium">Name:</span> {client?.name}
           </p>
           {client?.email && (
-            <p className="text-gray-700">
+            <p className="text-azure-600">
               <span className="font-medium">Email:</span> {client.email}
             </p>
           )}
@@ -197,13 +197,13 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
             
             {Object.values(groupedAssignments.batches).map((batch: any) => (
               <div key={batch.batchId} className="rounded-2xl shadow-lg border-l-4 border-blue-400 hover:shadow-xl transition mb-8 bg-white">
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div className="bg-azure-50 px-4 py-3 border-b border-azure-100">
                   <h3 className="font-medium">Batch #{batch.batchId}</h3>
                 </div>
                 
                 <div className="p-4">
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-azure-600 mb-1">
                       Access Link
                     </label>
                     <div className="flex items-center">
@@ -211,7 +211,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         type="text"
                         value={`${baseUrl}/forms/access/${batch.batchToken}`}
                         readOnly
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
+                        className="flex-1 px-3 py-2 border border-azure-200 rounded-l-md bg-azure-50 text-sm"
                       />
                       <button
                         onClick={() => copyToClipboard(`${baseUrl}/forms/access/${batch.batchToken}`, 'link', `batch-${batch.batchId}`)}
@@ -224,7 +224,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                   
                   {batch.passcode && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-azure-600 mb-1">
                         Passcode
                       </label>
                       <div className="flex items-center">
@@ -232,7 +232,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                           type="text"
                           value={batch.passcode}
                           readOnly
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
+                          className="flex-1 px-3 py-2 border border-azure-200 rounded-l-md bg-azure-50 text-sm"
                         />
                         <button
                           onClick={() => copyToClipboard(batch.passcode, 'passcode', `batch-${batch.batchId}`)}
@@ -245,7 +245,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                   )}
                   
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                    <label className="block text-sm font-medium text-azure-600 mb-1 flex items-center gap-2">
                       Expires At
                       <button onClick={() => {
                         setEditingBatchId(batch.batchId);
@@ -258,10 +258,10 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         <input type="date" value={newExpiry.date} min={today} onChange={e => setNewExpiry(v => ({ ...v, date: e.target.value }))} className="border rounded px-2 py-1" />
                         <input type="time" value={newExpiry.time} onChange={e => setNewExpiry(v => ({ ...v, time: e.target.value }))} className="border rounded px-2 py-1" />
                         <button onClick={() => handleUpdateExpiry(batch.batchId)} disabled={updating} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center">{updating ? <span className='animate-spin h-4 w-4 border-t-2 border-b-2 border-white mr-2'></span> : <FaSave className="mr-1" />}Save</button>
-                        <button onClick={() => setEditingBatchId(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded flex items-center"><FaTimes className="mr-1" />Cancel</button>
+                        <button onClick={() => setEditingBatchId(null)} className="bg-azure-200 hover:bg-azure-200 text-azure-600 px-3 py-1 rounded flex items-center"><FaTimes className="mr-1" />Cancel</button>
                       </div>
                     ) : (
-                      <input type="text" value={new Date(batch.expiresAt).toLocaleString()} readOnly className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm" />
+                      <input type="text" value={new Date(batch.expiresAt).toLocaleString()} readOnly className="w-full px-3 py-2 border border-azure-200 rounded-md bg-azure-50 text-sm" />
                     )}
                   </div>
                   
@@ -293,13 +293,13 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
             
             {groupedAssignments.individual.map((assignment : any) => (
               <div key={assignment.id} className="rounded-2xl shadow-lg border-l-4 border-blue-400 hover:shadow-xl transition mb-8 bg-white">
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div className="bg-azure-50 px-4 py-3 border-b border-azure-100">
                   <h3 className="font-medium">{assignment.form.title} (v{assignment.form.version})</h3>
                 </div>
                 
                 <div className="p-4">
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-azure-600 mb-1">
                       Access Link
                     </label>
                     <div className="flex items-center">
@@ -307,7 +307,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         type="text"
                         value={`${baseUrl}/forms/access/${assignment.accessToken}`}
                         readOnly
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
+                        className="flex-1 px-3 py-2 border border-azure-200 rounded-l-md bg-azure-50 text-sm"
                       />
                       <button
                         onClick={() => copyToClipboard(`${baseUrl}/forms/access/${assignment.accessToken}`, 'link', `form-${assignment.id}`)}
@@ -320,7 +320,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                   
                   {assignment.passcode && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-azure-600 mb-1">
                         Passcode
                       </label>
                       <div className="flex items-center">
@@ -328,7 +328,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                           type="text"
                           value={assignment.passcode}
                           readOnly
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
+                          className="flex-1 px-3 py-2 border border-azure-200 rounded-l-md bg-azure-50 text-sm"
                         />
                         <button
                           onClick={() => copyToClipboard(assignment.passcode, 'passcode', `form-${assignment.id}`)}
@@ -341,7 +341,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                   )}
                   
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-azure-600 mb-1">
                       Status
                     </label>
                     <div className={`inline-block rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-3 py-1 text-xs font-semibold shadow`}>
@@ -350,14 +350,14 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-azure-600 mb-1">
                       Expires At
                     </label>
                     <input
                       type="text"
                       value={new Date(assignment.expiresAt).toLocaleString()}
                       readOnly
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+                      className="w-full px-3 py-2 border border-azure-200 rounded-md bg-azure-50 text-sm"
                     />
                   </div>
                 </div>
@@ -367,7 +367,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
         )}
 
         {assignments.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-azure-400">
             No form assignments found for this client.
           </div>
         )}

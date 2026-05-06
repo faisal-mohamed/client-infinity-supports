@@ -92,10 +92,10 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
       content: () => (
         <div className="text-center mb-6">
           <h1 className="text-xl font-bold mb-2">Emergency Drill Reporting Form</h1>
-          <p className="text-sm italic text-gray-600">
+          <p className="text-sm italic text-azure-500">
             (For Disability Support Workers in a Client's Home)
           </p>
-          <hr className="border-gray-400 mt-4" />
+          <hr className="border-azure-300 mt-4" />
         </div>
       )
     },
@@ -339,7 +339,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-1">Signature:</p>
-                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                  <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
                     <img
                       src={signature}
                       alt="Support Worker Signature"
@@ -375,7 +375,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-1">Signature:</p>
-                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                  <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
                     <img
                       src={signature}
                       alt="Supervisor Signature"
@@ -499,7 +499,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
       <div style={{ height: '24px' }} />
 
       {/* Footer - in normal flow like SA Support Coordination */}
-      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-300">
+      <div className="flex justify-between text-[10px] text-azure-500 mt-4 pt-2 border-t border-azure-200">
         <span>Website: {settings?.company_website || ''}</span>
         <span className="font-medium">{settings?.emergency_drill || ''}</span>
         <span>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</span>
@@ -508,7 +508,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
   );
 
   return (
-    <div className="bg-gray-100 min-h-screen py-8">
+    <div className="bg-azure-100 min-h-screen py-8">
       {/* Hidden measurement container */}
       <div
         style={{

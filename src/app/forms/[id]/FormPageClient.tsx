@@ -95,7 +95,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="flex justify-center items-center min-h-screen bg-azure-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -103,18 +103,18 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   
   if (isExpired) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-azure-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
           <div className="flex justify-center mb-4">
             <div className="rounded-full bg-red-100 p-3">
               <FaExclamationTriangle className="text-red-600 text-3xl" />
             </div>
           </div>
-          <h1 className="text-xl font-bold text-center text-gray-900 mb-2">Form Expired</h1>
-          <p className="text-gray-600 text-center mb-6">
+          <h1 className="text-xl font-bold text-center text-azure-700 mb-2">Form Expired</h1>
+          <p className="text-azure-500 text-center mb-6">
             This form has expired and is no longer available for submission.
           </p>
-          <p className="text-gray-600 text-center">
+          <p className="text-azure-500 text-center">
             Please contact the administrator for assistance.
           </p>
         </div>
@@ -124,18 +124,18 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-azure-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
           <div className="flex justify-center mb-4">
             <div className="rounded-full bg-green-100 p-3">
               <FaCheck className="text-green-600 text-3xl" />
             </div>
           </div>
-          <h1 className="text-xl font-bold text-center text-gray-900 mb-2">Form Submitted</h1>
-          <p className="text-gray-600 text-center mb-6">
+          <h1 className="text-xl font-bold text-center text-azure-700 mb-2">Form Submitted</h1>
+          <p className="text-azure-500 text-center mb-6">
             Thank you! Your form has been successfully submitted.
           </p>
-          <p className="text-gray-600 text-center">
+          <p className="text-azure-500 text-center">
             You can close this page now.
           </p>
         </div>
@@ -144,12 +144,12 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-azure-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-gray-900">{formData?.form?.title}</h1>
-            <p className="mt-1 text-sm text-gray-500">
+          <div className="px-6 py-4 border-b border-azure-100">
+            <h1 className="text-xl font-bold text-azure-700">{formData?.form?.title}</h1>
+            <p className="mt-1 text-sm text-azure-400">
               Please complete the form below. Your progress will be saved automatically.
             </p>
           </div>
@@ -182,7 +182,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
               <button
                 onClick={() => handleSave(false)}
                 disabled={saving || submitting}
-                className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
+                className="bg-azure-500 hover:bg-azure-600 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
               >
                 {saving ? (
                   <>

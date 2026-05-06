@@ -182,7 +182,7 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <div ref={containerRef} className="border-2 border-gray-300 rounded-lg bg-white w-full">
+      <div ref={containerRef} className="border-2 border-azure-200 rounded-lg bg-white w-full">
         <ReactSignatureCanvas
           ref={sigCanvasRef}
           penColor={penColor}
@@ -208,7 +208,7 @@ const SignatureCanvas = forwardRef<SignatureCanvasRef, SignatureCanvasProps>(({
       )}
       
       {placeholder && (
-        <p className="text-xs text-gray-500 text-center">
+        <p className="text-xs text-azure-400 text-center">
           {placeholder}
         </p>
       )}

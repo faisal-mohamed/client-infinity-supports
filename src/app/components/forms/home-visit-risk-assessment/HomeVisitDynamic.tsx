@@ -156,7 +156,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
         type: 'section_header',
         height: 40,
         content: () => (
-          <div className="bg-gray-300 border border-black p-2 font-bold text-sm mb-0">
+          <div className="bg-azure-200 border border-black p-2 font-bold text-sm mb-0">
             {section.title}
           </div>
         )
@@ -171,7 +171,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
         content: () => (
           <table className="w-full border-collapse border border-black text-sm">
             <thead>
-              <tr className="bg-gray-200">
+              <tr className="bg-azure-200">
                 <th className="border border-black p-2 question-col">Question</th>
                 <th className="border border-black p-2 yes-col">YES</th>
                 <th className="border border-black p-2 no-col">NO</th>
@@ -270,12 +270,12 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
             { title: "MODERATE ORANGE", color: "orange", text: "Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk." },
             { title: "HIGH RED", color: "red", text: "Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered." }
           ].map((block) => (
-            <div key={block.title} className="border-l-4 border-gray-300 pl-2 mb-2">
+            <div key={block.title} className="border-l-4 border-azure-200 pl-2 mb-2">
               <h4 className="font-bold text-xs">
                 <span>{block.title.split(" ")[0]} </span>
                 <span className={`text-${block.color}-600`}>{block.title.split(" ")[1]}</span>
               </h4>
-              <p className="text-xs leading-relaxed text-gray-700">{block.text}</p>
+              <p className="text-xs leading-relaxed text-azure-600">{block.text}</p>
             </div>
           ))}
         </div>
@@ -292,7 +292,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
       content: () => (
         <table className="w-full border-collapse border border-black text-xs">
           <thead>
-            <tr className="bg-gray-400">
+            <tr className="bg-azure-300">
               <th className="border border-black p-2 risk-issue-col font-bold text-black">Issue/Task</th>
               <th className="border border-black p-2 risk-score-col font-bold text-black">Risk Score</th>
               <th className="border border-black p-2 risk-control-col font-bold text-black">Control Measure</th>
@@ -356,7 +356,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
               {formData?.assessorSignature ? (
                 <img src={formData.assessorSignature} alt="Signature" className="max-h-[50px] object-contain" />
               ) : (
-                <span className="text-gray-400 italic">No signature</span>
+                <span className="text-azure-300 italic">No signature</span>
               )}
             </div>
           </div>
@@ -498,7 +498,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
       <div style={{ height: '24px' }} />
 
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
+      <div className="flex justify-between text-xs text-azure-500 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || ''}</span>
         <span>{settings?.home_visit_form_id || ''}</span>
         <span>Review Date: {formatDate(settings?.review_date)}</span>

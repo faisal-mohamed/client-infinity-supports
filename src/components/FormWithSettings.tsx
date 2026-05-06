@@ -20,8 +20,8 @@ export default function FormWithSettings({ children, showMetadata = true }: Form
   if (loading || companyNameLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <FaSpinner className="animate-spin h-6 w-6 text-indigo-600 mr-2" />
-        <span className="text-gray-600">Loading form settings...</span>
+        <FaSpinner className="animate-spin h-6 w-6 text-azure-700 mr-2" />
+        <span className="text-azure-500">Loading form settings...</span>
       </div>
     );
   }
@@ -39,24 +39,24 @@ export default function FormWithSettings({ children, showMetadata = true }: Form
     <div className="space-y-6">
       {/* Form Header with Company Info */}
       {showMetadata && (
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-200">
+        <div className="bg-gradient-to-r from-azure-50 to-blue-50 rounded-xl p-6 border border-azure-200">
           <div className="flex items-center mb-4">
-            <FaBuilding className="h-6 w-6 text-indigo-600 mr-3" />
-            <h2 className="text-xl font-semibold text-gray-900">
+            <FaBuilding className="h-6 w-6 text-azure-700 mr-3" />
+            <h2 className="text-xl font-semibold text-azure-700">
               {companyName || 'Company Name Not Set'}
             </h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             {metadata.companyWebsite && (
-              <div className="flex items-center text-gray-700">
-                <FaGlobe className="h-4 w-4 mr-2 text-indigo-500" />
+              <div className="flex items-center text-azure-600">
+                <FaGlobe className="h-4 w-4 mr-2 text-azure-600" />
                 <span className="font-medium mr-2">Website:</span>
                 <a 
                   href={metadata.companyWebsite} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 underline"
+                  className="text-azure-700 hover:text-azure-800 underline"
                 >
                   {metadata.companyWebsite}
                 </a>
@@ -64,8 +64,8 @@ export default function FormWithSettings({ children, showMetadata = true }: Form
             )}
             
             {metadata.reviewDate && (
-              <div className="flex items-center text-gray-700">
-                <FaCalendarAlt className="h-4 w-4 mr-2 text-indigo-500" />
+              <div className="flex items-center text-azure-600">
+                <FaCalendarAlt className="h-4 w-4 mr-2 text-azure-600" />
                 <span className="font-medium mr-2">Review Date:</span>
                 <span>{new Date(metadata.reviewDate).toLocaleDateString()}</span>
               </div>
@@ -86,7 +86,7 @@ export default function FormWithSettings({ children, showMetadata = true }: Form
       )}
 
       {/* Form Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-azure-100 p-6">
         {children}
       </div>
 
@@ -128,7 +128,7 @@ export function SettingsStatus() {
 
   if (loading) {
     return (
-      <div className="flex items-center text-sm text-gray-500">
+      <div className="flex items-center text-sm text-azure-400">
         <FaSpinner className="animate-spin h-4 w-4 mr-2" />
         Loading settings...
       </div>

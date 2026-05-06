@@ -43,7 +43,7 @@ export default function SignatureInvalidationModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-red-50">
+        <div className="flex items-center justify-between p-6 border-b border-azure-100 bg-red-50">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-red-100 rounded-lg">
               <FaExclamationTriangle className="h-6 w-6 text-red-600" />
@@ -70,7 +70,7 @@ export default function SignatureInvalidationModal({
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="mb-6">
-            <p className="text-gray-700 mb-4">
+            <p className="text-azure-600 mb-4">
               {type === 'common-fields' 
                 ? 'Updating common fields will invalidate signatures on the following forms:'
                 : 'Updating this form will invalidate its existing signatures:'
@@ -80,13 +80,13 @@ export default function SignatureInvalidationModal({
           
           {/* Affected Forms List */}
           <div className="mb-6">
-            <h4 className="font-medium text-gray-900 mb-3">Affected Forms ({affectedForms.length}):</h4>
+            <h4 className="font-medium text-azure-700 mb-3">Affected Forms ({affectedForms.length}):</h4>
             <div className="space-y-2">
               {affectedForms.map(form => (
-                <div key={form.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={form.id} className="flex items-center justify-between p-3 bg-azure-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">{form.title}</p>
-                    <p className="text-sm text-gray-600">Version {form.version}</p>
+                    <p className="font-medium text-azure-700">{form.title}</p>
+                    <p className="text-sm text-azure-500">Version {form.version}</p>
                   </div>
                   <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
                     Signature Required
@@ -99,7 +99,7 @@ export default function SignatureInvalidationModal({
           {/* Changed Fields */}
           {changes.length > 0 && (
             <div className="mb-6">
-              <h4 className="font-medium text-gray-900 mb-3">Fields Being Changed ({changes.length}):</h4>
+              <h4 className="font-medium text-azure-700 mb-3">Fields Being Changed ({changes.length}):</h4>
               <div className="flex flex-wrap gap-2">
                 {changes.map(field => (
                   <span key={field} className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
@@ -130,11 +130,11 @@ export default function SignatureInvalidationModal({
         </div>
         
         {/* Footer */}
-        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex justify-end space-x-3 p-6 border-t border-azure-100 bg-azure-50">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-azure-600 bg-white border border-azure-200 rounded-lg hover:bg-azure-50 transition-colors disabled:opacity-50"
           >
             Cancel Changes
           </button>

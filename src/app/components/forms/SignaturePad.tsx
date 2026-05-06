@@ -49,7 +49,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onEnd, readOnly = false, in
 
   return (
     <div className="flex flex-col items-center space-y-2 w-full">
-      <div className="border border-gray-200 rounded-lg bg-white w-full h-[200px] shadow-inner overflow-hidden">
+      <div className="border border-azure-100 rounded-lg bg-white w-full h-[200px] shadow-inner overflow-hidden">
         <SignatureCanvas
           ref={sigCanvasRef}
           penColor="black"

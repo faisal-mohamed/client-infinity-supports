@@ -35,35 +35,35 @@ export default function SignatureLinkModal({
   const modalContent = (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-azure-100 bg-gradient-to-r from-green-50 to-emerald-50">
           <div className="min-w-0 flex-1 mr-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+            <h3 className="text-lg sm:text-xl font-semibold text-azure-700">
               Signature Link Generated
             </h3>
-            <p className="text-sm text-gray-600 mt-1 truncate">
+            <p className="text-sm text-azure-500 mt-1 truncate">
               Share this link with {clientName} to collect signatures
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+            className="p-2 hover:bg-azure-100 rounded-lg transition-colors flex-shrink-0"
           >
-            <FaTimes className="h-5 w-5 text-gray-500" />
+            <FaTimes className="h-5 w-5 text-azure-400" />
           </button>
         </div>
 
         <div className="p-4 sm:p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <div className="bg-azure-50 rounded-lg p-4 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-700 mb-2">Signature Link:</p>
-                <p className="text-sm text-gray-600 bg-white p-3 rounded border break-all">
+                <p className="text-sm font-medium text-azure-600 mb-2">Signature Link:</p>
+                <p className="text-sm text-azure-500 bg-white p-3 rounded border break-all">
                   {generatedLink.url}
                 </p>
               </div>
               <button
                 onClick={() => onCopyLink(generatedLink.url)}
-                className="flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex-shrink-0 w-full sm:w-auto"
+                className="flex items-center justify-center px-3 py-2 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors flex-shrink-0 w-full sm:w-auto"
               >
                 <FaCopy className="mr-2 h-4 w-4" />
                 Copy
@@ -85,19 +85,19 @@ export default function SignatureLinkModal({
           </div>
 
           <div className="mb-6">
-            <p className="text-sm font-medium text-gray-700 mb-3">Forms in this link:</p>
+            <p className="text-sm font-medium text-azure-600 mb-3">Forms in this link:</p>
             <div className="space-y-2">
               {generatedLink.forms.map((form, index) => (
-                <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                  <FaFileAlt className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                  <span className="text-sm text-gray-700 truncate">{form.formTitle}</span>
+                <div key={index} className="flex items-center p-3 bg-azure-50 rounded-lg">
+                  <FaFileAlt className="h-4 w-4 text-azure-300 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-azure-600 truncate">{form.formTitle}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-gray-200 bg-gray-50 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-t border-azure-100 bg-azure-50 gap-3">
           <Link
             href={`/admin/clients/${clientId}/signature-links`}
             className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors order-2 sm:order-1"
@@ -109,7 +109,7 @@ export default function SignatureLinkModal({
           
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors order-1 sm:order-2"
+            className="px-6 py-2 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors order-1 sm:order-2"
           >
             Done
           </button>

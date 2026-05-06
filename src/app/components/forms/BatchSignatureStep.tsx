@@ -24,9 +24,9 @@ const BatchSignatureStep: React.FC<BatchSignatureStepProps> = ({
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 px-6 py-8 md:px-12 md:py-10 flex flex-col gap-8 transition-all duration-300 mt-8">
+    <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-2xl border border-azure-50 px-6 py-8 md:px-12 md:py-10 flex flex-col gap-8 transition-all duration-300 mt-8">
       <h2 className="text-2xl font-bold text-blue-800 mb-2">Final Step: Signature</h2>
-      <p className="text-gray-600 mb-4">Please sign below to confirm all forms in this batch are complete and accurate.</p>
+      <p className="text-azure-500 mb-4">Please sign below to confirm all forms in this batch are complete and accurate.</p>
       <SignaturePad
         onEnd={handleSignature}
         readOnly={readOnly}

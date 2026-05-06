@@ -55,10 +55,10 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
 
           return (
             <div key={key} className="border-b pb-4">
-              <h3 className="text-md font-medium text-gray-700 mb-2 capitalize">
+              <h3 className="text-md font-medium text-azure-600 mb-2 capitalize">
                 {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
               </h3>
-              <div className="text-gray-900">
+              <div className="text-azure-700">
                 {renderValue(value)}
               </div>
             </div>
@@ -70,7 +70,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
 
   const renderValue = (value: any) => {
     if (value === null || value === undefined) {
-      return <span className="text-gray-400">Not provided</span>;
+      return <span className="text-azure-300">Not provided</span>;
     }
 
     if (typeof value === 'boolean') {
@@ -89,10 +89,10 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
       }
 
       return (
-        <div className="pl-4 border-l-2 border-gray-200">
+        <div className="pl-4 border-l-2 border-azure-100">
           {Object.entries(value).map(([k, v]) => (
             <div key={k} className="mb-2">
-              <div className="text-sm font-medium text-gray-500 capitalize">
+              <div className="text-sm font-medium text-azure-400 capitalize">
                 {k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
               </div>
               <div>{renderValue(v)}</div>
@@ -107,15 +107,15 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200 bg-blue-50 flex justify-between items-center">
+      <div className="px-6 py-4 border-b border-azure-100 bg-blue-50 flex justify-between items-center">
         <div className="flex items-center">
           <button
             onClick={() => router.back()}
-            className="mr-4 text-gray-600 hover:text-gray-900"
+            className="mr-4 text-azure-500 hover:text-azure-700"
           >
             <FaArrowLeft />
           </button>
-          <h1 className="text-xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-azure-700">
             {formSubmission.form.title} (v{formSubmission.form.version})
           </h1>
         </div>
@@ -128,7 +128,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md"
+            className="flex items-center bg-azure-500 hover:bg-azure-600 text-white py-2 px-4 rounded-md"
           >
             <FaPrint className="mr-2" /> Print
           </button>
@@ -140,36 +140,36 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
           <h2 className="text-lg font-semibold mb-2">Submission Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-gray-700">
+              <p className="text-azure-600">
                 <span className="font-medium">Client:</span> {formSubmission.client.name}
               </p>
               {formSubmission.client.email && (
-                <p className="text-gray-700">
+                <p className="text-azure-600">
                   <span className="font-medium">Email:</span> {formSubmission.client.email}
                 </p>
               )}
             </div>
             <div>
-              <p className="text-gray-700">
+              <p className="text-azure-600">
                 <span className="font-medium">Submitted:</span>{' '}
                 {formSubmission.submittedAt
                   ? new Date(formSubmission.submittedAt).toLocaleString()
                   : 'Not submitted'}
               </p>
-              <p className="text-gray-700">
+              <p className="text-azure-600">
                 <span className="font-medium">Form ID:</span> {formSubmission.formId}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mb-4 border-b border-gray-200">
+        <div className="mb-4 border-b border-azure-100">
           <div className="flex flex-col md:flex-row">
             <button
               className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'formatted'
                   ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-azure-400 hover:text-azure-600'
               }`}
               onClick={() => setActiveTab('formatted')}
             >
@@ -179,7 +179,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
               className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'raw'
                   ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-azure-400 hover:text-azure-600'
               }`}
               onClick={() => setActiveTab('raw')}
             >
@@ -192,7 +192,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
           {activeTab === 'formatted' ? (
             renderFormattedData()
           ) : (
-            <pre className="bg-gray-50 p-4 rounded-md overflow-x-auto text-sm">
+            <pre className="bg-azure-50 p-4 rounded-md overflow-x-auto text-sm">
               {JSON.stringify(formSubmission.data, null, 2)}
             </pre>
           )}

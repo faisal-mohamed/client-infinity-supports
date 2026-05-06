@@ -299,7 +299,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
       </div>
       
       {/* Footer */}
-      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-300">
+      <div className="flex justify-between text-[10px] text-azure-500 mt-4 pt-2 border-t border-azure-200">
         <span>Website: {settings?.company_website || ''}</span>
         <span className="font-medium">{settings?.client_intake_form_id || ''}</span>
         <span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span>
@@ -344,7 +344,7 @@ const ClientIntakeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, im
     
     return (
       <div key={field.key} className="mb-3">
-        <div className="bg-gray-300 border border-black px-2 py-1">
+        <div className="bg-azure-200 border border-black px-2 py-1">
           <span className="font-bold text-xs">{field.label}</span>
         </div>
         <div 

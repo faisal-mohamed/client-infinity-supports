@@ -18,8 +18,8 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       title: 'Total Forms',
       value: stats.total,
       icon: FaFileAlt,
-      bgColor: 'bg-indigo-100',
-      iconColor: 'text-indigo-600'
+      bgColor: 'bg-azure-100',
+      iconColor: 'text-azure-700'
     },
     {
       title: 'Completed',
@@ -46,8 +46,8 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       title: 'Not Started',
       value: stats.notStarted,
       icon: FaExclamationTriangle,
-      bgColor: 'bg-gray-100',
-      iconColor: 'text-gray-600'
+      bgColor: 'bg-azure-100',
+      iconColor: 'text-azure-500'
     }
   ];
 
@@ -57,14 +57,14 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         {statsData.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-azure-50 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
                 <div className={`p-2 sm:p-3 rounded-lg ${stat.bgColor} flex-shrink-0`}>
                   <IconComponent className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.iconColor}`} />
                 </div>
                 <div className="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{stat.title}</p>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-xs sm:text-sm font-medium text-azure-500 truncate">{stat.title}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-azure-700">{stat.value}</p>
                 </div>
               </div>
             </div>

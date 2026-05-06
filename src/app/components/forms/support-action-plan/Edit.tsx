@@ -72,7 +72,7 @@ const AutoResizeTextArea: React.FC<{
     return (
       <div className="flex flex-col gap-1">
         <div className="flex justify-between items-center mb-1">
-          <label className="text-xs font-medium text-gray-700">
+          <label className="text-xs font-medium text-azure-600">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -81,7 +81,7 @@ const AutoResizeTextArea: React.FC<{
               ? 'text-red-600'
               : wordCount > maxWords * 0.9
                 ? 'text-orange-500'
-                : 'text-gray-500'
+                : 'text-azure-400'
               }`}>
               {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
             </span>
@@ -101,11 +101,11 @@ const AutoResizeTextArea: React.FC<{
           rows={rows}
           style={{ transition: 'height 0.2s ease', overflow: 'hidden' }}
           disabled={readOnly}
-          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-gray-200'
-            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-indigo-500'
-            } focus:border-indigo-500 transition-all placeholder-gray-400 resize-none ${fieldError
+          className={`w-full rounded-lg border ${isOverLimit ? 'border-red-400' : 'border-azure-100'
+            } bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 ${isOverLimit ? 'focus:ring-red-400' : 'focus:ring-gold-500'
+            } focus:border-azure-600 transition-all placeholder-azure-300 resize-none ${fieldError
               ? "border-red-300 bg-red-50"
-              : "hover:border-indigo-400/40"
+              : "hover:border-azure-500/40"
             } ${readOnly ? "cursor-not-allowed" : ""}`}
         />
         {isOverLimit && maxWords && (
@@ -657,7 +657,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     return (
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-gray-700 mb-1">
+        <label className="text-xs font-medium text-azure-600 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -700,7 +700,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           pattern={isPhoneField ? "^\\+?\\d*$" : undefined}
           placeholder={isCommon ? "Value from common fields" : placeholder}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-gray-400 ${fieldErrors[name] || localEmailErrors[name]
+          className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-azure-300 ${fieldErrors[name] || localEmailErrors[name]
             ? "border-red-300 bg-red-50"
             : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -767,13 +767,13 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             }
           }}
         >
-          <div className={`mt-1 w-5 h-5 border-2 rounded flex-shrink-0 flex items-center justify-center transition-all ${displayValue ? "border-indigo-600 bg-indigo-50" : "border-gray-300"}`}>
+          <div className={`mt-1 w-5 h-5 border-2 rounded flex-shrink-0 flex items-center justify-center transition-all ${displayValue ? "border-azure-700 bg-azure-50" : "border-azure-200"}`}>
             {displayValue && (
-              <span className="text-indigo-600 font-bold text-xs">X</span>
+              <span className="text-azure-700 font-bold text-xs">X</span>
             )}
           </div>
           <span
-            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800 font-medium" : "text-gray-700"
+            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800 font-medium" : "text-azure-600"
               }`}
           >
             {label}
@@ -794,7 +794,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-2">
+      <label className="text-xs font-medium text-azure-600 mb-2">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -813,7 +813,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               disabled={readOnly}
               className="accent-accent cursor-pointer"
             />
-            <span className="text-sm text-gray-700">{option}</span>
+            <span className="text-sm text-azure-600">{option}</span>
           </label>
         ))}
       </div>
@@ -846,7 +846,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
     return (
       <div className="flex flex-col gap-1">
-        <label htmlFor={selectId} className="text-xs font-medium text-gray-700 mb-1">
+        <label htmlFor={selectId} className="text-xs font-medium text-azure-600 mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -857,7 +857,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           value={displayValue}
           onChange={isCommon ? undefined : handleChange}
           disabled={isFieldReadOnly}
-          className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
+          className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
             ? "border-red-300 bg-red-50"
             : isCommon
               ? "bg-blue-50 border-blue-200 text-blue-800"
@@ -886,11 +886,11 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     required?: boolean
   ) => (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-gray-700 mb-1">
+      <label className="text-xs font-medium text-azure-600 mb-1">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
-      <div className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="w-full rounded-lg border border-azure-100 bg-white p-4 shadow-sm">
         <SignatureCanvas
           ref={canvasRef}
           onSignatureEnd={(dataUrl: string) =>
@@ -1100,9 +1100,9 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
     <div className="">
       {/* Progress Bar */}
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
-        <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
+        <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
           <div
-            className="h-2 bg-gradient-to-r from-indigo-500 to-green-400 rounded-full transition-all"
+            className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all"
             style={{ width: `${getProgressPercentage()}%` }}
           />
         </div>
@@ -1120,10 +1120,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   type="button"
                   onClick={() => handleStepClick(idx)}
                   className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active
-                    ? "text-indigo-700"
+                    ? "text-azure-700"
                     : unlocked
                       ? "text-green-600"
-                      : "text-gray-400 opacity-50 cursor-not-allowed"
+                      : "text-azure-300 opacity-50 cursor-not-allowed"
                     }`}
                   aria-current={active ? "step" : undefined}
                   aria-label={section.title}
@@ -1132,10 +1132,10 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 >
                   <span
                     className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active
-                      ? "bg-indigo-700 border-indigo-500 text-white scale-110"
+                      ? "bg-azure-800 border-azure-600 text-white scale-110"
                       : unlocked
                         ? "bg-green-500 border-green-500 text-white"
-                        : "bg-gray-200 border-gray-300 text-gray-400"
+                        : "bg-azure-200 border-azure-200 text-azure-300"
                       }`}
                   >
                     {completedSteps.has(idx) ? (
@@ -1148,17 +1148,17 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   </span>
                   <span className="text-[10px] font-medium">{idx + 1}</span>
                   {!unlocked && (
-                    <span className="text-[10px] text-gray-400 mt-1">
+                    <span className="text-[10px] text-azure-300 mt-1">
                       Locked
                     </span>
                   )}
                 </button>
                 {/* Tooltip */}
                 <div className="absolute left-1/2 -translate-x-1/2 top-12 z-20 hidden group-hover:flex group-focus-within:flex flex-col items-center pointer-events-none">
-                  <span className="bg-gray-900 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
+                  <span className="bg-azure-700 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
                     {section.title}
                   </span>
-                  <span className="w-2 h-2 bg-gray-900 rotate-45 mt-[-4px]"></span>
+                  <span className="w-2 h-2 bg-azure-700 rotate-45 mt-[-4px]"></span>
                 </div>
               </div>
             );
@@ -1168,16 +1168,16 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
       {/* Form Card */}
       <main className="w-full flex flex-col items-center justify-center flex-1">
-        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8">
+        <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-azure-50 p-4 md:p-8 flex flex-col mt-2 md:mt-4 animate-fade-in gap-4 md:gap-8">
           {/* Section Header */}
           <div className="mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <h2 className="text-xl md:text-2xl font-bold text-azure-700 flex items-center gap-3">
               {React.createElement(FORM_SECTIONS[currentStep]?.icon, {
-                className: "w-6 h-6 text-indigo-600",
+                className: "w-6 h-6 text-azure-700",
               })}
               {FORM_SECTIONS[currentStep]?.title}
             </h2>
-            <p className="text-sm text-gray-500 font-medium mt-1">
+            <p className="text-sm text-azure-400 font-medium mt-1">
               {FORM_SECTIONS[currentStep]?.description}
             </p>
           </div>
@@ -1195,8 +1195,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               {FORM_SECTIONS[currentStep].id === "paymentManagement" ? (
                 // Special layout for payment management section
                 <div className="space-y-6">
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  <div className="border border-azure-100 rounded-lg p-4 bg-azure-50">
+                    <h3 className="text-lg font-semibold mb-4 text-azure-700">
                       Payment Management Options
                     </h3>
                     <div className="space-y-4">
@@ -1223,8 +1223,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
                   {/* Additional fields for plan manager */}
                   {localValues.planManagerManaged && (
-                    <div className="border border-gray-200 rounded-lg p-4 bg-blue-50">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                    <div className="border border-azure-100 rounded-lg p-4 bg-blue-50">
+                      <h3 className="text-lg font-semibold mb-4 text-azure-700">
                         Plan Manager Details
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1255,8 +1255,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 // Special layout for signatures section
                 <div className="space-y-6">
                   {/* Participant Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  <div className="border border-azure-100 rounded-lg p-4 bg-azure-50">
+                    <h3 className="text-lg font-semibold mb-4 text-azure-700">
                       Participant Signature
                     </h3>
                     <div className="space-y-4">
@@ -1280,8 +1280,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   </div>
 
                   {/* Provider Signature */}
-                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-800">
+                  <div className="border border-azure-100 rounded-lg p-4 bg-azure-50">
+                    <h3 className="text-lg font-semibold mb-4 text-azure-700">
                       Authorizer Signature
                     </h3>
                     <div className="space-y-4">
@@ -1422,7 +1422,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
         </section>
 
         {/* Navigation Buttons */}
-        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
+        <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-azure-50 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl animate-fade-in mt-2">
           {/* Stepper */}
           <div className="flex flex-row justify-center items-center space-x-2 mb-2">
             {FORM_SECTIONS.map((_: any, index: any) => (
@@ -1432,7 +1432,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   ? "bg-black border-black shadow"
                   : index < currentStep
                     ? "bg-green-500 border-green-500"
-                    : "bg-gray-200 border-gray-300"
+                    : "bg-azure-200 border-azure-200"
                   }`}
               />
             ))}
@@ -1444,8 +1444,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               onClick={handlePreviousSequential}
               disabled={currentStep === 0 || isPrevLoading}
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                : "bg-gradient-to-r from-gray-700 to-gray-900 text-white border-gray-700 hover:from-gray-800 hover:to-black"
+                ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
+                : "bg-gradient-to-r from-azure-600 to-azure-800 text-white border-azure-600 hover:from-azure-700 hover:to-black"
                 }`}
             >
               {isPrevLoading ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
@@ -1463,8 +1463,8 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
               className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 ||
                 !isCurrentSectionComplete() ||
                 isNextLoading
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
-                : "bg-gradient-to-r from-indigo-600 to-green-400 text-white border-indigo-600 hover:from-indigo-700 hover:to-green-500"
+                ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
+                : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"
                 }`}
             >
               <span>Next</span>
@@ -1474,7 +1474,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             <button
               onClick={() => handleSaveProgress && handleSaveProgress()}
               disabled={saving || submitting}
-              className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
+              className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-azure-500 hover:bg-azure-600 text-white shadow border border-azure-600 transition-all duration-200 w-full md:w-1/3 disabled:opacity-50"
             >
               {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
               {saving ? "Saving..." : "Save Progress"}
@@ -1483,7 +1483,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-black to-gray-600 text-white hover:from-gray-900 hover:to-gray-700 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-black to-azure-500 text-white hover:from-azure-800 hover:to-azure-600 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

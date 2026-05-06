@@ -132,7 +132,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
   // A4 Page wrapper component
   const A4Page: React.FC<{ children: React.ReactNode; pageNumber: number }> = ({ children, pageNumber }) => (
     <div
-      className="a4-page w-[210mm] h-[297mm] bg-white shadow-md border border-gray-300 mx-auto my-4 flex flex-col print:shadow-none print:border-none print:my-0"
+      className="a4-page w-[210mm] h-[297mm] bg-white shadow-md border border-azure-200 mx-auto my-4 flex flex-col print:shadow-none print:border-none print:my-0"
       style={{
         width: '210mm',
         height: '297mm',
@@ -183,7 +183,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
       
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-600 pt-2 border-t">
+      <div className="flex justify-between text-xs text-azure-500 pt-2 border-t">
         <span>Website: {footerWebsite}</span>
         <span>{footerId}</span>
         <span>Review Date: {footerDate}</span>
@@ -345,7 +345,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
           <div key={index} className="mb-6">
             <table className="w-full border-collapse border border-black text-sm">
               <thead>
-                <tr className="bg-gray-200">
+                <tr className="bg-azure-200">
                   {block.table?.headers.map((header, hIndex) => (
                     <th key={hIndex} className="border border-black p-2 text-left font-semibold">
                       {header}
@@ -426,7 +426,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
           <div key={index} className="mb-6 max-w-[400px]">
             <div className="relative space-y-1">
               {/* Connecting line through all circles */}
-              <div className="absolute left-[10px] top-[10px] bottom-[10px] w-[2px] bg-gray-300" style={{ height: `calc(100% - 20px)` }}></div>
+              <div className="absolute left-[10px] top-[10px] bottom-[10px] w-[2px] bg-azure-200" style={{ height: `calc(100% - 20px)` }}></div>
               
               {block.agencies?.map((agency, agencyIndex) => {
                 // Determine text color based on background - light backgrounds need dark text
@@ -503,13 +503,13 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
                         <img
                           src={getFieldValue(field.key)}
                           alt="Signature"
-                          className="h-[80px] border border-gray-300 rounded"
+                          className="h-[80px] border border-azure-200 rounded"
                         />
                       ) : (
-                        <div className="border-b border-gray-400 h-[80px] w-full"></div>
+                        <div className="border-b border-azure-300 h-[80px] w-full"></div>
                       )
                     ) : (
-                      <div className="border-b border-gray-400 pb-1 text-sm">
+                      <div className="border-b border-azure-300 pb-1 text-sm">
                         {getFieldValue(field.key) || ''}
                       </div>
                     )}
@@ -546,7 +546,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
-          <div className="flex justify-between text-xs text-gray-600 pt-2 border-t">
+          <div className="flex justify-between text-xs text-azure-500 pt-2 border-t">
             <span>Website:</span>
             <span>Welcome Form</span>
             <span>Review Date:</span>

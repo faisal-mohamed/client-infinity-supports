@@ -252,7 +252,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
 
   const HeaderGrid = () => (
     <div className="mb-4 text-xs">
-      <div className="bg-gray-300 border border-black px-2 py-1 font-bold">General Information</div>
+      <div className="bg-azure-200 border border-black px-2 py-1 font-bold">General Information</div>
       <table className="w-full border border-black border-t-0 border-collapse text-xs">
         <tbody>
           <tr>
@@ -310,7 +310,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   const RiskTable = () => (
     <div className="mb-4">
       {riskIndices.length > 0 && (
-        <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
+        <div className="bg-azure-200 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
       )}
       {riskIndices.length > 0 && (
         <table className="w-full border border-black text-xs border-collapse">
@@ -339,7 +339,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
 
   const AdditionalInfo = () => (
     <div className="mb-6">
-      <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">Additional Information</div>
+      <div className="bg-azure-200 border border-black px-2 py-1 text-xs font-bold">Additional Information</div>
       <div className="border border-black border-t-0 p-2 text-xs whitespace-pre-wrap min-h-[40px]">
         <div className="font-bold mb-1">Additional Support Requirements</div>
         <div>
@@ -391,7 +391,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
     if (u.kind === 'ai_header') {
       return (
         <div className="mb-2 text-xs">
-          <div className="bg-gray-300 border border-black px-2 py-1 font-bold">Additional Information</div>
+          <div className="bg-azure-200 border border-black px-2 py-1 font-bold">Additional Information</div>
         </div>
       );
     }
@@ -408,7 +408,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
         <div className="mb-2">
           {riskIndices.length > 0 && (
             <>
-              <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
+              <div className="bg-azure-200 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
               <table className="w-full border border-black text-xs border-collapse">
                 <thead>
                   <tr>
@@ -467,7 +467,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
       <div style={{ height: `${TOP_SPACER}px` }} />
       <div className="flex-1 overflow-hidden">{children}</div>
       <div style={{ height: `${BOTTOM_SPACER}px` }} />
-      <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
+      <div className="flex justify-between text-xs text-azure-500 mt-2 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || ''}</span>
         <span>{settings?.individual_risk_assessment || ''}</span>
         <span>
@@ -494,7 +494,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
           {/* Footer placeholder to ensure measurement includes footer height */}
-          <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
+          <div className="flex justify-between text-xs text-azure-500 mt-2 pt-2 border-t">
             <span>Website:</span>
             <span>IRA</span>
             <span>Review Date:</span>
@@ -517,7 +517,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
               if (firstUnit?.kind === 'risk_row') {
                 rendered.push(
                   <div key={`repeat-risk-header-${p}`} className="mb-2">
-                    <div className="bg-gray-300 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
+                    <div className="bg-azure-200 border border-black px-2 py-1 text-xs font-bold">POTENTIAL RISK & CONTROL MEASURES</div>
                     <table className="w-full border border-black text-xs border-collapse">
                       <thead>
                         <tr>
@@ -533,7 +533,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
               } else if (firstUnit?.kind === 'ai_paragraph') {
                 rendered.push(
                   <div key={`repeat-ai-header-${p}`} className="mb-2 text-xs">
-                    <div className="bg-gray-300 border border-black px-2 py-1 font-bold">Additional Information</div>
+                    <div className="bg-azure-200 border border-black px-2 py-1 font-bold">Additional Information</div>
                   </div>
                 );
               }

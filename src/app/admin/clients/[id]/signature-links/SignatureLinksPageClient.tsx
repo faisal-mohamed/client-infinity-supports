@@ -258,29 +258,29 @@ export default function SignatureLinksPageClient() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
         <div className="flex justify-center items-center h-80">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3 className="text-xl font-bold text-azure-700 mb-2">
                   Loading Signature Links
                 </h3>
-                <p className="text-slate-600 font-medium">
+                <p className="text-azure-500 font-medium">
                   Please wait...
                 </p>
 
                 {/* Bouncing dots */}
                 <div className="mt-4 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                 </div>
@@ -291,39 +291,39 @@ export default function SignatureLinksPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-azure-50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
         <div className="mb-8">
-  <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+  <div className="bg-white rounded-xl border border-azure-100 p-4 sm:p-6">
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <Link 
         href={`/admin/clients/${clientId}/forms`}
-        className="self-start p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+        className="self-start p-2.5 bg-azure-100 hover:bg-azure-200 rounded-lg transition-colors"
       >
-        <FaArrowLeft className="h-5 w-5 text-slate-600" />
+        <FaArrowLeft className="h-5 w-5 text-azure-500" />
       </Link>
       <div className="flex-1">
         <div className="flex flex-wrap items-center gap-3 mb-2">
-          <div className="p-2.5 bg-brand-50 rounded-lg">
-            <FaLink className="h-5 w-5 text-brand-600" />
+          <div className="p-2.5 bg-azure-50 rounded-lg">
+            <FaLink className="h-5 w-5 text-gold-600" />
           </div>
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
+          <h1 className="text-lg sm:text-xl font-semibold text-azure-700">
             Signature Links Management
           </h1>
         </div>
-        <div className="flex flex-wrap items-center text-gray-500 gap-x-3 gap-y-1 text-sm">
+        <div className="flex flex-wrap items-center text-azure-400 gap-x-3 gap-y-1 text-sm">
           <div className="flex items-center">
-            <FaUser className="h-4 w-4 mr-2 text-brand-500" />
+            <FaUser className="h-4 w-4 mr-2 text-gold-500" />
             <span className="font-semibold">{client?.name}</span>
           </div>
-          <span className="text-gray-300">•</span>
+          <span className="text-azure-200">•</span>
           <div className="flex items-center">
-            <FaShieldAlt className="h-4 w-4 mr-2 text-brand-500" />
+            <FaShieldAlt className="h-4 w-4 mr-2 text-gold-500" />
             <span>{client?.email}</span>
           </div>
         </div>
-        <p className="text-slate-600 text-sm mt-2">
+        <p className="text-azure-500 text-sm mt-2">
           Manage and monitor signature links for form completion
         </p>
       </div>
@@ -331,13 +331,13 @@ export default function SignatureLinksPageClient() {
 
     {/* Stats Cards */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="bg-gradient-to-r from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200">
+      <div className="bg-gradient-to-r from-gold-50 to-gold-100 rounded-xl p-6 border border-gold-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-slate-600 text-sm font-medium mb-1">Total Links</p>
-            <p className="text-3xl font-bold text-slate-900">{signatureBatches.length}</p>
+            <p className="text-azure-500 text-sm font-medium mb-1">Total Links</p>
+            <p className="text-3xl font-bold text-azure-800">{signatureBatches.length}</p>
           </div>
-          <div className="p-3 bg-gradient-to-r from-rose-500 to-rose-600 rounded-xl shadow-lg">
+          <div className="p-3 bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl shadow-lg">
             <FaLink className="h-6 w-6 text-white" />
           </div>
         </div>
@@ -346,8 +346,8 @@ export default function SignatureLinksPageClient() {
       <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-slate-600 text-sm font-medium mb-1">Active Links</p>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-azure-500 text-sm font-medium mb-1">Active Links</p>
+            <p className="text-3xl font-bold text-azure-800">
               {signatureBatches.filter(batch => new Date(batch.expiresAt) > new Date()).length}
             </p>
           </div>
@@ -360,8 +360,8 @@ export default function SignatureLinksPageClient() {
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-slate-600 text-sm font-medium mb-1">Completed</p>
-            <p className="text-3xl font-bold text-slate-900">
+            <p className="text-azure-500 text-sm font-medium mb-1">Completed</p>
+            <p className="text-3xl font-bold text-azure-800">
               {signatureBatches.filter(batch => {
                 const totalForms = batch.signatureForms.length;
                 const signedForms = batch.signatureForms.filter(sf => sf.formSubmission.clientSignature).length;
@@ -378,15 +378,15 @@ export default function SignatureLinksPageClient() {
   </div>
 
   {/* Action Bar */}
-  <div className="mt-4 bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+  <div className="mt-4 bg-white rounded-xl p-4 sm:p-6 border border-azure-100">
     <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
       <div className="flex items-center space-x-4">
-        <div className="p-2.5 bg-brand-50 rounded-lg">
-          <FaInfoCircle className="h-4 w-4 text-brand-600" />
+        <div className="p-2.5 bg-azure-50 rounded-lg">
+          <FaInfoCircle className="h-4 w-4 text-gold-600" />
         </div>
         <div>
-          <p className="font-semibold text-gray-900 text-base">Signature Links Overview</p>
-          <p className="text-gray-500 text-sm">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
+          <p className="font-semibold text-azure-700 text-base">Signature Links Overview</p>
+          <p className="text-azure-400 text-sm">{signatureBatches.length} link{signatureBatches.length !== 1 ? 's' : ''} generated for this client</p>
         </div>
       </div>
     </div>
@@ -396,18 +396,18 @@ export default function SignatureLinksPageClient() {
 
         {/* Enhanced Signature Links List */}
         {signatureBatches.length === 0 ? (
-         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+         <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
   <div className="px-8 py-20 text-center">
     {/* Icon */}
     <div className="mb-8">
-      <div className="w-24 h-24 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+      <div className="w-24 h-24 bg-gradient-to-br from-gold-500 to-gold-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
         <FaLink className="h-12 w-12 text-white" />
       </div>
     </div>
 
     {/* Heading */}
-    <h3 className="text-2xl font-bold text-slate-900 mb-3">No Signature Links Yet</h3>
-    <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
+    <h3 className="text-2xl font-bold text-azure-800 mb-3">No Signature Links Yet</h3>
+    <p className="text-azure-500 mb-8 max-w-md mx-auto leading-relaxed">
       No signature links have been generated for this client yet. Create your first link to enable secure form signing and streamline the completion process.
     </p>
 
@@ -416,7 +416,7 @@ export default function SignatureLinksPageClient() {
      
 
       {/* Benefits */}
-      <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+      <div className="flex items-center justify-center space-x-8 text-sm text-azure-400">
         <div className="flex items-center">
           <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg mr-2">
             <FaShieldAlt className="h-3 w-3 text-white" />
@@ -430,7 +430,7 @@ export default function SignatureLinksPageClient() {
           <span>Time-Limited</span>
         </div>
         <div className="flex items-center">
-          <div className="p-2 bg-gradient-to-r from-blue-500 to-slate-600 rounded-lg mr-2">
+          <div className="p-2 bg-gradient-to-r from-blue-500 to-azure-500 rounded-lg mr-2">
             <FaHistory className="h-3 w-3 text-white" />
           </div>
           <span>Progress Tracking</span>
@@ -450,29 +450,29 @@ export default function SignatureLinksPageClient() {
               const progressPercentage = totalCount > 0 ? (signedCount / totalCount) * 100 : 0;
               
               return (
-                <div key={batch.id} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
+                <div key={batch.id} className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]">
                   {/* Card Header */}
-                  <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                  <div className="px-8 py-6 bg-gradient-to-r from-azure-50 to-white border-b border-azure-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <span className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold shadow-sm ${statusInfo.color}`}>
                           <StatusIcon className="mr-2 h-4 w-4" />
                           {statusInfo.status}
                         </span>
-                        <div className="text-sm text-gray-600">
-                          <span className="font-bold text-gray-900">{signedCount}</span> of <span className="font-bold text-gray-900">{totalCount}</span> forms signed
+                        <div className="text-sm text-azure-500">
+                          <span className="font-bold text-azure-700">{signedCount}</span> of <span className="font-bold text-azure-700">{totalCount}</span> forms signed
                         </div>
                       </div>
                       
                       {/* Enhanced Progress Bar */}
                       <div className="flex items-center space-x-4">
-                        <div className="w-32 bg-gray-200 rounded-full h-3 shadow-inner">
+                        <div className="w-32 bg-azure-200 rounded-full h-3 shadow-inner">
                           <div 
                             className="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-500 shadow-sm"
                             style={{ width: `${progressPercentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-bold text-gray-700 min-w-[3rem]">{Math.round(progressPercentage)}%</span>
+                        <span className="text-sm font-bold text-azure-600 min-w-[3rem]">{Math.round(progressPercentage)}%</span>
                       </div>
                     </div>
                   </div>
@@ -482,10 +482,10 @@ export default function SignatureLinksPageClient() {
                     {/* Forms Section */}
                     <div className="mb-8">
                       <div className="flex items-center mb-4">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl mr-3 shadow-lg">
+                        <div className="p-2 bg-gradient-to-r from-blue-500 to-azure-500 rounded-xl mr-3 shadow-lg">
                           <FaFileAlt className="h-4 w-4 text-white" />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900">
+                        <h3 className="text-lg font-bold text-azure-700">
                           Forms in this link ({totalCount})
                         </h3>
                       </div>
@@ -496,7 +496,7 @@ export default function SignatureLinksPageClient() {
                             className={`p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 ${
                               sf.formSubmission.clientSignature
                                 ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 text-emerald-800 shadow-md'
-                                : 'bg-gradient-to-r from-gray-50 to-white border-gray-200 text-gray-700 hover:bg-gray-100 shadow-sm hover:shadow-md'
+                                : 'bg-gradient-to-r from-azure-50 to-white border-azure-100 text-azure-600 hover:bg-azure-100 shadow-sm hover:shadow-md'
                             }`}
                             style={{ animationDelay: `${index * 100}ms` }}
                           >
@@ -506,7 +506,7 @@ export default function SignatureLinksPageClient() {
                                   <FaCheckCircle className="h-4 w-4 text-white" />
                                 </div>
                               ) : (
-                                <div className="p-1 bg-gradient-to-r from-gray-400 to-gray-500 rounded-lg mr-3">
+                                <div className="p-1 bg-gradient-to-r from-azure-300 to-azure-500 rounded-lg mr-3">
                                   <FaClock className="h-4 w-4 text-white" />
                                 </div>
                               )}
@@ -525,30 +525,30 @@ export default function SignatureLinksPageClient() {
                     </div>
 
                     {/* Metadata Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-gradient-to-r from-gray-50 to-white rounded-2xl border border-gray-200">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl mr-3 shadow-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-6 bg-gradient-to-r from-azure-50 to-white rounded-2xl border border-azure-100">
+                      <div className="flex items-center text-sm text-azure-500">
+                        <div className="p-2 bg-gradient-to-r from-blue-500 to-azure-500 rounded-xl mr-3 shadow-lg">
                           <FaCalendarAlt className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <span className="font-semibold text-gray-900 block">Created</span>
-                          <span className="text-gray-600">{new Date(batch.createdAt).toLocaleDateString()}</span>
+                          <span className="font-semibold text-azure-700 block">Created</span>
+                          <span className="text-azure-500">{new Date(batch.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                       
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-azure-500">
                         <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl mr-3 shadow-lg">
                           <FaClock className="h-4 w-4 text-white" />
                         </div>
                         {editingExpiry === batch.id ? (
                           <div className="flex flex-wrap items-center gap-2 flex-1">
                             <div>
-                              <span className="font-semibold text-gray-900 block">Expires</span>
+                              <span className="font-semibold text-azure-700 block">Expires</span>
                               <input
                                 type="datetime-local"
                                 value={newExpiryDate}
                                 onChange={(e) => setNewExpiryDate(e.target.value)}
-                                className="text-sm border border-gray-300 rounded-lg px-2 py-1.5 w-full sm:w-auto focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white shadow-sm"
+                                className="text-sm border border-azure-200 rounded-lg px-2 py-1.5 w-full sm:w-auto focus:outline-none focus:ring-4 focus:ring-gold-500/20 focus:border-azure-600 bg-white shadow-sm"
                                 min={new Date().toISOString().slice(0, 16)}
                               />
                             </div>
@@ -562,7 +562,7 @@ export default function SignatureLinksPageClient() {
                               </button>
                               <button
                                 onClick={cancelEditingExpiry}
-                                className="p-2 text-white bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                className="p-2 text-white bg-gradient-to-r from-azure-500 to-azure-500 hover:from-azure-500 hover:to-azure-600 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                                 title="Cancel"
                               >
                                 <FaTimes className="h-4 w-4" />
@@ -572,12 +572,12 @@ export default function SignatureLinksPageClient() {
                         ) : (
                           <div className="flex items-center space-x-3 flex-1">
                             <div>
-                              <span className="font-semibold text-gray-900 block">Expires</span>
-                              <span className="text-gray-600">{new Date(batch.expiresAt).toLocaleString()}</span>
+                              <span className="font-semibold text-azure-700 block">Expires</span>
+                              <span className="text-azure-500">{new Date(batch.expiresAt).toLocaleString()}</span>
                             </div>
                             <button
                               onClick={() => startEditingExpiry(batch.id, batch.expiresAt)}
-                              className="p-2 text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                              className="p-2 text-white bg-gradient-to-r from-blue-500 to-azure-500 hover:from-blue-600 hover:to-azure-700 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                               title="Edit expiry date"
                             >
                               <FaEdit className="h-4 w-4" />
@@ -588,21 +588,21 @@ export default function SignatureLinksPageClient() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col gap-4 pt-4 border-t border-gray-200">
+                    <div className="flex flex-col gap-4 pt-4 border-t border-azure-100">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-xl shadow-lg">
+                        <div className="p-2 bg-gradient-to-r from-azure-500 to-azure-500 rounded-xl shadow-lg">
                           <FaInfoCircle className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">Link ID</p>
-                          <p className="text-xs text-gray-500 font-mono">{batch.batchToken.slice(0, 12)}...</p>
+                          <p className="text-sm font-semibold text-azure-700">Link ID</p>
+                          <p className="text-xs text-azure-400 font-mono">{batch.batchToken.slice(0, 12)}...</p>
                         </div>
                       </div>
                       
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => copyLinkToClipboard(batch.batchToken)}
-                          className="inline-flex items-center px-3 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          className="inline-flex items-center px-3 py-2 border border-azure-100 text-sm font-medium rounded-lg text-azure-600 bg-white hover:bg-azure-50 transition-colors"
                           title="Copy link to clipboard"
                         >
                           <FaCopy className="mr-2 h-4 w-4" />
@@ -612,7 +612,7 @@ export default function SignatureLinksPageClient() {
                         <Link
                           href={`/forms/signature/${batch.batchToken}`}
                           target="_blank"
-                          className="inline-flex items-center px-5 py-3 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                          className="inline-flex items-center px-5 py-3 text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-azure-700 hover:from-blue-700 hover:to-azure-800 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           <FaEye className="mr-2 h-4 w-4" />
                           Preview

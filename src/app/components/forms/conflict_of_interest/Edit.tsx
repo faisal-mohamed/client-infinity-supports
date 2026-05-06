@@ -568,7 +568,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         const legend = FIELD_METADATA[fieldName]?.legend;
         if (!legend) return null;
 
-        let badgeClass = "text-gray-600 bg-gray-50 border-gray-200";
+        let badgeClass = "text-azure-500 bg-azure-50 border-azure-100";
         if (legend === "Staff") badgeClass = "text-blue-600 bg-blue-50 border-blue-200";
         else if (legend === "Manager") badgeClass = "text-amber-600 bg-amber-50 border-amber-200";
         else if (legend === "Participant") badgeClass = "text-green-600 bg-green-50 border-green-200";
@@ -696,7 +696,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
         return (
             <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700 mb-1 flex items-center">
+                <label className="text-xs font-medium text-azure-600 mb-1 flex items-center">
                     {label}
                     {isRequired && <span className="text-red-500 ml-1">*</span>}
                     {renderLegend(name)}
@@ -718,11 +718,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                         }
                     }}
                     disabled={isFieldReadOnly}
-                    className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${errorMessage
+                    className={`w-full rounded-lg border border-azure-100 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all ${errorMessage
                         ? "border-red-300 bg-red-50"
                         : isFieldReadOnly
-                            ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                            : "bg-white hover:border-indigo-300"
+                            ? "bg-azure-100 text-azure-400 cursor-not-allowed border-azure-100"
+                            : "bg-white hover:border-gold-300"
                         }`}
                 />
                 {errorMessage && (
@@ -737,7 +737,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         const errorMessage = fieldErrors[name] || validationErrors[name];
         return (
             <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-700 mb-1 flex items-center">
+                <label className="text-xs font-medium text-azure-600 mb-1 flex items-center">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                     {renderLegend(name)}
@@ -756,7 +756,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                         }
                     }}
                     disabled={isFieldReadOnly}
-                    className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${errorMessage ? "border-red-300 bg-red-50" : isFieldReadOnly ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200" : "bg-white hover:border-indigo-300"
+                    className={`w-full rounded-lg border border-azure-100 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all ${errorMessage ? "border-red-300 bg-red-50" : isFieldReadOnly ? "bg-azure-100 text-azure-400 cursor-not-allowed border-azure-100" : "bg-white hover:border-gold-300"
                         }`}
                 >
                     <option value="">Select an option</option>
@@ -776,7 +776,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
         return (
             <div className="flex flex-col gap-2">
-                <label className="text-xs font-medium text-gray-700 flex items-center">
+                <label className="text-xs font-medium text-azure-600 flex items-center">
                     {label}
                     {required && <span className="text-red-500 ml-1">*</span>}
                     {renderLegend(name)}
@@ -801,11 +801,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                             }}
                             disabled={isFieldReadOnly}
                             placeholder={`Enter ${label.toLowerCase()}...`}
-                            className={`w-full rounded-lg border border-gray-200 pl-3 pr-10 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${errorMessage
+                            className={`w-full rounded-lg border border-azure-100 pl-3 pr-10 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all ${errorMessage
                                 ? "border-red-300 bg-red-50"
                                 : isFieldReadOnly
-                                    ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                                    : "bg-white hover:border-indigo-300"
+                                    ? "bg-azure-100 text-azure-400 cursor-not-allowed border-azure-100"
+                                    : "bg-white hover:border-gold-300"
                                 }`}
                         />
                         {!isFieldReadOnly && currentValue && (
@@ -816,7 +816,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     setLocalValues(newValues);
                                     onChange(newValues, name, false);
                                 }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-azure-300 hover:text-red-500 transition-colors"
                                 aria-label="Clear field"
                             >
                                 <FaTimes className="w-3.5 h-3.5" />
@@ -827,7 +827,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                     {/* Suggestions Dropdown */}
                     {!isFieldReadOnly && (
                         <Menu as="div" className="relative inline-block text-left">
-                            <MenuButton className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 border border-indigo-100 hover:bg-indigo-100 transition-all shadow-sm">
+                            <MenuButton className="inline-flex items-center justify-center gap-2 rounded-lg bg-azure-50 px-3 py-2 text-sm font-semibold text-azure-700 border border-azure-100 hover:bg-azure-100 transition-all shadow-sm">
                                 Suggestions
                                 <FaChevronDown className="w-3 h-3 pt-0.5" />
                             </MenuButton>
@@ -861,7 +861,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                                             });
                                                         }
                                                     }}
-                                                    className={`${active ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
+                                                    className={`${active ? 'bg-azure-50 text-azure-700' : 'text-azure-600'
                                                         } group flex w-full items-center rounded-lg px-3 py-2.5 text-sm transition-colors duration-150 text-left truncate`}
                                                     title={opt}
                                                 >
@@ -896,7 +896,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         return (
             <div className="flex flex-col gap-1">
                 <label
-                    className={`text-xs font-medium mb-1 flex items-center ${errorMessage ? "text-red-500" : "text-gray-700"
+                    className={`text-xs font-medium mb-1 flex items-center ${errorMessage ? "text-red-500" : "text-azure-600"
                         }`}
                 >
                     {label}
@@ -907,7 +907,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                     {options.map((option) => (
                         <label
                             key={option}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 shadow-sm transition-all w-full ${isFieldReadOnly ? 'bg-gray-50' : 'bg-white hover:shadow-md cursor-pointer'}`}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border border-azure-100 shadow-sm transition-all w-full ${isFieldReadOnly ? 'bg-azure-50' : 'bg-white hover:shadow-md cursor-pointer'}`}
                         >
                             <input
                                 type={singleSelect ? "radio" : "checkbox"}
@@ -947,9 +947,9 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     }
                                 }}
                                 disabled={isFieldReadOnly}
-                                className={`accent-indigo-600 h-4 w-4 border-gray-300 focus:ring-indigo-500 ${singleSelect ? 'rounded-full' : 'rounded'}`}
+                                className={`accent-azure-700 h-4 w-4 border-azure-200 focus:ring-gold-500 ${singleSelect ? 'rounded-full' : 'rounded'}`}
                             />
-                            <span className="text-sm text-gray-700">{option}</span>
+                            <span className="text-sm text-azure-600">{option}</span>
                         </label>
                     ))}
                     {/* Handle "Other" text input */}
@@ -968,7 +968,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     }}
                                     disabled={isFieldReadOnly}
                                     placeholder="Please state..."
-                                    className={`w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isFieldReadOnly ? "bg-gray-100 cursor-not-allowed" : "bg-white"
+                                    className={`w-full rounded-md border border-azure-200 px-3 py-1.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 ${isFieldReadOnly ? "bg-azure-100 cursor-not-allowed" : "bg-white"
                                         }`}
                                 />
                             </div>
@@ -1006,7 +1006,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         return (
             <div className="flex flex-col gap-1">
                 {label && (
-                    <label className="text-xs font-medium text-gray-700 mb-1 flex items-center">
+                    <label className="text-xs font-medium text-azure-600 mb-1 flex items-center">
                         {label}
                         {required && <span className="text-red-500 ml-1">*</span>}
                         {renderLegend(name)}
@@ -1034,11 +1034,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                     placeholder={placeholder}
                     rows={rows}
                     disabled={isFieldReadOnly}
-                    className={`w-full rounded-lg border border-gray-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-gray-400 resize-none overflow-hidden ${errorMessage
+                    className={`w-full rounded-lg border border-azure-100 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all placeholder-azure-300 resize-none overflow-hidden ${errorMessage
                         ? "border-red-300 bg-red-50"
                         : isFieldReadOnly
-                            ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                            : "bg-white hover:border-indigo-300"
+                            ? "bg-azure-100 text-azure-400 cursor-not-allowed border-azure-100"
+                            : "bg-white hover:border-gold-300"
                         }`}
                 />
             </div>
@@ -1052,11 +1052,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         const errorMessage = fieldErrors[name] || validationErrors[name];
         return (
             <div className="flex flex-col gap-2">
-                <label className="text-xs font-medium text-gray-700 flex items-center">
+                <label className="text-xs font-medium text-azure-600 flex items-center">
                     {label} {required && <span className="text-red-500 ml-1">*</span>}
                     {renderLegend(name)}
                 </label>
-                <div className={`border border-gray-300 rounded-lg overflow-hidden bg-white ${isFieldReadOnly ? 'opacity-70 pointer-events-none' : ''}`}>
+                <div className={`border border-azure-200 rounded-lg overflow-hidden bg-white ${isFieldReadOnly ? 'opacity-70 pointer-events-none' : ''}`}>
                     <SignatureCanvas
                         ref={(el) => { sigRefs.current[name] = el; }}
                         onSignatureEnd={(signature: any) => {
@@ -1301,8 +1301,8 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         <div className="">
             {/* Progress Bar */}
             <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
-                <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
-                    <div className="h-2 bg-gradient-to-r from-indigo-500 to-green-400 rounded-full transition-all" style={{ width: `${((currentStep + 1) / FORM_SECTIONS.length) * 100}%` }} />
+                <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
+                    <div className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all" style={{ width: `${((currentStep + 1) / FORM_SECTIONS.length) * 100}%` }} />
                 </div>
                 {/* Horizontal Stepper */}
                 <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
@@ -1316,25 +1316,25 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     onClick={() => {
                                         if (idx <= maxStep) setCurrentStep(idx);
                                     }}
-                                    className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-indigo-700' : unlocked ? 'text-green-600' : 'text-gray-400 opacity-50 cursor-not-allowed'}`}
+                                    className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-green-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
                                     aria-current={active ? 'step' : undefined}
                                     aria-label={section.title}
                                     disabled={!unlocked}
                                 >
-                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-indigo-700 border-indigo-500 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-gray-200 border-gray-300 text-gray-400'}`}>
+                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
                                         {completedSteps.has(idx)
                                             ? <FaCheck className="w-4 h-4" />
                                             : React.createElement(section.icon, { className: "w-4 h-4" })}
                                     </span>
                                     <span className="text-[10px] font-medium">{idx + 1}</span>
-                                    {!unlocked && <span className="text-[10px] text-gray-400 mt-1">Locked</span>}
+                                    {!unlocked && <span className="text-[10px] text-azure-300 mt-1">Locked</span>}
                                 </button>
                                 {/* Tooltip */}
                                 <div className="absolute left-1/2 -translate-x-1/2 top-12 z-20 hidden group-hover:flex group-focus-within:flex flex-col items-center pointer-events-none">
-                                    <span className="bg-gray-900 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
+                                    <span className="bg-azure-700 text-white text-xs rounded px-3 py-1 shadow-lg whitespace-nowrap max-w-xs text-center">
                                         {section.title}
                                     </span>
-                                    <span className="w-2 h-2 bg-gray-900 rotate-45 mt-[-4px]"></span>
+                                    <span className="w-2 h-2 bg-azure-700 rotate-45 mt-[-4px]"></span>
                                 </div>
                             </div>
                         );
@@ -1343,18 +1343,18 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             </div>
 
             <main className="w-full flex flex-col items-center justify-center flex-1">
-                <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-100 p-4 md:p-8 flex flex-col mt-2 md:mt-4 gap-4 md:gap-8">
+                <section className="w-full max-w-2xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-azure-50 p-4 md:p-8 flex flex-col mt-2 md:mt-4 gap-4 md:gap-8">
                     <div className="mb-4">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-3">
-                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-indigo-600" })}
+                        <h2 className="text-xl md:text-2xl font-bold text-azure-700 flex items-center gap-3">
+                            {React.createElement(FORM_SECTIONS[currentStep].icon, { className: "w-6 h-6 text-azure-700" })}
                             {FORM_SECTIONS[currentStep].title}
                         </h2>
-                        <p className="text-sm text-gray-500 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
+                        <p className="text-sm text-azure-400 font-medium mt-1">{FORM_SECTIONS[currentStep].description}</p>
                     </div>
 
                     {/* Disclaimer for Participant Section */}
                     {FORM_SECTIONS[currentStep].id === "participant_declaration" && (
-                        <div className="md:col-span-2 text-sm text-gray-600 space-y-4">
+                        <div className="md:col-span-2 text-sm text-azure-500 space-y-4">
                             <p>This form needs to be signed by relevant parties to acknowledge the information contained within this form is true and correct. This may be the:</p>
                             <ul className="list-disc pl-5">
                                 <li>participant</li>
@@ -1416,7 +1416,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     <React.Fragment key={field}>
                                         <div className="md:col-span-2">{renderInput(meta.label, field, meta.type, meta.placeholder, required, meta.readOnly)}</div>
                                         {/* NDIS Code of Conduct Footer */}
-                                        <div className="md:col-span-2 mt-4 text-xs text-gray-500 border-t pt-4">
+                                        <div className="md:col-span-2 mt-4 text-xs text-azure-400 border-t pt-4">
                                             <p className="mb-2">
                                                 The <a href="https://www.ndiscommission.gov.au/about/ndis-code-conduct" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">NDIS Code of Conduct</a> promotes safe and ethical service delivery by setting out expectations for the conduct of both NDIS providers and workers.
                                             </p>
@@ -1432,12 +1432,12 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                     </div>
                 </section>
 
-                <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl mt-2">
+                <footer className="w-full max-w-2xl mx-auto bg-white/90 backdrop-blur-lg border-t border-azure-50 px-4 md:px-10 py-5 flex flex-col items-center gap-4 shadow-2xl rounded-b-3xl mt-2">
                     <div className="flex flex-col w-full gap-2 md:flex-row md:gap-3 md:justify-between">
                         <button
                             onClick={handlePreviousSequential}
                             disabled={currentStep === 0 || navigatingPrev}
-                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-gray-700 to-gray-900 text-white hover:from-gray-800 hover:to-black"}`}
+                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === 0 || navigatingPrev ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-600 to-azure-800 text-white hover:from-azure-700 hover:to-black"}`}
                         >
                             {navigatingPrev ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronLeft className="w-4 h-4" />}
                             <span>Previous</span>
@@ -1446,7 +1446,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                         <button
                             onClick={handleNextSequential}
                             disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
-                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-gradient-to-r from-indigo-600 to-green-400 text-white hover:from-indigo-700 hover:to-green-500"}`}
+                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-green-400 text-white hover:from-azure-800 hover:to-green-500"}`}
                         >
                             <span>Next</span>
                             {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
@@ -1455,7 +1455,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                         <button
                             onClick={() => handleSaveProgress && handleSaveProgress()}
                             disabled={saving}
-                            className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-gray-600 hover:bg-gray-700 text-white shadow border border-gray-700 transition-all duration-200 w-full md:w-1/3"
+                            className="flex items-center justify-center gap-1 px-5 py-2 rounded-full font-semibold text-sm bg-azure-500 hover:bg-azure-600 text-white shadow border border-azure-600 transition-all duration-200 w-full md:w-1/3"
                         >
                             {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaSave className="w-4 h-4" />}
                             <span>Save Progress</span>
@@ -1466,7 +1466,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                             onClick={handleFinalSubmit}
                             disabled={!isCurrentSectionComplete() || saving}
                             className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm shadow transition ${!isCurrentSectionComplete() || saving
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
+                                ? "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
                                 : "bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500"
                                 }`}
                         >

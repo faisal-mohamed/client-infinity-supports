@@ -49,7 +49,7 @@ export default function Dropdown({ isOpen, onClose, children, triggerRef, classN
   if (!isOpen || typeof window === 'undefined') return null;
 
   return createPortal(
-    <div ref={dropdownRef} className={`fixed bg-white rounded-lg shadow-elevated border border-gray-200 py-1 z-[9998] animate-fade-in ${className}`} style={{ top: `${position.top}px`, left: `${position.left}px`, minWidth: '180px' }}>
+    <div ref={dropdownRef} className={`fixed bg-white rounded-lg shadow-elevated border border-azure-100 py-1 z-[9998] animate-fade-in ${className}`} style={{ top: `${position.top}px`, left: `${position.left}px`, minWidth: '180px' }}>
       {children}
     </div>,
     document.body

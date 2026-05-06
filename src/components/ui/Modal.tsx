@@ -35,8 +35,8 @@ export default function Modal({ isOpen, onClose, children, className = '' }: Mod
   if (typeof window === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-[9999] p-4 animate-fade-in" onClick={handleBackdropClick}>
-      <div ref={modalRef} className={`bg-white rounded-xl shadow-elevated border border-gray-200 ${className}`} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-azure-900/50 backdrop-blur-[3px] flex items-center justify-center z-[9999] p-4 animate-fade-in" onClick={handleBackdropClick}>
+      <div ref={modalRef} className={`bg-white rounded-2xl shadow-elevated border border-azure-100/60 ${className}`} onClick={(e) => e.stopPropagation()}>
         {children}
       </div>
     </div>,

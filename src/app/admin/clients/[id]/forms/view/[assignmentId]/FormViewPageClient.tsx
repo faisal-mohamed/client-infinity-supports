@@ -155,29 +155,29 @@ export default function FormViewPageClient() {
 
  if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
         <div className="flex justify-center items-center h-80">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-rose-500 border-rose-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3 className="text-xl font-bold text-azure-700 mb-2">
                   Loading View Form
                 </h3>
-                <p className="text-slate-600 font-medium">
+                <p className="text-azure-500 font-medium">
                   Please wait...
                 </p>
 
                 {/* Bouncing dots */}
                 <div className="mt-4 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-rose-500 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                 </div>
@@ -189,16 +189,16 @@ export default function FormViewPageClient() {
 
   if (!assignment || !assignment.submissionData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center bg-white rounded-xl shadow-sm p-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FaUser className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 bg-azure-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FaUser className="h-8 w-8 text-azure-300" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-bold text-azure-700 mb-4">
               {!assignment ? 'Form Not Found' : 'Form Not Filled Yet'}
             </h1>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <p className="text-azure-500 mb-8 max-w-md mx-auto">
               {!assignment 
                 ? 'The requested form assignment could not be found.'
                 : 'This form has not been filled by admin yet.'
@@ -207,7 +207,7 @@ export default function FormViewPageClient() {
             <div className="flex items-center justify-center space-x-4">
               <Link 
                 href={`/admin/clients/${clientId}/forms`}
-                className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-azure-100 text-azure-600 rounded-lg hover:bg-azure-200 transition-colors"
               >
                 <FaArrowLeft className="mr-2 h-4 w-4" />
                 Back to Forms List
@@ -215,7 +215,7 @@ export default function FormViewPageClient() {
               {assignment && (
                 <Link 
                   href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-                  className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors"
                 >
                   <FaEdit className="mr-2 h-4 w-4" />
                   Fill This Form
@@ -234,19 +234,19 @@ export default function FormViewPageClient() {
     FormViewComponent = getFormComponent(assignment.form.formKey, 'view');
   } catch (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center bg-white rounded-xl shadow-sm p-12">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <FaUser className="h-8 w-8 text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Component Not Found</h1>
-            <p className="text-gray-600 mb-8">
+            <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
+            <p className="text-azure-500 mb-8">
               No view component found for form: {assignment.form.formKey}
             </p>
             <Link 
               href={`/admin/clients/${clientId}/forms`}
-              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors"
             >
               <FaArrowLeft className="mr-2 h-4 w-4" />
               Back to Forms List
@@ -258,15 +258,15 @@ export default function FormViewPageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
       {/* Enhanced Header */}
-   <div className="bg-white shadow-sm border-b border-gray-200">
+   <div className="bg-white shadow-sm border-b border-azure-100">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     {/* Back Button */}
     <div className="flex items-center mb-4">
       <Link 
         href={`/admin/clients/${clientId}/forms`}
-        className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all duration-200 group"
+        className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-800 hover:bg-azure-100 rounded-lg transition-all duration-200 group"
       >
         <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
         Back to Forms
@@ -277,18 +277,18 @@ export default function FormViewPageClient() {
     <div className="flex items-center justify-between">
       {/* Left Section */}
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center shadow-lg">
           <FaUser className="h-6 w-6 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 truncate">
+          <h1 className="text-2xl font-bold text-azure-800 truncate">
             {assignment.form.title}
           </h1>
-          <div className="flex items-center text-sm text-slate-600 space-x-4 mt-1">
+          <div className="flex items-center text-sm text-azure-500 space-x-4 mt-1">
             <span className="font-medium">{assignment.client.name}</span>
-            <span className="text-slate-400">•</span>
+            <span className="text-azure-300">•</span>
             <span className="truncate">{assignment.client.email}</span>
-            <span className="text-slate-400">•</span>
+            <span className="text-azure-300">•</span>
             <span className="flex items-center whitespace-nowrap">
               <FaCalendarAlt className="h-3 w-3 mr-1" />
               Version {assignment.formVersion}
@@ -316,7 +316,7 @@ export default function FormViewPageClient() {
         <button
           onClick={handleDownloadButtonClick}
           disabled={downloadingPDF}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-rose-500 to-rose-600 text-white font-medium rounded-lg hover:from-rose-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-medium rounded-lg hover:from-gold-600 hover:to-gold-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
           title="Download PDF"
         >
           {downloadingPDF ? (
@@ -335,7 +335,7 @@ export default function FormViewPageClient() {
         {/* Edit Button (Optional - currently commented) */}
         {/* <Link
           href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-medium rounded-lg hover:from-slate-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-700 transition-all duration-200 shadow-sm hover:shadow-md"
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-azure-600 to-azure-800 text-white font-medium rounded-lg hover:from-azure-700 hover:to-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-azure-600 transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <FaEdit className="mr-2 h-4 w-4" />
           <span className="hidden sm:inline">Edit</span>
@@ -348,7 +348,7 @@ export default function FormViewPageClient() {
 
       {/* Form Content with Enhanced Styling */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white shadow-sm rounded-xl border border-azure-50 overflow-hidden">
           <FormViewComponent
             formSchemas={assignment?.form?.schema}
             formData={assignment?.submissionData}

@@ -108,7 +108,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       content: () => (
         <div className="mb-4">
           <div className="border border-black mb-4">
-            <div className="bg-gray-200 border-b border-black p-2 flex justify-between items-center">
+            <div className="bg-azure-200 border-b border-black p-2 flex justify-between items-center">
               <span className="font-bold text-xs">Participant Details</span>
               <span className="text-xs">
                 <span className="font-bold">NDIS Number:</span> {getFieldValue('ndisNumber') || ''}
@@ -219,7 +219,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       content: () => (
         <div className="mb-4">
           <div className="border border-black mb-4">
-            <div className="bg-gray-200 border-b border-black p-2">
+            <div className="bg-azure-200 border-b border-black p-2">
               <span className="font-bold text-xs">Residential Address Details</span>
             </div>
 
@@ -250,7 +250,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       content: () => (
         <div className="mb-4">
           <div className="border border-black mb-4">
-            <div className="bg-gray-200 border-b border-black p-2">
+            <div className="bg-azure-200 border-b border-black p-2">
               <span className="font-bold text-xs">Participant Contact Details</span>
             </div>
 
@@ -373,7 +373,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
           <p className="font-bold text-sm mb-2 underline">SCHEDULE OF SUPPORT</p>
           <table className="w-full border border-black border-collapse text-xs">
             <thead>
-              <tr className="bg-gray-200">
+              <tr className="bg-azure-200">
                 <th className="border border-black p-2 text-left font-bold">Support Category</th>
                 <th className="border border-black p-2 text-center font-bold">Weeks</th>
                 <th className="border border-black p-2 text-center font-bold">Total<br />Hours</th>
@@ -1032,7 +1032,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <div className="grid grid-cols-2 gap-4 mb-2">
                 <div>
                   <p className="text-xs mb-1">Signature of participant:</p>
-                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                  <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
                     {participantSig ? (
                       <img
                         src={participantSig}
@@ -1040,7 +1040,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
                         className="max-h-full max-w-full object-contain"
                       />
                     ) : (
-                      <span className="text-gray-400 text-xs">No signature</span>
+                      <span className="text-azure-300 text-xs">No signature</span>
                     )}
                   </div>
                 </div>
@@ -1082,7 +1082,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <div className="grid grid-cols-2 gap-4 mb-2">
                 <div>
                   <p className="text-xs mb-1">Signature of Nominee:</p>
-                  <div className="border border-gray-300 p-2 h-16 flex items-center justify-center bg-white">
+                  <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
                     {nomineeSig ? (
                       <img
                         src={nomineeSig}
@@ -1090,7 +1090,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
                         className="max-h-full max-w-full object-contain"
                       />
                     ) : (
-                      <span className="text-gray-400 text-xs">No signature</span>
+                      <span className="text-azure-300 text-xs">No signature</span>
                     )}
                   </div>
                 </div>
@@ -1123,7 +1123,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
                   <img
                     src={getFieldValue('providerSignature')}
                     alt="Provider Signature"
-                    className="h-14 max-w-[200px] border border-gray-300"
+                    className="h-14 max-w-[200px] border border-azure-200"
                   />
                 ) : (
                   <div className="border-b border-black h-14"></div>
@@ -1278,7 +1278,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
       <div style={{ height: '24px' }} />
 
       {/* Footer - in normal flow like SA Delivery */}
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
+      <div className="flex justify-between text-xs text-azure-500 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || ''}</span>
         <span>{settings?.sa_support_coordination || ''}</span>
         <span>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</span>
@@ -1287,7 +1287,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
   );
 
   return (
-    <div className="bg-gray-100 min-h-screen print:bg-white">
+    <div className="bg-azure-100 min-h-screen print:bg-white">
       <style jsx>{`
         @media print {
           .a4-page {

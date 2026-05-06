@@ -288,15 +288,15 @@ export default function FormEditPageClient() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center">
+      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-indigo-500 border-indigo-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Loading Edit template</h3>
-          <p className="text-gray-600 font-medium">Please wait...</p>
+          <div className="w-20 h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-bold text-azure-700 mb-2">Loading Edit template</h3>
+          <p className="text-azure-500 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
         </div>
       </div>
@@ -307,10 +307,10 @@ export default function FormEditPageClient() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Not Found</h1>
+          <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Not Found</h1>
           <Link
             href={`/admin/clients/${clientId}/forms`}
-            className="text-indigo-600 hover:text-indigo-800"
+            className="text-azure-700 hover:text-azure-800"
           >
             Back to Forms List
           </Link>
@@ -332,22 +332,22 @@ export default function FormEditPageClient() {
     // Show modal and block access - signature link sent but staff hasn't submitted
     return (
       <>
-        <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="bg-white shadow-sm border-b border-azure-100">
           <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Link
                   href={`/admin/clients/${clientId}/forms`}
-                  className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
+                  className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
                 >
                   <FaArrowLeft className="h-4 w-4 mr-2" />
                   Back to Forms
                 </Link>
-                <div className="border-l border-gray-300 pl-4">
-                  <h1 className="text-xl font-semibold text-gray-900">
+                <div className="border-l border-azure-200 pl-4">
+                  <h1 className="text-xl font-semibold text-azure-700">
                     Edit: {assignment?.form.title}
                   </h1>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-azure-500">
                     {assignment?.client.name} • {assignment?.client.email}
                   </p>
                 </div>
@@ -373,13 +373,13 @@ export default function FormEditPageClient() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Form Component Not Found</h1>
-          <p className="text-gray-600 mb-4">
+          <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
+          <p className="text-azure-500 mb-4">
             No edit component found for form: {assignment.form.formKey}
           </p>
           <Link
             href={`/admin/clients/${clientId}/forms`}
-            className="text-indigo-600 hover:text-indigo-800"
+            className="text-azure-700 hover:text-azure-800"
           >
             Back to Forms List
           </Link>
@@ -395,22 +395,22 @@ export default function FormEditPageClient() {
   return (
     <>
       {/* Minimal Header Bar */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="bg-white shadow-sm border-b border-azure-100">
         <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Link
                 href={`/admin/clients/${clientId}/forms`}
-                className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors mr-4"
+                className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
               >
                 <FaArrowLeft className="h-4 w-4 mr-2" />
                 Back to Forms
               </Link>
-              <div className="border-l border-gray-300 pl-4">
-                <h1 className="text-xl font-semibold text-gray-900">
+              <div className="border-l border-azure-200 pl-4">
+                <h1 className="text-xl font-semibold text-azure-700">
                   Edit: {assignment?.form.title}
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-azure-500">
                   {assignment?.client.name} • {assignment?.client.email}
                 </p>
               </div>

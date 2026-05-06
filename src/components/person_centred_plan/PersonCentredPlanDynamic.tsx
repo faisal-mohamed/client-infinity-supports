@@ -313,19 +313,19 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         {/* Section Header - Show once at the beginning of goals */}
         {showSection && sectionNumber > 0 && (
           <div className="mb-3 mt-4">
-            <span className="font-bold text-base text-gray-900">{sectionNumber}. Goals & Outcomes</span>
+            <span className="font-bold text-base text-azure-700">{sectionNumber}. Goals & Outcomes</span>
           </div>
         )}
         {/* Goal Card */}
-        <div className="border-2 border-gray-300 rounded-lg overflow-hidden mb-3">
+        <div className="border-2 border-azure-200 rounded-lg overflow-hidden mb-3">
           {/* Goal Header */}
-          <div className="bg-gray-100 px-3 py-2 border-b-2 border-gray-300">
+          <div className="bg-azure-100 px-3 py-2 border-b-2 border-azure-200">
             <div className="flex items-center justify-between mb-1">
-              <span className="font-bold text-sm text-gray-800">Goal {goalNum}</span>
+              <span className="font-bold text-sm text-azure-700">Goal {goalNum}</span>
             </div>
             {goal.rating && (
               <div className="mt-1">
-                <span className="text-xs text-gray-600 mr-2">Outcome Rating:</span>
+                <span className="text-xs text-azure-500 mr-2">Outcome Rating:</span>
                 <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
                   {goal.rating}
                 </span>
@@ -337,21 +337,21 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
           <div className="px-3 py-2 bg-white space-y-2">
             {goal.goal && (
               <div className="mb-2">
-                <div className="text-xs font-semibold text-gray-700 mb-1">Goal {goalNum}:</div>
+                <div className="text-xs font-semibold text-azure-600 mb-1">Goal {goalNum}:</div>
                 <p className="text-xs leading-tight whitespace-pre-wrap">{goal.goal}</p>
               </div>
             )}
             
             {goal.actions && (
               <div className="mb-2">
-                <div className="text-xs font-semibold text-gray-700 mb-1">Actions & Resources {goalNum}:</div>
+                <div className="text-xs font-semibold text-azure-600 mb-1">Actions & Resources {goalNum}:</div>
                 <p className="text-xs leading-tight whitespace-pre-wrap">{goal.actions}</p>
               </div>
             )}
             
             {/* Footer with metadata */}
             {(goal.byWhom || goal.byWhen || goal.reviewDate) && (
-              <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between text-xs text-gray-600 gap-2 flex-wrap">
+              <div className="border-t border-azure-200 pt-2 mt-2 flex justify-between text-xs text-azure-500 gap-2 flex-wrap">
                 {goal.byWhom && <span><strong>By Whom:</strong> {goal.byWhom}</span>}
                 {goal.byWhen && <span><strong>By When:</strong> {goal.byWhen}</span>}
                 {goal.reviewDate && <span><strong>Review Date:</strong> {goal.reviewDate}</span>}
@@ -380,24 +380,24 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         {/* Section Header - Plain text with numbering */}
         {sectionNumber > 0 && (
           <div className="mb-3 mt-4">
-            <span className="font-bold text-base text-gray-900">{sectionNumber}. Support Information</span>
+            <span className="font-bold text-base text-azure-700">{sectionNumber}. Support Information</span>
           </div>
         )}
         {/* Table */}
-        <div className="border border-gray-300 rounded-lg overflow-hidden">
+        <div className="border border-azure-200 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Label</th>
-                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Value</th>
+                  <th className="border border-azure-200 bg-azure-50 px-2 py-1 text-left font-bold">Label</th>
+                  <th className="border border-azure-200 bg-azure-50 px-2 py-1 text-left font-bold">Value</th>
                 </tr>
               </thead>
               <tbody>
                 {supportData.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="border border-gray-300 px-2 py-1 bg-white">{item.label}</td>
-                    <td className="border border-gray-300 px-2 py-1 bg-white">{item.value}</td>
+                    <td className="border border-azure-200 px-2 py-1 bg-white">{item.label}</td>
+                    <td className="border border-azure-200 px-2 py-1 bg-white">{item.value}</td>
                   </tr>
                 ))}
               </tbody>
@@ -429,26 +429,26 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         {/* Section Header - Plain text with numbering */}
         {sectionNumber > 0 && (
           <div className="mb-3 mt-4">
-            <span className="font-bold text-base text-gray-900">{sectionNumber}. Informal Supports</span>
+            <span className="font-bold text-base text-azure-700">{sectionNumber}. Informal Supports</span>
           </div>
         )}
         {/* Table */}
-        <div className="border border-gray-300 rounded-lg overflow-hidden">
+        <div className="border border-azure-200 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">
               <thead>
                 <tr>
-                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Support Person</th>
-                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Role</th>
-                  <th className="border border-gray-300 bg-gray-50 px-2 py-1 text-left font-bold">Frequency</th>
+                  <th className="border border-azure-200 bg-azure-50 px-2 py-1 text-left font-bold">Support Person</th>
+                  <th className="border border-azure-200 bg-azure-50 px-2 py-1 text-left font-bold">Role</th>
+                  <th className="border border-azure-200 bg-azure-50 px-2 py-1 text-left font-bold">Frequency</th>
                 </tr>
               </thead>
               <tbody>
                 {informalSupports.map((support, idx) => (
                   <tr key={idx}>
-                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.name}</td>
-                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.role}</td>
-                    <td className="border border-gray-300 px-2 py-1 bg-white">{support.frequency}</td>
+                    <td className="border border-azure-200 px-2 py-1 bg-white">{support.name}</td>
+                    <td className="border border-azure-200 px-2 py-1 bg-white">{support.role}</td>
+                    <td className="border border-azure-200 px-2 py-1 bg-white">{support.frequency}</td>
                   </tr>
                 ))}
               </tbody>
@@ -498,12 +498,12 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
     return (
       <div className="mb-3">
         <div className="mb-3 mt-4">
-          <span className="font-bold text-base text-gray-900">1. Personal Information</span>
+          <span className="font-bold text-base text-azure-700">1. Personal Information</span>
         </div>
-        <div className="border border-gray-800">
+        <div className="border border-azure-700">
           {rows.map((r, idx) => (
-            <div key={idx} className="flex border-b border-gray-800">
-              <div className="w-56 bg-gray-200 border-r border-gray-800 p-2 text-xs font-bold">{r.label}</div>
+            <div key={idx} className="flex border-b border-azure-700">
+              <div className="w-56 bg-azure-200 border-r border-azure-700 p-2 text-xs font-bold">{r.label}</div>
               <div className="flex-1 p-2 text-xs whitespace-pre-wrap">{r.value}</div>
             </div>
           ))}
@@ -530,16 +530,16 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
         {/* Section Header - Plain text with numbering */}
         {showSection && field.section && (
           <div className="mb-3 mt-4">
-            <span className="font-bold text-base text-gray-900">{sectionNumber}. {field.section}</span>
+            <span className="font-bold text-base text-azure-700">{sectionNumber}. {field.section}</span>
           </div>
         )}
         {/* Field Label */}
-        <div className="bg-gray-100 border border-gray-300 px-2 py-1 rounded-t">
-          <span className="font-bold text-xs text-gray-800">{field.label}</span>
+        <div className="bg-azure-100 border border-azure-200 px-2 py-1 rounded-t">
+          <span className="font-bold text-xs text-azure-700">{field.label}</span>
         </div>
         {/* Field Value */}
         <div
-          className="border border-gray-300 border-t-0 p-2 bg-white rounded-b mb-3"
+          className="border border-azure-200 border-t-0 p-2 bg-white rounded-b mb-3"
           style={{
             whiteSpace: 'pre-wrap',
             wordWrap: 'break-word',
@@ -595,7 +595,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       </div>
       
       {/* Footer */}
-      <div className="flex justify-between text-[10px] text-gray-600 mt-4 pt-2 border-t border-gray-300">
+      <div className="flex justify-between text-[10px] text-azure-500 mt-4 pt-2 border-t border-azure-200">
         <span>Website: {settings?.company_website || ''}</span>
         <span className="font-medium">{settings?.person_centre_plan_form_id || ''}</span>
         <span>Review Date: {settings?.review_date ? format(new Date(settings.review_date), 'dd/MM/yyyy') : ''}</span>

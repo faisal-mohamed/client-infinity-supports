@@ -360,7 +360,7 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
       .risk-block { margin-bottom: 8px; padding: 8px; border-left: 3px solid #ccc; }
       h1, h2, h3, h4, h5, h6 { page-break-after: avoid; }
       * { box-sizing: border-box; }
-      .shadow-lg, .border-gray-300, .mx-auto, .mb-8 { box-shadow: none !important; border: none !important; margin: 0 !important; }
+      .shadow-lg, .border-azure-200, .mx-auto, .mb-8 { box-shadow: none !important; border: none !important; margin: 0 !important; }
     </style>
   </head>
   <body>

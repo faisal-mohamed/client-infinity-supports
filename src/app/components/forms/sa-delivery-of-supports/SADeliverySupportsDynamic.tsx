@@ -86,7 +86,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
               </tr>
               
               {/* Participant Details Header */}
-              <tr className="bg-gray-300">
+              <tr className="bg-azure-200">
                 <td className="border border-black px-2 py-2 font-bold align-top" colSpan={3}>
                   Participant Details
                 </td>
@@ -168,7 +168,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
               </tr>
               
               {/* Address Header */}
-              <tr className="bg-gray-300">
+              <tr className="bg-azure-200">
                 <td className="border border-black px-2 py-2 font-bold align-top" colSpan={4}>
                   Residential Address Details
                 </td>
@@ -195,7 +195,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
               </tr>
               
               {/* Contact Details Header */}
-              <tr className="bg-gray-300">
+              <tr className="bg-azure-200">
                 <td className="border border-black px-2 py-2 font-bold align-top" colSpan={4}>
                   Participant Contact Details
                 </td>
@@ -614,7 +614,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
         }
         return (
           <div key={block.key} className="mb-3">
-            <div className="bg-gray-300 border border-black px-2 py-1">
+            <div className="bg-azure-200 border border-black px-2 py-1">
               <span className="font-bold text-xs">{block.label}:</span>
             </div>
             <div className="border border-black border-t-0 p-2 bg-white text-xs">
@@ -627,7 +627,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
         const displayValue = getFieldValue(block.key || '');
         return (
           <div key={block.key} className="mb-3">
-            <div className="bg-gray-300 border border-black px-2 py-1">
+            <div className="bg-azure-200 border border-black px-2 py-1">
               <span className="font-bold text-xs">{block.label}:</span>
             </div>
             <div className="border border-black border-t-0 p-2 bg-white text-xs">
@@ -892,7 +892,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
       <div style={{ height: '24px' }} />
       
       {/* Footer - matches Client Intake Form pattern with settings API */}
-      <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
+      <div className="flex justify-between text-xs text-azure-500 mt-4 pt-2 border-t">
         <span>Website: {settings?.company_website || settings?.website || ''}</span>
         <span>{settings?.sa_delivery_of_supports || ''}</span>
         <span>Review Date: {settings?.review_date ? formatDate(settings.review_date) : ''}</span>
@@ -921,7 +921,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
           <div style={{ height: `${TOP_SPACER}px` }} />
           <div ref={budgetRef} style={{ flex: 1 }} />
           <div style={{ height: `${BOTTOM_SPACER}px` }} />
-          <div className="flex justify-between text-xs text-gray-600 mt-4 pt-2 border-t">
+          <div className="flex justify-between text-xs text-azure-500 mt-4 pt-2 border-t">
             <span>Website:</span>
             <span>SA1234</span>
             <span>Review Date:</span>
