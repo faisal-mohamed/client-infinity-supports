@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateFormSignatures } from "@/lib/signatureValidation";
+import { generatePDFBuffer } from "@/lib/pdf-buffer";
+import { uploadBatchToDrive } from "@/lib/google-drive";
 
 export async function POST(
   req: NextRequest,
@@ -322,6 +324,29 @@ export async function POST(
         } catch (emailError) {
           console.error(`❌ [ADMIN COMPLETED] Email error (non-blocking):`, emailError);
         }
+
+        // 📁 Upload completed PDF to Google Drive
+        if (process.env.GOOGLE_DRIVE_FOLDER_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+          try {
+            const pdfResult = await generatePDFBuffer({
+              formSubmissionId: formSubmission.id,
+              formId: assignment.form.id,
+              filename: `${assignment.form.title.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`,
+              adminId,
+            });
+            if (pdfResult.success && pdfResult.buffer) {
+              const { uploadPDFToDrive } = await import("@/lib/google-drive");
+              await uploadPDFToDrive({
+                buffer: pdfResult.buffer,
+                filename: pdfResult.filename!,
+                clientName: clientInfo?.name || "Unknown",
+              });
+              console.log(`✅ [GDRIVE] Uploaded ${pdfResult.filename} for ${clientInfo?.name}`);
+            }
+          } catch (driveError) {
+            console.error("❌ [GDRIVE] Upload error (non-blocking):", driveError);
+          }
+        }
       } catch (notificationError) {
         console.error(`❌ [ADMIN COMPLETED] Notification error:`, notificationError);
       }
@@ -546,6 +571,33 @@ export async function POST(
               }
             } catch (emailSendError) {
               console.error("❌ [BATCH COMPLETE] Email sending error (non-blocking):", emailSendError);
+            }
+
+            // 📁 Upload completed PDFs to Google Drive
+            if (process.env.GOOGLE_DRIVE_FOLDER_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+              try {
+                console.log(`📁 [GDRIVE] Uploading ${completedFormsData.length} PDFs to Google Drive...`);
+                const driveFiles: Array<{ buffer: Buffer; filename: string }> = [];
+
+                for (const form of completedFormsData) {
+                  const pdfResult = await generatePDFBuffer({
+                    formSubmissionId: form.id,
+                    formId: form.formId,
+                    filename: `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`,
+                    adminId,
+                  });
+                  if (pdfResult.success && pdfResult.buffer) {
+                    driveFiles.push({ buffer: pdfResult.buffer, filename: pdfResult.filename! });
+                  }
+                }
+
+                if (driveFiles.length > 0) {
+                  const driveResults = await uploadBatchToDrive(driveFiles, batch.client.name || "Unknown");
+                  console.log(`✅ [GDRIVE] Uploaded ${driveResults.length}/${driveFiles.length} files for ${batch.client.name}`);
+                }
+              } catch (driveError) {
+                console.error("❌ [GDRIVE] Upload error (non-blocking):", driveError);
+              }
             }
 
 

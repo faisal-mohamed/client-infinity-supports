@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 // Temporarily using placeholder icons to fix build issues
@@ -14,6 +14,8 @@ const FaSpinner = ({ className }: { className?: string }) => <span className={cl
 import { useToast } from '@/components/ui/Toast';
 import { getFormComponent } from '@/app/forms/registry';
 import { fetchFormSpecificSettings } from '@/lib/settings';
+import { PIIMaskingProvider, usePIIMasking } from '@/lib/pii-masking-context';
+import { maskCommonFields, maskFormData } from '@/lib/pii-masking';
 
 // Types
 interface FormAssignmentData {
@@ -258,6 +260,55 @@ export default function FormViewPageClient() {
   }
 
   return (
+    <PIIMaskingProvider
+      clientId={clientId}
+      formId={assignment.form.id}
+      assignmentId={assignmentId}
+    >
+      <FormViewContent
+        assignment={assignment}
+        commonFields={commonFields}
+        settings={settings}
+        clientId={clientId}
+        downloadingPDF={downloadingPDF}
+        handleDownloadButtonClick={handleDownloadButtonClick}
+        FormViewComponent={FormViewComponent}
+      />
+    </PIIMaskingProvider>
+  );
+}
+
+/** Inner component that consumes PIIMaskingContext */
+function FormViewContent({
+  assignment,
+  commonFields,
+  settings,
+  clientId,
+  downloadingPDF,
+  handleDownloadButtonClick,
+  FormViewComponent,
+}: {
+  assignment: FormAssignmentData;
+  commonFields: any;
+  settings: any;
+  clientId: number;
+  downloadingPDF: boolean;
+  handleDownloadButtonClick: () => void;
+  FormViewComponent: any;
+}) {
+  const { isMasked, togglePII } = usePIIMasking();
+
+  const displayCommonFields = useMemo(
+    () => (isMasked ? maskCommonFields(commonFields) : commonFields),
+    [isMasked, commonFields]
+  );
+
+  const displayFormData = useMemo(
+    () => (isMasked ? maskFormData(assignment?.submissionData) : assignment?.submissionData),
+    [isMasked, assignment?.submissionData]
+  );
+
+  return (
     <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
       {/* Enhanced Header */}
    <div className="bg-white shadow-sm border-b border-azure-100">
@@ -299,6 +350,20 @@ export default function FormViewPageClient() {
 
       {/* Right Section */}
       <div className="flex items-center space-x-3 flex-shrink-0">
+        {/* PII Masking Toggle */}
+        <button
+          onClick={togglePII}
+          className={`inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 border ${
+            isMasked
+              ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+              : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+          }`}
+          title={isMasked ? 'Click to reveal personal information (audit logged)' : 'Click to mask personal information'}
+        >
+          <span className="mr-2">{isMasked ? '🔒' : '🔓'}</span>
+          {isMasked ? 'PII Protected' : 'PII Visible'}
+        </button>
+
         {/* Signature Status */}
         {assignment.clientSignature && (
           <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 text-emerald-700 min-w-[130px]">
@@ -331,31 +396,33 @@ export default function FormViewPageClient() {
             </>
           )}
         </button>
-
-        {/* Edit Button (Optional - currently commented) */}
-        {/* <Link
-          href={`/admin/clients/${clientId}/forms/edit/${assignmentId}`}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-azure-600 to-azure-800 text-white font-medium rounded-lg hover:from-azure-700 hover:to-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-azure-600 transition-all duration-200 shadow-sm hover:shadow-md"
-        >
-          <FaEdit className="mr-2 h-4 w-4" />
-          <span className="hidden sm:inline">Edit</span>
-        </Link> */}
       </div>
     </div>
   </div>
 </div>
 
+      {/* PII Notice Banner */}
+      {isMasked && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3">
+            <span className="text-amber-600 text-lg">🛡️</span>
+            <p className="text-sm text-amber-800">
+              <strong>Data Protection Active:</strong> Personal identifiable information is masked. Click &quot;PII Protected&quot; to reveal (action will be audit logged).
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Form Content with Enhanced Styling */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow-sm rounded-xl border border-azure-50 overflow-hidden">
           <FormViewComponent
             formSchemas={assignment?.form?.schema}
-            formData={assignment?.submissionData}
+            formData={displayFormData}
             showSignature={!!assignment?.clientSignature}
             existingSignature={assignment?.clientSignature}
             isAdminView={true}
-            commonFieldsData={commonFields}
+            commonFieldsData={displayCommonFields}
             settings={settings}
             mode="pdf"
           />

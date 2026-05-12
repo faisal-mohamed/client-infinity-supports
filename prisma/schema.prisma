@@ -547,6 +547,22 @@ model StaffVehicleSafetyInspection {
   Staff          Staff     @relation(fields: [staffId], references: [id])
 }
 
+model PIIAccessLog {
+  id           Int      @id @default(autoincrement())
+  adminId      Int
+  clientId     Int
+  formId       Int?
+  assignmentId Int?
+  action       String   // 'reveal' | 'hide'
+  accessedAt   DateTime @default(now())
+  ipAddress    String?
+  userAgent    String?
+
+  @@index([adminId, clientId])
+  @@index([accessedAt])
+  @@map("pii_access_log")
+}
+
 enum LogType {
   CLIENT
   ADMIN
