@@ -26,6 +26,7 @@ model Admin {
   StaffFormAssignment         StaffFormAssignment[]
   StaffSubmissionNotification StaffSubmissionNotification[]
   appSettings                 AppSettings[]
+  mfaCodes                    MfaCode[]
 }
 
 model Client {
@@ -545,6 +546,27 @@ model StaffVehicleSafetyInspection {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime
   Staff          Staff     @relation(fields: [staffId], references: [id])
+}
+
+model MfaCode {
+  id         Int      @id @default(autoincrement())
+  adminId    Int
+  codeHash   String   // bcrypt hash of the 6-digit OTP
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  maxAttempts Int     @default(3)
+  used       Boolean  @default(false)
+  verified   Boolean  @default(false)
+  mfaToken   String?  @unique // one-time token issued after successful verification
+  tokenExpiresAt DateTime? // mfaToken expiry (60 seconds)
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  admin      Admin    @relation(fields: [adminId], references: [id])
+
+  @@index([adminId, used, expiresAt])
+  @@index([mfaToken])
+  @@map("mfa_codes")
 }
 
 model PIIAccessLog {

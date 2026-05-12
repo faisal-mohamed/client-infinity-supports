@@ -29,6 +29,14 @@ export default function LoginPage() {
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [captchaError, setCaptchaError] = useState('');
 
+  // MFA State
+  const [mfaStep, setMfaStep] = useState(false);
+  const [mfaAdminId, setMfaAdminId] = useState<number | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [resending, setResending] = useState(false);
+
   useEffect(() => {
     setHasMounted(true);
     setCaptcha(generateCaptcha());
@@ -39,6 +47,13 @@ export default function LoginPage() {
       router.push('/admin/dashboard');
     }
   }, [status, router]);
+
+  // OTP countdown timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setInterval(() => setOtpCountdown((c) => c - 1), 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
 
   if (!hasMounted || status === 'loading') return null;
 
@@ -114,27 +129,112 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
-      const result = await signIn('credentials', { redirect: false, email, password });
+      setError('');
+
+      // Step 1: Validate credentials and send OTP
+      const res = await fetch('/api/auth/mfa/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          displayToast('Rate Limited', data.error || 'Too many attempts. Please wait.', 'warning');
+        } else {
+          displayToast('Login Failed', data.error || 'Invalid email or password.', 'error');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // Success — move to MFA step
+      setMfaAdminId(data.adminId);
+      setMfaStep(true);
+      setOtpCountdown(data.expiresIn || 300);
+      setIsLoading(false);
+      displayToast('Code Sent', 'A verification code has been sent to your email.', 'success');
+
+    } catch (err) {
+      console.error('Login error:', err);
+      displayToast('Unexpected Error', 'An unexpected error occurred. Please try again.', 'error');
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpCode || otpCode.length !== 6) {
+      setOtpError('Please enter the 6-digit code');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setOtpError('');
+
+      // Step 2: Verify OTP
+      const verifyRes = await fetch('/api/auth/mfa/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: mfaAdminId, code: otpCode }),
+      });
+
+      const verifyData = await verifyRes.json();
+
+      if (!verifyRes.ok) {
+        setOtpError(verifyData.error || 'Invalid code');
+        setIsLoading(false);
+        return;
+      }
+
+      // Step 3: Sign in with mfaToken
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+        mfaToken: verifyData.mfaToken,
+      });
 
       if (result?.error) {
-        if (result.error === 'CredentialsSignin') {
-          displayToast('Login Failed', 'Invalid email or password. Please check both fields.', 'error');
-        } else if (result.error.includes('email')) {
-          displayToast('Email Not Found', 'This email is not registered', 'error');
-        } else if (result.error.includes('password')) {
-          displayToast('Invalid Password', 'The password you entered is incorrect', 'error');
-        } else {
-          displayToast('Login Failed', 'An error occurred during login. Please try again.', 'error');
-        }
+        displayToast('Login Failed', 'Authentication failed. Please try again.', 'error');
+        setMfaStep(false);
+        setOtpCode('');
         setIsLoading(false);
         return;
       }
 
       router.push('/admin/dashboard');
     } catch (err) {
-      console.error('Login error:', err);
-      displayToast('Unexpected Error', 'An unexpected error occurred. Please try again.', 'error');
+      console.error('OTP verification error:', err);
+      displayToast('Unexpected Error', 'An unexpected error occurred.', 'error');
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      setResending(true);
+      setOtpError('');
+      const res = await fetch('/api/auth/mfa/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setOtpError(data.error || 'Failed to resend code');
+      } else {
+        setOtpCountdown(data.expiresIn || 300);
+        setOtpCode('');
+        displayToast('Code Resent', 'A new verification code has been sent.', 'success');
+      }
+    } catch {
+      setOtpError('Failed to resend code');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -197,12 +297,102 @@ export default function LoginPage() {
 
           {/* Desktop heading */}
           <div className="hidden lg:block mb-8">
-            <h2 className="text-2xl font-bold text-azure-700">Sign in</h2>
-            <p className="text-sm text-azure-400 mt-1">Access your admin dashboard</p>
+            <h2 className="text-2xl font-bold text-azure-700">{mfaStep ? 'Verify Identity' : 'Sign in'}</h2>
+            <p className="text-sm text-azure-400 mt-1">{mfaStep ? 'Enter the code sent to your email' : 'Access your admin dashboard'}</p>
           </div>
 
           {/* Form card */}
           <div className="lg:bg-transparent lg:border-0 lg:shadow-none lg:p-0 bg-white rounded-2xl border border-azure-100 shadow-card p-6">
+
+            {/* MFA OTP Step */}
+            {mfaStep ? (
+              <form onSubmit={handleOtpSubmit} className="space-y-5">
+                <div className="text-center mb-4">
+                  <div className="w-16 h-16 bg-azure-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-8 h-8 text-azure-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-azure-500">
+                    Code sent to <strong className="text-azure-700">{email}</strong>
+                  </p>
+                </div>
+
+                {otpError && (
+                  <div className="flex items-center gap-2 bg-red-50 text-red-700 px-3.5 py-2.5 rounded-xl text-sm border border-red-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zM10 13a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
+                    </svg>
+                    {otpError}
+                  </div>
+                )}
+
+                {/* OTP Input */}
+                <div>
+                  <label htmlFor="otp" className="block text-sm font-semibold text-azure-700 mb-1.5">Verification Code</label>
+                  <input
+                    id="otp"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6)); setOtpError(''); }}
+                    className="w-full px-4 py-4 rounded-xl border border-azure-100 text-center text-2xl font-bold tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 transition-all duration-200 bg-azure-50/30"
+                    placeholder="••••••"
+                    autoFocus
+                    autoComplete="one-time-code"
+                  />
+                </div>
+
+                {/* Countdown */}
+                <div className="text-center text-sm text-azure-400">
+                  {otpCountdown > 0 ? (
+                    <span>Code expires in <strong className="text-azure-600">{Math.floor(otpCountdown / 60)}:{(otpCountdown % 60).toString().padStart(2, '0')}</strong></span>
+                  ) : (
+                    <span className="text-red-500 font-medium">Code expired</span>
+                  )}
+                </div>
+
+                {/* Verify Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading || otpCode.length !== 6}
+                  className="w-full bg-azure-700 hover:bg-azure-600 text-white font-bold py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-center disabled:opacity-60 shadow-soft hover:shadow-elevated"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Verifying...
+                    </>
+                  ) : (
+                    'Verify & Sign In'
+                  )}
+                </button>
+
+                {/* Resend / Back */}
+                <div className="flex items-center justify-between text-sm">
+                  <button
+                    type="button"
+                    onClick={() => { setMfaStep(false); setOtpCode(''); setOtpError(''); }}
+                    className="text-azure-500 hover:text-azure-700 font-medium"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resending || otpCountdown > 270}
+                    className="text-gold-600 hover:text-gold-700 font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {resending ? 'Sending...' : 'Resend Code'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
                 <div className="flex items-center gap-2 bg-red-50 text-red-700 px-3.5 py-2.5 rounded-xl text-sm border border-red-100">
@@ -317,6 +507,7 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
+            )}
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
+import { validateMfaToken } from './mfa';
 
 const prisma = new PrismaClient();
 
@@ -13,10 +14,11 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        mfaToken: { label: "MFA Token", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password || !credentials?.mfaToken) return null;
 
         try {
           const admin = await prisma.admin.findUnique({
@@ -31,6 +33,10 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (!passwordMatch) return null;
+
+          // Validate the one-time MFA token
+          const mfaValid = await validateMfaToken(admin.id, credentials.mfaToken);
+          if (!mfaValid) return null;
 
           return {
             id: admin.id.toString(),
