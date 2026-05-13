@@ -104,7 +104,9 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * pageSize;
 
     // Build where clause
-    const whereClause: any = {};
+    const whereClause: any = {
+      archivedAt: null, // Only show active (non-archived) clients
+    };
 
     // Search functionality - improved to search across both client and commonFields
     // Normalize search term to lowercase for case-insensitive search

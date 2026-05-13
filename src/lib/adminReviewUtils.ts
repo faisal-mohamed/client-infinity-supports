@@ -17,9 +17,11 @@ export async function getAdminReviewData({
 
     // Build the query to find clients with at least one form in the specified status
     const where: any = {
+        archivedAt: null,
         FormAssignment: {
             some: {
                 currentStatus: status,
+                archivedAt: null,
                 form: {
                     formKey: {
                         in: ADMIN_REVIEW_FORMS
@@ -58,6 +60,7 @@ export async function getAdminReviewData({
                 FormAssignment: {
                     where: {
                         currentStatus: status,
+                        archivedAt: null,
                         form: {
                             formKey: {
                                 in: ADMIN_REVIEW_FORMS

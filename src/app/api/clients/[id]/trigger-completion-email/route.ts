@@ -44,7 +44,7 @@ export async function POST(
 
     // Find ALL form assignments for this client
     const allAssignments = await prisma.formAssignment.findMany({
-      where: { clientId },
+      where: { clientId, archivedAt: null },
       include: {
         form: {
           select: {

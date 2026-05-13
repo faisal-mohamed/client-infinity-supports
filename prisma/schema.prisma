@@ -37,6 +37,8 @@ model Client {
   createdAt      DateTime                     @default(now())
   updatedAt      DateTime                     @updatedAt
   createdById    Int?
+  archivedAt     DateTime?
+  archivedBy     Int?
   createdBy      Admin?                       @relation(fields: [createdById], references: [id])
   commonFields   CommonField?
   logs           FormActivityLog[]
@@ -46,6 +48,8 @@ model Client {
   forms          FormSubmission[]
   notifications  FormSubmissionNotification[]
   insights       Insight[]
+
+  @@index([archivedAt])
 }
 
 model MasterForm {
@@ -95,6 +99,8 @@ model FormAssignment {
   displayOrder            Int        @default(0)
   batchId                 Int
   assignedById            Int?
+  archivedAt              DateTime?
+  archivedBy              Int?
   assignedBy              Admin?     @relation("AssignedForms", fields: [assignedById], references: [id])
   batch                   FormBatch  @relation(fields: [batchId], references: [id])
   client                  Client     @relation(fields: [clientId], references: [id])
@@ -103,6 +109,7 @@ model FormAssignment {
   instanceNumber          Int        @default(1)
 
   @@unique([clientId, formId, formVersion, instanceNumber])
+  @@index([archivedAt])
 }
 
 model FormSubmission {

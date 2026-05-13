@@ -4,10 +4,11 @@ import { startOfMonth } from 'date-fns';
 
 export async function GET(request: Request) {
   try {
-    const totalClients = await prisma.client.count();
+    const totalClients = await prisma.client.count({ where: { archivedAt: null } });
 
     const newClientsThisMonth = await prisma.client.count({
       where: {
+        archivedAt: null,
         createdAt: {
           gte: startOfMonth(new Date())
         }
@@ -16,6 +17,7 @@ export async function GET(request: Request) {
 
     const completedForms = await prisma.formAssignment.count({
   where: {
+    archivedAt: null,
     currentStatus: 'completed'
   }
 });
@@ -23,12 +25,14 @@ export async function GET(request: Request) {
 
     const notStarted = await prisma.formAssignment.count({
       where: {
+        archivedAt: null,
         currentStatus: 'not_started' // ✅ fixed from 'pending'
       }
     });
 
     const formsInProgress = await prisma.formAssignment.count({
       where: {
+        archivedAt: null,
         currentStatus: 'in_progress'
       }
     });

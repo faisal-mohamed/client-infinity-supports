@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     const hasNdis = url.searchParams.get("hasNdis") || "";
     const hasDisability = url.searchParams.get("hasDisability") || "";
 
-    const whereClause: any = {};
+    const whereClause: any = { archivedAt: null };
     const commonFieldsFilter: any = {};
 
     if (search) {
@@ -48,19 +48,19 @@ export async function GET(req: Request) {
         const bName = b?.commonFields?.name && b?.commonFields?.surname
           ? `${b.commonFields.name} ${b.commonFields.surname}`.trim().toLowerCase()
           : (b.name || '').toLowerCase();
-        
+
         // Put empty names last (nulls last)
         if (!aName && bName) return 1;
         if (aName && !bName) return -1;
         if (!aName && !bName) return 0;
-        
+
         // Case-insensitive comparison with locale support
-        const nameComparison = aName.localeCompare(bName, 'en-AU', { 
+        const nameComparison = aName.localeCompare(bName, 'en-AU', {
           sensitivity: 'base',
-          numeric: true 
+          numeric: true
         });
         if (nameComparison !== 0) return nameComparison;
-        
+
         // If names are equal, sort by createdAt desc as tiebreaker
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       } catch (error) {
@@ -125,7 +125,7 @@ export async function GET(req: Request) {
       const fullName = client?.commonFields?.name && client?.commonFields?.surname
         ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
         : client.name || "";
-      
+
       const row = worksheet.addRow([
         fullName,
         client.email || "",
@@ -149,9 +149,9 @@ export async function GET(req: Request) {
     });
 
     // Auto-fit columns (optional)
-    worksheet.columns.forEach((column : any) => {
+    worksheet.columns.forEach((column: any) => {
       let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, (cell : any) => {
+      column.eachCell({ includeEmpty: true }, (cell: any) => {
         const length = cell.value ? cell.value.toString().length : 0;
         if (length > maxLength) maxLength = length;
       });

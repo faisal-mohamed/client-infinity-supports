@@ -54,7 +54,7 @@ export async function GET(
 
     // Get form assignments with related data
     const assignments = await prisma.formAssignment.findMany({
-      where: { clientId },
+      where: { clientId, archivedAt: null },
       include: {
         form: {
           select: {

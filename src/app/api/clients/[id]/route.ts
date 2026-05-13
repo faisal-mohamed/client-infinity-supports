@@ -2,6 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(
   req: NextRequest,
@@ -431,7 +433,11 @@ export async function DELETE(
       );
     }
 
-    // Check if client exists before attempting to delete
+    // Get admin session for audit trail
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+
+    // Check if client exists and is not already archived
     const existingClient = await prisma.client.findUnique({
       where: { id: clientId },
     });
@@ -443,111 +449,35 @@ export async function DELETE(
       );
     }
 
-    // Start a transaction to delete client and related data
-    await prisma.$transaction(async (tx) => {
-      console.log(`🗑️ Starting client deletion for ID: ${clientId}`);
-      
-      // Step 1: Get all batches for this client
-      const batches = await tx.formBatch.findMany({
-        where: { clientId },
-        select: { id: true }
-      });
-      
-      const batchIds = batches.map(batch => batch.id);
-      console.log(`📦 Found ${batches.length} batches to delete:`, batchIds);
-      
-      // Step 2: Delete SignatureBatchForm records first (they reference batches)
-      if (batchIds.length > 0) {
-        console.log(`🗑️ Deleting SignatureBatchForm records for batches...`);
-        await tx.signatureBatchForm.deleteMany({
-          where: { batchId: { in: batchIds } },
-        });
-      }
-      
-      // Step 3: Delete form assignments linked to batches
-      if (batchIds.length > 0) {
-        console.log(`🗑️ Deleting FormAssignment records for batches...`);
-        await tx.formAssignment.deleteMany({
-          where: { batchId: { in: batchIds } },
-        });
-      }
-      
-      // Step 4: Delete the batches (now safe to delete)
-      console.log(`🗑️ Deleting FormBatch records...`);
-      await tx.formBatch.deleteMany({
-        where: { clientId },
-      });
-      
-      // Step 5: Delete remaining form assignments not linked to batches
-      console.log(`🗑️ Deleting remaining FormAssignment records...`);
-      await tx.formAssignment.deleteMany({
-        where: { clientId },
-      });
+    if (existingClient.archivedAt) {
+      return NextResponse.json(
+        { error: "Client is already archived" },
+        { status: 409 }
+      );
+    }
 
-      // Step 6: Delete form submission notifications
-      console.log(`🗑️ Deleting FormSubmissionNotification records...`);
-      await tx.formSubmissionNotification.deleteMany({
-        where: { clientId },
-      });
+    // Soft delete: set archivedAt timestamp
+    await prisma.client.update({
+      where: { id: clientId },
+      data: {
+        archivedAt: new Date(),
+        archivedBy: adminId,
+      },
+    });
 
-      // Step 7: Delete common fields
-      console.log(`🗑️ Deleting CommonField records...`);
-      await tx.commonField.deleteMany({
-        where: { clientId },
-      });
-
-      // Step 8: Delete form submissions
-      console.log(`🗑️ Deleting FormSubmission records...`);
-      await tx.formSubmission.deleteMany({
-        where: { clientId },
-      });
-
-      // Step 9: Delete form progress
-      console.log(`🗑️ Deleting FormProgress records...`);
-      await tx.formProgress.deleteMany({
-        where: { clientId },
-      });
-
-      // Step 10: Delete insights
-      console.log(`🗑️ Deleting Insight records...`);
-      await tx.insight.deleteMany({
-        where: { clientId },
-      });
-
-      // Step 11: Delete activity logs
-      console.log(`🗑️ Deleting FormActivityLog records...`);
-      await tx.formActivityLog.deleteMany({
-        where: { clientId },
-      });
-
-      // Step 12: Finally, delete the client
-      console.log(`🗑️ Deleting Client record...`);
-      await tx.client.delete({
-        where: { id: clientId },
-      });
-      
-      console.log(`✅ Client ${clientId} and all related data deleted successfully`);
-    }, { maxWait: 15000, timeout: 120000, isolationLevel: 'ReadCommitted' });
+    console.log(`📦 Client ${clientId} archived by admin ${adminId}`);
 
     return NextResponse.json({ 
       success: true, 
       message: "Client and all related data deleted successfully" 
     });
   } catch (error: any) {
-    console.error("Error deleting client:", error);
-    
-    // Handle specific Prisma errors
+    console.error("Error archiving client:", error);
+
     if (error.code === 'P2025') {
       return NextResponse.json(
         { error: "Client not found" },
         { status: 404 }
-      );
-    }
-
-    if (error.code === 'P2028') {
-      return NextResponse.json(
-        { error: "Delete operation timed out or transaction was closed. Please retry." },
-        { status: 504 }
       );
     }
 

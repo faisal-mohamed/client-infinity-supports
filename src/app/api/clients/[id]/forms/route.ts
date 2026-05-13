@@ -13,6 +13,7 @@ export async function GET(
     const formAssignments = await prisma.formAssignment.findMany({
       where: {
         clientId,
+        archivedAt: null,
       },
       include: {
         form: true,

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET(
   req: NextRequest,
@@ -109,73 +111,35 @@ export async function DELETE(
   }
 
   try {
-    // Step 1: Fetch assignment details
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+
     const assignment = await prisma.formAssignment.findUnique({
       where: { id: assignmentIdNum },
-      select: {
-        clientId: true,
-        formId: true,
-        formVersion: true,
-        instanceNumber: true,
-      },
     });
 
     if (!assignment) {
       return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
     }
 
-    const { clientId, formId, formVersion, instanceNumber } = assignment;
-
-    // Step 2: Fetch formSubmission ID (if exists)
-    const submission = await prisma.formSubmission.findUnique({
-      where: {
-        clientId_formId_formVersion_instanceNumber: {
-          clientId,
-          formId,
-          formVersion,
-          instanceNumber,
-        },
-      },
-      select: { id: true },
-    });
-
-    // Step 3: Build transaction
-    const transactionSteps = [];
-
-    if (submission) {
-      const submissionId = submission.id;
-
-      transactionSteps.push(
-        prisma.formSubmissionNotification.deleteMany({
-          where: { formSubmissionId: submissionId },
-        }),
-        prisma.signatureBatchForm.deleteMany({
-          where: { formSubmissionId: submissionId },
-        }),
-        prisma.formSubmission.delete({
-          where: { id: submissionId },
-        })
-      );
+    if (assignment.archivedAt) {
+      return NextResponse.json({ error: "Assignment is already archived" }, { status: 409 });
     }
 
-    transactionSteps.push(
-      // prisma.formProgress.deleteMany({
-      //   where: { clientId, formId, formVersion },
-      // }),
-      prisma.formAssignment.delete({
-        where: { id: assignmentIdNum },
-      })
-    );
-
-    // Step 4: Execute transaction
-    await prisma.$transaction(transactionSteps);
+    await prisma.formAssignment.update({
+      where: { id: assignmentIdNum },
+      data: {
+        archivedAt: new Date(),
+        archivedBy: adminId,
+      },
+    });
 
     return NextResponse.json({
       success: true,
       message: "Form assignment and all linked data deleted",
     });
   } catch (error: any) {
-    console.error("Error in DELETE assignment transaction:", error);
+    console.error("Error archiving form assignment:", error);
     return NextResponse.json(
       { error: "Failed to delete form assignment", details: error.message },
       { status: 500 }

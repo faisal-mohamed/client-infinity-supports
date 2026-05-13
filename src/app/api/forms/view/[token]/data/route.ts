@@ -56,7 +56,7 @@ export async function GET(
     let previousForm = null;
     if (assignment.batchId) {
       const batchForms = await prisma.formAssignment.findMany({
-        where: { batchId: assignment.batchId },
+        where: { batchId: assignment.batchId, archivedAt: null },
         orderBy: { displayOrder: 'asc' },
       });
       const currentIndex = batchForms.findIndex(form => form.id === assignment.id);
