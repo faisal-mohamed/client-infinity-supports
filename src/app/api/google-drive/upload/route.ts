@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { prisma } from "@/lib/prisma";
+import { getSubmissionById } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
 import { generatePDFBuffer } from "@/lib/pdf-buffer";
 import { uploadPDFToDrive } from "@/lib/google-drive";
 
@@ -20,11 +21,13 @@ export async function POST(req: NextRequest) {
   // Get client name if not provided
   let name = clientName;
   if (!name) {
-    const submission = await prisma.formSubmission.findUnique({
-      where: { id: formSubmissionId },
-      include: { client: { include: { commonFields: true } } },
-    });
-    name = submission?.client?.commonFields?.name || submission?.client?.name || "Unknown";
+    const submission = await getSubmissionById(formSubmissionId);
+    if (submission) {
+      const client = await getClientById(submission.clientId);
+      name = client?.commonFields?.name || client?.name || "Unknown";
+    } else {
+      name = "Unknown";
+    }
   }
 
   // Generate PDF buffer
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
     formSubmissionId,
     formId,
     filename,
-    adminId: parseInt(session.user.id),
+    adminId: session.user.id,
   });
 
   if (!pdfResult.success || !pdfResult.buffer) {

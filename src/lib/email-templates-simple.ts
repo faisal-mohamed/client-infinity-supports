@@ -6,10 +6,10 @@ import path from 'path';
 export interface BatchCompletionEmailData {
   clientName: string;
   clientEmail?: string; // Add client email
-  batchId: number;
+  batchId: string | number;
   completedForms: Array<{
-    id: number;
-    formId: number;
+    id: string | number;
+    formId: string | number;
     title: string;
   }>;
   completedAt?: string;
@@ -19,8 +19,8 @@ export interface StaffFormSubmittedEmailData {
   clientName: string;
   staffName: string;
   formTitle: string;
-  formId: number;
-  formSubmissionId: number;
+  formId: string | number;
+  formSubmissionId: string | number;
   submittedAt: string;
   reviewLink?: string;
 }

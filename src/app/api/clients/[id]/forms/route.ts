@@ -1,36 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getClientAssignments, getClientSubmissions } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }  // params is now a Promise
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await context.params;  // await params here
-    const clientId = parseInt(id || "0");
+    const { id } = await context.params;
 
-    // Get all form assignments for this client
-    const formAssignments = await prisma.formAssignment.findMany({
-      where: {
-        clientId,
-        archivedAt: null,
-      },
-      include: {
-        form: true,
-      },
-      orderBy: {
-        assignedAt: "desc",
-      },
-    });
+    const [formAssignments, formSubmissions] = await Promise.all([
+      getClientAssignments(id),
+      getClientSubmissions(id),
+    ]);
 
-    // Get form submissions for this client
-    const formSubmissions = await prisma.formSubmission.findMany({
-      where: {
-        clientId,
-      },
-    });
-
-    // Combine assignments with submission status
     const assignedForms = formAssignments.map((assignment) => {
       const submission = formSubmissions.find(
         (sub) => sub.formId === assignment.formId
@@ -43,8 +25,13 @@ export async function GET(
         formVersion: assignment.formVersion,
         isSubmitted: submission?.isSubmitted || false,
         createdAt: assignment.assignedAt,
-        //updatedAt: assignment.updatedAt,
-        form: assignment.form,
+        form: {
+          id: assignment.formId,
+          formKey: assignment.formKey,
+          title: assignment.formTitle,
+          version: assignment.formVersion,
+          requiresSignature: assignment.requiresSignature,
+        },
       };
     });
 

@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/prisma";
+import { listClients } from "@/lib/db/client";
+import { getClientAssignments } from "@/lib/db/forms";
 
 export const ADMIN_REVIEW_FORMS = ['emergency_drill', 'conflict_of_interest'];
 
@@ -13,94 +14,37 @@ export async function getAdminReviewData({
     page?: number;
     pageSize?: number;
 }) {
-    const skip = (page - 1) * pageSize;
+    // Get all active clients
+    const { clients: allClients } = await listClients({ search: search || undefined, page: 1, pageSize: 100000 });
 
-    // Build the query to find clients with at least one form in the specified status
-    const where: any = {
-        archivedAt: null,
-        FormAssignment: {
-            some: {
-                currentStatus: status,
-                archivedAt: null,
-                form: {
-                    formKey: {
-                        in: ADMIN_REVIEW_FORMS
-                    }
-                }
-            },
-        },
-    };
+    // For each client, check if they have assignments matching criteria
+    const clientsWithPendingForms = await Promise.all(
+        allClients.map(async (client) => {
+            const assignments = await getClientAssignments(client.id);
+            const pendingForms = assignments.filter(
+                (a) => a.currentStatus === status && !a.archivedAt && ADMIN_REVIEW_FORMS.includes(a.formKey)
+            );
+            if (pendingForms.length === 0) return null;
+            return {
+                ...client,
+                createdAt: client.createdAt,
+                updatedAt: client.updatedAt,
+                pendingForms: pendingForms.map((a) => ({
+                    id: a.id,
+                    title: a.formTitle,
+                    formKey: a.formKey,
+                    currentStatus: a.currentStatus,
+                })),
+            };
+        })
+    );
 
-    if (search) {
-        const normalizedSearch = search.trim().toLowerCase();
-        where.OR = [
-            { name: { contains: normalizedSearch, mode: "insensitive" } },
-            { email: { contains: normalizedSearch, mode: "insensitive" } },
-            { phone: { contains: normalizedSearch, mode: "insensitive" } },
-            {
-                commonFields: {
-                    OR: [
-                        { name: { contains: normalizedSearch, mode: "insensitive" } },
-                        { surname: { contains: normalizedSearch, mode: "insensitive" } },
-                        { email: { contains: normalizedSearch, mode: "insensitive" } },
-                        { phone: { contains: normalizedSearch, mode: "insensitive" } },
-                        { ndis: { contains: normalizedSearch, mode: "insensitive" } },
-                    ],
-                },
-            },
-        ];
-    }
-
-    const [totalCount, clients] = await Promise.all([
-        prisma.client.count({ where }),
-        prisma.client.findMany({
-            where,
-            include: {
-                commonFields: true,
-                FormAssignment: {
-                    where: {
-                        currentStatus: status,
-                        archivedAt: null,
-                        form: {
-                            formKey: {
-                                in: ADMIN_REVIEW_FORMS
-                            }
-                        }
-                    },
-                    include: {
-                        form: {
-                            select: {
-                                id: true,
-                                title: true,
-                                formKey: true,
-                            },
-                        },
-                    },
-                },
-            },
-            orderBy: {
-                updatedAt: "desc",
-            },
-            skip,
-            take: pageSize,
-        }),
-    ]);
-
-    // Format the clients to match the expected structure
-    const formattedClients = clients.map((client: any) => ({
-        ...client,
-        createdAt: client.createdAt.toISOString(),
-        updatedAt: client.updatedAt.toISOString(),
-        pendingForms: client.FormAssignment.map((a: any) => ({
-            id: a.id,
-            title: a.form.title,
-            formKey: a.form.formKey,
-            currentStatus: a.currentStatus,
-        })),
-    }));
+    const filtered = clientsWithPendingForms.filter(Boolean) as any[];
+    const totalCount = filtered.length;
+    const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
     return {
-        clients: formattedClients,
+        clients: paginated,
         pagination: {
             page,
             pageSize,

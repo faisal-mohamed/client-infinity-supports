@@ -14,7 +14,7 @@ import { useConfirm } from '@/components/ui/Confirm';
 
 // Types
 interface SignatureBatch {
-  id: number;
+  id: string | number;
   batchToken: string;
   expiresAt: string;
   createdAt: string;
@@ -23,9 +23,9 @@ interface SignatureBatch {
     email: string;
   };
   signatureForms: {
-    id: number;
+    id: string | number;
     formSubmission: {
-      id: number;
+      id: string | number;
       clientSignature?: string;
       clientSignedAt?: string;
       form: {
@@ -37,7 +37,7 @@ interface SignatureBatch {
 }
 
 interface ClientInfo {
-  id: number;
+  id: string | number;
   name: string;
   email: string;
 }
@@ -47,7 +47,7 @@ export default function SignatureLinksPageClient() {
   const { showToast } = useToast();
   const confirm  = useConfirm();
   
-  const clientId = parseInt(params.id as string);
+  const clientId = params.id as string;
   
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [signatureBatches, setSignatureBatches] = useState<SignatureBatch[]>([]);
@@ -103,7 +103,7 @@ export default function SignatureLinksPageClient() {
     }
   };
 
-  const deleteBatch = async (batchId: number) => {
+  const deleteBatch = async (batchId: string | number) => {
 
     const confirmed = await confirm.confirm({
       title: 'Delete Signature Link',
@@ -141,7 +141,7 @@ export default function SignatureLinksPageClient() {
     }
   };
 
-  const startEditingExpiry = (batchId: number, currentExpiry: string) => {
+  const startEditingExpiry = (batchId: string | number, currentExpiry: string) => {
     setEditingExpiry(batchId);
     const date = new Date(currentExpiry);
     
@@ -166,7 +166,7 @@ export default function SignatureLinksPageClient() {
     setNewExpiryDate('');
   };
 
-  const updateExpiry = async (batchId: number) => {
+  const updateExpiry = async (batchId: string | number) => {
     if (!newExpiryDate) {
       showToast({
         type: 'error',

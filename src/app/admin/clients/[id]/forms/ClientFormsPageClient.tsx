@@ -50,7 +50,7 @@ export default function ClientFormsPageClient() {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const clientId = parseInt(params?.id as string);
+  const clientId = params?.id as string;
   const { data: session } = useSession();
   const adminId: any = session?.user?.id;
 
@@ -155,7 +155,7 @@ export default function ClientFormsPageClient() {
   };
 
   // Handler functions
-  const handleFormAssignmentSelection = (formId: number) => {
+  const handleFormAssignmentSelection = (formId: string | number) => {
     setSelectedFormsToAssign(prev =>
       prev.includes(formId)
         ? prev.filter(id => id !== formId)
@@ -163,7 +163,7 @@ export default function ClientFormsPageClient() {
     );
   };
 
-  const handleFormSelect = (assignmentId: number, checked: boolean) => {
+  const handleFormSelect = (assignmentId: string | number, checked: boolean) => {
     if (checked) {
       setSelectedForms(prev => [...prev, assignmentId]);
     } else {
@@ -190,7 +190,7 @@ export default function ClientFormsPageClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formIds: selectedFormsToAssign,
-          adminId: parseInt(adminId)
+          adminId: adminId
         }),
       });
 
@@ -491,7 +491,7 @@ export default function ClientFormsPageClient() {
 
 
   // Wrapper function for warning modal downloads
-  const downloadFormForWarningModal = async (assignmentId: number, formTitle: string) => {
+  const downloadFormForWarningModal = async (assignmentId: string | number, formTitle: string) => {
     console.log("Downloading form from warning modal:", assignmentId, formTitle);
     const assignment = assignments.find(a => a.id === assignmentId);
     if (assignment) {

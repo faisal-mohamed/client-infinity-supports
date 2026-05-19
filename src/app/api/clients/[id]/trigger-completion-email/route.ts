@@ -1,33 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getClientById, getClientAssignments, getSubmission } from "@/lib/db";
 
-/**
- * Manually trigger completion email for a client with all completed forms
- * Useful when forms were completed before email system was enabled
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const clientId = parseInt(id);
 
-    if (isNaN(clientId)) {
+    if (!id) {
       return NextResponse.json(
         { error: "Invalid client ID" },
         { status: 400 }
       );
     }
 
-    console.log(`📧 [MANUAL EMAIL TRIGGER] Checking batch completion for clientId: ${clientId}`);
+    console.log(`📧 [MANUAL EMAIL TRIGGER] Checking batch completion for clientId: ${id}`);
 
-    // Get client info
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      select: { id: true, name: true, email: true },
-    });
-
+    const client = await getClientById(id);
     if (!client) {
       return NextResponse.json(
         { error: "Client not found" },
@@ -42,19 +32,7 @@ export async function POST(
       );
     }
 
-    // Find ALL form assignments for this client
-    const allAssignments = await prisma.formAssignment.findMany({
-      where: { clientId, archivedAt: null },
-      include: {
-        form: {
-          select: {
-            id: true,
-            title: true,
-            requiresSignature: true,
-          },
-        },
-      },
-    });
+    const allAssignments = await getClientAssignments(id);
 
     if (allAssignments.length === 0) {
       return NextResponse.json(
@@ -65,7 +43,6 @@ export async function POST(
 
     console.log(`📋 [MANUAL EMAIL TRIGGER] Found ${allAssignments.length} form assignments`);
 
-    // Check if ALL are completed
     const completedAssignments = allAssignments.filter(
       (a) => a.currentStatus === "completed"
     );
@@ -81,39 +58,18 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Get form submissions for ALL completed assignments (not just submitted ones)
-    // Match each completed assignment with its corresponding FormSubmission
     const completedFormSubmissions = await Promise.all(
-      completedAssignments.map(async (assignment) => {
-        const submission = await prisma.formSubmission.findUnique({
-          where: {
-            clientId_formId_formVersion_instanceNumber: {
-              clientId: assignment.clientId,
-              formId: assignment.formId,
-              formVersion: assignment.formVersion,
-              instanceNumber: assignment.instanceNumber,
-            },
-          },
-          include: {
-            form: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
-          },
-        });
-        return submission;
-      })
+      completedAssignments.map((assignment) =>
+        getSubmission(assignment.clientId, assignment.formId, assignment.formVersion, assignment.instanceNumber)
+      )
     );
 
-    // Filter out null submissions and map to required format
     const completedFormsData = completedFormSubmissions
-      .filter((submission): submission is NonNullable<typeof submission> => submission !== null)
+      .filter((s): s is NonNullable<typeof s> => s !== null)
       .map((submission) => ({
         id: submission.id,
         formId: submission.formId,
-        title: submission.form.title,
+        title: submission.formTitle,
       }));
 
     console.log(`📎 [MANUAL EMAIL TRIGGER] Found ${completedFormsData.length} completed submissions`);
@@ -124,7 +80,6 @@ export async function POST(
       }, { status: 404 });
     }
 
-    // Get adminId from the first assignment
     const adminId = allAssignments[0].assignedById;
     const batchId = allAssignments[0].batchId;
 
@@ -133,10 +88,9 @@ export async function POST(
       clientEmail: client.email,
       adminId,
       batchId,
-      formsCount: completedFormsData.length
+      formsCount: completedFormsData.length,
     });
 
-    // Send dual notification email
     const emailResponse = await fetch(
       `${process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`,
       {
@@ -175,9 +129,8 @@ export async function POST(
       recipients: {
         admin: emailResult.adminEmail?.success || false,
         client: emailResult.clientEmail?.success || false,
-      }
+      },
     });
-
   } catch (error: any) {
     console.error("❌ [MANUAL EMAIL TRIGGER] Error:", error);
     return NextResponse.json(
@@ -186,4 +139,3 @@ export async function POST(
     );
   }
 }
-

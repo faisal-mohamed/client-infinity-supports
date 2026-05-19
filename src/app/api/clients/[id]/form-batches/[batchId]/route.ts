@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getBatchById, updateBatch } from "@/lib/db";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; batchId: string }> }
 ) {
   try {
-    const { id, batchId } = await params; // Await here!
-    const clientId = parseInt(id || "0");
-    const batchIdNum = parseInt(batchId || "0");
+    const { id, batchId } = await params;
     const body = await req.json();
     const { expiresAt } = body;
 
@@ -21,10 +19,6 @@ export async function PATCH(
 
     const newExpiresAt = new Date(expiresAt);
 
-    console.log("newExpiresAt", newExpiresAt.getTime());
-    
-
-
     if (isNaN(newExpiresAt.getTime()) || newExpiresAt < new Date()) {
       return NextResponse.json(
         { error: "Invalid or past expiresAt date" },
@@ -32,34 +26,17 @@ export async function PATCH(
       );
     }
 
-    // Update the FormBatch's expiresAt
-    const updatedBatch = await prisma.formBatch.updateMany({
-      where: {
-        id: batchIdNum,
-        clientId: clientId,
-      },
-      data: {
-        expiresAt: newExpiresAt,
-      },
-    });
-
-    if (updatedBatch.count === 0) {
+    const existingBatch = await getBatchById(id, batchId);
+    if (!existingBatch) {
       return NextResponse.json(
         { error: "Form batch not found" },
         { status: 404 }
       );
     }
 
-    // Update all assignments in the batch to have the new expiry
-    await prisma.formAssignment.updateMany({
-      where: { batchId: batchIdNum },
-      data: {  }
-    });
+    await updateBatch(id, batchId, { expiresAt: newExpiresAt.toISOString() });
 
-    // Optionally, fetch and return the updated batch
-    const batch = await prisma.formBatch.findUnique({
-      where: { id: batchIdNum },
-    });
+    const batch = await getBatchById(id, batchId);
 
     return NextResponse.json({ success: true, batch });
   } catch (error: any) {

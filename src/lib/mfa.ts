@@ -1,6 +1,14 @@
 import { randomBytes, randomInt } from 'crypto';
 import bcrypt from 'bcrypt';
-import { prisma } from './prisma';
+import {
+  QueryCommand,
+  PutCommand,
+  UpdateCommand,
+  DeleteCommand,
+  TransactWriteCommand,
+} from "@aws-sdk/lib-dynamodb";
+import { dynamodb, TABLE } from './dynamodb';
+import { generateId, nowISO, ttlFromNow } from './dynamodb-utils';
 
 const MFA_CODE_EXPIRY_MINUTES = 5;
 const MFA_TOKEN_EXPIRY_SECONDS = 60;
@@ -28,15 +36,21 @@ function generateMfaToken(): string {
  * Check rate limit: max N codes per admin within time window.
  * Prevents OTP flooding/email spam.
  */
-export async function checkMfaRateLimit(adminId: number): Promise<{ allowed: boolean; retryAfter?: Date }> {
-  const windowStart = new Date(Date.now() - MFA_RATE_LIMIT_WINDOW_MINUTES * 60 * 1000);
+export async function checkMfaRateLimit(adminId: string): Promise<{ allowed: boolean; retryAfter?: Date }> {
+  const windowStart = new Date(Date.now() - MFA_RATE_LIMIT_WINDOW_MINUTES * 60 * 1000).toISOString();
 
-  const recentCodes = await prisma.mfaCode.count({
-    where: {
-      adminId,
-      createdAt: { gte: windowStart },
-    },
-  });
+  const res = await dynamodb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND SK >= :sk",
+      ExpressionAttributeValues: {
+        ":pk": `ADMIN#${adminId}`,
+        ":sk": `MFA#${windowStart}`,
+      },
+    })
+  );
+
+  const recentCodes = (res.Items || []).filter(item => item.entityType === "MFA_CODE").length;
 
   if (recentCodes >= MFA_RATE_LIMIT_MAX_CODES) {
     return {
@@ -51,38 +65,75 @@ export async function checkMfaRateLimit(adminId: number): Promise<{ allowed: boo
 /**
  * Create and store a new MFA code for an admin.
  * Invalidates any existing unused codes for this admin.
- * Returns the plaintext code (for emailing) and the DB record ID.
+ * Returns the plaintext code (for emailing) and the DB record SK.
  */
 export async function createMfaCode(
-  adminId: number,
+  adminId: string,
   ipAddress?: string | null,
   userAgent?: string | null
-): Promise<{ code: string; mfaId: number }> {
+): Promise<{ code: string; mfaSK: string }> {
   // Invalidate all existing unused codes for this admin
-  await prisma.mfaCode.updateMany({
-    where: { adminId, used: false },
-    data: { used: true },
-  });
+  const existingCodes = await dynamodb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+      FilterExpression: "used = :f",
+      ExpressionAttributeValues: {
+        ":pk": `ADMIN#${adminId}`,
+        ":sk": "MFA#",
+        ":f": false,
+      },
+    })
+  );
+
+  // Mark existing unused codes as used
+  if (existingCodes.Items && existingCodes.Items.length > 0) {
+    await Promise.all(
+      existingCodes.Items.map((item) =>
+        dynamodb.send(
+          new UpdateCommand({
+            TableName: TABLE,
+            Key: { PK: `ADMIN#${adminId}`, SK: item.SK },
+            UpdateExpression: "SET used = :t",
+            ExpressionAttributeValues: { ":t": true },
+          })
+        )
+      )
+    );
+  }
 
   const code = generateOTP();
   const codeHash = await bcrypt.hash(code, BCRYPT_ROUNDS);
-  const expiresAt = new Date(Date.now() + MFA_CODE_EXPIRY_MINUTES * 60 * 1000);
+  const now = nowISO();
+  const expiresAt = new Date(Date.now() + MFA_CODE_EXPIRY_MINUTES * 60 * 1000).toISOString();
+  const id = generateId();
+  const sk = `MFA#${now}#${id}`;
+  const ttl = ttlFromNow(86400); // 24h auto-cleanup
 
-  const record = await prisma.mfaCode.create({
-    data: {
-      adminId,
-      codeHash,
-      expiresAt,
-      attempts: 0,
-      maxAttempts: MFA_MAX_ATTEMPTS,
-      used: false,
-      verified: false,
-      ipAddress: ipAddress || null,
-      userAgent: userAgent || null,
-    },
-  });
+  await dynamodb.send(
+    new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `ADMIN#${adminId}`,
+        SK: sk,
+        entityType: "MFA_CODE",
+        id,
+        adminId,
+        codeHash,
+        expiresAt,
+        attempts: 0,
+        maxAttempts: MFA_MAX_ATTEMPTS,
+        used: false,
+        verified: false,
+        ipAddress: ipAddress || undefined,
+        userAgent: userAgent || undefined,
+        createdAt: now,
+        ttl,
+      },
+    })
+  );
 
-  return { code, mfaId: record.id };
+  return { code, mfaSK: sk };
 }
 
 /**
@@ -90,18 +141,29 @@ export async function createMfaCode(
  * Handles: expiry, attempt limiting, replay prevention.
  */
 export async function verifyMfaCode(
-  adminId: number,
+  adminId: string,
   code: string
 ): Promise<{ success: boolean; mfaToken?: string; error?: string }> {
+  const now = nowISO();
+
   // Find the latest unused, unexpired code for this admin
-  const mfaRecord = await prisma.mfaCode.findFirst({
-    where: {
-      adminId,
-      used: false,
-      expiresAt: { gt: new Date() },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const res = await dynamodb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+      FilterExpression: "used = :f AND expiresAt > :now AND entityType = :et",
+      ExpressionAttributeValues: {
+        ":pk": `ADMIN#${adminId}`,
+        ":sk": "MFA#",
+        ":f": false,
+        ":now": now,
+        ":et": "MFA_CODE",
+      },
+      ScanIndexForward: false, // Latest first
+    })
+  );
+
+  const mfaRecord = res.Items?.[0];
 
   if (!mfaRecord) {
     return { success: false, error: 'No valid OTP found. Please request a new code.' };
@@ -109,21 +171,29 @@ export async function verifyMfaCode(
 
   // Check attempt limit
   if (mfaRecord.attempts >= mfaRecord.maxAttempts) {
-    await prisma.mfaCode.update({
-      where: { id: mfaRecord.id },
-      data: { used: true },
-    });
+    await dynamodb.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `ADMIN#${adminId}`, SK: mfaRecord.SK },
+        UpdateExpression: "SET used = :t",
+        ExpressionAttributeValues: { ":t": true },
+      })
+    );
     return { success: false, error: 'Too many failed attempts. Please request a new code.' };
   }
 
   // Verify the code against bcrypt hash
-  const isValid = await bcrypt.compare(code, mfaRecord.codeHash);
+  const isValid = await bcrypt.compare(code, mfaRecord.codeHash as string);
 
   if (!isValid) {
-    await prisma.mfaCode.update({
-      where: { id: mfaRecord.id },
-      data: { attempts: { increment: 1 } },
-    });
+    await dynamodb.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `ADMIN#${adminId}`, SK: mfaRecord.SK },
+        UpdateExpression: "SET attempts = attempts + :one",
+        ExpressionAttributeValues: { ":one": 1 },
+      })
+    );
     const remaining = mfaRecord.maxAttempts - mfaRecord.attempts - 1;
     return {
       success: false,
@@ -135,17 +205,37 @@ export async function verifyMfaCode(
 
   // Success — generate one-time mfaToken
   const mfaToken = generateMfaToken();
-  const tokenExpiresAt = new Date(Date.now() + MFA_TOKEN_EXPIRY_SECONDS * 1000);
+  const tokenExpiresAt = new Date(Date.now() + MFA_TOKEN_EXPIRY_SECONDS * 1000).toISOString();
+  const ttl = ttlFromNow(86400);
 
-  await prisma.mfaCode.update({
-    where: { id: mfaRecord.id },
-    data: {
-      used: true,
-      verified: true,
-      mfaToken,
-      tokenExpiresAt,
-    },
-  });
+  await dynamodb.send(
+    new TransactWriteCommand({
+      TransactItems: [
+        {
+          Update: {
+            TableName: TABLE,
+            Key: { PK: `ADMIN#${adminId}`, SK: mfaRecord.SK },
+            UpdateExpression: "SET used = :t, verified = :v, mfaToken = :mt, tokenExpiresAt = :te",
+            ExpressionAttributeValues: { ":t": true, ":v": true, ":mt": mfaToken, ":te": tokenExpiresAt },
+          },
+        },
+        {
+          Put: {
+            TableName: TABLE,
+            Item: {
+              PK: `MFA_TOKEN#${mfaToken}`,
+              SK: "MFA_TOKEN",
+              entityType: "MFA_TOKEN_LOOKUP",
+              adminId,
+              mfaCodeSK: mfaRecord.SK,
+              tokenExpiresAt,
+              ttl,
+            },
+          },
+        },
+      ],
+    })
+  );
 
   return { success: true, mfaToken };
 }
@@ -154,40 +244,57 @@ export async function verifyMfaCode(
  * Validate a one-time mfaToken during NextAuth authorize().
  * Consumes the token (single use).
  */
-export async function validateMfaToken(adminId: number, mfaToken: string): Promise<boolean> {
-  const record = await prisma.mfaCode.findFirst({
-    where: {
-      adminId,
-      mfaToken,
-      verified: true,
-      tokenExpiresAt: { gt: new Date() },
-    },
-  });
+export async function validateMfaToken(adminId: string, mfaToken: string): Promise<boolean> {
+  // Look up token
+  const res = await dynamodb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND SK = :sk",
+      ExpressionAttributeValues: {
+        ":pk": `MFA_TOKEN#${mfaToken}`,
+        ":sk": "MFA_TOKEN",
+      },
+    })
+  );
 
+  const record = res.Items?.[0];
   if (!record) return false;
 
+  // Verify it belongs to this admin and hasn't expired
+  if (record.adminId !== adminId) return false;
+  if (record.tokenExpiresAt && record.tokenExpiresAt < nowISO()) return false;
+
   // Consume the token — prevent replay
-  await prisma.mfaCode.update({
-    where: { id: record.id },
-    data: { mfaToken: null, tokenExpiresAt: null },
-  });
+  await dynamodb.send(
+    new DeleteCommand({
+      TableName: TABLE,
+      Key: { PK: `MFA_TOKEN#${mfaToken}`, SK: "MFA_TOKEN" },
+    })
+  );
 
   return true;
 }
 
 /**
+ * Mark an MFA code as used (e.g., when email send fails).
+ */
+export async function markMfaCodeUsed(adminId: string, mfaSK: string): Promise<void> {
+  await dynamodb.send(
+    new UpdateCommand({
+      TableName: TABLE,
+      Key: { PK: `ADMIN#${adminId}`, SK: mfaSK },
+      UpdateExpression: "SET used = :t",
+      ExpressionAttributeValues: { ":t": true },
+    })
+  );
+}
+
+/**
  * Cleanup expired MFA codes older than 24 hours.
- * Call periodically or on each login.
+ * With TTL enabled, this is handled automatically by DynamoDB.
+ * This function is kept for API compatibility but is now a no-op.
  */
 export async function cleanupExpiredMfaCodes(): Promise<number> {
-  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const result = await prisma.mfaCode.deleteMany({
-    where: {
-      OR: [
-        { expiresAt: { lt: cutoff } },
-        { used: true, createdAt: { lt: cutoff } },
-      ],
-    },
-  });
-  return result.count;
+  // DynamoDB TTL handles this automatically — no manual cleanup needed
+  return 0;
 }

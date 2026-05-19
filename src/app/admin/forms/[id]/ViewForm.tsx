@@ -30,7 +30,7 @@ import ReviewOfDecisionView from "@/app/components/forms/review_of_decision/View
 import ChangeOfDetailsView from "@/app/components/forms/change_of_details/View";
 
 interface AppSetting {
-  id: number;
+  id: string | number;
   key: string;
   value: string | null;
   type: string;

@@ -6,7 +6,7 @@
 // import { FaPlus, FaUserEdit, FaLink, FaSpinner, FaCog } from 'react-icons/fa';
 
 // interface ActionButtonsProps {
-//   clientId: number;
+//   clientId: string | number;
 //   selectedForms: number[];
 //   generatingLink: boolean;
 //   onShowAssignModal: () => void;
@@ -153,7 +153,7 @@ import Link from 'next/link';
 import { FaPlus, FaUserEdit, FaLink, FaSpinner, FaCog } from 'react-icons/fa';
 
 interface ActionButtonsProps {
-  clientId: number;
+  clientId: string | number;
   selectedForms: number[];
   generatingLink: boolean;
   onShowAssignModal: () => void;

@@ -1,33 +1,23 @@
-
-
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { getSettingsByAdmin, getSettingByKey, upsertSetting, bulkUpsertSettings, copyGlobalSettingsToAdmin, getSettingsCount } from "@/lib/db/settings";
 
-// GET - Fetch settings (admin-specific or global)
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
-    
-    // Allow adminId to be passed as query parameter for server-side calls (e.g., PDF generation)
-    const queryAdminId = searchParams.get("adminId");
-    let adminId: number | null = null;
-    
-    if (queryAdminId) {
-      adminId = parseInt(queryAdminId);
-      console.log(`📋 [Settings API] Using adminId from query param: ${adminId}`);
-    } else if (session?.user?.id) {
-      adminId = parseInt(session.user.id);
-      console.log(`📋 [Settings API] Using adminId from session: ${adminId}`);
-    } else {
-      // Fallback to default adminId for backward compatibility
-      adminId = 1;
-      console.log(`📋 [Settings API] Using default adminId: ${adminId}`);
-    }
 
-    console.log(`🔍 [SETTINGS DEBUG] Starting GET request with adminId: ${adminId}, queryAdminId: ${queryAdminId}, sessionUserId: ${session?.user?.id}`);
+    const queryAdminId = searchParams.get("adminId");
+    let adminId: string | null = null;
+
+    if (queryAdminId) {
+      adminId = queryAdminId;
+    } else if (session?.user?.id) {
+      adminId = session.user.id;
+    } else {
+      adminId = "1";
+    }
 
     if (!adminId) {
       return NextResponse.json(
@@ -39,42 +29,14 @@ export async function GET(req: NextRequest) {
     const category = searchParams.get("category");
     const flat = searchParams.get("forms") === "true";
 
-    // Step 1: Check if admin has any settings
-    const adminSettingCount = await prisma.appSettings.count({
-      where: { adminId },
-    });
-
-    // Step 2: If not, copy global (adminId: null) settings for this admin
+    // Check if admin has any settings, if not copy global defaults
+    const adminSettingCount = await getSettingsCount(adminId);
     if (adminSettingCount === 0) {
-      const globalSettings = await prisma.appSettings.findMany({
-        where: { adminId: null },
-      });
-
-      const copiedSettings = globalSettings.map((setting) => ({
-        key: setting.key,
-        value: setting.defaultValue ?? '',
-        type: setting.type,
-        category: setting.category,
-        label: setting.label,
-        description: setting.description,
-        isRequired: setting.isRequired,
-        defaultValue: setting.defaultValue,
-        validation: setting.validation,
-        sortOrder: setting.sortOrder,
-        isActive: setting.isActive,
-        adminId: adminId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }));
-
-      if (copiedSettings.length > 0) {
-        await prisma.appSettings.createMany({ data: copiedSettings });
-      }
+      await copyGlobalSettingsToAdmin(adminId);
     }
 
-    // Step 2.5: Auto-sync missing settings from default list (only when called from UI, not server-side)
+    // Auto-sync missing settings from default list (only when called from UI)
     if (!queryAdminId && session?.user?.id) {
-      // Import default settings from initialize route
       const defaultSettings = [
         { key: 'from_email', type: 'email', category: 'email_settings', label: 'From Email Address', description: 'Email address used as sender for all outgoing emails', isRequired: true, defaultValue: '', sortOrder: 1 },
         { key: 'smtp_host', type: 'text', category: 'email_settings', label: 'SMTP Host', description: 'The SMTP server used to send emails (e.g., smtp.gmail.com)', isRequired: true, defaultValue: '', sortOrder: 2 },
@@ -97,17 +59,11 @@ export async function GET(req: NextRequest) {
         { key: 'sa_support_coordination', type: 'text', category: 'form_ids', label: 'Service Agreement Support Co-Ordination ID', description: 'Unique identifier for Service Agreement Support Co-Ordination forms', isRequired: true, defaultValue: '', sortOrder: 12 },
       ];
 
-      // Get existing setting keys for this admin
-      const existingSettings = await prisma.appSettings.findMany({
-        where: { adminId },
-        select: { key: true },
-      });
-      const existingKeys = new Set(existingSettings.map(s => s.key));
-
-      // Find missing settings
+      // Get existing settings and find missing ones
+      const existingSettings = await getSettingsByAdmin(adminId);
+      const existingKeys = new Set(existingSettings.map((s: any) => s.key));
       const missingSettings = defaultSettings.filter(s => !existingKeys.has(s.key));
 
-      // Add missing settings
       if (missingSettings.length > 0) {
         const settingsToAdd = missingSettings.map((setting: any) => ({
           key: setting.key,
@@ -120,123 +76,49 @@ export async function GET(req: NextRequest) {
           defaultValue: setting.defaultValue,
           sortOrder: setting.sortOrder,
           isActive: true,
-          adminId: adminId,
+          adminId,
         }));
-
-        await prisma.appSettings.createMany({ data: settingsToAdd });
-        console.log(`✅ Auto-added ${missingSettings.length} missing settings: ${missingSettings.map(s => s.key).join(', ')}`);
+        await bulkUpsertSettings(adminId, settingsToAdd);
       }
 
-      // Special check: Ensure sa_support_coordination setting exists and is up-to-date
-      const saSupportCoordinationSetting = defaultSettings.find(s => s.key === 'sa_support_coordination');
-      console.log(`🔍 [SETTINGS DEBUG] Looking for sa_support_coordination in defaultSettings:`, saSupportCoordinationSetting ? 'FOUND' : 'NOT FOUND');
-      
-      if (saSupportCoordinationSetting) {
-        const existingSASetting = await prisma.appSettings.findFirst({
-          where: {
-            key: 'sa_support_coordination',
-            adminId: adminId,
-          },
+      // Ensure sa_support_coordination exists and is up-to-date
+      const saSetting = defaultSettings.find(s => s.key === 'sa_support_coordination')!;
+      const existingSA = await getSettingByKey('sa_support_coordination', adminId);
+      if (!existingSA) {
+        await upsertSetting(adminId, {
+          key: 'sa_support_coordination',
+          value: saSetting.defaultValue ?? '',
+          type: saSetting.type,
+          category: saSetting.category,
+          label: saSetting.label,
+          description: saSetting.description,
+          isRequired: saSetting.isRequired,
+          defaultValue: saSetting.defaultValue,
+          sortOrder: saSetting.sortOrder,
+          isActive: true,
         });
-
-        console.log(`🔍 [SETTINGS DEBUG] Existing sa_support_coordination setting:`, existingSASetting ? {
-          id: existingSASetting.id,
-          key: existingSASetting.key,
-          label: existingSASetting.label,
-          isActive: existingSASetting.isActive,
-          adminId: existingSASetting.adminId,
-        } : 'NOT FOUND');
-
-        if (!existingSASetting) {
-          // Create if it doesn't exist
-          const created = await prisma.appSettings.create({
-            data: {
-              key: 'sa_support_coordination',
-              value: saSupportCoordinationSetting.defaultValue ?? '',
-              type: saSupportCoordinationSetting.type,
-              category: saSupportCoordinationSetting.category,
-              label: saSupportCoordinationSetting.label,
-              description: saSupportCoordinationSetting.description,
-              isRequired: saSupportCoordinationSetting.isRequired,
-              defaultValue: saSupportCoordinationSetting.defaultValue,
-              sortOrder: saSupportCoordinationSetting.sortOrder,
-              isActive: true,
-              adminId: adminId,
-            },
-          });
-          console.log(`✅ [SETTINGS DEBUG] Created missing sa_support_coordination setting:`, {
-            id: created.id,
-            key: created.key,
-            label: created.label,
-            isActive: created.isActive,
-            adminId: created.adminId,
-          });
-        } else if (existingSASetting.label !== saSupportCoordinationSetting.label || 
-                   existingSASetting.description !== saSupportCoordinationSetting.description ||
-                   existingSASetting.sortOrder !== saSupportCoordinationSetting.sortOrder ||
-                   existingSASetting.isActive !== true) {
-          // Update if label, description, sortOrder, or isActive changed
-          const updated = await prisma.appSettings.update({
-            where: { id: existingSASetting.id },
-            data: {
-              label: saSupportCoordinationSetting.label,
-              description: saSupportCoordinationSetting.description,
-              sortOrder: saSupportCoordinationSetting.sortOrder,
-              isActive: true,
-            },
-          });
-          console.log(`✅ [SETTINGS DEBUG] Updated sa_support_coordination setting:`, {
-            id: updated.id,
-            key: updated.key,
-            label: updated.label,
-            isActive: updated.isActive,
-            adminId: updated.adminId,
-          });
-        } else {
-          console.log(`ℹ️ [SETTINGS DEBUG] sa_support_coordination setting already up-to-date`);
-        }
+      } else if (existingSA.label !== saSetting.label || existingSA.description !== saSetting.description || existingSA.sortOrder !== saSetting.sortOrder || existingSA.isActive !== true) {
+        await upsertSetting(adminId, {
+          key: 'sa_support_coordination',
+          value: existingSA.value,
+          type: saSetting.type,
+          category: saSetting.category,
+          label: saSetting.label,
+          description: saSetting.description,
+          isRequired: saSetting.isRequired,
+          defaultValue: saSetting.defaultValue,
+          sortOrder: saSetting.sortOrder,
+          isActive: true,
+        });
       }
     }
 
-    // Step 3: Build the filter for current admin settings
-    const whereClause: any = {
-      isActive: true,
-      adminId: adminId,
-    };
-
-    if (category) {
-      whereClause.category = category;
-    }
-
-    console.log(`🔍 [SETTINGS DEBUG] Fetching settings with whereClause:`, JSON.stringify(whereClause, null, 2));
-
-    const settings = await prisma.appSettings.findMany({
-      where: whereClause,
-      orderBy: [
-        { category: "asc" },
-        { sortOrder: "asc" },
-        { label: "asc" },
-      ],
-    });
-
-    console.log(`🔍 [SETTINGS DEBUG] Total settings found: ${settings.length}`);
-    const saSetting = settings.find(s => s.key === 'sa_support_coordination');
-    console.log(`🔍 [SETTINGS DEBUG] sa_support_coordination in results:`, saSetting ? {
-      id: saSetting.id,
-      key: saSetting.key,
-      label: saSetting.label,
-      category: saSetting.category,
-      isActive: saSetting.isActive,
-      sortOrder: saSetting.sortOrder,
-    } : 'NOT FOUND');
-    
-    const formIdsSettings = settings.filter(s => s.category === 'form_ids');
-    console.log(`🔍 [SETTINGS DEBUG] Form IDs settings count: ${formIdsSettings.length}`);
-    console.log(`🔍 [SETTINGS DEBUG] Form IDs keys:`, formIdsSettings.map(s => s.key).join(', '));
+    // Fetch settings for this admin
+    const settings = await getSettingsByAdmin(adminId, category || undefined);
 
     if (flat) {
       const flatSettings: Record<string, any> = {};
-      settings.forEach((s) => {
+      settings.forEach((s: any) => {
         flatSettings[s.key] = s.value;
       });
 
@@ -247,13 +129,13 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const groupedSettings = settings.reduce((acc, setting) => {
+    const groupedSettings = settings.reduce((acc: any, setting: any) => {
       if (!acc[setting.category]) {
         acc[setting.category] = [];
       }
       acc[setting.category].push(setting);
       return acc;
-    }, {} as Record<string, typeof settings>);
+    }, {} as Record<string, any[]>);
 
     return NextResponse.json({
       success: true,
@@ -269,26 +151,13 @@ export async function GET(req: NextRequest) {
   }
 }
 
-
-// POST - Create new setting
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+    const adminId = session?.user?.id || null;
 
     const body = await req.json();
-    const {
-      key,
-      value,
-      type,
-      category,
-      label,
-      description,
-      isRequired,
-      defaultValue,
-      validation,
-      sortOrder
-    } = body;
+    const { key, value, type, category, label, description, isRequired, defaultValue, validation, sortOrder } = body;
 
     if (!key || !type || !category || !label) {
       return NextResponse.json(
@@ -297,14 +166,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for uniqueness of key + adminId
-    const existingSetting = await prisma.appSettings.findFirst({
-      where: {
-        key,
-        adminId: adminId,
-      },
-    });
-
+    const existingSetting = await getSettingByKey(key, adminId!);
     if (existingSetting) {
       return NextResponse.json(
         { error: "Setting with this key already exists for this admin" },
@@ -312,20 +174,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newSetting = await prisma.appSettings.create({
-      data: {
-        key,
-        value: value || defaultValue,
-        type,
-        category,
-        label,
-        description,
-        isRequired: isRequired || false,
-        defaultValue,
-        validation,
-        sortOrder: sortOrder || 0,
-        adminId: adminId,
-      },
+    const newSetting = await upsertSetting(adminId!, {
+      key,
+      value: value || defaultValue,
+      type,
+      category,
+      label,
+      description,
+      isRequired: isRequired || false,
+      defaultValue,
+      validation,
+      sortOrder: sortOrder || 0,
     });
 
     return NextResponse.json({
@@ -343,11 +202,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT - Update multiple settings
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    const adminId : any = session?.user?.id ? parseInt(session.user.id) : null;
+    const adminId = session?.user?.id || null;
 
     const body = await req.json();
     const { settings } = body;
@@ -359,41 +217,23 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const updatePromises = settings.map((setting: any) => {
-      const { key, value } = setting;
-
-      if (!key) {
-        throw new Error("Setting key is required");
-      }
-
-      return prisma.appSettings.upsert({
-        where: {
-          key_adminId: {
-            key,
-            adminId: adminId,
-          },
-        },
-        update: {
-          value,
-          updatedAt: new Date(),
-        },
-        create: {
-          key,
-          value,
-          type: setting.type || 'string',
-          category: setting.category || 'general',
-          label: setting.label || key,
-          description: setting.description,
-          isRequired: setting.isRequired || false,
-          defaultValue: setting.defaultValue,
-          validation: setting.validation,
-          sortOrder: setting.sortOrder || 0,
-          adminId: adminId,
-        },
-      });
+    const settingsToUpsert = settings.map((setting: any) => {
+      if (!setting.key) throw new Error("Setting key is required");
+      return {
+        key: setting.key,
+        value: setting.value,
+        type: setting.type || 'string',
+        category: setting.category || 'general',
+        label: setting.label || setting.key,
+        description: setting.description,
+        isRequired: setting.isRequired || false,
+        defaultValue: setting.defaultValue,
+        validation: setting.validation,
+        sortOrder: setting.sortOrder || 0,
+      };
     });
 
-    const updatedSettings = await prisma.$transaction(updatePromises);
+    const updatedSettings = await bulkUpsertSettings(adminId!, settingsToUpsert);
 
     return NextResponse.json({
       success: true,

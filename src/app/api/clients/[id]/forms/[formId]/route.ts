@@ -1,141 +1,5 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-
-// export async function GET(
-//   req: NextRequest,
-//   { params }: { params: { id: string; formId: string } }
-// ) {
-//   try {
-//     // Make sure to parse params safely
-//     const clientId = parseInt(params.id || "0");
-//     const formId = parseInt(params.formId || "0");
-
-//     // Get the form submission for this client and form
-//     const formSubmission = await prisma.formSubmission.findFirst({
-//       where: {
-//         clientId,
-//         formId,
-//       },
-//       include: {
-//         form: true,
-//       },
-//     });
-
-//     if (!formSubmission) {
-//       return NextResponse.json(
-//         { error: "Form submission not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     return NextResponse.json(formSubmission);
-//   } catch (error: any) {
-//     console.error("Error fetching form submission:", error);
-//     return NextResponse.json(
-//       { error: "Failed to fetch form submission", details: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// export async function PUT(
-//   req: NextRequest,
-//   { params }: { params: { id: string; formId: string } }
-// ) {
-//   try {
-//     const clientId = parseInt(params.id || "0");
-//     const formId = parseInt(params.formId || "0");
-//     const body = await req.json();
-//     const { data, isSubmitted = false } = body;
-
-//     // Get the form to get its version
-//     const form = await prisma.masterForm.findUnique({
-//       where: { id: formId },
-//     });
-
-//     if (!form) {
-//       return NextResponse.json(
-//         { error: "Form not found" },
-//         { status: 404 }
-//       );
-//     }
-
-//     // Check if a submission already exists
-//     const existingSubmission = await prisma.formSubmission.findFirst({
-//       where: {
-//         clientId,
-//         formId,
-//       },
-//     });
-
-//     let formSubmission;
-
-//     if (existingSubmission) {
-//       // Update existing submission
-//       formSubmission = await prisma.formSubmission.update({
-//         where: {
-//           id: existingSubmission.id,
-//         },
-//         data: {
-//           data,
-//           isSubmitted,
-//           submittedAt: isSubmitted ? new Date() : existingSubmission.submittedAt,
-//         },
-//       });
-//     } else {
-//       // Create new submission
-//       formSubmission = await prisma.formSubmission.create({
-//         data: {
-//           clientId,
-//           formId,
-//           formVersion: form.version,
-//           data,
-//           isSubmitted,
-//           submittedAt: isSubmitted ? new Date() : null,
-//         },
-//       });
-//     }
-
-//     // If the form is submitted, update the form assignment status
-//     if (isSubmitted) {
-//       await prisma.formAssignment.updateMany({
-//         where: {
-//           clientId,
-//           formId,
-//         },
-//         data: {
-//           isCompleted: true,
-//         },
-//       });
-
-//       // Log the form submission
-//       await prisma.formActivityLog.create({
-//         data: {
-//           clientId,
-//           logType: "CLIENT",
-//           action: "Submitted Form",
-//           metadata: {
-//             formId,
-//             formTitle: form.title,
-//             formVersion: form.version,
-//           },
-//         },
-//       });
-//     }
-
-//     return NextResponse.json(formSubmission);
-//   } catch (error: any) {
-//     console.error("Error updating form submission:", error);
-//     return NextResponse.json(
-//       { error: "Failed to update form submission", details: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getSubmission, getFormById, upsertSubmission, updateAssignmentStatus, getClientAssignments, createActivityLog } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
@@ -144,20 +8,18 @@ export async function GET(
   try {
     const { id, formId } = await params;
 
-    // Make sure to parse params safely
-    const clientId = parseInt(id || "0");
-    const formIdInt = parseInt(formId || "0");
+    // Get assignments to find the correct formVersion/instanceNumber
+    const assignments = await getClientAssignments(id);
+    const assignment = assignments.find((a) => a.formId === formId);
 
-    // Get the form submission for this client and form
-    const formSubmission = await prisma.formSubmission.findFirst({
-      where: {
-        clientId,
-        formId: formIdInt,
-      },
-      include: {
-        form: true,
-      },
-    });
+    if (!assignment) {
+      return NextResponse.json(
+        { error: "Form submission not found" },
+        { status: 404 }
+      );
+    }
+
+    const formSubmission = await getSubmission(id, formId, assignment.formVersion, assignment.instanceNumber);
 
     if (!formSubmission) {
       return NextResponse.json(
@@ -166,7 +28,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(formSubmission);
+    return NextResponse.json({
+      ...formSubmission,
+      form: {
+        id: assignment.formId,
+        formKey: assignment.formKey,
+        title: assignment.formTitle,
+        version: assignment.formVersion,
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching form submission:", error);
     return NextResponse.json(
@@ -182,17 +52,10 @@ export async function PUT(
 ) {
   try {
     const { id, formId } = await params;
-
-    const clientId = parseInt(id || "0");
-    const formIdInt = parseInt(formId || "0");
     const body = await req.json();
     const { data, isSubmitted = false } = body;
 
-    // Get the form to get its version
-    const form = await prisma.masterForm.findUnique({
-      where: { id: formIdInt },
-    });
-
+    const form = await getFormById(formId);
     if (!form) {
       return NextResponse.json(
         { error: "Form not found" },
@@ -200,70 +63,38 @@ export async function PUT(
       );
     }
 
-    // Check if a submission already exists
-    const existingSubmission = await prisma.formSubmission.findFirst({
-      where: {
-        clientId,
-        formId: formIdInt,
-      },
+    // Find the assignment to get instanceNumber
+    const assignments = await getClientAssignments(id);
+    const assignment = assignments.find((a) => a.formId === formId);
+    const instanceNumber = assignment?.instanceNumber || 1;
+
+    const formSubmission = await upsertSubmission({
+      clientId: id,
+      formId,
+      formVersion: form.version,
+      instanceNumber,
+      data,
+      isSubmitted,
+      submittedAt: isSubmitted ? new Date().toISOString() : undefined,
+      filledByAdmin: false,
+      formKey: form.formKey,
+      formTitle: form.title,
     });
 
-    let formSubmission;
-
-    if (existingSubmission) {
-      // Update existing submission
-      formSubmission = await prisma.formSubmission.update({
-        where: {
-          id: existingSubmission.id,
-        },
-        data: {
-          data,
-          isSubmitted,
-          submittedAt: isSubmitted ? new Date() : existingSubmission.submittedAt,
-        },
-      });
-    } else {
-      // Create new submission
-      formSubmission = await prisma.formSubmission.create({
-        data: {
-          clientId,
-          formId: formIdInt,
-          formVersion: form.version,
-          data,
-          isSubmitted,
-          submittedAt: isSubmitted ? new Date() : null,
-        },
-      });
-    }
-
-    // If the form is submitted, update the form assignment status
-    if (isSubmitted) {
+    if (isSubmitted && assignment) {
       const { calculateFormStatus } = await import("@/lib/formStatusHelper");
-
       const newStatus = calculateFormStatus(form.formKey, data, true, true);
 
-      await prisma.formAssignment.updateMany({
-        where: {
-          clientId,
-          formId: formIdInt,
-        },
-        data: {
-          currentStatus: newStatus,
-          isCompleted: newStatus === "completed",
-        },
-      });
+      await updateAssignmentStatus(id, assignment.id, newStatus, assignment.currentStatus);
 
-      // Log the form submission
-      await prisma.formActivityLog.create({
-        data: {
-          clientId,
-          logType: "CLIENT",
-          action: "Submitted Form",
-          metadata: {
-            formId: formIdInt,
-            formTitle: form.title,
-            formVersion: form.version,
-          },
+      await createActivityLog({
+        clientId: id,
+        logType: "CLIENT",
+        action: "Submitted Form",
+        metadata: {
+          formId,
+          formTitle: form.title,
+          formVersion: form.version,
         },
       });
     }

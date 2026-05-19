@@ -1,52 +1,18 @@
-import { prisma } from './prisma';
+import { getSubmission, getSubmissionById, getFormById } from "./db/forms";
+import { getClientById } from "./db/client";
 
-/**
- * Get a form submission by ID with related data
- */
-export async function getFormSubmissionById(formId: number, clientId: number, formVersion: number, instanceNumber: number = 1) {
-  try {
-    const submission = await prisma.formSubmission.findUnique({
-      where: {
-        clientId_formId_formVersion_instanceNumber: {
-          clientId,
-          formId,
-          formVersion,
-          instanceNumber
-        }
-      },
-      include: {
-        client: true,
-        form: true,
-      },
-    });
+export async function getFormSubmissionById(formId: string, clientId: string, formVersion: number, instanceNumber: number = 1) {
+  const submission = await getSubmission(clientId, formId, formVersion, instanceNumber);
+  if (!submission) throw new Error("Form submission not found");
 
-    if (!submission) {
-      throw new Error('Form submission not found');
-    }
+  const client = await getClientById(clientId);
+  const form = await getFormById(formId);
 
-    return submission;
-  } catch (error) {
-    console.error('Error fetching form submission:', error);
-    throw error;
-  }
+  return { ...submission, client, form };
 }
 
-/**
- * Get form schema by ID
- */
-export async function getFormSchemaById(formId: number) {
-  try {
-    const form = await prisma.masterForm.findUnique({
-      where: { id: formId },
-    });
-
-    if (!form) {
-      throw new Error('Form not found');
-    }
-
-    return form.schema;
-  } catch (error) {
-    console.error('Error fetching form schema:', error);
-    throw error;
-  }
+export async function getFormSchemaById(formId: string) {
+  const form = await getFormById(formId);
+  if (!form) throw new Error("Form not found");
+  return form;
 }

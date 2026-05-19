@@ -9,7 +9,9 @@ import ReactDOMServer from "react-dom/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import fs from "fs";
 import path from "path";
-import { prisma } from "@/lib/prisma";
+import { getSubmissionById, getFormById } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
+import { getSettingsByAdmin } from "@/lib/db/settings";
 import { getPDFComponent } from "@/components-server/PrintableForms/pdfRegistry";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
@@ -444,93 +446,60 @@ export async function GET(
 ) {
   try {
     const { formSubmissionId, formId } = await params;
-    const submissionId = parseInt(formSubmissionId);
-    const formIdInt = parseInt(formId);
 
     // Check if this is a buffer request for email attachment
     const { searchParams } = new URL(req.url);
     const returnBuffer = searchParams.get('buffer') === 'true';
-    const attachmentName = searchParams.get('filename'); // Optional custom filename
-    const queryAdminId = searchParams.get('adminId'); // AdminId from query params for email PDFs
+    const attachmentName = searchParams.get('filename');
+    const queryAdminId = searchParams.get('adminId');
 
-    if (!submissionId || !formIdInt) {
+    if (!formSubmissionId || !formId) {
       return new NextResponse("Missing formSubmissionId or formId", { status: 400 });
     }
 
-    const formSubmission = await prisma.formSubmission.findUnique({
-      where: { id: submissionId }
-    });
-
+    const formSubmission = await getSubmissionById(formSubmissionId);
     if (!formSubmission) {
       return new NextResponse("Form submission not found", { status: 404 });
     }
 
-    const form = await prisma.masterForm.findUnique({
-      where: { id: formIdInt }
-    });
-
+    const form = await getFormById(formId);
     if (!form) {
       return new NextResponse("Form schema not found", { status: 404 });
     }
 
-    // ✅ GET CLIENT ID FROM FORM SUBMISSION
+    // Get client with common fields
     const clientId = formSubmission.clientId;
-
-    // ✅ FETCH COMMON FIELDS FOR THIS CLIENT
-    const commonFields = await prisma.commonField.findUnique({
-      where: { clientId: clientId }
-    });
+    const client = await getClientById(clientId);
+    const commonFields = client?.commonFields || null;
 
     if (!commonFields) {
       console.warn(`No common fields found for client ${clientId}`);
     }
 
-    // ✅ Fetch Form specific settings for the current admin
-    // Priority: 1) Query param adminId (for email PDFs), 2) Session adminId (for direct downloads)
+    // Fetch settings for the current admin
     const session = await getServerSession(authOptions);
-    let adminId: number | null = null;
+    let adminId: string | null = null;
 
     if (queryAdminId) {
-      adminId = parseInt(queryAdminId);
-      console.log(`📧 [PDF Route] Using adminId from query params: ${adminId} (for email PDF)`);
+      adminId = queryAdminId;
     } else if (session?.user?.id) {
-      adminId = parseInt(session.user.id);
-      console.log(`👤 [PDF Route] Using adminId from session: ${adminId} (for direct download)`);
-    } else {
-      console.warn('⚠️ No admin ID found (no query param or session), PDF may have default settings');
+      adminId = session.user.id;
     }
 
-    // Fetch settings: admin-specific first, then global (adminId: null) as fallback
-    const rawSettings = await prisma.appSettings.findMany({
-      where: {
-        isActive: true,
-        ...(adminId ? {
-          OR: [
-            { adminId: adminId },  // Admin-specific settings
-            { adminId: null }      // Global settings as fallback
-          ]
-        } : { adminId: null })  // If no adminId, only get global settings
-      },
-      select: { key: true, value: true, adminId: true },
-      orderBy: [
-        { adminId: 'desc' }  // Global (null) first, then admin-specific (numbers) - so admin-specific can override
-      ]
-    });
-
+    // Fetch settings: admin-specific with global fallback
     const settings: Record<string, any> = {};
-    // Process settings: admin-specific override global, only use non-empty values
-    // With DESC ordering: global (null) comes first, then admin-specific (numbers)
-    // So global settings are set first, then admin-specific override them
-    rawSettings.forEach(setting => {
-      // Admin-specific settings (adminId !== null) always override
-      // Global settings (adminId === null) only set if key not already set
-      if (setting.adminId !== null || !settings[setting.key]) {
-        // Only use non-empty values, don't override with empty strings
-        if (setting.value && setting.value.trim() !== '') {
-          settings[setting.key] = setting.value;
-        }
-      }
-    });
+    if (adminId) {
+      const adminSettings = await getSettingsByAdmin(adminId);
+      adminSettings.forEach((s: any) => {
+        if (s.value && s.value.trim() !== '') settings[s.key] = s.value;
+      });
+    }
+    if (Object.keys(settings).length === 0) {
+      const globalSettings = await getSettingsByAdmin("GLOBAL");
+      globalSettings.forEach((s: any) => {
+        if (s.value && s.value.trim() !== '') settings[s.key] = s.value;
+      });
+    }
 
     // Overlay with form-specific settings API (same as web view) to avoid stale DB values
     try {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getBatchByToken, getBatchAssignments, getSubmission, upsertSubmission, updateAssignmentStatus } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
+import { createActivityLog } from "@/lib/db/audit";
 
 export async function GET(
   req: NextRequest,
@@ -7,95 +9,51 @@ export async function GET(
 ) {
   try {
     const { token: batchToken } = await params;
-    const passcode = req.nextUrl.searchParams.get('passcode');
-    const formId = req.nextUrl.searchParams.get('formId');
-    if (!formId) {
-      return NextResponse.json(
-        { error: "Missing formId in query params" },
-        { status: 400 }
-      );
-    }
-    // Find the form assignment by batchToken and formId
-    const assignment = await prisma.formAssignment.findFirst({
-      where: {
-        batch: { batchToken },
-        formId: Number(formId),
+    const formId = req.nextUrl.searchParams.get("formId");
+    if (!formId) return NextResponse.json({ error: "Missing formId in query params" }, { status: 400 });
+
+    const batch = await getBatchByToken(batchToken);
+    if (!batch) return NextResponse.json({ error: "Invalid batch token or formId" }, { status: 404 });
+
+    const assignments = await getBatchAssignments(batch.id);
+    const assignment = assignments.find((a: any) => a.formId === formId);
+    if (!assignment) return NextResponse.json({ error: "Invalid batch token or formId" }, { status: 404 });
+
+    const client = await getClientById(batch.clientId);
+    if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
+
+    const formSubmission = await getSubmission(
+      batch.clientId,
+      assignment.formId,
+      assignment.formVersion,
+      assignment.instanceNumber || 1
+    );
+
+    // Navigation
+    const sortedAssignments = assignments.sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    const currentIndex = sortedAssignments.findIndex((a: any) => (a.id || a.assignmentId) === (assignment.id || assignment.assignmentId));
+    const previousForm = currentIndex > 0 ? sortedAssignments[currentIndex - 1] : null;
+    const nextForm = currentIndex < sortedAssignments.length - 1 ? sortedAssignments[currentIndex + 1] : null;
+
+    return NextResponse.json({
+      assignment: {
+        ...assignment,
+        form: { id: assignment.formId, formKey: assignment.formKey, title: assignment.formTitle, version: assignment.formVersion },
       },
-      include: {
-        client: { include: { commonFields: true } },
-        form: true,
-        batch: true,
-      },
-    });
-    if (!assignment) {
-      return NextResponse.json(
-        { error: "Invalid batch token or formId" },
-        { status: 404 }
-      );
-    }
-    // // Check if expired
-    // if (new Date() > new Date(assignment.expiresAt)) {
-    //   return NextResponse.json(
-    //     { error: "Access link has expired" },
-    //     { status: 403 }
-    //   );
-    // }
-    // Get existing form submission if any
-    const formSubmission = await prisma.formSubmission.findUnique({
-      where: {
-        clientId_formId_formVersion_instanceNumber: {
-          clientId: assignment.clientId,
-          formId: assignment.formId,
-          formVersion: assignment.formVersion,
-          instanceNumber: assignment.instanceNumber,
-        },
-      },
-    });
-    // Get next and previous forms in the batch if applicable
-    let nextForm = null;
-    let previousForm = null;
-    if (assignment.batchId) {
-      const batchForms = await prisma.formAssignment.findMany({
-        where: { batchId: assignment.batchId, archivedAt: null },
-        orderBy: { displayOrder: 'asc' },
-      });
-      const currentIndex = batchForms.findIndex(form => form.id === assignment.id);
-      if (currentIndex > 0) {
-        previousForm = batchForms[currentIndex - 1];
-      }
-      if (currentIndex < batchForms.length - 1) {
-        nextForm = batchForms[currentIndex + 1];
-      }
-    }
-    // Prepare the response data
-    const responseData = {
-      assignment,
-      form: assignment.form,
-      client: assignment.client,
-      commonFields: assignment.client.commonFields || null,
+      form: { id: assignment.formId, formKey: assignment.formKey, title: assignment.formTitle, version: assignment.formVersion, schema: null },
+      client: { id: client.id, name: client.name, email: client.email, commonFields: client.commonFields },
+      commonFields: client.commonFields || null,
       formData: formSubmission?.data || {},
       isSubmitted: formSubmission?.isSubmitted || false,
       navigation: {
-        previousForm: previousForm ? {
-          id: previousForm.id,
-          formId: previousForm.formId,
-          displayOrder: previousForm.displayOrder,
-        } : null,
-        nextForm: nextForm ? {
-          id: nextForm.id,
-          formId: nextForm.formId,
-          displayOrder: nextForm.displayOrder,
-        } : null,
-        batchToken: assignment.batch?.batchToken || null,
+        previousForm: previousForm ? { id: previousForm.id || previousForm.assignmentId, formId: previousForm.formId, displayOrder: previousForm.displayOrder } : null,
+        nextForm: nextForm ? { id: nextForm.id || nextForm.assignmentId, formId: nextForm.formId, displayOrder: nextForm.displayOrder } : null,
+        batchToken,
       },
-    };
-    return NextResponse.json(responseData);
+    });
   } catch (error: any) {
     console.error("Error fetching form data:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch form data", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch form data", details: error.message }, { status: 500 });
   }
 }
 
@@ -105,106 +63,54 @@ export async function PUT(
 ) {
   try {
     const { token: batchToken } = await params;
-    const passcode = req.nextUrl.searchParams.get('passcode');
     const body = await req.json();
     const { formId } = body;
-    if (!formId) {
-      return NextResponse.json(
-        { error: "Missing formId in request body" },
-        { status: 400 }
-      );
-    }
-    // Find the form assignment by batchToken and formId
-    const assignment = await prisma.formAssignment.findFirst({
-      where: {
-        batch: { batchToken },
-        formId: Number(formId),
-      },
-      include: { form: true },
+    if (!formId) return NextResponse.json({ error: "Missing formId in request body" }, { status: 400 });
+
+    const batch = await getBatchByToken(batchToken);
+    if (!batch) return NextResponse.json({ error: "Invalid batch token or formId" }, { status: 404 });
+
+    const assignments = await getBatchAssignments(batch.id);
+    const assignment = assignments.find((a: any) => a.formId === formId);
+    if (!assignment) return NextResponse.json({ error: "Invalid batch token or formId" }, { status: 404 });
+
+    const clientId = batch.clientId;
+    const formVersion = assignment.formVersion;
+    const instanceNumber = assignment.instanceNumber || 1;
+
+    const formSubmission = await upsertSubmission({
+      clientId,
+      formId: assignment.formId,
+      formVersion,
+      instanceNumber,
+      data: body.data,
+      isSubmitted: body.isSubmitted || false,
+      submittedAt: body.isSubmitted ? new Date().toISOString() : undefined,
+      filledByAdmin: false,
+      formKey: assignment.formKey,
+      formTitle: assignment.formTitle,
     });
-    if (!assignment) {
-      return NextResponse.json(
-        { error: "Invalid batch token or formId" },
-        { status: 404 }
-      );
-    }
-    // // Check if expired
-    // if (new Date() > new Date(assignment.expiresAt)) {
-    //   return NextResponse.json(
-    //     { error: "Access link has expired" },
-    //     { status: 403 }
-    //   );
-    // }
-    // Update or create form submission
-    const formSubmission = await prisma.formSubmission.upsert({
-      where: {
-        clientId_formId_formVersion_instanceNumber: {
-          clientId: assignment.clientId,
-          formId: assignment.formId,
-          formVersion: assignment.formVersion,
-          instanceNumber: assignment.instanceNumber,
-        },
-      },
-      update: {
-        data: body.data,
-        isSubmitted: body.isSubmitted || false,
-        submittedAt: body.isSubmitted ? new Date() : null,
-        updatedAt: new Date(),
-      },
-      create: {
-        clientId: assignment.clientId,
-        formId: assignment.formId,
-        formVersion: assignment.formVersion,
-        instanceNumber: assignment.instanceNumber,
-        data: body.data,
-        isSubmitted: body.isSubmitted || false,
-        submittedAt: body.isSubmitted ? new Date() : null,
-      },
-    });
-    // If the form is submitted, update the assignment status
+
     if (body.isSubmitted) {
-      await prisma.formAssignment.update({
-        where: { id: assignment.id },
-        data: { isCompleted: true },
-      });
-      // Log the form submission
-      await prisma.formActivityLog.create({
-        data: {
-          clientId: assignment.clientId,
-          logType: "CLIENT",
-          action: "Submitted Form",
-          metadata: {
-            formId: assignment.formId,
-            formTitle: assignment.form.title,
-            formVersion: assignment.formVersion,
-          },
-        },
+      await updateAssignmentStatus(clientId, assignment.id || assignment.assignmentId, "completed", assignment.currentStatus);
+      await createActivityLog({
+        clientId,
+        logType: "CLIENT",
+        action: "Submitted Form",
+        metadata: { formId: assignment.formId, formTitle: assignment.formTitle, formVersion },
       });
     } else {
-      // Log the form progress
-      await prisma.formActivityLog.create({
-        data: {
-          clientId: assignment.clientId,
-          logType: "CLIENT",
-          action: "Saved Form Progress",
-          metadata: {
-            formId: assignment.formId,
-            formTitle: assignment.form.title,
-            formVersion: assignment.formVersion,
-          },
-        },
+      await createActivityLog({
+        clientId,
+        logType: "CLIENT",
+        action: "Saved Form Progress",
+        metadata: { formId: assignment.formId, formTitle: assignment.formTitle, formVersion },
       });
     }
-    return NextResponse.json({
-      success: true,
-      isSubmitted: body.isSubmitted || false,
-      formSubmission,
-    });
+
+    return NextResponse.json({ success: true, isSubmitted: body.isSubmitted || false, formSubmission });
   } catch (error: any) {
     console.error("Error updating form data:", error);
-    return NextResponse.json(
-      { error: "Failed to update form data", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update form data", details: error.message }, { status: 500 });
   }
 }

@@ -14,7 +14,7 @@ import useRequireAuth from '../../hooks/useRequireAuth';
 
 // Types
 interface AppSetting {
-  id: number;
+  id: string | number;
   key: string;
   value: string | null;
   type: string;

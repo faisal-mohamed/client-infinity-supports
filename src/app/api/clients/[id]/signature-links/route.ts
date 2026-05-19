@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getClientById, getClientBatches, getSignatureBatchForms, getSubmissionById } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
@@ -7,25 +7,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const clientId = parseInt(id);
 
-    if (isNaN(clientId)) {
+    if (!id) {
       return NextResponse.json(
         { error: "Invalid client ID" },
         { status: 400 }
       );
     }
 
-    // Get client info
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
-
+    const client = await getClientById(id);
     if (!client) {
       return NextResponse.json(
         { error: "Client not found" },
@@ -34,46 +24,45 @@ export async function GET(
     }
 
     // Get all signature batches for this client
-    const signatureBatches = await prisma.formBatch.findMany({
-      where: {
-        clientId: clientId,
-        isSignatureOnly: true, // Only signature batches
-      },
-      include: {
-        client: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-        signatureForms: {
-          include: {
-            formSubmission: {
-              include: {
-                form: {
-                  select: {
-                    title: true,
-                    formKey: true,
-                  },
-                },
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'asc',
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc', // Most recent first
-      },
-    });
+    const signatureBatches = await getClientBatches(id, true);
+
+    // Enrich each batch with its signature forms and submission details
+    const enrichedBatches = await Promise.all(
+      signatureBatches
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map(async (batch) => {
+          const sigForms = await getSignatureBatchForms(batch.id);
+          const signatureForms = await Promise.all(
+            sigForms.map(async (sf) => {
+              const submission = await getSubmissionById(sf.formSubmissionId);
+              return {
+                batchId: sf.batchId,
+                formSubmissionId: sf.formSubmissionId,
+                createdAt: sf.createdAt,
+                formSubmission: submission
+                  ? {
+                      ...submission,
+                      form: {
+                        title: submission.formTitle,
+                        formKey: submission.formKey,
+                      },
+                    }
+                  : null,
+              };
+            })
+          );
+          return {
+            ...batch,
+            client: { name: client.name, email: client.email },
+            signatureForms,
+          };
+        })
+    );
 
     return NextResponse.json({
-      client,
-      signatureBatches,
+      client: { id: client.id, name: client.name, email: client.email },
+      signatureBatches: enrichedBatches,
     });
-
   } catch (error: any) {
     console.error("Error fetching signature links:", error);
     return NextResponse.json(

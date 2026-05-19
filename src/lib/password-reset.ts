@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { getAdminByEmail as dbGetAdminByEmail, updateAdmin } from './db/admin';
 import { getEmailConfig, testEmailConnection } from './email';
-
-const prisma = new PrismaClient();
 
 /**
  * Generate a secure 6-digit verification code
@@ -29,76 +27,38 @@ export function isValidPassword(password: string): { valid: boolean; message?: s
   if (!password) {
     return { valid: false, message: 'Password is required' };
   }
-  
   if (password.length < 15) {
     return { valid: false, message: 'Password must be at least 15 characters long' };
   }
-  
   if (!/[A-Z]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one uppercase letter (A-Z)' };
   }
-  
   if (!/[0-9]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one number (0-9)' };
   }
-  
   if (!/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password)) {
     return { valid: false, message: 'Password must contain at least one special character (!@#$%^&*_-+=[]{}|;:,.<>?)' };
   }
-  
   return { valid: true };
-}
-
-/**
- * Clean up expired reset tokens (can be run as a cleanup job)
- */
-export async function cleanupExpiredResetTokens(): Promise<number> {
-  try {
-    const result = await prisma.admin.updateMany({
-      where: {
-        resetTokenExpiry: {
-          lt: new Date(),
-        },
-        resetToken: {
-          not: null,
-        },
-      },
-      data: {
-        resetToken: null,
-        resetTokenExpiry: null,
-      },
-    });
-
-    console.log(`🧹 Cleaned up ${result.count} expired reset tokens`);
-    return result.count;
-  } catch (error) {
-    console.error('Error cleaning up expired reset tokens:', error);
-    throw error;
-  }
 }
 
 /**
  * Get admin by email (case insensitive)
  */
 export async function getAdminByEmail(email: string) {
-  return await prisma.admin.findUnique({
-    where: { email: email.toLowerCase() },
-  });
+  return await dbGetAdminByEmail(email.toLowerCase());
 }
 
 /**
  * Check if admin has email configuration
  */
-export async function checkAdminEmailConfiguration(adminId: number): Promise<{
+export async function checkAdminEmailConfiguration(adminId: string): Promise<{
   configured: boolean;
   message?: string;
 }> {
   try {
     await getEmailConfig(adminId);
-    
-    // Test the email connection
     const connectionTest = await testEmailConnection(adminId);
-    
     return {
       configured: connectionTest.success,
       message: connectionTest.message
@@ -114,28 +74,22 @@ export async function checkAdminEmailConfiguration(adminId: number): Promise<{
 /**
  * Set reset token for admin
  */
-export async function setResetToken(adminId: number, token: string, expiryMinutes: number = 15) {
-  const expiryTime = new Date(Date.now() + expiryMinutes * 60 * 1000);
-  
-  return await prisma.admin.update({
-    where: { id: adminId },
-    data: {
-      resetToken: token || null,
-      resetTokenExpiry: token ? expiryTime : null,
-    },
+export async function setResetToken(adminId: string, token: string, expiryMinutes: number = 15) {
+  const expiryTime = token ? new Date(Date.now() + expiryMinutes * 60 * 1000).toISOString() : undefined;
+
+  await updateAdmin(adminId, {
+    resetToken: token || undefined,
+    resetTokenExpiry: expiryTime,
   });
 }
 
 /**
  * Clear reset token for admin
  */
-export async function clearResetToken(adminId: number) {
-  return await prisma.admin.update({
-    where: { id: adminId },
-    data: {
-      resetToken: null,
-      resetTokenExpiry: null,
-    },
+export async function clearResetToken(adminId: string) {
+  await updateAdmin(adminId, {
+    resetToken: undefined,
+    resetTokenExpiry: undefined,
   });
 }
 
@@ -148,31 +102,30 @@ export async function verifyResetToken(email: string, token: string): Promise<{
   message?: string;
 }> {
   const admin = await getAdminByEmail(email);
-  
+
   if (!admin) {
     return { valid: false, message: 'Admin not found' };
   }
-  
+
   if (!admin.resetToken || !admin.resetTokenExpiry) {
     return { valid: false, message: 'No reset token found' };
   }
-  
-  if (new Date() > admin.resetTokenExpiry) {
-    // Clean up expired token
+
+  if (new Date() > new Date(admin.resetTokenExpiry)) {
     await clearResetToken(admin.id);
     return { valid: false, message: 'Reset token has expired' };
   }
-  
+
   if (admin.resetToken !== token) {
     return { valid: false, message: 'Invalid reset token' };
   }
-  
+
   return { valid: true, admin };
 }
 
 /**
  * Rate limiting for password reset requests
- * This is a simple in-memory rate limiter - for production, consider using Redis
+ * In-memory rate limiter (stateless across instances — acceptable for single-instance deployment)
  */
 const resetAttempts = new Map<string, { count: number; lastAttempt: number }>();
 
@@ -184,36 +137,33 @@ export function checkRateLimit(email: string, maxAttempts: number = 3, windowMin
   const now = Date.now();
   const windowMs = windowMinutes * 60 * 1000;
   const key = email.toLowerCase();
-  
+
   const attempts = resetAttempts.get(key);
-  
+
   if (!attempts) {
     resetAttempts.set(key, { count: 1, lastAttempt: now });
     return { allowed: true, remainingAttempts: maxAttempts - 1 };
   }
-  
-  // Reset if window has passed
+
   if (now - attempts.lastAttempt > windowMs) {
     resetAttempts.set(key, { count: 1, lastAttempt: now });
     return { allowed: true, remainingAttempts: maxAttempts - 1 };
   }
-  
-  // Check if limit exceeded
+
   if (attempts.count >= maxAttempts) {
     const resetTime = new Date(attempts.lastAttempt + windowMs);
     return { allowed: false, resetTime };
   }
-  
-  // Increment attempts
+
   attempts.count++;
   attempts.lastAttempt = now;
   resetAttempts.set(key, attempts);
-  
+
   return { allowed: true, remainingAttempts: maxAttempts - attempts.count };
 }
 
 /**
- * Clear rate limit for email (useful for testing or admin override)
+ * Clear rate limit for email
  */
 export function clearRateLimit(email: string): void {
   resetAttempts.delete(email.toLowerCase());

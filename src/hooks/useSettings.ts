@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchSettings, getSetting, updateSetting, updateSettings, clearSettingsCache } from '@/lib/settings';
 
 interface AppSetting {
-  id: number;
+  id: string | number;
   key: string;
   value: string | null;
   type: string;

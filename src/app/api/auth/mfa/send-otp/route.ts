@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import { prisma } from '@/lib/prisma';
-import { checkMfaRateLimit, createMfaCode, cleanupExpiredMfaCodes } from '@/lib/mfa';
+import { getAdminByEmail } from '@/lib/db/admin';
+import { checkMfaRateLimit, createMfaCode, markMfaCodeUsed, cleanupExpiredMfaCodes } from '@/lib/mfa';
 import { sendEmail } from '@/lib/email';
 import { createMfaOtpEmailHTML } from '@/lib/mfa-email-template';
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Validate credentials
-    const admin = await prisma.admin.findUnique({ where: { email: email.toLowerCase() } });
+    const admin = await getAdminByEmail(email.toLowerCase());
     if (!admin) {
       // Constant-time response to prevent user enumeration
       await bcrypt.hash('dummy', 10);
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     // 3. Generate and store OTP
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || null;
     const ua = req.headers.get('user-agent') || null;
-    const { code, mfaId } = await createMfaCode(admin.id, ip, ua);
+    const { code, mfaSK } = await createMfaCode(admin.id, ip, ua);
 
     // 4. Send OTP email
     const html = createMfaOtpEmailHTML(admin.name, code);
@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
 
     if (!emailResult.success) {
       // Mark code as used since email failed
-      await prisma.mfaCode.update({ where: { id: mfaId }, data: { used: true } });
+      await markMfaCodeUsed(admin.id, mfaSK);
       return NextResponse.json(
         { error: 'Failed to send verification email. Please try again.' },
         { status: 500 }
       );
     }
 
-    // 5. Background cleanup (non-blocking)
+    // 5. Background cleanup (no-op with TTL, kept for API compatibility)
     cleanupExpiredMfaCodes().catch(() => {});
 
     return NextResponse.json({

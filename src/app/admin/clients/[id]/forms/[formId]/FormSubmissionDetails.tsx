@@ -7,9 +7,9 @@ import { generatePdfUrl } from '@/lib/api';
 
 type FormSubmissionProps = {
   formSubmission: {
-    id: number;
-    clientId: number;
-    formId: number;
+    id: string | number;
+    clientId: string | number;
+    formId: string | number;
     formVersion: number;
     data: any;
     isSubmitted: boolean;

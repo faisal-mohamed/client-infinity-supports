@@ -17,7 +17,7 @@ export async function getFormVersions(formKey: string) {
   return response.json();
 }
 
-export async function getForm(id: number) {
+export async function getForm(id: string | number) {
   const response = await fetch(`/api/forms/${id}`);
   if (!response.ok) {
     throw new Error('Failed to fetch form');
@@ -89,7 +89,7 @@ export async function getClients(options?: {
   return response.json();
 }
 
-export async function getClient(id: number) {
+export async function getClient(id: string | number) {
   const response = await fetch(`/api/clients/${id}`);
   if (!response.ok) {
     throw new Error('Failed to fetch client');
@@ -141,7 +141,7 @@ export async function createClient(clientData: {
   return response.json();
 }
 
-export async function updateClient(id: number, clientData: {
+export async function updateClient(id: string | number, clientData: {
   name: string;
   email?: string;
   phone?: string;
@@ -173,7 +173,7 @@ export async function updateClient(id: number, clientData: {
   return response.json();
 }
 
-export async function deleteClient(id: number) {
+export async function deleteClient(id: string | number) {
   const response = await fetch(`/api/clients/${id}`, {
     method: 'DELETE',
   });
@@ -187,7 +187,7 @@ export async function deleteClient(id: number) {
 }
 
 // Client Forms API functions
-export async function getClientForms(clientId: number) {
+export async function getClientForms(clientId: string | number) {
   const response = await fetch(`/api/clients/${clientId}/forms`);
   if (!response.ok) {
     throw new Error('Failed to fetch client forms');
@@ -195,7 +195,7 @@ export async function getClientForms(clientId: number) {
   return response.json();
 }
 
-export async function getClientFormAssignments(clientId: number) {
+export async function getClientFormAssignments(clientId: string | number) {
   const response = await fetch(`/api/clients/${clientId}/form-assignments`);
   if (!response.ok) {
     const error = await response.json();
@@ -204,8 +204,8 @@ export async function getClientFormAssignments(clientId: number) {
   return response.json();
 }
 
-// export async function assignFormToClient(clientId: number, data: {
-//   formId: number;
+// export async function assignFormToClient(clientId: string | number, data: {
+//   formId: string | number;
 //   expiresAt: string; // ISO date string
 // }) {
 //   const response = await fetch(`/api/clients/${clientId}/forms/assign`, {
@@ -224,7 +224,7 @@ export async function getClientFormAssignments(clientId: number) {
 //   return response.json();
 // }
 
-export async function assignFormBatchToClient(clientId: number, data: {
+export async function assignFormBatchToClient(clientId: string | number, data: {
   formIds: number[];
   expiresAt: string; // ISO date string
 }) {
@@ -244,7 +244,7 @@ export async function assignFormBatchToClient(clientId: number, data: {
   return response.json();
 }
 
-export async function getClientFormSubmission(clientId: number, formId: number) {
+export async function getClientFormSubmission(clientId: string | number, formId: string | number) {
   const response = await fetch(`/api/clients/${clientId}/forms/${formId}`);
   if (!response.ok) {
     const error = await response.json();
@@ -253,7 +253,7 @@ export async function getClientFormSubmission(clientId: number, formId: number) 
   return response.json();
 }
 
-export async function saveClientFormSubmission(clientId: number, formId: number, data: {
+export async function saveClientFormSubmission(clientId: string | number, formId: string | number, data: {
   data: any;
   isSubmitted?: boolean;
 }) {
@@ -313,7 +313,7 @@ export async function updateCommonFields(token: string, commonFieldsData: any, p
 
 export async function getFormDataByToken(
   batchToken: string,
-  formId: number,
+  formId: string | number,
   passcode?: string
 ) {
   const url = `/api/forms/view/${batchToken}/data?formId=${formId}&passcode=${encodeURIComponent(passcode || "")}`;
@@ -327,7 +327,7 @@ export async function getFormDataByToken(
 
 export async function saveFormDataByToken(
   batchToken: string,
-  { formId, data, isSubmitted }: { formId: number, data: any, isSubmitted?: boolean },
+  { formId, data, isSubmitted }: { formId: string | number, data: any, isSubmitted?: boolean },
   passcode?: string
 ) {
   const url = `/api/forms/view/${batchToken}/data?passcode=${encodeURIComponent(passcode || "")}`;
@@ -371,7 +371,7 @@ export function generatePdfUrl(options: {
   return `/api/generate-pdf?${params.toString()}`;
 }
 // Form Schema API functions
-export async function getFormSchemaById(formId: number) {
+export async function getFormSchemaById(formId: string | number) {
   const response = await fetch(`/api/forms/schema/${formId}`);
   if (!response.ok) {
     const error = await response.json();

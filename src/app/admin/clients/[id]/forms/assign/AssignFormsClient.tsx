@@ -56,7 +56,7 @@
 //     loadData();
 //   }, [clientId]);
   
-//   const handleFormSelection = (formId: number) => {
+//   const handleFormSelection = (formId: string | number) => {
 //     setSelectedForms(prev => {
 //       if (prev.includes(formId)) {
 //         return prev.filter(id => id !== formId);

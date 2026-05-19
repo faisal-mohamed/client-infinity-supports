@@ -3,7 +3,7 @@
 import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 
 interface FormInfo {
-  id: number;
+  id: string | number;
   title: string;
   version: number;
   formKey: string;

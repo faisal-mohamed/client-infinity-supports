@@ -1,70 +1,32 @@
-// Helper function to fetch form titles for email notifications
-import { prisma } from './prisma';
+import { getSubmissionById, getFormById } from "./db/forms";
 
 export interface FormWithTitle {
-  id: number;
-  formId: number;
+  id: string;
+  formId: string;
   title: string;
 }
 
-/**
- * Fetch form titles for email notifications
- */
-export async function getFormsWithTitles(
-  formSubmissionIds: number[]
-): Promise<FormWithTitle[]> {
+export async function getFormsWithTitles(formSubmissionIds: string[]): Promise<FormWithTitle[]> {
   try {
-    console.log(`🔍 Fetching form titles for submissions:`, formSubmissionIds);
-
-    const formSubmissions = await prisma.formSubmission.findMany({
-      where: {
-        id: { in: formSubmissionIds }
-      },
-      include: {
-        form: {
-          select: {
-            id: true,
-            title: true,
-            formKey: true
-          }
-        }
-      }
-    });
-
-    const formsWithTitles = formSubmissions.map(submission => ({
-      id: submission.id,
-      formId: submission.formId,
-      title: submission.form.title || `Form ${submission.formId}`
-    }));
-
-    console.log(`✅ Retrieved form titles:`, formsWithTitles);
-    return formsWithTitles;
-
+    const results = await Promise.all(
+      formSubmissionIds.map(async (id) => {
+        const submission = await getSubmissionById(id);
+        if (!submission) return { id, formId: "", title: `Form ${id}` };
+        return { id: submission.id, formId: submission.formId, title: submission.formTitle || `Form ${submission.formId}` };
+      })
+    );
+    return results;
   } catch (error) {
-    console.error('❌ Failed to fetch form titles:', error);
-    
-    // Fallback: return basic structure with generic titles
-    return formSubmissionIds.map((id, index) => ({
-      id,
-      formId: 1, // Default form ID
-      title: `Form ${index + 1}`
-    }));
+    console.error("Failed to fetch form titles:", error);
+    return formSubmissionIds.map((id, index) => ({ id, formId: "", title: `Form ${index + 1}` }));
   }
 }
 
-/**
- * Get form title by form ID (fallback method)
- */
-export async function getFormTitleById(formId: number): Promise<string> {
+export async function getFormTitleById(formId: string): Promise<string> {
   try {
-    const form = await prisma.masterForm.findUnique({
-      where: { id: formId },
-      select: { title: true }
-    });
-
+    const form = await getFormById(formId);
     return form?.title || `Form ${formId}`;
   } catch (error) {
-    console.error(`❌ Failed to fetch form title for ID ${formId}:`, error);
     return `Form ${formId}`;
   }
 }

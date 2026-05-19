@@ -1,11 +1,8 @@
-// lib/authOptions.ts
-import { PrismaClient } from '@prisma/client';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
 import type { NextAuthOptions } from 'next-auth';
 import { validateMfaToken } from './mfa';
-
-const prisma = new PrismaClient();
+import { getAdminByEmail } from './db/admin';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || 'your-development-secret-key-change-in-production',
@@ -21,17 +18,13 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password || !credentials?.mfaToken) return null;
 
         try {
-          const admin = await prisma.admin.findUnique({
-            where: { email: credentials.email }
-          });
-
+          const admin = await getAdminByEmail(credentials.email);
           if (!admin) return null;
 
           const passwordMatch = await bcrypt.compare(
             credentials.password,
             admin.passwordHash
           );
-
           if (!passwordMatch) return null;
 
           // Validate the one-time MFA token
@@ -39,7 +32,7 @@ export const authOptions: NextAuthOptions = {
           if (!mfaValid) return null;
 
           return {
-            id: admin.id.toString(),
+            id: admin.id,
             name: admin.name,
             email: admin.email,
             role: 'admin'

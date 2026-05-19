@@ -7,23 +7,23 @@ import { FaLink, FaKey, FaCopy, FaCheck, FaArrowLeft, FaExclamationTriangle, FaE
 import { useToast } from '@/components/ui/Toast';
 
 type FormAssignment = {
-  id: number;
-  clientId: number;
-  formId: number;
+  id: string | number;
+  clientId: string | number;
+  formId: string | number;
   formVersion: number;
   assignedAt: string;
   expiresAt: string;
   accessToken: string;
   isCompleted: boolean;
   passcode: string | null;
-  batchId: number | null;
+  batchId: string | number | null;
   form: {
-    id: number;
+    id: string | number;
     title: string;
     version: number;
   };
   batch?: {
-    id: number;
+    id: string | number;
     batchToken: string;
     expiresAt: string;
   };
@@ -45,7 +45,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
 
   // Load data when component mounts
   useEffect(() => {
-    const parsedClientId = parseInt(clientId);
+    const parsedClientId = clientId;
     
     if (isNaN(parsedClientId)) {
       setError('Invalid client ID');
@@ -108,7 +108,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
   }, { batches: {} as Record<number, any>, individual: [] as FormAssignment[] });
 
   // PATCH expiry update handler
-  const handleUpdateExpiry = async (batchId: number) => {
+  const handleUpdateExpiry = async (batchId: string | number) => {
     if (!newExpiry.date || !newExpiry.time) return;
     // Combine date and time in UTC
     const selectedExpiry = new Date(`${newExpiry.date}T${newExpiry.time}:00Z`);
@@ -128,7 +128,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
       showToast && showToast({ type: 'success', title: 'Expiry Updated', message: 'Batch expiry updated successfully.' });
       setEditingBatchId(null);
       setNewExpiry({ date: '', time: '' });
-      const assignmentsData = await getClientFormAssignments(parseInt(clientId));
+      const assignmentsData = await getClientFormAssignments(clientId);
       setAssignments(assignmentsData);
     } catch (err: any) {
       showToast && showToast({ type: 'error', title: 'Error', message: err.message || 'Failed to update expiry' });

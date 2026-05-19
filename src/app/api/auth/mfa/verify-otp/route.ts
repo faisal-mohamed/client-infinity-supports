@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Code must be 6 digits' }, { status: 400 });
     }
 
-    const result = await verifyMfaCode(parseInt(adminId), code);
+    const result = await verifyMfaCode(String(adminId), code);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 401 });

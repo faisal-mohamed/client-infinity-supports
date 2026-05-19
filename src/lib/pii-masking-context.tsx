@@ -24,9 +24,9 @@ export function usePIIMasking() {
 
 interface PIIMaskingProviderProps {
   children: React.ReactNode;
-  clientId: number;
-  formId: number;
-  assignmentId: number;
+  clientId: string | number;
+  formId: string | number;
+  assignmentId: string | number;
   adminName?: string;
 }
 

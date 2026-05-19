@@ -20,8 +20,8 @@ export interface EmailNotificationData {
   batchId?: number;
   formsCount?: number;
   completedForms?: Array<{
-    id: number;
-    formId: number;
+    id: string | number;
+    formId: string | number;
     title: string;
   }>;
 }

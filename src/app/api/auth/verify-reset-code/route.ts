@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate code format
     if (!isValidVerificationCode(code)) {
       return NextResponse.json(
         { error: 'Verification code must be 6 digits' },
@@ -20,7 +19,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the reset token
     const verification = await verifyResetToken(email, code);
 
     if (!verification.valid) {
@@ -29,8 +27,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    console.log(`✅ Verification code verified for admin: ${email}`);
 
     return NextResponse.json({
       message: 'Verification code is valid',

@@ -12,15 +12,15 @@ import { useToast } from '@/components/ui/Toast';
 
 // Types
 interface SignatureForm {
-  id: number;
-  formSubmissionId: number;
+  id: string | number;
+  formSubmissionId: string | number;
   formSubmission: {
-    id: number;
+    id: string | number;
     clientSignature?: string;
     clientSignedAt?: string;
     data: any;
     form: {
-      id: number; // Add form ID
+      id: string | number; // Add form ID
       title: string;
       formKey: string;
       requiresSignature?: boolean;
@@ -37,7 +37,7 @@ interface CompletionStatus {
 }
 
 interface SignatureBatchData {
-  id: number;
+  id: string | number;
   batchToken: string;
   expiresAt: string;
   isCompleted: boolean;
@@ -122,7 +122,7 @@ export default function SignaturePortalClient() {
     }
   };
 
-  const handleDownloadForm = async (formSubmissionId: number, formId: number, formTitle: string) => {
+  const handleDownloadForm = async (formSubmissionId: string | number, formId: string | number, formTitle: string) => {
     try {
       setDownloadingForm(formSubmissionId);
 

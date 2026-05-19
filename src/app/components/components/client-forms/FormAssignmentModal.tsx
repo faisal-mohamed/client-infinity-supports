@@ -11,7 +11,7 @@
 //   assignments: FormAssignmentWithDetails[];
 //   selectedFormsToAssign: number[];
 //   assigning: boolean;
-//   onFormSelection: (formId: number) => void;
+//   onFormSelection: (formId: string | number) => void;
 //   onAssignForms: () => void;
 // }
 
@@ -272,7 +272,7 @@ interface FormAssignmentModalProps {
   assignments: FormAssignmentWithDetails[];
   selectedFormsToAssign: number[];
   assigning: boolean;
-  onFormSelection: (formId: number) => void;
+  onFormSelection: (formId: string | number) => void;
   onAssignForms: () => void;
 }
 

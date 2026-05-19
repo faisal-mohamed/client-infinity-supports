@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getBatchByToken, getSignatureBatchForms, getSubmissionById, getFormById } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
 
 export async function GET(
   req: NextRequest,
@@ -15,89 +16,77 @@ export async function GET(
       );
     }
 
-    // Find the signature batch
-    const batch = await prisma.formBatch.findUnique({
-      where: { 
-        batchToken: token,
-        isSignatureOnly: true, // Ensure this is a signature-only batch
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        signatureForms: {
-          include: {
-            formSubmission: {
-              include: {
-                form: {
-                  select: {
-                    id: true, // Include form ID for PDF generation
-                    formKey: true,
-                    title: true,
-                    version: true,
-                    requiresSignature: true, // Include signature requirement
-                  },
-                },
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'asc', // Maintain consistent order
-          },
-        },
-      },
-    });
+    const batch = await getBatchByToken(token);
 
-    if (!batch) {
+    if (!batch || !batch.isSignatureOnly) {
       return NextResponse.json(
         { error: "Signature link not found" },
         { status: 404 }
       );
     }
 
-    // Check if batch has expired
-    if (batch.expiresAt < new Date()) {
+    if (new Date(batch.expiresAt) < new Date()) {
       return NextResponse.json(
         { error: "This signature link has expired" },
-        { status: 410 } // Gone
+        { status: 410 }
       );
     }
 
-    // Separate forms by signature requirement
-    const formsRequiringSignature = batch.signatureForms.filter(
-      sf => sf.formSubmission.form.requiresSignature === true
-    );
-    
-    const formsNotRequiringSignature = batch.signatureForms.filter(
-      sf => sf.formSubmission.form.requiresSignature !== true
+    const client = await getClientById(batch.clientId);
+    const signatureForms = await getSignatureBatchForms(batch.id);
+
+    // Enrich signature forms with submission and form data
+    const enrichedForms = await Promise.all(
+      signatureForms.map(async (sf: any) => {
+        const formSubmission = await getSubmissionById(sf.formSubmissionId);
+        let form = null;
+        if (formSubmission) {
+          form = await getFormById(formSubmission.formId);
+        }
+        return {
+          ...sf,
+          formSubmission: formSubmission ? {
+            ...formSubmission,
+            form: form ? {
+              id: form.id,
+              formKey: form.formKey,
+              title: form.title,
+              version: form.version,
+              requiresSignature: form.requiresSignature,
+            } : null,
+          } : null,
+        };
+      })
     );
 
-    // Calculate completion status
+    const formsRequiringSignature = enrichedForms.filter(
+      sf => sf.formSubmission?.form?.requiresSignature === true
+    );
+
+    const formsNotRequiringSignature = enrichedForms.filter(
+      sf => sf.formSubmission?.form?.requiresSignature !== true
+    );
+
     const signedForms = formsRequiringSignature.filter(
-      sf => sf.formSubmission.clientSignature !== null
+      sf => sf.formSubmission?.clientSignature !== null
     );
 
     const completionStatus = {
-      totalForms: batch.signatureForms.length,
+      totalForms: enrichedForms.length,
       formsRequiringSignature: formsRequiringSignature.length,
       formsNotRequiringSignature: formsNotRequiringSignature.length,
       signedForms: signedForms.length,
       isComplete: formsRequiringSignature.length > 0 && signedForms.length === formsRequiringSignature.length,
     };
 
-    // Return batch data with enhanced information
     return NextResponse.json({
       id: batch.id,
       batchToken: batch.batchToken,
-      expiresAt: batch.expiresAt.toISOString(),
+      expiresAt: new Date(batch.expiresAt).toISOString(),
       isCompleted: batch.isCompleted,
-      completedAt: batch.completedAt?.toISOString(),
-      client: batch.client,
-      signatureForms: batch.signatureForms,
+      completedAt: batch.completedAt ? new Date(batch.completedAt).toISOString() : null,
+      client: client ? { id: client.id, name: client.name, email: client.email } : null,
+      signatureForms: enrichedForms,
       formsRequiringSignature,
       formsNotRequiringSignature,
       completionStatus,

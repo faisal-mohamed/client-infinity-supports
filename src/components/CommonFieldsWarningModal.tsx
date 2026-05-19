@@ -13,9 +13,9 @@ import {
 } from "react-icons/fa";
 
 interface FormAssignment {
-  id: number;
+  id: string | number;
   form: {
-    id: number;
+    id: string | number;
     formKey: string;
     title: string;
     version: number;
@@ -32,7 +32,7 @@ interface CommonFieldsWarningModalProps {
   onProceed: () => void;
   clientName?: string;
   assignments: FormAssignment[];
-  onDownloadForm: (assignmentId: number, formTitle: string) => Promise<void>;
+  onDownloadForm: (assignmentId: string | number, formTitle: string) => Promise<void>;
 }
 
 export default function CommonFieldsWarningModal({
@@ -51,7 +51,7 @@ export default function CommonFieldsWarningModal({
   );
   const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
 
-  const handleDownload = async (assignmentId: number, formTitle: string) => {
+  const handleDownload = async (assignmentId: string | number, formTitle: string) => {
     try {
       setDownloadingForms((prev) => new Set(prev).add(assignmentId));
       await onDownloadForm(assignmentId, formTitle);

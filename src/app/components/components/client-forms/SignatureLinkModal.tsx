@@ -17,7 +17,7 @@ interface SignatureLinkModalProps {
   isOpen: boolean;
   onClose: () => void;
   clientName: string | undefined;
-  clientId: number;
+  clientId: string | number;
   generatedLink: GeneratedLink | null;
   onCopyLink: (url: string) => void;
 }

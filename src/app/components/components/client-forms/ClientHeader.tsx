@@ -5,7 +5,7 @@
 // import { ClientInfo } from '@/app/admin/clients/[id]/forms/types';
 
 // interface ClientHeaderProps {
-//   clientId: number;
+//   clientId: string | number;
 //   client: ClientInfo | null;
 //   stats: {
 //     total: number;
@@ -154,7 +154,7 @@ import {
 import { ClientInfo } from '@/app/admin/clients/[id]/forms/types';
 
 interface ClientHeaderProps {
-  clientId: number;
+  clientId: string | number;
   client: ClientInfo | null;
   stats: {
     total: number;

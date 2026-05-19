@@ -8,8 +8,8 @@
 //   assignments: FormAssignmentWithDetails[];
 //   selectedForms: number[];
 //   downloadingPDF: number | null;
-//   clientId: number;
-//   onFormSelect: (assignmentId: number, checked: boolean) => void;
+//   clientId: string | number;
+//   onFormSelect: (assignmentId: string | number, checked: boolean) => void;
 //   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
 //   onShowAssignModal: () => void;
 // }
@@ -157,8 +157,8 @@ interface FormsListProps {
   assignments: FormAssignmentWithDetails[];
   selectedForms: number[];
   downloadingPDF: number | null;
-  clientId: number;
-  onFormSelect: (assignmentId: number, checked: boolean) => void;
+  clientId: string | number;
+  onFormSelect: (assignmentId: string | number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
   onShowAssignModal: () => void;
 }

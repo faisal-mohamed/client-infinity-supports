@@ -1,6 +1,6 @@
 export interface CommonField {
   id?: number;
-  clientId: number;
+  clientId: string | number;
   name?: string;
   age?: number | null;
   email?: string;
@@ -19,7 +19,7 @@ export interface CommonField {
 export interface SignatureInvalidationData {
   type: 'common-fields' | 'form-edit';
   affectedForms: Array<{
-    id: number;
+    id: string | number;
     title: string;
     version: number;
     formKey: string;

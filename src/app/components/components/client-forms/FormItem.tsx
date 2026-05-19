@@ -22,10 +22,10 @@ import SignatureLinkModal from '@/app/components/components/client-forms/Signatu
 
 interface FormItemProps {
   assignment: FormAssignmentWithDetails;
-  clientId: number;
+  clientId: string | number;
   selectedForms: number[];
   downloadingPDF: number | null;
-  onFormSelect: (assignmentId: number, checked: boolean) => void;
+  onFormSelect: (assignmentId: string | number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
 }
 

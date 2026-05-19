@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { 
-  isValidVerificationCode, 
-  isValidPassword, 
-  verifyResetToken, 
-  clearResetToken 
+import {
+  isValidVerificationCode,
+  isValidPassword,
+  verifyResetToken,
 } from '@/lib/password-reset';
-
-const prisma = new PrismaClient();
+import { updateAdmin } from '@/lib/db/admin';
+import { createActivityLog } from '@/lib/db/audit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +19,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate code format
     if (!isValidVerificationCode(code)) {
       return NextResponse.json(
         { error: 'Verification code must be 6 digits' },
@@ -29,7 +26,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate password
     const passwordValidation = isValidPassword(newPassword);
     if (!passwordValidation.valid) {
       return NextResponse.json(
@@ -38,7 +34,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the reset token
     const verification = await verifyResetToken(email, code);
 
     if (!verification.valid || !verification.admin) {
@@ -51,39 +46,29 @@ export async function POST(request: NextRequest) {
     const admin = verification.admin;
 
     // Hash the new password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update admin password and clear reset token
-    await prisma.admin.update({
-      where: { id: admin.id },
-      data: {
-        passwordHash: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null,
-        updatedAt: new Date(),
-      },
+    await updateAdmin(admin.id, {
+      passwordHash: hashedPassword,
+      resetToken: undefined,
+      resetTokenExpiry: undefined,
     });
 
-    console.log(`✅ Password reset successfully for admin: ${admin.email}`);
-
-    // Log the password reset activity
+    // Log the password reset activity (non-blocking)
     try {
-      await prisma.formActivityLog.create({
-        data: {
-          adminId: admin.id,
-          logType: 'ADMIN',
-          action: 'Password Reset',
-          metadata: {
-            email: admin.email,
-            timestamp: new Date().toISOString(),
-            userAgent: request.headers.get('user-agent') || 'Unknown',
-          },
+      await createActivityLog({
+        adminId: admin.id,
+        logType: 'ADMIN',
+        action: 'Password Reset',
+        metadata: {
+          email: admin.email,
+          timestamp: new Date().toISOString(),
+          userAgent: request.headers.get('user-agent') || 'Unknown',
         },
       });
     } catch (logError) {
       console.error('Failed to log password reset activity:', logError);
-      // Don't fail the request if logging fails
     }
 
     return NextResponse.json({
@@ -97,7 +82,5 @@ export async function POST(request: NextRequest) {
       { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

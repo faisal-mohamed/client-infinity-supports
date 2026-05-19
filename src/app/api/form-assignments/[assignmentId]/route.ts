@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { findAssignmentById, getSubmission, archiveAssignment } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -9,140 +10,69 @@ export async function GET(
 ) {
   try {
     const { assignmentId } = await params;
-    const assignmentIdNum = parseInt(assignmentId);
+    if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
 
-    if (isNaN(assignmentIdNum)) {
-      return NextResponse.json(
-        { error: "Invalid assignment ID" },
-        { status: 400 }
-      );
-    }
+    const assignment = await findAssignmentById(assignmentId);
+    if (!assignment) return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
 
-    // Get form assignment with related data
-    const assignment = await prisma.formAssignment.findUnique({
-      where: { id: assignmentIdNum },
-      include: {
-        form: {
-          select: {
-            id: true, // Include form ID for PDF generation
-            formKey: true,
-            title: true,
-            version: true,
-            schema: true,
-          },
-        },
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
+    // Get existing submission
+    const existingSubmission = await getSubmission(
+      assignment.clientId,
+      assignment.formId,
+      assignment.formVersion,
+      assignment.instanceNumber
+    );
 
-    if (!assignment) {
-      return NextResponse.json(
-        { error: "Form assignment not found" },
-        { status: 404 }
-      );
-    }
-
-    // Get existing FormSubmission if it exists
-    const existingSubmission = await prisma.formSubmission.findUnique({
-      where: {
-        clientId_formId_formVersion_instanceNumber: {
-          clientId: assignment.clientId,
-          formId: assignment.formId,
-          formVersion: assignment.formVersion,
-          instanceNumber: assignment.instanceNumber,
-        },
-      },
-      select: {
-        id: true, // Include submission ID for PDF generation
-        data: true,
-        filledByAdmin: true,
-        adminFilledAt: true,
-        clientSignature: true,
-        clientSignedAt: true,
-      },
-    });
-
-    // Get client's common fields
-    const commonFields = await prisma.commonField.findUnique({
-      where: { clientId: assignment.clientId },
-    });
+    // Get client info
+    const client = await getClientById(assignment.clientId);
 
     return NextResponse.json({
       assignment: {
         ...assignment,
-        hasSubmission: !!existingSubmission, // NEW: Check if submission exists
-        filledByAdmin: existingSubmission?.filledByAdmin || false, // NEW: Check who filled it
+        form: {
+          id: assignment.formId,
+          formKey: assignment.formKey,
+          title: assignment.formTitle,
+          version: assignment.formVersion,
+          schema: null, // Schema fetched separately via /api/forms/[id]
+        },
+        client: client ? { id: client.id, name: client.name, email: client.email } : null,
+        hasSubmission: !!existingSubmission,
+        filledByAdmin: existingSubmission?.filledByAdmin || false,
         submissionData: existingSubmission?.data,
-        submissionId: existingSubmission?.id, // Add submission ID for PDF generation
+        submissionId: existingSubmission?.id,
         clientSignature: existingSubmission?.clientSignature,
         clientSignedAt: existingSubmission?.clientSignedAt,
       },
       existingData: existingSubmission?.data || {},
-      commonFields: commonFields || {},
+      commonFields: client?.commonFields || {},
     });
-
   } catch (error: any) {
     console.error("Error fetching form assignment:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch form assignment", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch form assignment", details: error.message }, { status: 500 });
   }
 }
-
-
-
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
-  const { assignmentId } = await params;
-  const assignmentIdNum = parseInt(assignmentId);
-
-  if (isNaN(assignmentIdNum)) {
-    return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
-  }
-
   try {
+    const { assignmentId } = await params;
+    if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
+
     const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
+    const adminId = session?.user?.id || undefined;
 
-    const assignment = await prisma.formAssignment.findUnique({
-      where: { id: assignmentIdNum },
-    });
+    const assignment = await findAssignmentById(assignmentId);
+    if (!assignment) return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
+    if (assignment.archivedAt) return NextResponse.json({ error: "Assignment is already archived" }, { status: 409 });
 
-    if (!assignment) {
-      return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
-    }
+    await archiveAssignment(assignment.clientId, assignmentId, adminId);
 
-    if (assignment.archivedAt) {
-      return NextResponse.json({ error: "Assignment is already archived" }, { status: 409 });
-    }
-
-    await prisma.formAssignment.update({
-      where: { id: assignmentIdNum },
-      data: {
-        archivedAt: new Date(),
-        archivedBy: adminId,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Form assignment and all linked data deleted",
-    });
+    return NextResponse.json({ success: true, message: "Form assignment and all linked data deleted" });
   } catch (error: any) {
     console.error("Error archiving form assignment:", error);
-    return NextResponse.json(
-      { error: "Failed to delete form assignment", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete form assignment", details: error.message }, { status: 500 });
   }
 }

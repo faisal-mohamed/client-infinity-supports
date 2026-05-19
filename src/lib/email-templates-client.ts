@@ -5,8 +5,8 @@ export interface ClientEmailData {
   clientName: string;
   clientEmail: string;
   completedForms: Array<{
-    id: number;
-    formId: number;
+    id: string | number;
+    formId: string | number;
     title: string;
   }>;
   completedAt?: string;

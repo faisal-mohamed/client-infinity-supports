@@ -9,8 +9,8 @@ interface FormActionDropdownProps {
   onClose: () => void;
   triggerRef: React.RefObject<HTMLElement>;
   onEditClick: () => void;
-  clientId: number;
-  assignmentId: number;
+  clientId: string | number;
+  assignmentId: string | number;
   hasSubmission: boolean;
   onDownloadPDF: () => void;
   downloadingPDF: boolean;

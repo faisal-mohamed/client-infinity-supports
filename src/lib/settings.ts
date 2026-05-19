@@ -1,7 +1,7 @@
 // Settings utility functions for easy access throughout the application
 
 interface AppSetting {
-  id: number;
+  id: string | number;
   key: string;
   value: string | null;
   type: string;

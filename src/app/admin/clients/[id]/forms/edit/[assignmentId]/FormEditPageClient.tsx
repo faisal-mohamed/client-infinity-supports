@@ -11,9 +11,9 @@ import StaffNotSubmittedModal from '@/components/ui/StaffNotSubmittedModal';
 
 // Types
 interface FormAssignmentData {
-  id: number;
-  clientId: number;
-  formId: number;
+  id: string | number;
+  clientId: string | number;
+  formId: string | number;
   formVersion: number;
   filledByAdmin: boolean; // Check if filled by admin vs client
   hasSubmission: boolean; // NEW: Check if submission data exists
@@ -35,8 +35,8 @@ export default function FormEditPageClient() {
   const { showToast } = useToast();
   const [showStaffNotSubmittedModal, setShowStaffNotSubmittedModal] = useState(false);
 
-  const clientId = parseInt(params.id as string);
-  const assignmentId = parseInt(params.assignmentId as string);
+  const clientId = params.id as string;
+  const assignmentId = params.assignmentId as string;
 
   const [assignment, setAssignment] = useState<FormAssignmentData | null>(null);
   const [formData, setFormData] = useState<any>({});

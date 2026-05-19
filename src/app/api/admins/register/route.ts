@@ -1,48 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { isValidPassword } from '@/lib/password-reset';
-
-const prisma = new PrismaClient();
+import { getAdminByEmail, createAdmin } from '@/lib/db/admin';
 
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password } = await req.json();
 
-    // Validate input
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Validate password with new requirements
     const passwordValidation = isValidPassword(password);
     if (!passwordValidation.valid) {
       return NextResponse.json({ error: passwordValidation.message }, { status: 400 });
     }
 
     // Check if email already exists
-    const existingAdmin = await prisma.admin.findUnique({
-      where: { email }
-    });
-
+    const existingAdmin = await getAdminByEmail(email.toLowerCase());
     if (existingAdmin) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
 
     // Hash password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create admin
-    const admin = await prisma.admin.create({
-      data: {
-        name,
-        email,
-        passwordHash
-      }
-    });
+    // Create admin (transaction: profile + email lookup with uniqueness check)
+    const admin = await createAdmin({ name, email: email.toLowerCase(), passwordHash });
 
-    // Return success without exposing password hash
     return NextResponse.json({
       message: 'Admin registered successfully',
       admin: {
@@ -51,8 +36,14 @@ export async function POST(req: NextRequest) {
         email: admin.email
       }
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Admin registration error:', err);
+
+    // Handle DynamoDB conditional check failure (email already exists race condition)
+    if (err.name === 'TransactionCanceledException') {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
+    }
+
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

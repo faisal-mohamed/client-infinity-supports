@@ -1,14 +1,14 @@
 // Types
 export interface FormAssignmentWithDetails {
-  id: number;
-  formId: number;
+  id: string | number;
+  formId: string | number;
   formVersion: number;
   assignedAt: string;
   displayOrder: number;
   instanceNumber: number; // Add instanceNumber
   isCompleted: boolean; // Add this field
   form: {
-    id: number;
+    id: string | number;
     formKey: string;
     title: string;
     version: number;
@@ -27,7 +27,7 @@ export interface FormAssignmentWithDetails {
 }
 
 export interface ClientInfo {
-  id: number;
+  id: string | number;
   name: string;
   email: string;
   phone?: string;
@@ -35,7 +35,7 @@ export interface ClientInfo {
 }
 
 export interface AvailableForm {
-  id: number;
+  id: string | number;
   formKey: string;
   title: string;
   version: number;

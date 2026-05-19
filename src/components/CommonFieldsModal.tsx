@@ -21,7 +21,7 @@ import {
 
 export interface CommonField {
   id?: number;
-  clientId: number;
+  clientId: string | number;
   name?: string;
   age?: number | null;
   email?: string;

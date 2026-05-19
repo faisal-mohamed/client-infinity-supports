@@ -3,7 +3,9 @@ import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import fs from "fs";
 import path from "path";
-import { prisma } from "@/lib/prisma";
+import { getSubmissionById } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
+import { getSettingsByAdmin } from "@/lib/db/settings";
 import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-drill/EmergencyDrillPDF";
 
 // Helper function to encode image to base64
@@ -27,42 +29,24 @@ export async function GET(
     console.log(`🔍 Preview PDF for form submission ${formSubmissionId}, form ${formId}`);
 
     // Fetch form submission data
-    const formSubmission = await prisma.formSubmission.findUnique({
-      where: { id: parseInt(formSubmissionId) },
-      include: {
-        form: true,
-        client: true
-      }
-    });
+    const formSubmission = await getSubmissionById(formSubmissionId);
 
     if (!formSubmission) {
       return NextResponse.json({ error: "Form submission not found" }, { status: 404 });
     }
 
-    // Fetch common fields
-    const commonFields = await prisma.commonField.findFirst({
-      where: { clientId: formSubmission.clientId }
-    });
+    const client = await getClientById(formSubmission.clientId);
+    const commonFields = client?.commonFields || null;
 
     // Fetch settings for the current admin
     const { getServerSession } = await import("next-auth");
     const { authOptions } = await import("@/lib/authOptions");
     const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id ? parseInt(session.user.id) : null;
-    
-    if (!adminId) {
-      console.warn('⚠️ No admin session found for preview, PDF may have incorrect settings');
-    }
-    
-    const settings = await prisma.appSettings.findMany({
-      where: { 
-        isActive: true,
-        ...(adminId && { adminId }) // Filter by adminId if available
-      }
-    });
+    const adminId = session?.user?.id || null;
 
-    const settingsObj = settings.reduce((acc, setting) => {
-      // Only use non-empty values
+    const settings = adminId ? await getSettingsByAdmin(adminId) : await getSettingsByAdmin("GLOBAL");
+
+    const settingsObj = settings.reduce((acc: any, setting: any) => {
       if (setting.value && setting.value.trim() !== '') {
         acc[setting.key] = setting.value;
       }
@@ -149,8 +133,8 @@ export async function GET(
     <div class="header">
         <h1>📄 PDF Preview - Emergency Drill Form</h1>
         <p class="status">✅ Generated with @react-pdf/renderer</p>
-        <p><strong>Form:</strong> ${formSubmission.form?.title || 'Emergency Drill'}</p>
-        <p><strong>Client:</strong> ${formSubmission.client?.name || 'Unknown'}</p>
+        <p><strong>Form:</strong> ${formSubmission.formTitle || 'Emergency Drill'}</p>
+        <p><strong>Client:</strong> ${client?.name || 'Unknown'}</p>
         <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
     </div>
     

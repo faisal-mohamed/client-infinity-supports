@@ -28,8 +28,8 @@ export async function sendOptimizedBatchEmail({
 }: {
   clientName: string;
   clientEmail?: string;
-  completedForms: Array<{ id: number; formId: number; title: string }>;
-  batchId: number;
+  completedForms: Array<{ id: string | number; formId: string | number; title: string }>;
+  batchId: string | number;
   adminEmail: string;
   adminId: any 
 }): Promise<{
@@ -129,8 +129,8 @@ async function generateOptimizedEmailTemplate({
 }: {
   clientName: string;
   clientEmail?: string;
-  completedForms: Array<{ id: number; formId: number; title: string }>;
-  batchId: number;
+  completedForms: Array<{ id: string | number; formId: string | number; title: string }>;
+  batchId: string | number;
   attachmentSize: number;
 }): Promise<string> {
   

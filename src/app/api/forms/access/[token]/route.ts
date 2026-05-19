@@ -1,228 +1,63 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-
-// export async function GET(
-//   req: NextRequest,
-//   { params }: { params: Promise<{ token: string }> }
-// ) {
-//   try {
-//     const { token } = await params;
-//     const passcode = req.nextUrl.searchParams.get('passcode');
-    
-//     // Find the form batch by batch token
-//     const batch = await prisma.formBatch.findUnique({
-//       where: { batchToken: token },
-//       include: {
-//         client: {
-//   include: {
-//     commonFields: true,
-//     logs: {
-//       orderBy: {
-//         createdAt: 'desc'
-//       }
-//     }
-//   }
-// },
-
-//         assignments: {
-//           include: {
-//             form: true
-//           },
-//           orderBy: {
-//             displayOrder: 'asc'
-//           }
-//         }
-//       }
-//     });
-    
-//     if (!batch) {
-//       return NextResponse.json(
-//         { error: "Invalid access token" },
-//         { status: 404 }
-//       );
-//     }
-    
-//     // Check if expired
-//     if (new Date() > new Date(batch.expiresAt)) {
-//       return NextResponse.json(
-//         { error: "Access link has expired" },
-//         { status: 403 }
-//       );
-//     }
-    
-//     // Check if passcode is required
-//     // For batch-level passcode, we'll check the first assignment's passcode
-//     // Assuming all assignments in a batch have the same passcode
-//     const firstAssignment = batch.assignments[0];
-//     if (firstAssignment?.passcode) {
-//       // If no passcode provided, return error
-//       if (!passcode) {
-//         return NextResponse.json(
-//           { error: "Passcode required" },
-//           { status: 403 }
-//         );
-//       }
-      
-//       // If passcode doesn't match, return error
-//       if (firstAssignment.passcode !== passcode) {
-//         return NextResponse.json(
-//           { error: "Invalid passcode" },
-//           { status: 403 }
-//         );
-//       }
-//     }
-    
-//     // Prepare response data
-//     const responseData = {
-//       batch: {
-//         id: batch.id,
-//         batchToken: batch.batchToken,
-//         expiresAt: batch.expiresAt,
-//         createdAt: batch.createdAt
-//       },
-//       client: {
-//         id: batch.client.id,
-//         name: batch.client.name,
-//         email: batch.client.email,
-//         commonFields: batch.client.commonFields,
-//         logs: batch.client.logs
-//       },
-//       forms: batch.assignments.map(assignment => ({
-//         id: assignment.id,
-//         accessToken: assignment.accessToken,
-//         title: assignment.form.title,
-//         displayOrder: assignment.displayOrder,
-//         isCompleted: assignment.isCompleted
-//       }))
-//     };
-
-
-
-//     console.log("Fetched logs count:", batch.client.logs.length);
-// console.log("Sample log metadata:", batch.client.logs[0]?.metadata);
-
-    
-//     return NextResponse.json(responseData);
-//   } catch (error: any) {
-//     console.error("Error accessing form batch:", error);
-//     return NextResponse.json(
-//       { error: "Failed to access forms", details: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
-
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getBatchByToken, getBatchAssignments, getSubmission } from "@/lib/db/forms";
+import { getClientById } from "@/lib/db/client";
+import { getClientLogs } from "@/lib/db/audit";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const { token } = await params; // ✅ FIXED: await params
-    const passcode = req.nextUrl.searchParams.get('passcode');
+    const { token } = await params;
+    const passcode = req.nextUrl.searchParams.get("passcode");
 
-    // Find the form batch by batch token
-    const batch = await prisma.formBatch.findUnique({
-      where: { batchToken: token },
-      include: {
-        client: {
-          include: {
-            commonFields: true,
-            logs: {
-              orderBy: {
-                createdAt: 'desc'
-              }
-            }
-          }
-        },
-        assignments: {
-          include: {
-            form: true
-          },
-          orderBy: {
-            displayOrder: 'asc'
-          }
-        }
-      }
-    });
-
-    if (!batch) {
-      return NextResponse.json(
-        { error: "Invalid access token" },
-        { status: 404 }
-      );
-    }
+    const batch = await getBatchByToken(token);
+    if (!batch) return NextResponse.json({ error: "Invalid access token" }, { status: 404 });
 
     if (new Date() > new Date(batch.expiresAt)) {
-      return NextResponse.json(
-        { error: "Access link has expired" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Access link has expired" }, { status: 403 });
     }
 
-    // Check if passcode is required and validate it
     if (batch.passcode) {
-      if (!passcode) {
-        return NextResponse.json(
-          { error: "Passcode required" },
-          { status: 403 }
-        );
-      }
-      
-      if (batch.passcode !== passcode) {
-        return NextResponse.json(
-          { error: "Invalid passcode" },
-          { status: 403 }
-        );
-      }
+      if (!passcode) return NextResponse.json({ error: "Passcode required" }, { status: 403 });
+      if (batch.passcode !== passcode) return NextResponse.json({ error: "Invalid passcode" }, { status: 403 });
     }
 
-    // After fetching the batch, fetch all submissions for this client
-    const submissions = await prisma.formSubmission.findMany({
-      where: { clientId: batch.client.id },
-    });
+    const client = await getClientById(batch.clientId);
+    if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
 
-    const responseData = {
-      batch: {
-        id: batch.id,
-        batchToken: batch.batchToken,
-        expiresAt: batch.expiresAt,
-        createdAt: batch.createdAt
-      },
-      client: {
-        id: batch.client.id,
-        name: batch.client.name,
-        email: batch.client.email,
-        commonFields: batch.client.commonFields,
-        logs: batch.client.logs
-      },
-      forms: batch.assignments.map((assignment) => {
-        // Find the submission for the current assignment
-        const submission = submissions.find(s => s.formId === assignment.formId);
+    const assignments = await getBatchAssignments(batch.id);
+    const logs = await getClientLogs(batch.clientId, 50);
+
+    // Get submissions for each assignment
+    const forms = await Promise.all(
+      assignments.sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)).map(async (assignment: any) => {
+        const submission = await getSubmission(
+          batch.clientId,
+          assignment.formId,
+          assignment.formVersion,
+          assignment.instanceNumber || 1
+        );
         return {
           id: assignment.id,
           formId: assignment.formId,
-          title: assignment.form.title,
+          title: assignment.formTitle,
           displayOrder: assignment.displayOrder,
           isCompleted: assignment.isCompleted,
-          formKey: assignment.form.formKey,
-          schema: assignment.form.schema,
+          formKey: assignment.formKey,
+          schema: null, // Schema fetched separately if needed
           submission: submission || null,
-        }
-      }),
-    };
+        };
+      })
+    );
 
-    console.log("Fetched logs count:", batch.client.logs.length);
-    console.log("Sample log metadata:", batch.client.logs[0]?.metadata);
-
-    return NextResponse.json(responseData);
+    return NextResponse.json({
+      batch: { id: batch.id, batchToken: batch.batchToken, expiresAt: batch.expiresAt, createdAt: batch.createdAt },
+      client: { id: client.id, name: client.name, email: client.email, commonFields: client.commonFields, logs },
+      forms,
+    });
   } catch (error: any) {
     console.error("Error accessing form batch:", error);
-    return NextResponse.json(
-      { error: "Failed to access forms", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to access forms", details: error.message }, { status: 500 });
   }
 }

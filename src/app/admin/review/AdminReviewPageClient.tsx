@@ -25,7 +25,7 @@ import useRequireAuth from "../../hooks/useRequireAuth";
 
 // Define client type based on API response
 type Client = {
-    id: number;
+    id: string | number;
     name: string;
     email: string | null;
     phone: string | null;
@@ -39,7 +39,7 @@ type Client = {
         sex?: string;
     };
     pendingForms: {
-        id: number;
+        id: string | number;
         title: string;
         formKey: string;
         currentStatus: string;
@@ -145,7 +145,7 @@ export default function AdminReviewPageClient({
         fetchPendingActions();
     }, [reviewStatus, debouncedSearchTerm, pagination.page, pagination.pageSize, session]);
 
-    const handleDeleteClient = async (id: number) => {
+    const handleDeleteClient = async (id: string | number) => {
         const confirmed = await confirm.confirm({
             title: "Delete Client",
             message: "Are you sure you want to delete this client? This will also delete all associated forms and data.",

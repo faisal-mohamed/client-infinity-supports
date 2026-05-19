@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getClientById } from "@/lib/db/client";
+import { getClientAssignments, getSubmission } from "@/lib/db/forms";
 
 export async function GET(
   req: NextRequest,
@@ -7,119 +8,56 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const clientId = parseInt(id);
+    if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
 
-    if (isNaN(clientId)) {
-      return NextResponse.json(
-        { error: "Invalid client ID" },
-        { status: 400 }
-      );
-    }
+    const client = await getClientById(id);
+    if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
 
-    // Get client info with common fields
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        commonFields: {
-          select: {
-            id: true,
-            name: true,
-            age: true,
-            email: true,
-            sex: true,
-            street: true,
-            state: true,
-            postCode: true,
-            dob: true,
-            ndis: true,
-            disability: true,
-            address: true,
-            phone: true,
-            surname: true
-          }
-        }
-      },
-    });
-
-    if (!client) {
-      return NextResponse.json(
-        { error: "Client not found" },
-        { status: 404 }
-      );
-    }
-
-    // Get form assignments with related data
-    const assignments = await prisma.formAssignment.findMany({
-      where: { clientId, archivedAt: null },
-      include: {
-        form: {
-          select: {
-            id: true,
-            formKey: true,
-            title: true,
-            version: true,
-            requiresSignature: true, // Include signature requirement from database
-          },
-        },
-      },
-      orderBy: [
-        { displayOrder: 'asc' },
-        { assignedAt: 'asc' },
-      ],
-    });
+    const assignments = await getClientAssignments(id);
 
     // For each assignment, check if FormSubmission exists
     const assignmentsWithSubmissionStatus = await Promise.all(
       assignments.map(async (assignment) => {
-        const submission = await prisma.formSubmission.findUnique({
-          where: {
-            clientId_formId_formVersion_instanceNumber: {
-              clientId: assignment.clientId,
-              formId: assignment.formId,
-              formVersion: assignment.formVersion,
-              instanceNumber: assignment.instanceNumber,
-            },
-          },
-          select: {
-            id: true,
-            data: true, // Include form data for signature validation
-            filledByAdmin: true,
-            adminFilledAt: true,
-            clientSignature: true,
-            clientSignedAt: true,
-          },
-        });
+        const submission = await getSubmission(
+          assignment.clientId,
+          assignment.formId,
+          assignment.formVersion,
+          assignment.instanceNumber
+        );
 
         return {
           ...assignment,
+          form: {
+            id: assignment.formId,
+            formKey: assignment.formKey,
+            title: assignment.formTitle,
+            version: assignment.formVersion,
+            requiresSignature: assignment.requiresSignature,
+          },
           hasSubmission: !!submission,
           submissionId: submission?.id,
           filledByAdmin: submission?.filledByAdmin || false,
           adminFilledAt: submission?.adminFilledAt,
           clientSignature: submission?.clientSignature,
           clientSignedAt: submission?.clientSignedAt,
-          formData: submission?.data, // Include form data for signature validation
-          instanceNumber: assignment.instanceNumber, // Basic info
-          // Include isCompleted from FormAssignment
+          formData: submission?.data,
           isCompleted: assignment.isCompleted,
         };
       })
     );
 
     return NextResponse.json({
-      client,
+      client: {
+        id: client.id,
+        name: client.name,
+        email: client.email,
+        phone: client.phone,
+        commonFields: client.commonFields || null,
+      },
       assignments: assignmentsWithSubmissionStatus,
     });
-
   } catch (error: any) {
     console.error("Error fetching client form assignments:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch client form assignments", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch client form assignments", details: error.message }, { status: 500 });
   }
 }

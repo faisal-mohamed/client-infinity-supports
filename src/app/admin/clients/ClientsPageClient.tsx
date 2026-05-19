@@ -29,7 +29,7 @@ import { useConfirm } from "@/components/ui/Confirm";
 import useRequireAuth from "../../hooks/useRequireAuth";
 
 type Client = {
-  id: number;
+  id: string | number;
   name: string;
   email: string | null;
   phone: string | null;
@@ -167,7 +167,7 @@ export default function ClientsPageClient() {
     } catch { const aStr = String(aValue || "").toLowerCase(); const bStr = String(bValue || "").toLowerCase(); const c = aStr.localeCompare(bStr); return sortDirection === "asc" ? c : -c; }
   });
 
-  const handleDeleteClient = async (id: number) => {
+  const handleDeleteClient = async (id: string | number) => {
     if (isDeleting) return;
     const confirmed = await confirm.confirm({ title: "Delete Client", message: "Are you sure you want to delete this client? This will also delete all associated data.", confirmText: "Delete", cancelText: "Cancel", type: "danger" });
     if (!confirmed) return;
@@ -182,7 +182,7 @@ export default function ClientsPageClient() {
   };
 
   const handleSelectAll = () => { if (selectAll) { setSelectedClients([]); } else { setSelectedClients(sortedClients.map((c) => c.id)); } setSelectAll(!selectAll); };
-  const handleSelectClient = (id: number) => { if (selectedClients.includes(id)) { setSelectedClients(selectedClients.filter((cid) => cid !== id)); setSelectAll(false); } else { setSelectedClients([...selectedClients, id]); if (selectedClients.length + 1 === sortedClients.length) setSelectAll(true); } };
+  const handleSelectClient = (id: string | number) => { if (selectedClients.includes(id)) { setSelectedClients(selectedClients.filter((cid) => cid !== id)); setSelectAll(false); } else { setSelectedClients([...selectedClients, id]); if (selectedClients.length + 1 === sortedClients.length) setSelectAll(true); } };
   const resetFilters = () => { setFilters({ state: "", sex: "", hasNdis: "", hasDisability: "" }); setPagination({ ...pagination, page: 1 }); };
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPagination({ ...pagination, page: 1 }); loadClients(); };
   const handlePageChange = (newPage: number) => { setPagination({ ...pagination, page: newPage }); };

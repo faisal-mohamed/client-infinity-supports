@@ -6,19 +6,19 @@ import { FaBell, FaUser, FaFileAlt, FaClock, FaCheck, FaArrowLeft, FaCircle, FaS
 import useRequireAuth from '../../hooks/useRequireAuth';
 
 interface Notification {
-  id: number;
+  id: string | number;
   isRead: boolean;
   createdAt: string;
   formAssignmentStatus?: string; // New: form assignment status
   client: {
-    id: number;
+    id: string | number;
     name: string;
     email: string;
   };
   formSubmission: {
-    id: number;
+    id: string | number;
     form: {
-      id: number;
+      id: string | number;
       title: string;
       formKey: string;
     };
@@ -110,7 +110,7 @@ export default function NotificationsPage() {
   };
 
   // Mark notification as read
-  const markAsRead = async (notificationId: number) => {
+  const markAsRead = async (notificationId: string | number) => {
     try {
       const response = await fetch(`/api/admin/notifications/${notificationId}`, {
         method: 'PATCH',

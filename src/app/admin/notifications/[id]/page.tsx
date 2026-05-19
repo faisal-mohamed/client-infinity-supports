@@ -18,21 +18,21 @@ import {
 } from 'react-icons/fa';
 
 interface NotificationDetail {
-  id: number;
+  id: string | number;
   isRead: boolean;
   createdAt: string;
   client: {
-    id: number;
+    id: string | number;
     name: string;
     email: string;
     phone: string;
   };
   formSubmission: {
-    id: number;
+    id: string | number;
     submittedAt: string;
     clientSignedAt: string;
     form: {
-      id: number;
+      id: string | number;
       title: string;
       formKey: string;
       version: number;

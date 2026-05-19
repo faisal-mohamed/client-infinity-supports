@@ -27,12 +27,12 @@ import { fetchFormSpecificSettings } from "@/lib/settings";
 // Types
 interface FormSignatureData {
   formSubmission: {
-    id: number;
+    id: string | number;
     data: any;
     clientSignature?: string;
     clientSignedAt?: string;
     form: {
-      id: number; // Add form ID
+      id: string | number; // Add form ID
       formKey: string;
       title: string;
       schema: any;

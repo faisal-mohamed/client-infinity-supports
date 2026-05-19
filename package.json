@@ -7,34 +7,32 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "prisma db seed",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:setup": "prisma generate && prisma migrate deploy && prisma db seed",
-    "prod:build": "prisma generate && next build",
+    "prod:build": "next build",
     "prod:start": "next start",
     "clean": "rimraf .next node_modules/.cache",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "dynamodb:setup": "npx ts-node scripts/dynamodb-setup.ts",
+    "dynamodb:migrate": "npx ts-node scripts/migrate-data.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0",
     "@headlessui/react": "^2.2.6",
     "@jsonforms/core": "^3.5.1",
     "@jsonforms/material-renderers": "^3.5.1",
     "@jsonforms/react": "^3.5.1",
-    "@prisma/client": "^6.19.0",
     "@react-pdf/renderer": "^4.2.0",
     "@sparticuz/chromium": "^133.0.0",
     "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "googleapis": "^144.0.0",
     "next": "15.3.3",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
     "pdfjs-dist": "^4.4.168",
-    "pg": "^8.16.0",
-    "prisma": "^6.9.0",
     "puppeteer": "^24.10.0",
     "puppeteer-core": "^24.10.0",
     "react": "^19.0.0",
@@ -48,6 +46,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@prisma/client": "^5.22.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
@@ -60,10 +59,8 @@
     "eslint-config-next": "15.3.3",
     "playwright": "^1.52.0",
     "postcss": "^8.5.4",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

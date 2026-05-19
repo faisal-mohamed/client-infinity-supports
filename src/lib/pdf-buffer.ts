@@ -1,8 +1,8 @@
 // PDF buffer generation utilities for email attachments
 
 interface PDFBufferOptions {
-  formSubmissionId: number;
-  formId: number;
+  formSubmissionId: string | number;
+  formId: string | number;
   filename?: string;
   adminId?: number;
 }
@@ -67,8 +67,8 @@ export async function generatePDFBuffer({
  */
 export async function generateMultiplePDFBuffers(
   forms: Array<{
-    id: number; // This is the formSubmissionId
-    formId: number;
+    id: string | number; // This is the formSubmissionId
+    formId: string | number;
     title: string;
   }>,
   adminId?: number

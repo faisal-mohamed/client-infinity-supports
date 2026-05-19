@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import { prisma } from "@/lib/prisma";
+import { createPIIAccessLog } from "@/lib/db/audit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,17 +17,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    await prisma.pIIAccessLog.create({
-      data: {
-        adminId: parseInt(session.user.id),
-        clientId: parseInt(clientId),
-        formId: formId ? parseInt(formId) : null,
-        assignmentId: assignmentId ? parseInt(assignmentId) : null,
-        action,
-        accessedAt: timestamp ? new Date(timestamp) : new Date(),
-        ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
-        userAgent: req.headers.get("user-agent") || null,
-      },
+    await createPIIAccessLog({
+      adminId: session.user.id,
+      clientId,
+      formId: formId || null,
+      assignmentId: assignmentId || null,
+      action,
+      accessedAt: timestamp ? new Date(timestamp).toISOString() : new Date().toISOString(),
+      ipAddress: req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || null,
+      userAgent: req.headers.get("user-agent") || null,
     });
 
     return NextResponse.json({ success: true });

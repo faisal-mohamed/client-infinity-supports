@@ -149,7 +149,7 @@ export default function ClientDetailPage() {
     const loadClient = async () => {
       try {
         setLoading(true);
-        const data = await getClient(parseInt(id));
+        const data = await getClient(id);
         setClient(data);
         setError('');
       } catch (err) {
