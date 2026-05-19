@@ -48,7 +48,7 @@ export async function GET(request: Request) {
             { staffSignature: null },
             { staffSignature: "" }
           ],
-          form: {
+          MasterForm: {
             requiresSignature: true
           }
         }
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
             { staffSignature: { not: null } },
             { staffSignature: { not: "" } }
           ],
-          form: {
+          MasterForm: {
             requiresSignature: true
           }
         }
