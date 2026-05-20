@@ -453,13 +453,13 @@ export default function SettingsPageClient() {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
-        <div className="flex justify-center items-center h-80">
+        <div className="flex justify-center items-center min-h-[60vh]">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
 
                 {/* Text */}
-                <h3 className="text-base font-semibold text-azure-700 mb-2">
+                <h3 className="text-sm text-azure-400">
                   Loading Settings
                 </h3>
                 <p className="text-azure-500 font-medium">

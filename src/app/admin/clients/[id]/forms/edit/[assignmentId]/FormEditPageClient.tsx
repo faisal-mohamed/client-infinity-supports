@@ -288,10 +288,10 @@ export default function FormEditPageClient() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
+      <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-20 h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-base font-semibold text-azure-700 mb-2">Loading Edit template</h3>
+          <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <h3 className="text-sm text-azure-400">Loading Edit template</h3>
           <p className="text-azure-500 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"></div>

@@ -172,7 +172,7 @@ export default function SignaturePortalClient() {
     return (
       <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-4 sm:mb-6"></div>
+          <div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-3 sm:mb-6"></div>
           <h3 className="text-lg sm:text-xl font-bold text-azure-700 mb-2">Loading Form</h3>
           <p className="text-sm sm:text-base text-azure-500 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">

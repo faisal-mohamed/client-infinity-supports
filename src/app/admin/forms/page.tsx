@@ -93,7 +93,7 @@ export default function FormsManagement() {
       {/* Table */}
       <div className="bg-white rounded-2xl border border-azure-100/60 overflow-hidden shadow-soft">
         {loading ? (
-          <div className="flex justify-center items-center h-48">
+          <div className="flex justify-center items-center min-h-[60vh]">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
               <p className="text-sm text-azure-400">Loading forms...</p>

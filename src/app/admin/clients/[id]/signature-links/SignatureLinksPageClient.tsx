@@ -258,14 +258,14 @@ export default function SignatureLinksPageClient() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="flex justify-center items-center h-80">
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="flex justify-center items-center min-h-[60vh]">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
 
                 {/* Text */}
-                <h3 className="text-base font-semibold text-azure-700 mb-2">
+                <h3 className="text-sm text-azure-400">
                   Loading Signature Links
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -532,7 +532,7 @@ export default function SignatureLinksPageClient() {
                         </div>
                         <div>
                           <span className="font-semibold text-azure-700 block">Created</span>
-                          <span className="text-azure-500">{new Date(batch.createdAt).toLocaleDateString()}</span>
+                          <span className="text-sm text-azure-400">{new Date(batch.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                       
@@ -573,7 +573,7 @@ export default function SignatureLinksPageClient() {
                           <div className="flex items-center space-x-3 flex-1">
                             <div>
                               <span className="font-semibold text-azure-700 block">Expires</span>
-                              <span className="text-azure-500">{new Date(batch.expiresAt).toLocaleString()}</span>
+                              <span className="text-sm text-azure-400">{new Date(batch.expiresAt).toLocaleString()}</span>
                             </div>
                             <button
                               onClick={() => startEditingExpiry(batch.id, batch.expiresAt)}

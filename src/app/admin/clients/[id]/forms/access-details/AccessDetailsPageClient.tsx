@@ -140,7 +140,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azure-500"></div>
+        <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -257,7 +257,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                       <div className="flex flex-col sm:flex-row gap-2 items-center">
                         <input type="date" value={newExpiry.date} min={today} onChange={e => setNewExpiry(v => ({ ...v, date: e.target.value }))} className="border rounded px-2 py-1" />
                         <input type="time" value={newExpiry.time} onChange={e => setNewExpiry(v => ({ ...v, time: e.target.value }))} className="border rounded px-2 py-1" />
-                        <button onClick={() => handleUpdateExpiry(batch.batchId)} disabled={updating} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center">{updating ? <span className='animate-spin h-4 w-4 border-t-2 border-b-2 border-white mr-2'></span> : <FaSave className="mr-1" />}Save</button>
+                        <button onClick={() => handleUpdateExpiry(batch.batchId)} disabled={updating} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center">{updating ? <span className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2'></span> : <FaSave className="mr-1" />}Save</button>
                         <button onClick={() => setEditingBatchId(null)} className="bg-azure-200 hover:bg-azure-200 text-azure-600 px-3 py-1 rounded flex items-center"><FaTimes className="mr-1" />Cancel</button>
                       </div>
                     ) : (

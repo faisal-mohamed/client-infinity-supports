@@ -1028,7 +1028,7 @@ export default function CreateClientPage() {
     >
       {loading ? (
         <>
-          <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-3"></div>
           Creating Client...
         </>
       ) : (

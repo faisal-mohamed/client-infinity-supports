@@ -98,16 +98,16 @@ export default function ClientDetailPage() {
 
     if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-          <div className="flex items-center justify-center py-16">
-         <div className="flex items-center justify-center py-16">
-        <div className="flex justify-center items-center h-80">
+      <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="flex justify-center items-center min-h-[60vh]">
+         <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="flex justify-center items-center min-h-[60vh]">
               <div className="text-center">
                 {/* Spinner */}
-                <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
 
                 {/* Text */}
-                <h3 className="text-base font-semibold text-azure-700 mb-2">
+                <h3 className="text-sm text-azure-400">
                     Loading Client Info
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -354,7 +354,7 @@ export default function ClientDetailPage() {
                   <div className="p-6 rounded-full bg-azure-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <FaIdCard className="h-12 w-12 text-azure-300" />
                   </div>
-                  <h3 className="text-base font-semibold text-azure-700 mb-2">No Personal Details</h3>
+                  <h3 className="text-sm text-azure-400">No Personal Details</h3>
                   <p className="text-azure-400">Personal information has not been provided yet.</p>
                 </div>
               )}
@@ -421,7 +421,7 @@ export default function ClientDetailPage() {
                   <div className="p-6 rounded-full bg-azure-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <FaMapMarkerAlt className="h-12 w-12 text-azure-300" />
                   </div>
-                  <h3 className="text-base font-semibold text-azure-700 mb-2">No Address Information</h3>
+                  <h3 className="text-sm text-azure-400">No Address Information</h3>
                   <p className="text-azure-400">Address details have not been provided yet.</p>
                 </div>
               )}

@@ -89,10 +89,10 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
+      <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-azure-500">Loading client details...</p>
+          <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm text-azure-400">Loading client details...</p>
         </div>
       </div>
     );

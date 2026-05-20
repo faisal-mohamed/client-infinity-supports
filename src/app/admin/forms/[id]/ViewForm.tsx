@@ -102,14 +102,14 @@ export default function ViewFormClient({ formId }: { formId: string }) {
   if (loading) {
     return (
       <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex justify-center items-center">
-        <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
-          <div className="flex justify-center items-center h-80">
+        <div className="flex items-center justify-center py-16">
+          <div className="flex justify-center items-center min-h-[60vh]">
             <div className="text-center">
               {/* Spinner */}
-              <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
+              <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
 
               {/* Text */}
-              <h3 className="text-base font-semibold text-azure-700 mb-2">
+              <h3 className="text-sm text-azure-400">
                 View Form Loading
               </h3>
               <p className="text-azure-500 font-medium">
@@ -234,7 +234,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                       <div className="p-8 rounded-full bg-azure-100 w-28 h-28 mx-auto mb-4 flex items-center justify-center">
                         <FaFileAlt className="text-azure-300 text-3xl" />
                       </div>
-                      <h3 className="text-base font-semibold text-azure-700 mb-2">Preview Not Available</h3>
+                      <h3 className="text-sm text-azure-400">Preview Not Available</h3>
                       <p className="text-azure-400 text-sm">This form type does not support preview yet.</p>
                     </div>
                   )}
