@@ -172,7 +172,7 @@ export default function NotificationsPage() {
                 <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-azure-700 mb-2">
+                <h3 className="text-base font-semibold text-azure-700 mb-2">
                   Loading Notifications
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -214,7 +214,7 @@ export default function NotificationsPage() {
         <FaBell className="h-7 w-7" />
       </div>
       <div>
-        <h1 className="text-3xl font-bold text-azure-800 mb-1">Notifications</h1>
+        <h1 className="text-xl font-bold text-azure-700 mb-1">Notifications</h1>
         <p className="text-azure-500">Stay updated with client form submissions</p>
       </div>
     </div>
@@ -288,7 +288,7 @@ export default function NotificationsPage() {
       <div className="p-6 rounded-full bg-azure-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
         <FaBell className="h-12 w-12 text-azure-300" />
       </div>
-      <h3 className="text-xl font-semibold text-azure-800 mb-3">No notifications yet</h3>
+      <h3 className="text-base font-semibold text-azure-700 mb-3">No notifications yet</h3>
       <p className="text-azure-400 max-w-md mx-auto">
         You'll see notifications here when clients submit and sign their forms.
         Stay tuned for updates!
@@ -301,7 +301,7 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-azure-100">
             <FaCalendarDay className="h-4 w-4 text-gold-600" />
-            <span className="font-semibold text-azure-800">{dateGroup}</span>
+            <span className="font-semibold text-azure-700">{dateGroup}</span>
             <span className="bg-gold-100 text-gold-700 text-xs font-medium px-2 py-1 rounded-full">
               {groupNotifications.length}
             </span>
@@ -352,7 +352,7 @@ export default function NotificationsPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="font-semibold text-lg text-azure-800">
+                        <h3 className="font-semibold text-lg text-azure-700">
                           {notification.formAssignmentStatus === 'pending_admin_review' 
                             ? '⚠️ Staff Submitted - Your Review Required'
                             : notification.formAssignmentStatus === 'completed'
@@ -375,20 +375,20 @@ export default function NotificationsPage() {
                         {notification.formAssignmentStatus === 'pending_admin_review' ? (
                           <>
                             Staff has completed their section of{' '}
-                            <span className="font-medium text-azure-800">{notification.formSubmission.form.title}</span>
+                            <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
                             {' '}for client <span className="font-semibold text-yellow-700">{notification.client.name}</span>.
                             <span className="block mt-1 text-yellow-700 font-medium">Please complete the Follow-up section and add your signature.</span>
                           </>
                         ) : notification.formAssignmentStatus === 'completed' ? (
                           <>
                             <span className="font-semibold text-emerald-700">{notification.client.name}</span>'s{' '}
-                            <span className="font-medium text-azure-800">{notification.formSubmission.form.title}</span>
+                            <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
                             {' '}has been fully completed with all signatures.
                           </>
                         ) : (
                           <>
                             <span className="font-semibold text-gold-700">{notification.client.name}</span> has successfully signed and submitted{' '}
-                            <span className="font-medium text-azure-800">{notification.formSubmission.form.title}</span>
+                            <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
                           </>
                         )}
                       </p>

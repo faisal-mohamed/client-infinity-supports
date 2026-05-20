@@ -20,9 +20,9 @@ export default function StaffNotSubmittedModal({
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">
       
       {/* Header */}
-      <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-azure-50 border-b border-azure-100 rounded-t-2xl">
+      <div className="px-6 py-4 bg-gradient-to-r from-azure-50 to-azure-50 border-b border-azure-100 rounded-t-2xl">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-azure-700 text-white shadow-lg">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-white shadow-lg">
             <FaClock className="h-6 w-6" />
           </div>
           <div>
@@ -34,15 +34,15 @@ export default function StaffNotSubmittedModal({
       
       {/* Body */}
       <div className="p-6">
-        <div className="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-4 mb-6">
+        <div className="bg-azure-50 border border-azure-100 text-azure-700 rounded-xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <FaLink className="h-5 w-5 mt-0.5 text-blue-600 flex-shrink-0" />
+            <FaLink className="h-5 w-5 mt-0.5 text-azure-600 flex-shrink-0" />
             <div className="text-sm leading-relaxed">
               <p className="font-semibold mb-2">Client/Staff Form Not Submitted</p>
               <p className="mb-2">
                 This form was sent to the client/staff via a signature link, but they <strong>haven't submitted their data yet</strong>.
               </p>
-              <p className="text-blue-700">
+              <p className="text-azure-700">
                 ⏳ Please wait for the client or support worker to complete and submit the form before proceeding with your review and approval.
               </p>
             </div>

@@ -569,11 +569,11 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
         if (!legend) return null;
 
         let badgeClass = "text-azure-500 bg-azure-50 border-azure-100";
-        if (legend === "Staff") badgeClass = "text-blue-600 bg-blue-50 border-blue-200";
+        if (legend === "Staff") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
         else if (legend === "Manager") badgeClass = "text-amber-600 bg-amber-50 border-amber-200";
         else if (legend === "Participant") badgeClass = "text-green-600 bg-green-50 border-green-200";
-        else if (legend === "Authorised Representative") badgeClass = "text-purple-600 bg-purple-50 border-purple-200";
-        else if (legend === "Participant/Auth Rep") badgeClass = "text-teal-600 bg-teal-50 border-teal-200";
+        else if (legend === "Authorised Representative") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
+        else if (legend === "Participant/Auth Rep") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
 
         return (
             <span className={`ml-2 text-xs font-semibold px-2 py-0.5 rounded-full border ${badgeClass}`}>
@@ -1418,7 +1418,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                         {/* NDIS Code of Conduct Footer */}
                                         <div className="md:col-span-2 mt-4 text-xs text-azure-400 border-t pt-4">
                                             <p className="mb-2">
-                                                The <a href="https://www.ndiscommission.gov.au/about/ndis-code-conduct" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">NDIS Code of Conduct</a> promotes safe and ethical service delivery by setting out expectations for the conduct of both NDIS providers and workers.
+                                                The <a href="https://www.ndiscommission.gov.au/about/ndis-code-conduct" target="_blank" rel="noopener noreferrer" className="text-azure-600 underline">NDIS Code of Conduct</a> promotes safe and ethical service delivery by setting out expectations for the conduct of both NDIS providers and workers.
                                             </p>
                                             <p>
                                                 If you don’t abide by the obligations to disclose and manage conflicts of interest, this may constitute a breach of the NDIS Code of Conduct which may result in a report to the NDIS Quality and Safeguards Commission or National Disability Insurance Agency for non-compliant behaviour.
@@ -1467,7 +1467,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                             disabled={!isCurrentSectionComplete() || saving}
                             className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm shadow transition ${!isCurrentSectionComplete() || saving
                                 ? "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
-                                : "bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500"
+                                : "bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500"
                                 }`}
                         >
                             {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaCheck className="w-4 h-4" />}

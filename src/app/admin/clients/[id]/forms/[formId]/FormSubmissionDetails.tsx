@@ -55,7 +55,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
 
           return (
             <div key={key} className="border-b pb-4">
-              <h3 className="text-md font-medium text-azure-600 mb-2 capitalize">
+              <h3 className="text-base font-semibold text-azure-600 mb-2 capitalize">
                 {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
               </h3>
               <div className="text-azure-700">
@@ -106,8 +106,8 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="px-6 py-4 border-b border-azure-100 bg-blue-50 flex justify-between items-center">
+    <div className="bg-white shadow-soft rounded-2xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-azure-100 bg-azure-50 flex justify-between items-center">
         <div className="flex items-center">
           <button
             onClick={() => router.back()}
@@ -122,7 +122,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
         <div className="flex space-x-2">
           <button
             onClick={handleDownloadPdf}
-            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
+            className="flex items-center bg-azure-600 hover:bg-azure-700 text-white py-2 px-4 rounded-md"
           >
             <FaDownload className="mr-2" /> Download PDF
           </button>
@@ -168,7 +168,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
             <button
               className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'formatted'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-azure-600 border-b-2 border-azure-600'
                   : 'text-azure-400 hover:text-azure-600'
               }`}
               onClick={() => setActiveTab('formatted')}
@@ -178,7 +178,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
             <button
               className={`py-2 px-2 md:px-4 font-medium ${
                 activeTab === 'raw'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-azure-600 border-b-2 border-azure-600'
                   : 'text-azure-400 hover:text-azure-600'
               }`}
               onClick={() => setActiveTab('raw')}

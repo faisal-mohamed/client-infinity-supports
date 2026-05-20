@@ -80,7 +80,7 @@ const AutoResizeTextArea: React.FC<{
             <span className={`text-xs font-medium ${isOverLimit
               ? 'text-red-600'
               : wordCount > maxWords * 0.9
-                ? 'text-orange-500'
+                ? 'text-gold-600'
                 : 'text-azure-400'
               }`}>
               {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
@@ -703,7 +703,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-azure-300 ${fieldErrors[name] || localEmailErrors[name]
             ? "border-red-300 bg-red-50"
             : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
+              ? "bg-azure-50 border-azure-100 text-azure-700"
               : "hover:border-accent/40"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
           aria-invalid={fieldErrors[name] || localEmailErrors[name] ? true : false}
@@ -773,7 +773,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
             )}
           </div>
           <span
-            className={`text-sm leading-relaxed ${isCommon ? "text-blue-800 font-medium" : "text-azure-600"
+            className={`text-sm leading-relaxed ${isCommon ? "text-azure-700 font-medium" : "text-azure-600"
               }`}
           >
             {label}
@@ -860,7 +860,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
           className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all ${fieldErrors[name]
             ? "border-red-300 bg-red-50"
             : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
+              ? "bg-azure-50 border-azure-100 text-azure-700"
               : "hover:border-accent/40"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         >
@@ -1223,7 +1223,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
 
                   {/* Additional fields for plan manager */}
                   {localValues.planManagerManaged && (
-                    <div className="border border-azure-100 rounded-lg p-4 bg-blue-50">
+                    <div className="border border-azure-100 rounded-lg p-4 bg-azure-50">
                       <h3 className="text-lg font-semibold mb-4 text-azure-700">
                         Plan Manager Details
                       </h3>

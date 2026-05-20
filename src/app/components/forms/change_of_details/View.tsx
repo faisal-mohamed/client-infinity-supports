@@ -7,7 +7,7 @@ const PDFViewWrapper = dynamic<any>(() => import('./PDFViewWrapper'), {
     ssr: false,
     loading: () => (
         <div className="flex flex-col items-center justify-center h-full p-8 text-azure-400">
-            <div className="w-10 h-10 border-4 border-t-purple-600 border-purple-200 rounded-full animate-spin mb-4"></div>
+            <div className="w-10 h-10 border-4 border-t-azure-600 border-azure-100 rounded-full animate-spin mb-4"></div>
             <p>Loading PDF Preview...</p>
         </div>
     ),

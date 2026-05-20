@@ -456,8 +456,8 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
             {/* NO Option */}
             <div className="flex items-center gap-2">
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData?.isConflictOfInterest === 'No'
-                ? 'bg-blue-600 border-blue-600'
-                : 'border-blue-600'
+                ? 'bg-azure-600 border-azure-600'
+                : 'border-azure-600'
                 }`}>
                 {formData?.isConflictOfInterest === 'No' && (
                   <span className="text-white text-xs font-bold">✓</span>
@@ -752,10 +752,10 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
         <div className="mb-4">
           <h3 className="font-bold text-sm mb-2 underline">FEEDBACK, COMPLAINTS AND DISPUTES</h3>
           <p className="text-xs leading-relaxed mb-3">
-            If the Individual wishes to give <span className="font-bold text-red-600">Infinity Supports WA</span> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to Sharon Mays Director or Anand Sekar Director 0493282661; Email: <a href="mailto:admin@infinitysupportswa.org" className="text-blue-600 underline hover:text-blue-800">admin@infinitysupportswa.org</a>.
+            If the Individual wishes to give <span className="font-bold text-red-600">Infinity Supports WA</span> feedback OR If the Individual is not happy with the provision of supports and wishes to make a complaint, the Individual can talk to Sharon Mays Director or Anand Sekar Director 0493282661; Email: <a href="mailto:admin@infinitysupportswa.org" className="text-azure-600 underline hover:text-azure-700">admin@infinitysupportswa.org</a>.
           </p>
           <p className="text-xs leading-relaxed">
-            If the Individual is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <a href="https://www.ndis.gov.au" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">www.ndis.gov.au</a> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <a href="https://www.disability.wa.gov.au" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">www.disability.wa.gov.au</a>
+            If the Individual is not satisfied or does not want to talk to this person, the Individual can contact the National Disability Insurance Agency by calling 1800 800 110, visiting one of their offices in person, or visiting <a href="https://www.ndis.gov.au" target="_blank" rel="noopener noreferrer" className="text-azure-600 underline hover:text-azure-700">www.ndis.gov.au</a> for further information. The Individual can contact Department of Communities, Disability Services on (08) 9426 9200, or visiting one of their offices, or visit <a href="https://www.disability.wa.gov.au" target="_blank" rel="noopener noreferrer" className="text-azure-600 underline hover:text-azure-700">www.disability.wa.gov.au</a>
           </p>
         </div>
       )

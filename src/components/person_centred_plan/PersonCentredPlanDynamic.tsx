@@ -326,7 +326,7 @@ const PersonCentredPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
             {goal.rating && (
               <div className="mt-1">
                 <span className="text-xs text-azure-500 mr-2">Outcome Rating:</span>
-                <span className="px-2 py-1 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                <span className="px-2 py-1 rounded text-xs font-bold bg-azure-100 text-azure-700 border border-azure-200">
                   {goal.rating}
                 </span>
               </div>

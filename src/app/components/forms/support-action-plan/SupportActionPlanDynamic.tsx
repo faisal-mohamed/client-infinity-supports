@@ -426,7 +426,7 @@ const SupportActionPlanDynamic: React.FC<any> = ({ formData, commonFieldsData, i
       <div className="mb-4">
         <div className="w-full border border-black">
           {/* Header */}
-          <div className="bg-blue-200 border-b border-black px-3 py-2">
+          <div className="bg-azure-200 border-b border-black px-3 py-2">
             <span className="font-bold text-xs">5. Goals and funding required for next plan</span>
           </div>
           {/* Content - Professional paragraph style */}

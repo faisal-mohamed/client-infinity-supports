@@ -109,7 +109,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
               <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
               {/* Text */}
-              <h3 className="text-xl font-bold text-azure-700 mb-2">
+              <h3 className="text-base font-semibold text-azure-700 mb-2">
                 View Form Loading
               </h3>
               <p className="text-azure-500 font-medium">
@@ -142,7 +142,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
           <div className="bg-gold-100 p-4 rounded-full w-20 h-20 mx-auto mb-4">
             <FaFileAlt className="text-gold-500 text-3xl" />
           </div>
-          <h2 className="text-xl font-bold text-gold-800 mb-2">Form Not Found</h2>
+          <h2 className="text-lg font-semibold text-gold-800 mb-2">Form Not Found</h2>
           <p className="text-gold-600 mb-4">{error || "The requested form could not be found."}</p>
           <Link href="/admin/forms">
             <span className="inline-block px-4 py-2 bg-gold-600 hover:bg-gold-700 text-white rounded-xl transition font-semibold shadow">Back to Forms</span>
@@ -168,7 +168,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                 <FaEye className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-azure-800 mb-1">{form.title}</h1>
+                <h1 className="text-xl font-bold text-azure-700 mb-1">{form.title}</h1>
                 <p className="text-sm text-azure-400">Form preview and metadata</p>
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                 <FaEye className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-azure-800">Form Preview</h2>
+                <h2 className="text-lg font-semibold text-azure-700">Form Preview</h2>
                 <p className="text-sm text-azure-500">Interactive form view</p>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function ViewFormClient({ formId }: { formId: string }) {
                       <div className="p-8 rounded-full bg-azure-100 w-28 h-28 mx-auto mb-4 flex items-center justify-center">
                         <FaFileAlt className="text-azure-300 text-3xl" />
                       </div>
-                      <h3 className="text-xl font-bold text-azure-700 mb-2">Preview Not Available</h3>
+                      <h3 className="text-base font-semibold text-azure-700 mb-2">Preview Not Available</h3>
                       <p className="text-azure-400 text-sm">This form type does not support preview yet.</p>
                     </div>
                   )}

@@ -118,7 +118,7 @@
 //   if (loading) {
 //     return (
 //       <div className="flex justify-center items-center min-h-screen bg-azure-50">
-//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azure-500"></div>
 //       </div>
 //     );
 //   }
@@ -126,7 +126,7 @@
 //   if (success && assignmentResult) {
 //     return (
 //       <div className="container mx-auto px-4 py-8">
-//         <div className="bg-white shadow-md rounded-lg overflow-hidden">
+//         <div className="bg-white shadow-soft rounded-2xl overflow-hidden">
 //           <div className="px-6 py-4 border-b border-azure-100 bg-green-50">
 //             <div className="flex items-center">
 //               <div className="rounded-full bg-green-100 p-2 mr-3">
@@ -168,7 +168,7 @@
 //                   />
 //                   <button
 //                     onClick={() => copyToClipboard(assignmentResult.accessLink, 'link')}
-//                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-md"
+//                     className="bg-azure-600 hover:bg-azure-700 text-white px-4 py-2 rounded-r-md"
 //                   >
 //                     {copied ? <FaCheck /> : <FaCopy />}
 //                   </button>
@@ -188,7 +188,7 @@
 //                   />
 //                   <button
 //                     onClick={() => copyToClipboard(assignmentResult.passcode, 'passcode')}
-//                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-md"
+//                     className="bg-azure-600 hover:bg-azure-700 text-white px-4 py-2 rounded-r-md"
 //                   >
 //                     {copiedPasscode ? <FaCheck /> : <FaCopy />}
 //                   </button>
@@ -218,7 +218,7 @@
               
 //               <button
 //                 onClick={() => setSuccess(false)}
-//                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
+//                 className="bg-azure-600 hover:bg-azure-700 text-white py-2 px-4 rounded-md"
 //               >
 //                 Assign More Forms
 //               </button>
@@ -231,7 +231,7 @@
   
 //   return (
 //     <div className="container mx-auto px-4 py-8">
-//       <div className="bg-white shadow-md rounded-lg overflow-hidden">
+//       <div className="bg-white shadow-soft rounded-2xl overflow-hidden">
 //         <div className="px-6 py-4 border-b border-azure-100">
 //           <h1 className="text-xl font-bold text-azure-700">Assign Forms to {client?.name}</h1>
 //           <p className="mt-1 text-sm text-azure-400">
@@ -255,13 +255,13 @@
 //                 type="date"
 //                 value={expiryDate}
 //                 onChange={(e) => setExpiryDate(e.target.value)}
-//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-500"
 //               />
 //               <input
 //                 type="time"
 //                 value={expiryTime}
 //                 onChange={(e) => setExpiryTime(e.target.value)}
-//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 className="flex-1 px-4 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-500"
 //               />
 //             </div>
 //             <p className="mt-1 text-sm text-azure-400">
@@ -281,7 +281,7 @@
 //                     id={`form-${form.id}`}
 //                     checked={selectedForms.includes(form.id)}
 //                     onChange={() => handleFormSelection(form.id)}
-//                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-azure-200 rounded"
+//                     className="h-4 w-4 text-azure-600 focus:ring-gold-500 border-azure-200 rounded"
 //                   />
 //                   <label htmlFor={`form-${form.id}`} className="ml-2 block text-sm text-azure-700">
 //                     {form.title} (v{form.version})
@@ -306,7 +306,7 @@
 //             <button
 //               onClick={handleAssignForms}
 //               disabled={submitting || selectedForms.length === 0 || !expiryDate || !expiryTime}
-//               className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
+//               className="bg-azure-600 hover:bg-azure-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
 //             >
 //               {submitting ? (
 //                 <>

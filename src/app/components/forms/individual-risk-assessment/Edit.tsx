@@ -367,7 +367,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -408,7 +408,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -869,7 +869,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
             {FORM_SECTIONS.map((_ : any , index : any ) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -911,7 +911,7 @@ const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

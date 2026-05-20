@@ -497,7 +497,7 @@ const NDISConsentEdit: React.FC<FormProps> = ({
         const meta = FIELD_METADATA[name];
         if (meta?.legend) {
             return (
-                <span className="ml-2 px-2 py-0.5 text-[8px] font-extrabold rounded-full bg-blue-50 text-azure-700 border border-azure-100 uppercase tracking-tighter">
+                <span className="ml-2 px-2 py-0.5 text-[8px] font-extrabold rounded-full bg-azure-50 text-azure-700 border border-azure-100 uppercase tracking-tighter">
                     {meta.legend}
                 </span>
             );
@@ -838,7 +838,7 @@ const NDISConsentEdit: React.FC<FormProps> = ({
                             disabled={!isCurrentSectionComplete() || saving}
                             className={`w-full mt-2 flex items-center justify-center gap-3 px-6 py-3 rounded-full font-bold text-base shadow-xl transition-all duration-300 ${!isCurrentSectionComplete() || saving
                                 ? "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
-                                : "bg-gradient-to-r from-blue-600 to-emerald-500 text-white hover:shadow-blue-200 active:scale-[0.98]"
+                                : "bg-gradient-to-r from-azure-600 to-emerald-500 text-white hover:shadow-soft active:scale-[0.98]"
                                 }`}
                         >
                             {saving ? <FaSpinner className="w-5 h-5 animate-spin" /> : <FaCheck className="w-5 h-5" />}

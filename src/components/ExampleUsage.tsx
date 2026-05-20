@@ -73,7 +73,7 @@
 //           </button>
 //           <button
 //             onClick={() => handleShowToast('info')}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//             className="px-4 py-2 bg-azure-600 text-white rounded-md hover:bg-azure-700"
 //           >
 //             Info Toast
 //           </button>
@@ -98,7 +98,7 @@
 //           </button>
 //           <button
 //             onClick={() => handleShowConfirm('info')}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//             className="px-4 py-2 bg-azure-600 text-white rounded-md hover:bg-azure-700"
 //           >
 //             Info Confirm
 //           </button>
@@ -137,7 +137,7 @@
 //         <h2 className="text-xl font-semibold mb-4">Modal Dialog</h2>
 //         <button
 //           onClick={() => setIsModalOpen(true)}
-//           className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+//           className="px-4 py-2 bg-azure-700 text-white rounded-md hover:bg-azure-700"
 //         >
 //           Open Modal
 //         </button>
@@ -155,7 +155,7 @@
 //             <div className="flex justify-end">
 //               <button
 //                 onClick={() => setIsModalOpen(false)}
-//                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//                 className="px-4 py-2 bg-azure-600 text-white rounded-md hover:bg-azure-700"
 //               >
 //                 Close Modal
 //               </button>

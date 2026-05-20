@@ -266,10 +266,10 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
                     <li key={itemIndex}>
                       {parts.map((part, partIndex) => {
                         if (part.includes('@')) {
-                          return <a key={partIndex} href={`mailto:${part}`} className="text-blue-700 underline">{part}</a>;
+                          return <a key={partIndex} href={`mailto:${part}`} className="text-azure-700 underline">{part}</a>;
                         } else if (part.match(/^(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/)) {
                           const url = part.startsWith('http') ? part : `https://${part}`;
-                          return <a key={partIndex} href={url} className="text-blue-700 underline" target="_blank" rel="noopener noreferrer">{part}</a>;
+                          return <a key={partIndex} href={url} className="text-azure-700 underline" target="_blank" rel="noopener noreferrer">{part}</a>;
                         }
                         return <span key={partIndex}>{part}</span>;
                       })}
@@ -301,7 +301,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
       case 'values_section':
         return (
           <div key={index} className="mb-6">
-            <h1 className="text-4xl font-bold mb-12 text-center font-[Playfair_Display]" style={{ letterSpacing: '-0.02em' }}>
+            <h1 className="text-4xl font-bold mb-12 text-center" style={{ letterSpacing: '-0.02em' }}>
               {block.label}
             </h1>
             <section className="text-sm leading-relaxed max-w-2xl space-y-6 text-justify">
@@ -408,7 +408,7 @@ const WelcomeFormDynamic: React.FC<any> = ({ formData, commonFieldsData, setting
                     <p>
                       <span className="inline-block w-[90px]">Website:</span> 
                       <a href={contact.website.startsWith('http') ? contact.website : `https://${contact.website}`} 
-                         className="text-blue-700 underline" 
+                         className="text-azure-700 underline" 
                          target="_blank" 
                          rel="noopener noreferrer">
                         {contact.website}

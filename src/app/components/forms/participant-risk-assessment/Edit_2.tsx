@@ -112,7 +112,7 @@ const AutoResizeTextArea: React.FC<{
             <span className={`text-xs font-medium ${isOverLimit
               ? 'text-red-600'
               : wordCount > maxWords * 0.9
-                ? 'text-orange-500'
+                ? 'text-gold-600'
                 : 'text-azure-400'
               }`}>
               {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
@@ -417,7 +417,7 @@ const ConfirmationModal = ({
                 <div className="mt-4 flex justify-end gap-3">
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-azure-200 bg-white px-4 py-2 text-sm font-medium text-azure-600 hover:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="inline-flex justify-center rounded-md border border-azure-200 bg-white px-4 py-2 text-sm font-medium text-azure-600 hover:bg-azure-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2"
                     onClick={onClose}
                   >
                     {cancelText}
@@ -941,7 +941,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           className={`w-full rounded-lg border border-azure-100 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all placeholder-azure-300 ${mergedError
             ? "border-red-300 bg-red-50"
             : isCommon
-              ? "bg-blue-50 border-blue-200 text-blue-800"
+              ? "bg-azure-50 border-azure-100 text-azure-700"
               : "hover:border-accent/40"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -2666,7 +2666,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep
-                  ? "bg-blue-600 border-blue-600 shadow"
+                  ? "bg-azure-600 border-azure-600 shadow"
                   : index < currentStep
                     ? "bg-green-500 border-green-500"
                     : "bg-azure-200 border-azure-200"
@@ -2759,7 +2759,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

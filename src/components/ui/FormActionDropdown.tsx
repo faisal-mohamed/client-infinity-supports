@@ -89,9 +89,9 @@ export default function FormActionDropdown({
           <button
             onClick={handleDownloadClick}
             disabled={downloadingPDF}
-            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-azure-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 hover:text-orange-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2"
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-azure-600 hover:bg-gradient-to-r hover:from-gold-50 hover:to-gold-100 hover:text-gold-700 transition-all duration-200 disabled:opacity-50 rounded-lg mx-2"
           >
-            <div className="p-2 rounded-lg bg-orange-100 text-orange-600">
+            <div className="p-2 rounded-lg bg-gold-100 text-gold-600">
               {downloadingPDF ? (
                 <FaSpinner className="h-4 w-4 animate-spin" />
               ) : (

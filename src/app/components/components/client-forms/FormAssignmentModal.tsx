@@ -32,14 +32,14 @@
 //     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
 //       <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden border border-azure-100 animate-modal-appear">
 //         {/* Enhanced Header */}
-//         <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 via-purple-50 to-azure-50 border-b border-azure-100">
+//         <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 via-azure-50 to-azure-50 border-b border-azure-100">
 //           <div className="flex items-center justify-between">
 //             <div className="flex items-center gap-4 min-w-0 flex-1">
-//               <div className="p-3 rounded-xl bg-gradient-to-br from-azure-600 to-azure-800 text-white shadow-lg">
+//               <div className="p-3 rounded-xl bg-gradient-to-br from-azure-600 to-azure-800 text-white shadow-soft">
 //                 <FaPlus className="h-6 w-6" />
 //               </div>
 //               <div className="min-w-0 flex-1">
-//                 <h3 className="text-xl sm:text-2xl font-bold text-azure-700 mb-1">
+//                 <h3 className="text-xl sm:text-base font-semibold text-azure-700 mb-1">
 //                   Assign Forms
 //                 </h3>
 //                 <div className="flex items-center gap-2">
@@ -63,7 +63,7 @@
 //         <div className="p-6 sm:p-8 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 220px)' }}>
 //           {availableForms.length === 0 ? (
 //             <div className="text-center py-12">
-//               <div className="p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+//               <div className="p-8 rounded-full bg-azure-100 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
 //                 <FaFileAlt className="h-16 w-16 text-azure-300" />
 //               </div>
 //               <h4 className="text-xl font-bold text-azure-700 mb-2">No Forms Available</h4>
@@ -74,16 +74,16 @@
 //           ) : (
 //             <div className="space-y-4">
 //               {/* Selection Summary */}
-//               <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 mb-6">
+//               <div className="bg-azure-50 rounded-xl p-4 border border-azure-100 mb-6">
 //                 <div className="flex items-center gap-3">
-//                   <div className="p-2 rounded-lg bg-blue-500 text-white shadow-md">
+//                   <div className="p-2 rounded-lg bg-azure-500 text-white shadow-soft">
 //                     <FaCheckCircle className="h-5 w-5" />
 //                   </div>
 //                   <div>
-//                     <div className="text-lg font-bold text-blue-800">
+//                     <div className="text-lg font-bold text-azure-700">
 //                       {selectedFormsToAssign.length} Form{selectedFormsToAssign.length !== 1 ? 's' : ''} Selected
 //                     </div>
-//                     <div className="text-sm text-blue-600">
+//                     <div className="text-sm text-azure-600">
 //                       {availableForms.length - assignments.length} available • {assignments.length} already assigned
 //                     </div>
 //                   </div>
@@ -102,10 +102,10 @@
 //                     key={`${form.id}-${form.version}`}
 //                     className={`group relative p-6 border-2 rounded-2xl transition-all duration-300 cursor-pointer ${
 //                       isAlreadyAssigned 
-//                         ? 'bg-gradient-to-br from-azure-50 to-azure-100 border-azure-100 opacity-60' 
+//                         ? 'bg-azure-50 border-azure-100 opacity-60' 
 //                         : isSelected
-//                         ? 'bg-gradient-to-br from-azure-50 to-azure-50 border-gold-300 shadow-lg transform scale-[1.02]'
-//                         : 'bg-white border-azure-100 hover:bg-gradient-to-br hover:from-azure-50 hover:to-azure-100 hover:border-azure-200 hover:shadow-md'
+//                         ? 'bg-gradient-to-br from-azure-50 to-azure-50 border-gold-300 shadow-soft transform scale-[1.02]'
+//                         : 'bg-white border-azure-100 hover:bg-azure-50 hover:border-azure-200'
 //                     }`}
 //                     onClick={() => !isAlreadyAssigned && onFormSelection(form.id)}
 //                     style={{
@@ -127,12 +127,12 @@
 //                       </div>
 
 //                       {/* Form Icon */}
-//                       <div className={`p-3 rounded-xl shadow-md flex-shrink-0 ${
+//                       <div className={`p-3 rounded-xl shadow-soft flex-shrink-0 ${
 //                         isAlreadyAssigned 
 //                           ? 'bg-azure-300 text-white'
 //                           : isSelected
 //                           ? 'bg-gradient-to-br from-azure-600 to-azure-800 text-white'
-//                           : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white group-hover:from-blue-600 group-hover:to-blue-700'
+//                           : 'bg-azure-500 text-white group-hover:bg-azure-600'
 //                       }`}>
 //                         <FaFileAlt className="h-5 w-5" />
 //                       </div>
@@ -148,7 +148,7 @@
 //                               <span className="bg-azure-100 px-3 py-1 rounded-full font-medium">
 //                                 Version {form.version}
 //                               </span>
-//                               <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
+//                               <span className="bg-azure-100 text-azure-700 px-3 py-1 rounded-full font-medium">
 //                                 {form.formKey}
 //                               </span>
 //                             </div>
@@ -157,7 +157,7 @@
 //                           {/* Status Badge */}
 //                           {isAlreadyAssigned && (
 //                             <div className="flex-shrink-0">
-//                               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-md">
+//                               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
 //                                 <FaCheckCircle className="h-4 w-4" />
 //                                 Already Assigned
 //                               </span>
@@ -174,7 +174,7 @@
 //         </div>
 
 //         {/* Enhanced Footer */}
-//         <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 to-azure-100 border-t border-azure-100">
+//         <div className="px-6 sm:px-8 py-6 bg-azure-50 border-t border-azure-100">
 //           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 //             {/* Selection Info */}
 //             <div className="flex items-center gap-3">
@@ -195,14 +195,14 @@
 //             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
 //               <button
 //                 onClick={onClose}
-//                 className="px-6 py-3 text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+//                 className="px-6 py-3 text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 font-semibold shadow-soft hover:shadow-soft "
 //               >
 //                 Cancel
 //               </button>
 //               <button
 //                 onClick={onAssignForms}
 //                 disabled={selectedFormsToAssign.length === 0 || assigning}
-//                 className="px-8 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+//                 className="px-8 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-soft   disabled:transform-none"
 //               >
 //                 {assigning ? (
 //                   <div className="flex items-center gap-2">
@@ -294,14 +294,14 @@ export default function FormAssignmentModal({
       <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden border border-azure-100 animate-modal-appear">
 
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-gold-50 via-gold-100 to-gold-50 border-b border-azure-100">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-azure-50/50 border-b border-azure-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 text-white shadow-lg">
+              <div className="p-3 rounded-xl bg-azure-700 text-gold-400 shadow-soft">
                 <FaPlus className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-2xl font-bold text-azure-800 mb-1">Assign Forms</h3>
+                <h3 className="text-base font-semibold text-azure-800 mb-1">Assign Forms</h3>
                 <div className="flex items-center gap-2">
                   <FaUser className="h-4 w-4 text-azure-400" />
                   <p className="text-sm sm:text-base text-azure-500 truncate">
@@ -323,7 +323,7 @@ export default function FormAssignmentModal({
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {availableForms.length === 0 ? (
             <div className="text-center py-12">
-              <div className="p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+              <div className="p-8 rounded-full bg-azure-100 w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                 <FaFileAlt className="h-16 w-16 text-azure-300" />
               </div>
               <h4 className="text-xl font-bold text-azure-800 mb-2">No Forms Available</h4>
@@ -334,9 +334,9 @@ export default function FormAssignmentModal({
           ) : (
             <div className="space-y-4">
               {/* Selection Summary */}
-              <div className="bg-gradient-to-r from-gold-50 to-gold-100 rounded-xl p-4 border border-gold-200 mb-6">
+              <div className="bg-gold-50 rounded-xl p-4 border border-gold-200 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-gold-500 text-white shadow-md">
+                  <div className="p-2 rounded-lg bg-gold-500 text-white shadow-soft">
                     <FaCheckCircle className="h-5 w-5" />
                   </div>
                   <div>
@@ -361,10 +361,10 @@ export default function FormAssignmentModal({
                   <div
                     key={`${form.id}-${form.version}`}
                     className={`group relative p-6 border-2 rounded-2xl transition-all duration-300 cursor-pointer ${isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)
-                      ? 'bg-gradient-to-br from-azure-50 to-azure-100 border-azure-100 opacity-60' // Disabled look for single-instance
+                      ? 'bg-azure-50 border-azure-100 opacity-60' // Disabled look for single-instance
                       : isSelected
-                        ? 'bg-gradient-to-br from-gold-50 to-gold-100 border-gold-300 shadow-lg scale-[1.02]'
-                        : 'bg-white border-azure-100 hover:bg-gradient-to-br hover:from-azure-50 hover:to-azure-100 hover:border-azure-200 hover:shadow-md'
+                        ? 'bg-gold-50 border-gold-300 shadow-soft'
+                        : 'bg-white border-azure-100 hover:bg-azure-50 hover:border-azure-200'
                       }`}
                     onClick={() => {
                       // Allow selection if NOT assigned OR if it supports multi-instance
@@ -389,11 +389,11 @@ export default function FormAssignmentModal({
                         />
                       </div>
 
-                      <div className={`p-3 rounded-xl shadow-md flex-shrink-0 ${isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)
+                      <div className={`p-3 rounded-xl shadow-soft flex-shrink-0 ${isAlreadyAssigned && !MULTI_INSTANCE_FORM_KEYS.includes(form.formKey)
                         ? 'bg-azure-300 text-white'
                         : isSelected
-                          ? 'bg-gradient-to-br from-gold-500 to-gold-600 text-white'
-                          : 'bg-gradient-to-br from-sky-500 to-sky-600 text-white group-hover:from-sky-600 group-hover:to-sky-700'
+                          ? 'bg-gold-500 text-azure-700'
+                          : 'bg-azure-500 text-white group-hover:bg-azure-600'
                         }`}>
                         <FaFileAlt className="h-5 w-5" />
                       </div>
@@ -415,12 +415,12 @@ export default function FormAssignmentModal({
                           </div>
                           {isAlreadyAssigned && (
                             MULTI_INSTANCE_FORM_KEYS.includes(form.formKey) ? (
-                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-blue-100 text-blue-800 shadow-sm border border-blue-200">
+                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-azure-100 text-azure-700 shadow-sm border border-azure-100">
                                 <FaPlus className="h-3 w-3" />
                                 Add Copy
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-md">
+                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
                                 <FaCheckCircle className="h-4 w-4" />
                                 Already Assigned
                               </span>
@@ -437,7 +437,7 @@ export default function FormAssignmentModal({
         </div>
 
         {/* Footer */}
-        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-azure-50 to-azure-100 border-t border-azure-100">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-azure-50 border-t border-azure-100">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gold-100 text-gold-600">
@@ -454,14 +454,14 @@ export default function FormAssignmentModal({
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={onClose}
-                className="w-full sm:w-auto text-center px-6 py-3 text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                className="w-full sm:w-auto text-center px-6 py-3 text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 font-semibold shadow-soft hover:shadow-soft "
               >
                 Cancel
               </button>
               <button
                 onClick={onAssignForms}
                 disabled={selectedFormsToAssign.length === 0 || assigning}
-                className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-gold-600 to-gold-700 text-white rounded-xl hover:from-gold-700 hover:to-gold-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                className="w-full sm:w-auto px-8 py-3 bg-azure-700 text-white rounded-xl hover:bg-azure-600 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-soft   disabled:transform-none"
               >
                 {assigning ? (
                   <div className="flex items-center justify-center gap-2">

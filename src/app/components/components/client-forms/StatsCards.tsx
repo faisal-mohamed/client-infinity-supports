@@ -39,8 +39,8 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       title: 'In Progress',
       value: stats.inProgress,
       icon: FaClock,
-      bgColor: 'bg-blue-100',
-      iconColor: 'text-blue-600'
+      bgColor: 'bg-azure-100',
+      iconColor: 'text-azure-600'
     },
     {
       title: 'Not Started',
@@ -57,7 +57,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
         {statsData.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-azure-50 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-azure-50 p-4 sm:p-6 hover:shadow-soft transition-shadow duration-200">
               <div className="flex items-center">
                 <div className={`p-2 sm:p-3 rounded-lg ${stat.bgColor} flex-shrink-0`}>
                   <IconComponent className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.iconColor}`} />

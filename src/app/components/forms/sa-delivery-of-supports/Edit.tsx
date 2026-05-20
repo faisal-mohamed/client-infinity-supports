@@ -393,7 +393,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             getError(name)
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -424,7 +424,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             disabled={isFieldReadOnly}
             className={`mt-1 scale-100 accent-accent ${isFieldReadOnly ? "cursor-not-allowed" : "cursor-pointer"}`}
           />
-          <span className={`text-sm leading-relaxed ${isCommon ? "text-blue-800" : "text-azure-600"}`}>
+          <span className={`text-sm leading-relaxed ${isCommon ? "text-azure-700" : "text-azure-600"}`}>
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </span>
@@ -503,7 +503,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             getError(name)
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : "hover:border-accent/40"
           } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         >
@@ -840,7 +840,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
                   
                   {/* Additional fields for plan manager */}
                   {localValues.planManagerManaged && (
-                    <div className="border border-azure-100 rounded-lg p-4 bg-blue-50">
+                    <div className="border border-azure-100 rounded-lg p-4 bg-azure-50">
                       <h3 className="text-lg font-semibold mb-4 text-azure-700">Plan Manager Details</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {["planManagerName", "fundingSource"].map((field) => {
@@ -954,7 +954,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             {FORM_SECTIONS.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -1009,7 +1009,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

@@ -96,7 +96,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-azure-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azure-500"></div>
       </div>
     );
   }
@@ -199,7 +199,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
               <button
                 onClick={() => handleSave(true)}
                 disabled={saving || submitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
+                className="bg-azure-600 hover:bg-azure-700 text-white py-2 px-4 rounded-md flex items-center disabled:opacity-50"
               >
                 {submitting ? (
                   <>

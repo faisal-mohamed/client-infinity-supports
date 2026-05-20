@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-azure-50 to-white px-4 py-12 font-sans">
       {/* Background blobs */}
       <div className="absolute top-0 left-0 w-72 h-72 bg-azure-100 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-100 rounded-full filter blur-3xl opacity-40 animate-pulse delay-1000"></div>
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-azure-100 rounded-full filter blur-3xl opacity-40 animate-pulse delay-1000"></div>
 
       <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-azure-50 p-8 sm:p-10 z-10">
         <div className="text-center mb-8">
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               height={60}
             />
           </div>
-          {/* <h1 className="text-2xl font-bold text-azure-700 mb-2">Forgot Password</h1> */}
+          {/* <h1 className="text-xl font-bold text-azure-700 mb-2">Forgot Password</h1> */}
           <p className="text-sm text-azure-400">Enter your email to receive a verification code</p>
         </div>
 

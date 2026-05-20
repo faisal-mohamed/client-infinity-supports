@@ -279,7 +279,7 @@ export default function CreateClientPage() {
               <FaUserPlus className="text-3xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-azure-700 mb-2">
+              <h1 className="text-xl font-bold text-azure-700 mb-2">
                 Add New Client
               </h1>
               <p className="text-base text-azure-500">
@@ -327,7 +327,7 @@ export default function CreateClientPage() {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-red-800 mb-2">
+                  <h3 className="text-base font-semibold text-red-800 mb-2">
                     Error Creating Client
                   </h3>
                   <p className="text-red-700 font-medium">{error}</p>
@@ -356,7 +356,7 @@ export default function CreateClientPage() {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-amber-800 mb-3">
+                  <h3 className="text-base font-semibold text-amber-800 mb-3">
                     Please Correct the Following Errors
                   </h3>
                   <ul className="space-y-2">
@@ -382,11 +382,11 @@ export default function CreateClientPage() {
             {/* Enhanced Basic Information */}
             <div className="p-8 border-b border-azure-50">
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-600 text-white shadow-md">
                   <FaIdCard className="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-azure-700">
+                  <h2 className="text-lg font-semibold text-azure-700">
                     Basic Information
                   </h2>
                   <p className="text-sm text-azure-500 mt-1">
@@ -629,7 +629,7 @@ export default function CreateClientPage() {
                     <FaGlobe className="h-6 w-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-azure-700">
+                    <h2 className="text-lg font-semibold text-azure-700">
                       Additional Information
                     </h2>
                     <p className="text-sm text-azure-500 mt-1">
@@ -739,8 +739,8 @@ export default function CreateClientPage() {
                         className="w-full border border-azure-200 rounded-xl pl-12 pr-4 py-4 bg-gradient-to-r from-azure-50 to-azure-100 text-azure-500 cursor-not-allowed focus:outline-none shadow-sm"
                       />
                     </div>
-                    <p className="text-xs text-azure-400 mt-2 bg-blue-50 p-2 rounded-lg border border-blue-200">
-                      <span className="font-medium text-blue-700">
+                    <p className="text-xs text-azure-400 mt-2 bg-azure-50 p-2 rounded-lg border border-azure-100">
+                      <span className="font-medium text-azure-700">
                         ℹ️ Age is automatically calculated from the date of
                         birth
                       </span>
@@ -992,7 +992,7 @@ export default function CreateClientPage() {
                   htmlFor="navigateToAssignForms"
                   className="flex items-center gap-3 text-sm font-medium text-azure-600 cursor-pointer"
                 >
-                  <div className="p-2 rounded-lg bg-blue-500 text-white">
+                  <div className="p-2 rounded-lg bg-azure-500 text-white">
                     <FaFileAlt className="h-4 w-4" />
                   </div>
                   <div>

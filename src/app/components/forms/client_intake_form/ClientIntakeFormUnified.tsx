@@ -150,7 +150,7 @@ const AutoResizeTextArea: React.FC<{
             <span className={`text-xs font-medium ${isOverLimit
               ? 'text-red-600'
               : wordCount > maxWords * 0.9
-                ? 'text-orange-500'
+                ? 'text-gold-600'
                 : 'text-azure-400'
               }`}>
               {wordCount}/{maxWords} words {isOverLimit && '⚠️'}
@@ -175,7 +175,7 @@ const AutoResizeTextArea: React.FC<{
             } focus:border-accent transition-all placeholder-azure-300 resize-none ${fieldError
               ? "border-red-300 bg-red-50"
               : isCommon
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : "hover:border-accent/40"
             } ${readOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -1168,7 +1168,7 @@ const InteractiveView: React.FC<any> = ({
             : hasValidationWarning
               ? "border-amber-300 bg-amber-50 focus:ring-amber-400 focus:border-amber-400"
               : isCommon
-                ? "bg-blue-50 border-blue-200 text-blue-800 focus:ring-blue-400"
+                ? "bg-azure-50 border-azure-100 text-azure-700 focus:ring-azure-400"
                 : "border-azure-100 hover:border-accent/40 focus:ring-accent focus:border-accent"
             } ${isFieldReadOnly ? "cursor-not-allowed" : ""}`}
         />
@@ -1477,7 +1477,7 @@ const InteractiveView: React.FC<any> = ({
             {FORM_SECTIONS.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -1515,7 +1515,7 @@ const InteractiveView: React.FC<any> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleSaveWithConfirm(true);
@@ -1583,9 +1583,9 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
         }}
       >
         {/* Section Header */}
-        <div className="bg-blue-600 text-white px-4 py-3 rounded-t-lg mb-0">
+        <div className="bg-azure-600 text-white px-4 py-3 rounded-t-lg mb-0">
           <h2 className="text-lg font-semibold">SECTION {sectionIndex + 1}: {section.title.toUpperCase()}</h2>
-          <p className="text-blue-100 text-sm mt-1">{section.description}</p>
+          <p className="text-azure-100 text-sm mt-1">{section.description}</p>
         </div>
 
         {/* Section Content */}
@@ -1697,7 +1697,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
                             </div>
                           </div>
                           {displayValue === "Yes" && detailsField && (
-                            <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+                            <div className="mt-3 p-3 bg-azure-50 rounded border-l-4 border-azure-500">
                               <div className="text-sm font-medium text-azure-600 mb-2">
                                 {meta.showIfYes?.label || "Details:"}
                               </div>
@@ -1991,7 +1991,7 @@ const PDFView: React.FC<any> = ({ formData, commonFieldsData, images, settings, 
         </div>
         {value === "Yes" && details && (
           <div
-            className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-500"
+            className="mt-4 p-3 bg-azure-50 rounded border-l-4 border-azure-500"
             style={{
               height: `${detailsHeight}px`,
               overflow: 'visible'

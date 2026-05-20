@@ -45,7 +45,7 @@ function ResponsiveText({
       {text.length > 50 && (
         <button
           onClick={toggleExpanded}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-1 transition-colors"
+          className="text-azure-600 hover:text-azure-700 text-sm font-medium mt-1 transition-colors"
         >
           {isExpanded ? 'Show less' : 'Show more'}
         </button>
@@ -71,18 +71,18 @@ function InfoCard({
   const [copied, setCopied] = useState(false);
 
   const colorClasses = {
-    blue: 'bg-blue-50 border-blue-200 text-blue-700',
+    blue: 'bg-azure-50 border-azure-100 text-azure-700',
     green: 'bg-green-50 border-green-200 text-green-700',
-    purple: 'bg-purple-50 border-purple-200 text-purple-700',
+    purple: 'bg-azure-50 border-azure-100 text-azure-700',
     amber: 'bg-amber-50 border-amber-200 text-amber-700',
     rose: 'bg-gold-50 border-gold-200 text-gold-700',
     indigo: 'bg-azure-50 border-azure-200 text-azure-700'
   };
 
   const iconColorClasses = {
-    blue: 'bg-blue-100 text-blue-600',
+    blue: 'bg-azure-100 text-azure-600',
     green: 'bg-green-100 text-green-600',
-    purple: 'bg-purple-100 text-purple-600',
+    purple: 'bg-azure-100 text-azure-600',
     amber: 'bg-amber-100 text-amber-600',
     rose: 'bg-gold-100 text-gold-600',
     indigo: 'bg-azure-100 text-azure-700'
@@ -99,7 +99,7 @@ function InfoCard({
   };
 
   return (
-    <div className={`rounded-xl border-2 p-4 transition-all duration-200 hover:shadow-md ${colorClasses[color]}`}>
+    <div className={`rounded-xl border-2 p-4 transition-all duration-200 transition-all duration-200 ${colorClasses[color]}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className={`p-2 rounded-lg ${iconColorClasses[color]} flex-shrink-0`}>
@@ -165,10 +165,10 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-azure-50 to-azure-100 flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-4"></div>
-          <h3 className="text-xl font-bold text-azure-700 mb-2">Loading Client Details</h3>
+          <h3 className="text-base font-semibold text-azure-700 mb-2">Loading Client Details</h3>
           <p className="text-azure-500">Please wait while we fetch the information...</p>
         </div>
       </div>
@@ -177,12 +177,12 @@ export default function ClientDetailPage() {
 
   if (error || !client) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-azure-50 to-azure-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
+      <div className="flex items-center justify-center p-4 py-16">
+        <div className="bg-white rounded-2xl shadow-soft p-8 text-center max-w-md w-full">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FaUser className="h-8 w-8 text-red-500" />
           </div>
-          <h1 className="text-2xl font-bold text-red-800 mb-2">Client Not Found</h1>
+          <h1 className="text-xl font-bold text-red-800 mb-2">Client Not Found</h1>
           <p className="text-red-600 mb-6">{error}</p>
           <button
             onClick={() => router.back()}
@@ -200,11 +200,11 @@ export default function ClientDetailPage() {
     : client?.name || 'Unknown Client';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-azure-50 to-azure-100">
+    <div className="">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-100 p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-soft border border-azure-100 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             
             {/* Left Section - Client Info */}
@@ -219,7 +219,7 @@ export default function ClientDetailPage() {
               
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <div className="h-16 w-16 bg-gradient-to-br from-gold-500 to-gold-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="h-16 w-16 bg-azure-700 rounded-2xl flex items-center justify-center shadow-soft">
                     <span className="text-2xl font-bold text-white">
                       {fullName.charAt(0).toUpperCase()}
                     </span>
@@ -228,7 +228,7 @@ export default function ClientDetailPage() {
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  <h1 className="text-2xl lg:text-3xl font-bold text-azure-700 mb-1 break-words">
+                  <h1 className="text-2xl lg:text-xl font-bold text-azure-700 mb-1 break-words">
                     {fullName}
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-azure-500">
@@ -249,7 +249,7 @@ export default function ClientDetailPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href={`/admin/clients/${id}/forms`}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="flex items-center gap-2 px-6 py-3 bg-azure-700 hover:bg-azure-600 text-white rounded-xl transition-all duration-200 font-semibold shadow-soft"
               >
                 <FaFileAlt className="h-4 w-4" />
                 <span className="hidden sm:inline">Client Forms</span>
@@ -271,13 +271,13 @@ export default function ClientDetailPage() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Basic Information */}
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
-              <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+            <div className="bg-white rounded-2xl shadow-soft border border-azure-100 overflow-hidden">
+              <div className="px-6 py-4 bg-azure-50/50 border-b border-azure-100">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500 text-white">
+                  <div className="p-2 rounded-lg bg-azure-500 text-white">
                     <FaUser className="h-5 w-5" />
                   </div>
-                  <h2 className="text-lg font-bold text-azure-700">Basic Information</h2>
+                  <h2 className="text-lg font-semibold text-azure-700">Basic Information</h2>
                 </div>
               </div>
               <div className="p-6 space-y-4">
@@ -316,13 +316,13 @@ export default function ClientDetailPage() {
             </div>
 
             {/* Personal Details */}
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-soft border border-azure-100 overflow-hidden">
               <div className="px-6 py-4 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-green-500 text-white">
                     <FaIdCard className="h-5 w-5" />
                   </div>
-                  <h2 className="text-lg font-bold text-azure-700">Personal Details</h2>
+                  <h2 className="text-lg font-semibold text-azure-700">Personal Details</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -364,13 +364,13 @@ export default function ClientDetailPage() {
           <div className="lg:col-span-8 space-y-6">
             
             {/* Address Information */}
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-soft border border-azure-100 overflow-hidden">
               <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-amber-100 border-b border-amber-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-amber-500 text-white">
                     <FaMapMarkerAlt className="h-5 w-5" />
                   </div>
-                  <h2 className="text-lg font-bold text-azure-700">Address Information</h2>
+                  <h2 className="text-lg font-semibold text-azure-700">Address Information</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -408,17 +408,17 @@ export default function ClientDetailPage() {
 
             {/* Disability & Conditions */}
             {client?.commonFields?.disability && (
-              <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
-                <div className="px-6 py-4 bg-gradient-to-r from-azure-50 to-purple-100 border-b border-purple-200">
+              <div className="bg-white rounded-2xl shadow-soft border border-azure-100 overflow-hidden">
+                <div className="px-6 py-4 bg-azure-50/50 border-b border-azure-100">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-purple-500 text-white">
+                    <div className="p-2 rounded-lg bg-azure-500 text-white">
                       <FaClipboardList className="h-5 w-5" />
                     </div>
-                    <h2 className="text-lg font-bold text-azure-700">Disability & Conditions</h2>
+                    <h2 className="text-lg font-semibold text-azure-700">Disability & Conditions</h2>
                   </div>
                 </div>
                 <div className="p-6">
-                  <div className="bg-purple-50 rounded-xl border-2 border-purple-200 p-6">
+                  <div className="bg-azure-50 rounded-xl border-2 border-azure-100 p-6">
                     <ResponsiveText
                       text={client?.commonFields?.disability}
                       className="text-azure-600 whitespace-pre-line leading-relaxed"
@@ -430,22 +430,22 @@ export default function ClientDetailPage() {
             )}
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-soft border border-azure-100 overflow-hidden">
               <div className="px-6 py-4 bg-gradient-to-r from-gold-50 to-gold-100 border-b border-gold-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-gold-500 text-white">
                     <FaFileAlt className="h-5 w-5" />
                   </div>
-                  <h2 className="text-lg font-bold text-azure-700">Quick Actions</h2>
+                  <h2 className="text-lg font-semibold text-azure-700">Quick Actions</h2>
                 </div>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Link
                     href={`/admin/clients/${id}/forms`}
-                    className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-xl transition-colors group"
+                    className="flex items-center gap-3 p-4 bg-azure-50 hover:bg-azure-100 border-2 border-azure-100 rounded-xl transition-colors group"
                   >
-                    <div className="p-2 bg-blue-500 text-white rounded-lg group-hover:bg-blue-600 transition-colors">
+                    <div className="p-2 bg-azure-500 text-white rounded-lg group-hover:bg-azure-600 transition-colors">
                       <FaFileAlt className="h-4 w-4" />
                     </div>
                     <div>
@@ -464,8 +464,8 @@ export default function ClientDetailPage() {
                     </div>
                   </button>
                   
-                  <button className="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 rounded-xl transition-colors group">
-                    <div className="p-2 bg-purple-500 text-white rounded-lg group-hover:bg-purple-600 transition-colors">
+                  <button className="flex items-center gap-3 p-4 bg-azure-50 hover:bg-azure-100 border-2 border-azure-100 rounded-xl transition-colors group">
+                    <div className="p-2 bg-azure-500 text-white rounded-lg group-hover:bg-azure-700 transition-colors">
                       <FaEye className="h-4 w-4" />
                     </div>
                     <div>

@@ -23,18 +23,18 @@ function InfoDisplay({
   color?: 'blue' | 'green' | 'purple' | 'amber' | 'rose' | 'indigo';
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 border-blue-100',
+    blue: 'bg-azure-50 border-azure-100',
     green: 'bg-green-50 border-green-100',
-    purple: 'bg-purple-50 border-purple-100',
+    purple: 'bg-azure-50 border-azure-100',
     amber: 'bg-amber-50 border-amber-100',
     rose: 'bg-gold-50 border-gold-100',
     indigo: 'bg-azure-50 border-azure-100'
   };
 
   const iconColors = {
-    blue: 'text-blue-600',
+    blue: 'text-azure-600',
     green: 'text-green-600',
-    purple: 'text-purple-600',
+    purple: 'text-azure-600',
     amber: 'text-amber-600',
     rose: 'text-gold-600',
     indigo: 'text-azure-700'
@@ -89,7 +89,7 @@ export default function ClientDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-azure-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-azure-500">Loading client details...</p>
@@ -100,8 +100,8 @@ export default function ClientDetailPage() {
 
   if (error || !client) {
     return (
-      <div className="min-h-screen bg-azure-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-6 text-center max-w-md w-full">
+      <div className="flex items-center justify-center p-4 py-16">
+        <div className="bg-white rounded-lg shadow-soft p-6 text-center max-w-md w-full">
           <FaUser className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h1 className="text-xl font-bold text-red-800 mb-2">Client Not Found</h1>
           <p className="text-red-600 mb-4">{error}</p>
@@ -121,7 +121,7 @@ export default function ClientDetailPage() {
     : client?.name || 'Unknown Client';
 
   return (
-    <div className="min-h-screen bg-azure-50">
+    <div className="">
       <div className="max-w-6xl mx-auto px-4 py-6">
         
         {/* Enhanced Header */}
@@ -145,7 +145,7 @@ export default function ClientDetailPage() {
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-semibold text-azure-700 mb-1 break-words">
+                  <h1 className="text-lg sm:text-xl font-bold text-azure-700 mb-1 break-words">
                     {client?.commonFields?.name && client?.commonFields?.surname 
                       ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
                       : client?.name || 'Unknown Client'
@@ -181,9 +181,9 @@ export default function ClientDetailPage() {
           
           {/* Basic Information */}
           <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b bg-blue-50">
+            <div className="px-6 py-4 border-b bg-azure-50">
               <div className="flex items-center gap-3">
-                <FaUser className="h-5 w-5 text-blue-600" />
+                <FaUser className="h-5 w-5 text-azure-600" />
                 <h2 className="font-semibold text-azure-700">Basic Information</h2>
               </div>
             </div>
@@ -300,14 +300,14 @@ export default function ClientDetailPage() {
           {/* Disability & Conditions */}
           {client?.commonFields?.disability && (
             <div className="bg-white rounded-lg shadow-sm border">
-              <div className="px-6 py-4 border-b bg-purple-50">
+              <div className="px-6 py-4 border-b bg-azure-50">
                 <div className="flex items-center gap-3">
-                  <FaClipboardList className="h-5 w-5 text-purple-600" />
+                  <FaClipboardList className="h-5 w-5 text-azure-600" />
                   <h2 className="font-semibold text-azure-700">Disability & Conditions</h2>
                 </div>
               </div>
               <div className="p-6">
-                <div className="bg-purple-50 rounded-lg p-4">
+                <div className="bg-azure-50 rounded-lg p-4">
                   <p className="text-azure-600 whitespace-pre-line text-sm leading-relaxed">
                     {client?.commonFields?.disability}
                   </p>

@@ -92,10 +92,10 @@ export default function CommonFieldsWarningModal({
     <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-azure-100 animate-modal-appear">
         {/* Enhanced Header */}
-        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-b border-azure-100">
+        <div className="px-4 sm:px-6 py-4 flex-shrink-0 bg-gradient-to-r from-amber-50 via-gold-50 to-red-50 border-b border-azure-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 min-w-0 flex-1">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-gold-600 text-white shadow-lg">
                 <FaExclamationTriangle className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export default function CommonFieldsWarningModal({
                   <FaUser className="h-4 w-4 text-azure-400" />
                   <p className="text-sm sm:text-base text-azure-500 truncate">
                     Backup current versions before updating common fields for{" "}
-                    <span className="font-semibold text-orange-600">
+                    <span className="font-semibold text-gold-600">
                       {clientName}
                     </span>
                   </p>
@@ -163,7 +163,7 @@ export default function CommonFieldsWarningModal({
             <div className="mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                  <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                     <FaFileAlt className="h-5 w-5" />
                   </div>
                   <div>
@@ -178,7 +178,7 @@ export default function CommonFieldsWarningModal({
                 <button
                   onClick={handleDownloadAll}
                   disabled={downloadingForms.size > 0 || allDownloaded}
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-azure-600 to-azure-700 text-white rounded-xl hover:from-azure-700 hover:to-azure-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
                 >
                   {downloadingForms.size > 0 ? (
                     <>
@@ -263,7 +263,7 @@ export default function CommonFieldsWarningModal({
                             assignment.hasSubmission
                               ? downloadedForms.has(assignment.id)
                                 ? "bg-gradient-to-br from-green-500 to-green-600 text-white"
-                                : "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                                : "bg-gradient-to-br from-azure-500 to-azure-600 text-white"
                               : "bg-gradient-to-br from-azure-300 to-azure-500 text-white"
                           }`}
                         >
@@ -292,7 +292,7 @@ export default function CommonFieldsWarningModal({
                           v{assignment.form.version}
                         </span>
                         {assignment.filledByAdmin && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border border-blue-300">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-azure-100 to-azure-200 text-azure-700 border border-azure-200">
                             Admin Filled
                           </span>
                         )}
@@ -387,7 +387,7 @@ export default function CommonFieldsWarningModal({
               {completedForms.length > 0 && !allDownloaded && (
                 <button
                   onClick={onProceed}
-                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-amber-600 to-gold-600 text-white rounded-xl hover:from-amber-700 hover:to-gold-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Skip Downloads & Proceed
                 </button>
@@ -414,7 +414,7 @@ export default function CommonFieldsWarningModal({
               {assignments.length > 0 && completedForms.length === 0 && (
                 <button
                   onClick={onProceed}
-                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-azure-700 text-white rounded-xl hover:from-blue-700 hover:to-azure-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="w-full sm:w-auto text-center px-6 py-3 bg-gradient-to-r from-azure-600 to-azure-700 text-white rounded-xl hover:from-azure-700 hover:to-azure-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   Proceed to Edit Common Fields
                 </button>

@@ -62,7 +62,7 @@ const PDFViewWrapper: React.FC<PDFViewWrapperProps> = ({ formData, commonFieldsD
                 className="flex flex-col gap-8"
                 loading={
                     <div className="flex flex-col items-center justify-center py-20 text-azure-400">
-                        <div className="w-8 h-8 border-4 border-t-blue-600 border-blue-200 rounded-full animate-spin mb-4"></div>
+                        <div className="w-8 h-8 border-4 border-t-azure-600 border-azure-100 rounded-full animate-spin mb-4"></div>
                         <p>Rendering Pages...</p>
                     </div>
                 }

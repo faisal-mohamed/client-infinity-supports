@@ -534,7 +534,7 @@ export default function FormSignaturePageClient() {
                   </div>
                 )
               ) : (
-                <div className="flex items-center text-blue-600">
+                <div className="flex items-center text-azure-600">
                   <FaEye className="h-5 w-5 mr-2" />
                   <span className="font-medium">View Only</span>
                 </div>
@@ -551,8 +551,8 @@ export default function FormSignaturePageClient() {
           )}
 
           {!requiresSignature && (
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-800 text-sm">
+            <div className="mt-4 p-4 bg-azure-50 border border-azure-100 rounded-lg">
+              <p className="text-azure-700 text-sm">
                 This form is for review only and does not require a signature.
               </p>
             </div>
@@ -808,7 +808,7 @@ export default function FormSignaturePageClient() {
             </p>
             <Link
               href={`/forms/signature/${token}`}
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-azure-600 text-white font-medium rounded-lg hover:bg-azure-700 transition-colors"
             >
               <FaArrowLeft className="mr-2" />
               Back to Forms List

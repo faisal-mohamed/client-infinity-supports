@@ -98,16 +98,16 @@ export default function ClientDetailPage() {
 
     if (loading) {
     return (
-      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
-          <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex justify-center items-center">
-         <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-16">
+         <div className="flex items-center justify-center py-16">
         <div className="flex justify-center items-center h-80">
               <div className="text-center">
                 {/* Spinner */}
                 <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-azure-700 mb-2">
+                <h3 className="text-base font-semibold text-azure-700 mb-2">
                     Loading Client Info
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -136,18 +136,18 @@ export default function ClientDetailPage() {
 
   if (error || !client) {
     return (
-      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
+      <div className="min-h-[50vh]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md mx-4 border border-red-200">
               <div className="p-6 rounded-full bg-red-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                 <FaUser className="h-12 w-12 text-red-500" />
               </div>
-              <h1 className="text-2xl font-bold text-red-800 mb-3">Client Not Found</h1>
+              <h1 className="text-xl font-bold text-red-800 mb-3">Client Not Found</h1>
               <p className="text-red-600 mb-6 leading-relaxed">{error}</p>
               <button
                 onClick={() => router.back()}
-                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 font-semibold shadow-soft"
               >
                 Go Back
               </button>
@@ -159,21 +159,21 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-white-50 to-white-100 min-h-screen">
+    <div className="">
          {/* Enhanced Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-8 mb-8 hover:shadow-xl hover:border-gold-300 transition-shadow duration-300">
+        <div className="bg-white rounded-2xl shadow-soft border border-azure-100/60 p-6 mb-6 transition-shadow duration-300">
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
     <div className="flex items-center gap-6">
       <button
         onClick={() => router.back()}
-        className="p-3 rounded-xl bg-gradient-to-br from-azure-100 to-azure-200 text-azure-600 hover:from-azure-200 hover:to-azure-200 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+        className="p-3 rounded-xl bg-azure-100 text-azure-600 hover:from-azure-200 hover:to-azure-200 transition-all duration-200 shadow-md  "
         aria-label="Go back"
       >
         <FaArrowLeft className="h-5 w-5" />
       </button>
       <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="h-20 w-20 bg-gradient-to-br from-gold-500 to-gold-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="h-20 w-20 bg-azure-700 rounded-2xl flex items-center justify-center shadow-soft">
             <span className="text-3xl font-bold text-white">
               {client?.name?.charAt(0).toUpperCase()}
             </span>
@@ -181,7 +181,7 @@ export default function ClientDetailPage() {
           <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-md"></div>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-azure-700 mb-2 break-words leading-tight">
+          <h1 className="text-xl font-bold text-azure-700 mb-2 break-words leading-tight">
             {client?.commonFields?.name && client?.commonFields?.surname 
               ? `${client.commonFields.name} ${client.commonFields.surname}`.trim()
               : client?.name || 'Unknown Client'
@@ -203,7 +203,7 @@ export default function ClientDetailPage() {
     <div className="flex flex-wrap gap-3">
       <Link
         href={`/admin/clients/${id}/forms`}
-        className="flex items-center gap-2 text-sm text-white bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 transition-all duration-200 px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold"
+        className="flex items-center gap-2 text-sm text-white bg-azure-700 hover:bg-azure-600 transition-all duration-200 px-6 py-3 rounded-xl shadow-soft font-semibold"
       >
         <FaFileAlt className="h-4 w-4" /> 
         Client Forms
@@ -218,20 +218,20 @@ export default function ClientDetailPage() {
         {/* Client Information */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Enhanced Basic Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <div className="px-8 py-6 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-blue-200">
+          <div className="bg-white rounded-2xl shadow-soft border border-azure-100/60 overflow-hidden transition-all duration-200">
+            <div className="px-8 py-6 bg-azure-50/50 border-b border-azure-100">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-600 text-white shadow-md">
                   <FaUser className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold text-azure-700">Basic Information</h2>
+                <h2 className="text-lg font-semibold text-azure-700">Basic Information</h2>
               </div>
             </div>
             <div className="p-8">
               <div className="space-y-6">
                 <div className="bg-azure-50 rounded-xl p-4">
                   <div className="flex items-start gap-4">
-                    <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                    <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                       <FaUser className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -281,7 +281,7 @@ export default function ClientDetailPage() {
 
                 <div className="bg-azure-50 rounded-xl p-4">
                   <div className="flex items-start gap-4">
-                    <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                    <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                       <FaCalendarAlt className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
@@ -301,13 +301,13 @@ export default function ClientDetailPage() {
           </div>
 
           {/* Enhanced Personal Details */}
-          <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-white rounded-2xl shadow-soft border border-azure-100/60 overflow-hidden transition-all duration-200">
             <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
                   <FaIdCard className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold text-azure-700">Personal Details</h2>
+                <h2 className="text-lg font-semibold text-azure-700">Personal Details</h2>
               </div>
             </div>
             <div className="p-8">
@@ -327,7 +327,7 @@ export default function ClientDetailPage() {
 
                   <div className="bg-azure-50 rounded-xl p-4">
                     <div className="flex items-start gap-4">
-                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                      <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                         <FaCalendarAlt className="h-4 w-4" />
                       </div>
                       <div className="flex-1">
@@ -339,7 +339,7 @@ export default function ClientDetailPage() {
 
                   <div className="bg-azure-50 rounded-xl p-4">
                     <div className="flex items-start gap-4">
-                      <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                      <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                         <FaVenusMars className="h-4 w-4" />
                       </div>
                       <div className="flex-1">
@@ -354,7 +354,7 @@ export default function ClientDetailPage() {
                   <div className="p-6 rounded-full bg-azure-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <FaIdCard className="h-12 w-12 text-azure-300" />
                   </div>
-                  <h3 className="text-lg font-semibold text-azure-700 mb-2">No Personal Details</h3>
+                  <h3 className="text-base font-semibold text-azure-700 mb-2">No Personal Details</h3>
                   <p className="text-azure-400">Personal information has not been provided yet.</p>
                 </div>
               )}
@@ -362,13 +362,13 @@ export default function ClientDetailPage() {
           </div>
 
           {/* Enhanced Address Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-white rounded-2xl shadow-soft border border-azure-100/60 overflow-hidden transition-all duration-200">
             <div className="px-8 py-6 bg-gradient-to-r from-amber-50 to-amber-100 border-b border-amber-200">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md">
                   <FaMapMarkerAlt className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold text-azure-700">Address Information</h2>
+                <h2 className="text-lg font-semibold text-azure-700">Address Information</h2>
               </div>
             </div>
             <div className="p-8">
@@ -390,7 +390,7 @@ export default function ClientDetailPage() {
 
                   <div className="bg-azure-50 rounded-xl p-4">
                     <div className="flex items-start gap-4">
-                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                      <div className="p-2 rounded-lg bg-azure-100 text-azure-600">
                         <FaGlobe className="h-4 w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -421,7 +421,7 @@ export default function ClientDetailPage() {
                   <div className="p-6 rounded-full bg-azure-100 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <FaMapMarkerAlt className="h-12 w-12 text-azure-300" />
                   </div>
-                  <h3 className="text-lg font-semibold text-azure-700 mb-2">No Address Information</h3>
+                  <h3 className="text-base font-semibold text-azure-700 mb-2">No Address Information</h3>
                   <p className="text-azure-400">Address details have not been provided yet.</p>
                 </div>
               )}
@@ -431,13 +431,13 @@ export default function ClientDetailPage() {
 
         {/* Enhanced Disability/Conditions */}
         {client?.commonFields && client?.commonFields?.disability && (
-          <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden mb-8 hover:shadow-xl transition-shadow duration-300">
-            <div className="px-8 py-6 bg-gradient-to-r from-purple-50 to-purple-100 border-b border-purple-200">
+          <div className="bg-white rounded-2xl shadow-soft border border-azure-100/60 overflow-hidden mb-8 transition-all duration-200">
+            <div className="px-8 py-6 bg-azure-50/50 border-b border-azure-100">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-md">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-white shadow-md">
                   <FaClipboardList className="h-6 w-6" />
                 </div>
-                <h2 className="text-xl font-bold text-azure-700">Disability & Conditions</h2>
+                <h2 className="text-lg font-semibold text-azure-700">Disability & Conditions</h2>
               </div>
             </div>
             <div className="p-8">

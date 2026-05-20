@@ -40,7 +40,7 @@ const categoryConfig = {
     label: 'Form Metadata',
     icon: FaFileAlt,
     description: 'Common data used across all forms',
-    color: 'from-blue-500 to-blue-600'
+    color: 'from-azure-500 to-azure-600'
   },
   
   email_settings: {
@@ -270,13 +270,13 @@ export default function SettingsPageClient() {
   const renderSettingInput = (setting: AppSetting) => {
     const currentValue = editedValues[setting.key] ?? setting.value ?? setting.defaultValue ?? '';
     
-    const baseInputClasses = "w-full px-4 py-4 border border-azure-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-azure-600 transition-all duration-200 shadow-sm hover:shadow-md";
+    const baseInputClasses = "w-full px-4 py-4 border border-azure-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-azure-600 transition-all duration-200 shadow-sm hover:shadow-soft";
     
     switch (setting.type) {
       case 'url':
         return (
           <div className="relative">
-            <div className="absolute left-4 top-4 p-2 rounded-lg bg-blue-100 text-blue-600">
+            <div className="absolute left-4 top-4 p-2 rounded-lg bg-azure-100 text-azure-600">
               <FaGlobe className="h-4 w-4" />
             </div>
             <input
@@ -355,15 +355,15 @@ export default function SettingsPageClient() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="text-blue-600 flex-shrink-0">ℹ️</div>
-                    <div className="text-xs text-blue-800">
+                  <div className="flex items-start gap-2 p-3 bg-azure-50 border border-azure-100 rounded-lg">
+                    <div className="text-azure-600 flex-shrink-0">ℹ️</div>
+                    <div className="text-xs text-azure-700">
                       <span className="font-bold">Gmail App Password Help:</span>
                       <p className="mt-1">
                         • Must be 16 characters (no spaces)
                       </p>
                       <p className="mt-1">
-                        • Generate at: <a href="https://myaccount.google.com/apppasswords" target="_blank" className="underline hover:text-blue-600">myaccount.google.com/apppasswords</a>
+                        • Generate at: <a href="https://myaccount.google.com/apppasswords" target="_blank" className="underline hover:text-azure-600">myaccount.google.com/apppasswords</a>
                       </p>
                       <p className="mt-1">
                         • Must match the "From Email" account
@@ -382,7 +382,7 @@ export default function SettingsPageClient() {
       case 'date':
         return (
           <div className="relative">
-            <div className="absolute left-4 top-4 p-2 rounded-lg bg-purple-100 text-purple-600">
+            <div className="absolute left-4 top-4 p-2 rounded-lg bg-azure-100 text-azure-600">
               <FaCalendarAlt className="h-4 w-4" />
             </div>
             <input
@@ -413,14 +413,14 @@ export default function SettingsPageClient() {
             <button
               type="button"
               onClick={() => handleValueChange(setting.key, currentValue === 'true' ? 'false' : 'true')}
-              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-200 shadow-md ${
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-200 shadow-soft ${
                 currentValue === 'true' 
                   ? 'bg-gradient-to-r from-azure-600 to-azure-700' 
                   : 'bg-azure-200'
               }`}
             >
               <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-lg ${
+                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-soft ${
                   currentValue === 'true' ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
@@ -459,7 +459,7 @@ export default function SettingsPageClient() {
                 <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-azure-700 mb-2">
+                <h3 className="text-base font-semibold text-azure-700 mb-2">
                   Loading Settings
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -488,80 +488,72 @@ export default function SettingsPageClient() {
   const currentSettings = settings[activeCategory] || [];
 
   return (
-    <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen">
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
-  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 w-full">
-    {/* Left Section with back button, icon and title */}
-    <div className="flex items-start gap-5 w-full md:w-auto">
-      
-
-      {/* Title & Description */}
-      <div className="flex gap-4 items-center">
-        <div className="p-3 sm:p-4 rounded-xl bg-azure-50 text-gold-600">
-          <FaCog className="h-5 w-5 sm:h-7 sm:w-7" />
-        </div>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-azure-700 mb-1">
+    <div>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div className="flex items-center gap-4">
+      <div className="p-3 rounded-xl bg-azure-700 text-gold-400 shadow-soft">
+          <FaCog className="h-5 w-5" />
+      </div>
+      <div>
+          <h1 className="text-xl font-bold text-azure-700">
             Application Settings
           </h1>
-          <p className="text-sm sm:text-base text-azure-500">
+          <p className="text-sm text-azure-400 mt-0.5">
             Manage application settings and form metadata
           </p>
-          <div className="flex items-center gap-2 mt-2 text-azure-400 text-sm">
+          <div className="flex items-center gap-2 mt-1 text-azure-400 text-sm">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
             <span className="font-medium">Configuration panel</span>
           </div>
-        </div>
       </div>
-    </div>
+  </div>
 
     {/* Save/Reset Buttons */}
     {hasChanges && (
-      <div className="flex items-center gap-3 w-full md:w-auto">
+      <div className="flex items-center gap-2">
         <button
           onClick={resetChanges}
-          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold text-azure-600 bg-white border border-azure-200 rounded-xl hover:bg-azure-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-azure-600 bg-white border border-azure-100 rounded-xl hover:bg-azure-50 transition-all duration-200"
         >
-          <FaTimes className="h-4 w-4" />
+          <FaTimes className="h-3.5 w-3.5" />
           Reset
         </button>
 
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-azure-700 hover:bg-azure-600 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? (
-            <FaSpinner className="h-4 w-4 animate-spin" />
+            <FaSpinner className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <FaSave className="h-4 w-4" />
+            <FaSave className="h-3.5 w-3.5" />
           )}
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
     )}
   </div>
-</div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
     
 
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Enhanced Sidebar Navigation - Mobile: Full width, Desktop: Fixed width */}
           <div className="w-full lg:w-80 lg:flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden lg:sticky lg:top-8 hover:shadow-xl transition-shadow duration-300">
-              <div className="px-6 py-4 bg-gradient-to-r from-azure-50 to-azure-100 border-b border-azure-100">
+            <div className="bg-white rounded-2xl border border-azure-100/60 overflow-hidden lg:sticky lg:top-8 shadow-soft">
+              <div className="px-5 py-4 bg-azure-50/50 border-b border-azure-50">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                    <FaCog className="h-5 w-5" />
+                  <div className="p-2 rounded-lg bg-azure-700 text-gold-400">
+                    <FaCog className="h-4 w-4" />
                   </div>
-                  <h3 className="font-bold text-azure-700 text-lg">Settings Categories</h3>
+                  <h3 className="font-semibold text-azure-700 text-sm">Settings Categories</h3>
                 </div>
               </div>
               
               {/* Mobile: Horizontal scroll, Desktop: Vertical stack */}
-              <nav className="p-4">
+              <nav className="p-3">
                 <div className="flex lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
                   {categories.map((category, index) => {
                     const config = categoryConfig[category as keyof typeof categoryConfig] || {
@@ -579,8 +571,8 @@ export default function SettingsPageClient() {
                         onClick={() => setActiveCategory(category)}
                         className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center p-3 sm:p-4 rounded-xl text-left transition-all duration-200 min-w-[160px] lg:min-w-0 ${
                           isActive
-                            ? 'bg-gradient-to-r from-azure-50 to-azure-50 text-azure-700 border-2 border-azure-200 shadow-md'
-                            : 'text-azure-600 hover:bg-azure-50 border-2 border-transparent hover:border-azure-100 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-azure-50 to-azure-50 text-azure-700 border-2 border-azure-200 shadow-soft'
+                            : 'text-azure-600 hover:bg-azure-50 border-2 border-transparent hover:border-azure-100 hover:shadow-soft'
                         }`}
                         style={{
                           animationDelay: `${index * 50}ms`,
@@ -609,9 +601,9 @@ export default function SettingsPageClient() {
 
           {/* Enhanced Main Content - Responsive width */}
           <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div className="bg-white rounded-2xl border border-azure-100/60 shadow-soft overflow-hidden ">
               {/* Enhanced Category Header */}
-              <div className="px-4 sm:px-8 py-6 bg-gradient-to-r from-azure-50 to-azure-100 border-b border-azure-100">
+              <div className="px-4 sm:px-8 py-6 bg-azure-50/50 border-b border-azure-100">
                 {(() => {
                   const config = categoryConfig[activeCategory as keyof typeof categoryConfig] || {
                     label: activeCategory.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
@@ -627,7 +619,7 @@ export default function SettingsPageClient() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h2 className="text-xl sm:text-2xl font-bold text-azure-700 truncate">{config.label}</h2>
+                        <h2 className="text-xl sm:text-lg font-semibold text-azure-700 truncate">{config.label}</h2>
                         {config.description && (
                           <p className="text-azure-500 mt-1 text-sm sm:text-base">{config.description}</p>
                         )}
@@ -644,7 +636,7 @@ export default function SettingsPageClient() {
                     <div className="p-6 sm:p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 flex items-center justify-center">
                       <FaCog className="h-12 w-12 sm:h-16 sm:w-16 text-azure-300" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-azure-700 mb-3">No Settings Found</h3>
+                    <h3 className="text-lg sm:text-base font-semibold text-azure-700 mb-3">No Settings Found</h3>
                     <p className="text-azure-500 mb-6 max-w-md mx-auto leading-relaxed text-sm sm:text-base px-4">
                       No settings are configured for this category yet. Initialize default settings to get started.
                     </p>
@@ -653,7 +645,7 @@ export default function SettingsPageClient() {
                     <button
                       onClick={initializeAllSettings}
                       disabled={initializing}
-                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-azure-700 to-azure-800 text-white rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 font-semibold transition-all duration-200 shadow-soft hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed  disabled:transform-none"
                     >
                       {initializing ? (
                         <>
@@ -668,8 +660,8 @@ export default function SettingsPageClient() {
                       )}
                     </button>
                     
-                    <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-lg mx-auto">
-                      <p className="text-sm font-medium text-blue-700">
+                    <div className="mt-6 p-4 bg-azure-50 rounded-xl border border-azure-100 max-w-lg mx-auto">
+                      <p className="text-sm font-medium text-azure-700">
                         ℹ️ This will create default settings for Email, Form Metadata, and Form IDs
                       </p>
                     </div>
@@ -679,7 +671,7 @@ export default function SettingsPageClient() {
                     {currentSettings.map((setting, index) => (
                       <div 
                         key={setting.id} 
-                        className="border-2 border-azure-100 rounded-2xl p-4 sm:p-8 hover:border-azure-200 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-azure-50"
+                        className="border-2 border-azure-100 rounded-2xl p-4 sm:p-8 hover:border-azure-200 hover:shadow-soft transition-all duration-300 bg-gradient-to-br from-white to-azure-50"
                         style={{
                           animationDelay: `${index * 100}ms`,
                           animation: 'fadeInUp 0.6s ease-out forwards'
@@ -700,7 +692,7 @@ export default function SettingsPageClient() {
                           
                           {editedValues[setting.key] !== undefined && (
                             <div className="flex-shrink-0">
-                              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 shadow-md">
+                              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 shadow-soft">
                                 <FaEdit className="h-3 w-3" />
                                 Modified
                               </span>
@@ -761,7 +753,7 @@ export default function SettingsPageClient() {
       <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
         <button
           onClick={resetChanges}
-          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-azure-600 bg-white border border-azure-200 rounded-xl hover:bg-azure-50 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 text-sm font-semibold text-azure-600 bg-white border border-azure-200 rounded-xl hover:bg-azure-50 transition-all duration-200 shadow-soft hover:shadow-soft "
         >
           <FaTimes className="h-4 w-4" />
           <span className="hidden sm:inline">Reset Changes</span>
@@ -771,7 +763,7 @@ export default function SettingsPageClient() {
         <button
           onClick={saveSettings}
           disabled={saving}
-          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-xl hover:from-gold-600 hover:to-gold-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-azure-700 text-white rounded-xl hover:bg-azure-600 transition-all duration-200 font-semibold shadow-soft hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed  disabled:transform-none"
         >
           {saving ? (
             <FaSpinner className="h-4 w-4 animate-spin" />

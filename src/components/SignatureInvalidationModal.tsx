@@ -102,7 +102,7 @@ export default function SignatureInvalidationModal({
               <h4 className="font-medium text-azure-700 mb-3">Fields Being Changed ({changes.length}):</h4>
               <div className="flex flex-wrap gap-2">
                 {changes.map(field => (
-                  <span key={field} className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
+                  <span key={field} className="px-3 py-1 bg-gold-100 text-gold-700 text-sm rounded-full">
                     {formatFieldName(field)}
                   </span>
                 ))}

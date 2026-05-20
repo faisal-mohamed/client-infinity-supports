@@ -760,7 +760,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : drillTypeDisabled
                 ? "bg-azure-100 border-azure-200 opacity-60 cursor-not-allowed"
                 : conditionalDisabled
@@ -809,7 +809,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             </span>
           )}
           {fieldIsReadOnly && filledByClient && !isCommon && !drillTypeDisabled && currentStep >= 0 && currentStep <= 4 && (
-            <span className="ml-2 text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+            <span className="ml-2 text-xs text-azure-600 font-semibold bg-azure-50 px-2 py-0.5 rounded-full border border-azure-100">
               Client Submitted
             </span>
           )}
@@ -878,7 +878,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             fieldErrors[name]
               ? "border-red-300 bg-red-50"
               : isCommon 
-                ? "bg-blue-50 border-blue-200 text-blue-800"
+                ? "bg-azure-50 border-azure-100 text-azure-700"
                 : drillTypeDisabled
                 ? "bg-azure-100 border-azure-200 opacity-60 cursor-not-allowed"
                 : conditionalDisabled
@@ -940,7 +940,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             </span>
           )}
           {fieldIsReadOnly && filledByClient && currentStep >= 0 && currentStep <= 4 && (
-            <span className="ml-2 text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+            <span className="ml-2 text-xs text-azure-600 font-semibold bg-azure-50 px-2 py-0.5 rounded-full border border-azure-100">
               Client Submitted
             </span>
           )}
@@ -1751,16 +1751,16 @@ const getCommonFieldValue = (fieldName: string): string => {
 
             {/* Notice for Signatures Section in Signature Link */}
             {isSignatureLink && currentStep === 6 && (
-              <div className="mt-3 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+              <div className="mt-3 p-4 bg-azure-50 border-l-4 border-azure-300 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
-                    <FaSignature className="h-5 w-5 text-blue-600" />
+                    <FaSignature className="h-5 w-5 text-azure-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-blue-800 mb-1">
+                    <h3 className="text-sm font-semibold text-azure-700 mb-1">
                       Signature Instructions
                     </h3>
-                    <p className="text-xs text-blue-700">
+                    <p className="text-xs text-azure-700">
                       <strong>Support Worker:</strong> Please sign in the first signature field and enter the date.<br />
                       <strong>Supervisor Signature:</strong> This will be completed by your supervisor/manager in the office.
                     </p>
@@ -1771,18 +1771,18 @@ const getCommonFieldValue = (fieldName: string): string => {
 
             {/* Notice for Admin Review Mode - Client Submitted Sections */}
             {filledByClient && !isSignatureLink && currentStep >= 0 && currentStep <= 4 && (
-              <div className="mt-3 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
+              <div className="mt-3 p-4 bg-azure-50 border-l-4 border-azure-300 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
-                    <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-5 w-5 text-azure-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-blue-800 mb-1">
+                    <h3 className="text-sm font-semibold text-azure-700 mb-1">
                       Client/Staff Submitted Data - View Only
                     </h3>
-                    <p className="text-xs text-blue-700">
+                    <p className="text-xs text-azure-700">
                       This section was completed by the client and support worker. You can review the information but cannot edit it. Please proceed to the Follow-up section to complete your part.
                     </p>
                   </div>
@@ -1930,7 +1930,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             {FORM_SECTIONS.map((_: any , index: any ) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-blue-600 border-blue-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -1968,7 +1968,7 @@ const getCommonFieldValue = (fieldName: string): string => {
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-blue-600 to-green-400 text-white hover:from-blue-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

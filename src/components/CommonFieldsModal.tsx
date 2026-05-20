@@ -107,8 +107,8 @@ export default function CommonFieldsModal({
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-azure-100 animate-in zoom-in-95 duration-300 flex flex-col">
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-azure-700 via-purple-600 to-pink-600 p-8 text-white">
-          <div className="absolute inset-0 bg-gradient-to-r from-azure-700/90 via-purple-600/90 to-pink-600/90"></div>
+        <div className="relative bg-gradient-to-r from-azure-700 via-azure-600 to-gold-600 p-8 text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-azure-700/90 via-azure-600/90 to-gold-600/90"></div>
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30">
@@ -142,9 +142,9 @@ export default function CommonFieldsModal({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Personal Information Section */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-blue-50 to-azure-50 rounded-2xl p-6 border border-blue-100">
+              <div className="bg-gradient-to-r from-azure-50 to-azure-50 rounded-2xl p-6 border border-azure-100">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-blue-500 to-azure-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-azure-500 to-azure-500 rounded-xl shadow-lg">
                     <FaUser className="h-5 w-5 text-white" />
                   </div>
                   <h4 className="text-xl font-bold text-azure-700">
@@ -155,7 +155,7 @@ export default function CommonFieldsModal({
                 <div className="space-y-5">
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaUser className="h-4 w-4 text-blue-500" />
+                      <FaUser className="h-4 w-4 text-azure-500" />
                       <span>First Name</span>
                     </label>
                     <input
@@ -164,14 +164,14 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("name", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter First name"
                     />
                   </div>
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaUser className="h-4 w-4 text-blue-500" />
+                      <FaUser className="h-4 w-4 text-azure-500" />
                       <span>Surname</span>
                     </label>
                     <input
@@ -180,14 +180,14 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("surname", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter Surname"
                     />
                   </div>
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaCalendarAlt className="h-4 w-4 text-blue-500" />
+                      <FaCalendarAlt className="h-4 w-4 text-azure-500" />
                       <span>Date of Birth</span>
                       <div className="flex items-center space-x-1 ml-2">
                         <FaInfoCircle className="h-3 w-3 text-amber-500" />
@@ -205,7 +205,7 @@ export default function CommonFieldsModal({
                           formatDateForStorage(e.target.value)
                         )
                       }
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                     />
                   </div>
 
@@ -238,7 +238,7 @@ export default function CommonFieldsModal({
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaUserCircle className="h-4 w-4 text-blue-500" />
+                      <FaUserCircle className="h-4 w-4 text-azure-500" />
                       <span>Sex/Gender</span>
                     </label>
                     <select
@@ -246,7 +246,7 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("sex", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                     >
                       <option value="">Select gender</option>
                       <option value="Male">Male</option>
@@ -260,7 +260,7 @@ export default function CommonFieldsModal({
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaIdCard className="h-4 w-4 text-blue-500" />
+                      <FaIdCard className="h-4 w-4 text-azure-500" />
                       <span>NDIS Number</span>
                     </label>
                     <input
@@ -269,14 +269,14 @@ export default function CommonFieldsModal({
                       onChange={(e) =>
                         handleFieldChangeWithAge("ndis", e.target.value)
                       }
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                       placeholder="Enter NDIS number"
                     />
                   </div>
 
                   <div>
                     <label className="flex items-center space-x-2 text-sm font-semibold text-azure-600 mb-3">
-                      <FaInfoCircle className="h-4 w-4 text-blue-500" />
+                      <FaInfoCircle className="h-4 w-4 text-azure-500" />
                       <span>Disability Information</span>
                     </label>
                     <textarea
@@ -285,7 +285,7 @@ export default function CommonFieldsModal({
                         handleFieldChangeWithAge("disability", e.target.value)
                       }
                       rows={4}
-                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
+                      className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md resize-none"
                       placeholder="Enter disability information"
                     />
                   </div>
@@ -295,9 +295,9 @@ export default function CommonFieldsModal({
 
             {/* Contact & Address Section */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100">
+              <div className="bg-gradient-to-r from-emerald-50 to-azure-50 rounded-2xl p-6 border border-emerald-100">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-emerald-500 to-azure-500 rounded-xl shadow-lg">
                     <FaEnvelope className="h-5 w-5 text-white" />
                   </div>
                   <h4 className="text-xl font-bold text-azure-700">
@@ -428,7 +428,7 @@ export default function CommonFieldsModal({
         <div className="flex-shrink-0 bg-gradient-to-r from-azure-50 to-white border-t border-azure-100 p-8">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-lg">
+              <div className="p-2 bg-gradient-to-r from-amber-500 to-gold-500 rounded-xl shadow-lg">
                 <FaInfoCircle className="h-4 w-4 text-white" />
               </div>
               <div>
@@ -456,7 +456,7 @@ export default function CommonFieldsModal({
                   }
                 }}
                 disabled={isUpdating}
-                className="px-8 py-3 bg-gradient-to-r from-azure-700 via-purple-600 to-pink-600 text-white rounded-xl hover:from-azure-800 hover:via-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+                className="px-8 py-3 bg-gradient-to-r from-azure-700 via-azure-600 to-gold-600 text-white rounded-xl hover:from-azure-800 hover:via-azure-700 hover:to-gold-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
               >
                 {isUpdating ? (
                   <>

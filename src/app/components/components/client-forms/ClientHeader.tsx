@@ -19,14 +19,14 @@
 //   const completionPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
 //   return (
-//     <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
+//     <div className="mb-6">
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//         <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 hover:shadow-xl hover:border-gold-500 transition-shadow duration-300">
+//         <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
 //           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
 //             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
 //               <Link 
 //                 href="/admin/clients"
-//                 className="inline-flex items-center gap-2 px-4 py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-sm hover:shadow-md transform hover:scale-105"
+//                 className="inline-flex items-center gap-2 px-4 py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-soft"
 //               >
 //                 <FaArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
 //                 <span className="font-semibold">Back to Clients</span>
@@ -37,10 +37,10 @@
 //                   <div className="w-16 h-16 bg-gradient-to-br from-gold-500 to-gold-400 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
 //                     <FaUser className="h-8 w-8 text-white" />
 //                   </div>
-//                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gold-500 rounded-full border-4 border-white shadow-md"></div>
+//                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gold-500 rounded-full border-4 border-white shadow-soft"></div>
 //                 </div>
 //                 <div className="min-w-0 flex-1">
-//                   <h1 className="text-2xl sm:text-3xl font-bold text-azure-800 mb-1">{client?.name}</h1>
+//                   <h1 className="text-2xl sm:text-xl font-bold text-azure-800 mb-1">{client?.name}</h1>
 //                   <p className="text-azure-500 text-base sm:text-lg mb-2">{client?.email}</p>
 //                   <div className="flex items-center gap-2">
 //                     <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
@@ -51,7 +51,7 @@
 //             </div>
 
 //             <div className="flex-shrink-0">
-//               <div className="bg-gradient-to-br from-azure-50 to-white rounded-2xl p-6 border border-azure-100">
+//               <div className="bg-azure-50 rounded-xl p-4 border border-azure-100">
 //                 <div className="text-center">
 //                   <div className="relative inline-flex items-center justify-center w-20 h-20 mb-4">
 //                     <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
@@ -86,9 +86,9 @@
 //           </div>
 
 //           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-sm hover:border-gold-500 hover:shadow-md transition-all duration-200">
+//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-soft hover:border-azure-200 transition-all duration-200">
 //               <div className="flex items-center gap-3">
-//                 <div className="p-2 rounded-lg bg-green-500 text-white shadow-md">
+//                 <div className="p-2 rounded-lg bg-green-500 text-white shadow-soft">
 //                   <FaCheckCircle className="h-5 w-5" />
 //                 </div>
 //                 <div>
@@ -98,9 +98,9 @@
 //               </div>
 //             </div>
 
-//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-sm hover:border-gold-500 hover:shadow-md transition-all duration-200">
+//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-soft hover:border-azure-200 transition-all duration-200">
 //               <div className="flex items-center gap-3">
-//                 <div className="p-2 rounded-lg bg-amber-500 text-white shadow-md">
+//                 <div className="p-2 rounded-lg bg-amber-500 text-white shadow-soft">
 //                   <FaClock className="h-5 w-5" />
 //                 </div>
 //                 <div>
@@ -110,9 +110,9 @@
 //               </div>
 //             </div>
 
-//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-sm hover:border-gold-500 hover:shadow-md transition-all duration-200">
+//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-soft hover:border-azure-200 transition-all duration-200">
 //               <div className="flex items-center gap-3">
-//                 <div className="p-2 rounded-lg bg-azure-500 text-white shadow-md">
+//                 <div className="p-2 rounded-lg bg-azure-500 text-white shadow-soft">
 //                   <FaCircle className="h-5 w-5" />
 //                 </div>
 //                 <div>
@@ -122,9 +122,9 @@
 //               </div>
 //             </div>
 
-//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-sm hover:border-gold-500 hover:shadow-md transition-all duration-200">
+//             <div className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-soft hover:border-azure-200 transition-all duration-200">
 //               <div className="flex items-center gap-3">
-//                 <div className="p-2 rounded-lg bg-azure-500 text-white shadow-md">
+//                 <div className="p-2 rounded-lg bg-azure-500 text-white shadow-soft">
 //                   <FaChartPie className="h-5 w-5" />
 //                 </div>
 //                 <div>
@@ -169,16 +169,16 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
     stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
   return (
-    <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
+    <div className="mb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-4 sm:p-6 md:p-8 hover:shadow-xl hover:border-gold-500 transition-shadow duration-300">
+        <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
           {/* Main Header Section */}
           <div className="flex flex-col gap-6 md:gap-8 lg:flex-row lg:items-center lg:justify-between mb-6">
             {/* Back + Client Info */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <Link
                 href="/admin/clients"
-                className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-sm hover:shadow-md transform hover:scale-105 text-sm sm:text-base"
+                className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-soft text-sm sm:text-base"
               >
                 <FaArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
                 <span className="font-semibold">Back to Clients</span>
@@ -188,13 +188,13 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
 
               <div className="flex gap-4 items-center">
                 <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-gold-500 to-gold-400 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-azure-700 rounded-xl flex items-center justify-center shadow-soft">
                     <FaUser className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gold-500 rounded-full border-4 border-white shadow-md"></div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gold-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-azure-800 mb-1 truncate">
+                  <h1 className="text-xl font-bold text-azure-700 mb-1 truncate">
                     {client?.name}
                   </h1>
                   <p className="text-azure-500 text-sm sm:text-base truncate">
@@ -212,7 +212,7 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
 
             {/* Completion Circle */}
             <div className="self-start sm:self-auto">
-              <div className="bg-gradient-to-br from-azure-50 to-white rounded-2xl p-4 sm:p-6 border border-azure-100 w-full sm:w-auto">
+              <div className="bg-azure-50 rounded-xl p-4 border border-azure-100 w-full sm:w-auto">
                 <div className="text-center">
                   <div className="relative inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mb-4">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -281,10 +281,10 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
   ].map((stat, index) => (
     <div
       key={index}
-      className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-sm hover:border-gold-500 hover:shadow-md transition-all duration-200"
+      className="bg-white rounded-xl p-4 sm:p-6 border border-azure-100 shadow-soft hover:border-azure-200 transition-all duration-200"
     >
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${stat.bg} text-white shadow-md`}>
+        <div className={`p-2 rounded-lg ${stat.bg} text-white shadow-soft`}>
           {stat.icon}
         </div>
         <div>

@@ -39,7 +39,7 @@ export default function FormWithSettings({ children, showMetadata = true }: Form
     <div className="space-y-6">
       {/* Form Header with Company Info */}
       {showMetadata && (
-        <div className="bg-gradient-to-r from-azure-50 to-blue-50 rounded-xl p-6 border border-azure-200">
+        <div className="bg-gradient-to-r from-azure-50 to-azure-50 rounded-xl p-6 border border-azure-200">
           <div className="flex items-center mb-4">
             <FaBuilding className="h-6 w-6 text-azure-700 mr-3" />
             <h2 className="text-xl font-semibold text-azure-700">

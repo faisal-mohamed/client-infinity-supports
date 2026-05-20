@@ -27,15 +27,15 @@
 //   sendingEmail
 // }: ActionButtonsProps) {
 //   return (
-//     <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
+//     <div className="mb-4">
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//         <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
+//         <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
 //           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
 //             {/* Responsive Button Group */}
 //             <div className="flex flex-wrap gap-4 w-full lg:max-w-4xl">
 //               <button
 //                 onClick={onShowAssignModal}
-//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-azure-700 to-azure-800 text-white font-semibold rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
+//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-azure-700 to-azure-800 text-white font-semibold rounded-xl hover:from-azure-800 hover:to-azure-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-soft transform hover:scale-105 text-sm sm:text-base"
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                   <FaPlus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-200" />
@@ -45,7 +45,7 @@
 
 //               <button
 //                 onClick={onShowCommonFieldsWarning}
-//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
+//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-gold-600 to-red-600 text-white font-semibold rounded-xl hover:from-gold-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-soft transform hover:scale-105 text-sm sm:text-base"
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                   <FaUserEdit className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
@@ -55,7 +55,7 @@
 
 //               <Link
 //                 href={`/admin/clients/${clientId}/signature-links`}
-//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base"
+//                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-azure-600 to-azure-600 text-white font-semibold rounded-xl hover:from-azure-700 hover:to-azure-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-soft transform hover:scale-105 text-sm sm:text-base"
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                   <FaCog className="h-4 w-4 group-hover:rotate-180 transition-transform duration-300" />
@@ -67,7 +67,7 @@
 //                 <button
 //                   onClick={onGenerateSignatureLink}
 //                   disabled={generatingLink}
-//                   className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none text-sm sm:text-base"
+//                   className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none text-sm sm:text-base"
 //                 >
 //                   <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                     {generatingLink ? (
@@ -86,7 +86,7 @@
 //                 <button
 //                   onClick={sendEmailNotification}
 //                   disabled={sendingEmail}
-//                   className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-yellow-600 to-yellow-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none text-sm sm:text-base"
+//                   className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-yellow-600 to-yellow-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 disabled:transform-none text-sm sm:text-base"
 //                 >
 //                   <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                     {sendingEmail ? (
@@ -122,16 +122,16 @@
 
 //           {/* Help Section */}
 //           <div className="mt-8 pt-6 border-t border-azure-100">
-//             <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+//             <div className="bg-azure-50 rounded-xl p-4 border border-azure-100">
 //               <div className="flex items-start gap-3">
-//                 <div className="p-2 rounded-lg bg-blue-500 text-white shadow-md flex-shrink-0">
+//                 <div className="p-2 rounded-lg bg-azure-500 text-white shadow-md flex-shrink-0">
 //                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
 //                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
 //                   </svg>
 //                 </div>
 //                 <div className="flex-1">
-//                   <h4 className="text-sm font-semibold text-blue-800 mb-1">Quick Actions Guide</h4>
-//                   <ul className="text-xs text-blue-700 space-y-1">
+//                   <h4 className="text-sm font-semibold text-azure-700 mb-1">Quick Actions Guide</h4>
+//                   <ul className="text-xs text-azure-700 space-y-1">
 //                     <li>• <strong>Assign Forms:</strong> Add new forms to this client's workflow</li>
 //                     <li>• <strong>Update Details:</strong> Modify client's common information across all forms</li>
 //                     <li>• <strong>Manage Links:</strong> View and control all signature links for this client</li>
@@ -178,16 +178,16 @@ export default function ActionButtons({
   onTriggerCompletionEmail
 }: ActionButtonsProps) {
   return (
-    <div className="bg-gradient-to-br from-azure-50 to-azure-100 border-b border-azure-100">
+    <div className="mb-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 hover:shadow-xl transition-shadow duration-300">
+        <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             {/* Buttons */}
             <div className="flex flex-wrap gap-4 w-full lg:max-w-4xl">
               {/* Assign Forms */}
               <button
                 onClick={onShowAssignModal}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold-600 text-white rounded-xl font-semibold hover:bg-gold-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-azure-700 text-white rounded-xl font-semibold hover:bg-azure-600 transition-all duration-200 shadow-soft"
               >
                 <FaPlus className="h-4 w-4" />
                 Assign Forms
@@ -196,7 +196,7 @@ export default function ActionButtons({
               {/* Update Common Details */}
               <button
                 onClick={onShowCommonFieldsWarning}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-soft"
               >
                 <FaUserEdit className="h-4 w-4" />
                 Update Details
@@ -205,7 +205,7 @@ export default function ActionButtons({
               {/* Manage Links */}
               <Link
                 href={`/admin/clients/${clientId}/signature-links`}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-soft"
               >
                 <FaCog className="h-4 w-4" />
                 Manage Links
@@ -216,7 +216,7 @@ export default function ActionButtons({
                 <button
                   onClick={onGenerateSignatureLink}
                   disabled={generatingLink}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gold-600 text-white rounded-xl font-semibold hover:bg-gold-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-azure-700 text-white rounded-xl font-semibold hover:bg-azure-600 transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {generatingLink ? (
                     <FaSpinner className="h-4 w-4 animate-spin" />
@@ -232,7 +232,7 @@ export default function ActionButtons({
                 <button
                   onClick={sendEmailNotification}
                   disabled={sendingEmail}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {sendingEmail ? (
                     <FaSpinner className="h-4 w-4 animate-spin" />
@@ -248,7 +248,7 @@ export default function ActionButtons({
                 <button
                   onClick={onTriggerCompletionEmail}
                   disabled={sendingEmail}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-all duration-200 shadow-soft disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Send completion email to admin and client with all PDF attachments"
                 >
                   {sendingEmail ? (

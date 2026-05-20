@@ -60,7 +60,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
           value={processedValue}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
-          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-500"
         />
       ) : (
         <textarea
@@ -68,7 +68,7 @@ export const UnifiedFieldRenderer: React.FC<UnifiedFieldRendererProps> = ({
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           rows={type === 'longtext' ? 6 : 3}
-          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+          className="unified-content w-full px-3 py-2 border border-azure-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gold-500 resize-vertical"
           style={{ 
             minHeight: type === 'longtext' ? '120px' : '80px',
             height: 'auto',

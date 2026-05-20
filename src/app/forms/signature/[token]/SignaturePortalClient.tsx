@@ -99,7 +99,7 @@ export default function SignaturePortalClient() {
     if (!requiresSignature) {
       return {
         status: 'View Only',
-        color: 'text-blue-600 bg-blue-100',
+        color: 'text-azure-600 bg-azure-100',
         icon: FaEye,
         date: null,
       };
@@ -187,7 +187,7 @@ export default function SignaturePortalClient() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-azure-50">
         <div className="flex justify-center items-center min-h-screen px-4">
           <div className="max-w-md mx-auto text-center bg-white rounded-xl sm:rounded-2xl shadow-lg p-6 sm:p-8">
             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
@@ -197,7 +197,7 @@ export default function SignaturePortalClient() {
             <p className="text-sm sm:text-base text-azure-500 mb-4 sm:mb-6 leading-relaxed">{error}</p>
             <div className="bg-azure-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex items-center text-xs sm:text-sm text-azure-500">
-                <FaInfoCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-blue-500 flex-shrink-0" />
+                <FaInfoCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-azure-500 flex-shrink-0" />
                 <span>Please contact support if you believe this is an error.</span>
               </div>
             </div>
@@ -226,12 +226,12 @@ export default function SignaturePortalClient() {
   const { completionStatus } = batchData;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-azure-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden mb-6 sm:mb-8">
           {/* Header Gradient */}
-          <div className="bg-gradient-to-r from-azure-600 via-purple-600 to-blue-600 px-4 sm:px-8 py-4 sm:py-6">
+          <div className="bg-gradient-to-r from-azure-600 via-azure-600 to-azure-600 px-4 sm:px-8 py-4 sm:py-6">
             <div className="text-center text-white">
               <div className="flex justify-center mb-3 sm:mb-4">
                 <div className="p-3 sm:p-4 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl">
@@ -284,15 +284,15 @@ export default function SignaturePortalClient() {
           {/* Progress Section */}
           <div className="px-4 sm:px-8 py-4 sm:py-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <div className="bg-gradient-to-br from-blue-50 to-azure-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-blue-100">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <div className="bg-gradient-to-br from-azure-50 to-azure-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-azure-100">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-azure-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaFileAlt className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1">{completionStatus.totalForms}</div>
-                <div className="text-xs sm:text-sm font-medium text-blue-700">Total Forms</div>
+                <div className="text-2xl sm:text-3xl font-bold text-azure-600 mb-1">{completionStatus.totalForms}</div>
+                <div className="text-xs sm:text-sm font-medium text-azure-700">Total Forms</div>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-amber-100">
+              <div className="bg-gradient-to-br from-amber-50 to-gold-50 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center border border-amber-100">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   <FaSignature className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
@@ -457,7 +457,7 @@ export default function SignaturePortalClient() {
                               ? form.formSubmission.clientSignature === "true"
                                 ? 'text-green-700 bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 focus:ring-green-500'
                                 : 'text-white bg-gradient-to-r from-azure-600 to-azure-800 hover:from-azure-700 hover:to-azure-800 focus:ring-gold-500'
-                              : 'text-blue-700 bg-gradient-to-r from-blue-100 to-azure-100 hover:from-blue-200 hover:to-azure-200 focus:ring-blue-500'
+                              : 'text-azure-700 bg-gradient-to-r from-azure-100 to-azure-100 hover:from-azure-200 hover:to-azure-200 focus:ring-gold-500'
                             }`}
                         >
                           {requiresSignature ? (

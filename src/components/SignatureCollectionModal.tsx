@@ -95,8 +95,8 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
         <div className="p-6 space-y-6">
           {/* Description */}
           {currentSignature?.description && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
+            <div className="bg-azure-50 border border-azure-100 rounded-lg p-4">
+              <p className="text-sm text-azure-700">
                 {currentSignature.description}
               </p>
             </div>
@@ -146,7 +146,7 @@ const SignatureCollectionModal: React.FC<SignatureCollectionModalProps> = ({
               <button 
                 type="button"
                 onClick={() => console.log("SignaturePad test click")}
-                className="text-blue-500 underline"
+                className="text-azure-500 underline"
               >
                 Test Click
               </button>

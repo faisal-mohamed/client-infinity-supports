@@ -299,7 +299,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
         <div className="mb-2">Visit acceptable. Ensure control options are followed.</div>
         <div className="font-bold underline text-yellow-600">MEDIUM YELLOW</div>
         <div className="mb-2">Visit should only proceed after consultation with manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as Moderate Risk.</div>
-        <div className="font-bold underline text-orange-700">MODERATE ORANGE</div>
+        <div className="font-bold underline text-gold-700">MODERATE ORANGE</div>
         <div className="mb-2">Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.</div>
         <div className="font-bold underline text-red-700">HIGH RED</div>
         <div>Visit must only proceed with Director approval. The risks associated with the visit must be re-assessed & other options considered.</div>

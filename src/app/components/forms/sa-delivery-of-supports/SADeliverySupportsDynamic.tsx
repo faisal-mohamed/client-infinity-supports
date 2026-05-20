@@ -506,7 +506,7 @@ const SADeliverySupportsDynamic: React.FC<any> = ({ formData, commonFieldsData, 
               const isEmail = innerText.includes('@');
               const href = isEmail ? `mailto:${innerText}` : (innerText.startsWith('http') ? innerText : `https://${innerText}`);
               parts.push(
-                <a key={key++} href={href} className="text-blue-600 underline hover:text-blue-800" target="_blank" rel="noopener noreferrer">
+                <a key={key++} href={href} className="text-azure-600 underline hover:text-azure-700" target="_blank" rel="noopener noreferrer">
                   {innerText}
                 </a>
               );

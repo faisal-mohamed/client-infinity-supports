@@ -140,7 +140,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azure-500"></div>
       </div>
     );
   }
@@ -161,13 +161,13 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
     '';
 
   return (
-    <div className="rounded-2xl shadow-lg bg-white">
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-2 sm:px-6 md:px-10 py-6 border-b border-blue-200 rounded-t-2xl">
+    <div className="rounded-2xl shadow-soft bg-white">
+      <div className="bg-azure-50/50 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-2 sm:px-6 md:px-10 py-6 border-b border-azure-100 rounded-t-2xl">
         <div className="flex items-center">
-          <div className="rounded-full bg-gradient-to-br from-blue-100 to-blue-200 p-3 shadow-md mr-3">
-            <FaKey className="text-blue-600" />
+          <div className="rounded-full bg-azure-100 p-3 shadow-md mr-3">
+            <FaKey className="text-azure-600" />
           </div>
-          <h1 className="text-2xl font-bold text-azure-700">Form Access Details</h1>
+          <h1 className="text-xl font-bold text-azure-700">Form Access Details</h1>
         </div>
         <button
           onClick={() => router.back()}
@@ -196,7 +196,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
             <h2 className="text-lg font-semibold mb-4">Form Batches</h2>
             
             {Object.values(groupedAssignments.batches).map((batch: any) => (
-              <div key={batch.batchId} className="rounded-2xl shadow-lg border-l-4 border-blue-400 hover:shadow-xl transition mb-8 bg-white">
+              <div key={batch.batchId} className="rounded-2xl shadow-soft border-l-4 border-azure-300 transition-all duration-200 mb-8 bg-white">
                 <div className="bg-azure-50 px-4 py-3 border-b border-azure-100">
                   <h3 className="font-medium">Batch #{batch.batchId}</h3>
                 </div>
@@ -215,7 +215,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                       />
                       <button
                         onClick={() => copyToClipboard(`${baseUrl}/forms/access/${batch.batchToken}`, 'link', `batch-${batch.batchId}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-r-md"
+                        className="bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 rounded-r-md"
                       >
                         {copiedLinks[`batch-${batch.batchId}`] ? <FaCheck /> : <FaCopy />}
                       </button>
@@ -236,7 +236,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         />
                         <button
                           onClick={() => copyToClipboard(batch.passcode, 'passcode', `batch-${batch.batchId}`)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-r-md"
+                          className="bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 rounded-r-md"
                         >
                           {copiedPasscodes[`batch-${batch.batchId}`] ? <FaCheck /> : <FaCopy />}
                         </button>
@@ -251,7 +251,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         setEditingBatchId(batch.batchId);
                         const d = new Date(batch.expiresAt);
                         setNewExpiry({ date: d.toISOString().slice(0,10), time: d.toTimeString().slice(0,5) });
-                      }} className="ml-2 text-blue-600 hover:text-blue-800" title="Edit Expiry"><FaEdit /></button>
+                      }} className="ml-2 text-azure-600 hover:text-azure-700" title="Edit Expiry"><FaEdit /></button>
                     </label>
                     {editingBatchId === batch.batchId ? (
                       <div className="flex flex-col sm:flex-row gap-2 items-center">
@@ -292,7 +292,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
             <h2 className="text-lg font-semibold mb-4">Individual Form Assignments</h2>
             
             {groupedAssignments.individual.map((assignment : any) => (
-              <div key={assignment.id} className="rounded-2xl shadow-lg border-l-4 border-blue-400 hover:shadow-xl transition mb-8 bg-white">
+              <div key={assignment.id} className="rounded-2xl shadow-soft border-l-4 border-azure-300 transition-all duration-200 mb-8 bg-white">
                 <div className="bg-azure-50 px-4 py-3 border-b border-azure-100">
                   <h3 className="font-medium">{assignment.form.title} (v{assignment.form.version})</h3>
                 </div>
@@ -311,7 +311,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                       />
                       <button
                         onClick={() => copyToClipboard(`${baseUrl}/forms/access/${assignment.accessToken}`, 'link', `form-${assignment.id}`)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-r-md"
+                        className="bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 rounded-r-md"
                       >
                         {copiedLinks[`form-${assignment.id}`] ? <FaCheck /> : <FaCopy />}
                       </button>
@@ -332,7 +332,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         />
                         <button
                           onClick={() => copyToClipboard(assignment.passcode, 'passcode', `form-${assignment.id}`)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-r-md"
+                          className="bg-azure-600 hover:bg-azure-700 text-white px-3 py-2 rounded-r-md"
                         >
                           {copiedPasscodes[`form-${assignment.id}`] ? <FaCheck /> : <FaCopy />}
                         </button>
@@ -344,7 +344,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                     <label className="block text-sm font-medium text-azure-600 mb-1">
                       Status
                     </label>
-                    <div className={`inline-block rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-3 py-1 text-xs font-semibold shadow`}>
+                    <div className={`inline-block rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 text-xs font-semibold shadow`}>
                       {assignment.isCompleted ? 'Completed' : 'Pending'}
                     </div>
                   </div>

@@ -195,9 +195,9 @@ export default function FormItem({
       if (hasEmployeeSign && !hasParticipantSign) {
         return {
           status: 'Waiting for Participant',
-          color: 'from-blue-300 to-blue-400 text-blue-900 border-blue-500',
+          color: 'from-azure-300 to-azure-400 text-azure-800 border-azure-500',
           icon: FaClock,
-          bgColor: 'from-blue-500 to-blue-600',
+          bgColor: 'from-azure-500 to-azure-600',
           iconColor: 'text-white'
         };
       }
@@ -246,7 +246,7 @@ export default function FormItem({
 
   return (
     <>
-      <div className={`relative p-6 sm:p-8  hover:shadow-xl hover:scale-[1.01] transition-all duration-300 group ${isSelected ? 'bg-gradient-to-r from-gold-50 to-gold-100 border-l-4 border-gold-500' : 'bg-white'
+      <div className={`relative p-6 sm:p-8   transition-all duration-200 group ${isSelected ? 'bg-gold-50 border-l-4 border-gold-500' : 'bg-white'
         } border border-azure-50 rounded-2xl`}>
         {generatingLink && (
           <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
@@ -264,27 +264,27 @@ export default function FormItem({
               />
             ) : <div className="w-5 h-5" />}
 
-            <div className={`p-4 rounded-2xl bg-gradient-to-br ${statusInfo.bgColor} shadow-lg flex-shrink-0 group-hover:scale-105 transition-transform`}>
+            <div className={`p-4 rounded-2xl bg-gradient-to-br ${statusInfo.bgColor} shadow-soft flex-shrink-0 transition-all duration-200`}>
               <StatusIcon className={`h-6 w-6 sm:h-7 sm:w-7 ${statusInfo.iconColor}`} />
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-azure-800 mb-2 group-hover:text-gold-600 transition-colors flex items-center gap-2">
+                  <h3 className="text-lg sm:text-base font-semibold text-azure-800 mb-2 group-hover:text-gold-600 transition-colors flex items-center gap-2">
                     {assignment.form.title}
                     {assignment.instanceNumber > 1 && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200 shadow-sm">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-azure-100 text-azure-700 border border-azure-100 shadow-sm">
                         #{assignment.instanceNumber}
                       </span>
                     )}
                   </h3>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-md`}>
+                    <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-soft`}>
                       {statusInfo.status}
                     </span>
                     {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
-                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 border-2 border-gold-300 shadow-md">
+                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 border-2 border-gold-300 shadow-soft">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>
                         <span className="sm:hidden">Sig Req</span>
@@ -337,7 +337,7 @@ export default function FormItem({
                 e.stopPropagation();
                 setActiveActionMenu(!activeActionMenu);
               }}
-              className="p-3 text-azure-300 hover:text-gold-600 hover:bg-white hover:shadow-md rounded-xl transition-all group-hover:bg-white"
+              className="p-3 text-azure-300 hover:text-gold-600 hover:bg-white hover:shadow-soft rounded-xl transition-all group-hover:bg-white"
               title="Form actions"
             >
               <FaCog className="h-5 w-5 hover:rotate-90 transition-transform duration-300" />

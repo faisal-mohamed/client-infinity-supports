@@ -258,7 +258,7 @@ export default function LoginPage() {
           <div className="mb-8">
             <Image src="/client_full_logo.jpg" alt="Infinity Support WA" width={220} height={66} className="mx-auto brightness-0 invert" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-4">Welcome Back</h1>
+          <h1 className="text-xl font-bold text-white mb-4">Welcome Back</h1>
           <p className="text-white/70 text-base leading-relaxed max-w-md mx-auto">
             Manage your NDIS forms, clients, and support services with our comprehensive portal.
           </p>
@@ -297,7 +297,7 @@ export default function LoginPage() {
 
           {/* Desktop heading */}
           <div className="hidden lg:block mb-8">
-            <h2 className="text-2xl font-bold text-azure-700">{mfaStep ? 'Verify Identity' : 'Sign in'}</h2>
+            <h2 className="text-lg font-semibold text-azure-700">{mfaStep ? 'Verify Identity' : 'Sign in'}</h2>
             <p className="text-sm text-azure-400 mt-1">{mfaStep ? 'Enter the code sent to your email' : 'Access your admin dashboard'}</p>
           </div>
 

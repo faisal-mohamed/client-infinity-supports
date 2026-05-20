@@ -288,10 +288,10 @@ export default function FormEditPageClient() {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-20 h-20 border-4 border-t-azure-600 border-azure-200 rounded-full animate-spin mx-auto mb-6"></div>
-          <h3 className="text-xl font-bold text-azure-700 mb-2">Loading Edit template</h3>
+          <h3 className="text-base font-semibold text-azure-700 mb-2">Loading Edit template</h3>
           <p className="text-azure-500 font-medium">Please wait...</p>
           <div className="mt-4 flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-azure-600 rounded-full animate-bounce"></div>
@@ -307,10 +307,10 @@ export default function FormEditPageClient() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Not Found</h1>
+          <h1 className="text-xl font-bold text-azure-700 mb-4">Form Not Found</h1>
           <Link
             href={`/admin/clients/${clientId}/forms`}
-            className="text-azure-700 hover:text-azure-800"
+            className="text-azure-700 hover:text-azure-700"
           >
             Back to Forms List
           </Link>
@@ -344,7 +344,7 @@ export default function FormEditPageClient() {
                   Back to Forms
                 </Link>
                 <div className="border-l border-azure-200 pl-4">
-                  <h1 className="text-xl font-semibold text-azure-700">
+                  <h1 className="text-xl font-bold text-azure-700">
                     Edit: {assignment?.form.title}
                   </h1>
                   <p className="text-sm text-azure-500">
@@ -373,13 +373,13 @@ export default function FormEditPageClient() {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
+          <h1 className="text-xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
           <p className="text-azure-500 mb-4">
             No edit component found for form: {assignment.form.formKey}
           </p>
           <Link
             href={`/admin/clients/${clientId}/forms`}
-            className="text-azure-700 hover:text-azure-800"
+            className="text-azure-700 hover:text-azure-700"
           >
             Back to Forms List
           </Link>
@@ -407,7 +407,7 @@ export default function FormEditPageClient() {
                 Back to Forms
               </Link>
               <div className="border-l border-azure-200 pl-4">
-                <h1 className="text-xl font-semibold text-azure-700">
+                <h1 className="text-xl font-bold text-azure-700">
                   Edit: {assignment?.form.title}
                 </h1>
                 <p className="text-sm text-azure-500">

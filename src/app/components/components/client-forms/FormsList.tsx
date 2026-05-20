@@ -28,18 +28,18 @@
 //   const notStartedForms = assignments.filter(a => a.currentStatus === 'not_started').length;
 
 //   return (
-//     <div className="bg-gradient-to-br from-azure-50 to-azure-100 py-8">
+//     <div className="bg-azure-50 py-8">
 //       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+//         <div className="bg-white rounded-2xl shadow-soft border border-azure-50 overflow-hidden  transition-all duration-200">
 //           {/* Enhanced Header */}
-//           <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 via-blue-50 to-azure-50 border-b border-azure-100">
+//           <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 via-azure-50 to-azure-50 border-b border-azure-100">
 //             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 //               <div className="flex items-center gap-4">
-//                 <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+//                 <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-600 text-white shadow-soft">
 //                   <FaClipboardList className="h-6 w-6" />
 //                 </div>
 //                 <div>
-//                   <h2 className="text-2xl font-bold text-azure-700 mb-1">Assigned Forms</h2>
+//                   <h2 className="text-lg font-semibold text-azure-700 mb-1">Assigned Forms</h2>
 //                   <p className="text-azure-500">Manage and track client form assignments</p>
 //                 </div>
 //               </div>
@@ -48,9 +48,9 @@
 //                 <div className="flex flex-col sm:flex-row gap-4">
 //                   {/* Selection Status */}
 //                   {selectedForms.length > 0 ? (
-//                     <div className="bg-gradient-to-r from-azure-50 to-azure-100 border border-azure-200 rounded-xl p-4 shadow-md">
+//                     <div className="bg-azure-50 border border-azure-200 rounded-xl p-4 shadow-soft">
 //                       <div className="flex items-center gap-3">
-//                         <div className="p-2 rounded-lg bg-azure-600 text-white shadow-md">
+//                         <div className="p-2 rounded-lg bg-azure-600 text-white shadow-soft">
 //                           <FaCheckCircle className="h-5 w-5" />
 //                         </div>
 //                         <div>
@@ -62,7 +62,7 @@
 //                       </div>
 //                     </div>
 //                   ) : (
-//                     <div className="bg-gradient-to-r from-azure-50 to-azure-100 border border-azure-100 rounded-xl p-4 shadow-md">
+//                     <div className="bg-azure-50 border border-azure-100 rounded-xl p-4 shadow-soft">
 //                       <div className="text-center">
 //                         <div className="text-lg font-bold text-azure-700 mb-1">
 //                           {assignments.length} Total Forms
@@ -84,16 +84,16 @@
 //           {assignments.length === 0 ? (
 //             /* Enhanced Empty State */
 //             <div className="text-center py-16 px-6">
-//               <div className="p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-32 h-32 mx-auto mb-8 flex items-center justify-center">
+//               <div className="p-8 rounded-full bg-azure-100 w-32 h-32 mx-auto mb-8 flex items-center justify-center">
 //                 <FaFileAlt className="h-16 w-16 text-azure-300" />
 //               </div>
-//               <h3 className="text-2xl font-bold text-azure-700 mb-3">No Forms Assigned</h3>
+//               <h3 className="text-base font-semibold text-azure-700 mb-3">No Forms Assigned</h3>
 //               <p className="text-azure-500 mb-8 text-base max-w-md mx-auto leading-relaxed">
 //                 Get started by assigning some forms to this client. Once assigned, you can track their progress and manage submissions.
 //               </p>
 //               <button
 //                 onClick={onShowAssignModal}
-//                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-azure-700 to-azure-800 text-white font-semibold rounded-xl hover:from-azure-800 hover:to-azure-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+//                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-azure-700 to-azure-800 text-white font-semibold rounded-xl hover:from-azure-800 hover:to-azure-800 transition-all duration-200 shadow-soft  "
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
 //                   <FaPlus className="h-4 w-4" />
@@ -175,19 +175,19 @@ export default function FormsList({
   const completedForms = assignments.filter(a => a.currentStatus === 'completed').length;
 
   return (
-    <div className="bg-gradient-to-br from-azure-50 to-azure-100 py-8">
+    <div className="bg-azure-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        <div className="bg-white rounded-2xl shadow-soft border border-azure-50 overflow-hidden  transition-all duration-200">
 
           {/* Header */}
-          <div className="px-6 sm:px-8 py-6 bg-gradient-to-r from-azure-50 to-azure-100 border-b border-azure-100">
+          <div className="px-6 sm:px-8 py-6 bg-azure-50 border-b border-azure-100">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gold-100 text-gold-600 shadow-md">
+                <div className="p-3 rounded-xl bg-gold-100 text-gold-600 shadow-soft">
                   <FaClipboardList className="h-6 w-6" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-azure-700 mb-1">Assigned Forms</h2>
+                  <h2 className="text-lg font-semibold text-azure-700 mb-1">Assigned Forms</h2>
                   <p className="text-azure-500">Manage and track client form assignments</p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export default function FormsList({
                   {selectedForms.length > 0 ? (
                     <div className="bg-gold-50 border border-gold-200 rounded-xl p-4 shadow-sm">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-gold-600 text-white shadow-md">
+                        <div className="p-2 rounded-lg bg-gold-600 text-white shadow-soft">
                           <FaCheckCircle className="h-5 w-5" />
                         </div>
                         <div>
@@ -228,16 +228,16 @@ export default function FormsList({
           {/* Empty State */}
           {assignments.length === 0 ? (
             <div className="text-center py-16 px-6">
-              <div className="p-8 rounded-full bg-gradient-to-br from-azure-100 to-azure-200 w-32 h-32 mx-auto mb-8 flex items-center justify-center">
+              <div className="p-8 rounded-full bg-azure-100 w-32 h-32 mx-auto mb-8 flex items-center justify-center">
                 <FaFileAlt className="h-16 w-16 text-azure-300" />
               </div>
-              <h3 className="text-2xl font-bold text-azure-700 mb-3">No Forms Assigned</h3>
+              <h3 className="text-base font-semibold text-azure-700 mb-3">No Forms Assigned</h3>
               <p className="text-azure-500 mb-8 text-base max-w-md mx-auto leading-relaxed">
                 Get started by assigning forms to this client. Once assigned, you can track their progress and manage submissions.
               </p>
               <button
                 onClick={onShowAssignModal}
-                className="inline-flex items-center gap-3 px-8 py-4 bg-gold-600 text-white font-semibold rounded-xl hover:bg-gold-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gold-600 text-white font-semibold rounded-xl hover:bg-gold-700 transition-all duration-200 shadow-soft  "
               >
                 <FaPlus className="h-4 w-4" />
                 <span>Assign Forms</span>

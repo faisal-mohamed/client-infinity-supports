@@ -21,9 +21,9 @@
 //   return (
 //     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">
 //       {/* Modal Header */}
-//       <div className="px-6 py-4 bg-gradient-to-r from-orange-50 to-red-50 border-b border-azure-100 rounded-t-2xl">
+//       <div className="px-6 py-4 bg-gradient-to-r from-gold-50 to-red-50 border-b border-azure-100 rounded-t-2xl">
 //         <div className="flex items-center gap-4">
-//           <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg">
+//           <div className="p-3 rounded-xl bg-gradient-to-br from-gold-500 to-red-600 text-white shadow-lg">
 //             <FaExclamationTriangle className="h-6 w-6" />
 //           </div>
 //           <div>
@@ -68,13 +68,13 @@
 //         </button>
 //         <button
 //           onClick={onConfirm}
-//           className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 to-red-600 rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+//           className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-gold-600 to-red-600 rounded-xl hover:from-gold-700 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
 //         >
 //           Proceed to Edit
 //         </button>
 //         <button
 //   onClick={onDownload}
-//   className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-azure-700 rounded-xl hover:from-blue-700 hover:to-azure-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+//   className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-azure-600 to-azure-700 rounded-xl hover:from-azure-700 hover:to-azure-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
 // >
 //   Download PDF
 // </button>
@@ -155,7 +155,7 @@ export default function EditWarningModal({
         
         <button
           onClick={onDownload}
-          className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-azure-700 rounded-xl hover:from-blue-700 hover:to-azure-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+          className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-azure-600 to-azure-700 rounded-xl hover:from-azure-700 hover:to-azure-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           Download PDF
         </button>

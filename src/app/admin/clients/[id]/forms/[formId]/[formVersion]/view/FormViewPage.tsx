@@ -78,7 +78,7 @@
 //   if (loading) {
 //     return (
 //       <div className="flex justify-center items-center min-h-screen">
-//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+//         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-azure-500"></div>
 //       </div>
 //     );
 //   }
@@ -93,7 +93,7 @@
 //             </svg>
 //           </div>
 //           <div className="ml-3">
-//             <h3 className="text-sm font-medium text-red-800">Error loading form</h3>
+//             <h3 className="text-base font-semibold text-red-800">Error loading form</h3>
 //             <div className="mt-2 text-sm text-red-700">
 //               <p>{error}</p>
 //             </div>
@@ -126,8 +126,8 @@
 //   disabled={downloading}
 //   className={`flex items-center py-2 px-4 rounded-md text-white transition-all duration-200 ${
 //     downloading
-//       ? 'bg-blue-400 cursor-not-allowed'
-//       : 'bg-blue-600 hover:bg-blue-700'
+//       ? 'bg-azure-400 cursor-not-allowed'
+//       : 'bg-azure-600 hover:bg-azure-700'
 //   }`}
 // >
 //   {downloading ? (
@@ -153,7 +153,7 @@
 //         </div>
 //       </div>
       
-//       <div className="bg-white shadow-md rounded-lg overflow-hidden">
+//       <div className="bg-white shadow-soft rounded-2xl overflow-hidden">
 //         <div className="px-6 py-4 border-b border-azure-100 bg-azure-50">
 //           <h1 className="text-xl font-bold text-azure-700">{formSubmission.form.title}</h1>
 //           <p className="text-sm text-azure-400">

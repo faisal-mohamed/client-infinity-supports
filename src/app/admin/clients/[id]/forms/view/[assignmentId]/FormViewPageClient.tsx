@@ -157,14 +157,14 @@ export default function FormViewPageClient() {
 
  if (loading) {
     return (
-      <div className="bg-gradient-to-br from-azure-50 to-azure-100 min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="flex justify-center items-center h-80">
               <div className="text-center">
                 {/* Spinner */}
                 <div className="w-20 h-20 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mx-auto mb-6"></div>
 
                 {/* Text */}
-                <h3 className="text-xl font-bold text-azure-700 mb-2">
+                <h3 className="text-base font-semibold text-azure-700 mb-2">
                   Loading View Form
                 </h3>
                 <p className="text-azure-500 font-medium">
@@ -191,13 +191,13 @@ export default function FormViewPageClient() {
 
   if (!assignment || !assignment.submissionData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
+      <div className="">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center bg-white rounded-xl shadow-sm p-12">
             <div className="w-16 h-16 bg-azure-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <FaUser className="h-8 w-8 text-azure-300" />
             </div>
-            <h1 className="text-2xl font-bold text-azure-700 mb-4">
+            <h1 className="text-xl font-bold text-azure-700 mb-4">
               {!assignment ? 'Form Not Found' : 'Form Not Filled Yet'}
             </h1>
             <p className="text-azure-500 mb-8 max-w-md mx-auto">
@@ -236,13 +236,13 @@ export default function FormViewPageClient() {
     FormViewComponent = getFormComponent(assignment.form.formKey, 'view');
   } catch (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
+      <div className="">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center bg-white rounded-xl shadow-sm p-12">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <FaUser className="h-8 w-8 text-red-400" />
             </div>
-            <h1 className="text-2xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
+            <h1 className="text-xl font-bold text-azure-700 mb-4">Form Component Not Found</h1>
             <p className="text-azure-500 mb-8">
               No view component found for form: {assignment.form.formKey}
             </p>
@@ -309,7 +309,7 @@ function FormViewContent({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-azure-50 via-white to-cyan-50">
+    <div className="">
       {/* Enhanced Header */}
    <div className="bg-white shadow-sm border-b border-azure-100">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -317,7 +317,7 @@ function FormViewContent({
     <div className="flex items-center mb-4">
       <Link 
         href={`/admin/clients/${clientId}/forms`}
-        className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-800 hover:bg-azure-100 rounded-lg transition-all duration-200 group"
+        className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-all duration-200 group"
       >
         <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
         Back to Forms
@@ -328,11 +328,11 @@ function FormViewContent({
     <div className="flex items-center justify-between">
       {/* Left Section */}
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center shadow-lg">
+        <div className="w-12 h-12 bg-azure-700 rounded-full flex items-center justify-center shadow-soft">
           <FaUser className="h-6 w-6 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold text-azure-800 truncate">
+          <h1 className="text-xl font-bold text-azure-700 truncate">
             {assignment.form.title}
           </h1>
           <div className="flex items-center text-sm text-azure-500 space-x-4 mt-1">
@@ -381,7 +381,7 @@ function FormViewContent({
         <button
           onClick={handleDownloadButtonClick}
           disabled={downloadingPDF}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-medium rounded-lg hover:from-gold-600 hover:to-gold-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+          className="inline-flex items-center px-4 py-2 bg-azure-700 text-white font-medium rounded-lg hover:bg-azure-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm transition-all duration-200"
           title="Download PDF"
         >
           {downloadingPDF ? (
@@ -415,7 +415,7 @@ function FormViewContent({
 
       {/* Form Content with Enhanced Styling */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white shadow-sm rounded-xl border border-azure-50 overflow-hidden">
+        <div className="bg-white shadow-sm rounded-xl border border-azure-100/60 overflow-hidden">
           <FormViewComponent
             formSchemas={assignment?.form?.schema}
             formData={displayFormData}

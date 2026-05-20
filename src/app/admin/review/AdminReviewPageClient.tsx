@@ -176,126 +176,120 @@ export default function AdminReviewPageClient({
 
     if (status === "loading" || !session) return null;
 
-    const activeTabClass = "inline-flex items-center px-6 py-4 border-b-2 border-gold-500 text-sm font-bold text-gold-600 transition-all duration-200";
+    const activeTabClass = "inline-flex items-center px-6 py-4 border-b-2 border-gold-500 text-sm font-bold text-azure-700 transition-all duration-200";
     const inactiveTabClass = "inline-flex items-center px-6 py-4 border-b-2 border-transparent text-sm font-medium text-azure-400 hover:text-azure-600 hover:border-azure-200 transition-all duration-200";
 
     return (
-        <div className="bg-white min-h-screen">
-            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-                {/* Header Card */}
-                <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300 animate-[fadeIn_0.5s_ease-out]">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0">
-                        <div className="flex items-center gap-6">
-                            <div className="p-4 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-400 text-white shadow-lg">
-                                <FaClipboardCheck className="text-2xl sm:text-3xl" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-azure-700 mb-2 font-[Montserrat]">
-                                    Admin Review Dashboard
-                                </h1>
-                                <p className="text-sm sm:text-base text-azure-500">
-                                    {reviewStatus === "pending_admin_review"
-                                        ? "Review and sign forms awaiting administrator approval"
-                                        : "View historical forms completed by administrators"}
-                                </p>
-                                <div className="flex items-center gap-4 mt-2">
-                                    <div className="flex items-center gap-2 text-sm text-azure-400">
-                                        <div className={`w-2 h-2 ${reviewStatus === "pending_admin_review" ? "bg-amber-500" : "bg-green-500"} rounded-full`}></div>
-                                        <span className="font-medium">
-                                            {pagination.totalCount} {reviewStatus === "pending_admin_review" ? "Pending" : "Completed"} Reviews
-                                        </span>
-                                    </div>
-                                </div>
+        <div>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-xl bg-azure-700 text-gold-400 shadow-soft">
+                        <FaClipboardCheck className="text-xl" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-azure-700">
+                            Admin Review Dashboard
+                        </h1>
+                        <p className="text-sm text-azure-400 mt-0.5">
+                            {reviewStatus === "pending_admin_review"
+                                ? "Review and sign forms awaiting administrator approval"
+                                : "View historical forms completed by administrators"}
+                        </p>
+                        <div className="flex items-center gap-4 mt-1">
+                            <div className="flex items-center gap-2 text-sm text-azure-400">
+                                <div className={`w-2 h-2 ${reviewStatus === "pending_admin_review" ? "bg-amber-500" : "bg-green-500"} rounded-full`}></div>
+                                <span className="font-medium">
+                                    {pagination.totalCount} {reviewStatus === "pending_admin_review" ? "Pending" : "Completed"} Reviews
+                                </span>
                             </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                            <Link
-                                href="/admin/dashboard"
-                                className="flex items-center gap-2 text-sm text-azure-500 hover:text-gold-600 transition-all duration-200 px-4 py-3 border border-azure-100 rounded-xl hover:border-gold-200 hover:bg-gold-50 justify-center shadow-md hover:shadow-lg transform hover:scale-105"
+                    </div>
+                </div>
+                <Link
+                    href="/admin/dashboard"
+                    className="flex items-center gap-2 text-sm text-azure-500 hover:text-azure-700 px-3.5 py-2.5 border border-azure-100 rounded-xl hover:bg-azure-50 transition-all duration-200"
+                >
+                    <FaArrowLeft className="h-3.5 w-3.5" />
+                    Back to Dashboard
+                </Link>
+            </div>
+
+            {/* Search & Tabs */}
+            <div className="bg-white rounded-2xl border border-azure-100/60 p-4 mb-4 shadow-soft">
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                    <div className="flex-1 relative w-full">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <FaSearch className="text-azure-300 w-3.5 h-3.5" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search clients by name, email, phone, NDIS number, state..."
+                            className="w-full pl-10 pr-4 py-2.5 border border-azure-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 transition-all duration-200"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="border-b border-azure-100 w-full md:w-auto">
+                        <nav className="-mb-px flex space-x-6">
+                            <button
+                                onClick={() => { setReviewStatus("pending_admin_review"); setPagination(p => ({ ...p, page: 1 })); }}
+                                className={reviewStatus === "pending_admin_review" ? activeTabClass : inactiveTabClass}
                             >
-                                <FaArrowLeft className="h-4 w-4" />
-                                Back to Dashboard
-                            </Link>
-                        </div>
+                                <FaClock className="mr-2" />
+                                Pending Review
+                                {reviewStatus === "pending_admin_review" && pagination.totalCount > 0 && (
+                                    <span className="ml-2 bg-gold-500 text-azure-700 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                        {pagination.totalCount}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => { setReviewStatus("completed"); setPagination(p => ({ ...p, page: 1 })); }}
+                                className={reviewStatus === "completed" ? activeTabClass : inactiveTabClass}
+                            >
+                                <FaCheckCircle className="mr-2" />
+                                Completed
+                            </button>
+                        </nav>
                     </div>
                 </div>
+            </div>
 
-                {/* Search & Tabs Card */}
-                <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-6 sm:p-8 mb-6 sm:mb-8 hover:shadow-xl transition-shadow duration-300 animate-[fadeInUp_0.5s_ease-out]">
-                    <div className="flex flex-col md:flex-row gap-6 justify-between items-end">
-                        <div className="flex-grow w-full relative">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <FaSearch className="text-azure-300 h-5 w-5" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search clients by name, email, phone, NDIS number, state..."
-                                className="w-full pl-12 pr-4 py-4 border border-azure-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow duration-200"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="border-b border-azure-100 w-full md:w-auto">
-                            <nav className="-mb-px flex space-x-8">
-                                <button
-                                    onClick={() => { setReviewStatus("pending_admin_review"); setPagination(p => ({ ...p, page: 1 })); }}
-                                    className={reviewStatus === "pending_admin_review" ? activeTabClass : inactiveTabClass}
-                                >
-                                    <FaClock className="mr-2" />
-                                    Pending Review
-                                    {reviewStatus === "pending_admin_review" && pagination.totalCount > 0 && (
-                                        <span className="ml-2 bg-gradient-to-r from-gold-500 to-gold-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-md">
-                                            {pagination.totalCount}
-                                        </span>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => { setReviewStatus("completed"); setPagination(p => ({ ...p, page: 1 })); }}
-                                    className={reviewStatus === "completed" ? activeTabClass : inactiveTabClass}
-                                >
-                                    <FaCheckCircle className="mr-2" />
-                                    Completed
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Table Card */}
-                <div className="bg-white rounded-2xl shadow-lg border border-azure-50 overflow-hidden hover:shadow-xl transition-shadow duration-300 animate-[fadeInUp_0.6s_ease-out]">
-                    <div className="overflow-hidden bg-white shadow">
-                        <div className="overflow-x-auto">
+            {/* Table */}
+            <div className="bg-white rounded-2xl border border-azure-100/60 overflow-hidden shadow-soft">
+                    <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-azure-100 text-sm">
-                                <thead className="bg-white">
+                                <thead className="bg-azure-50/50">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-left text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             <input type="checkbox" className="accent-gold-500 rounded border-azure-200" />
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-left text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             NAME
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-left text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             PHONE
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-left text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             STATE
                                         </th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-left text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             {reviewStatus === "pending_admin_review" ? "AWAITING REVIEW" : "REVIEWED FORMS"}
                                         </th>
-                                        <th className="px-6 py-4 text-right text-xs font-bold text-azure-500 uppercase tracking-wider border-b-2 border-azure-700">
+                                        <th className="px-5 py-3.5 text-right text-xs font-semibold text-azure-700 uppercase tracking-wider">
                                             ACTIONS
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-azure-50 bg-white border-t border-azure-100">
+                                <tbody className="divide-y divide-azure-50 bg-white">
                                     {loading ? (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-16 text-center">
+                                            <td colSpan={6} className="px-5 py-16 text-center">
                                                 <div className="flex flex-col items-center">
-                                                    <div className="w-16 h-16 border-4 border-t-gold-500 border-gold-200 rounded-full animate-spin mb-4"></div>
-                                                    <p className="text-azure-400 font-medium">Loading review dashboard...</p>
+                                                    <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mb-3"></div>
+                                                    <p className="text-sm text-azure-400">Loading...</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -314,29 +308,29 @@ export default function AdminReviewPageClient({
                                             const state = client?.commonFields?.state;
 
                                             return (
-                                                <tr key={client.id} className="hover:bg-gold-50 transition-all duration-200">
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                <tr key={client.id} className="hover:bg-azure-50/30 transition-colors">
+                                                    <td className="px-5 py-4 whitespace-nowrap">
                                                         <input type="checkbox" className="accent-gold-500 rounded border-azure-200" />
                                                     </td>
-                                                    <td className="px-6 py-4 font-semibold text-azure-700">
+                                                    <td className="px-5 py-4 font-semibold text-azure-700">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-9 h-9 flex items-center justify-center bg-gold-100 text-gold-600 rounded-lg font-bold border border-gold-200 shadow-sm">
+                                                            <div className="w-9 h-9 flex items-center justify-center bg-azure-50 text-azure-700 rounded-lg font-semibold border border-azure-100">
                                                                 {firstLetter}
                                                             </div>
                                                             <div>
-                                                                <div className="text-sm font-bold text-azure-700 font-[Montserrat]">{fullName}</div>
+                                                                <div className="text-sm font-semibold text-azure-700">{fullName}</div>
                                                                 <div className="text-xs text-azure-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
                                                                     NDIS: {client.commonFields?.ndis || "N/A"}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm font-medium text-azure-600 whitespace-nowrap">
+                                                    <td className="px-5 py-4 text-sm font-medium text-azure-600 whitespace-nowrap">
                                                         {client.phone || (
                                                             <span className="text-azure-300 italic font-normal">N/A</span>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4 text-azure-600 whitespace-nowrap">
+                                                    <td className="px-5 py-4 text-azure-500 whitespace-nowrap">
                                                         {state ? (
                                                             <span className="inline-block text-xs font-bold bg-gold-100 text-gold-700 px-3 py-1 rounded-full border border-gold-200">
                                                                 {stateMapping[state as keyof typeof stateMapping] || state}
@@ -360,7 +354,7 @@ export default function AdminReviewPageClient({
                                                             ))}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-right">
+                                                    <td className="px-5 py-4 text-right">
                                                         <Menu as="div" className="relative inline-block text-left">
                                                             <MenuButton className="text-azure-400 hover:text-gold-600 transition p-2 hover:bg-gold-50 rounded-lg">
                                                                 <FaEllipsisV className="w-5 h-5" />
@@ -424,7 +418,6 @@ export default function AdminReviewPageClient({
                                 </tbody>
                             </table>
                         </div>
-                    </div>
 
                     {/* Pagination Controls */}
                     {!loading && pagination.totalCount > 0 && (
@@ -433,11 +426,11 @@ export default function AdminReviewPageClient({
                                 <div className="flex flex-col sm:flex-row items-center gap-6">
                                     <p className="text-sm font-medium text-azure-600">
                                         Showing{" "}
-                                        <span className="font-bold text-gold-600">
+                                        <span className="font-bold text-azure-700">
                                             {clients.length}
                                         </span>{" "}
                                         of{" "}
-                                        <span className="font-bold text-gold-600">
+                                        <span className="font-bold text-azure-700">
                                             {pagination.totalCount}
                                         </span>{" "}
                                         clients
@@ -449,14 +442,14 @@ export default function AdminReviewPageClient({
                                             id="pageSize"
                                             value={pagination.pageSize}
                                             onChange={handlePageSizeChange}
-                                            className="cursor-pointer appearance-none border border-gold-300 text-sm text-gold-700 font-bold bg-white py-2 pl-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-gold-500 hover:shadow-md transition-all duration-200"
+                                            className="cursor-pointer appearance-none border border-azure-100 text-sm text-azure-600 font-medium bg-white py-2 pl-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:outline-none focus:ring-1 focus:ring-gold-500 transition-colors"
                                         >
                                             <option value="5">5</option>
                                             <option value="10">10</option>
                                             <option value="25">25</option>
                                             <option value="50">50</option>
                                         </select>
-                                        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-gold-500">
+                                        <div className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 text-azure-300">
                                             <FaChevronDown className="w-4 h-4" />
                                         </div>
                                     </div>
@@ -466,27 +459,27 @@ export default function AdminReviewPageClient({
                                     <button
                                         onClick={() => handlePageChange(pagination.page - 1)}
                                         disabled={!pagination.hasPreviousPage}
-                                        className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 shadow-md transform hover:scale-105 ${pagination.hasPreviousPage
-                                            ? "bg-white text-gold-600 border border-gold-200 hover:bg-gold-50"
-                                            : "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
+                                        className={`px-3 py-1.5 text-xs font-medium border rounded-lg transition-colors  ${pagination.hasPreviousPage
+                                            ? "border-azure-100 text-azure-600 hover:bg-azure-50"
+                                            : "border-azure-100 text-azure-300 cursor-not-allowed opacity-40"
                                             }`}
                                     >
                                         ‹ Prev
                                     </button>
 
-                                    <span className="text-sm text-azure-600 font-bold bg-gold-50 px-4 py-2 rounded-xl border border-gold-100">
+                                    <span className="text-xs text-azure-500">
                                         Page{" "}
-                                        <span className="text-gold-600 font-black">{pagination.page}</span>
+                                        <span className="font-medium text-azure-700">{pagination.page}</span>
                                         {" "}of{" "}
-                                        <span className="text-gold-600 font-black">{pagination.totalPages}</span>
+                                        <span className="font-medium text-azure-700">{pagination.totalPages}</span>
                                     </span>
 
                                     <button
                                         onClick={() => handlePageChange(pagination.page + 1)}
                                         disabled={!pagination.hasNextPage}
-                                        className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 shadow-md transform hover:scale-105 ${pagination.hasNextPage
-                                            ? "bg-white text-gold-600 border border-gold-200 hover:bg-gold-50"
-                                            : "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
+                                        className={`px-3 py-1.5 text-xs font-medium border rounded-lg transition-colors  ${pagination.hasNextPage
+                                            ? "border-azure-100 text-azure-600 hover:bg-azure-50"
+                                            : "border-azure-100 text-azure-300 cursor-not-allowed opacity-40"
                                             }`}
                                     >
                                         Next ›
@@ -496,18 +489,6 @@ export default function AdminReviewPageClient({
                         </div>
                     )}
                 </div>
-            </div>
-
-            <style jsx>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </div>
     );
 }
