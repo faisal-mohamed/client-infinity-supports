@@ -68,7 +68,7 @@ export default function ClientDetailPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!id || typeof id !== 'string' || isNaN(Number(id))) {
+    if (!id || typeof id !== 'string') {
       setError('Invalid client ID');
       setLoading(false);
       return;

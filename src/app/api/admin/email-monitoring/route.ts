@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getEmailStats, getRecentEmailFailures } from "@/lib/email-logger";
 import { testEmailConnection } from "@/lib/email";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 /**
  * GET /api/admin/email-monitoring
@@ -20,7 +22,9 @@ export async function GET(req: NextRequest) {
     const recentFailures = await getRecentEmailFailures(10);
     
     // Test current email connection
-    const connectionTest = await testEmailConnection(1);
+    const session = await getServerSession(authOptions);
+    const adminId = session?.user?.id || "1";
+    const connectionTest = await testEmailConnection(adminId);
 
     // Calculate health score
     const healthScore = calculateEmailHealthScore(stats, connectionTest.success);

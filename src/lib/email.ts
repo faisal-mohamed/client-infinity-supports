@@ -23,7 +23,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
-export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
+export async function getEmailConfig(adminId : string | number): Promise<EmailConfig> {
   try {
   
     console.log(`🔧 [EMAIL CONFIG] Fetching email configuration for adminId: ${adminId}`);
@@ -102,7 +102,7 @@ export async function getEmailConfig(adminId : number): Promise<EmailConfig> {
 /**
  * Create and configure Nodemailer transporter
  */
-export async function createEmailTransporter(adminId : number) {
+export async function createEmailTransporter(adminId : string | number) {
   console.log(`🔌 [EMAIL TRANSPORTER] Creating transporter for adminId: ${adminId}`);
   
   const config = await getEmailConfig(adminId);
@@ -136,7 +136,7 @@ export async function createEmailTransporter(adminId : number) {
 /**
  * Test email configuration
  */
-export async function testEmailConnection(adminId : number): Promise<{ success: boolean; message: string }> {
+export async function testEmailConnection(adminId : string | number): Promise<{ success: boolean; message: string }> {
   try {
     const transporter = await createEmailTransporter(adminId);
     await transporter.verify();

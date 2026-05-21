@@ -47,7 +47,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
   useEffect(() => {
     const parsedClientId = clientId;
     
-    if (isNaN(parsedClientId)) {
+    if (!parsedClientId) {
       setError('Invalid client ID');
       setLoading(false);
       return;

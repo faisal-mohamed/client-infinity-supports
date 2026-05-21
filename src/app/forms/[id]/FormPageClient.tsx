@@ -13,7 +13,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
   if (status === 'loading' || !session) return null;
 
   const router = useRouter();
-  const formAssignmentId = parseInt(params.id);
+  const formAssignmentId = params.id as string;
 
   
   

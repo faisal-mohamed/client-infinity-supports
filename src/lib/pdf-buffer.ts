@@ -4,7 +4,7 @@ interface PDFBufferOptions {
   formSubmissionId: string | number;
   formId: string | number;
   filename?: string;
-  adminId?: number;
+  adminId?: string | number;
 }
 
 interface PDFBufferResult {

@@ -53,7 +53,7 @@ export default function FormSignaturePageClient() {
   const router = useRouter();
 
   const token = params.token as string;
-  const formSubmissionId = parseInt(params.formSubmissionId as string);
+  const formSubmissionId = params.formSubmissionId as string;
 
   const [formData, setFormData] = useState<FormSignatureData | null>(null);
   const [loading, setLoading] = useState(true);
