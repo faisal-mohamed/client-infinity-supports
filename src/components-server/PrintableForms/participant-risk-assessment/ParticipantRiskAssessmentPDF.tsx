@@ -81,9 +81,10 @@ export default function ParticipantRiskAssessmentPDF({
     { questionNum: "9", key: "risk9", label: "Is the client known to be affected by crowds?" },
     { questionNum: "10", key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?" },
     { questionNum: "11", key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?" },
-    { questionNum: "12", key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)" },
-    { questionNum: "13", key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)" },
-    { questionNum: "14", key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)" }
+    { questionNum: "12", key: "behaviorPractitionerInvolved", label: "Is there a behaviour practitioner involved?" },
+    { questionNum: "13", key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)" },
+    { questionNum: "14", key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)" },
+    { questionNum: "15", key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)" }
   ];
 
   const getFilledControlRows = () => {
@@ -187,12 +188,10 @@ export default function ParticipantRiskAssessmentPDF({
 
       {/* Participant Details */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={3}>PARTICIPANT DETAILS</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, fontWeight: 'bold' }}>NDIS Number:</td>
             <td style={cellStyle} colSpan={2}>{getValue("ndisNumber")}</td>
@@ -222,7 +221,7 @@ export default function ParticipantRiskAssessmentPDF({
 
       {/* Medical Conditions */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={3}>KNOWN MEDICAL CONDITIONS OR ALLERGIES</th>
           </tr>
@@ -231,8 +230,6 @@ export default function ParticipantRiskAssessmentPDF({
             <th style={headerStyle}>Effect</th>
             <th style={headerStyle}>Treatment</th>
           </tr>
-        </thead>
-        <tbody>
           {getFilledMedicalRows().map((row, index) => (
             <tr key={index}>
               <td style={cellStyle}>{row.specify}</td>
@@ -245,12 +242,10 @@ export default function ParticipantRiskAssessmentPDF({
 
       {/* Emergency Contacts */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={3}>EMERGENCY CONTACTS / CARER / GUARDIAN</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, fontWeight: 'bold' }}>Name/s:</td>
             <td style={{ ...cellStyle, fontWeight: 'bold' }}>Phone:</td>
@@ -266,12 +261,10 @@ export default function ParticipantRiskAssessmentPDF({
 
       {/* Persons Involved in Risk Assessment */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={3}>PERSONS INVOLVED IN RISK ASSESSMENT</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, fontWeight: 'bold' }}>Was the participant involved in the assessment?</td>
             <td style={cellStyle}>
@@ -318,7 +311,6 @@ export default function ParticipantRiskAssessmentPDF({
         </thead>
         <tbody>
           {riskQuestions.map((question) => {
-            const isQ11 = question.key === 'familyBehavioralHistory';
             return (
               <tr key={question.key}>
                 <td style={cellStyle}>{question.questionNum}</td>
@@ -337,36 +329,7 @@ export default function ParticipantRiskAssessmentPDF({
                 </td>
                 <td style={{ ...cellStyle, textAlign: 'center' }}>{getValue(`${question.key}Rating`)}</td>
                 <td style={cellStyle}>
-                  {isQ11 ? (
-                    <div>
-                      {(() => {
-                        const commentText = getValue(`${question.key}Comment`);
-                        return commentText ? <div style={{ marginBottom: '6px' }}>{commentText}</div> : null;
-                      })()}
-                      {(() => {
-                        const raw = (formData?.behaviorPractitionerInvolved || '').toString().trim().toLowerCase();
-                        const yn = raw === 'yes' || raw === 'true' || raw === '1' || raw === 'y' ? 'Yes' : raw === 'no' || raw === 'false' || raw === '0' || raw === 'n' ? 'No' : '';
-                        return (
-                          <div style={{ marginBottom: '6px', fontWeight: 500 }}>
-                            Behaviour practitioner involved: {yn || '—'}
-                          </div>
-                        );
-                      })()}
-                      <div style={{ marginBottom: '4px' }}>Is there a behaviour practitioner involved?</div>
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '4px' }}>
-                          <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'yes')} readOnly style={{ marginRight: '4px' }} />
-                          YES
-                        </label>
-                        <label style={{ display: 'block' }}>
-                          <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'no')} readOnly style={{ marginRight: '4px' }} />
-                          NO
-                        </label>
-                      </div>
-                    </div>
-                  ) : (
-                    getValue(`${question.key}Comment`)
-                  )}
+                  {getValue(`${question.key}Comment`)}
                 </td>
               </tr>
             );
@@ -377,12 +340,10 @@ export default function ParticipantRiskAssessmentPDF({
       {/* Management of Medication */}
       <h2 style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', margin: '20px 0 10px', textTransform: 'uppercase' }}>MEDICATION</h2>
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#a9b9d9' }}>
             <th style={{ ...headerStyle, backgroundColor: '#a9b9d9' }}>Management of Medication</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={cellStyle}>
               <p style={{ marginBottom: '10px' }}>
@@ -493,15 +454,13 @@ export default function ParticipantRiskAssessmentPDF({
         const m = meta[selected];
         return (
           <table style={tableStyle}>
-            <thead>
+            <tbody>
               <tr style={{ backgroundColor: '#d1d5db', fontWeight: 'bold' }}>
                 <th style={{ ...headerStyle, textAlign: 'center' }}>Selected Risk Level</th>
                 <th style={headerStyle}>Description</th>
                 <th style={headerStyle}>Criteria</th>
                 <th style={headerStyle}>Impact on Health-Safety</th>
               </tr>
-            </thead>
-            <tbody>
               <tr>
                 <td style={{ ...cellStyle, textAlign: 'center', fontWeight: 'bold' }}>{selected}</td>
                 <td style={cellStyle}>{m.description}</td>
@@ -512,25 +471,6 @@ export default function ParticipantRiskAssessmentPDF({
           </table>
         );
       })()}
-
-      {/* Household Meeting Point */}
-      <table style={tableStyle}>
-        <thead>
-          <tr style={{ backgroundColor: '#d1d5db' }}>
-            <th style={headerStyle} colSpan={2}>Participant household safe meeting point in case of emergency</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...cellStyle, fontWeight: 'bold', width: '30%' }}>Address:</td>
-            <td style={cellStyle}>{getValue('householdSafeAddress') || 'N/A'}</td>
-          </tr>
-          <tr>
-            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Description:</td>
-            <td style={cellStyle}>{getValue('householdSafeDesc') || 'N/A'}</td>
-          </tr>
-        </tbody>
-      </table>
 
       {/* Manager Notice */}
       <p style={{ fontSize: '11px', fontWeight: 'bold', textAlign: 'center', margin: '15px 0', textTransform: 'uppercase' }}>
@@ -574,133 +514,9 @@ export default function ParticipantRiskAssessmentPDF({
         />
       </div>
 
-      {/* Emergency Contact Numbers */}
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Emergency Contact Numbers</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...cellStyle, width: '33%' }}>Police</td>
-            <td style={{ ...cellStyle, textAlign: 'center', verticalAlign: 'middle' }} colSpan={2} rowSpan={3}>
-              <img src={images?.emergencyNo || "/participant_risk_assessment_emergency.png"} alt="000 Emergency" style={{ maxHeight: '60px', margin: '0 auto', display: 'block' }} />
-            </td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Fire</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Ambulance</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Utilities */}
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Utilities</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...cellStyle, width: '33%' }}>Electricity Authority</td>
-            <td style={cellStyle}>Western Power</td>
-            <td style={cellStyle}>13 13 51</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Water Authority</td>
-            <td style={cellStyle}>Water Corp</td>
-            <td style={cellStyle}>13 13 75</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Gas Authority</td>
-            <td style={cellStyle}>ATCO Gas</td>
-            <td style={cellStyle}>13 13 52</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>State Emergency</td>
-            <td style={cellStyle}>SES</td>
-            <td style={cellStyle}>13 25 00</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Other Key Contacts */}
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Other Key Contacts</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={cellStyle}>Health Direct</td>
-            <td style={cellStyle} colSpan={2}>1800 022 222</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Poisons Line</td>
-            <td style={cellStyle} colSpan={2}>13 11 26</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Lifeline (24 hours crisis counselling)</td>
-            <td style={cellStyle} colSpan={2}>13 11 14</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Beyond Blue</td>
-            <td style={cellStyle} colSpan={2}>1300 22 4636</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Crisis Care</td>
-            <td style={cellStyle} colSpan={2}>1800 199 008</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>NDIS</td>
-            <td style={cellStyle} colSpan={2}>1800 800 110</td>
-          </tr>
-          <tr>
-            <td style={cellStyle}>Mental Health Emergency Response Line</td>
-            <td style={cellStyle} colSpan={2}>1300 555 788 (Perth) / 1300 676 822 (Peel)</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Emergency/Disaster Support Plan */}
-      <table style={tableStyle}>
-        <thead>
-          <tr style={{ backgroundColor: '#d1d5db', fontWeight: 'bold' }}>
-            <th style={cellStyle} colSpan={3}>Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)</th>
-          </tr>
-          <tr style={{ fontWeight: 'bold' }}>
-            <th style={cellStyle}>Emergency</th>
-            <th style={cellStyle} colSpan={2}>Support provided to the participants in the event of an emergency</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Infinity is unable to support for extended period</td>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Infinity will assist the client/family to source alternative providers</td>
-          </tr>
-          <tr>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Client taken ill during support.</td>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Call 000, Call family, take to nearest ED</td>
-          </tr>
-          <tr>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Closure of business</td>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Infinity will assist the client/family to source alternative providers</td>
-          </tr>
-          <tr>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Pandemic</td>
-            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Client will reside with family, have essential supports and daily phone check-ins</td>
-          </tr>
-        </tbody>
-      </table>
-
       {/* What to do in an Emergency */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={2}>What to do in an Emergency</th>
           </tr>
@@ -708,12 +524,10 @@ export default function ParticipantRiskAssessmentPDF({
             <th style={headerStyle}>Evacuation Procedures</th>
             <th style={headerStyle}>FIRE</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li><strong>Upon hearing the alarm or when the situation requires the participant to leave the premises:</strong></li>
+                <li>Upon hearing the alarm or when the situation requires the participant to leave the premises</li>
                 <li>Prepare to evacuate</li>
                 <li>Get your environment ready to be left unattended. Shut down electrical/electronic devices; turn off gas if safe to do so.</li>
                 <li>For fire, close the doors as you go – do not lock them. In the case of a bomb threat, leave doors open.</li>
@@ -745,7 +559,7 @@ export default function ParticipantRiskAssessmentPDF({
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>
               <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: 0 }}>
-                <li><strong>Assess the situation:</strong></li>
+                <li>Assess the situation</li>
                 <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
                 <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
                 <li>Arrange for the ambulance to be met.</li>
@@ -790,9 +604,162 @@ export default function ParticipantRiskAssessmentPDF({
         </tbody>
       </table>
 
+      {/* Emergency Contact Numbers */}
+      <table style={tableStyle}>
+        <tbody>
+          <tr>
+            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Emergency Contact Numbers</th>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, width: '33%' }}>Police</td>
+            <td style={{ ...cellStyle, textAlign: 'center', verticalAlign: 'middle' }} colSpan={2} rowSpan={3}>
+              <img src={images?.emergencyNo || "/participant_risk_assessment_emergency.png"} alt="000 Emergency" style={{ maxHeight: '60px', margin: '0 auto', display: 'block' }} />
+            </td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Fire</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Ambulance</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Utilities */}
+      <table style={tableStyle}>
+        <tbody>
+          <tr>
+            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Utilities</th>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, width: '33%' }}>Electricity Authority</td>
+            <td style={cellStyle}>Western Power</td>
+            <td style={cellStyle}>13 13 51</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Water Authority</td>
+            <td style={cellStyle}>Water Corp</td>
+            <td style={cellStyle}>13 13 75</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Gas Authority</td>
+            <td style={cellStyle}>ATCO Gas</td>
+            <td style={cellStyle}>13 13 52</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>State Emergency</td>
+            <td style={cellStyle}>SES</td>
+            <td style={cellStyle}>13 25 00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Other Key Contacts */}
+      <table style={tableStyle}>
+        <tbody>
+          <tr>
+            <th style={{ ...headerStyle, backgroundColor: '#d1d5db' }} colSpan={3}>Other Key Contacts</th>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Health Direct</td>
+            <td style={cellStyle} colSpan={2}>1800 022 222</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Poisons Line</td>
+            <td style={cellStyle} colSpan={2}>13 11 26</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Lifeline (24 hours crisis counselling)</td>
+            <td style={cellStyle} colSpan={2}>13 11 14</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Beyond Blue</td>
+            <td style={cellStyle} colSpan={2}>1300 22 4636</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Crisis Care</td>
+            <td style={cellStyle} colSpan={2}>1800 199 008</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>NDIS</td>
+            <td style={cellStyle} colSpan={2}>1800 800 110</td>
+          </tr>
+          <tr>
+            <td style={cellStyle}>Mental Health Emergency Response Line</td>
+            <td style={cellStyle} colSpan={2}>1300 555 788 (Perth) / 1300 676 822 (Peel)</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }} rowSpan={5}>
+              <div style={{ fontWeight: 'bold', marginBottom: '6px' }}>Advocacy Services</div>
+              <div style={{ fontStyle: 'italic', fontSize: '10px' }}>(Infinity Supports WA does not recommend any particular advocacy provider. You are free to choose any service that best suits your needs.)</div>
+            </td>
+            <td style={cellStyle} colSpan={2}>Advocare (Aged &amp; Disability Advocacy) : 1800 655 566</td>
+          </tr>
+          <tr>
+            <td style={cellStyle} colSpan={2}>People With Disabilities WA (PWdWA) : 1800 193 331</td>
+          </tr>
+          <tr>
+            <td style={cellStyle} colSpan={2}>Developmental Disability WA (DDWA) : (08) 9420 7203</td>
+          </tr>
+          <tr>
+            <td style={cellStyle} colSpan={2}>Advocacy WA : (08) 9474 6222</td>
+          </tr>
+          <tr>
+            <td style={cellStyle} colSpan={2}>Mental Health Advocacy Service : 1800 999 057</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Emergency/Disaster Support Plan */}
+      <table style={tableStyle}>
+        <tbody>
+          <tr style={{ backgroundColor: '#d1d5db', fontWeight: 'bold' }}>
+            <th style={cellStyle} colSpan={3}>Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)</th>
+          </tr>
+          <tr style={{ fontWeight: 'bold' }}>
+            <th style={cellStyle}>Emergency</th>
+            <th style={cellStyle} colSpan={2}>Support provided to the participants in the event of an emergency</th>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Infinity is unable to support for extended period</td>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Infinity will assist the client/family to source alternative providers</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Client taken ill during support.</td>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Call 000, Call family, take to nearest ED</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Closure of business</td>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Infinity will assist the client/family to source alternative providers</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }}>Pandemic</td>
+            <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>Client will reside with family, have essential supports and daily phone check-ins</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Household Meeting Point */}
+      {/* Participant household safe meeting point */}
+      <table style={tableStyle}>
+        <tbody>
+          <tr style={{ backgroundColor: '#d1d5db' }}>
+            <th style={headerStyle} colSpan={2}>Participant household safe meeting point in case of emergency</th>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, fontWeight: 'bold', width: '30%' }}>Address:</td>
+            <td style={cellStyle}>{getValue('householdSafeAddress') || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style={{ ...cellStyle, fontWeight: 'bold' }}>Description:</td>
+            <td style={cellStyle}>{getValue('householdSafeDesc') || 'N/A'}</td>
+          </tr>
+        </tbody>
+      </table>
+
       {/* Communication Modes */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={2}>Mode of Communication assessment for non-verbal participants (e.g., Sign language, pictures, body movement)</th>
           </tr>
@@ -800,8 +767,6 @@ export default function ParticipantRiskAssessmentPDF({
             <th style={headerStyle}>Possible scenarios of concern</th>
             <th style={headerStyle}>Mode of communication</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>{getValue('scenario1')}</td>
             <td style={{ ...cellStyle, verticalAlign: 'top' }}>{getValue('mode1')}</td>
@@ -813,14 +778,53 @@ export default function ParticipantRiskAssessmentPDF({
         </tbody>
       </table>
 
+      {(() => {
+        const hasEmergencyPlans = Array.from({ length: 10 }, (_, i) => i + 1).some(
+          (num) => formData?.[`participantSpecificEmergencyScenario${num}`] || formData?.[`participantSpecificEmergencySupport${num}`]
+        );
+
+        if (!hasEmergencyPlans) return null;
+
+        return (
+          <>
+            <div style={{ height: '24px' }} />
+
+            <table style={{ ...tableStyle, borderCollapse: 'collapse' }}>
+              <tbody>
+                <tr style={{ backgroundColor: '#d1d5db', fontWeight: 'bold' }}>
+                  <th style={cellStyle} colSpan={3}>Participant Specific Emergencies</th>
+                </tr>
+                <tr style={{ fontWeight: 'bold', backgroundColor: '#f3f4f6' }}>
+                  <th style={{ ...cellStyle, width: '33.33%' }}>Emergency</th>
+                  <th style={cellStyle} colSpan={2}>Plan</th>
+                </tr>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                  const scenario = formData?.[`participantSpecificEmergencyScenario${num}`];
+                  const support = formData?.[`participantSpecificEmergencySupport${num}`];
+                  if (!scenario && !support) return null;
+                  return (
+                    <tr key={num}>
+                      <td style={{ ...cellStyle, verticalAlign: 'top', fontWeight: 'bold', width: '33.33%' }}>
+                        {scenario || "N/A"}
+                      </td>
+                      <td style={{ ...cellStyle, verticalAlign: 'top' }} colSpan={2}>
+                        {support || "N/A"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
+        );
+      })()}
+
       {/* Signatures */}
       <table style={tableStyle}>
-        <thead>
+        <tbody>
           <tr style={{ backgroundColor: '#d1d5db' }}>
             <th style={headerStyle} colSpan={4}>Authorisation</th>
           </tr>
-        </thead>
-        <tbody>
           <tr>
             <td style={{ ...cellStyle, fontWeight: 'bold' }}>Authorised by:</td>
             <td style={cellStyle}>{getValue('authorisedBy')}</td>

@@ -226,6 +226,35 @@ const Page10: React.FC<any> = ({
                 </td>
               </tr>
 
+              {/* Advocacy Contacts */}
+              <tr>
+                <td className="border border-black px-2 py-2 align-top" rowSpan={5}>
+                  <div className="font-bold mb-1">Advocacy Services</div>
+                  <div className="italic text-[10px]">(Infinity Supports WA does not recommend any particular advocacy provider. You are free to choose any service that best suits your needs.)</div>
+                </td>
+                <td className="border border-black px-2 py-2" colSpan={2}>Advocare (Aged &amp; Disability Advocacy) : 1800 655 566</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-2 py-2" colSpan={2}>People With Disabilities WA (PWdWA) : 1800 193 331</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-2 py-2" colSpan={2}>Developmental Disability WA (DDWA) : (08) 9420 7203</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-2 py-2" colSpan={2}>Advocacy WA : (08) 9474 6222</td>
+              </tr>
+              <tr>
+                <td className="border border-black px-2 py-2" colSpan={2}>Mental Health Advocacy Service : 1800 999 057</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* Gap between the two tables */}
+          <div className="h-6" />
+
+          {/* Support Items Table */}
+          <table className="w-full border-collapse border border-black text-xs leading-[1.75]">
+            <tbody className="align-top">
               {/* Support Header */}
               <tr className="bg-gray-300 font-bold text-xs">
                 <td className="border border-black px-2 py-2" colSpan={3}>
@@ -236,13 +265,13 @@ const Page10: React.FC<any> = ({
 
               {/* Support Items */}
               <tr className="font-semibold">
-                <td className="border border-black px-2 py-2">Emergency</td>
+                <td className="border border-black px-2 py-2 w-1/3">Emergency</td>
                 <td className="border border-black px-2 py-2" colSpan={2}>
                   Support provided to the participants in the event of an emergency
                 </td>
               </tr>
               <tr>
-                <td className="border border-black px-2 py-2">
+                <td className="border border-black px-2 py-2 w-1/3">
                   Infinity is unable to support for extended period
                 </td>
                 <td className="border border-black px-2 py-2" colSpan={2}>
@@ -250,24 +279,76 @@ const Page10: React.FC<any> = ({
                 </td>
               </tr>
               <tr>
-                <td className="border border-black px-2 py-2">Client taken ill during support.</td>
+                <td className="border border-black px-2 py-2 w-1/3">Client taken ill during support.</td>
                 <td className="border border-black px-2 py-2" colSpan={2}>
                   Call 000, Call family, take to nearest ED
                 </td>
               </tr>
               <tr>
-                <td className="border border-black px-2 py-2">Closure of business</td>
+                <td className="border border-black px-2 py-2 w-1/3">Closure of business</td>
                 <td className="border border-black px-2 py-2" colSpan={2}>
                   Infinity will assist the client/family to source alternative providers
                 </td>
               </tr>
 
-              {/* Spacer Row to Fill Remaining Height */}
-              <tr>
-                <td colSpan={3} className="border border-black py-6">&nbsp;</td>
-              </tr>
+              {/* Additional Emergency Scenarios from form data */}
+              {data?.additionalEmergencyScenarios && (
+                <tr className="align-top">
+                  <td className="border border-black px-2 py-2 w-1/3">
+                    Additional Scenarios
+                  </td>
+                  <td className="border border-black px-2 py-2" colSpan={2}>
+                    {data.additionalEmergencyScenarios}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+
+          {(() => {
+            const hasEmergencyPlans = Array.from({ length: 10 }, (_, i) => i + 1).some(
+              (num) => data?.[`participantSpecificEmergencyScenario${num}`] || data?.[`participantSpecificEmergencySupport${num}`]
+            );
+
+            if (!hasEmergencyPlans) return null;
+
+            return (
+              <>
+                {/* Gap between the two tables */}
+                <div className="h-6" />
+
+                {/* Participant Specific Emergency Table */}
+                <table className="w-full border-collapse border border-black text-xs leading-[1.75]">
+                  <tbody className="align-top">
+                    <tr className="bg-gray-300 font-bold text-xs">
+                      <td className="border border-black px-2 py-2" colSpan={3}>
+                        Participant Specific Emergencies
+                      </td>
+                    </tr>
+                    <tr className="bg-gray-100 font-semibold">
+                      <td className="border border-black px-2 py-2 w-1/3">Emergency</td>
+                      <td className="border border-black px-2 py-2" colSpan={2}>Plan</td>
+                    </tr>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                      const scenario = data?.[`participantSpecificEmergencyScenario${num}`];
+                      const support = data?.[`participantSpecificEmergencySupport${num}`];
+                      if (!scenario && !support) return null;
+                      return (
+                        <tr key={num}>
+                          <td className="border border-black px-2 py-2 w-1/3 font-semibold">
+                            {scenario || "N/A"}
+                          </td>
+                          <td className="border border-black px-2 py-2" colSpan={2}>
+                            {support || "N/A"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </>
+            );
+          })()}
         </div>
       </div>
     </A4PageWrapper>

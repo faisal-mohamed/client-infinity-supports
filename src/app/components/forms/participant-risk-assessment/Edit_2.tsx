@@ -293,6 +293,20 @@ export const FORM_SECTIONS: any = [
     fields: ['householdSafeAddress', 'householdSafeDesc'],
     requiredFields: []
   },
+  {
+    id: "participantSpecificEmergency",
+    title: "Participant Specific Emergencies",
+    icon: FaExclamationTriangle,
+    description: "Participant Specific Emergency Support Plan",
+    fields: Array.from({ length: 10 }, (_, i) => {
+      const idx = i + 1;
+      return [
+        `participantSpecificEmergencyScenario${idx}`,
+        `participantSpecificEmergencySupport${idx}`,
+      ];
+    }).flat(),
+    requiredFields: []
+  },
 
   {
     id: "riskAssessmentTable",
@@ -334,6 +348,7 @@ export const FORM_SECTIONS: any = [
       "copySupplied",
       "copyOnFile",
       "reviewDate",
+      "annexurePdf",
     ],
     requiredFields: ['signatureDate', 'guardianSignature', 'guardianDate', 'signature']
 
@@ -576,6 +591,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     noiseSensitive: "",
     familyBehavioralHistory: "",
     behaviorPractitionerInvolved: "",
+    behaviorPractitionerInvolvedRating: "",
+    behaviorPractitionerInvolvedComment: "",
     mobilityIssues: "",
     showeringToiletingHazards: "",
     medicationRespDepression: [],
@@ -601,6 +618,17 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     // Page 7: Safe Meeting Point
     safeMeetingAddress: "",
     safeMeetingDescription: "",
+
+    // Participant Specific Emergency
+    ...Object.fromEntries(
+      Array.from({ length: 10 }, (_, i) => {
+        const index = i + 1;
+        return [
+          [`participantSpecificEmergencyScenario${index}`, ""],
+          [`participantSpecificEmergencySupport${index}`, ""],
+        ];
+      }).flat()
+    ),
 
     // Risk Table (10 rows)
     ...Object.fromEntries(
@@ -635,6 +663,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     copySupplied: false,
     copyOnFile: false,
     reviewDate: "",
+    annexurePdf: "",
+    annexurePdfName: "",
+    annexures: formData?.annexures || (formData?.annexurePdf ? [{ name: formData.annexurePdfName || "Annexure.pdf", data: formData.annexurePdf }] : []),
   };
 
 
@@ -654,6 +685,52 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
   const [activeRiskRows, setActiveRiskRows] = useState<number[]>(
     getInitialRiskRows(initialValues)
   );
+
+  const getInitialEmergencyRows = (formValues: Record<string, any>) => {
+    const rows: number[] = [];
+    for (let i = 1; i <= 10; i++) {
+      if (
+        formValues[`participantSpecificEmergencyScenario${i}`] ||
+        formValues[`participantSpecificEmergencySupport${i}`]
+      ) {
+        rows.push(i);
+      }
+    }
+    return rows.length > 0 ? rows : [1];
+  };
+
+  const [activeEmergencyRows, setActiveEmergencyRows] = useState<number[]>(
+    getInitialEmergencyRows(initialValues)
+  );
+
+  const handleAddEmergencyRow = () => {
+    if (activeEmergencyRows.length >= 10) return;
+    for (let i = 1; i <= 10; i++) {
+      if (!activeEmergencyRows.includes(i)) {
+        setActiveEmergencyRows((prev) => [...prev, i].sort((a, b) => a - b));
+        break;
+      }
+    }
+  };
+
+  const handleRemoveEmergencyRow = (rowNum: number) => {
+    if (activeEmergencyRows.length <= 1) {
+      if (!window.confirm("This is the last emergency entry. Removing it will clear the data but keep one entry visible. Proceed?")) return;
+      setLocalValues((prev: any) => ({
+        ...prev,
+        [`participantSpecificEmergencyScenario${rowNum}`]: "",
+        [`participantSpecificEmergencySupport${rowNum}`]: "",
+      }));
+      return;
+    }
+    if (!window.confirm("Are you sure you want to remove this emergency plan?")) return;
+    setActiveEmergencyRows((prev) => prev.filter((r) => r !== rowNum));
+    setLocalValues((prev: any) => ({
+      ...prev,
+      [`participantSpecificEmergencyScenario${rowNum}`]: "",
+      [`participantSpecificEmergencySupport${rowNum}`]: "",
+    }));
+  };
 
   // --- Confirmation Modal State ---
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -1335,6 +1412,179 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     </div>
   );
 
+  const renderPdfUploadField = (
+    label: string,
+    name: string,
+    required?: boolean
+  ) => {
+    const annexuresList = localValues.annexures || [];
+    const mergedError = (fieldErrors as any)?.[name] || localErrors[name];
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      const file = files[0];
+      if (file.type !== "application/pdf") {
+        showToast({
+          type: "error",
+          title: "Invalid File Type",
+          message: "Please upload a PDF file only.",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        // Use the file name (excluding extension) as initial name
+        const displayName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+        
+        const newAnnexureItem = {
+          name: displayName,
+          data: base64String
+        };
+
+        const updatedAnnexures = [...annexuresList, newAnnexureItem];
+        
+        const newValues = {
+          ...localValues,
+          annexures: updatedAnnexures,
+          // Sync legacy single values for perfect backward compatibility
+          annexurePdf: updatedAnnexures[0]?.data || "",
+          annexurePdfName: updatedAnnexures[0]?.name || "",
+        };
+
+        setLocalValues(newValues);
+        onChange(newValues, name, false);
+      };
+      reader.onerror = () => {
+        showToast({
+          type: "error",
+          title: "File Read Error",
+          message: "Could not read the file. Please try again.",
+        });
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const handleRemoveAnnexure = (indexToRemove: number) => {
+      if (!window.confirm("Are you sure you want to remove this annexure?")) return;
+      
+      const updatedAnnexures = annexuresList.filter((_: any, idx: number) => idx !== indexToRemove);
+      const newValues = {
+        ...localValues,
+        annexures: updatedAnnexures,
+        annexurePdf: updatedAnnexures[0]?.data || "",
+        annexurePdfName: updatedAnnexures[0]?.name || "",
+      };
+      setLocalValues(newValues);
+      onChange(newValues, name, false);
+    };
+
+    const handleRenameAnnexure = (indexToRename: number, newCustomName: string) => {
+      const updatedAnnexures = annexuresList.map((ann: any, idx: number) => {
+        if (idx === indexToRename) {
+          return { ...ann, name: newCustomName };
+        }
+        return ann;
+      });
+      const newValues = {
+        ...localValues,
+        annexures: updatedAnnexures,
+        annexurePdf: updatedAnnexures[0]?.data || "",
+        annexurePdfName: updatedAnnexures[0]?.name || "",
+      };
+      setLocalValues(newValues);
+      onChange(newValues, name, false);
+    };
+
+    return (
+      <div className="flex flex-col gap-4">
+        <label className="text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1 uppercase tracking-wider">
+          {label}
+          {required && <span className="text-red-500">*</span>}
+        </label>
+        
+        {/* Annexures list */}
+        {annexuresList.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {annexuresList.map((annex: any, idx: number) => (
+              <div 
+                key={idx} 
+                className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl border border-indigo-100 bg-indigo-50/20 shadow-sm transition-all"
+              >
+                <div className="flex items-center gap-3 w-full md:w-auto min-w-[200px] flex-1">
+                  <div className="p-3 bg-red-100 text-red-600 rounded-xl font-bold text-xs shadow-inner">
+                    PDF
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xxs font-semibold uppercase tracking-wider text-indigo-500 block mb-0.5">
+                      Attachment Name
+                    </label>
+                    <input
+                      type="text"
+                      value={annex.name || ""}
+                      onChange={(e) => handleRenameAnnexure(idx, e.target.value)}
+                      disabled={readOnly}
+                      className="w-full text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                      placeholder="Give this file a custom name..."
+                      title="Name this attachment"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 w-full md:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAnnexure(idx)}
+                    disabled={readOnly}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-red-200 bg-white hover:bg-red-50 text-red-600 text-xs font-bold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:shadow"
+                  >
+                    <FaTrash className="h-3.5 w-3.5" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Dropzone for uploading additional PDFs */}
+        <div className="relative">
+          <label
+            className={`flex flex-col items-center justify-center w-full min-h-[120px] border-2 border-dashed rounded-2xl cursor-pointer transition-all ${
+              mergedError
+                ? "border-red-300 bg-red-50/20"
+                : "border-gray-200 hover:border-indigo-400 bg-white hover:bg-gray-50/50"
+            } ${readOnly ? "cursor-not-allowed opacity-60" : ""}`}
+          >
+            <div className="flex flex-col items-center justify-center py-4 px-6 text-center">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl mb-2">
+                <span className="text-2xl">📤</span>
+              </div>
+              <p className="text-sm font-bold text-gray-800">
+                {annexuresList.length > 0 ? "Add Another PDF Annexure" : "Click to Upload PDF Annexure"}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">or drag and drop your file here</p>
+            </div>
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              disabled={readOnly}
+              className="hidden"
+            />
+          </label>
+        </div>
+        
+        {mergedError && (
+          <p className="text-xs text-red-500 mt-1">{mergedError}</p>
+        )}
+      </div>
+    );
+  };
+
   // Helper to check if a field is required in the current section
   const isFieldRequired = (fieldName: string) => {
     return FORM_SECTIONS[currentStep].requiredFields?.includes(fieldName);
@@ -1596,9 +1846,8 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       options: yesNoOptions,
     },
     familyBehavioralHistoryComment: {
-      label: "Is there a behaviour practitioner involved? ",
-      type: "dropdown",
-      options: yesNoOptions,
+      label: "Comments/Controls",
+      type: "text",
     },
     familyBehavioralHistoryRating: {
       label: "Risk Rating",
@@ -1610,6 +1859,15 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       label: "Is there a behaviour practitioner involved? ",
       type: "dropdown",
       options: yesNoOptions,
+    },
+    behaviorPractitionerInvolvedRating: {
+      label: "Risk Rating",
+      type: "dropdown",
+      options: ratingOptions,
+    },
+    behaviorPractitionerInvolvedComment: {
+      label: "Comments/Controls",
+      type: "text",
     },
 
     mobilityIssues: {
@@ -1727,6 +1985,33 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       placeholder: "Enter description",
     },
 
+    // Participant Specific Emergency
+    ...Object.fromEntries(
+      Array.from({ length: 10 }, (_, i) => {
+        const idx = i + 1;
+        return [
+          [
+            `participantSpecificEmergencyScenario${idx}`,
+            {
+              label: `Emergency ${idx}`,
+              type: "textarea",
+              placeholder: "Describe emergency scenario",
+              rows: 2,
+            }
+          ],
+          [
+            `participantSpecificEmergencySupport${idx}`,
+            {
+              label: `Plan ${idx}`,
+              type: "textarea",
+              placeholder: "Describe support plan",
+              rows: 2,
+            }
+          ]
+        ];
+      }).flat()
+    ),
+
     // Risk Table Rows (10 entries)
     ...Object.fromEntries(
       Array.from({ length: 10 }, (_, i) => {
@@ -1841,6 +2126,11 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
       label: "Review Date",
       type: "date",
       placeholder: "Select review date",
+    },
+    annexurePdf: {
+      label: "Upload Annexure / Appendix (PDF only)",
+      type: "pdfUpload",
+      placeholder: "Add any PDF file here"
     },
   };
 
@@ -2088,6 +2378,7 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
     const fields = [
       "noiseSensitive",
       "familyBehavioralHistory",
+      "behaviorPractitionerInvolved",
       "mobilityIssues",
       "showeringToiletingHazards",
       "medicationRiskDepression"
@@ -2099,7 +2390,6 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
           const ratingKey = `${key}Rating`;
           const commentKey = `${key}Comment`;
 
-          const isBehaviorPractitioner = key === "behaviorPractitionerInvolved";
           const meta = FIELD_METADATA[key];
           const fieldType = meta?.type || "dropdown";
 
@@ -2108,61 +2398,43 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
               key={key}
               className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start border border-gray-200 p-4 rounded-md bg-gray-50"
             >
-              {isBehaviorPractitioner ? (
-                // For behaviorPractitionerInvolved: render as text input in first column only
-                <>
-                  {renderTextArea(
-                    meta.label,
-                    key,
-                    2,
-                    meta.placeholder,
-                    false
-                  )}
-                  <div></div>
-                  <div></div>
-                </>
-              ) : (
-                <>
-                  {/* ✅ Always render Yes/No dropdown */}
-                  {renderDropdown(
-                    FIELD_METADATA[key].label,
-                    key,
-                    yesNoOptions,
-                    false
-                  )}
+              <>
+                {/* ✅ Always render Yes/No dropdown */}
+                {renderDropdown(
+                  FIELD_METADATA[key].label,
+                  key,
+                  yesNoOptions,
+                  false
+                )}
 
-                  {/* ✅ Render rating */}
-                  {renderDropdown(
-                    FIELD_METADATA[ratingKey].label,
-                    ratingKey,
-                    ratingOptions,
-                    false
-                  )}
+                {/* ✅ Render rating */}
+                {FIELD_METADATA[ratingKey] ? renderDropdown(
+                  FIELD_METADATA[ratingKey].label,
+                  ratingKey,
+                  ratingOptions,
+                  false
+                ) : <div></div>}
 
-                  {/* ✅ Render comment */}
-                  {(() => {
-                    // Special handling for familyBehavioralHistoryComment -> behaviorPractitionerInvolved
-                    const actualCommentField = commentKey === "familyBehavioralHistoryComment" ? "behaviorPractitionerInvolved" : commentKey;
-
-                    return FIELD_METADATA[commentKey]?.type === "dropdown" ? (
-                      renderDropdown(
-                        FIELD_METADATA[commentKey].label,
-                        actualCommentField,
-                        FIELD_METADATA[commentKey].options || [],
-                        false
-                      )
-                    ) : (
-                      renderTextArea(
-                        FIELD_METADATA[commentKey].label,
-                        actualCommentField,
-                        2,
-                        FIELD_METADATA[commentKey].placeholder,
-                        false
-                      )
-                    );
-                  })()}
-                </>
-              )}
+                {/* ✅ Render comment */}
+                {FIELD_METADATA[commentKey] ? (
+                  FIELD_METADATA[commentKey]?.type === "dropdown" ? (
+                    renderDropdown(
+                      FIELD_METADATA[commentKey].label,
+                      commentKey,
+                      FIELD_METADATA[commentKey].options || [],
+                      false
+                    )
+                  ) : (
+                    renderTextArea(
+                      FIELD_METADATA[commentKey].label,
+                      commentKey,
+                      2,
+                      FIELD_METADATA[commentKey].placeholder,
+                      false
+                    )
+                  )
+                ) : <div></div>}
+              </>
             </div>
           );
         })}
@@ -2445,6 +2717,56 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                 </div>
               ) : FORM_SECTIONS[currentStep].id === "behavioralAndMobility" ? (
                 renderBehavioralAndMobilitySection()
+              ) : FORM_SECTIONS[currentStep].id === "participantSpecificEmergency" ? (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="space-y-6">
+                    {activeEmergencyRows.map((num) => (
+                      <div key={num} className="border border-gray-200 rounded-lg p-4 bg-gray-50/60 shadow-sm relative">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-md font-semibold text-gray-800">Emergency Plan {num}</h3>
+                          {activeEmergencyRows.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveEmergencyRow(num)}
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
+                              title="Remove this entry"
+                            >
+                              <FaTrash className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            {renderTextArea(
+                              FIELD_METADATA[`participantSpecificEmergencyScenario${num}`].label,
+                              `participantSpecificEmergencyScenario${num}`,
+                              3,
+                              FIELD_METADATA[`participantSpecificEmergencyScenario${num}`].placeholder
+                            )}
+                          </div>
+                          <div>
+                            {renderTextArea(
+                              FIELD_METADATA[`participantSpecificEmergencySupport${num}`].label,
+                              `participantSpecificEmergencySupport${num}`,
+                              3,
+                              FIELD_METADATA[`participantSpecificEmergencySupport${num}`].placeholder
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {activeEmergencyRows.length < 10 && (
+                    <button
+                      type="button"
+                      onClick={handleAddEmergencyRow}
+                      className="mt-4 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium shadow"
+                    >
+                      + Add Emergency Plan
+                    </button>
+                  )}
+                </div>
               ) : FORM_SECTIONS[currentStep].id === "riskLevelSummary" ? (
                 <div className="space-y-6">
                   {renderDropdownSeverityRisk(
@@ -2582,23 +2904,12 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                         }
 
                         // Skip the comment and rating fields for behaviorPractitionerInvolved (only render the main question)
-                        if (field === "behaviorPractitionerInvolvedComment" || field === "behaviorPractitionerInvolvedRating") {
-                          return null;
-                        }
-
                         const meta = FIELD_METADATA[field];
                         if (!meta) {
                           console.warn(`Field metadata not found for: ${field}`);
                           return null;
                         }
                         const required = isFieldRequired(field);
-
-                        // Special handling for behaviorPractitionerInvolved to use the comment field
-                        let actualFieldName = field;
-                        if (field === "familyBehavioralHistoryComment") {
-                          // Use behaviorPractitionerInvolved field to store the data
-                          actualFieldName = "behaviorPractitionerInvolved";
-                        }
 
                         if (meta.type === "textarea") {
                           return (
@@ -2609,11 +2920,9 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                         }
 
                         if (meta.type === "dropdown") {
-                          // Use actualFieldName for behaviorPractitionerInvolved mapping
-                          const fieldToUse = actualFieldName !== field ? actualFieldName : field;
                           return (
                             <div key={field} className="md:col-span-2">
-                              {renderDropdown(meta.label, fieldToUse, meta.options || [], meta.showComments, required)}
+                              {renderDropdown(meta.label, field, meta.options || [], meta.showComments, required)}
                             </div>
                           );
                         }
@@ -2638,6 +2947,14 @@ const HomeVisitRiskAssessmentEdit: React.FC<FormProps> = ({
                           return (
                             <div key={field} className="md:col-span-2">
                               {renderSignatureField(meta.label, "guardianSignature", sigCanvasRefGuardian, meta.placeholder, true)}
+                            </div>
+                          );
+                        }
+
+                        if (meta.type === "pdfUpload") {
+                          return (
+                            <div key={field} className="md:col-span-2">
+                              {renderPdfUploadField(meta.label, field, required)}
                             </div>
                           );
                         }

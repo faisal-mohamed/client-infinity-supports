@@ -58,13 +58,13 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col gap-6" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
-          
-          {/* Pandemic and Communication Table */}
+           
+          {/* Pandemic Table */}
           <div>
-            <table className={`table-auto border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+            <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
               <tbody>
                 <tr>
-                  <td className={`${cellClass} w-1/2 ${A4_PDF_TYPOGRAPHY.label} align-top`}>
+                  <td className={`${cellClass} w-1/3 ${A4_PDF_TYPOGRAPHY.label} align-top`}>
                     Pandemic
                   </td>
                   <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body} align-top`}>
@@ -73,39 +73,9 @@ const Page11: React.FC<Page11Props> = ({ schema, data, commonFieldsData, setting
                     </div>
                   </td>
                 </tr>
-                
-                <tr className="bg-gray-300">
-                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader}`} colSpan={2}>
-                    Mode of Communication assessment for non-verbal participants (e.g., Sign language, pictures, body movement)
-                  </td>
-                </tr>
-                
-                <tr className="bg-gray-100">
-                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
-                    Possible scenarios of concern
-                  </td>
-                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
-                    Mode of communication
-                  </td>
-                </tr>
-                
-                {[1, 2].map((i) => (
-                  <tr key={i}>
-                    <td className={`${cellClass} align-top`} style={{ minHeight: "60px" }}>
-                      <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
-                        {getValue(`scenario${i}`)}
-                      </div>
-                    </td>
-                    <td className={`${cellClass} align-top`} style={{ minHeight: "60px" }}>
-                      <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
-                        {getValue(`mode${i}`)}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
-          </div>   <br /><br /><br /><br /><br />
+          </div>
 
           {/* Emergency Procedures Section */}
           <div>

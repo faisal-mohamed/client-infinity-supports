@@ -5,6 +5,7 @@ interface PDFBufferOptions {
   formId: number;
   filename?: string;
   adminId?: number;
+  baseUrl?: string;
 }
 
 interface PDFBufferResult {
@@ -21,11 +22,12 @@ export async function generatePDFBuffer({
   formSubmissionId,
   formId,
   filename,
-  adminId
+  adminId,
+  baseUrl
 }: PDFBufferOptions): Promise<PDFBufferResult> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-    let url = `${baseUrl}/api/generate-pdf/${formSubmissionId}/${formId}?buffer=true`;
+    const activeBaseUrl = baseUrl || process.env.INTERNAL_API_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    let url = `${activeBaseUrl}/api/generate-pdf/${formSubmissionId}/${formId}?buffer=true`;
     
     if (filename) {
       url += `&filename=${encodeURIComponent(filename)}`;
@@ -71,7 +73,8 @@ export async function generateMultiplePDFBuffers(
     formId: number;
     title: string;
   }>,
-  adminId?: number
+  adminId?: number,
+  baseUrl?: string
 ): Promise<Array<{
   success: boolean;
   filename: string;
@@ -90,7 +93,8 @@ export async function generateMultiplePDFBuffers(
         formSubmissionId: form.id, // Use 'id' as formSubmissionId
         formId: form.formId,
         filename,
-        adminId
+        adminId,
+        baseUrl
       });
       
       return {

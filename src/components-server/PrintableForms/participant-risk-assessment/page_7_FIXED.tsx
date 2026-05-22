@@ -46,7 +46,7 @@ const Footer = ({ settings }: { settings: any }) => {
 };
 
 const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings, images }) => {
-  const rows = schema?.riskRows?.slice(0, 4) || []; // First 4 rows
+  const rows = schema?.riskRows?.slice(0, 5) || []; // First 5 rows
 
   const cellClass = `border border-black px-2 py-2 ${A4_PDF_TYPOGRAPHY.tableCell}`;
 
@@ -59,34 +59,6 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings,
         {/* Content Area */}
         <div className="flex-1 flex flex-col" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
           
-          {/* Safe Meeting Point Table */}
-          <div className="mb-4">
-            <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
-              <thead>
-                <tr className="bg-gray-300">
-                  <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-left w-1/3`}>
-                    Participant household safe meeting point
-                  </th>
-                  <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-left w-2/3`}>
-                    Details
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {schema?.householdMeetingPoint?.map((field: any) => (
-                  <tr key={field.key}>
-                    <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
-                      {field?.label}
-                    </td>
-                    <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`}>
-                      {data?.[field.key] || ""}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
           {/* Instruction */}
           <div className="mb-4">
             <p className={`${A4_PDF_TYPOGRAPHY.subHeader} text-center uppercase`}>
@@ -139,8 +111,8 @@ const Page7: React.FC<Page7Props> = ({ schema, data, commonFieldsData, settings,
                   </tr>
                 ))}
                 
-                {/* Fill remaining rows if less than 4 */}
-                {Array.from({ length: Math.max(0, 4 - rows.length) }).map((_, i) => (
+                {/* Fill remaining rows if less than 5 */}
+                {Array.from({ length: Math.max(0, 5 - rows.length) }).map((_, i) => (
                   <tr key={`empty-${i}`} className="align-top" style={{ height: "80px" }}>
                     <td className={`${cellClass} align-top`} style={{ minHeight: "80px" }}>
                       <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}></div>

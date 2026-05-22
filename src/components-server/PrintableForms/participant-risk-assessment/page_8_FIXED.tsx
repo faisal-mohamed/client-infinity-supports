@@ -46,7 +46,7 @@ const Footer = ({ settings }: { settings: any }) => {
 };
 
 const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings, images }) => {
-  const rows = schema?.riskRows?.slice?.(4) || []; // Rows 5 to 10
+  const rows = schema?.riskRows?.slice?.(5) || []; // Rows 6 to 10
 
   const cellClass = `border border-black px-2 py-2 ${A4_PDF_TYPOGRAPHY.tableCell}`;
 
@@ -59,7 +59,7 @@ const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings,
         {/* Content Area */}
         <div className="flex-1 flex flex-col" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
           
-          {/* Risk Assessment Table - Continuation (Rows 5-10) */}
+          {/* Risk Assessment Table - Continuation (Rows 6-10) */}
           <div className="flex-1">
             <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`} style={{ height: "100%" }}>
               <thead>
@@ -104,8 +104,8 @@ const Page8: React.FC<Page8Props> = ({ schema, data, commonFieldsData, settings,
                   </tr>
                 ))}
                 
-                {/* Fill remaining rows if less than 6 (to make total 10 rows across pages 7-8) */}
-                {Array.from({ length: Math.max(0, 6 - rows.length) }).map((_, i) => (
+                {/* Fill remaining rows if less than 5 */}
+                {Array.from({ length: Math.max(0, 5 - rows.length) }).map((_, i) => (
                   <tr key={`empty-${i}`} className="align-top" style={{ height: "80px" }}>
                     <td className={`${cellClass} align-top`} style={{ minHeight: "80px" }}>
                       <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}></div>

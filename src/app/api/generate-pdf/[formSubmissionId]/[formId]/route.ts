@@ -15,6 +15,7 @@ import EmergencyDrillPDF from "@/components-server/PrintableForms/emergency-dril
 import PersonCentredPlanPDF from "@/components-server/PrintableForms/Person_Centred_Plan/PersonCentredPlanPDF_DYNAMIC";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { PDFDocument } from "pdf-lib";
 
 async function encodeImageToBase64(imagePath: string): Promise<string> {
   try {
@@ -315,11 +316,24 @@ async function generateHTML(formData: any, formKey: string, commonFields: any, s
     pageStyles = '';
   } else if (formKey === 'participant_risk_assessment') {
     pageStyles = `
+      body {
+        width: 758px !important;
+        max-width: 758px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .form {
+        width: 758px !important;
+        max-width: 758px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       tr, td, th, div, section, p, img, ul, li {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
       }
       table {
+        width: 100% !important;
         page-break-inside: auto !important;
         break-inside: auto !important;
       }
@@ -624,6 +638,9 @@ export async function GET(
       const page = await browser.newPage({
         viewport: { width: 1280, height: 1800 }, // Standard viewport for A4
       });
+      if (form.formKey === 'participant_risk_assessment') {
+        await page.setViewportSize({ width: 794, height: 1123 });
+      }
       console.timeEnd('⏱️ Page Creation');
 
       console.time('⏱️ Set Content');
@@ -706,6 +723,32 @@ export async function GET(
       console.time('⏱️ Browser Close');
       await browser.close();
       console.timeEnd('⏱️ Browser Close');
+    }
+
+    if (form.formKey === 'participant_risk_assessment') {
+      const annexures = formData?.annexures || (formData?.annexurePdf ? [{ name: formData.annexurePdfName || "annexure.pdf", data: formData.annexurePdf }] : []);
+      if (annexures && annexures.length > 0) {
+        try {
+          console.log(`📎 [PDF Route] Found ${annexures.length} uploaded PDF annexure(s), starting PDF merge...`);
+          const mainPdfDoc = await PDFDocument.load(pdfBuffer);
+          
+          for (const annex of annexures) {
+            if (!annex.data) continue;
+            console.log(`Merging annexure: ${annex.name || 'Unnamed'}`);
+            const base64Data = annex.data.split(",")[1] || annex.data;
+            const annexureBuffer = Buffer.from(base64Data, "base64");
+            const annexurePdfDoc = await PDFDocument.load(annexureBuffer);
+            const copiedPages = await mainPdfDoc.copyPages(annexurePdfDoc, annexurePdfDoc.getPageIndices());
+            copiedPages.forEach((page) => mainPdfDoc.addPage(page));
+          }
+          
+          const mergedPdfBytes = await mainPdfDoc.save();
+          pdfBuffer = Buffer.from(mergedPdfBytes);
+          console.log("✅ [PDF Route] PDF merge of all annexures completed successfully!");
+        } catch (mergeError) {
+          console.error("❌ [PDF Route] Error merging PDF files:", mergeError);
+        }
+      }
     }
 
     // Generate proper filename with client name and .pdf extension

@@ -84,8 +84,81 @@ const Page13: React.FC<Page13Props> = ({ data, commonFieldsData, settings, schem
         
         <StandardHeader images={images} /> 
 
-        {/* Authorization and Signatures Table */}
-        <div className="flex-1 flex flex-col justify-center" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+        {/* Relocated tables and Authorisation */}
+        <div className="flex-1 flex flex-col justify-center gap-6" style={{ pageBreakInside: "avoid", breakInside: "avoid" }}>
+          
+          {/* Safe Meeting Point Table */}
+          <div>
+            <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+              <thead>
+                <tr className="bg-gray-300">
+                  <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-left w-1/3`}>
+                    Participant household safe meeting point in case of emergency
+                  </th>
+                  <th className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader} text-left w-2/3`}>
+                    Details
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
+                    Address
+                  </td>
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`}>
+                    {getValue('householdSafeAddress') || "N/A"}
+                  </td>
+                </tr>
+                <tr>
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
+                    Description
+                  </td>
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`}>
+                    {getValue('householdSafeDesc') || "N/A"}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mode of Communication Table */}
+          <div>
+            <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+              <tbody>
+                <tr className="bg-gray-300">
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader}`} colSpan={2}>
+                    Mode of Communication assessment for non-verbal participants (e.g., Sign language, pictures, body movement)
+                  </td>
+                </tr>
+                
+                <tr className="bg-gray-100">
+                  <td className={`${cellClass} w-1/3 ${A4_PDF_TYPOGRAPHY.label}`}>
+                    Possible scenarios of concern
+                  </td>
+                  <td className={`${cellClass} w-2/3 ${A4_PDF_TYPOGRAPHY.label}`}>
+                    Mode of communication
+                  </td>
+                </tr>
+                
+                {[1, 2].map((i) => (
+                  <tr key={i}>
+                    <td className={`${cellClass} align-top w-1/3`} style={{ minHeight: "50px" }}>
+                      <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
+                        {getValue(`scenario${i}`) || "N/A"}
+                      </div>
+                    </td>
+                    <td className={`${cellClass} align-top w-2/3`} style={{ minHeight: "50px" }}>
+                      <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
+                        {getValue(`mode${i}`) || "N/A"}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Authorization and Signatures Table */}
           <table className={`table-auto border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
             <thead>
               <tr className="bg-gray-300">

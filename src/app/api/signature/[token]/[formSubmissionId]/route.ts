@@ -766,7 +766,7 @@ export async function POST(
         }));
 
         const emailResponse = await fetch(
-          `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`,
+          `${process.env.INTERNAL_API_URL || req.nextUrl.origin || process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1016,7 +1016,7 @@ export async function PUT(
 
         if (adminId) {
           try {
-            const emailUrl = `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`;
+            const emailUrl = `${process.env.INTERNAL_API_URL || req.nextUrl.origin || process.env.NEXTAUTH_URL || process.env.VERCEL_URL}/api/notifications/send-email/${adminId}`;
             console.log(`📧 [STAFF SUBMITTED] Email API URL: ${emailUrl}`);
 
             const emailPayload = {

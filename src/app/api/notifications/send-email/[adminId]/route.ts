@@ -195,19 +195,19 @@ export async function POST(
 
     switch (type) {
       case "batch_completed":
-        emailResult = await handleBatchCompletedEmail(data, emailConfig, adminIdParam);
+        emailResult = await handleBatchCompletedEmail(data, emailConfig, adminIdParam, req.nextUrl.origin);
         break;
       case "test_email":
         emailResult = await handleTestEmail(emailConfig, adminIdParam);
         break;
       case "client_confirmation":
-        emailResult = await handleClientConfirmationEmail(data, emailConfig, adminIdParam);
+        emailResult = await handleClientConfirmationEmail(data, emailConfig, adminIdParam, req.nextUrl.origin);
         break;
       case "client_test":
         emailResult = await handleClientTestEmail(data, emailConfig, adminIdParam);
         break;
       case "dual_notification":
-        emailResult = await handleDualNotificationEmail(data, emailConfig, adminIdParam);
+        emailResult = await handleDualNotificationEmail(data, emailConfig, adminIdParam, req.nextUrl.origin);
         break;
       case "staff_form_submitted":
         emailResult = await handleStaffFormSubmittedEmail(data, emailConfig, adminIdParam);
@@ -299,7 +299,7 @@ export async function GET(
 
 
 // Email handler functions (same as before)
-async function handleBatchCompletedEmail(data: EmailNotificationData, config: any, adminId: any ) {
+async function handleBatchCompletedEmail(data: EmailNotificationData, config: any, adminId: any, origin?: string) {
   console.log(`📨 [ADMIN EMAIL] Starting admin notification`, {
     clientName: data.clientName,
     batchId: data.batchId,
@@ -327,7 +327,7 @@ async function handleBatchCompletedEmail(data: EmailNotificationData, config: an
   console.log(`✅ [ADMIN EMAIL] Email HTML generated`);
 
   console.log(`📎 [ADMIN EMAIL] Generating ${completedForms.length} PDF(s) with adminId: ${adminId}...`);
-  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId);
+  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId, origin);
 
   const attachments = pdfResults
     .filter(result => result.success && result.buffer)
@@ -385,7 +385,7 @@ async function handleTestEmail(config: any, adminId: any) {
   });
 }
 
-async function handleClientConfirmationEmail(data: EmailNotificationData, config: any, adminId: any ) {
+async function handleClientConfirmationEmail(data: EmailNotificationData, config: any, adminId: any, origin?: string) {
   console.log(`📨 [CLIENT EMAIL] Starting client confirmation`, {
     clientName: data.clientName,
     clientEmail: data.clientEmail,
@@ -413,7 +413,7 @@ async function handleClientConfirmationEmail(data: EmailNotificationData, config
   console.log(`✅ [CLIENT EMAIL] Email HTML generated`);
 
   console.log(`📎 [CLIENT EMAIL] Generating ${completedForms.length} PDF(s) with adminId: ${adminId}...`);
-  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId);
+  const pdfResults = await generateMultiplePDFBuffers(completedForms, adminId, origin);
 
   const attachments = pdfResults
     .filter(result => result.success && result.buffer)
@@ -472,7 +472,7 @@ async function handleClientTestEmail(data: EmailNotificationData, config: any, a
   });
 }
 
-async function handleDualNotificationEmail(data: EmailNotificationData, config: any, adminId: any) {
+async function handleDualNotificationEmail(data: EmailNotificationData, config: any, adminId: any, origin?: string) {
   console.log(`📨📨 [DUAL EMAIL] Starting DUAL notification (Admin + Client)`, {
     clientName: data.clientName,
     clientEmail: data.clientEmail,
@@ -492,11 +492,11 @@ async function handleDualNotificationEmail(data: EmailNotificationData, config: 
   }
 
   console.log(`📧 [DUAL EMAIL] Sending email to ADMIN (${config.adminEmail})...`);
-  const adminResult = await handleBatchCompletedEmail(data, config, adminId);
+  const adminResult = await handleBatchCompletedEmail(data, config, adminId, origin);
   console.log(`${adminResult.success ? '✅' : '❌'} [DUAL EMAIL] Admin email ${adminResult.success ? 'SUCCESS' : 'FAILED'}`);
 
   console.log(`📧 [DUAL EMAIL] Sending email to CLIENT (${clientEmail})...`);
-  const clientResult = await handleClientConfirmationEmail(data, config, adminId);
+  const clientResult = await handleClientConfirmationEmail(data, config, adminId, origin);
   console.log(`${clientResult.success ? '✅' : '❌'} [DUAL EMAIL] Client email ${clientResult.success ? 'SUCCESS' : 'FAILED'}`);
 
   const bothSuccess = adminResult.success && clientResult.success;

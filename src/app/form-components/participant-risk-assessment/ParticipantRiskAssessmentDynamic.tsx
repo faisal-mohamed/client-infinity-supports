@@ -326,7 +326,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
             <div className="border-r border-black">
               <div className="bg-gray-200 font-semibold p-2 border-b border-black">Medical Emergency</div>
               <div className="p-2">
-                <p className="text-xs mb-2">Assess the situation:</p>
+                <p className="text-xs mb-2">Assess the situation</p>
                 <ul className="list-disc list-inside text-xs space-y-1">
                   <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
                   <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
@@ -518,8 +518,9 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
     { key: "risk9", label: "Is the client known to be affected by crowds?", questionNum: 9 },
     { key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?", questionNum: 10 },
     { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11 },
-    { key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)", questionNum: 12 },
-    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)", questionNum: 13 }
+    { key: "behaviorPractitionerInvolved", label: "Is there a behaviour practitioner involved?", questionNum: 12 },
+    { key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)", questionNum: 13 },
+    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)", questionNum: 14 }
   ];
 
   // Filter risk questions to only show answered ones - SHOW ALL QUESTIONS
@@ -664,7 +665,6 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
       </thead>
       <tbody>
         {questions.map((question) => {
-          const isQ11 = question.key === 'familyBehavioralHistory';
           return (
             <tr key={question.key}>
               <td className="border border-black px-2 py-2 text-center align-top">
@@ -699,29 +699,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
                 {getValue(`${question.key}Rating`)}
               </td>
               <td className="border border-black px-2 py-2 align-top">
-                {isQ11 ? (
-                  <div>
-                    {(() => {
-                      const commentText = getValue(`${question.key}Comment`);
-                      return commentText ? (
-                        <div className="mb-2">{commentText}</div>
-                      ) : null;
-                    })()}
-                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
-                    <div className="flex flex-col gap-1">
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'yes')} readOnly className="w-3 h-3" />
-                        <span>YES</span>
-                      </label>
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked('behaviorPractitionerInvolved', 'no')} readOnly className="w-3 h-3" />
-                        <span>NO</span>
-                      </label>
-                    </div>
-                  </div>
-                ) : (
-                  getValue(`${question.key}Comment`)
-                )}
+                {getValue(`${question.key}Comment`)}
               </td>
             </tr>
           );

@@ -3,6 +3,17 @@
 import React from "react";
 import { format, parseISO, isValid } from "date-fns";
 import A4PageWrapper from "./A4PageWrapper";
+import dynamic from "next/dynamic";
+
+const AnnexurePDFViewer = dynamic(() => import("./AnnexurePDFViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center justify-center py-20 text-gray-500 w-[794px] min-h-[400px] bg-white rounded-3xl shadow-md border border-gray-100 print:hidden">
+      <div className="w-10 h-10 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin mb-4"></div>
+      <p className="text-sm font-medium text-gray-600">Loading document pages...</p>
+    </div>
+  ),
+});
 
 // Unified date formatter
 const formatDate = (value: string) => {
@@ -95,6 +106,39 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
   images,
   settings
 }) => {
+
+  const [annexuresList, setAnnexuresList] = React.useState<Array<{ name: string; url: string }>>([]);
+
+  React.useEffect(() => {
+    const list = formData?.annexures || (formData?.annexurePdf ? [{ name: formData.annexurePdfName || "annexure.pdf", data: formData.annexurePdf }] : []);
+    const createdUrls: string[] = [];
+    
+    const newAnnexures = list.map((annex: any, idx: number) => {
+      if (!annex.data) return null;
+      try {
+        const base64Data = annex.data.split(",")[1] || annex.data;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        createdUrls.push(url);
+        return { name: annex.name || `annexure_${idx + 1}.pdf`, url };
+      } catch (error) {
+        console.error("Error creating PDF object URL for annexure:", annex.name, error);
+        return null;
+      }
+    }).filter(Boolean) as Array<{ name: string; url: string }>;
+
+    setAnnexuresList(newAnnexures);
+
+    return () => {
+      createdUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [formData?.annexures, formData?.annexurePdf, formData?.annexurePdfName]);
 
   // Common field mapping
   const commonFieldMapping: Record<string, string> = {
@@ -606,75 +650,80 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     )
   });
 
-  // 9. EMERGENCY CONTACT NUMBERS
+  // 9a. EMERGENCY CONTACT NUMBERS
   allFormSections.push({
-    type: "emergency-contacts",
-    height: 200,
+    type: "emergency-contact-numbers",
+    height: 100,
     content: () => (
-      <div>
-        <table className="w-full border border-black border-collapse text-xs mb-4">
-          <thead>
-            <tr>
-              <th colSpan={3} className="border border-black px-2 py-1 text-left font-bold bg-gray-300">
-                Emergency Contact Numbers
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-black px-2 py-1 w-1/3">Police</td>
-              <td className="border border-black px-2 py-1 text-center" colSpan={2} rowSpan={3}>
-                <img src="/participant_risk_assessment_emergency.png" alt="000 Emergency" className="max-h-[60px] mx-auto" />
-              </td>
-            </tr>
-            <tr>
-              <td className="border border-black px-2 py-1">Fire</td>
-            </tr>
-            <tr>
-              <td className="border border-black px-2 py-1">Ambulance</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table className="w-full border border-black border-collapse text-xs">
-          <thead>
-            <tr>
-              <th colSpan={3} className="border border-black px-2 py-1 text-left font-bold bg-gray-300">
-                Utilities
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border border-black px-2 py-1 w-1/3">Electricity Authority</td>
-              <td className="border border-black px-2 py-1">Western Power</td>
-              <td className="border border-black px-2 py-1">13 13 51</td>
-            </tr>
-            <tr>
-              <td className="border border-black px-2 py-1">Water Authority</td>
-              <td className="border border-black px-2 py-1">Water Corp</td>
-              <td className="border border-black px-2 py-1">13 13 75</td>
-            </tr>
-            <tr>
-              <td className="border border-black px-2 py-1">Gas Authority</td>
-              <td className="border border-black px-2 py-1">ATCO Gas</td>
-              <td className="border border-black px-2 py-1">13 13 52</td>
-            </tr>
-            <tr>
-              <td className="border border-black px-2 py-1">State Emergency</td>
-              <td className="border border-black px-2 py-1">SES</td>
-              <td className="border border-black px-2 py-1">13 25 00</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <table className="w-full border border-black border-collapse text-xs">
+        <thead>
+          <tr>
+            <th colSpan={3} className="border border-black px-2 py-1 text-left font-bold bg-gray-300">
+              Emergency Contact Numbers
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="border border-black px-2 py-1 w-1/3">Police</td>
+            <td className="border border-black px-2 py-1 text-center" colSpan={2} rowSpan={3}>
+              <img src="/participant_risk_assessment_emergency.png" alt="000 Emergency" className="max-h-[60px] mx-auto" />
+            </td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1">Fire</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1">Ambulance</td>
+          </tr>
+        </tbody>
+      </table>
     )
   });
 
-  // 10. CRISIS SUPPORT NUMBERS
+  // 9b. UTILITIES
   allFormSections.push({
-    type: "crisis-support",
-    height: 320,
+    type: "utilities",
+    height: 120,
+    content: () => (
+      <table className="w-full border border-black border-collapse text-xs">
+        <thead>
+          <tr>
+            <th colSpan={3} className="border border-black px-2 py-1 text-left font-bold bg-gray-300">
+              Utilities
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="border border-black px-2 py-1 w-1/3">Electricity Authority</td>
+            <td className="border border-black px-2 py-1">Western Power</td>
+            <td className="border border-black px-2 py-1">13 13 51</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1">Water Authority</td>
+            <td className="border border-black px-2 py-1">Water Corp</td>
+            <td className="border border-black px-2 py-1">13 13 75</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1">Gas Authority</td>
+            <td className="border border-black px-2 py-1">ATCO Gas</td>
+            <td className="border border-black px-2 py-1">13 13 52</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1">State Emergency</td>
+            <td className="border border-black px-2 py-1">SES</td>
+            <td className="border border-black px-2 py-1">13 25 00</td>
+          </tr>
+        </tbody>
+      </table>
+    )
+  });
+
+  // 10a. OTHER KEY CONTACTS
+  allFormSections.push({
+    type: "other-key-contacts",
+    height: 300,
     content: () => (
       <table className="w-full border border-black border-collapse text-xs">
         <thead>
@@ -686,7 +735,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         </thead>
         <tbody>
           <tr>
-            <td className="border border-black px-2 py-1">Health Direct</td>
+            <td className="w-1/3 border border-black px-2 py-1">Health Direct</td>
             <td className="border border-black px-2 py-1" colSpan={2}>1800 022 222</td>
           </tr>
           <tr>
@@ -715,39 +764,68 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
               1300 555 788 (Perth)<br />1300 676 822 (Peel)
             </td>
           </tr>
+          <tr>
+            <td className="border border-black px-2 py-1 align-top" rowSpan={5}>
+              <div className="font-bold mb-1">Advocacy Services</div>
+              <div className="italic text-[10px]">(Infinity Supports WA does not recommend any particular advocacy provider. You are free to choose any service that best suits your needs.)</div>
+            </td>
+            <td className="border border-black px-2 py-1" colSpan={2}>Advocare (Aged &amp; Disability Advocacy) : 1800 655 566</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1" colSpan={2}>People With Disabilities WA (PWdWA) : 1800 193 331</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1" colSpan={2}>Developmental Disability WA (DDWA) : (08) 9420 7203</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1" colSpan={2}>Advocacy WA : (08) 9474 6222</td>
+          </tr>
+          <tr>
+            <td className="border border-black px-2 py-1" colSpan={2}>Mental Health Advocacy Service : 1800 999 057</td>
+          </tr>
+        </tbody>
+      </table>
+    )
+  });
 
+  // 10b. TYPE OF SUPPORT PUT IN PLACE - INFINITY PROCESS
+  allFormSections.push({
+    type: "infinity-support-type",
+    height: 150,
+    content: () => (
+      <table className="w-full border border-black border-collapse text-xs">
+        <tbody>
           <tr className="bg-gray-300 font-bold text-xs">
             <td className="border border-black px-2 py-1" colSpan={3}>
               Type of support to be put in place in the event of an emergency or disaster and how we will support the participant (based on the Service agreement)
             </td>
           </tr>
-
           <tr className="font-semibold">
-            <td className="border border-black px-2 py-1">Emergency</td>
+            <td className="w-1/3 border border-black px-2 py-1">Emergency</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
               Support provided to the participants in the event of an emergency
             </td>
           </tr>
           <tr className="align-top">
-            <td className="border border-black px-2 py-1">Infinity is unable to support for extended period</td>
+            <td className="w-1/3 border border-black px-2 py-1">Infinity is unable to support for extended period</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
               Infinity will assist the client/family to source alternative providers
             </td>
           </tr>
           <tr className="align-top">
-            <td className="border border-black px-2 py-1">Client taken ill during support.</td>
+            <td className="w-1/3 border border-black px-2 py-1">Client taken ill during support.</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
               Call 000, Call family, take to nearest ED
             </td>
           </tr>
           <tr className="align-top">
-            <td className="border border-black px-2 py-1">Closure of business</td>
+            <td className="w-1/3 border border-black px-2 py-1">Closure of business</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
               Infinity will assist the client/family to source alternative providers
             </td>
           </tr>
           <tr className="align-top">
-            <td className="border border-black px-2 py-1">Pandemic</td>
+            <td className="w-1/3 border border-black px-2 py-1">Pandemic</td>
             <td className="border border-black px-2 py-1" colSpan={2}>
               Client will reside with family, have essential supports and daily phone check-ins
             </td>
@@ -755,6 +833,48 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         </tbody>
       </table>
     )
+  });
+
+  // 10c. PARTICIPANT SPECIFIC
+  allFormSections.push({
+    type: "participant-specific-emergencies",
+    height: 150,
+    content: () => {
+      const hasEmergencyPlans = Array.from({ length: 10 }, (_, i) => i + 1).some(
+        (num) => getValue(`participantSpecificEmergencyScenario${num}`) || getValue(`participantSpecificEmergencySupport${num}`)
+      );
+
+      if (!hasEmergencyPlans) return <></>;
+
+      return (
+        <table className="w-full border border-black border-collapse text-xs">
+          <tbody>
+            <tr className="bg-gray-300 font-bold text-xs">
+              <td className="border border-black px-2 py-1" colSpan={3}>
+                Participant Specific Emergencies
+              </td>
+            </tr>
+            <tr className="font-semibold bg-gray-100">
+              <td className="w-1/3 border border-black px-2 py-1">Emergency</td>
+              <td className="border border-black px-2 py-1" colSpan={2}>
+                Plan
+              </td>
+            </tr>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+              const scenario = getValue(`participantSpecificEmergencyScenario${num}`);
+              const support = getValue(`participantSpecificEmergencySupport${num}`);
+              if (!scenario && !support) return null;
+              return (
+                <tr key={num} className="align-top">
+                  <td className="w-1/3 border border-black px-2 py-1 font-semibold">{scenario || "N/A"}</td>
+                  <td className="border border-black px-2 py-1" colSpan={2}>{support || "N/A"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      );
+    }
   });
 
   // Continue with more sections in next part...
@@ -771,10 +891,11 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     { key: "risk8", label: "Can the participant use public transport?", questionNum: 8 },
     { key: "risk9", label: "Is the client known to be affected by crowds?", questionNum: 9 },
     { key: "noiseSensitive", label: "Is the client affected by noises or sudden sounds?", questionNum: 10, commentKey: "noiseSensitiveComment" },
-    { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11, commentKey: "familyBehavioralHistoryComment", hasSubQuestion: true, subQuestionKey: "behaviorPractitionerInvolved" },
-    { key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)", questionNum: 12, commentKey: "mobilityIssuesComment" },
-    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)", questionNum: 13, commentKey: "showeringToiletingHazardsComment" },
-    { key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)", questionNum: 14, commentKey: "medicationRiskDepressionComment", isSpecial: true }
+    { key: "familyBehavioralHistory", label: "Is there a history of any family members with behavioural issues?", questionNum: 11, commentKey: "familyBehavioralHistoryComment" },
+    { key: "behaviorPractitionerInvolved", label: "Is there a behaviour practitioner involved?", questionNum: 12, commentKey: "behaviorPractitionerInvolvedComment" },
+    { key: "mobilityIssues", label: "Does the client have mobility issues? (e.g., wheelchair or other?)", questionNum: 13, commentKey: "mobilityIssuesComment" },
+    { key: "showeringToiletingHazards", label: "Have hazards associated with showering, sponging and toileting been considered? (e.g., manual handling/ slips trips and falls/ biological hazards/ humidity, etc.)", questionNum: 14, commentKey: "showeringToiletingHazardsComment" },
+    { key: "medicationRiskDepression", label: "Does the participant take any of the following medications that can cause Respiratory Depression? (Benzodiazepines, Opioids, Polypharmacy, Psychotropic polypharmacy, Combination of any of the above medications)", questionNum: 15, commentKey: "medicationRiskDepressionComment", isSpecial: true }
   ];
 
   // Add risk table as single section - let measured pagination handle splitting naturally
@@ -1025,35 +1146,28 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
     byType('medication-management-detailed'),
     byType('participant-dependency-health-safety'),
     byType('risk-level-selected'),
-    // Place Participant household safe meeting point immediately after risk level
-    byType('household-meeting-point'),
     // Manager notice and Controls Table (split into pages) before the matrix
     byType('risk-discussion-header'),
     ...controlsTableSections,
     byType('risk-matrix'),
-    byType('emergency-contacts'),
-    byType('crisis-support'),
-    byType('communication-modes'),
-    // Emergency Procedures moved here to appear just above Authorisation
+    // 1. What to do in an emergency
     {
       type: 'emergency-procedures',
       height: 360,
       content: () => (
         <table className="w-full border border-black border-collapse text-xs">
-          <thead>
+          <tbody>
             <tr className="bg-gray-300 font-bold text-left">
-              <th className="border border-black p-2" colSpan={2}>What to do in an Emergency</th>
+              <td className="border border-black p-2 font-bold" colSpan={2}>What to do in an Emergency</td>
             </tr>
             <tr className="bg-gray-200 font-semibold text-left">
-              <th className="border border-black p-2">Evacuation Procedures</th>
-              <th className="border border-black p-2">FIRE</th>
+              <td className="border border-black p-2 font-semibold">Evacuation Procedures</td>
+              <td className="border border-black p-2 font-semibold">FIRE</td>
             </tr>
-          </thead>
-          <tbody>
             <tr>
               <td className="border border-black p-2 align-top">
                 <ul className="list-disc list-inside space-y-1">
-                  <h1>Upon hearing the alarm or when the situation requires the participant to leave the premises:</h1>
+                  <li>Upon hearing the alarm or when the situation requires the participant to leave the premises</li>
                   <li>Prepare to evacuate</li>
                   <li>Get your environment ready to be left unattended. Shut down electrical/electronic devices; turn off gas if safe to do so.</li>
                   <li>For fire, close the doors as you go – do not lock them. In the case of a bomb threat, leave doors open. </li>
@@ -1086,7 +1200,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             <tr>
               <td className="border border-black p-2 align-top">
                 <ul className="list-disc list-inside space-y-1">
-                  <h1>Assess the situation:</h1>
+                  <li>Assess the situation</li>
                   <li>Do not move a participant unless they are exposed to a life-threatening situation.</li>
                   <li>In emergency situations contact the ambulance service by dialling 000 then ring supervisor.</li>
                   <li>Arrange for the ambulance to be met.</li>
@@ -1132,6 +1246,20 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
         </table>
       )
     },
+    // 2. Emergency Contact Numbers
+    byType('emergency-contact-numbers'),
+    // 3. Utilities
+    byType('utilities'),
+    // 4. Other key contacts
+    byType('other-key-contacts'),
+    // 5. Type of support put in place - Infinity process
+    byType('infinity-support-type'),
+    // 6. Participant safe meeting point
+    byType('household-meeting-point'),
+    // 7. Mode of communication
+    byType('communication-modes'),
+    // 8. Participant Specific
+    byType('participant-specific-emergencies'),
     // Signatures & Review
     {
       type: 'signatures-review',
@@ -1344,33 +1472,8 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
               </td>
               <td className="border border-black p-2 align-top text-center">{getValue(`${question.ratingKey || `${question.key}Rating`}`)}</td>
               <td className="border border-black p-2 align-top">
-                {/* For Question 11, include any comment text and the sub-question Yes/No */}
-                {question.hasSubQuestion && question.subQuestionKey ? (
-                  <div>
-                    {(() => {
-                      const commentText = getValue(`${question.commentKey || `${question.key}Comment`}`);
-                      return commentText ? (
-                        <div className="mb-2">{commentText}</div>
-                      ) : null;
-                    })()}
-                    <div className="mb-1">Is there a behaviour practitioner involved?</div>
-                    <div className="flex flex-col items-start gap-1">
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'yes')} readOnly className="w-3 h-3" />
-                        <span>YES</span>
-                      </label>
-                      <label className="inline-flex items-center space-x-1">
-                        <input type="checkbox" checked={isChecked(question.subQuestionKey, 'no')} readOnly className="w-3 h-3" />
-                        <span>NO</span>
-                      </label>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {question.commentLabel ? `${question.commentLabel}: ` : ''}
-                    {getValue(`${question.commentKey || `${question.key}Comment`}`)}
-                  </>
-                )}
+                {question.commentLabel ? `${question.commentLabel}: ` : ''}
+                {getValue(`${question.commentKey || `${question.key}Comment`}`)}
               </td>
             </tr>
           );
@@ -1443,6 +1546,50 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
             </div>
           </div>
         </A4PageWrapper>
+      ))}
+
+      {annexuresList.length > 0 && (
+        <div className="w-full max-w-[794px] mx-auto bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 animate-fade-in mt-6 print:hidden flex flex-col gap-6">
+          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-3 border-b border-gray-100 pb-3">
+            <span className="text-xl">📎</span> Attached Annexures / Appendices
+          </h3>
+          <div className="flex flex-col gap-4">
+            {annexuresList.map((annex, index) => (
+              <div key={index} className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-indigo-50/20 rounded-2xl border border-indigo-100/50 hover:bg-indigo-50/40 transition-all shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">📄</span>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm">{annex.name || `annexure_${index + 1}.pdf`}</p>
+                    <p className="text-xs text-gray-500">PDF Document</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const link = document.createElement("a");
+                    link.href = annex.url;
+                    link.download = annex.name || `annexure_${index + 1}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-all shadow-md flex items-center gap-2 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Download PDF
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {annexuresList.map((annex, index) => (
+        <AnnexurePDFViewer
+          key={index}
+          pdfUrl={annex.url}
+          pdfName={annex.name}
+          images={images}
+          settings={settings}
+        />
       ))}
 
       {/* Controls table is now part of the main pages with proper pagination */}

@@ -66,7 +66,15 @@ const Page10: React.FC<Page10Props> = ({
     { label: "Lifeline (24 hours crisis counselling)", phone: "13 11 14" },
     { label: "Beyond Blue", phone: "1300 22 4636" },
     { label: "Crisis Care", phone: "1800 199 008" },
-    { label: "NDIS", phone: "1800 800 110" }
+    { label: "NDIS", phone: "1800 800 110" },
+  ];
+
+  const advocacyContacts = [
+    "Advocare (Aged & Disability Advocacy) : 1800 655 566",
+    "People With Disabilities WA (PWdWA) : 1800 193 331",
+    "Developmental Disability WA (DDWA) : (08) 9420 7203",
+    "Advocacy WA : (08) 9474 6222",
+    "Mental Health Advocacy Service : 1800 999 057"
   ];
 
   const emergencySupport = [
@@ -144,6 +152,28 @@ const Page10: React.FC<Page10Props> = ({
                   </td>
                 </tr>
 
+                {/* Advocacy Services */}
+                <tr>
+                  <td className={`${cellClass} align-top ${A4_PDF_TYPOGRAPHY.label}`} rowSpan={5}>
+                    <div className="font-bold mb-1">Advocacy Services</div>
+                    <div className="italic text-[10px]">(Infinity Supports WA does not recommend any particular advocacy provider. You are free to choose any service that best suits your needs.)</div>
+                  </td>
+                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`} colSpan={2}>{advocacyContacts[0]}</td>
+                </tr>
+                {advocacyContacts.slice(1).map((contact, index) => (
+                  <tr key={`advocacy-${index}`}>
+                    <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`} colSpan={2}>{contact}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Gap between the two tables */}
+            <div className="h-6" />
+
+            {/* Emergency Support Table */}
+            <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+              <tbody>
                 {/* Emergency Support Section Header */}
                 <tr className="bg-gray-300">
                   <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader}`} colSpan={3}>
@@ -154,7 +184,7 @@ const Page10: React.FC<Page10Props> = ({
 
                 {/* Emergency Support Header Row */}
                 <tr className="bg-gray-100">
-                  <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`}>
+                  <td className={`${cellClass} w-1/3 ${A4_PDF_TYPOGRAPHY.label}`}>
                     Emergency
                   </td>
                   <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`} colSpan={2}>
@@ -165,7 +195,7 @@ const Page10: React.FC<Page10Props> = ({
                 {/* Emergency Support Items */}
                 {emergencySupport.map((item, index) => (
                   <tr key={index} className="align-top">
-                    <td className={`${cellClass} align-top ${A4_PDF_TYPOGRAPHY.body}`} style={{ minHeight: "60px" }}>
+                    <td className={`${cellClass} align-top w-1/3 ${A4_PDF_TYPOGRAPHY.body}`} style={{ minHeight: "60px" }}>
                       <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
                         {item.scenario}
                       </div>
@@ -181,7 +211,7 @@ const Page10: React.FC<Page10Props> = ({
                 {/* Additional Emergency Scenarios from form data */}
                 {data?.additionalEmergencyScenarios && (
                   <tr className="align-top">
-                    <td className={`${cellClass} align-top ${A4_PDF_TYPOGRAPHY.body}`} style={{ minHeight: "60px" }}>
+                    <td className={`${cellClass} align-top w-1/3 ${A4_PDF_TYPOGRAPHY.body}`} style={{ minHeight: "60px" }}>
                       <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
                         Additional Scenarios
                       </div>
@@ -195,6 +225,55 @@ const Page10: React.FC<Page10Props> = ({
                 )}
               </tbody>
             </table>
+
+            {(() => {
+              const hasEmergencyPlans = Array.from({ length: 10 }, (_, i) => i + 1).some(
+                (num) => data?.[`participantSpecificEmergencyScenario${num}`] || data?.[`participantSpecificEmergencySupport${num}`]
+              );
+
+              if (!hasEmergencyPlans) return null;
+
+              return (
+                <>
+                  {/* Gap between the two tables */}
+                  <div className="h-6" />
+
+                  {/* Participant Specific Emergency Table */}
+                  <table className={`table-fixed border border-black w-full border-collapse ${A4_PDF_TYPOGRAPHY.tableCell}`}>
+                    <tbody>
+                      <tr className="bg-gray-300 font-bold">
+                        <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.tableHeader}`} colSpan={3}>
+                          Participant Specific Emergencies
+                        </td>
+                      </tr>
+                      <tr className="bg-gray-100 font-semibold">
+                        <td className={`${cellClass} w-1/3 ${A4_PDF_TYPOGRAPHY.label}`}>Emergency</td>
+                        <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.label}`} colSpan={2}>Plan</td>
+                      </tr>
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+                        const scenario = data?.[`participantSpecificEmergencyScenario${num}`];
+                        const support = data?.[`participantSpecificEmergencySupport${num}`];
+                        if (!scenario && !support) return null;
+                        return (
+                          <tr key={num} className="align-top">
+                            <td className={`${cellClass} w-1/3 ${A4_PDF_TYPOGRAPHY.body}`}>
+                              <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose font-semibold`}>
+                                {scenario || "N/A"}
+                              </div>
+                            </td>
+                            <td className={`${cellClass} ${A4_PDF_TYPOGRAPHY.body}`} colSpan={2}>
+                              <div className={`${A4_PDF_TYPOGRAPHY.body} leading-loose`}>
+                                {support || "N/A"}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </>
+              );
+            })()}
           </div>
         </div>
 
