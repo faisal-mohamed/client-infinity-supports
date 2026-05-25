@@ -52,6 +52,7 @@ textarea[data-auto-resize="true"] {
 .form-field input[type="email"],
 .form-field input[type="password"],
 .form-field input[type="number"],
+.form-field input[type="tel"],
 .form-field input[type="date"],
 .form-field select,
 .form-field textarea {

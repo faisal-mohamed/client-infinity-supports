@@ -191,7 +191,7 @@ export default function LoginPage() {
       }
 
       // Step 3: Sign in with mfaToken
-      const result = await signIn('credentials', {
+      const result = await signIn('admin-credentials', {
         redirect: false,
         email,
         password,

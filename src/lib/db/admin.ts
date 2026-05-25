@@ -16,6 +16,7 @@ export interface Admin {
   name: string;
   email: string;
   passwordHash: string;
+  organizationId?: string;
   resetToken?: string;
   resetTokenExpiry?: string;
   createdAt: string;
@@ -46,7 +47,7 @@ export async function getAdminById(id: string): Promise<Admin | null> {
   return res.Item as Admin;
 }
 
-export async function createAdmin(data: { name: string; email: string; passwordHash: string }): Promise<Admin> {
+export async function createAdmin(data: { name: string; email: string; passwordHash: string; organizationId?: string }): Promise<Admin> {
   const id = generateId();
   const now = nowISO();
   const admin: Admin = { id, ...data, email: data.email.toLowerCase(), createdAt: now, updatedAt: now };
@@ -57,7 +58,7 @@ export async function createAdmin(data: { name: string; email: string; passwordH
         {
           Put: {
             TableName: TABLE,
-            Item: { PK: `ADMIN#${id}`, SK: "PROFILE", entityType: "ADMIN", ...admin },
+            Item: { PK: `ADMIN#${id}`, SK: "PROFILE", entityType: "ADMIN", GSI1PK: "ALL_ADMINS", GSI1SK: now, ...admin },
             ConditionExpression: "attribute_not_exists(PK)",
           },
         },
