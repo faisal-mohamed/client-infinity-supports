@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBatchById, updateBatch } from "@/lib/db";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function PATCH(
   req: NextRequest,
@@ -7,6 +8,9 @@ export async function PATCH(
 ) {
   try {
     const { id, batchId } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
     const body = await req.json();
     const { expiresAt } = body;
 

@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, listClients } from "@/lib/db/client";
 import { createActivityLog } from "@/lib/db/audit";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getTenantContext, isTenantError, checkSubscriptionLimit } from "@/lib/tenant-context";
 
 export async function POST(req: NextRequest) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
+    // Check subscription limit
+    const limitError = await checkSubscriptionLimit(tenant.organizationId, 'clients');
+    if (limitError) {
+      return NextResponse.json({ error: limitError }, { status: 403 });
+    }
+
     const body = await req.json();
     const { name, email, phone, commonFields } = body;
 
@@ -16,11 +24,8 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase();
     const clientName = name?.trim();
 
-    const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id || undefined;
-
     const result = await createClient(
-      { name: clientName, email: normalizedEmail, phone, createdById: adminId },
+      { name: clientName, email: normalizedEmail, phone, createdById: tenant.adminId, organizationId: tenant.organizationId || undefined },
       {
         name: commonFields?.name || clientName,
         age: commonFields?.age,
@@ -38,6 +43,19 @@ export async function POST(req: NextRequest) {
       }
     );
 
+    // Increment subscription usage counter
+    if (tenant.organizationId) {
+      try {
+        const { getSubscriptionByOrgId, updateSubscription } = await import('@/lib/super-admin/db/subscriptions');
+        const sub = await getSubscriptionByOrgId(tenant.organizationId);
+        if (sub) {
+          await updateSubscription(tenant.organizationId, sub.id, {
+            usage: { ...sub.usage, clients: (sub.usage.clients || 0) + 1 },
+          });
+        }
+      } catch (e) { /* non-critical */ }
+    }
+
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error("Error creating client:", error);
@@ -47,9 +65,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const url = new URL(req.url);
 
-    // Email uniqueness check — duplicates are now allowed
     if (url.searchParams.get("exists") === "true") {
       return NextResponse.json({ exists: false });
     }
@@ -62,11 +82,11 @@ export async function GET(req: NextRequest) {
       hasDisability: url.searchParams.get("hasDisability") || undefined,
       page: parseInt(url.searchParams.get("page") || "1"),
       pageSize: parseInt(url.searchParams.get("pageSize") || "10"),
+      organizationId: tenant.organizationId || undefined,
     };
 
     const { clients, pagination } = await listClients(options);
 
-    // Serialize to match existing response shape (commonFields as nested object)
     const serializedClients = clients.map((client) => ({
       id: client.id,
       name: client.name,
@@ -78,7 +98,7 @@ export async function GET(req: NextRequest) {
       archivedAt: client.archivedAt,
       archivedBy: client.archivedBy,
       commonFields: client.commonFields || null,
-      logs: [], // Activity logs fetched separately if needed
+      logs: [],
     }));
 
     return NextResponse.json({ clients: serializedClients, pagination });

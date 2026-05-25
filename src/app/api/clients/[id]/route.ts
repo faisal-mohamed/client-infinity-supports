@@ -2,19 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClientById, updateClient, archiveClient } from "@/lib/db/client";
 import { getClientSubmissions, updateSubmission, getClientAssignments, updateAssignmentStatus } from "@/lib/db/forms";
 import { getAdminById } from "@/lib/db/admin";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getTenantContext, isTenantError } from "@/lib/tenant-context";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { id } = await params;
     if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
 
     const client = await getClientById(id);
     if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
+
+    // Ownership check: ensure client belongs to this org
+    if (tenant.organizationId && client.organizationId && client.organizationId !== tenant.organizationId) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    }
 
     // Fetch createdBy admin info if available
     let createdBy = null;
@@ -39,6 +46,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { id } = await params;
     if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
 
@@ -51,6 +61,11 @@ export async function PUT(
 
     const existing = await getClientById(id);
     if (!existing) return NextResponse.json({ error: "Client not found" }, { status: 404 });
+
+    // Ownership check
+    if (tenant.organizationId && existing.organizationId && existing.organizationId !== tenant.organizationId) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    }
 
     // Update client + common fields
     const updatedClient = await updateClient(id, { name, email, phone }, commonFields || undefined);
@@ -131,17 +146,22 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { id } = await params;
     if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
-
-    const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id || undefined;
 
     const existing = await getClientById(id);
     if (!existing) return NextResponse.json({ error: "Client not found" }, { status: 404 });
     if (existing.archivedAt) return NextResponse.json({ error: "Client is already archived" }, { status: 409 });
 
-    await archiveClient(id, adminId);
+    // Ownership check
+    if (tenant.organizationId && existing.organizationId && existing.organizationId !== tenant.organizationId) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    }
+
+    await archiveClient(id, tenant.adminId);
 
     return NextResponse.json({ success: true, message: "Client and all related data deleted successfully" });
   } catch (error: any) {

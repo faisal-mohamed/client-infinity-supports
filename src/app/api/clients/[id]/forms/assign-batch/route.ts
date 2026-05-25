@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createFormBatch, createFormAssignment, getFormById, createActivityLog } from "@/lib/db";
 import crypto from "crypto";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function POST(
   req: NextRequest,
@@ -8,6 +9,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
     const body = await req.json();
     const { formIds, expiresAt } = body;
 

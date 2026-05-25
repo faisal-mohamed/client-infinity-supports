@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientAssignments, getClientSubmissions } from "@/lib/db";
+import { validateClientOwnership, isOwnershipError } from "@/lib/client-ownership";
 
 export async function GET(
   req: NextRequest,
@@ -7,6 +8,9 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
 
     const [formAssignments, formSubmissions] = await Promise.all([
       getClientAssignments(id),

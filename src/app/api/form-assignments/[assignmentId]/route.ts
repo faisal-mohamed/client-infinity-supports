@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findAssignmentById, getSubmission, archiveAssignment } from "@/lib/db/forms";
 import { getClientById } from "@/lib/db/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import { getTenantContext, isTenantError } from "@/lib/tenant-context";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { assignmentId } = await params;
     if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
 
     const assignment = await findAssignmentById(assignmentId);
     if (!assignment) return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+
+    // Ownership check via client
+    if (tenant.organizationId && assignment.clientId) {
+      const client = await getClientById(assignment.clientId);
+      if (client?.organizationId && client.organizationId !== tenant.organizationId) {
+        return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+      }
+    }
 
     // Get existing submission
     const existingSubmission = await getSubmission(
@@ -61,14 +71,22 @@ export async function DELETE(
     const { assignmentId } = await params;
     if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
 
-    const session = await getServerSession(authOptions);
-    const adminId = session?.user?.id || undefined;
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
 
     const assignment = await findAssignmentById(assignmentId);
     if (!assignment) return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
     if (assignment.archivedAt) return NextResponse.json({ error: "Assignment is already archived" }, { status: 409 });
 
-    await archiveAssignment(assignment.clientId, assignmentId, adminId);
+    // Ownership check
+    if (tenant.organizationId && assignment.clientId) {
+      const client = await getClientById(assignment.clientId);
+      if (client?.organizationId && client.organizationId !== tenant.organizationId) {
+        return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
+      }
+    }
+
+    await archiveAssignment(assignment.clientId, assignmentId, tenant.adminId);
 
     return NextResponse.json({ success: true, message: "Form assignment and all linked data deleted" });
   } catch (error: any) {

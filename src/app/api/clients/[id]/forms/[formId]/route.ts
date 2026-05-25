@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSubmission, getFormById, upsertSubmission, updateAssignmentStatus, getClientAssignments, createActivityLog } from "@/lib/db";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function GET(
   req: NextRequest,
@@ -7,6 +8,9 @@ export async function GET(
 ) {
   try {
     const { id, formId } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
 
     // Get assignments to find the correct formVersion/instanceNumber
     const assignments = await getClientAssignments(id);

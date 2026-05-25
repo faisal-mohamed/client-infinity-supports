@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { getClientById } from "@/lib/db/client";
 import { getClientAssignments, getSubmission, upsertSubmission, createFormBatch, createSignatureBatchForm, updateSubmission } from "@/lib/db/forms";
 import { createActivityLog } from "@/lib/db/audit";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function POST(
   req: NextRequest,
@@ -10,6 +11,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
     if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
 
     const body = await req.json();

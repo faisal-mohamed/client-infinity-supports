@@ -376,19 +376,19 @@ export default function NotificationsPage() {
                           <>
                             Staff has completed their section of{' '}
                             <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
-                            {' '}for client <span className="font-semibold text-yellow-700">{notification.client.name}</span>.
+                            {' '}for client <span className="font-semibold text-yellow-700">{notification.client?.name || 'A client'}</span>.
                             <span className="block mt-1 text-yellow-700 font-medium">Please complete the Follow-up section and add your signature.</span>
                           </>
                         ) : notification.formAssignmentStatus === 'completed' ? (
                           <>
-                            <span className="font-semibold text-emerald-700">{notification.client.name}</span>'s{' '}
+                            <span className="font-semibold text-emerald-700">{notification.client?.name || 'A client'}</span>'s{' '}
                             <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
                             {' '}has been fully completed with all signatures.
                           </>
                         ) : (
                           <>
-                            <span className="font-semibold text-gold-700">{notification.client.name}</span> has successfully signed and submitted{' '}
-                            <span className="font-medium text-azure-700">{notification.formSubmission.form.title}</span>
+                            <span className="font-semibold text-gold-700">{notification.client?.name || 'A client'}</span> has successfully signed and submitted{' '}
+                            <span className="font-medium text-azure-700">{notification.formSubmission?.form?.title || 'a form'}</span>
                           </>
                         )}
                       </p>
@@ -396,7 +396,7 @@ export default function NotificationsPage() {
                       <div className="flex items-center gap-6 text-sm text-azure-400 mb-4">
                         <div className="flex items-center gap-2">
                           <FaUser className="h-4 w-4 text-gold-500" />
-                          <span>{notification.client.email}</span>
+                          <span>{notification.client?.email || 'Unknown'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FaClock className="h-4 w-4 text-azure-300" />
@@ -405,7 +405,7 @@ export default function NotificationsPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Link href={`/admin/clients/${notification.client.id}/forms`}>
+                        <Link href={`/admin/clients/${notification.client?.id || ''}/forms`}>
                           <button
                             className={`px-6 py-2 text-white rounded-xl transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105 ${
                               notification.formAssignmentStatus === 'pending_admin_review'

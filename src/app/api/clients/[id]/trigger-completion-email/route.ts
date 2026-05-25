@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientById, getClientAssignments, getSubmission } from "@/lib/db";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function POST(
   req: NextRequest,
@@ -7,6 +8,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
 
     if (!id) {
       return NextResponse.json(

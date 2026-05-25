@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientById } from "@/lib/db/client";
 import { getClientAssignments, getSubmission } from "@/lib/db/forms";
+import { validateClientOwnership, isOwnershipError } from "@/lib/client-ownership";
 
 export async function GET(
   req: NextRequest,
@@ -10,9 +11,10 @@ export async function GET(
     const { id } = await params;
     if (!id) return NextResponse.json({ error: "Invalid client ID" }, { status: 400 });
 
-    const client = await getClientById(id);
-    if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
 
+    const client = await getClientById(id);
     const assignments = await getClientAssignments(id);
 
     // For each assignment, check if FormSubmission exists

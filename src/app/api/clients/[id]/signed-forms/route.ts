@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClientSubmissions } from "@/lib/db";
 import { getFormConfig } from "@/app/forms/registry";
 import { validateFormSignatures } from "@/lib/signatureValidation";
+import { validateClientOwnership, isOwnershipError } from '@/lib/client-ownership';
 
 export async function GET(
   req: NextRequest,
@@ -9,6 +10,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    const ownership = await validateClientOwnership(id);
+    if (isOwnershipError(ownership)) return ownership;
 
     if (!id) {
       return NextResponse.json(

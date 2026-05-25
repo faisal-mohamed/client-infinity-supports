@@ -32,6 +32,7 @@ export interface Client {
   name?: string;
   email?: string;
   phone?: string;
+  organizationId?: string;
   createdAt: string;
   updatedAt: string;
   createdById?: string;
@@ -48,12 +49,13 @@ export interface ClientListOptions {
   hasDisability?: string;
   page?: number;
   pageSize?: number;
+  organizationId?: string;
 }
 
 // ─── CREATE ──────────────────────────────────────────────────────────────────
 
 export async function createClient(
-  data: { name?: string; email?: string; phone?: string; createdById?: string },
+  data: { name?: string; email?: string; phone?: string; createdById?: string; organizationId?: string },
   commonFields: CommonFields = {}
 ): Promise<Client> {
   const id = generateId();
@@ -66,6 +68,7 @@ export async function createClient(
     name: data.name?.trim(),
     email,
     phone: data.phone,
+    organizationId: data.organizationId,
     createdAt: now,
     updatedAt: now,
     createdById: data.createdById,
@@ -83,7 +86,7 @@ export async function createClient(
               PK: `CLIENT#${id}`,
               SK: "PROFILE",
               entityType: "CLIENT",
-              GSI1PK: "CLIENTS",
+              GSI1PK: data.organizationId ? `ORG#${data.organizationId}#CLIENTS` : "CLIENTS",
               GSI1SK: `ACTIVE#${nameLower}#${id}`,
               GSI2PK: commonFields.state ? `CLIENT_SEARCH#${commonFields.state}` : undefined,
               GSI2SK: commonFields.state ? `${nameLower}#${id}` : undefined,
@@ -157,7 +160,7 @@ export async function listClients(options: ClientListOptions = {}): Promise<{
   clients: Client[];
   pagination: { page: number; pageSize: number; totalCount: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean };
 }> {
-  const { search, state, sex, hasNdis, hasDisability, page = 1, pageSize = 10 } = options;
+  const { search, state, sex, hasNdis, hasDisability, page = 1, pageSize = 10, organizationId } = options;
 
   // Use GSI2 if filtering by state, otherwise GSI1 for all active clients
   let queryParams: any;
@@ -169,11 +172,12 @@ export async function listClients(options: ClientListOptions = {}): Promise<{
       ExpressionAttributeValues: { ":pk": `CLIENT_SEARCH#${state}` } as Record<string, any>,
     };
   } else {
+    const gsi1pk = organizationId ? `ORG#${organizationId}#CLIENTS` : "CLIENTS";
     queryParams = {
       TableName: TABLE,
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :prefix)",
-      ExpressionAttributeValues: { ":pk": "CLIENTS", ":prefix": "ACTIVE#" } as Record<string, any>,
+      ExpressionAttributeValues: { ":pk": gsi1pk, ":prefix": "ACTIVE#" } as Record<string, any>,
     };
   }
 
