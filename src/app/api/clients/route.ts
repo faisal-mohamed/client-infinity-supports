@@ -27,17 +27,9 @@ export async function POST(req: NextRequest) {
     const result = await createClient(
       { name: clientName, email: normalizedEmail, phone, createdById: tenant.adminId, organizationId: tenant.organizationId || undefined },
       {
+        ...commonFields,
         name: commonFields?.name || clientName,
-        age: commonFields?.age,
         email: commonFields?.email || normalizedEmail,
-        sex: commonFields?.sex,
-        street: commonFields?.street,
-        state: commonFields?.state,
-        postCode: commonFields?.postCode,
-        dob: commonFields?.dob,
-        ndis: commonFields?.ndis,
-        disability: commonFields?.disability,
-        address: commonFields?.address,
         phone: commonFields?.phone || phone,
         surname: commonFields?.surname,
       }

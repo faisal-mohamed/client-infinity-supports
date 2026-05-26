@@ -48,9 +48,31 @@ export async function POST(
     });
   }
 
-  // Generate temp password
-  const tempPassword = randomBytes(8).toString('hex') + 'A1!'; // 19 chars, meets 15-char minimum
-  const passwordHash = await bcrypt.hash(tempPassword, 12);
+  // Check for stored credentials from self-registration
+  const { GetCommand, DeleteCommand } = await import('@aws-sdk/lib-dynamodb');
+  const { dynamodb: platformDb, PLATFORM_TABLE } = await import('@/lib/super-admin/db/client');
+
+  const pendingCreds = await platformDb.send(new GetCommand({
+    TableName: PLATFORM_TABLE,
+    Key: { PK: `ORG#${id}`, SK: 'PENDING_CREDENTIALS' },
+  }));
+
+  let passwordHash: string;
+  let tempPassword: string | null = null;
+
+  if (pendingCreds.Item?.passwordHash) {
+    // Self-registered: use their chosen password
+    passwordHash = pendingCreds.Item.passwordHash as string;
+    // Clean up pending credentials
+    await platformDb.send(new DeleteCommand({
+      TableName: PLATFORM_TABLE,
+      Key: { PK: `ORG#${id}`, SK: 'PENDING_CREDENTIALS' },
+    }));
+  } else {
+    // Manual onboarding: generate temp password
+    tempPassword = randomBytes(8).toString('hex') + 'A1!';
+    passwordHash = await bcrypt.hash(tempPassword, 12);
+  }
 
   // Create provider admin user in main table
   const admin = await createAdmin({
@@ -74,11 +96,20 @@ export async function POST(
   // Approve the organization
   await approveOrganization(id, auth.id);
 
-  // Send welcome email with temp password
+  // Send welcome email
   try {
+    const credentialsBlock = tempPassword
+      ? `<div style="background: #f0f4f8; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 8px; color: #627d98; font-size: 14px;">Your login credentials:</p>
+              <p style="margin: 4px 0; color: #002344;"><strong>Email:</strong> ${org.primaryContactEmail}</p>
+              <p style="margin: 4px 0; color: #002344;"><strong>Temporary Password:</strong> ${tempPassword}</p>
+            </div>
+            <p style="color: #627d98; font-size: 14px;">⚠️ Please change your password immediately after first login.</p>`
+      : `<p style="color: #334e68;">You can now log in using the email and password you provided during registration.</p>`;
+
     await sendEmail({
       to: org.primaryContactEmail,
-      subject: 'Welcome to Infinity Supports Platform — Your Account is Ready',
+      subject: 'Welcome to Infinity Supports Platform — Your Account is Approved!',
       adminId: auth.id,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -88,12 +119,7 @@ export async function POST(
           <div style="padding: 32px 24px; background: #ffffff;">
             <h2 style="color: #002344; margin-top: 0;">Welcome, ${org.primaryContactName}!</h2>
             <p style="color: #334e68;">Your organization <strong>${org.name}</strong> has been approved and your admin account is ready.</p>
-            <div style="background: #f0f4f8; border-radius: 8px; padding: 20px; margin: 24px 0;">
-              <p style="margin: 0 0 8px; color: #627d98; font-size: 14px;">Your login credentials:</p>
-              <p style="margin: 4px 0; color: #002344;"><strong>Email:</strong> ${org.primaryContactEmail}</p>
-              <p style="margin: 4px 0; color: #002344;"><strong>Temporary Password:</strong> ${tempPassword}</p>
-            </div>
-            <p style="color: #627d98; font-size: 14px;">⚠️ Please change your password immediately after first login.</p>
+            ${credentialsBlock}
             <a href="${process.env.NEXTAUTH_URL}/admin/login" style="display: inline-block; background: #cab741; color: #002344; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 16px;">Login to Your Dashboard</a>
           </div>
           <div style="padding: 16px 24px; background: #f0f4f8; text-align: center;">

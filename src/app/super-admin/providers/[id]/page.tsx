@@ -155,15 +155,90 @@ export default function ProviderDetailPage() {
           </div>
         </div>
 
-        {(org.suspendedReason || org.notes) && (
-          <div className="card">
-            <div className="card-header"><h3 className="text-sm font-semibold text-azure-700">Notes</h3></div>
-            <div className="card-body text-sm space-y-2">
-              {org.suspendedReason && <p className="text-red-600"><strong>Suspension Reason:</strong> {org.suspendedReason}</p>}
-              {org.notes && <p className="text-azure-500">{org.notes}</p>}
-            </div>
-          </div>
-        )}
+        {(org.suspendedReason || org.notes) && (() => {
+          const details = org.notes ? (() => { try { return JSON.parse(org.notes); } catch { return null; } })() : null;
+          return (
+            <>
+              {org.suspendedReason && (
+                <div className="card">
+                  <div className="card-header"><h3 className="text-sm font-semibold text-red-700">Suspension</h3></div>
+                  <div className="card-body text-sm"><p className="text-red-600">{org.suspendedReason}</p></div>
+                </div>
+              )}
+              {details && (
+                <div className="card">
+                  <div className="card-header"><h3 className="text-sm font-semibold text-azure-700">Registration Details</h3></div>
+                  <div className="card-body space-y-3 text-sm">
+                    <Row label="Account Type" value={details.accountType?.replace(/_/g, ' ')} />
+                    {details.companyStructure && <Row label="Company Structure" value={details.companyStructure.replace(/_/g, ' ')} />}
+                    {details.practitionerType && <Row label="Practitioner Type" value={details.practitionerType.replace(/_/g, ' ')} />}
+                    {details.workerType && <Row label="Worker Type" value={details.workerType.replace(/_/g, ' ')} />}
+                    {details.yearsOfExperience && <Row label="Experience" value={`${details.yearsOfExperience} years`} />}
+                    {details.areasOfExpertise && <Row label="Areas of Expertise" value={details.areasOfExpertise} />}
+                    {details.skillsCategories && <Row label="Skills / Categories" value={details.skillsCategories} />}
+                    {details.website && <Row label="Website" value={details.website} />}
+                    {details.classesOfSupport?.length > 0 && <Row label="Classes of Support" value={details.classesOfSupport.join(', ')} />}
+                    {details.supportMode?.length > 0 && <Row label="Support Mode" value={details.supportMode.join(', ')} />}
+                    {details.servicesOffered?.length > 0 && <Row label="Services Offered" value={details.servicesOffered.join(', ')} />}
+                    {details.availability?.length > 0 && <Row label="Availability" value={details.availability.join(', ')} />}
+                    {details.hasOwnVehicle && <Row label="Own Vehicle" value={details.hasOwnVehicle} />}
+                    {details.travelRadius && <Row label="Travel Radius" value={`${details.travelRadius} km`} />}
+                    {details.membershipNumber && <Row label="Membership Number" value={details.membershipNumber} />}
+                    {details.contactPersonName && <Row label="Contact Person" value={`${details.contactPersonName} (${details.contactPersonDesignation || ''})`} />}
+                    {details.contactPersonEmail && <Row label="Contact Email" value={details.contactPersonEmail} />}
+                    {details.contactPersonPhone && <Row label="Contact Phone" value={details.contactPersonPhone} />}
+                  </div>
+                </div>
+              )}
+              {details && (details.policeCheckId || details.ndisWorkerScreeningId || details.wwccNumber || details.driverLicenseNumber || details.firstAidExpiry) && (
+                <div className="card">
+                  <div className="card-header"><h3 className="text-sm font-semibold text-azure-700">Screening & Compliance</h3></div>
+                  <div className="card-body space-y-3 text-sm">
+                    {details.policeCheckId && <Row label="Police Check ID" value={details.policeCheckId} />}
+                    {details.policeCheckExpiry && <Row label="Police Check Expiry" value={details.policeCheckExpiry} />}
+                    {details.ndisWorkerScreeningId && <Row label="NDIS Worker Screening ID" value={details.ndisWorkerScreeningId} />}
+                    {details.wwccNumber && <Row label="WWCC Number" value={details.wwccNumber} />}
+                    {details.wwccExpiry && <Row label="WWCC Expiry" value={details.wwccExpiry} />}
+                    {details.firstAidExpiry && <Row label="First Aid Expiry" value={details.firstAidExpiry} />}
+                    {details.ndisOrientationModule && <Row label="NDIS Orientation Module" value="Completed" />}
+                    {details.driverLicenseNumber && <Row label="Driver License" value={details.driverLicenseNumber} />}
+                    {details.driverLicenseExpiry && <Row label="License Expiry" value={details.driverLicenseExpiry} />}
+                  </div>
+                </div>
+              )}
+              {details?.bankBsb && (
+                <div className="card">
+                  <div className="card-header"><h3 className="text-sm font-semibold text-azure-700">Payment Details</h3></div>
+                  <div className="card-body space-y-3 text-sm">
+                    {details.bankBsb && <Row label="BSB" value={details.bankBsb} />}
+                    {details.bankAccountNumber && <Row label="Account Number" value={details.bankAccountNumber} />}
+                    {details.bankAccountName && <Row label="Account Name" value={details.bankAccountName} />}
+                  </div>
+                </div>
+              )}
+              {details?.uploadedFiles && Object.keys(details.uploadedFiles).length > 0 && (
+                <div className="card">
+                  <div className="card-header"><h3 className="text-sm font-semibold text-azure-700">Uploaded Documents</h3></div>
+                  <div className="card-body space-y-2 text-sm">
+                    {Object.entries(details.uploadedFiles).map(([id, file]: [string, any]) => (
+                      <div key={id} className="flex items-center justify-between">
+                        <span className="text-azure-400 capitalize">{id.replace(/_/g, ' ')}</span>
+                        <a
+                          href={`/api/upload/download?key=${encodeURIComponent(file.key)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-gold-600 hover:text-gold-700 hover:underline"
+                        >
+                          {file.filename} ↓
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
 
       {/* Reason Modal */}

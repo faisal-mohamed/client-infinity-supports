@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/Toast";
 
 
 import { formatDateForStorage, formatDateForInput } from "@/lib/dateFormatHelper";
+import FileUpload from "@/components/ui/FileUpload";
 
 
 export default function CreateClientPage() {
@@ -117,12 +118,46 @@ export default function CreateClientPage() {
   // Additional client fields
   const [ndisNumber, setNdisNumber] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [age, setAge] = useState<number | null>(null); // Add age state
+  const [age, setAge] = useState<number | null>(null);
   const [address, setAddress] = useState("");
+  const [suburb, setSuburb] = useState("");
   const [state, setState] = useState("");
   const [postCode, setPostCode] = useState("");
   const [disability, setDisability] = useState("");
   const [sex, setSex] = useState("");
+
+  // New fields from Phase II spec
+  const [preferredName, setPreferredName] = useState("");
+  const [pronouns, setPronouns] = useState("");
+  const [homePhone, setHomePhone] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("");
+  const [secondaryDisability, setSecondaryDisability] = useState("");
+  const [emergencyContactName, setEmergencyContactName] = useState("");
+  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
+  const [ndisPlanStartDate, setNdisPlanStartDate] = useState("");
+  const [ndisPlanEndDate, setNdisPlanEndDate] = useState("");
+  const [fundingType, setFundingType] = useState("");
+  // Plan Manager (conditional)
+  const [planManagerName, setPlanManagerName] = useState("");
+  const [planManagerOrg, setPlanManagerOrg] = useState("");
+  const [planManagerEmail, setPlanManagerEmail] = useState("");
+  const [planManagerPhone, setPlanManagerPhone] = useState("");
+  // Nominee (conditional)
+  const [nomineeName, setNomineeName] = useState("");
+  const [nomineeRelationship, setNomineeRelationship] = useState("");
+  const [nomineePhone, setNomineePhone] = useState("");
+  const [nomineeEmail, setNomineeEmail] = useState("");
+  const [nomineeAuthorized, setNomineeAuthorized] = useState("");
+  // Support Coordinator (conditional)
+  const [hasSupportCoordinator, setHasSupportCoordinator] = useState("");
+  const [scName, setScName] = useState("");
+  const [scOrganisation, setScOrganisation] = useState("");
+  const [scAddress, setScAddress] = useState("");
+  const [scEmail, setScEmail] = useState("");
+  const [scPhone, setScPhone] = useState("");
+
+  // File uploads state
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, { key: string; filename: string }>>({});
 
   // Function to calculate age from date of birth
   const calculateAge = (dob: string): number | null => {
@@ -191,22 +226,48 @@ export default function CreateClientPage() {
 
         if (ndisNumber) cleanCommonFields.ndis = ndisNumber;
         if (dateOfBirth) cleanCommonFields.dob = dateOfBirth;
-        if (age !== null) cleanCommonFields.age = age; // Add age to commonFields
+        if (age !== null) cleanCommonFields.age = age;
         if (address) {
           cleanCommonFields.address = address;
           cleanCommonFields.street = address;
         }
+        if (suburb) cleanCommonFields.suburb = suburb;
         if (state) cleanCommonFields.state = state;
-
-        // Handle postCode specially - ensure it's a string
-        if (postCode) {
-          cleanCommonFields.postCode = postCode.toString();
-        }
-
+        if (postCode) cleanCommonFields.postCode = postCode.toString();
         if (disability) cleanCommonFields.disability = disability;
         if (sex) cleanCommonFields.sex = sex;
+        if (surname) cleanCommonFields.surname = surname;
+        // Phase II fields
+        if (preferredName) cleanCommonFields.preferredName = preferredName;
+        if (pronouns) cleanCommonFields.pronouns = pronouns;
+        if (homePhone) cleanCommonFields.homePhone = homePhone;
+        if (preferredLanguage) cleanCommonFields.preferredLanguage = preferredLanguage;
+        if (secondaryDisability) cleanCommonFields.secondaryDisability = secondaryDisability;
+        if (emergencyContactName) cleanCommonFields.emergencyContactName = emergencyContactName;
+        if (emergencyContactPhone) cleanCommonFields.emergencyContactPhone = emergencyContactPhone;
+        if (ndisPlanStartDate) cleanCommonFields.ndisPlanStartDate = ndisPlanStartDate;
+        if (ndisPlanEndDate) cleanCommonFields.ndisPlanEndDate = ndisPlanEndDate;
+        if (fundingType) cleanCommonFields.fundingType = fundingType;
+        if (planManagerName) cleanCommonFields.planManagerName = planManagerName;
+        if (planManagerOrg) cleanCommonFields.planManagerOrg = planManagerOrg;
+        if (planManagerEmail) cleanCommonFields.planManagerEmail = planManagerEmail;
+        if (planManagerPhone) cleanCommonFields.planManagerPhone = planManagerPhone;
+        if (nomineeName) cleanCommonFields.nomineeName = nomineeName;
+        if (nomineeRelationship) cleanCommonFields.nomineeRelationship = nomineeRelationship;
+        if (nomineePhone) cleanCommonFields.nomineePhone = nomineePhone;
+        if (nomineeEmail) cleanCommonFields.nomineeEmail = nomineeEmail;
+        if (nomineeAuthorized) cleanCommonFields.nomineeAuthorized = nomineeAuthorized;
+        if (hasSupportCoordinator) cleanCommonFields.hasSupportCoordinator = hasSupportCoordinator;
+        if (scName) cleanCommonFields.scName = scName;
+        if (scOrganisation) cleanCommonFields.scOrganisation = scOrganisation;
+        if (scAddress) cleanCommonFields.scAddress = scAddress;
+        if (scEmail) cleanCommonFields.scEmail = scEmail;
+        if (scPhone) cleanCommonFields.scPhone = scPhone;
 
-        if(surname) cleanCommonFields.surname = surname;
+        // Include uploaded file references
+        if (Object.keys(uploadedFiles).length > 0) {
+          cleanCommonFields.uploadedFiles = uploadedFiles;
+        }
 
         // Only add commonFields if there's at least one property
         if (Object.keys(cleanCommonFields).length > 0) {
@@ -977,6 +1038,192 @@ export default function CreateClientPage() {
             
 
             {/* Enhanced Navigation Option */}
+
+            {/* Additional Details - Phase II */}
+            <div className="p-8 border-b border-azure-50">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 text-white shadow-md">
+                  <FaIdCard className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-azure-700">Additional Details</h2>
+                  <p className="text-sm text-azure-500 mt-1">Optional participant information</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Preferred Name / Nickname</label>
+                  <input type="text" value={preferredName} onChange={(e) => setPreferredName(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="Preferred name" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Pronouns</label>
+                  <input type="text" value={pronouns} onChange={(e) => setPronouns(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="e.g., He/Him, She/Her, They/Them" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Home Phone</label>
+                  <input type="tel" value={homePhone} onChange={(e) => setHomePhone(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="Home phone number" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Suburb / City</label>
+                  <input type="text" value={suburb} onChange={(e) => setSuburb(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="Suburb or city" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-sm font-bold text-azure-600">Preferred Language & Communication Needs</label>
+                  <input type="text" value={preferredLanguage} onChange={(e) => setPreferredLanguage(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="e.g., English, Auslan, requires interpreter" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-sm font-bold text-azure-600">Secondary Disability</label>
+                  <input type="text" value={secondaryDisability} onChange={(e) => setSecondaryDisability(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" placeholder="Secondary disability or condition" />
+                </div>
+              </div>
+            </div>
+
+            {/* Emergency Contact */}
+            <div className="p-8 border-b border-azure-50">
+              <h3 className="text-base font-semibold text-azure-700 mb-4">Emergency Contact</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Emergency Contact Name</label>
+                  <input type="text" value={emergencyContactName} onChange={(e) => setEmergencyContactName(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">Emergency Contact Phone</label>
+                  <input type="tel" value={emergencyContactPhone} onChange={(e) => setEmergencyContactPhone(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                </div>
+              </div>
+            </div>
+
+            {/* NDIS Plan Details */}
+            <div className="p-8 border-b border-azure-50">
+              <h3 className="text-base font-semibold text-azure-700 mb-4">NDIS Plan Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">NDIS Plan Start Date</label>
+                  <input type="date" value={ndisPlanStartDate} onChange={(e) => setNdisPlanStartDate(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-azure-600">NDIS Plan End Date</label>
+                  <input type="date" value={ndisPlanEndDate} onChange={(e) => setNdisPlanEndDate(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-sm font-bold text-azure-600">Plan Structure / Funding Type</label>
+                  <select value={fundingType} onChange={(e) => setFundingType(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all">
+                    <option value="">Select funding type...</option>
+                    <option value="self_managed">Self Managed</option>
+                    <option value="plan_managed">Plan Managed</option>
+                    <option value="ndia_managed">NDIA Managed</option>
+                    <option value="nominee_managed">Nominee Managed</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Plan Manager (conditional) */}
+              {fundingType === 'plan_managed' && (
+                <div className="mt-6 p-4 bg-azure-50/50 rounded-xl">
+                  <h4 className="text-sm font-semibold text-azure-700 mb-3">Plan Manager Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Plan Manager Name</label>
+                      <input type="text" value={planManagerName} onChange={(e) => setPlanManagerName(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Organisation</label>
+                      <input type="text" value={planManagerOrg} onChange={(e) => setPlanManagerOrg(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Email</label>
+                      <input type="email" value={planManagerEmail} onChange={(e) => setPlanManagerEmail(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Phone</label>
+                      <input type="tel" value={planManagerPhone} onChange={(e) => setPlanManagerPhone(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Nominee (conditional) */}
+              {fundingType === 'nominee_managed' && (
+                <div className="mt-6 p-4 bg-azure-50/50 rounded-xl">
+                  <h4 className="text-sm font-semibold text-azure-700 mb-3">Nominee / Guardian Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Nominee/Guardian Name</label>
+                      <input type="text" value={nomineeName} onChange={(e) => setNomineeName(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Relationship</label>
+                      <input type="text" value={nomineeRelationship} onChange={(e) => setNomineeRelationship(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Phone</label>
+                      <input type="tel" value={nomineePhone} onChange={(e) => setNomineePhone(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-azure-600">Email</label>
+                      <input type="email" value={nomineeEmail} onChange={(e) => setNomineeEmail(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="block text-sm font-medium text-azure-600">Is nominee authorized?</label>
+                      <select value={nomineeAuthorized} onChange={(e) => setNomineeAuthorized(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all">
+                        <option value="">Select...</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Support Coordinator */}
+            <div className="p-8 border-b border-azure-50">
+              <h3 className="text-base font-semibold text-azure-700 mb-4">Support Coordinator</h3>
+              <div className="space-y-2 mb-4">
+                <label className="block text-sm font-bold text-azure-600">Does the participant have a support coordinator?</label>
+                <select value={hasSupportCoordinator} onChange={(e) => setHasSupportCoordinator(e.target.value)} className="w-full md:w-64 border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all">
+                  <option value="">Select...</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+
+              {hasSupportCoordinator === 'yes' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-azure-50/50 rounded-xl">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-azure-600">Coordinator Name</label>
+                    <input type="text" value={scName} onChange={(e) => setScName(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-azure-600">Organisation</label>
+                    <input type="text" value={scOrganisation} onChange={(e) => setScOrganisation(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-azure-600">Email</label>
+                    <input type="email" value={scEmail} onChange={(e) => setScEmail(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-azure-600">Phone</label>
+                    <input type="tel" value={scPhone} onChange={(e) => setScPhone(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="block text-sm font-medium text-azure-600">Address</label>
+                    <input type="text" value={scAddress} onChange={(e) => setScAddress(e.target.value)} className="w-full border border-azure-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gold-500 transition-all" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Document Uploads */}
+            <div className="p-8 border-b border-azure-50">
+              <h3 className="text-base font-semibold text-azure-700 mb-4">Document Uploads</h3>
+              <div className="space-y-3">
+                <ClientFileUpload id="ndis_plan" label="NDIS Plan" subfolder="ndis-plan" files={uploadedFiles} setFiles={setUploadedFiles} />
+                <ClientFileUpload id="govt_id" label="Government ID Proof" subfolder="id-proof" files={uploadedFiles} setFiles={setUploadedFiles} />
+              </div>
+            </div>
+
             <div className="px-8 py-6 bg-gradient-to-r from-gold-50 to-gold-100 border-b border-gold-200">
               <div className="flex items-center gap-4">
                 <input
@@ -1061,5 +1308,24 @@ export default function CreateClientPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+function ClientFileUpload({ id, label, subfolder, files, setFiles }: {
+  id: string;
+  label: string;
+  subfolder: string;
+  files: Record<string, { key: string; filename: string }>;
+  setFiles: React.Dispatch<React.SetStateAction<Record<string, { key: string; filename: string }>>>;
+}) {
+  return (
+    <FileUpload
+      label={label}
+      folder="clients"
+      subfolder={subfolder}
+      value={files[id] || null}
+      onUploaded={(f) => setFiles((prev) => ({ ...prev, [id]: { key: f.key, filename: f.filename } }))}
+      onRemove={() => setFiles((prev) => { const next = { ...prev }; delete next[id]; return next; })}
+    />
   );
 }

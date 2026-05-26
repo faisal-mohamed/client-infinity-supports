@@ -1,42 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminByEmail } from "@/lib/db/admin";
 import { getNotifications } from "@/lib/db/notifications";
-import { getServerSession } from "next-auth";
+import { getClientById } from "@/lib/db/client";
+import { getTenantContext, isTenantError } from "@/lib/tenant-context";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const admin = await getAdminByEmail(session.user.email);
-    if (!admin) {
-      return NextResponse.json({ error: "Admin not found" }, { status: 404 });
-    }
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
 
-    const result = await getNotifications(admin.id, { page, limit, unreadOnly });
+    const result = await getNotifications(tenant.adminId, { page: 1, limit: 200, unreadOnly });
+
+    // Filter notifications to only include those for this org's clients
+    let filtered = result.notifications;
+    if (tenant.organizationId) {
+      const checks = await Promise.all(
+        filtered.map(async (n) => {
+          if (!n.clientId) return true; // Keep non-client notifications
+          const client = await getClientById(n.clientId);
+          if (!client) return false; // Client deleted
+          if (!client.organizationId) return false; // Legacy unscoped client
+          return client.organizationId === tenant.organizationId;
+        })
+      );
+      filtered = filtered.filter((_, i) => checks[i]);
+    }
+
+    const total = filtered.length;
+    const paginated = filtered.slice((page - 1) * limit, page * limit);
 
     return NextResponse.json({
-      notifications: result.notifications,
-      pagination: {
-        page,
-        limit,
-        total: result.total,
-        totalPages: Math.ceil(result.total / limit)
-      }
+      notifications: paginated,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
-
   } catch (error: any) {
     console.error("Error fetching notifications:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch notifications", details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
   }
 }

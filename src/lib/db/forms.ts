@@ -233,6 +233,7 @@ export interface FormAssignment {
   displayOrder: number;
   batchId: string;
   assignedById?: string;
+  organizationId?: string;
   archivedAt?: string;
   archivedBy?: string;
   instanceNumber: number;
@@ -263,6 +264,7 @@ export async function createFormAssignment(data: Omit<FormAssignment, "id" | "as
               GSI2SK: `ORDER#${String(data.displayOrder).padStart(4, "0")}#${id}`,
               GSI3PK: "ALL_ASSIGNMENTS",
               GSI3SK: `STATUS#${data.currentStatus}#${now}#${id}`,
+              organizationId: data.organizationId,
               ...assignment,
             },
           },

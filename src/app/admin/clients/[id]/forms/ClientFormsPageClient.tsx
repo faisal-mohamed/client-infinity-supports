@@ -517,6 +517,7 @@ export default function ClientFormsPageClient() {
       const commonFieldsData = client.commonFields || {};
 
       const fieldsData = {
+        ...commonFieldsData,
         clientId: clientId,
         name: commonFieldsData.name || client.name || '',
         age: commonFieldsData.age || null,
@@ -703,19 +704,8 @@ export default function ClientFormsPageClient() {
           email: commonFields?.email,
           phone: commonFields?.phone,
           commonFields: {
-            name: commonFields.name,
-            age: commonFields.age,
-            email: commonFields.email,
-            sex: commonFields.sex,
-            street: commonFields.street,
-            state: commonFields.state,
-            postCode: commonFields.postCode,
-            dob: commonFields.dob,
-            ndis: commonFields.ndis,
-            disability: commonFields.disability,
-            address: commonFields.address,
-            phone: commonFields.phone,
-            surname: commonFields.surname,
+            ...commonFields,
+            clientId: undefined, // Don't send clientId as a commonField
           }
         }),
       });

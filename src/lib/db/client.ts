@@ -25,6 +25,35 @@ export interface CommonFields {
   disability?: string;
   address?: string;
   phone?: string;
+  // Phase II fields
+  preferredName?: string;
+  pronouns?: string;
+  homePhone?: string;
+  suburb?: string;
+  preferredLanguage?: string;
+  secondaryDisability?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  ndisPlanStartDate?: string;
+  ndisPlanEndDate?: string;
+  fundingType?: string;
+  planManagerName?: string;
+  planManagerOrg?: string;
+  planManagerEmail?: string;
+  planManagerPhone?: string;
+  nomineeName?: string;
+  nomineeRelationship?: string;
+  nomineePhone?: string;
+  nomineeEmail?: string;
+  nomineeAuthorized?: string;
+  hasSupportCoordinator?: string;
+  scName?: string;
+  scOrganisation?: string;
+  scAddress?: string;
+  scEmail?: string;
+  scPhone?: string;
+  uploadedFiles?: Record<string, { key: string; filename: string }>;
+  [key: string]: unknown; // Allow additional fields
 }
 
 export interface Client {

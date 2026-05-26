@@ -17,6 +17,7 @@ import {
   FaCalendarAlt,
   FaUserCircle,
   FaInfoCircle,
+  FaFileAlt,
 } from "react-icons/fa";
 
 export interface CommonField {
@@ -35,6 +36,34 @@ export interface CommonField {
   address?: string;
   phone?: string;
   surname?: string;
+  // Phase II fields
+  preferredName?: string;
+  pronouns?: string;
+  homePhone?: string;
+  suburb?: string;
+  preferredLanguage?: string;
+  secondaryDisability?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  ndisPlanStartDate?: string;
+  ndisPlanEndDate?: string;
+  fundingType?: string;
+  planManagerName?: string;
+  planManagerOrg?: string;
+  planManagerEmail?: string;
+  planManagerPhone?: string;
+  nomineeName?: string;
+  nomineeRelationship?: string;
+  nomineePhone?: string;
+  nomineeEmail?: string;
+  nomineeAuthorized?: string;
+  hasSupportCoordinator?: string;
+  scName?: string;
+  scOrganisation?: string;
+  scAddress?: string;
+  scEmail?: string;
+  scPhone?: string;
+  [key: string]: unknown;
 }
 
 interface CommonFieldsModalProps {
@@ -421,6 +450,208 @@ export default function CommonFieldsModal({
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Phase II Additional Fields - inside scrollable content */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+            {/* Additional Details Card */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-purple-50 to-azure-50 rounded-2xl p-6 border border-purple-100">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="p-2 bg-gradient-to-r from-purple-500 to-azure-500 rounded-xl shadow-lg">
+                    <FaUser className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-azure-700">Additional Details</h4>
+                </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Preferred Name</label>
+                    <input type="text" value={commonFields.preferredName || ''} onChange={(e) => handleFieldChangeWithAge('preferredName', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" placeholder="Preferred name" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Pronouns</label>
+                    <input type="text" value={commonFields.pronouns || ''} onChange={(e) => handleFieldChangeWithAge('pronouns', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" placeholder="e.g., He/Him, She/Her" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Home Phone</label>
+                    <input type="tel" value={commonFields.homePhone || ''} onChange={(e) => handleFieldChangeWithAge('homePhone', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Suburb / City</label>
+                    <input type="text" value={commonFields.suburb || ''} onChange={(e) => handleFieldChangeWithAge('suburb', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Preferred Language & Communication</label>
+                    <input type="text" value={commonFields.preferredLanguage || ''} onChange={(e) => handleFieldChangeWithAge('preferredLanguage', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" placeholder="e.g., English, Auslan" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Secondary Disability</label>
+                    <input type="text" value={commonFields.secondaryDisability || ''} onChange={(e) => handleFieldChangeWithAge('secondaryDisability', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Emergency Contact Card */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-rose-50 to-azure-50 rounded-2xl p-6 border border-rose-100">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="p-2 bg-gradient-to-r from-rose-500 to-azure-500 rounded-xl shadow-lg">
+                    <FaPhone className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-azure-700">Emergency Contact</h4>
+                </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Contact Name</label>
+                    <input type="text" value={commonFields.emergencyContactName || ''} onChange={(e) => handleFieldChangeWithAge('emergencyContactName', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Contact Phone</label>
+                    <input type="tel" value={commonFields.emergencyContactPhone || ''} onChange={(e) => handleFieldChangeWithAge('emergencyContactPhone', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* NDIS Plan & Support Coordinator */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+            {/* NDIS Plan Card */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-gold-50 to-azure-50 rounded-2xl p-6 border border-gold-100">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="p-2 bg-gradient-to-r from-gold-500 to-azure-500 rounded-xl shadow-lg">
+                    <FaFileAlt className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-azure-700">NDIS Plan</h4>
+                </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Plan Start Date</label>
+                    <input type="date" value={commonFields.ndisPlanStartDate || ''} onChange={(e) => handleFieldChangeWithAge('ndisPlanStartDate', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Plan End Date</label>
+                    <input type="date" value={commonFields.ndisPlanEndDate || ''} onChange={(e) => handleFieldChangeWithAge('ndisPlanEndDate', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Funding Type</label>
+                    <select value={commonFields.fundingType || ''} onChange={(e) => handleFieldChangeWithAge('fundingType', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md">
+                      <option value="">Select...</option>
+                      <option value="self_managed">Self Managed</option>
+                      <option value="plan_managed">Plan Managed</option>
+                      <option value="ndia_managed">NDIA Managed</option>
+                      <option value="nominee_managed">Nominee Managed</option>
+                    </select>
+                  </div>
+                  {commonFields.fundingType === 'plan_managed' && (
+                    <>
+                      <div className="pt-2 border-t border-gold-100">
+                        <p className="text-sm font-semibold text-gold-700 mb-3">Plan Manager</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Name</label>
+                        <input type="text" value={commonFields.planManagerName || ''} onChange={(e) => handleFieldChangeWithAge('planManagerName', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Organisation</label>
+                        <input type="text" value={commonFields.planManagerOrg || ''} onChange={(e) => handleFieldChangeWithAge('planManagerOrg', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Email</label>
+                        <input type="email" value={commonFields.planManagerEmail || ''} onChange={(e) => handleFieldChangeWithAge('planManagerEmail', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Phone</label>
+                        <input type="tel" value={commonFields.planManagerPhone || ''} onChange={(e) => handleFieldChangeWithAge('planManagerPhone', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                    </>
+                  )}
+                  {commonFields.fundingType === 'nominee_managed' && (
+                    <>
+                      <div className="pt-2 border-t border-gold-100">
+                        <p className="text-sm font-semibold text-gold-700 mb-3">Nominee / Guardian</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Name</label>
+                        <input type="text" value={commonFields.nomineeName || ''} onChange={(e) => handleFieldChangeWithAge('nomineeName', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Relationship</label>
+                        <input type="text" value={commonFields.nomineeRelationship || ''} onChange={(e) => handleFieldChangeWithAge('nomineeRelationship', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Phone</label>
+                        <input type="tel" value={commonFields.nomineePhone || ''} onChange={(e) => handleFieldChangeWithAge('nomineePhone', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Email</label>
+                        <input type="email" value={commonFields.nomineeEmail || ''} onChange={(e) => handleFieldChangeWithAge('nomineeEmail', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Is Nominee Authorized?</label>
+                        <select value={commonFields.nomineeAuthorized || ''} onChange={(e) => handleFieldChangeWithAge('nomineeAuthorized', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md">
+                          <option value="">Select...</option>
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Support Coordinator Card */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-r from-azure-50 to-azure-50 rounded-2xl p-6 border border-azure-100">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="p-2 bg-gradient-to-r from-azure-500 to-azure-500 rounded-xl shadow-lg">
+                    <FaUser className="h-5 w-5 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-azure-700">Support Coordinator</h4>
+                </div>
+                <div className="space-y-5">
+                  <div>
+                    <label className="text-sm font-semibold text-azure-600 mb-3 block">Has Support Coordinator?</label>
+                    <select value={commonFields.hasSupportCoordinator || ''} onChange={(e) => handleFieldChangeWithAge('hasSupportCoordinator', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md">
+                      <option value="">Select...</option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </div>
+                  {commonFields.hasSupportCoordinator === 'yes' && (
+                    <>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Coordinator Name</label>
+                        <input type="text" value={commonFields.scName || ''} onChange={(e) => handleFieldChangeWithAge('scName', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Organisation</label>
+                        <input type="text" value={commonFields.scOrganisation || ''} onChange={(e) => handleFieldChangeWithAge('scOrganisation', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Email</label>
+                        <input type="email" value={commonFields.scEmail || ''} onChange={(e) => handleFieldChangeWithAge('scEmail', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Phone</label>
+                        <input type="tel" value={commonFields.scPhone || ''} onChange={(e) => handleFieldChangeWithAge('scPhone', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-azure-600 mb-3 block">Address</label>
+                        <input type="text" value={commonFields.scAddress || ''} onChange={(e) => handleFieldChangeWithAge('scAddress', e.target.value)} className="w-full px-4 py-3 border-2 border-azure-100 rounded-xl focus:ring-4 focus:ring-gold-500/20 focus:border-azure-500 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 

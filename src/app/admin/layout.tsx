@@ -6,13 +6,14 @@ import SignOutButton from '@/components/SignOutButton';
 import { ConfirmProvider } from '@/components/ui/Confirm';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { FaTachometerAlt, FaUsers, FaFileAlt, FaCog, FaBars, FaTimes, FaClipboardCheck } from 'react-icons/fa';
+import { FaTachometerAlt, FaUsers, FaFileAlt, FaCog, FaBars, FaTimes, FaClipboardCheck, FaCreditCard } from 'react-icons/fa';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: FaTachometerAlt },
   { href: '/admin/clients', label: 'Clients', icon: FaUsers },
   { href: '/admin/review', label: 'Admin Review', icon: FaClipboardCheck },
   { href: '/admin/forms', label: 'Forms', icon: FaFileAlt },
+  { href: '/admin/billing', label: 'Billing', icon: FaCreditCard },
   { href: '/admin/settings', label: 'Settings', icon: FaCog },
 ];
 

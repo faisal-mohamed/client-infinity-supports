@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
     '/admin/forgot-password',
     '/admin/reset-password',
     '/super-admin/login',
+    '/register',
   ]
 
   const isPublicSignaturePath = pathname.startsWith('/forms/signature/')
@@ -61,5 +62,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin(.*)', '/forms(.*)', '/super-admin(.*)'],
+  matcher: ['/admin(.*)', '/forms(.*)', '/super-admin(.*)', '/register'],
 }

@@ -56,6 +56,7 @@ export async function POST(
         formKey: form.formKey,
         formTitle: form.title,
         requiresSignature: form.requiresSignature,
+        organizationId: ownership.tenant.organizationId || undefined,
       });
       assignments.push(assignment);
     }
@@ -66,6 +67,19 @@ export async function POST(
       action: "Assigned Form Batch",
       metadata: { formIds, batchToken, expiresAt, assignmentCount: formIds.length },
     });
+
+    // Increment subscription usage for forms
+    if (ownership.tenant.organizationId) {
+      try {
+        const { getSubscriptionByOrgId, updateSubscription } = await import('@/lib/super-admin/db/subscriptions');
+        const sub = await getSubscriptionByOrgId(ownership.tenant.organizationId);
+        if (sub) {
+          await updateSubscription(ownership.tenant.organizationId, sub.id, {
+            usage: { ...sub.usage, formsThisMonth: (sub.usage.formsThisMonth || 0) + formIds.length },
+          });
+        }
+      } catch (e) { /* non-critical */ }
+    }
 
     return NextResponse.json({
       batch,

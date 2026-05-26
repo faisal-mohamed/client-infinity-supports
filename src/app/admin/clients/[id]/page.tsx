@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   FaArrowLeft, FaFileAlt, FaUser, FaIdCard, FaCalendarAlt, 
   FaMapMarkerAlt, FaEnvelope, FaPhone, FaVenusMars, 
-  FaClipboardList, FaEdit
+  FaClipboardList, FaEdit, FaGlobe, FaBuilding
 } from 'react-icons/fa';
 import { getClient } from '@/lib/api';
 
@@ -306,12 +306,87 @@ export default function ClientDetailPage() {
                   <h2 className="font-semibold text-azure-700">Disability & Conditions</h2>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="bg-azure-50 rounded-lg p-4">
-                  <p className="text-azure-600 whitespace-pre-line text-sm leading-relaxed">
-                    {client?.commonFields?.disability}
-                  </p>
+              <div className="p-6 space-y-4">
+                <InfoDisplay icon={FaClipboardList} title="Primary Disability" value={client?.commonFields?.disability || ''} color="blue" />
+                {client?.commonFields?.secondaryDisability && <InfoDisplay icon={FaClipboardList} title="Secondary Disability" value={client.commonFields.secondaryDisability} color="purple" />}
+              </div>
+            </div>
+          )}
+
+          {/* Additional Details */}
+          {(client?.commonFields?.preferredName || client?.commonFields?.pronouns || client?.commonFields?.homePhone || client?.commonFields?.preferredLanguage || client?.commonFields?.suburb) && (
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="px-6 py-4 border-b bg-purple-50">
+                <div className="flex items-center gap-3">
+                  <FaUser className="h-5 w-5 text-purple-600" />
+                  <h2 className="font-semibold text-azure-700">Additional Details</h2>
                 </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {client?.commonFields?.preferredName && <InfoDisplay icon={FaUser} title="Preferred Name" value={client.commonFields.preferredName} color="purple" />}
+                {client?.commonFields?.pronouns && <InfoDisplay icon={FaUser} title="Pronouns" value={client.commonFields.pronouns} color="indigo" />}
+                {client?.commonFields?.homePhone && <InfoDisplay icon={FaPhone} title="Home Phone" value={client.commonFields.homePhone} color="green" />}
+                {client?.commonFields?.suburb && <InfoDisplay icon={FaMapMarkerAlt} title="Suburb / City" value={client.commonFields.suburb} color="amber" />}
+                {client?.commonFields?.preferredLanguage && <InfoDisplay icon={FaGlobe} title="Language & Communication" value={client.commonFields.preferredLanguage} color="blue" />}
+              </div>
+            </div>
+          )}
+
+          {/* Emergency Contact */}
+          {(client?.commonFields?.emergencyContactName || client?.commonFields?.emergencyContactPhone) && (
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="px-6 py-4 border-b bg-red-50">
+                <div className="flex items-center gap-3">
+                  <FaPhone className="h-5 w-5 text-red-600" />
+                  <h2 className="font-semibold text-azure-700">Emergency Contact</h2>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {client?.commonFields?.emergencyContactName && <InfoDisplay icon={FaUser} title="Contact Name" value={client.commonFields.emergencyContactName} color="rose" />}
+                {client?.commonFields?.emergencyContactPhone && <InfoDisplay icon={FaPhone} title="Contact Phone" value={client.commonFields.emergencyContactPhone} color="rose" />}
+              </div>
+            </div>
+          )}
+
+          {/* NDIS Plan Details */}
+          {(client?.commonFields?.ndisPlanStartDate || client?.commonFields?.ndisPlanEndDate || client?.commonFields?.fundingType) && (
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="px-6 py-4 border-b bg-green-50">
+                <div className="flex items-center gap-3">
+                  <FaFileAlt className="h-5 w-5 text-green-600" />
+                  <h2 className="font-semibold text-azure-700">NDIS Plan</h2>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {client?.commonFields?.ndisPlanStartDate && <InfoDisplay icon={FaCalendarAlt} title="Plan Start Date" value={client.commonFields.ndisPlanStartDate} color="green" />}
+                {client?.commonFields?.ndisPlanEndDate && <InfoDisplay icon={FaCalendarAlt} title="Plan End Date" value={client.commonFields.ndisPlanEndDate} color="green" />}
+                {client?.commonFields?.fundingType && <InfoDisplay icon={FaFileAlt} title="Funding Type" value={client.commonFields.fundingType.replace(/_/g, ' ')} color="blue" />}
+                {client?.commonFields?.planManagerName && <InfoDisplay icon={FaUser} title="Plan Manager" value={`${client.commonFields.planManagerName} (${client.commonFields.planManagerOrg || ''})`} color="indigo" />}
+                {client?.commonFields?.planManagerEmail && <InfoDisplay icon={FaEnvelope} title="Plan Manager Email" value={client.commonFields.planManagerEmail} color="indigo" />}
+                {client?.commonFields?.planManagerPhone && <InfoDisplay icon={FaPhone} title="Plan Manager Phone" value={client.commonFields.planManagerPhone} color="indigo" />}
+                {client?.commonFields?.nomineeName && <InfoDisplay icon={FaUser} title="Nominee/Guardian" value={`${client.commonFields.nomineeName} (${client.commonFields.nomineeRelationship || ''})`} color="purple" />}
+                {client?.commonFields?.nomineeEmail && <InfoDisplay icon={FaEnvelope} title="Nominee Email" value={client.commonFields.nomineeEmail} color="purple" />}
+                {client?.commonFields?.nomineePhone && <InfoDisplay icon={FaPhone} title="Nominee Phone" value={client.commonFields.nomineePhone} color="purple" />}
+                {client?.commonFields?.nomineeAuthorized && <InfoDisplay icon={FaClipboardList} title="Nominee Authorized" value={client.commonFields.nomineeAuthorized} color="purple" />}
+              </div>
+            </div>
+          )}
+
+          {/* Support Coordinator */}
+          {client?.commonFields?.hasSupportCoordinator === 'yes' && (
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="px-6 py-4 border-b bg-azure-50">
+                <div className="flex items-center gap-3">
+                  <FaUser className="h-5 w-5 text-azure-600" />
+                  <h2 className="font-semibold text-azure-700">Support Coordinator</h2>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {client?.commonFields?.scName && <InfoDisplay icon={FaUser} title="Coordinator Name" value={client.commonFields.scName} color="blue" />}
+                {client?.commonFields?.scOrganisation && <InfoDisplay icon={FaBuilding} title="Organisation" value={client.commonFields.scOrganisation} color="blue" />}
+                {client?.commonFields?.scEmail && <InfoDisplay icon={FaEnvelope} title="Email" value={client.commonFields.scEmail} color="blue" />}
+                {client?.commonFields?.scPhone && <InfoDisplay icon={FaPhone} title="Phone" value={client.commonFields.scPhone} color="blue" />}
+                {client?.commonFields?.scAddress && <InfoDisplay icon={FaMapMarkerAlt} title="Address" value={client.commonFields.scAddress} color="blue" />}
               </div>
             </div>
           )}

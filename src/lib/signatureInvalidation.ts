@@ -14,6 +14,33 @@ export interface CommonField {
   address?: string;
   phone?: string;
   surname?: string;
+  preferredName?: string;
+  pronouns?: string;
+  homePhone?: string;
+  suburb?: string;
+  preferredLanguage?: string;
+  secondaryDisability?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  ndisPlanStartDate?: string;
+  ndisPlanEndDate?: string;
+  fundingType?: string;
+  planManagerName?: string;
+  planManagerOrg?: string;
+  planManagerEmail?: string;
+  planManagerPhone?: string;
+  nomineeName?: string;
+  nomineeRelationship?: string;
+  nomineePhone?: string;
+  nomineeEmail?: string;
+  nomineeAuthorized?: string;
+  hasSupportCoordinator?: string;
+  scName?: string;
+  scOrganisation?: string;
+  scAddress?: string;
+  scEmail?: string;
+  scPhone?: string;
+  [key: string]: unknown;
 }
 
 export interface SignatureInvalidationData {
@@ -31,11 +58,17 @@ export interface SignatureInvalidationData {
  * Detect changes in common fields
  */
 export function detectCommonFieldChanges(original: CommonField | null, updated: CommonField): boolean {
-  if (!original) return true; // If no original data, consider it a change
+  if (!original) return true;
   
   const fieldsToCheck: (keyof CommonField)[] = [
     'name', 'surname', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
-    'dob', 'ndis', 'disability', 'address', 'phone'
+    'dob', 'ndis', 'disability', 'address', 'phone',
+    'preferredName', 'pronouns', 'homePhone', 'suburb', 'preferredLanguage',
+    'secondaryDisability', 'emergencyContactName', 'emergencyContactPhone',
+    'ndisPlanStartDate', 'ndisPlanEndDate', 'fundingType',
+    'planManagerName', 'planManagerOrg', 'planManagerEmail', 'planManagerPhone',
+    'nomineeName', 'nomineeRelationship', 'nomineePhone', 'nomineeEmail', 'nomineeAuthorized',
+    'hasSupportCoordinator', 'scName', 'scOrganisation', 'scAddress', 'scEmail', 'scPhone',
   ];
   
   return fieldsToCheck.some(field => {
@@ -53,14 +86,20 @@ export function getChangedCommonFields(original: CommonField | null, updated: Co
   
   const fieldsToCheck: (keyof CommonField)[] = [
     'name', 'surname', 'age', 'email', 'sex', 'street', 'state', 'postCode', 
-    'dob', 'ndis', 'disability', 'address', 'phone'
+    'dob', 'ndis', 'disability', 'address', 'phone',
+    'preferredName', 'pronouns', 'homePhone', 'suburb', 'preferredLanguage',
+    'secondaryDisability', 'emergencyContactName', 'emergencyContactPhone',
+    'ndisPlanStartDate', 'ndisPlanEndDate', 'fundingType',
+    'planManagerName', 'planManagerOrg', 'planManagerEmail', 'planManagerPhone',
+    'nomineeName', 'nomineeRelationship', 'nomineePhone', 'nomineeEmail', 'nomineeAuthorized',
+    'hasSupportCoordinator', 'scName', 'scOrganisation', 'scAddress', 'scEmail', 'scPhone',
   ];
   
   return fieldsToCheck.filter(field => {
     const originalValue = original[field] || '';
     const updatedValue = updated[field] || '';
     return String(originalValue) !== String(updatedValue);
-  });
+  }) as string[];
 }
 
 /**

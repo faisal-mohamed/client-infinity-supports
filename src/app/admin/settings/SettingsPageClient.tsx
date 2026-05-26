@@ -501,9 +501,10 @@ export default function SettingsPageClient() {
           <p className="text-sm text-azure-400 mt-0.5">
             Manage application settings and form metadata
           </p>
-          <div className="flex items-center gap-2 mt-1 text-azure-400 text-sm">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="font-medium">Configuration panel</span>
+          <div className="flex items-center gap-2 mt-1">
+            <Link href="/admin/settings/team" className="text-sm text-gold-600 font-medium hover:underline">
+              Team Management →
+            </Link>
           </div>
       </div>
   </div>
