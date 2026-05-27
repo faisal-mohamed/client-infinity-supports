@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, listClients } from "@/lib/db/client";
 import { createActivityLog } from "@/lib/db/audit";
-import { getTenantContext, isTenantError, checkSubscriptionLimit } from "@/lib/tenant-context";
+import { getTenantContext, isTenantError, checkSubscriptionLimit, isFeatureEnabled } from "@/lib/tenant-context";
 
 export async function POST(req: NextRequest) {
   try {
     const tenant = await getTenantContext();
     if (isTenantError(tenant)) return tenant;
+
+    // Check feature flag
+    const featureEnabled = await isFeatureEnabled(tenant.organizationId, 'participant_onboarding');
+    if (!featureEnabled) {
+      return NextResponse.json({ error: 'Adding new participants is currently disabled for your account. Please contact your platform administrator.' }, { status: 403 });
+    }
 
     // Check subscription limit
     const limitError = await checkSubscriptionLimit(tenant.organizationId, 'clients');

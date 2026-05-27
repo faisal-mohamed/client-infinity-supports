@@ -28,12 +28,26 @@ import FileUpload from "@/components/ui/FileUpload";
 
 export default function CreateClientPage() {
   const router = useRouter();
+  const [featureBlocked, setFeatureBlocked] = useState<string | null>(null);
+  const [featureChecking, setFeatureChecking] = useState(true);
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Pre-check if participant onboarding is enabled
+  useEffect(() => {
+    fetch('/api/admin/feature-check?feature=participant_onboarding')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.enabled) setFeatureBlocked('Adding new participants is currently disabled for your account. Please reach out to your platform administrator to enable this feature.');
+        else if (data.limitReached) setFeatureBlocked(data.limitMessage);
+      })
+      .catch(() => {})
+      .finally(() => setFeatureChecking(false));
+  }, []);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [checkingEmail, setCheckingEmail] = useState(false);
@@ -331,6 +345,29 @@ export default function CreateClientPage() {
 
   return (
     <div className="bg-gradient-to-br from-white-50 to-white-100 min-h-screen">
+      {/* Feature Block */}
+      {(featureChecking || featureBlocked) && (
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+          {featureChecking ? (
+            <div className="flex items-center justify-center h-40">
+              <FaSave className="w-5 h-5 text-azure-400 animate-spin" />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-lg border border-red-100 p-12">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaTimes className="w-7 h-7 text-red-500" />
+              </div>
+              <h2 className="text-xl font-bold text-azure-700 mb-2">Feature Not Available</h2>
+              <p className="text-azure-500 mb-6">{featureBlocked}</p>
+              <button onClick={() => router.back()} className="px-6 py-3 bg-azure-700 text-white rounded-xl font-medium hover:bg-azure-600 transition-colors">
+                Go Back
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!featureChecking && !featureBlocked && (<>
       {/* Enhanced Header */}
       <div className="bg-white rounded-2xl shadow-lg border border-azure-50 p-8 mb-8 hover:shadow-xl hover:border-gold-400 transition-shadow duration-300">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -1307,6 +1344,7 @@ export default function CreateClientPage() {
           animation: fadeIn 0.4s ease-out forwards;
         }
       `}</style>
+    </>)}
     </div>
   );
 }

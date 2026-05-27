@@ -80,7 +80,7 @@ export default function SettingsPage() {
             ) : (
               <div className="divide-y divide-azure-50">
                 {featureEntries.map(([label, key]) => {
-                  const isEnabled = flags[key] ?? false;
+                  const isEnabled = flags[key] ?? true; // Default: enabled if no override set
                   const isSaving = saving === key;
                   return (
                     <div key={key} className="flex items-center justify-between py-3">

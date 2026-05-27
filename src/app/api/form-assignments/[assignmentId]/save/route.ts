@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findAssignmentById, getSubmission, upsertSubmission, updateAssignmentStatus } from "@/lib/db/forms";
-import { updateCommonFields } from "@/lib/db/client";
+import { updateCommonFields, getClientById } from "@/lib/db/client";
 import { validateFormSignatures } from "@/lib/signatureValidation";
 import { getFormSignatures } from "@/app/forms/registry";
+import { getTenantContext, isTenantError } from "@/lib/tenant-context";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { assignmentId } = await params;
     if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
 
@@ -17,6 +21,14 @@ export async function POST(
 
     const assignment = await findAssignmentById(assignmentId);
     if (!assignment) return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+
+    // Ownership check
+    if (tenant.organizationId && assignment.clientId) {
+      const client = await getClientById(assignment.clientId);
+      if (client?.organizationId && client.organizationId !== tenant.organizationId) {
+        return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+      }
+    }
 
     const formKey = assignment.formKey;
 

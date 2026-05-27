@@ -505,6 +505,10 @@ export default function SettingsPageClient() {
             <Link href="/admin/settings/team" className="text-sm text-gold-600 font-medium hover:underline">
               Team Management →
             </Link>
+            <span className="text-azure-200">|</span>
+            <Link href="/admin/settings/change-password" className="text-sm text-gold-600 font-medium hover:underline">
+              Change Password →
+            </Link>
           </div>
       </div>
   </div>

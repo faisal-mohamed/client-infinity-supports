@@ -81,7 +81,24 @@ export default function BillingPage() {
         </div>
       </div>
 
-      <p className="text-xs text-azure-400 mt-4 text-center">To upgrade your plan, contact the platform administrator.</p>
+      <div className="card mt-6">
+        <div className="card-body flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-azure-700">Need more capacity?</p>
+            <p className="text-xs text-azure-400">Request a plan upgrade from your platform administrator.</p>
+          </div>
+          <button
+            onClick={async () => {
+              const res = await fetch('/api/admin/billing/request-upgrade', { method: 'POST' });
+              if (res.ok) alert('Upgrade request sent to your platform administrator.');
+              else alert('Failed to send request. Please try again.');
+            }}
+            className="btn btn-gold whitespace-nowrap"
+          >
+            Request Upgrade
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

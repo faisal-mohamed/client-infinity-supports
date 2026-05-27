@@ -64,13 +64,26 @@ export default function TeamPage() {
       ) : (
         <div className="card table-container">
           <table className="table">
-            <thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th></th></tr></thead>
             <tbody>
               {members.map((m) => (
                 <tr key={m.id}>
                   <td className="font-medium text-azure-700">{m.name}</td>
                   <td className="text-sm">{m.email}</td>
                   <td className="text-xs text-azure-400">{new Date(m.createdAt).toLocaleDateString('en-AU')}</td>
+                  <td>
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`Remove ${m.name} from the team?`)) return;
+                        const res = await fetch(`/api/admin/team/${m.id}`, { method: 'DELETE' });
+                        if (res.ok) setMembers((prev) => prev.filter((x) => x.id !== m.id));
+                        else { const d = await res.json(); setError(d.error); }
+                      }}
+                      className="text-xs text-azure-400 hover:text-red-600 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -7,12 +7,16 @@ import { createActivityLog } from "@/lib/db/audit";
 import { validateFormSignatures } from "@/lib/signatureValidation";
 import { generatePDFBuffer } from "@/lib/pdf-buffer";
 import { uploadBatchToDrive } from "@/lib/google-drive";
+import { getTenantContext, isTenantError } from "@/lib/tenant-context";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ assignmentId: string }> }
 ) {
   try {
+    const tenant = await getTenantContext();
+    if (isTenantError(tenant)) return tenant;
+
     const { assignmentId } = await params;
     if (!assignmentId) return NextResponse.json({ error: "Invalid assignment ID" }, { status: 400 });
 
@@ -21,6 +25,14 @@ export async function POST(
 
     const assignment = await findAssignmentById(assignmentId);
     if (!assignment) return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+
+    // Ownership check
+    if (tenant.organizationId && assignment.clientId) {
+      const client = await getClientById(assignment.clientId);
+      if (client?.organizationId && client.organizationId !== tenant.organizationId) {
+        return NextResponse.json({ error: "Form assignment not found" }, { status: 404 });
+      }
+    }
 
     const previousStatus = assignment.currentStatus;
     const adminId = assignment.assignedById;
