@@ -83,11 +83,11 @@ const Page22: React.FC<any> = ({settings}: any ) => {
           {/* Agency Pills */}
           <div className="space-y-1 max-w-[400px]">
             {[
-              ['Commission for Children and Young People', 'orange-500', 'white'],
-              ['NDIS Commissions, Complaints, Integrity and Privacy Unit', 'orange-600', 'white'],
-              ['Ombudsman', 'orange-400', 'white'],
-              ['The National Disability Insurance Agency (NDIA)', 'orange-300', 'white'],
-              ['Office of the Commissioner for Privacy and Data Protection', 'orange-200', 'gray-800'],
+              ['Commission for Children and Young People', 'gold-500', 'white'],
+              ['NDIS Commissions, Complaints, Integrity and Privacy Unit', 'gold-600', 'white'],
+              ['Ombudsman', 'gold-400', 'white'],
+              ['The National Disability Insurance Agency (NDIA)', 'gold-300', 'white'],
+              ['Office of the Commissioner for Privacy and Data Protection', 'gold-200', 'gray-800'],
               ['Independent Broad-based Anti-Corruption Commission (IBAC)', 'gray-400', 'white'],
               ['Disability Services Commission', 'gray-500', 'white'],
             ].map(([label, bgColor, textColor], index) => (

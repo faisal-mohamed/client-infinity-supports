@@ -122,8 +122,8 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="flex items-center gap-2 bg-red-100 text-red-700 px-4 py-2 rounded-md text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <div className="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2.5 rounded-xl text-sm border border-red-100">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zM10 13a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
               </svg>
               {error}
@@ -131,7 +131,7 @@ export default function RegisterPage() {
           )}
 
           {successMessage && (
-            <div className="bg-green-100 text-green-700 px-4 py-2 rounded-md text-sm">
+            <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-sm border border-emerald-100">
               {successMessage}
             </div>
           )}
@@ -173,9 +173,9 @@ export default function RegisterPage() {
                 required
                 className={`mt-1 w-full px-4 py-3 pr-12 rounded-xl border focus:ring-2 focus:outline-none transition ${
                   password && getPasswordErrors(password).length === 0
-                    ? 'border-green-300 focus:ring-green-400'
+                    ? 'border-emerald-300 focus:ring-emerald-400'
                     : password
-                    ? 'border-yellow-300 focus:ring-yellow-400'
+                    ? 'border-gold-300 focus:ring-gold-400'
                     : 'border-azure-200 focus:ring-gold-500'
                 }`}
                 placeholder="••••••••"
@@ -192,16 +192,16 @@ export default function RegisterPage() {
             <div className="mt-2 text-xs text-azure-500 space-y-1">
               <p className="font-medium">Password Requirements:</p>
               <ul className="space-y-1 ml-3">
-                <li className={password.length >= 15 ? 'text-green-600' : 'text-azure-400'}>
+                <li className={password.length >= 15 ? 'text-emerald-600' : 'text-azure-400'}>
                   {password.length >= 15 ? '✅' : '○'} At least 15 characters ({password.length}/15)
                 </li>
-                <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
+                <li className={/[A-Z]/.test(password) ? 'text-emerald-600' : 'text-azure-400'}>
                   {/[A-Z]/.test(password) ? '✅' : '○'} At least one uppercase letter (A-Z)
                 </li>
-                <li className={/[0-9]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
+                <li className={/[0-9]/.test(password) ? 'text-emerald-600' : 'text-azure-400'}>
                   {/[0-9]/.test(password) ? '✅' : '○'} At least one number (0-9)
                 </li>
-                <li className={/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? 'text-green-600' : 'text-azure-400'}>
+                <li className={/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? 'text-emerald-600' : 'text-azure-400'}>
                   {/[!@#$%^&*_\-+=\[\]{}|;:,.<>?]/.test(password) ? '✅' : '○'} At least one special character
                 </li>
               </ul>

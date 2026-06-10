@@ -68,7 +68,7 @@ export async function GET(
     );
 
     const signedForms = formsRequiringSignature.filter(
-      sf => sf.formSubmission?.clientSignature !== null
+      sf => sf.formSubmission?.clientSignature === "true"
     );
 
     const completionStatus = {

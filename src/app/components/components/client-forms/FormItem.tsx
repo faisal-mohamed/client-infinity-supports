@@ -1,6 +1,5 @@
 
 
-
 "use client";
 
 import Link from 'next/link';
@@ -23,10 +22,11 @@ import SignatureLinkModal from '@/app/components/components/client-forms/Signatu
 interface FormItemProps {
   assignment: FormAssignmentWithDetails;
   clientId: string | number;
-  selectedForms: number[];
-  downloadingPDF: number | null;
+  selectedForms: (string | number)[];
+  downloadingPDF: string | number | null;
   onFormSelect: (assignmentId: string | number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
+  isStaff?: boolean;
 }
 
 export default function FormItem({
@@ -35,7 +35,8 @@ export default function FormItem({
   selectedForms,
   downloadingPDF,
   onFormSelect,
-  onDownloadPDF
+  onDownloadPDF,
+  isStaff = false
 }: FormItemProps) {
   const router = useRouter();
   const [activeActionMenu, setActiveActionMenu] = useState(false);
@@ -54,35 +55,67 @@ export default function FormItem({
     forms: { formTitle: string; formKey: string }[];
     expiresAt: string;
   } | null>(null);
+  const [isNavigatingToEdit, setIsNavigatingToEdit] = useState(false);
 
   const handleEditClick = () => {
-    // Check if form was sent via signature link but staff hasn't submitted yet
-    // ONLY apply this restriction to Emergency Drill form
     const isWaitingForStaff = assignment.form.formKey === 'emergency_drill' &&
       !assignment.filledByAdmin &&
       !assignment.hasSubmission;
 
     if (isWaitingForStaff) {
-      // Show "waiting for staff" modal
       setShowStaffNotSubmittedModal(true);
       return;
     }
 
-    // Check if editing will invalidate signatures
     const requiresSignatures = formRequiresSignatures(assignment.form.formKey);
     if (requiresSignatures && assignment.currentStatus === 'completed') {
       setShowEditWarningModal(true);
     } else {
-      router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+      const formKey = assignment.form?.formKey?.replace(/_/g, '-') || assignment.id;
+      const editRoute = isStaff
+        ? `/admin/staff/${clientId}/forms/${formKey}`
+        : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+      router.push(editRoute);
     }
   };
 
-  const handleEditConfirm = () => {
+  const handleEditConfirm = async () => {
+    setIsNavigatingToEdit(true);
     setShowEditWarningModal(false);
-    router.push(`/admin/clients/${clientId}/forms/edit/${assignment.id}`);
+
+    try {
+      // For staff forms, clear all signatures before navigating
+      if (isStaff) {
+        try {
+          const clearResponse = await fetch(`/api/staff/${clientId}/forms/${assignment.form.formKey}/clear-all-signatures`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assignmentId: assignment.id })
+          });
+
+          if (!clearResponse.ok) {
+            console.error('Failed to clear signatures:', await clearResponse.text());
+          }
+        } catch (error) {
+          console.error('Error clearing signatures:', error);
+        }
+      }
+
+      const formKey = assignment.form?.formKey?.replace(/_/g, '-') || assignment.id;
+      const editRoute = isStaff
+        ? `/admin/staff/${clientId}/forms/${formKey}`
+        : `/admin/clients/${clientId}/forms/edit/${assignment.id}`;
+      router.push(editRoute);
+    } catch (error) {
+      console.error('Error navigating to edit:', error);
+      setIsNavigatingToEdit(false);
+    }
   };
 
-  const handleEditCancel = () => setShowEditWarningModal(false);
+  const handleEditCancel = () => {
+    setShowEditWarningModal(false);
+    setIsNavigatingToEdit(false);
+  };
 
   const handleDeleteFormAssignment = async () => {
     if (isDeleting) return;
@@ -97,7 +130,11 @@ export default function FormItem({
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/form-assignments/${assignment.id}`, { method: 'DELETE' });
+      // Use staff-form-assignments endpoint for staff, form-assignments for client
+      const apiEndpoint = isStaff
+        ? `/api/staff-form-assignments/${assignment.id}`
+        : `/api/form-assignments/${assignment.id}`;
+      const response = await fetch(apiEndpoint, { method: 'DELETE' });
       if (!response.ok) throw new Error("Failed to delete form assignment");
       window.location.reload();
     } catch (err) {
@@ -115,8 +152,11 @@ export default function FormItem({
   const generateQuickLink = async () => {
     try {
       setGeneratingLink(true);
-      // Generate a signature link for only this assignment
-      const response = await fetch(`/api/clients/${clientId}/generate-signature-link`, {
+      // Use staff endpoint for staff, client endpoint for clients
+      const apiEndpoint = isStaff
+        ? `/api/staff/${clientId}/generate-signature-link`
+        : `/api/clients/${clientId}/generate-signature-link`;
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formAssignmentIds: [assignment.id] })
@@ -164,46 +204,83 @@ export default function FormItem({
   };
 
   const getFormStatus = (assignment: FormAssignmentWithDetails) => {
-    const requiresSignature = formRequiresSignatures(assignment.form.formKey);
+    const formKey = assignment.form.formKey;
+    // Vehicle Safety Inspection does NOT require signature
+    const requiresSignature = formKey === 'vehicle_safety_inspection'
+      ? false
+      : formRequiresSignatures(formKey);
     const status = assignment.currentStatus;
 
-    // Custom Status Logic for Conflict of Interest
-    if (assignment.form.formKey === 'conflict_of_interest' && assignment.formData) {
-      const data = assignment.formData;
-      const hasEmployeeSign = !!data.employeeSignature;
-      const hasParticipantSign = !!data.participantSignature || !!data.authRepSignature;
-      const hasManagerSign = !!data.managerSignature;
-
-      if (hasManagerSign) {
-        return {
-          status: 'All Signatures Complete',
-          color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
-          icon: FaCheckCircle,
-          bgColor: 'from-emerald-500 to-emerald-600',
-          iconColor: 'text-white'
-        };
-      }
-      if (hasParticipantSign && !hasManagerSign) {
-        return {
-          status: 'Manager Review',
-          color: 'from-amber-300 to-amber-400 text-amber-900 border-amber-500',
-          icon: FaExclamationTriangle,
-          bgColor: 'from-amber-500 to-amber-600',
-          iconColor: 'text-white'
-        };
-      }
-      if (hasEmployeeSign && !hasParticipantSign) {
-        return {
-          status: 'Waiting for Participant',
-          color: 'from-azure-300 to-azure-400 text-azure-800 border-azure-500',
-          icon: FaClock,
-          bgColor: 'from-azure-500 to-azure-600',
-          iconColor: 'text-white'
-        };
-      }
-    }
+    // Check if this form requires admin signature
+    const requiresAdminSignature = isStaff && (
+      formKey === 'employee_details' ||
+      formKey === 'employment_details' ||
+      formKey === 'conflict_of_interest' ||
+      formKey === 'bullying_training'
+    );
 
     if (status === "completed") {
+      // For staff forms with admin signatures
+      if (isStaff && requiresAdminSignature) {
+        if (assignment.staffSignature && assignment.adminSignature) {
+          return {
+            status: 'Both Admin and Staff Signed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        if (assignment.adminSignature && !assignment.staffSignature) {
+          return {
+            status: 'Admin Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        if (assignment.staffSignature && !assignment.adminSignature) {
+          return {
+            status: 'Admin Review',
+            color: 'from-gold-300 to-gold-400 text-gold-800 border-gold-500',
+            icon: FaSignature,
+            bgColor: 'from-gold-500 to-gold-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+
+      // For staff forms without admin signatures
+      if (isStaff) {
+        if (formKey === 'vehicle_safety_inspection') {
+          return {
+            status: 'Staff Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+        if (assignment.staffSignature) {
+          return {
+            status: requiresSignature ? 'All Signatures Complete' : 'Staff Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        } else if (assignment.filledByAdmin) {
+          return {
+            status: 'Admin Completed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+
       return {
         status: requiresSignature ? 'All Signatures Complete' : 'Admin Completed',
         color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
@@ -212,25 +289,49 @@ export default function FormItem({
         iconColor: 'text-white'
       };
     }
-    // New status: Admin Review - Staff submitted, waiting for admin to complete
+
+    if (status === "in_progress") {
+      // For staff forms with admin signatures, check signature status
+      if (isStaff && requiresAdminSignature) {
+        if (assignment.staffSignature && !assignment.adminSignature) {
+          return {
+            status: 'Admin Review',
+            color: 'from-gold-300 to-gold-400 text-gold-800 border-gold-500',
+            icon: FaSignature,
+            bgColor: 'from-gold-500 to-gold-600',
+            iconColor: 'text-white'
+          };
+        }
+        if (assignment.staffSignature && assignment.adminSignature) {
+          return {
+            status: 'Both Admin and Staff Signed',
+            color: 'from-emerald-400 to-emerald-500 text-emerald-900 border-emerald-600',
+            icon: FaCheckCircle,
+            bgColor: 'from-emerald-500 to-emerald-600',
+            iconColor: 'text-white'
+          };
+        }
+      }
+
+      return {
+        status: 'In Progress',
+        color: 'from-gold-300 to-gold-400 text-gold-800 border-gold-500',
+        icon: requiresSignature ? FaSignature : FaClock,
+        bgColor: 'from-gold-500 to-gold-600',
+        iconColor: 'text-white'
+      };
+    }
+
     if (status === "pending_admin_review") {
       return {
         status: 'Awaiting Manager',
-        color: 'from-amber-100 to-amber-200 text-amber-800 border-amber-300',
+        color: 'from-gold-100 to-gold-200 text-gold-800 border-gold-300',
         icon: FaSignature,
-        bgColor: 'from-amber-400 to-amber-500',
+        bgColor: 'from-gold-400 to-gold-500',
         iconColor: 'text-white'
       };
     }
-    if (status === "in_progress") {
-      return {
-        status: 'In Progress',
-        color: 'from-amber-300 to-amber-400 text-amber-800 border-amber-500',
-        icon: requiresSignature ? FaSignature : FaClock,
-        bgColor: 'from-amber-500 to-amber-600',
-        iconColor: 'text-white'
-      };
-    }
+
     return {
       status: 'Not Started',
       color: 'from-azure-100 to-azure-200 text-azure-700 border-azure-200',
@@ -248,14 +349,14 @@ export default function FormItem({
     <>
       <div className={`relative p-6 sm:p-8   transition-all duration-200 group ${isSelected ? 'bg-gold-50 border-l-4 border-gold-500' : 'bg-white'
         } border border-azure-50 rounded-2xl`}>
-        {generatingLink && (
+        {(generatingLink || isNavigatingToEdit) && (
           <div className="absolute inset-0 z-20 bg-white/70 backdrop-blur-sm rounded-2xl flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-gold-300 border-t-gold-600 rounded-full animate-spin" />
           </div>
         )}
         <div className="flex flex-col lg:flex-row lg:items-center gap-6">
           <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-            {assignment.adminFilledAt || ['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey) ? (
+            {(isStaff || assignment.adminFilledAt || ['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey)) ? (
               <input
                 type="checkbox"
                 checked={isSelected}
@@ -283,7 +384,9 @@ export default function FormItem({
                     <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r ${statusInfo.color} border-2 shadow-soft`}>
                       {statusInfo.status}
                     </span>
-                    {assignment.form.requiresSignature && assignment.currentStatus !== 'completed' && (
+                    {assignment.form.requiresSignature &&
+                     assignment.form.formKey !== 'vehicle_safety_inspection' &&
+                     assignment.currentStatus !== 'completed' && (
                       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 border-2 border-gold-300 shadow-soft">
                         <FaSignature className="h-3 w-3" />
                         <span className="hidden sm:inline">Signature Required</span>
@@ -309,19 +412,25 @@ export default function FormItem({
                   </div>
                   {assignment.adminFilledAt && (
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-green-600 font-medium">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      <span className="text-emerald-600 font-medium">
                         <span className="hidden sm:inline">Last Edited </span>
                         {new Date(assignment.adminFilledAt).toLocaleDateString()}
                       </span>
                     </div>
                   )}
-                  {assignment.clientSignedAt && (
+                  {(assignment.clientSignedAt || (isStaff && assignment.staffSignedAt)) && (
                     <div className="flex items-center gap-2">
-                      <FaCheckCircle className="h-3 w-3 text-green-500" />
+                      <FaCheckCircle className="h-3 w-3 text-emerald-500" />
                       <span className="text-green-600 font-bold">
                         <span className="hidden sm:inline">Signed </span>
-                        {new Date(assignment.clientSignedAt).toLocaleDateString()}
+                        {(() => {
+                          if (isStaff && assignment.formData?.date) {
+                            const [year, month, day] = assignment.formData.date.split('-');
+                            return `${day}/${month}/${year}`;
+                          }
+                          return new Date((assignment.clientSignedAt || assignment.staffSignedAt)!).toLocaleDateString();
+                        })()}
                       </span>
                     </div>
                   )}
@@ -351,19 +460,34 @@ export default function FormItem({
               clientId={clientId}
               assignmentId={assignment.id}
               hasSubmission={assignment.hasSubmission}
-              onDownloadPDF={() => onDownloadPDF(assignment)}
+              onDownloadPDF={async () => {
+                try {
+                  await onDownloadPDF(assignment);
+                  setActiveActionMenu(false);
+                } catch (error) {
+                  setActiveActionMenu(false);
+                }
+              }}
               downloadingPDF={downloadingPDF === assignment.id}
-              onDeleteClick={handleDeleteFormAssignment}
-              // Show Generate Link only for supported forms
+              onDeleteClick={async () => {
+                try {
+                  await handleDeleteFormAssignment();
+                  setActiveActionMenu(false);
+                } catch (error) {
+                  setActiveActionMenu(false);
+                }
+              }}
+              deletingForm={isDeleting}
               showGenerateLink={['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey)}
               onGenerateLinkClick={generateQuickLink}
               generatingLink={generatingLink}
+              isStaff={isStaff}
+              disabled={showEditWarningModal || isNavigatingToEdit}
             />
           </div>
         </div>
       </div>
 
-      {/* Signature Link Modal for emergency_drill quick action */}
       <SignatureLinkModal
         isOpen={showLinkModal}
         onClose={() => setShowLinkModal(false)}
@@ -379,6 +503,7 @@ export default function FormItem({
         onConfirm={handleEditConfirm}
         formTitle={assignment.form.title}
         onDownload={() => onDownloadPDF(assignment)}
+        isLoading={isNavigatingToEdit}
       />
 
       <StaffNotSubmittedModal
@@ -387,7 +512,6 @@ export default function FormItem({
         formTitle={assignment.form.title}
         onResendLink={() => {
           setShowStaffNotSubmittedModal(false);
-          // Trigger resend link action if needed
           if (['emergency_drill', 'conflict_of_interest'].includes(assignment.form.formKey)) {
             generateQuickLink();
           }

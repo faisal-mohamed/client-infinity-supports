@@ -37,7 +37,7 @@ export async function POST(
     // Forms allowed without admin fill
     const formsAllowedWithoutAdminFill = [
       "emergency_drill", "participant_risk_assessment", "support_action_plan",
-      "schedule_of_supports", "conflict_of_interest",
+      "schedule_of_supports",
     ];
 
     // Get/create submissions for each assignment

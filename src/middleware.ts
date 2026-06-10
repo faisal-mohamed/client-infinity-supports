@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
     '/register',
   ]
 
-  const isPublicSignaturePath = pathname.startsWith('/forms/signature/')
+  const isPublicSignaturePath = pathname.startsWith('/forms/signature/') || pathname.startsWith('/staff/onboard/') || pathname.startsWith('/staff/signature/')
 
   if (publicPaths.includes(pathname) || isPublicSignaturePath) {
     return NextResponse.next()
@@ -62,5 +62,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin(.*)', '/forms(.*)', '/super-admin(.*)', '/register'],
+  matcher: ['/admin(.*)', '/forms(.*)', '/super-admin(.*)', '/register', '/staff(.*)'],
 }

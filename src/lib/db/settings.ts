@@ -26,7 +26,7 @@ export interface AppSetting {
 }
 
 export async function getSettingsByAdmin(adminId: string, category?: string): Promise<AppSetting[]> {
-  let params: any = {
+  const params: any = {
     TableName: SETTINGS_TABLE,
     KeyConditionExpression: category
       ? "PK = :pk AND begins_with(SK, :cat)"
@@ -51,7 +51,10 @@ export async function getSettingByKey(adminId: string, key: string): Promise<App
       ExpressionAttributeValues: { ":pk": `ADMIN#${adminId}`, ":sk": `KEY#${key}` },
     })
   );
-  return res.Items?.[0] ? (res.Items[0] as AppSetting) : null;
+  if (!res.Items || res.Items.length === 0) return null;
+  // Prefer proper category over legacy (general/email)
+  const proper = res.Items.find((i: any) => i.category !== 'general' && i.category !== 'email');
+  return (proper || res.Items[0]) as AppSetting;
 }
 
 export async function upsertSetting(adminId: string, data: Partial<AppSetting> & { key: string }): Promise<AppSetting> {

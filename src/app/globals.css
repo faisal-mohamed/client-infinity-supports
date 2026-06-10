@@ -44,7 +44,7 @@ textarea[data-auto-resize="true"] {
   @apply mb-4;
 }
 
-.form-field label {
+.form-field > label {
   @apply block text-sm font-medium text-azure-700 mb-1.5;
 }
 

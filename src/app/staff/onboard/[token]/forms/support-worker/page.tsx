@@ -1,0 +1,132 @@
+"use client";
+
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import SupportWorkerForm, { SupportWorkerFormRef } from '../../components/SupportWorkerForm';
+import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
+
+export default function SupportWorkerFormPage() {
+  const { token } = useParams<{ token: string }>();
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [staff, setStaff] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const formRef = useRef<SupportWorkerFormRef>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await fetch(`/api/staff/onboard/${token}`);
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        setStaff(data.staff);
+      } catch (error: any) {
+        console.error('Error loading data:', error);
+        showToast({
+          type: 'error',
+          title: 'Failed to Load Form',
+          message: error.message || 'Unable to load form data. Please refresh the page.',
+          duration: 5000,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) loadData();
+  }, [token, showToast]);
+
+  const handleSave = async (isSubmit = false) => {
+    if (!formRef.current) return;
+    
+    setSaving(true);
+    try {
+      const success = await formRef.current.save(isSubmit);
+      
+      if (success && isSubmit) {
+        showToast({
+          type: 'success',
+          title: 'Form Submitted',
+          message: 'Form has been submitted successfully.',
+          duration: 4000,
+        });
+        setTimeout(() => {
+          router.push(`/staff/onboard/${token}`);
+        }, 1500);
+      } else if (success) {
+        showToast({
+          type: 'success',
+          title: 'Draft Saved',
+          message: 'Your progress has been saved.',
+          duration: 3000,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error saving:', error);
+      showToast({
+        type: 'error',
+        title: 'Save Failed',
+        message: error.message || 'Failed to save form. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingView title="Loading Support Worker Form" message="Please wait..." />;
+  }
+
+  return (
+    <div className="min-h-screen bg-azure-100 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4">
+        <div className="bg-white rounded-lg shadow-soft p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-azure-700">Position Description</h1>
+              <p className="text-azure-400">{staff?.firstName} {staff?.surname}</p>
+            </div>
+            <button
+              onClick={() => {
+                const isSignatureLink = window.location.pathname.includes('/staff/signature/');
+                router.push(isSignatureLink ? `/staff/signature/${token}` : `/staff/onboard/${token}`);
+              }}
+              className="px-4 py-2 text-azure-400 hover:text-azure-700"
+            >
+              ← Back to Forms
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-soft p-3 sm:p-6">
+          <SupportWorkerForm 
+            ref={formRef}
+            token={token}
+          />
+          
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t">
+            <button
+              onClick={() => handleSave(false)}
+              disabled={saving}
+              className="w-full sm:w-auto px-6 py-3 bg-azure-500 text-white rounded-lg hover:bg-azure-500 disabled:opacity-50"
+            >
+              {saving ? 'Saving...' : 'Save Draft'}
+            </button>
+            <button
+              onClick={() => handleSave(true)}
+              disabled={saving}
+              className="w-full sm:w-auto px-6 py-3 bg-azure-500 text-white rounded-lg hover:bg-azure-700 disabled:opacity-50"
+            >
+              {saving ? 'Submitting...' : 'Submit & Continue'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -140,7 +140,7 @@ export default function CommonFieldsWarningModal({
                       Data Protection:
                     </h5>
                     <ul className="space-y-1">
-                      <li>• Common field changes affect all client forms</li>
+                      <li>• Common field changes affect all participant forms</li>
                       <li>• Downloaded PDFs preserve original data</li>
                     </ul>
                   </div>
@@ -236,7 +236,7 @@ export default function CommonFieldsWarningModal({
                   No Forms Available
                 </h4>
                 <p className="text-azure-500">
-                  No forms have been assigned to this client yet.
+                  No forms have been assigned to this participant yet.
                 </p>
               </div>
             ) : (
@@ -298,7 +298,7 @@ export default function CommonFieldsWarningModal({
                         )}
                         {assignment.clientSignature === "true" && (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-100 to-green-200 text-green-700 border border-green-300">
-                            Client Signed
+                            Participant Signed
                           </span>
                         )}
                         {!assignment.hasSubmission && (

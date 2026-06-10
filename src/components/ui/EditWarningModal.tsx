@@ -95,6 +95,7 @@ interface EditWarningModalProps {
   onConfirm: () => void;
   formTitle: string;
   onDownload: any;
+  isLoading?: boolean;
 }
 
 export default function EditWarningModal({ 
@@ -102,7 +103,8 @@ export default function EditWarningModal({
   onClose, 
   onConfirm, 
   formTitle,
-  onDownload
+  onDownload,
+  isLoading
 }: EditWarningModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">

@@ -47,7 +47,7 @@ const categoryConfig = {
     label: 'Email Settings',
     icon: FaEnvelope,
     description: 'Email configuration for notifications and communications',
-    color: 'from-green-500 to-green-600'
+    color: 'from-emerald-500 to-emerald-600'
   },
   
   form_ids: {
@@ -293,7 +293,7 @@ export default function SettingsPageClient() {
       case 'email':
         return (
           <div className="relative">
-            <div className="absolute left-4 top-4 p-2 rounded-lg bg-green-100 text-green-600">
+            <div className="absolute left-4 top-4 p-2 rounded-lg bg-emerald-100 text-emerald-600">
               <FaEnvelope className="h-4 w-4" />
             </div>
             <input
@@ -321,7 +321,7 @@ export default function SettingsPageClient() {
                 value={currentValue}
                 onChange={(e) => handleValueChange(setting.key, e.target.value)}
                 placeholder={setting.defaultValue || 'Enter your secret app ID or API key'}
-                className={`${baseInputClasses} pl-16 pr-12 ${hasSpaces ? 'border-amber-400 bg-amber-50' : ''}`}
+                className={`${baseInputClasses} pl-16 pr-12 ${hasSpaces ? 'border-gold-400 bg-gold-50' : ''}`}
                 required={setting.isRequired}
               />
               <button
@@ -342,9 +342,9 @@ export default function SettingsPageClient() {
             {setting.key === 'smtp_password' && (
               <div className="mt-3">
                 {hasSpaces ? (
-                  <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-300 rounded-lg">
-                    <FaExclamationTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-amber-800">
+                  <div className="flex items-start gap-2 p-3 bg-gold-50 border border-gold-300 rounded-lg">
+                    <FaExclamationTriangle className="h-4 w-4 text-gold-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-gold-800">
                       <span className="font-bold">Spaces detected!</span> 
                       <p className="mt-1">
                         Gmail App Passwords should not contain spaces. When you save, spaces will be automatically removed.
@@ -678,8 +678,11 @@ export default function SettingsPageClient() {
                         key={setting.id} 
                         className="border-2 border-azure-100 rounded-2xl p-4 sm:p-8 hover:border-azure-200 hover:shadow-soft transition-all duration-300 bg-gradient-to-br from-white to-azure-50"
                         style={{
+                          animationName: 'fadeInUp',
+                          animationDuration: '0.6s',
+                          animationTimingFunction: 'ease-out',
+                          animationFillMode: 'forwards',
                           animationDelay: `${index * 100}ms`,
-                          animation: 'fadeInUp 0.6s ease-out forwards'
                         }}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
@@ -697,7 +700,7 @@ export default function SettingsPageClient() {
                           
                           {editedValues[setting.key] !== undefined && (
                             <div className="flex-shrink-0">
-                              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 shadow-soft">
+                              <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-gradient-to-r from-gold-100 to-gold-200 text-gold-800 shadow-soft">
                                 <FaEdit className="h-3 w-3" />
                                 Modified
                               </span>

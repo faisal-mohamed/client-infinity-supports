@@ -193,22 +193,13 @@ export async function listClients(options: ClientListOptions = {}): Promise<{
 
   // Use GSI2 if filtering by state, otherwise GSI1 for all active clients
   let queryParams: any;
-  if (state) {
-    queryParams = {
-      TableName: TABLE,
-      IndexName: "GSI2",
-      KeyConditionExpression: "GSI2PK = :pk",
-      ExpressionAttributeValues: { ":pk": `CLIENT_SEARCH#${state}` } as Record<string, any>,
-    };
-  } else {
-    const gsi1pk = organizationId ? `ORG#${organizationId}#CLIENTS` : "CLIENTS";
-    queryParams = {
-      TableName: TABLE,
-      IndexName: "GSI1",
-      KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :prefix)",
-      ExpressionAttributeValues: { ":pk": gsi1pk, ":prefix": "ACTIVE#" } as Record<string, any>,
-    };
-  }
+  const gsi1pk = organizationId ? `ORG#${organizationId}#CLIENTS` : "CLIENTS";
+  queryParams = {
+    TableName: TABLE,
+    IndexName: "GSI1",
+    KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :prefix)",
+    ExpressionAttributeValues: { ":pk": gsi1pk, ":prefix": "ACTIVE#" } as Record<string, any>,
+  };
 
   const res = await dynamodb.send(new QueryCommand(queryParams));
   let clients = (res.Items || []) as Client[];
@@ -229,6 +220,11 @@ export async function listClients(options: ClientListOptions = {}): Promise<{
         (cf.phone || "").includes(s)
       );
     });
+  }
+  if (state) {
+    const stateMap: Record<string, string> = { ACT: "Australian Capital Territory", NSW: "New South Wales", NT: "Northern Territory", QLD: "Queensland", SA: "South Australia", TAS: "Tasmania", VIC: "Victoria", WA: "Western Australia" };
+    const fullName = stateMap[state] || state;
+    clients = clients.filter((c) => c.commonFields?.state === state || c.commonFields?.state === fullName);
   }
   if (sex) clients = clients.filter((c) => c.commonFields?.sex === sex);
   if (hasNdis === "true") clients = clients.filter((c) => !!c.commonFields?.ndis);

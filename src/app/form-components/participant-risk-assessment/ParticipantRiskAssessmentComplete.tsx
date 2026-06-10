@@ -533,7 +533,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
       const level = selected;
       const meta: Record<string, any> = {
         Low: {
-          titleClass: "text-green-600",
+          titleClass: "text-emerald-600",
           description: "Participants have a low reliance on provider services to meet daily living needs.",
           criteria: "Participants can independently perform most daily living activities without assistance. Any disruptions in services would have minimal impact on their overall well-being.",
           impact: "Disruptions in services would have minimal impact on participants' health and safety, as they can manage most activities independently.",
@@ -545,7 +545,7 @@ const ParticipantRiskAssessmentComplete: React.FC<any> = ({
           impact: "Disruptions in services could moderately impact participants' health and safety, particularly for tasks they rely on the provider for.",
         },
         High: {
-          titleClass: "text-yellow-700",
+          titleClass: "text-gold-700",
           description: "Participants have a high reliance on provider services to meet essential daily living needs.",
           criteria: "Participants require significant assistance from the provider for activities of daily living, including personal care, mobility, meal preparation, and medication management. A disruption in services would have a significant impact on their overall well-being and quality of life.",
           impact: "Disruptions in services would significantly impact participants' health and safety, as they rely heavily on the provider for essential tasks.",

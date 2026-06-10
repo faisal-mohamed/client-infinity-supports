@@ -25,8 +25,8 @@ export const CardHeaders = ({stats} : {
     
               <div className="bg-white rounded-xl shadow-sm border border-azure-100/60 p-5 transition-all duration-200">
                 <div className="flex items-center">
-                  <div className="p-3 rounded-lg bg-green-100">
-                    <FaCheckCircle className="h-6 w-6 text-green-600" />
+                  <div className="p-3 rounded-lg bg-emerald-100">
+                    <FaCheckCircle className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-azure-500">Completed</p>

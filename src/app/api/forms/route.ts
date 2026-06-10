@@ -33,14 +33,26 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const formKey = url.searchParams.get("formKey");
+    const type = url.searchParams.get("type");
+
+    // Return staff forms from registry
+    if (type === 'staff') {
+      const { getAllStaffForms } = await import('@/app/forms/staff-registry');
+      const staffForms = getAllStaffForms();
+      return NextResponse.json(staffForms.map((f: any) => ({
+        id: f.key,
+        formKey: f.key,
+        title: f.name,
+        version: 1,
+        requiresSignature: true,
+      })));
+    }
 
     if (formKey) {
-      // Get specific form by key (latest version)
       const form = await getFormByKey(formKey);
       return NextResponse.json(form ? [form] : []);
     }
 
-    // Get all forms (latest versions)
     const forms = await listForms();
     return NextResponse.json(forms);
   } catch (error: any) {

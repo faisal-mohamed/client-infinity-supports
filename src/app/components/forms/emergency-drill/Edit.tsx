@@ -738,7 +738,7 @@ const getCommonFieldValue = (fieldName: string): string => {
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
           {fieldIsReadOnly && isSignatureLink && !isCommon && !drillTypeDisabled && currentStep === 5 && (
-            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+            <span className="ml-2 text-xs text-gold-600 font-semibold bg-gold-50 px-2 py-0.5 rounded-full border border-gold-200">
               View Only
             </span>
           )}
@@ -804,7 +804,7 @@ const getCommonFieldValue = (fieldName: string): string => {
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
           {fieldIsReadOnly && isSignatureLink && !isCommon && !drillTypeDisabled && currentStep === 5 && (
-            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+            <span className="ml-2 text-xs text-gold-600 font-semibold bg-gold-50 px-2 py-0.5 rounded-full border border-gold-200">
               View Only
             </span>
           )}
@@ -908,7 +908,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               {countWords(displayValue)} / 200 words
             </p>
             {countWords(displayValue) > 180 && (
-              <p className="text-xs text-amber-600">
+              <p className="text-xs text-gold-600">
                 ⚠️ Approaching limit
               </p>
             )}
@@ -935,7 +935,7 @@ const getCommonFieldValue = (fieldName: string): string => {
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
           {fieldIsReadOnly && isSignatureLink && currentStep === 5 && (
-            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+            <span className="ml-2 text-xs text-gold-600 font-semibold bg-gold-50 px-2 py-0.5 rounded-full border border-gold-200">
               View Only
             </span>
           )}
@@ -1066,12 +1066,12 @@ const getCommonFieldValue = (fieldName: string): string => {
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
           {fieldReadOnly && isSignatureLink && (
-            <span className="ml-2 text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+            <span className="ml-2 text-xs text-gold-600 font-semibold bg-gold-50 px-2 py-0.5 rounded-full border border-gold-200">
               View Only
             </span>
           )}
           {fieldReadOnly && filledByClient && name === 'supportWorkerSignature' && (
-            <span className="ml-2 text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
+            <span className="ml-2 text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               Staff Signed
             </span>
           )}
@@ -1678,7 +1678,7 @@ const getCommonFieldValue = (fieldName: string): string => {
       {/* Progress Bar */}
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
         <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
-          <div className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all" style={{ width: `${getProgressPercentage()}%` }} />
+          <div className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all" style={{ width: `${getProgressPercentage()}%` }} />
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
@@ -1690,13 +1690,13 @@ const getCommonFieldValue = (fieldName: string): string => {
                 <button
                   type="button"
                   onClick={() => handleStepClick(idx)}
-                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-green-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
+                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-emerald-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
                   aria-current={active ? 'step' : undefined}
                   aria-label={section.title}
                   disabled={!unlocked}
                   tabIndex={unlocked ? 0 : -1}
                 >
-                  <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
+                  <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
                     {completedSteps.has(idx)
                       ? <FaCheck className="w-4 h-4" />
                       : React.createElement(section.icon, { className: "w-4 h-4" })}
@@ -1730,18 +1730,18 @@ const getCommonFieldValue = (fieldName: string): string => {
             
             {/* Notice for Follow-up Section in Signature Link */}
             {isSignatureLink && currentStep === 5 && (
-              <div className="mt-3 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+              <div className="mt-3 p-4 bg-gold-50 border-l-4 border-gold-400 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
-                    <svg className="h-5 w-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-5 w-5 text-gold-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-amber-800 mb-1">
+                    <h3 className="text-sm font-semibold text-gold-800 mb-1">
                       Admin/Supervisor Section - View Only
                     </h3>
-                    <p className="text-xs text-amber-700">
+                    <p className="text-xs text-gold-700">
                       This section is reserved for supervisors and managers. You can view the information but cannot edit it. Your supervisor will complete this section after reviewing the drill.
                     </p>
                   </div>
@@ -1792,18 +1792,18 @@ const getCommonFieldValue = (fieldName: string): string => {
 
             {/* Notice for Admin Review Mode - Follow-up Section */}
             {filledByClient && !isSignatureLink && currentStep === 5 && (
-              <div className="mt-3 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+              <div className="mt-3 p-4 bg-emerald-50 border-l-4 border-green-400 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
-                    <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-5 w-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-green-800 mb-1">
+                    <h3 className="text-sm font-semibold text-emerald-800 mb-1">
                       Supervisor Section - Your Input Required
                     </h3>
-                    <p className="text-xs text-green-700">
+                    <p className="text-xs text-emerald-700">
                       Please complete this Follow-up section. Review the drill details from previous sections and provide your supervisor feedback and next scheduled drill date.
                     </p>
                   </div>
@@ -1813,16 +1813,16 @@ const getCommonFieldValue = (fieldName: string): string => {
 
             {/* Notice for Admin Review Mode - Signatures Section */}
             {filledByClient && !isSignatureLink && currentStep === 6 && (
-              <div className="mt-3 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+              <div className="mt-3 p-4 bg-emerald-50 border-l-4 border-green-400 rounded-r-lg">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5">
-                    <FaSignature className="h-5 w-5 text-green-600" />
+                    <FaSignature className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-green-800 mb-1">
+                    <h3 className="text-sm font-semibold text-emerald-800 mb-1">
                       Supervisor Signature Required
                     </h3>
-                    <p className="text-xs text-green-700">
+                    <p className="text-xs text-emerald-700">
                       The support worker has already signed this form. Please add your supervisor signature and verify the date to complete the approval process.
                     </p>
                   </div>
@@ -1930,7 +1930,7 @@ const getCommonFieldValue = (fieldName: string): string => {
             {FORM_SECTIONS.map((_: any , index: any ) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-emerald-500 border-emerald-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -1950,7 +1950,7 @@ const getCommonFieldValue = (fieldName: string): string => {
               type="button"
               onClick={handleNextSequential}
               disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"}`}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext) ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white border-azure-700 hover:from-azure-800 hover:to-emerald-500"}`}
             >
               <span>Next</span>
               {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
@@ -1968,7 +1968,7 @@ const getCommonFieldValue = (fieldName: string): string => {
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-emerald-400 text-white hover:from-azure-700 hover:to-emerald-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

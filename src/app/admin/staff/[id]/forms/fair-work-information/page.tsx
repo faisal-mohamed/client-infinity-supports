@@ -1,0 +1,119 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useState, useCallback } from "react";
+import FairWorkInformationView from "@/app/form-components/staff/fair-work-information/View";
+import LoadingView from '@/components/ui/LoadingView';
+import { useToast } from '@/components/ui/Toast';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+
+export default function StaffFairworkInformationView() {
+  const { id } = useParams<{ id: string }>();
+  const staffId = id;
+  const { showToast } = useToast();
+  const [staff, setStaff] = useState<any>(null);
+  const [formData, setFormData] = useState<any>(null);
+  const [meta, setMeta] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    if (!staffId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/staff/${staffId}/forms/fair-work-information`);
+      if (!res.ok) throw new Error("Failed to load acknowledgement");
+      const data = await res.json();
+      setStaff(data.staff);
+      setFormData(data.data);
+      setMeta(data.meta || null);
+    } catch (error) {
+      console.error("Error loading fairwork acknowledgement:", error);
+      setFormData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [staffId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(
+        `/api/staff/${staffId}/forms/fair-work-information/pdf?download=true`
+      );
+      if (!res.ok) throw new Error("Failed to download PDF");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Fairwork_Information_${staff?.firstName || ""}_${staff?.surname || ""}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Download error", error);
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingView title="Loading Fair Work Information Form" message="Please wait..." />;
+  }
+
+  const staffName = staff ? `${staff.firstName || ''} ${staff.surname || ''}`.trim() : '';
+  const staffEmail = staff?.email || '';
+
+  return (
+    <div className="">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={staffId.toString()}
+        formTitle="Fairwork Information Statements"
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownload}
+        downloading={downloading}
+        showDownload={true}
+      />
+
+      <div className="">
+        {!formData ? (
+          <div className="bg-white rounded-2xl shadow-soft border border-dashed border-azure-200 p-8 text-center text-azure-400">
+            No acknowledgement has been submitted for this staff member yet.
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl shadow-soft border border-azure-100 p-2 md:p-6">
+            <FairWorkInformationView
+              data={formData}
+              meta={meta}
+              acknowledgementMode="readonly"
+              showDocument={false}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+

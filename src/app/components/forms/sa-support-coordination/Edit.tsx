@@ -1064,7 +1064,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
         <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
           <div
-            className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all"
+            className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all"
             style={{ width: `${getProgressPercentage()}%` }}
           />
         </div>
@@ -1085,7 +1085,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                     active
                       ? "text-azure-700"
                       : unlocked
-                      ? "text-green-600"
+                      ? "text-emerald-600"
                       : "text-azure-300 opacity-50 cursor-not-allowed"
                   }`}
                   aria-current={active ? "step" : undefined}
@@ -1098,7 +1098,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                       active
                         ? "bg-azure-800 border-azure-600 text-white scale-110"
                         : unlocked
-                        ? "bg-green-500 border-green-500 text-white"
+                        ? "bg-emerald-500 border-emerald-500 text-white"
                         : "bg-azure-200 border-azure-200 text-azure-300"
                     }`}
                   >
@@ -1466,7 +1466,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                   index === currentStep
                     ? "bg-azure-600 border-azure-600 shadow"
                     : index < currentStep
-                    ? "bg-green-500 border-green-500"
+                    ? "bg-emerald-500 border-emerald-500"
                     : "bg-azure-200 border-azure-200"
                 }`}
               />
@@ -1501,7 +1501,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
                 !isCurrentSectionComplete() ||
                 navigatingNext
                   ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
-                  : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"
+                  : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white border-azure-700 hover:from-azure-800 hover:to-emerald-500"
               }`}
             >
               <span>Next</span>
@@ -1520,7 +1520,7 @@ const SASupportCoordinationEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-emerald-400 text-white hover:from-azure-700 hover:to-emerald-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

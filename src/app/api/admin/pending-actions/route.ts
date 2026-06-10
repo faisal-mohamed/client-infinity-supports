@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminReviewData } from "@/lib/adminReviewUtils";
+import { getTenantContext } from "@/lib/tenant-context";
 
 export async function GET(req: NextRequest) {
     try {
+        const tenant = await getTenantContext();
+        if (!tenant) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
         const { searchParams } = new URL(req.url);
         const status = searchParams.get("status") || "pending_admin_review";
         const search = searchParams.get("search") || "";
@@ -13,7 +17,8 @@ export async function GET(req: NextRequest) {
             status,
             search,
             page,
-            pageSize
+            pageSize,
+            organizationId: tenant.organizationId
         });
 
         return NextResponse.json(data);

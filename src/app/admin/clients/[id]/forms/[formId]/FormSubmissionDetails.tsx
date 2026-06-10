@@ -141,7 +141,7 @@ export default function FormSubmissionDetails({ formSubmission }: any) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-azure-600">
-                <span className="font-medium">Client:</span> {formSubmission.client.name}
+                <span className="font-medium">Participant:</span> {formSubmission.client.name}
               </p>
               {formSubmission.client.email && (
                 <p className="text-azure-600">

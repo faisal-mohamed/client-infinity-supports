@@ -381,3 +381,45 @@ export async function getFormSchemaById(formId: string | number) {
 }
 
 
+
+// ─── Staff API ───────────────────────────────────────────────────────────────
+
+export async function getStaff(options?: { search?: string; page?: number; pageSize?: number }) {
+  let url = '/api/staff';
+  const params = new URLSearchParams();
+  if (options?.search) params.append('search', options.search);
+  if (options?.page !== undefined) params.append('page', String(options.page));
+  if (options?.pageSize !== undefined) params.append('pageSize', String(options.pageSize));
+  const qs = params.toString();
+  if (qs) url += `?${qs}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch staff');
+  return res.json();
+}
+
+export async function deleteStaff(id: string | number) {
+  const res = await fetch(`/api/staff/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.error || 'Failed to delete staff');
+  }
+  return res.json();
+}
+
+export async function createStaff(staffData: {
+  firstName: string;
+  surname: string;
+  email: string;
+  phone?: string;
+}) {
+  const res = await fetch('/api/staff', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(staffData),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to create staff');
+  }
+  return res.json();
+}

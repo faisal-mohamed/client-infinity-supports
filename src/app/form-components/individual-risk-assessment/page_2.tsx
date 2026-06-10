@@ -55,7 +55,7 @@ const Page2: React.FC<Page2Props> = ({
           <div className="mb-4 text-base leading-tight">
             <p className="mb-1">
               <span className="underline font-normal text-black">MODERATE</span>{' '}
-              <span className="font-normal text-orange-500">ORANGE</span>
+              <span className="font-normal text-gold-500">ORANGE</span>
             </p>
             <p>
               Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk

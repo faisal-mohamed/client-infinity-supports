@@ -336,7 +336,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
           <div className="mb-6">
             <div className="border border-black p-3">
               <h4 className="font-bold text-sm mb-3">Support Worker Signature</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-1">Signature:</p>
                   <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
@@ -372,7 +372,7 @@ const EmergencyDrillDynamic: React.FC<EmergencyDrillDynamicProps> = ({
           <div className="mb-6">
             <div className="border border-black p-3">
               <h4 className="font-bold text-sm mb-3">Supervisor/Manager Signature</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs mb-1">Signature:</p>
                   <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">

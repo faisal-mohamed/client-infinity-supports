@@ -25,15 +25,15 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       title: 'Completed',
       value: stats.completed,
       icon: FaCheckCircle,
-      bgColor: 'bg-green-100',
-      iconColor: 'text-green-600'
+      bgColor: 'bg-emerald-100',
+      iconColor: 'text-emerald-600'
     },
     {
       title: 'Admin Review',
       value: stats.pendingAdminReview || 0,
       icon: FaUserClock,
-      bgColor: 'bg-yellow-100',
-      iconColor: 'text-yellow-600'
+      bgColor: 'bg-gold-100',
+      iconColor: 'text-gold-600'
     },
     {
       title: 'In Progress',

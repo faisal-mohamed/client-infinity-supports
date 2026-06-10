@@ -29,7 +29,7 @@
 //                 className="inline-flex items-center gap-2 px-4 py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-soft"
 //               >
 //                 <FaArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
-//                 <span className="font-semibold">Back to Clients</span>
+//                 <span className="font-semibold">{isStaff ? "Back to Staff" : "Back to Clients"}</span>
 //               </Link>
 //               <div className="hidden sm:block h-8 w-px bg-azure-200"></div>
 //               <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@
 //                   <p className="text-azure-500 text-base sm:text-lg mb-2">{client?.email}</p>
 //                   <div className="flex items-center gap-2">
 //                     <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
-//                     <span className="text-sm font-medium text-azure-400">Active Client</span>
+//                     <span className="text-sm font-medium text-azure-400">{isStaff ? "Staff Member" : "Active Client"}</span>
 //                   </div>
 //                 </div>
 //               </div>
@@ -162,26 +162,26 @@ interface ClientHeaderProps {
     inProgress: number;
     notStarted: number;
   };
+  isStaff?: boolean;
 }
 
-export default function ClientHeader({ clientId, client, stats }: ClientHeaderProps) {
+export default function ClientHeader({ clientId, client, stats, isStaff }: ClientHeaderProps) {
   const completionPercentage =
     stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
   return (
     <div className="mb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
           {/* Main Header Section */}
           <div className="flex flex-col gap-6 md:gap-8 lg:flex-row lg:items-center lg:justify-between mb-6">
             {/* Back + Client Info */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
               <Link
-                href="/admin/clients"
+                href={isStaff ? "/admin/staff" : "/admin/clients"}
                 className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 text-azure-500 hover:text-gold-600 hover:bg-gold-50 rounded-xl transition-all duration-200 group self-start border border-azure-100 hover:border-gold-300 shadow-soft text-sm sm:text-base"
               >
                 <FaArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="font-semibold">Back to Clients</span>
+                <span className="font-semibold">{isStaff ? "Back to Staff" : "Back to Participants"}</span>
               </Link>
 
               <div className="hidden sm:block h-8 w-px bg-azure-200"></div>
@@ -203,7 +203,7 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
                     <span className="text-xs sm:text-sm font-medium text-azure-400">
-                      Active Client
+                      {isStaff ? "Active Staff" : "Active Participant"}
                     </span>
                   </div>
                 </div>
@@ -258,13 +258,13 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
       icon: <FaCheckCircle className="h-5 w-5" />,
       count: stats.completed,
       label: 'Completed',
-      bg: 'bg-green-500',
+      bg: 'bg-emerald-500',
     },
     {
       icon: <FaClock className="h-5 w-5" />,
       count: stats.inProgress,
       label: 'In Progress',
-      bg: 'bg-amber-500',
+      bg: 'bg-gold-500',
     },
     {
       icon: <FaCircle className="h-5 w-5" />,
@@ -301,7 +301,6 @@ export default function ClientHeader({ clientId, client, stats }: ClientHeaderPr
 </div>
 
         </div>
-      </div>
     </div>
   );
 }

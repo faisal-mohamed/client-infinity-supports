@@ -12,7 +12,7 @@ const config: Config = {
         sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        brand: {
+        azure: {
           50: '#f0f4f8',
           100: '#d9e2ec',
           200: '#bcccdc',
@@ -36,17 +36,17 @@ const config: Config = {
           800: '#7a6d2a',
           900: '#655a26',
         },
-        azure: {
-          50: '#f0f4f8',
-          100: '#d9e2ec',
-          200: '#bcccdc',
-          300: '#9fb3c8',
-          400: '#627d98',
-          500: '#334e68',
-          600: '#1a3a5c',
-          700: '#002344',
-          800: '#001a33',
-          900: '#001122',
+        emerald: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
         },
       },
       borderRadius: {

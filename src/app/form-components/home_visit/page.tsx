@@ -519,9 +519,9 @@ const Page3 = ({ homeVisitResponse , settings}: any) => {
                     <span>{block?.title?.split(" ")[0]} </span>
                     <span
                       className={`
-                        ${block?.color === "green" ? "text-green-600" : ""}
-                        ${block?.color === "yellow" ? "text-yellow-600" : ""}
-                        ${block?.color === "orange" ? "text-orange-600" : ""}
+                        ${block?.color === "green" ? "text-emerald-600" : ""}
+                        ${block?.color === "yellow" ? "text-gold-600" : ""}
+                        ${block?.color === "orange" ? "text-gold-600" : ""}
                         ${block?.color === "RED" ? "text-red-600" : ""}
                       `}
                     >

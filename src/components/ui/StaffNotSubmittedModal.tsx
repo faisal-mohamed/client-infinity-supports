@@ -20,9 +20,9 @@ export default function StaffNotSubmittedModal({
     <Modal isOpen={isOpen} onClose={onClose} className="max-w-lg w-full">
       
       {/* Header */}
-      <div className="px-6 py-4 bg-gradient-to-r from-azure-50 to-azure-50 border-b border-azure-100 rounded-t-2xl">
+      <div className="px-6 py-4 bg-azure-50 to-azure-50 border-b border-azure-100 rounded-t-2xl">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-azure-500 to-azure-700 text-white shadow-lg">
+          <div className="p-3 rounded-xl bg-azure-600 to-azure-600 text-white shadow-soft">
             <FaClock className="h-6 w-6" />
           </div>
           <div>
@@ -67,7 +67,7 @@ export default function StaffNotSubmittedModal({
         {onResendLink && (
           <button
             onClick={onResendLink}
-            className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-azure-700 to-azure-800 rounded-xl hover:from-azure-800 hover:to-azure-800 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="px-6 py-3 text-sm font-semibold text-white bg-azure-600 to-azure-700 rounded-xl hover:from-azure-700 hover:to-azure-700 transition-all shadow-soft  "
           >
             <FaPaperPlane className="inline mr-2 h-4 w-4" />
             Resend Link
@@ -76,7 +76,7 @@ export default function StaffNotSubmittedModal({
         
         <button
           onClick={onClose}
-          className="px-6 py-3 text-sm font-semibold text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 shadow-md hover:shadow-lg"
+          className="px-6 py-3 text-sm font-semibold text-azure-600 bg-white border-2 border-azure-200 rounded-xl hover:bg-azure-50 hover:border-azure-300 transition-all duration-200 shadow-soft "
         >
           Close
         </button>

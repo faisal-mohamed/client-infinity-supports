@@ -711,7 +711,7 @@ const ChangeOfDetailsEdit: React.FC<FormProps> = ({
             <div className="w-full max-w-2xl mx-auto pt-6 px-4">
                 <div className="w-full h-2 bg-azure-200 rounded-full mb-6">
                     <div
-                        className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all duration-500"
+                        className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all duration-500"
                         style={{ width: `${((currentPathIndex + 1) / pathSteps.length) * 100}%` }}
                     />
                 </div>

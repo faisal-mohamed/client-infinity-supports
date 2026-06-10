@@ -24,18 +24,18 @@ function InfoDisplay({
 }) {
   const colorClasses = {
     blue: 'bg-azure-50 border-azure-100',
-    green: 'bg-green-50 border-green-100',
+    green: 'bg-emerald-50 border-emerald-100',
     purple: 'bg-azure-50 border-azure-100',
-    amber: 'bg-amber-50 border-amber-100',
+    amber: 'bg-gold-50 border-gold-200',
     rose: 'bg-gold-50 border-gold-100',
     indigo: 'bg-azure-50 border-azure-100'
   };
 
   const iconColors = {
     blue: 'text-azure-600',
-    green: 'text-green-600',
+    green: 'text-emerald-600',
     purple: 'text-azure-600',
-    amber: 'text-amber-600',
+    amber: 'text-gold-600',
     rose: 'text-gold-600',
     indigo: 'text-azure-700'
   };
@@ -92,7 +92,7 @@ export default function ClientDetailPage() {
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-sm text-azure-400">Loading client details...</p>
+          <p className="text-sm text-azure-400">Loading participant details...</p>
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function ClientDetailPage() {
       <div className="flex items-center justify-center p-4 py-16">
         <div className="bg-white rounded-lg shadow-soft p-6 text-center max-w-md w-full">
           <FaUser className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-red-800 mb-2">Client Not Found</h1>
+          <h1 className="text-xl font-bold text-red-800 mb-2">Participant Not Found</h1>
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={() => router.back()}
@@ -170,7 +170,7 @@ export default function ClientDetailPage() {
                 className="flex items-center gap-2 text-sm text-white bg-azure-700 hover:bg-azure-800 transition-colors px-4 py-2.5 rounded-lg font-medium"
               >
                 <FaFileAlt className="h-4 w-4" /> 
-                Client Forms
+                Participant Forms
               </Link>
             </div>
           </div>
@@ -221,9 +221,9 @@ export default function ClientDetailPage() {
 
           {/* Personal Details */}
           <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b bg-green-50">
+            <div className="px-6 py-4 border-b bg-emerald-50">
               <div className="flex items-center gap-3">
-                <FaIdCard className="h-5 w-5 text-green-600" />
+                <FaIdCard className="h-5 w-5 text-emerald-600" />
                 <h2 className="font-semibold text-azure-700">Personal Details</h2>
               </div>
             </div>
@@ -260,9 +260,9 @@ export default function ClientDetailPage() {
 
           {/* Address Information */}
           <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b bg-amber-50">
+            <div className="px-6 py-4 border-b bg-gold-50">
               <div className="flex items-center gap-3">
-                <FaMapMarkerAlt className="h-5 w-5 text-amber-600" />
+                <FaMapMarkerAlt className="h-5 w-5 text-gold-600" />
                 <h2 className="font-semibold text-azure-700">Address Information</h2>
               </div>
             </div>
@@ -316,9 +316,9 @@ export default function ClientDetailPage() {
           {/* Additional Details */}
           {(client?.commonFields?.preferredName || client?.commonFields?.pronouns || client?.commonFields?.homePhone || client?.commonFields?.preferredLanguage || client?.commonFields?.suburb) && (
             <div className="bg-white rounded-lg shadow-sm border">
-              <div className="px-6 py-4 border-b bg-purple-50">
+              <div className="px-6 py-4 border-b bg-azure-50">
                 <div className="flex items-center gap-3">
-                  <FaUser className="h-5 w-5 text-purple-600" />
+                  <FaUser className="h-5 w-5 text-azure-600" />
                   <h2 className="font-semibold text-azure-700">Additional Details</h2>
                 </div>
               </div>
@@ -351,9 +351,9 @@ export default function ClientDetailPage() {
           {/* NDIS Plan Details */}
           {(client?.commonFields?.ndisPlanStartDate || client?.commonFields?.ndisPlanEndDate || client?.commonFields?.fundingType) && (
             <div className="bg-white rounded-lg shadow-sm border">
-              <div className="px-6 py-4 border-b bg-green-50">
+              <div className="px-6 py-4 border-b bg-emerald-50">
                 <div className="flex items-center gap-3">
-                  <FaFileAlt className="h-5 w-5 text-green-600" />
+                  <FaFileAlt className="h-5 w-5 text-emerald-600" />
                   <h2 className="font-semibold text-azure-700">NDIS Plan</h2>
                 </div>
               </div>

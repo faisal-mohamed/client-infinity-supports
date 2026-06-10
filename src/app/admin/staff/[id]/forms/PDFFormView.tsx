@@ -1,0 +1,647 @@
+"use client";
+
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import SignatureCanvas from '@/components/ui/SignatureCanvas';
+import FormButton from '@/components/ui/FormButton';
+import { useToast } from '@/components/ui/Toast';
+import LoadingView from '@/components/ui/LoadingView';
+import StaffFormHeader from '@/app/admin/components/StaffFormHeader';
+
+interface PDFFormViewProps {
+  formType: string;
+  formTitle: string;
+  apiEndpoint: string;
+  pdfEndpoint: string;
+  downloadFilename: (data: any) => string;
+  showAdminSection?: boolean; // For forms that need admin approval
+}
+
+// Helper function to load external scripts (only once)
+const loadScript = (src: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Check if script already exists
+    const existingScript = document.querySelector(`script[src="${src}"]`);
+    if (existingScript) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+    document.head.appendChild(script);
+  });
+};
+
+export default function PDFFormView({ 
+  formType, 
+  formTitle, 
+  apiEndpoint, 
+  pdfEndpoint, 
+  downloadFilename,
+  showAdminSection = false 
+}: PDFFormViewProps) {
+  const { id } = useParams<{ id: string }>();
+  const { showToast } = useToast();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [pdfUrl, setPdfUrl] = useState<string>('');
+  const [totalPages, setTotalPages] = useState(0);
+  const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [rendering, setRendering] = useState(false);
+  const [renderedPages, setRenderedPages] = useState<number[]>([]);
+  
+  // Admin section state
+  const [adminFormData, setAdminFormData] = useState({
+    employmentStatus: '',
+    payRate: '',
+    schadsLevel: '',
+    adminSignature: '',
+    adminSignatureDate: new Date().toISOString().split('T')[0], // Default to today
+  });
+  const [submittingAdmin, setSubmittingAdmin] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    const loadFormData = async () => {
+      try {
+        const res = await fetch(apiEndpoint);
+        const result = await res.json();
+        setData(result);
+        
+        // Generate PDF URL for viewing
+        setPdfUrl(pdfEndpoint);
+      } catch (error) {
+        console.error('Error loading form data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) loadFormData();
+  }, [id, apiEndpoint, pdfEndpoint]);
+
+  // Load PDF.js from CDN and render PDF page by page
+  useEffect(() => {
+    if (!pdfUrl) return;
+
+    const loadPDF = async () => {
+      try {
+        setRendering(true);
+        
+        // Load PDF.js library from CDN
+        if (!(window as any).pdfjsLib) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        }
+        
+        const pdfjsLib = (window as any).pdfjsLib;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Load the PDF
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+        const pdf = await loadingTask.promise;
+        
+        setPdfDoc(pdf);
+        setTotalPages(pdf.numPages);
+        setRendering(false);
+      } catch (error) {
+        console.error('Error loading PDF:', error);
+        setRendering(false);
+        setPdfUrl(''); // Clear PDF URL so we show form data instead
+      }
+    };
+
+    loadPDF();
+  }, [pdfUrl]);
+
+  // Render all pages with high quality and responsive sizing
+  useEffect(() => {
+    if (!pdfDoc || totalPages === 0) return;
+
+    const renderAllPages = async () => {
+      const pages: number[] = [];
+      
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        try {
+          const page = await pdfDoc.getPage(pageNum);
+          const canvas = document.getElementById(`pdf-canvas-${pageNum}`) as HTMLCanvasElement;
+          if (!canvas) continue;
+
+          const context = canvas.getContext('2d');
+          if (!context) continue;
+
+          // Get container width for responsive sizing
+          const container = canvas.parentElement;
+          const containerWidth = container?.clientWidth || window.innerWidth;
+          
+          // Calculate responsive scale based on container width
+          // A4 page width is approximately 595 points
+          const basePageWidth = 595;
+          const maxWidth = Math.min(containerWidth * 0.95, 1200); // Max 1200px or 95% of container
+          const responsiveScale = maxWidth / basePageWidth;
+          
+          // Use higher scale for quality, but cap it for performance
+          const scale = Math.min(responsiveScale * 1.2, 2.5);
+          const devicePixelRatio = window.devicePixelRatio || 1;
+
+          const viewport = page.getViewport({ scale: scale });
+          
+          // Set canvas size accounting for device pixel ratio
+          canvas.width = Math.floor(viewport.width * devicePixelRatio);
+          canvas.height = Math.floor(viewport.height * devicePixelRatio);
+          
+          // Set display size (CSS pixels) - responsive to container
+          canvas.style.width = '100%';
+          canvas.style.maxWidth = Math.floor(viewport.width) + 'px';
+          canvas.style.height = 'auto';
+
+          // Scale context for device pixel ratio
+          const transform = devicePixelRatio !== 1
+            ? [devicePixelRatio, 0, 0, devicePixelRatio, 0, 0]
+            : null;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport,
+            transform: transform,
+          };
+
+          await page.render(renderContext).promise;
+          pages.push(pageNum);
+        } catch (error) {
+          console.error(`Error rendering page ${pageNum}:`, error);
+        }
+      }
+      
+      setRenderedPages(pages);
+    };
+
+    renderAllPages();
+
+    // Re-render on window resize
+    const handleResize = () => {
+      renderAllPages();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [pdfDoc, totalPages]);
+
+  const handleDownloadPDF = async () => {
+    // Check if admin section is required and not completed
+    if (showAdminSection && !data?.adminSignature) {
+      showToast({
+        type: 'warning',
+        title: 'Admin Section Required',
+        message: 'Admin section must be completed before downloading. Please fill and sign the "Office Use Only" section below.',
+        duration: 5000,
+      });
+      return;
+    }
+
+    setDownloading(true);
+    try {
+      // Add download=true parameter to trigger download
+      const downloadUrl = `${pdfEndpoint}?download=true`;
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadFilename(data);
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      showToast({
+        type: 'success',
+        title: 'PDF Downloaded',
+        message: 'PDF has been downloaded successfully.',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      showToast({
+        type: 'error',
+        title: 'Download Failed',
+        message: 'Failed to download PDF. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleAdminSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate admin form
+    if (!adminFormData.employmentStatus) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please select employment status',
+        duration: 4000,
+      });
+      return;
+    }
+    if (!adminFormData.payRate) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please enter pay rate',
+        duration: 4000,
+      });
+      return;
+    }
+    if (!adminFormData.schadsLevel) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please enter SCHADS level',
+        duration: 4000,
+      });
+      return;
+    }
+    if (!adminFormData.adminSignature) {
+      showToast({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please add your signature',
+        duration: 4000,
+      });
+      return;
+    }
+
+    try {
+      setSubmittingAdmin(true);
+      
+      const response = await fetch(`${apiEndpoint}/admin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employmentStatus: adminFormData.employmentStatus,
+          payRate: adminFormData.payRate,
+          schadsLevel: adminFormData.schadsLevel,
+          adminSignature: adminFormData.adminSignature,
+          adminSignedAt: new Date(adminFormData.adminSignatureDate).toISOString(),
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to submit admin section');
+      
+      const result = await response.json();
+      
+      // Reload data to show updated form
+      const refreshRes = await fetch(apiEndpoint);
+      const refreshedData = await refreshRes.json();
+      setData(refreshedData);
+      
+      showToast({
+        type: 'success',
+        title: 'Admin Section Submitted',
+        message: 'Admin section submitted successfully! You can now download the PDF.',
+        duration: 4000,
+      });
+      
+      // Reload PDF to show admin signature
+      setPdfUrl(''); // Clear
+      setTimeout(() => setPdfUrl(pdfEndpoint), 100); // Reload
+      
+    } catch (error) {
+      console.error('Error submitting admin section:', error);
+      showToast({
+        type: 'error',
+        title: 'Submit Failed',
+        message: 'Failed to submit admin section. Please try again.',
+        duration: 5000,
+      });
+    } finally {
+      setSubmittingAdmin(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingView title="Loading View Form" message="Please wait..." />;
+  }
+
+  if (!data) {
+    return (
+      <div className="">
+        <div className="p-8 flex items-center justify-center">
+          <div className="text-azure-400">Form data not found</div>
+        </div>
+      </div>
+    );
+  }
+
+  const staffName = data.staff ? `${data.staff.firstName || ''} ${data.staff.surname || ''}`.trim() : '';
+  const staffEmail = data.staff?.email || '';
+
+  return (
+    <div className="">
+      {/* Universal Header */}
+      <StaffFormHeader
+        staffId={id}
+        formTitle={formTitle}
+        staffName={staffName}
+        staffEmail={staffEmail}
+        onDownload={handleDownloadPDF}
+        downloading={downloading}
+        showDownload={!!data.staffSignature}
+      />
+
+      {/* Main Content - Responsive Container */}
+      <div className="w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8 bg-azure-50 via-white to-azure-50">
+        <div className="bg-white rounded-2xl shadow-soft border border-azure-100 p-3 sm:p-4 lg:p-6">
+          
+          {/* Form Status - Responsive with proper status logic */}
+          {data.staffSignature && data.adminSignature ? (
+            // Fully completed - both signatures
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-emerald-50 rounded-lg mb-4 sm:mb-6 border-2 border-emerald-300">
+              <div className="w-3 h-3 flex-shrink-0 bg-emerald-500 rounded-full"></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-medium text-emerald-800">✅ Form Fully Completed</p>
+                <p className="text-xs sm:text-sm text-emerald-600 break-words">
+                  Staff Submitted: {new Date(data.createdAt).toLocaleDateString()} • 
+                  Admin Approved: {data.adminSignedAt ? new Date(data.adminSignedAt).toLocaleDateString() : 'N/A'}
+                </p>
+              </div>
+            </div>
+          ) : data.staffSignature && !data.adminSignature && showAdminSection ? (
+            // Staff completed, waiting for admin
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gold-50 rounded-lg mb-4 sm:mb-6 border-2 border-gold-300">
+              <div className="w-3 h-3 flex-shrink-0 bg-gold-500 rounded-full animate-pulse"></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-medium text-gold-700">⏳ Awaiting Admin Approval</p>
+                <p className="text-xs sm:text-sm text-gold-600 break-words">
+                  Staff submitted on {new Date(data.createdAt).toLocaleDateString()} • Waiting for office approval
+                </p>
+              </div>
+            </div>
+          ) : data.staffSignature ? (
+            // Staff completed (no admin section needed)
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-emerald-50 rounded-lg mb-4 sm:mb-6 border-2 border-emerald-300">
+              <div className="w-3 h-3 flex-shrink-0 bg-emerald-500 rounded-full"></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-medium text-emerald-800">✅ Form Completed</p>
+                <p className="text-xs sm:text-sm text-emerald-600 break-words">
+                  Submitted on {new Date(data.createdAt).toLocaleDateString()} • Digitally Signed
+                </p>
+              </div>
+            </div>
+          ) : (
+            // Not yet completed
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-azure-50 rounded-lg mb-4 sm:mb-6 border-2 border-azure-300">
+              <div className="w-3 h-3 flex-shrink-0 bg-azure-400 rounded-full"></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm sm:text-base font-medium text-azure-700">⏸️ Form Pending</p>
+                <p className="text-xs sm:text-sm text-azure-400 break-words">
+                  Not yet submitted by staff
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* PDF Viewer - Clean Page Display */}
+          {!pdfUrl && data ? (
+            <div className="bg-white rounded-xl border border-azure-100 p-6">
+              <div className="text-center mb-4">
+                <p className="text-sm text-azure-400">PDF preview not available. Form data shown below.</p>
+              </div>
+              <div className="space-y-3 text-sm">
+                {Object.entries(data.data || data || {}).filter(([k]) => !['staff', 'formType', 'status', 'createdAt', 'updatedAt', 'staffSignature', 'adminSignature'].includes(k)).map(([key, value]) => (
+                  <div key={key} className="flex justify-between border-b border-azure-50 pb-2">
+                    <span className="text-azure-500 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <span className="text-azure-700 font-medium text-right max-w-[60%]">{typeof value === 'object' ? JSON.stringify(value) : String(value || '—')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : rendering ? (
+            <div className="flex items-center justify-center h-96 bg-azure-50 rounded-lg">
+              <div className="text-azure-400">Loading PDF pages...</div>
+            </div>
+          ) : totalPages === 0 ? (
+            <div className="flex items-center justify-center h-96 bg-azure-50 rounded-lg">
+              <div className="text-azure-400">No pages to display</div>
+            </div>
+          ) : (
+            <div className="space-y-8 sm:space-y-10 lg:space-y-12">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <div key={pageNum} className="w-full">
+                  {/* Page Container - Clean separation */}
+                  <div className="bg-white p-6 rounded-2xl border border-azure-100/60 shadow-soft">
+                    {/* PDF Page Content */}
+                    <div className="flex justify-center bg-white p-2 rounded-lg border border-azure-200">
+                      <canvas 
+                        id={`pdf-canvas-${pageNum}`}
+                        className="shadow-soft bg-white max-w-full h-auto"
+                        style={{
+                          imageRendering: 'crisp-edges',
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Admin Section - Only for forms requiring admin approval */}
+          {showAdminSection && !data?.adminSignature && data?.staffSignature && (
+            <div className="mt-8 border-t-4 border-gold-500 pt-6">
+              <div className="bg-gold-50 border-2 border-gold-300 rounded-xl p-4 sm:p-6 lg:p-8">
+                {/* Admin Section Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
+                  <h2 className="text-xl sm:text-lg font-semibold text-gold-800">
+                    ⚠️ Office Use Only - Admin Approval Required
+                  </h2>
+                </div>
+
+                <p className="text-sm text-gold-700 mb-6">
+                  The staff member has completed their section. Please complete the office section below to approve this form.
+                </p>
+
+                <form onSubmit={handleAdminSubmit} className="space-y-6">
+                  {/* Office Use Only Section */}
+                  <div className="bg-white border-2 border-azure-300 rounded-lg p-6">
+                    <h3 className="text-base font-semibold text-azure-700 mb-4">Office Use Only</h3>
+                    
+                    <div className="space-y-4">
+                      {/* Employment Status */}
+                      <div>
+                        <label className="block text-sm font-semibold text-azure-600 mb-2">
+                          Employment Status: <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex flex-wrap gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="employmentStatus"
+                              value="FullTime"
+                              checked={adminFormData.employmentStatus === 'FullTime'}
+                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                              className="w-4 h-4 text-azure-600"
+                            />
+                            <span className="text-sm">Full Time</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="employmentStatus"
+                              value="PartTime"
+                              checked={adminFormData.employmentStatus === 'PartTime'}
+                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                              className="w-4 h-4 text-azure-600"
+                            />
+                            <span className="text-sm">Part Time</span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name="employmentStatus"
+                              value="Casual"
+                              checked={adminFormData.employmentStatus === 'Casual'}
+                              onChange={(e) => setAdminFormData({...adminFormData, employmentStatus: e.target.value})}
+                              className="w-4 h-4 text-azure-600"
+                            />
+                            <span className="text-sm">Casual</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Pay Rate */}
+                      <div>
+                        <label className="block text-sm font-semibold text-azure-600 mb-2">
+                          Pay Rate: <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={adminFormData.payRate}
+                          onChange={(e) => setAdminFormData({...adminFormData, payRate: e.target.value})}
+                          placeholder="e.g., $25.00/hour"
+                          className="w-full px-4 py-2 border-2 border-azure-300 rounded-lg focus:border-azure-500 focus:outline-none"
+                        />
+                      </div>
+
+                      {/* SCHADS Level */}
+                      <div>
+                        <label className="block text-sm font-semibold text-azure-600 mb-2">
+                          SCHADS Level: <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={adminFormData.schadsLevel}
+                          onChange={(e) => setAdminFormData({...adminFormData, schadsLevel: e.target.value})}
+                          placeholder="e.g., Level 3"
+                          className="w-full px-4 py-2 border-2 border-azure-300 rounded-lg focus:border-azure-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Admin Signature Section */}
+                  <div className="bg-white border-2 border-azure-300 rounded-lg p-6">
+                    <h3 className="text-base font-semibold text-azure-700 mb-4">Admin Approval</h3>
+                    
+                    <div className="space-y-4">
+                      {/* Signature Pad */}
+                      <div>
+                        <label className="block text-sm font-semibold text-azure-600 mb-2">
+                          Admin Signature: <span className="text-red-500">*</span>
+                        </label>
+                        <div className="bg-azure-50 p-4 rounded-lg border-2 border-dashed border-azure-200">
+                          <SignatureCanvas
+                            existingSignature={adminFormData.adminSignature || undefined}
+                            onSignatureEnd={(dataUrl) => {
+                              if (dataUrl && dataUrl.length > 100) {
+                                setAdminFormData({ ...adminFormData, adminSignature: dataUrl });
+                              }
+                            }}
+                            onSignatureClear={() =>
+                              setAdminFormData({ ...adminFormData, adminSignature: '' })
+                            }
+                            clearButtonText="Clear Signature"
+                            className="items-center"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Date - Editable */}
+                      <div>
+                        <label className="block text-sm font-semibold text-azure-600 mb-2">
+                          Date: <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={adminFormData.adminSignatureDate}
+                          onChange={(e) => setAdminFormData({...adminFormData, adminSignatureDate: e.target.value})}
+                          className="w-full px-4 py-2 border-2 border-azure-300 rounded-lg focus:border-azure-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <FormButton
+                    type="submit"
+                    variant="success"
+                    loading={submittingAdmin}
+                    icon="submit"
+                    fullWidth={true}
+                  >
+                    Submit Admin Section & Approve Form
+                  </FormButton>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Section Already Completed */}
+          {showAdminSection && data?.adminSignature && (
+            <div className="mt-8 border-t-4 border-green-500 pt-6">
+              <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 sm:p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                  <h3 className="text-base font-semibold text-green-900">✅ Admin Section Completed</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-semibold text-azure-600">Employment Status:</span>
+                    <span className="ml-2 text-azure-700">{data.data?.employmentStatus || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-azure-600">Pay Rate:</span>
+                    <span className="ml-2 text-azure-700">{data.data?.payRate || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-azure-600">SCHADS Level:</span>
+                    <span className="ml-2 text-azure-700">{data.data?.schadsLevel || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-azure-600">Approved on:</span>
+                    <span className="ml-2 text-azure-700">
+                      {data.adminSignedAt ? new Date(data.adminSignedAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+

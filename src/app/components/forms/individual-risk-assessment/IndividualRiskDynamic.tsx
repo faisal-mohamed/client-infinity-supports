@@ -295,9 +295,9 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
         }}
       />
       <div className="mt-2 text-xs">
-        <div className="font-bold underline text-green-700">LOW GREEN</div>
+        <div className="font-bold underline text-emerald-700">LOW GREEN</div>
         <div className="mb-2">Visit acceptable. Ensure control options are followed.</div>
-        <div className="font-bold underline text-yellow-600">MEDIUM YELLOW</div>
+        <div className="font-bold underline text-gold-600">MEDIUM YELLOW</div>
         <div className="mb-2">Visit should only proceed after consultation with manager. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as Moderate Risk.</div>
         <div className="font-bold underline text-gold-700">MODERATE ORANGE</div>
         <div className="mb-2">Visit should only proceed after consultation with Director. The risks should be reviewed to consider all the hazards involved. The risks must be reduced prior to the visit – if in doubt, re-classify as High Risk.</div>
@@ -352,7 +352,7 @@ const IndividualRiskDynamic: React.FC<Props> = ({ formData = {}, commonFieldsDat
   const ReviewAndSignature = () => {
     const sig = (getValue('assessorSignature') as string) || '';
     return (
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex items-center text-sm">
           <span className="font-bold mr-2">Assessment Review Date:</span>
           <span>{getValue('reviewDate') || '___/___/____'}</span>

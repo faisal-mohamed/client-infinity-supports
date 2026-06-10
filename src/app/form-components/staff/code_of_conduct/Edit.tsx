@@ -1,0 +1,412 @@
+"use client";
+
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import SignatureCanvas from "@/components/ui/SignatureCanvas";
+import { useToast } from "@/components/ui/Toast";
+import FormPage from "@/components/ui/FormPage";
+
+interface NDISCodeOfConductEditProps {
+  token: string;
+  staff?: { firstName: string; surname: string };
+  onSubmitted?: () => void;
+}
+
+export interface NDISCodeOfConductEditRef {
+  save: () => Promise<void>;
+}
+
+const NDISCodeOfConductEdit = forwardRef<NDISCodeOfConductEditRef, NDISCodeOfConductEditProps>(
+  ({ token, staff, onSubmitted }, ref) => {
+    const { showToast } = useToast();
+    const [signature, setSignature] = useState('');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [position, setPosition] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const defaultVersionDate = '2024-01-10';
+    const [versionDate, setVersionDate] = useState(defaultVersionDate);
+
+    const formatVersionDate = (value: string) => {
+      if (!value) return '';
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return value;
+    };
+
+    // Load existing data
+    useEffect(() => {
+      const loadData = async () => {
+        try {
+          setLoading(true);
+          const res = await fetch(`/api/staff/onboard/${token}`);
+          const responseData = await res.json();
+          
+          if (!res.ok) {
+            const errorMessage = responseData.message || 'Failed to load form data';
+            console.error('Error Loading Form:', errorMessage);
+            return;
+          }
+          
+          if (responseData.submissions?.ndis_code_of_conduct) {
+            const formData = responseData.submissions.ndis_code_of_conduct;
+            setSignature(formData.staffSignature || '');
+            setDate(formData.date || new Date().toISOString().split('T')[0]);
+            setPosition(formData.position || '');
+            setVersionDate(formData.versionDate || defaultVersionDate);
+          }
+          
+          console.log('Form Loaded: NDIS Code of Conduct form loaded successfully');
+        } catch (error) {
+          console.error('Error loading form data:', error);
+          console.error('Connection Error: Failed to connect to server');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadData();
+    }, [token]);
+
+    const validateForm = () => {
+      if (!signature) {
+        showToast({
+          type: 'warning',
+          title: 'Signature Required',
+          message: 'Please provide your signature to acknowledge the NDIS Code of Conduct.',
+        });
+        return false;
+      }
+      
+      if (!date) {
+        showToast({
+          type: 'warning',
+          title: 'Date Required',
+          message: 'Please provide the date of acknowledgment.',
+        });
+        return false;
+      }
+      
+      if (!position) {
+        showToast({
+          type: 'warning',
+          title: 'Position Required',
+          message: 'Please provide your position/title.',
+        });
+        return false;
+      }
+
+      if (!versionDate) {
+        showToast({
+          type: 'warning',
+          title: 'Version Date Required',
+          message: 'Please select the version date.',
+        });
+        return false;
+      }
+      
+      return true;
+    };
+
+    const save = async (isSubmit = false) => {
+      if (!validateForm()) {
+        return;
+      }
+
+      setSaving(true);
+      try {
+        const formData = {
+          signature,
+          date,
+          position,
+          versionDate,
+          staffName: staff ? `${staff.firstName} ${staff.surname}` : '',
+          submittedAt: new Date().toISOString()
+        };
+
+        const res = await fetch(`/api/staff/onboard/${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            formKey: 'ndis_code_of_conduct', 
+            data: formData, 
+            submit: isSubmit 
+          }),
+        });
+
+        const result = await res.json();
+        
+        if (!res.ok) {
+          const errorMessage = result.message || result.error || 'Failed to save form';
+          showToast({
+            type: 'error',
+            title: 'Save Error',
+            message: errorMessage,
+          });
+          return;
+        }
+
+        const action = isSubmit ? 'submitted' : 'saved';
+        showToast({
+          type: 'success',
+          title: `Form ${action === 'submitted' ? 'Submitted' : 'Saved'}`,
+          message: `NDIS Code of Conduct form has been ${action} successfully.`,
+        });
+
+        if (isSubmit && onSubmitted) {
+          setTimeout(() => {
+            onSubmitted();
+          }, 1000);
+        }
+      } catch (error) {
+        console.error('Error saving form:', error);
+        showToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: 'Failed to connect to server.',
+        });
+      } finally {
+        setSaving(false);
+      }
+    };
+
+    useImperativeHandle(ref, () => ({
+      save: () => save(false)
+    }));
+
+    if (loading) {
+      return (
+        <FormPage title="NDIS Code of Conduct">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-azure-700 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your form data...</p>
+            </div>
+          </div>
+        </FormPage>
+      );
+    }
+
+    return (
+      <FormPage 
+        title="NDIS Code of Conduct"
+      >
+        <div className="max-w-4xl mx-auto">
+          {/* Page 1 */}
+          <div className="bg-white shadow-lg border border-azure-100 mb-6" style={{ minHeight: '1056px' }}>
+            {/* Header */}
+            <div className="flex border-b-2 border-black">
+            <div className="w-1/2 border-r-2 border-black flex items-center justify-center p-6">
+              <img
+                src="/client_full_logo-bg-removed.png"
+                alt="Infinity Supports WA logo"
+                className="max-h-[160px] object-contain"
+              />
+            </div>
+              <div className="w-1/2 bg-azure-700 flex items-center justify-center p-6">
+              <h1 className="text-white font-bold text-3xl text-center leading-tight">
+                NDIS Code of Conduct
+              </h1>
+              </div>
+            </div>
+
+            {/* Meta Information */}
+            <div className="flex border-b border-azure-200 text-sm">
+              <div className="w-1/2 border-r border-azure-200 p-3 text-gray-600">
+                <strong>Doc No:</strong> NDIS Manual
+              </div>
+              <div className="w-1/4 border-r border-azure-200 p-3 text-gray-600">
+                <strong>Version No:</strong> 01
+              </div>
+              <div className="w-1/4 p-3 text-gray-600">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-600 mb-1">
+                  Version Date
+                </label>
+                <input
+                  type="date"
+                  value={versionDate}
+                  onChange={(e) => setVersionDate(e.target.value)}
+                  className="w-full border border-azure-100 rounded px-2 py-1 text-sm focus:outline-none focus:border-gold-500 focus:ring-gold-500/30"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Current: {formatVersionDate(versionDate)}
+                </p>
+              </div>
+            </div>
+
+            {/* Content - All NDIS Content */}
+            <div className="px-8 py-6 text-sm leading-relaxed">
+              <div className="mb-4">
+                <p className="text-base">
+                  <span className="text-emerald-600 text-lg mr-2">✓</span>
+                  <span className="font-semibold text-red-600">Infinity Supports WA</span> and their workers are committed to following the NDIS Code of Conduct which is as per below:
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">1.</span>
+                  <p>Act with respect for individual rights for the freedom of expression, self-determination and decision-making with applicable laws and conventions.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">2.</span>
+                  <p>Respect the privacy of people with <span className="underline font-semibold">disability</span>.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">3.</span>
+                  <p>Provide <span className="underline font-semibold">supports</span> and services in a manner that is safely and competently, with care and skill.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">4.</span>
+                  <p>Act with integrity, honesty and transparency.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">5.</span>
+                  <p>Promptly take steps to raise and act on concerns about matters that may impact the quality and safety of supports and services provided to people with disability.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">6.</span>
+                  <p>Take all reasonable steps to prevent and respond to all forms of violence against exploitation, neglect, and abuse of people with disability.</p>
+                </div>
+                
+                <div className="flex">
+                  <span className="font-bold text-gray-700 mr-3 min-w-[20px]">7.</span>
+                  <p>Take all reasonable steps to prevent and respond to sexual misconduct.</p>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-sm leading-relaxed">
+                  The NDIS Commission requires <span className="font-semibold text-red-600">Infinity Supports WA</span> to demonstrate honesty, integrity, and transparency in all their dealings. This extends to how they determine pricing for products and services offered to NDIS scheme participants, along with providing clear justifications for their pricing decisions. Additionally, providers are bound by the Australian Consumer Law (ACL), which prohibits misleading or deceptive conduct, false statements, and unfair contract terms, including those related to the pricing of goods and services, thus ensuring fair treatment of NDIS participants and plan managers.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                
+                <p className="mb-4">
+                  Price differentiation occurs when a provider charges NDIS participants a higher price for identical products, supports, or services compared to other customers. The recently updated NDIS Code of Conduct Provider and Worker Guidance (Guidance) (April 22nd, 2024) recognises price differentiation as a potential form of 'sharp practice'. The Commission expects NDIS providers to refrain from engaging in or endorsing such practices. This entails:
+                </p>
+                
+                <ul className="list-disc list-inside space-y-3 ml-4">
+                  <li>
+                    Avoiding charging participants more than others for essentially the same product, support, or service without valid justification.
+                  </li>
+                  <li>
+                    Abstaining from promoting, advertising, or publicizing higher prices for essentially the same products, supports, or services for participants compared to others without valid justification.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Page 2 - Header and Signature Only */}
+          <div className="bg-white shadow-lg border border-azure-100 mb-8" style={{ minHeight: '1056px' }}>
+            {/* Header - Same as Page 1 */}
+            <div className="flex border-b-2 border-black">
+              <div className="w-1/2 border-r-2 border-black flex items-center justify-center p-6">
+                <img
+                  src="/client_full_logo-bg-removed.png"
+                  alt="Infinity Supports WA logo"
+                  className="max-h-[160px] object-contain"
+                />
+              </div>
+              <div className="w-1/2 bg-azure-700 flex items-center justify-center p-6">
+              <h1 className="text-white font-bold text-3xl text-center leading-tight">
+                NDIS Code of Conduct
+              </h1>
+              </div>
+            </div>
+
+            {/* Meta Information - Same as Page 1 */}
+            <div className="flex border-b border-azure-200 text-sm">
+              <div className="w-1/2 border-r border-azure-200 p-3 text-gray-600">
+                <strong>Doc No:</strong> NDIS Manual
+              </div>
+              <div className="w-1/4 border-r border-azure-200 p-3 text-gray-600">
+                <strong>Version No:</strong> 01
+              </div>
+              <div className="w-1/4 p-3 text-gray-600">
+                <strong>Version Date:</strong> {formatVersionDate(versionDate)}
+              </div>
+            </div>
+
+            {/* Interactive Signature Section - Direct on Page */}
+            <div className="px-8 py-6">
+              <div className="mt-16">
+                {/* Signature Fields - Direct on Page */}
+                <div className="flex flex-col gap-10">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Signature <span className="text-red-500">*</span></label>
+                    <div className="border-b-2 border-azure-200 bg-transparent">
+                      <SignatureCanvas
+                        onSignatureEnd={setSignature}
+                        existingSignature={signature}
+                        width={700}
+                        height={140}
+                        penColor="#000000"
+                        backgroundColor="transparent"
+                        className="w-full"
+                        placeholder="Please sign here"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full border-b-2 border-azure-200 bg-transparent h-12 px-0 text-sm focus:outline-none focus:border-gold-500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Position <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      placeholder="Enter your position/title"
+                      className="w-full border-b-2 border-azure-200 bg-transparent h-12 px-0 text-sm focus:outline-none focus:border-gold-500"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4 pb-8">
+            <button
+              onClick={() => save(false)}
+              disabled={saving}
+              className="px-8 py-3 bg-azure-700 text-white rounded-lg shadow hover:bg-azure-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? 'Saving...' : 'Save Draft'}
+            </button>
+            <button
+              onClick={() => save(true)}
+              disabled={saving}
+              className="px-8 py-3 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? 'Submitting...' : 'Submit & Continue'}
+            </button>
+          </div>
+        </div>
+      </FormPage>
+    );
+  }
+);
+
+NDISCodeOfConductEdit.displayName = 'NDISCodeOfConductEdit';
+
+export default NDISCodeOfConductEdit;

@@ -43,6 +43,7 @@ export async function uploadPDFToDrive({
       body: Readable.from(buffer),
     },
     fields: "id, webViewLink",
+    supportsAllDrives: true,
   });
 
   return {
@@ -84,6 +85,8 @@ async function getOrCreateFolder(
   const search = await drive.files.list({
     q: `name='${folderName.replace(/'/g, "\\'")}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
     fields: "files(id)",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   if (search.data.files?.length) {
@@ -98,6 +101,7 @@ async function getOrCreateFolder(
       parents: [parentId],
     },
     fields: "id",
+    supportsAllDrives: true,
   });
 
   return folder.data.id!;

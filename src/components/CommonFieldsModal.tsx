@@ -219,8 +219,8 @@ export default function CommonFieldsModal({
                       <FaCalendarAlt className="h-4 w-4 text-azure-500" />
                       <span>Date of Birth</span>
                       <div className="flex items-center space-x-1 ml-2">
-                        <FaInfoCircle className="h-3 w-3 text-amber-500" />
-                        <span className="text-xs text-amber-600 font-medium">
+                        <FaInfoCircle className="h-3 w-3 text-gold-500" />
+                        <span className="text-xs text-gold-600 font-medium">
                           (Age will be auto-calculated)
                         </span>
                       </div>
@@ -457,9 +457,9 @@ export default function CommonFieldsModal({
 
             {/* Additional Details Card */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-purple-50 to-azure-50 rounded-2xl p-6 border border-purple-100">
+              <div className="bg-gradient-to-r from-azure-50 to-azure-50 rounded-2xl p-6 border border-azure-100">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-purple-500 to-azure-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-azure-600 to-azure-500 rounded-xl shadow-lg">
                     <FaUser className="h-5 w-5 text-white" />
                   </div>
                   <h4 className="text-xl font-bold text-azure-700">Additional Details</h4>
@@ -495,9 +495,9 @@ export default function CommonFieldsModal({
 
             {/* Emergency Contact Card */}
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-rose-50 to-azure-50 rounded-2xl p-6 border border-rose-100">
+              <div className="bg-gradient-to-r from-gold-50 to-azure-50 rounded-2xl p-6 border border-gold-100">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-gradient-to-r from-rose-500 to-azure-500 rounded-xl shadow-lg">
+                  <div className="p-2 bg-gradient-to-r from-gold-500 to-azure-500 rounded-xl shadow-lg">
                     <FaPhone className="h-5 w-5 text-white" />
                   </div>
                   <h4 className="text-xl font-bold text-azure-700">Emergency Contact</h4>
@@ -659,7 +659,7 @@ export default function CommonFieldsModal({
         <div className="flex-shrink-0 bg-gradient-to-r from-azure-50 to-white border-t border-azure-100 p-8">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-amber-500 to-gold-500 rounded-xl shadow-lg">
+              <div className="p-2 bg-gradient-to-r from-gold-500 to-gold-500 rounded-xl shadow-lg">
                 <FaInfoCircle className="h-4 w-4 text-white" />
               </div>
               <div>
@@ -667,7 +667,7 @@ export default function CommonFieldsModal({
                   Shared Information
                 </p>
                 <p className="text-xs text-azure-400">
-                  These details will be shared across all forms for this client
+                  These details will be shared across all forms for this participant
                 </p>
               </div>
             </div>

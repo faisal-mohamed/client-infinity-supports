@@ -244,7 +244,7 @@ export default function SignatureLinksPageClient() {
     } else if (isCompleted) {
       return {
         status: 'Completed',
-        color: 'text-green-600 bg-green-100',
+        color: 'text-emerald-600 bg-emerald-100',
         icon: FaCheck,
       };
     } else {
@@ -492,7 +492,7 @@ export default function SignatureLinksPageClient() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {batch.signatureForms.map((sf, index) => (
                           <div
-                            key={sf.id}
+                            key={sf.id || sf.formSubmission?.id || index}
                             className={`p-4 rounded-xl border-2 transition-all duration-200  ${
                               sf.formSubmission.clientSignature
                                 ? 'bg-gradient-to-r from-emerald-50 to-azure-50 border-emerald-200 text-emerald-800 shadow-md'

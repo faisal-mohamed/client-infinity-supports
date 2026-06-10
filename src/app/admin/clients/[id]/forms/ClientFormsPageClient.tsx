@@ -57,18 +57,18 @@ export default function ClientFormsPageClient() {
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedForms, setSelectedForms] = useState<number[]>([]);
+  const [selectedForms, setSelectedForms] = useState<(string | number)[]>([]);
   const [generatingLink, setGeneratingLink] = useState(false);
   const [sendingEmail, setSendingEmail] = useState<boolean>(false);
 
   // Form assignment modal state
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [availableForms, setAvailableForms] = useState<AvailableForm[]>([]);
-  const [selectedFormsToAssign, setSelectedFormsToAssign] = useState<number[]>([]);
+  const [selectedFormsToAssign, setSelectedFormsToAssign] = useState<(string | number)[]>([]);
   const [assigning, setAssigning] = useState(false);
 
   // Download state
-  const [downloadingPDF, setDownloadingPDF] = useState<number | null>(null);
+  const [downloadingPDF, setDownloadingPDF] = useState<string | number | null>(null);
 
   // Signature link modal state
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -129,7 +129,7 @@ export default function ClientFormsPageClient() {
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Failed to load client forms',
+        message: 'Failed to load participant forms',
         duration: 3000,
       });
     } finally {
@@ -715,7 +715,7 @@ export default function ClientFormsPageClient() {
       showToast({
         type: 'success',
         title: 'Success',
-        message: 'Client details updated successfully',
+        message: 'Participant details updated successfully',
         duration: 3000,
       });
 

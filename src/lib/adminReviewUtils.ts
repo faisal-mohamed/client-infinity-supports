@@ -7,15 +7,17 @@ export async function getAdminReviewData({
     status = "pending_admin_review",
     search = "",
     page = 1,
-    pageSize = 10
+    pageSize = 10,
+    organizationId
 }: {
     status?: string;
     search?: string;
     page?: number;
     pageSize?: number;
+    organizationId?: string;
 }) {
-    // Get all active clients
-    const { clients: allClients } = await listClients({ search: search || undefined, page: 1, pageSize: 100000 });
+    // Get all active clients scoped to org
+    const { clients: allClients } = await listClients({ search: search || undefined, page: 1, pageSize: 100000, organizationId });
 
     // For each client, check if they have assignments matching criteria
     const clientsWithPendingForms = await Promise.all(

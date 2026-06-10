@@ -127,8 +127,8 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-azure-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
           <div className="flex justify-center mb-4">
-            <div className="rounded-full bg-green-100 p-3">
-              <FaCheck className="text-green-600 text-3xl" />
+            <div className="rounded-full bg-emerald-100 p-3">
+              <FaCheck className="text-emerald-600 text-3xl" />
             </div>
           </div>
           <h1 className="text-xl font-bold text-center text-azure-700 mb-2">Form Submitted</h1>
@@ -162,7 +162,7 @@ export default function FormPageClient({ params }: { params: { id: string } }) {
             )}
             
             {success && (
-              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              <div className="bg-emerald-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                 {success}
               </div>
             )}

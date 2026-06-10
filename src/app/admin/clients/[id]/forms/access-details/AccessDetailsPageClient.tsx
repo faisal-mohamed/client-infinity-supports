@@ -179,7 +179,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
       
       <div className="p-6">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Client Information</h2>
+          <h2 className="text-lg font-semibold mb-2">Participant Information</h2>
           <p className="text-azure-600">
             <span className="font-medium">Name:</span> {client?.name}
           </p>
@@ -257,7 +257,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                       <div className="flex flex-col sm:flex-row gap-2 items-center">
                         <input type="date" value={newExpiry.date} min={today} onChange={e => setNewExpiry(v => ({ ...v, date: e.target.value }))} className="border rounded px-2 py-1" />
                         <input type="time" value={newExpiry.time} onChange={e => setNewExpiry(v => ({ ...v, time: e.target.value }))} className="border rounded px-2 py-1" />
-                        <button onClick={() => handleUpdateExpiry(batch.batchId)} disabled={updating} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded flex items-center">{updating ? <span className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2'></span> : <FaSave className="mr-1" />}Save</button>
+                        <button onClick={() => handleUpdateExpiry(batch.batchId)} disabled={updating} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded flex items-center">{updating ? <span className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2'></span> : <FaSave className="mr-1" />}Save</button>
                         <button onClick={() => setEditingBatchId(null)} className="bg-azure-200 hover:bg-azure-200 text-azure-600 px-3 py-1 rounded flex items-center"><FaTimes className="mr-1" />Cancel</button>
                       </div>
                     ) : (
@@ -272,7 +272,7 @@ export default function AccessDetailsPageClient({ clientId }: { clientId: string
                         <li key={assignment.id} className="mb-1">
                           {assignment.form.title} (v{assignment.form.version})
                           <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                            assignment.isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            assignment.isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-gold-100 text-gold-800'
                           }`}>
                             {assignment.isCompleted ? 'Completed' : 'Pending'}
                           </span>

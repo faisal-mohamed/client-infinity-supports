@@ -343,7 +343,7 @@ const HomeVisitDynamic: React.FC<any> = ({ formData, commonFieldsData, settings 
     height: 120,
     content: () => (
       <div className="mb-4">
-        <div className="grid grid-cols-3 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div className="text-center">
             <div className="font-semibold mb-2">Name:</div>
             <div className="border-b-2 border-black pb-1 min-h-[24px] font-bold">

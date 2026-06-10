@@ -367,7 +367,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
         const riskLevels = {
           low: {
             level: "Low",
-            color: "text-green-600",
+            color: "text-emerald-600",
             description: "Participants have a low reliance on provider services to meet daily living needs.",
             criteria: "Participants can independently perform most daily living activities without assistance. Any disruptions in services would have minimal impact on their overall well-being.",
             impact: "Disruptions in services would have minimal impact on participants' health and safety, as they can manage most activities independently."
@@ -381,7 +381,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
           },
           high: {
             level: "High",
-            color: "text-yellow-700", 
+            color: "text-gold-700", 
             description: "Participants have a high reliance on provider services to meet essential daily living needs.",
             criteria: "Participants require significant assistance from the provider for activities of daily living, including personal care, mobility, meal preparation, and medication management. A disruption in services would have a significant impact on their overall well-being and quality of life.",
             impact: "Disruptions in services would significantly impact participants' health and safety, as they rely heavily on the provider for essential tasks. There could be risks related to personal care, medical needs, and more."
@@ -402,7 +402,7 @@ const ParticipantRiskAssessmentDynamic: React.FC<any> = ({
             <h2 className="text-center font-semibold mb-3 text-xs">
               Selected Risk Level Assessment
             </h2>
-            <div className="p-2 bg-yellow-100 border border-yellow-400 rounded text-xs mb-4">
+            <div className="p-2 bg-gold-100 border border-gold-400 rounded text-xs mb-4">
               <strong>Selected Risk Level: </strong>
               <span className={`font-bold ${selected.color}`}>{selected.level}</span>
             </div>

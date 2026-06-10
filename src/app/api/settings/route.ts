@@ -118,8 +118,17 @@ export async function GET(req: NextRequest) {
 
     if (flat) {
       const flatSettings: Record<string, any> = {};
-      settings.forEach((s: any) => {
-        flatSettings[s.key] = s.value;
+      // Process legacy categories first, then proper ones override
+      const sorted = [...settings].sort((a: any, b: any) => {
+        const legacy = ['general', 'email'];
+        const aLegacy = legacy.includes(a.category) ? 0 : 1;
+        const bLegacy = legacy.includes(b.category) ? 0 : 1;
+        return aLegacy - bLegacy;
+      });
+      sorted.forEach((s: any) => {
+        if (!flatSettings[s.key] || !['general', 'email'].includes(s.category)) {
+          if (s.value) flatSettings[s.key] = s.value;
+        }
       });
 
       return NextResponse.json({
@@ -130,6 +139,8 @@ export async function GET(req: NextRequest) {
     }
 
     const groupedSettings = settings.reduce((acc: any, setting: any) => {
+      // Skip legacy categories - proper settings are in email_settings, form_ids, form_metadata
+      if (setting.category === 'general' || setting.category === 'email') return acc;
       if (!acc[setting.category]) {
         acc[setting.category] = [];
       }
@@ -222,14 +233,6 @@ export async function PUT(req: NextRequest) {
       return {
         key: setting.key,
         value: setting.value,
-        type: setting.type || 'string',
-        category: setting.category || 'general',
-        label: setting.label || setting.key,
-        description: setting.description,
-        isRequired: setting.isRequired || false,
-        defaultValue: setting.defaultValue,
-        validation: setting.validation,
-        sortOrder: setting.sortOrder || 0,
       };
     });
 

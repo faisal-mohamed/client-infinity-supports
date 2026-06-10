@@ -570,8 +570,8 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
 
         let badgeClass = "text-azure-500 bg-azure-50 border-azure-100";
         if (legend === "Staff") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
-        else if (legend === "Manager") badgeClass = "text-amber-600 bg-amber-50 border-amber-200";
-        else if (legend === "Participant") badgeClass = "text-green-600 bg-green-50 border-green-200";
+        else if (legend === "Manager") badgeClass = "text-gold-600 bg-gold-50 border-gold-200";
+        else if (legend === "Participant") badgeClass = "text-emerald-600 bg-emerald-50 border-emerald-200";
         else if (legend === "Authorised Representative") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
         else if (legend === "Participant/Auth Rep") badgeClass = "text-azure-600 bg-azure-50 border-azure-100";
 
@@ -1302,7 +1302,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
             {/* Progress Bar */}
             <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
                 <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
-                    <div className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all" style={{ width: `${((currentStep + 1) / FORM_SECTIONS.length) * 100}%` }} />
+                    <div className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all" style={{ width: `${((currentStep + 1) / FORM_SECTIONS.length) * 100}%` }} />
                 </div>
                 {/* Horizontal Stepper */}
                 <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
@@ -1316,12 +1316,12 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                                     onClick={() => {
                                         if (idx <= maxStep) setCurrentStep(idx);
                                     }}
-                                    className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-green-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
+                                    className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-emerald-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
                                     aria-current={active ? 'step' : undefined}
                                     aria-label={section.title}
                                     disabled={!unlocked}
                                 >
-                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
+                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
                                         {completedSteps.has(idx)
                                             ? <FaCheck className="w-4 h-4" />
                                             : React.createElement(section.icon, { className: "w-4 h-4" })}
@@ -1446,7 +1446,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                         <button
                             onClick={handleNextSequential}
                             disabled={currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext}
-                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-green-400 text-white hover:from-azure-800 hover:to-green-500"}`}
+                            className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete() || navigatingNext ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white hover:from-azure-800 hover:to-emerald-500"}`}
                         >
                             <span>Next</span>
                             {navigatingNext ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaChevronRight className="w-4 h-4" />}
@@ -1467,7 +1467,7 @@ const ConflictOfInterestEdit: React.FC<FormProps> = ({
                             disabled={!isCurrentSectionComplete() || saving}
                             className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm shadow transition ${!isCurrentSectionComplete() || saving
                                 ? "bg-azure-100 text-azure-300 cursor-not-allowed border border-azure-100"
-                                : "bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500"
+                                : "bg-gradient-to-r from-azure-600 to-emerald-400 text-white hover:from-azure-700 hover:to-emerald-500"
                                 }`}
                         >
                             {saving ? <FaSpinner className="w-4 h-4 animate-spin" /> : <FaCheck className="w-4 h-4" />}

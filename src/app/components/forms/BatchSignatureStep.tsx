@@ -33,12 +33,12 @@ const BatchSignatureStep: React.FC<BatchSignatureStepProps> = ({
         initialValue={initialSignature}
       />
       {signature && (
-        <div className="mt-2 text-green-600 text-sm font-semibold flex items-center gap-2">
+        <div className="mt-2 text-emerald-600 text-sm font-semibold flex items-center gap-2">
           <FaCheck /> Signature captured
         </div>
       )}
       <button
-        className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-base bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow-xl transition"
+        className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-base bg-gradient-to-r from-azure-600 to-emerald-400 text-white hover:from-azure-700 hover:to-emerald-500 shadow-xl transition"
         onClick={() => onSubmit(signature)}
         disabled={!signature || readOnly || submitting}
       >

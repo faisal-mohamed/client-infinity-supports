@@ -270,10 +270,11 @@ interface FormAssignmentModalProps {
   clientName: string | undefined;
   availableForms: AvailableForm[];
   assignments: FormAssignmentWithDetails[];
-  selectedFormsToAssign: number[];
+  selectedFormsToAssign: (string | number)[];
   assigning: boolean;
   onFormSelection: (formId: string | number) => void;
   onAssignForms: () => void;
+  isStaff?: boolean;
 }
 
 export default function FormAssignmentModal({
@@ -285,7 +286,8 @@ export default function FormAssignmentModal({
   selectedFormsToAssign,
   assigning,
   onFormSelection,
-  onAssignForms
+  onAssignForms,
+  isStaff = false
 }: FormAssignmentModalProps) {
   if (!isOpen) return null;
 
@@ -328,7 +330,7 @@ export default function FormAssignmentModal({
               </div>
               <h4 className="text-xl font-bold text-azure-800 mb-2">No Forms Available</h4>
               <p className="text-azure-500 max-w-md mx-auto leading-relaxed">
-                All available forms have already been assigned to this client, or no forms are currently configured.
+                All available forms have already been assigned to this {isStaff ? 'staff' : 'client'}, or no forms are currently configured.
               </p>
             </div>
           ) : (

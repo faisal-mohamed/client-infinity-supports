@@ -115,7 +115,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </span>
             </div>
 
-            <div className="grid grid-cols-2 border-b border-black">
+            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-black">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">Surname:</div>
                 <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('surname') || ''}</div>
@@ -126,7 +126,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </div>
             </div>
 
-            <div className="grid grid-cols-2 border-b border-black">
+            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-black">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">Sex:</div>
                 <div className="flex items-center gap-3 flex-wrap">
@@ -171,7 +171,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               </div>
             </div>
 
-            <div className="grid grid-cols-2 border-b border-black">
+            <div className="grid grid-cols-1 sm:grid-cols-2 border-b border-black">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">Are you of Aboriginal or Torres Strait Islander descent?</div>
                 <div className="flex items-center gap-4">
@@ -228,7 +228,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('address') || ''}</div>
             </div>
 
-            <div className="grid grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">State:</div>
                 <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('state') || 'WA'}</div>
@@ -259,7 +259,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('email') || ''}</div>
             </div>
 
-            <div className="grid grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2">
               <div className="border-r border-black p-2">
                 <div className="font-bold text-xs mb-1">Home Phone No:</div>
                 <div className="border-b border-black min-h-[24px] text-xs">{getFieldValue('homePhone') || ''}</div>
@@ -1029,7 +1029,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
           <div className="mb-4">
             <div className="border border-black p-3">
               <h4 className="font-bold text-sm mb-3">Participant Signature</h4>
-              <div className="grid grid-cols-2 gap-4 mb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                 <div>
                   <p className="text-xs mb-1">Signature of participant:</p>
                   <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
@@ -1079,7 +1079,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
               <p className="text-xs italic mb-2">
                 I confirm this agreement was explained and accepted by the participant. [if signed by a Nominee]
               </p>
-              <div className="grid grid-cols-2 gap-4 mb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                 <div>
                   <p className="text-xs mb-1">Signature of Nominee:</p>
                   <div className="border border-azure-200 p-2 h-16 flex items-center justify-center bg-white">
@@ -1116,7 +1116,7 @@ const SASupportCoordinationDynamic: React.FC<any> = ({ formData, commonFieldsDat
         <div className="mb-4">
           <div className="border border-black p-3">
             <h4 className="font-bold text-sm mb-3">Provider Signature</h4>
-            <div className="grid grid-cols-2 gap-4 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
               <div>
                 <p className="text-xs mb-1">Signature on behalf of Infinity Supports WA:</p>
                 {getFieldValue('providerSignature') ? (

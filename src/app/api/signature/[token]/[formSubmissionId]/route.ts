@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBatchByToken, getSignatureBatchForms, getSubmissionById, getFormById, updateSubmission, updateBatch, getBatchAssignments, updateAssignmentStatus } from "@/lib/db/forms";
+import { getBatchByToken, getSignatureBatchForms, getSubmissionById, getFormById, updateSubmission, updateBatch, getBatchAssignments, updateAssignmentStatus, getClientAssignments } from "@/lib/db/forms";
 import { getClientById } from "@/lib/db/client";
 import { getAllAdmins } from "@/lib/db/admin";
 import { createNotification } from "@/lib/db/notifications";
@@ -162,7 +162,7 @@ export async function POST(
 
     const form = await getFormById(currentSubmission.formId);
     const formKey = form?.formKey;
-    const formConfig = getFormConfig(formKey);
+    const formConfig = getFormConfig(formKey || '');
     const signatures = formConfig?.signatures || [];
 
     let signatureConfig = signatures.find((sig: any) => sig.id === signatureId);
@@ -216,22 +216,19 @@ export async function POST(
 
     if (autoDetectedRole) updatedFormData.signatureRole = autoDetectedRole;
 
-    await updateSubmission(formSubmissionId, {
+    await updateSubmission(formSubmissionId, currentSubmission.clientId, currentSubmission.formId, currentSubmission.formVersion, currentSubmission.instanceNumber, {
       clientSignature: "true",
       clientSignedAt: new Date().toISOString(),
       data: updatedFormData,
     });
 
     // Update form assignment status
-    const assignments = await getBatchAssignments(currentSubmission.clientId, currentSubmission.formId, currentSubmission.formVersion);
-    const formAssignment = assignments?.[0];
+    const assignments = await getClientAssignments(currentSubmission.clientId);
+    const formAssignment = assignments.find(a => a.formId === currentSubmission.formId && a.formVersion === currentSubmission.formVersion && a.instanceNumber === currentSubmission.instanceNumber);
 
     if (formAssignment) {
       const newStatus = calculateFormStatus(formKey!, updatedFormData, true, !!currentSubmission.isSubmitted);
-      await updateAssignmentStatus(formAssignment.id, {
-        currentStatus: newStatus,
-        isCompleted: newStatus === "completed",
-      });
+      await updateAssignmentStatus(currentSubmission.clientId, formAssignment.id, newStatus, formAssignment.currentStatus || 'in_progress');
     }
 
     const adminId = formAssignment?.assignedById;
@@ -241,7 +238,7 @@ export async function POST(
     for (const sf of signatureForms) {
       const sfSubmission = await getSubmissionById(sf.formSubmissionId);
       const sfForm = sfSubmission ? await getFormById(sfSubmission.formId) : null;
-      const config = getFormConfig(sfForm?.formKey);
+      const config = getFormConfig(sfForm?.formKey || '');
       const submissionData: any = sfSubmission?.data || {};
       const required = getRequiredSignaturesWithGroups(config?.signatures || [], submissionData);
       const allSigned = required.every((sig: any) => !!submissionData[sig.dataKey!]);
@@ -249,7 +246,7 @@ export async function POST(
     }
 
     if (isNowComplete && !batch.isCompleted) {
-      await updateBatch(batch.id, {
+      await updateBatch(batch.clientId, batch.id, {
         isCompleted: true,
         completedAt: new Date().toISOString(),
       });
@@ -305,6 +302,20 @@ export async function POST(
           }
         );
         if (!emailResponse.ok) console.error("❌ Email error:", await emailResponse.text());
+
+        // Upload to Google Drive
+        if (process.env.GOOGLE_DRIVE_FOLDER_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+          try {
+            const { uploadBatchToDrive } = await import("@/lib/google-drive");
+            const { generatePDFBuffer } = await import("@/lib/pdf-buffer");
+            const driveFiles: Array<{ buffer: Buffer; filename: string }> = [];
+            for (const form of completedFormsData) {
+              const pdfResult = await generatePDFBuffer({ formSubmissionId: form.id, formId: form.formId || '', filename: `${form.title.replace(/[^a-zA-Z0-9]/g, "_")}.pdf`, adminId: adminId || '' });
+              if (pdfResult.success && pdfResult.buffer) driveFiles.push({ buffer: pdfResult.buffer, filename: pdfResult.filename! });
+            }
+            if (driveFiles.length > 0) await uploadBatchToDrive(driveFiles, client?.name || "Unknown");
+          } catch (driveErr) { console.error("❌ Drive upload error (non-blocking):", driveErr); }
+        }
       } catch (err) {
         console.error("❌ Email send failed (non-blocking):", err);
       }
@@ -313,8 +324,9 @@ export async function POST(
     // Return final status
     let refreshedStatus = "in_progress";
     if (formAssignment) {
-      const refreshedAssignments = await getBatchAssignments(currentSubmission.clientId, currentSubmission.formId, currentSubmission.formVersion);
-      refreshedStatus = refreshedAssignments?.[0]?.currentStatus || "in_progress";
+      const refreshedAssignments = await getClientAssignments(currentSubmission.clientId);
+      const refreshedMatch = refreshedAssignments.find(a => a.formId === currentSubmission.formId && a.formVersion === currentSubmission.formVersion && a.instanceNumber === currentSubmission.instanceNumber);
+      refreshedStatus = refreshedMatch?.currentStatus || "in_progress";
     }
 
     return NextResponse.json({
@@ -354,6 +366,9 @@ export async function PUT(
     const signatureForm = signatureForms.find((sf: any) => sf.formSubmissionId === formSubmissionId);
     if (!signatureForm) return NextResponse.json({ error: "Form not in this signature link" }, { status: 404 });
 
+    const submission = await getSubmissionById(formSubmissionId);
+    if (!submission) return NextResponse.json({ error: "Submission not found" }, { status: 404 });
+
     const updateData: any = {
       data,
       updatedAt: new Date().toISOString(),
@@ -366,34 +381,30 @@ export async function PUT(
       updateData.clientSignedAt = new Date().toISOString();
     }
 
-    await updateSubmission(formSubmissionId, updateData);
+    await updateSubmission(formSubmissionId, submission.clientId, submission.formId, submission.formVersion, submission.instanceNumber, updateData);
 
     const updated = await getSubmissionById(formSubmissionId);
 
     // Update FormAssignment status
-    const submission = await getSubmissionById(formSubmissionId);
-    if (submission) {
-      const assignments = await getBatchAssignments(submission.clientId, submission.formId, submission.formVersion);
-      const formAssignment = assignments?.[0];
+    if (updated) {
+      const assignments = await getClientAssignments(updated.clientId);
+      const formAssignment = assignments.find(a => a.formId === updated.formId && a.formVersion === updated.formVersion && a.instanceNumber === updated.instanceNumber);
 
       if (formAssignment) {
-        const form = await getFormById(submission.formId);
+        const form = await getFormById(updated.formId);
         const newStatus = calculateFormStatus(
-          form?.formKey,
+          form?.formKey || '',
           updated?.data,
           true,
           updated?.isSubmitted
         );
-        await updateAssignmentStatus(formAssignment.id, {
-          currentStatus: newStatus,
-          isCompleted: newStatus === 'completed',
-        });
+        await updateAssignmentStatus(updated!.clientId, formAssignment.id, newStatus, formAssignment.currentStatus || 'in_progress');
       }
     }
 
     // Notification logic when staff submits
     if (isSubmitted) {
-      const form = submission ? await getFormById(submission.formId) : null;
+      const form = updated ? await getFormById(updated.formId) : null;
       const formKey = form?.formKey;
       const formTitle = form?.title || 'Unknown Form';
       const formId = form?.id;
@@ -402,19 +413,21 @@ export async function PUT(
       const staffName = data?.supportWorkers || data?.staffName || 'Support Worker';
 
       let adminId: string | undefined;
-      if (submission) {
-        const assignments = await getBatchAssignments(submission.clientId, submission.formId, submission.formVersion);
-        adminId = assignments?.[0]?.assignedById;
+      if (updated) {
+        const assignments = await getClientAssignments(updated.clientId);
+        const match = assignments.find(a => a.formId === updated.formId && a.formVersion === updated.formVersion && a.instanceNumber === updated.instanceNumber);
+        adminId = match?.assignedById;
       }
 
-      // Update form assignment to pending_admin_review
-      if (submission) {
-        const assignments = await getBatchAssignments(submission.clientId, submission.formId, submission.formVersion);
-        if (assignments?.[0]) {
-          await updateAssignmentStatus(assignments[0].id, {
-            currentStatus: 'pending_admin_review',
-            isCompleted: false,
-          });
+      // Update form assignment to pending_admin_review (for forms requiring admin sign)
+      if (updated) {
+        const allAssignments = await getClientAssignments(updated.clientId);
+        const targetAssignment = allAssignments.find(a => a.formId === updated.formId && a.formVersion === updated.formVersion && a.instanceNumber === updated.instanceNumber);
+        if (targetAssignment && targetAssignment.currentStatus !== 'pending_admin_review') {
+          const form = await getFormById(updated.formId);
+          if (form?.formKey === 'emergency_drill' || form?.formKey === 'conflict_of_interest') {
+            await updateAssignmentStatus(updated.clientId, targetAssignment.id, 'pending_admin_review', targetAssignment.currentStatus || 'in_progress');
+          }
         }
       }
 
@@ -430,7 +443,7 @@ export async function PUT(
           )
         );
 
-        await updateBatch(batch.id, { adminNotified: true });
+        await updateBatch(batch.clientId, batch.id, { adminNotified: true });
 
         if (adminId) {
           try {

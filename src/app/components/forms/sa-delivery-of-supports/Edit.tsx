@@ -758,7 +758,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
       {/* Progress Bar */}
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
         <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
-          <div className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all" style={{ width: `${getProgressPercentage()}%` }} />
+          <div className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all" style={{ width: `${getProgressPercentage()}%` }} />
         </div>
         {/* Horizontal Stepper */}
         <nav className="flex items-center justify-between gap-2 overflow-visible pb-2 relative">
@@ -770,13 +770,13 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
                 <button
                   type="button"
                   onClick={() => handleStepClick(idx)}
-                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-green-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
+                  className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active ? 'text-azure-700' : unlocked ? 'text-emerald-600' : 'text-azure-300 opacity-50 cursor-not-allowed'}`}
                   aria-current={active ? 'step' : undefined}
                   aria-label={section.title}
                   disabled={!unlocked}
                   tabIndex={unlocked ? 0 : -1}
                 >
-                  <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-green-500 border-green-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
+                  <span className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active ? 'bg-azure-800 border-azure-600 text-white scale-110' : unlocked ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-azure-200 border-azure-200 text-azure-300'}`}>
                     {completedSteps.has(idx)
                       ? <FaCheck className="w-4 h-4" />
                       : React.createElement(section.icon, { className: "w-4 h-4" })}
@@ -954,7 +954,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
             {FORM_SECTIONS.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-green-500 border-green-500" : "bg-azure-200 border-azure-200"}`}
+                className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep ? "bg-azure-600 border-azure-600 shadow" : index < currentStep ? "bg-emerald-500 border-emerald-500" : "bg-azure-200 border-azure-200"}`}
               />
             ))}
           </div>
@@ -974,7 +974,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
               type="button"
               onClick={handleNextSequential}
               disabled={loadingButton === 'next' || currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()}
-              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(loadingButton === 'next' || currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"}`}
+              className={`flex items-center justify-center space-x-1 px-5 py-2 rounded-full font-semibold transition-all text-sm shadow border duration-200 w-full md:w-1/3 ${(loadingButton === 'next' || currentStep === FORM_SECTIONS.length - 1 || !isCurrentSectionComplete()) ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100" : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white border-azure-700 hover:from-azure-800 hover:to-emerald-500"}`}
             >
               {loadingButton === 'next' ? (
                 <>
@@ -1009,7 +1009,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
           {currentStep === FORM_SECTIONS.length - 1 && (
             <button
-              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-green-400 text-white hover:from-azure-700 hover:to-green-500 shadow transition"
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm bg-gradient-to-r from-azure-600 to-emerald-400 text-white hover:from-azure-700 hover:to-emerald-500 shadow transition"
               onClick={(e) => {
                 e.preventDefault();
                 handleFormSubmitCheckValidation();

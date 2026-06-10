@@ -6,8 +6,8 @@
 
 // interface FormsListProps {
 //   assignments: FormAssignmentWithDetails[];
-//   selectedForms: number[];
-//   downloadingPDF: number | null;
+//   selectedForms: (string | number)[];
+//   downloadingPDF: string | number | null;
 //   clientId: string | number;
 //   onFormSelect: (assignmentId: string | number, checked: boolean) => void;
 //   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
@@ -155,12 +155,13 @@ import { FormAssignmentWithDetails } from '@/app/admin/clients/[id]/forms/types'
 
 interface FormsListProps {
   assignments: FormAssignmentWithDetails[];
-  selectedForms: number[];
-  downloadingPDF: number | null;
+  selectedForms: (string | number)[];
+  downloadingPDF: string | number | null;
   clientId: string | number;
   onFormSelect: (assignmentId: string | number, checked: boolean) => void;
   onDownloadPDF: (assignment: FormAssignmentWithDetails) => void;
   onShowAssignModal: () => void;
+  isStaff?: boolean;
 }
 
 export default function FormsList({
@@ -170,13 +171,13 @@ export default function FormsList({
   clientId,
   onFormSelect,
   onDownloadPDF,
-  onShowAssignModal
+  onShowAssignModal,
+  isStaff
 }: FormsListProps) {
   const completedForms = assignments.filter(a => a.currentStatus === 'completed').length;
 
   return (
-    <div className="bg-azure-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-6">
         <div className="bg-white rounded-2xl shadow-soft border border-azure-50 overflow-hidden  transition-all duration-200">
 
           {/* Header */}
@@ -188,7 +189,7 @@ export default function FormsList({
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-azure-700 mb-1">Assigned Forms</h2>
-                  <p className="text-azure-500">Manage and track client form assignments</p>
+                  <p className="text-azure-500">Manage and track {isStaff ? 'staff' : 'participant'} form assignments</p>
                 </div>
               </div>
 
@@ -215,7 +216,7 @@ export default function FormsList({
                           {assignments.length} Total Forms
                         </div>
                         <div className="text-sm text-azure-500">
-                          Select forms to generate client signature links
+                          Select forms to generate {isStaff ? 'staff' : 'participant'} signature links
                         </div>
                       </div>
                     </div>
@@ -233,7 +234,7 @@ export default function FormsList({
               </div>
               <h3 className="text-base font-semibold text-azure-700 mb-3">No Forms Assigned</h3>
               <p className="text-azure-500 mb-8 text-base max-w-md mx-auto leading-relaxed">
-                Get started by assigning forms to this client. Once assigned, you can track their progress and manage submissions.
+                Get started by assigning forms to this {isStaff ? 'staff' : 'participant'}. Once assigned, you can track their progress and manage submissions.
               </p>
               <button
                 onClick={onShowAssignModal}
@@ -260,13 +261,13 @@ export default function FormsList({
                     downloadingPDF={downloadingPDF}
                     onFormSelect={onFormSelect}
                     onDownloadPDF={onDownloadPDF}
+                    isStaff={isStaff}
                   />
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
 
       {/* Animations */}
       <style jsx>{`

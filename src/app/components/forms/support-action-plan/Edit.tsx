@@ -1102,7 +1102,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
       <div className="w-full max-w-2xl mx-auto pt-2 md:pt-6 px-2">
         <div className="w-full h-2 bg-azure-200 rounded-full mb-4">
           <div
-            className="h-2 bg-gradient-to-r from-azure-600 to-green-400 rounded-full transition-all"
+            className="h-2 bg-gradient-to-r from-azure-600 to-emerald-400 rounded-full transition-all"
             style={{ width: `${getProgressPercentage()}%` }}
           />
         </div>
@@ -1122,7 +1122,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                   className={`flex flex-col items-center min-w-[60px] px-2 focus:outline-none transition-all duration-200 ${active
                     ? "text-azure-700"
                     : unlocked
-                      ? "text-green-600"
+                      ? "text-emerald-600"
                       : "text-azure-300 opacity-50 cursor-not-allowed"
                     }`}
                   aria-current={active ? "step" : undefined}
@@ -1134,7 +1134,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                     className={`flex items-center justify-center w-8 h-8 rounded-full border-2 mb-1 ${active
                       ? "bg-azure-800 border-azure-600 text-white scale-110"
                       : unlocked
-                        ? "bg-green-500 border-green-500 text-white"
+                        ? "bg-emerald-500 border-emerald-500 text-white"
                         : "bg-azure-200 border-azure-200 text-azure-300"
                       }`}
                   >
@@ -1431,7 +1431,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 className={`w-3 h-3 rounded-full border duration-200 ${index === currentStep
                   ? "bg-black border-black shadow"
                   : index < currentStep
-                    ? "bg-green-500 border-green-500"
+                    ? "bg-emerald-500 border-emerald-500"
                     : "bg-azure-200 border-azure-200"
                   }`}
               />
@@ -1464,7 +1464,7 @@ const ScheduleForSupportEdit: React.FC<FormProps> = ({
                 !isCurrentSectionComplete() ||
                 isNextLoading
                 ? "bg-azure-100 text-azure-300 cursor-not-allowed border-azure-100"
-                : "bg-gradient-to-r from-azure-700 to-green-400 text-white border-azure-700 hover:from-azure-800 hover:to-green-500"
+                : "bg-gradient-to-r from-azure-700 to-emerald-400 text-white border-azure-700 hover:from-azure-800 hover:to-emerald-500"
                 }`}
             >
               <span>Next</span>

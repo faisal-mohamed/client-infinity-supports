@@ -236,7 +236,7 @@ export async function createStaffFormBatch(data: Omit<StaffFormBatch, "id" | "cr
         {
           Put: {
             TableName: TABLE,
-            Item: { PK: `STAFF_BATCH_TOKEN#${data.batchToken}`, SK: "BATCH", entityType: "STAFF_BATCH_TOKEN_LOOKUP", batchId: id, staffId: data.staffId, ...batch },
+            Item: { PK: `STAFF_BATCH_TOKEN#${data.batchToken}`, SK: "BATCH", entityType: "STAFF_BATCH_TOKEN_LOOKUP", batchId: id, ...batch },
             ConditionExpression: "attribute_not_exists(PK)",
           },
         },

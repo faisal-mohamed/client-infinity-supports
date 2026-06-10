@@ -299,9 +299,9 @@ export default function CreateClientPage() {
       // Show success toast
       showToast({
         type: "success",
-        title: "Client Created",
+        title: "Participant Created",
         message: `${
-          newClient.name || "New client"
+          newClient.name || "New participant"
         } has been created successfully.`,
         duration: 3000,
       });
@@ -330,7 +330,7 @@ export default function CreateClientPage() {
         });
       } else {
         console.error("Error creating client:", err);
-        const msg = err?.message || "Failed to create client";
+        const msg = err?.message || "Failed to create participant";
         setError(msg);
         showToast({
           type: "error",
@@ -378,7 +378,7 @@ export default function CreateClientPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-azure-700 mb-2">
-                Add New Client
+                Add New Participant
               </h1>
               <p className="text-base text-azure-500">
                 Create a comprehensive client profile with all necessary
@@ -400,7 +400,7 @@ export default function CreateClientPage() {
               className="flex items-center gap-2 text-sm text-gold-600 hover:text-white bg-white border border-gold-200 hover:bg-gold-600 transition-all duration-200 px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:scale-105 font-semibold"
             >
               <FaArrowLeft className="h-4 w-4" />
-              Back to Clients
+              Back to Participants
             </button>
           </div>
         </div>
@@ -513,7 +513,7 @@ export default function CreateClientPage() {
                           ? "border-red-300 bg-red-50 ring-2 ring-red-200"
                           : "border-azure-200 hover:border-gold-300"
                       }`}
-                      placeholder="Enter client's full name"
+                      placeholder="Enter participant's full name"
                       required
                     />
                     {errors.name && (
@@ -552,7 +552,7 @@ export default function CreateClientPage() {
                           ? "border-red-300 bg-red-50 ring-2 ring-red-200"
                           : "border-azure-200 hover:border-gold-300"
                       }`}
-                      placeholder="Enter client's full name"
+                      placeholder="Enter participant's full name"
                       required
                     />
                     {errors.surname && (
@@ -645,7 +645,7 @@ export default function CreateClientPage() {
                             ? "border-red-300 bg-red-50 ring-2 ring-red-200"
                             : "border-azure-200 hover:border-gold-300"
                         }`}
-                        placeholder="client@example.com"
+                        placeholder="participant@example.com"
                         required
                       />
                     </div>
@@ -723,7 +723,7 @@ export default function CreateClientPage() {
              
               <div className="p-8 border-b border-azure-50 animate-fade-in">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md">
                     <FaGlobe className="h-6 w-6" />
                   </div>
                   <div>

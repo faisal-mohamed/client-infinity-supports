@@ -92,14 +92,14 @@ const Page1: React.FC<Page1Props> = ({ schema, data, commonFieldsData, settings 
           <div className="mt-6 max-w-3xl mx-auto text-[14px]">
             <div className="mb-1">
               <span className="underline">LOW</span>{' '}
-              <span className="text-green-600 font-semibold">GREEN</span>
+              <span className="text-emerald-600 font-semibold">GREEN</span>
             </div>
             <div className="mb-4">
               Visit acceptable. Ensure control options are followed.
             </div>
             <div className="mb-1">
               <span className="underline">MEDIUM</span>{' '}
-              <span className="text-yellow-400 font-semibold">YELLOW</span>
+              <span className="text-gold-400 font-semibold">YELLOW</span>
             </div>
             <div>
               Visit should only proceed after consultation with manager. The risks should

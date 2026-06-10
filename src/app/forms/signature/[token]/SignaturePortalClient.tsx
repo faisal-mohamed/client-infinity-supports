@@ -395,7 +395,7 @@ export default function SignaturePortalClient() {
               const isDownloading = downloadingForm === form.formSubmissionId;
 
               return (
-                <div key={form.id} className="bg-gradient-to-r from-azure-50 to-white rounded-lg sm:rounded-xl border border-azure-100 hover:border-gold-300 hover:shadow-md transition-all duration-200 overflow-hidden">
+                <div key={form.id || form.formSubmission?.id || index} className="bg-gradient-to-r from-azure-50 to-white rounded-lg sm:rounded-xl border border-azure-100 hover:border-gold-300 hover:shadow-md transition-all duration-200 overflow-hidden">
                   <div className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
                       <div className="flex items-start sm:items-center flex-1 w-full sm:w-auto">

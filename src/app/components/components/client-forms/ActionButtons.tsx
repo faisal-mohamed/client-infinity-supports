@@ -54,7 +54,7 @@
 //               </button>
 
 //               <Link
-//                 href={`/admin/clients/${clientId}/signature-links`}
+//                 href={`/admin/${isStaff ? "staff" : "clients"}/${clientId}/signature-links`}
 //                 className="w-full sm:w-auto group inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-azure-600 to-azure-600 text-white font-semibold rounded-xl hover:from-azure-700 hover:to-azure-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold-500 transition-all duration-200 shadow-soft transform hover:scale-105 text-sm sm:text-base"
 //               >
 //                 <div className="p-1 rounded-lg bg-white bg-opacity-20">
@@ -154,7 +154,7 @@ import { FaPlus, FaUserEdit, FaLink, FaSpinner, FaCog } from 'react-icons/fa';
 
 interface ActionButtonsProps {
   clientId: string | number;
-  selectedForms: number[];
+  selectedForms: (string | number)[];
   generatingLink: boolean;
   onShowAssignModal: () => void;
   onShowCommonFieldsWarning: () => void;
@@ -163,6 +163,7 @@ interface ActionButtonsProps {
   sendingEmail: boolean;
   allFormsCompleted?: boolean;
   onTriggerCompletionEmail?: () => void;
+  isStaff?: boolean;
 }
 
 export default function ActionButtons({
@@ -175,11 +176,11 @@ export default function ActionButtons({
   sendEmailNotification,
   sendingEmail,
   allFormsCompleted,
-  onTriggerCompletionEmail
+  onTriggerCompletionEmail,
+  isStaff
 }: ActionButtonsProps) {
   return (
     <div className="mb-4">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl border border-azure-100/60 p-5 shadow-soft">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             {/* Buttons */}
@@ -204,7 +205,7 @@ export default function ActionButtons({
 
               {/* Manage Links */}
               <Link
-                href={`/admin/clients/${clientId}/signature-links`}
+                href={`/admin/${isStaff ? "staff" : "clients"}/${clientId}/signature-links`}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-azure-200 text-azure-600 rounded-xl font-semibold hover:border-gold-500 hover:text-gold-600 hover:bg-gold-50 transition-all duration-200 shadow-soft"
               >
                 <FaCog className="h-4 w-4" />
@@ -291,7 +292,7 @@ export default function ActionButtons({
                 <div className="flex-1 text-sm text-gold-700">
                   <p className="font-semibold mb-1">Quick Actions Guide</p>
                   <ul className="space-y-1 list-disc list-inside">
-                    <li><strong>Assign Forms:</strong> Add forms to client</li>
+                    <li><strong>Assign Forms:</strong> Add forms to {isStaff ? 'staff' : 'participant'}</li>
                     <li><strong>Update Details:</strong> Edit shared information</li>
                     <li><strong>Manage Links:</strong> View existing links</li>
                     <li><strong>Generate Link:</strong> Create for selected forms</li>
@@ -301,7 +302,6 @@ export default function ActionButtons({
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

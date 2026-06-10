@@ -72,25 +72,26 @@ export async function POST(
       adminNotified: false,
     });
 
-    const formAssignments = await Promise.all(
-      formsWithInstances.map((form, index) =>
-        createFormAssignment({
-          clientId: id,
-          formId: form.id,
-          formVersion: form.version,
-          batchId: formBatch.id,
-          displayOrder: index + 1,
-          assignedById: adminId,
-          instanceNumber: form.newInstanceNumber,
-          currentStatus: "not_started",
-          isCompleted: false,
-          isCommonFieldsCompleted: false,
-          formKey: form.formKey,
-          formTitle: form.title,
-          requiresSignature: form.requiresSignature,
-        })
-      )
-    );
+    const formAssignments = [];
+    for (const [index, form] of formsWithInstances.entries()) {
+      const assignment = await createFormAssignment({
+        clientId: id,
+        formId: form.id,
+        formVersion: form.version,
+        batchId: formBatch.id,
+        displayOrder: index + 1,
+        assignedById: adminId,
+        instanceNumber: form.newInstanceNumber,
+        currentStatus: "not_started",
+        isCompleted: false,
+        isCommonFieldsCompleted: false,
+        formKey: form.formKey,
+        formTitle: form.title,
+        requiresSignature: form.requiresSignature,
+        organizationId: ownership.tenant.organizationId || undefined,
+      });
+      formAssignments.push(assignment);
+    }
 
     await createActivityLog({
       clientId: id,

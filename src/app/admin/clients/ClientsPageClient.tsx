@@ -133,7 +133,7 @@ export default function ClientsPageClient() {
       setPagination(data.pagination || pagination);
       setError("");
     } catch (err: any) {
-      setError(err?.message || "Failed to load clients");
+      setError(err?.message || "Failed to load participants");
       if (process.env.NODE_ENV === 'development') console.error("Error loading clients:", err);
     } finally {
       setLoading(false);
@@ -169,16 +169,16 @@ export default function ClientsPageClient() {
 
   const handleDeleteClient = async (id: string | number) => {
     if (isDeleting) return;
-    const confirmed = await confirm.confirm({ title: "Delete Client", message: "Are you sure you want to delete this client? This will also delete all associated data.", confirmText: "Delete", cancelText: "Cancel", type: "danger" });
+    const confirmed = await confirm.confirm({ title: "Delete Participant", message: "Are you sure you want to delete this participant? This will also delete all associated data.", confirmText: "Delete", cancelText: "Cancel", type: "danger" });
     if (!confirmed) return;
-    try { setIsDeleting(true); await deleteClient(id); loadClients(); setError(""); } catch (err) { setError("Failed to delete client"); console.error(err); } finally { setIsDeleting(false); }
+    try { setIsDeleting(true); await deleteClient(id); loadClients(); setError(""); } catch (err) { setError("Failed to delete participant"); console.error(err); } finally { setIsDeleting(false); }
   };
 
   const handleDeleteSelected = async () => {
     if (isDeleting || selectedClients.length === 0) return;
-    const confirmed = await confirm.confirm({ title: "Delete Selected Clients", message: `Are you sure you want to delete ${selectedClients.length} selected client(s)? This will also delete all associated data.`, confirmText: "Delete", cancelText: "Cancel", type: "danger" });
+    const confirmed = await confirm.confirm({ title: "Delete Selected Participants", message: `Are you sure you want to delete ${selectedClients.length} selected participant(s)? This will also delete all associated data.`, confirmText: "Delete", cancelText: "Cancel", type: "danger" });
     if (!confirmed) return;
-    try { setIsDeleting(true); for (const id of selectedClients) { await deleteClient(id); } loadClients(); setSelectedClients([]); setSelectAll(false); setError(""); } catch (err) { setError("Failed to delete selected clients"); console.error(err); } finally { setIsDeleting(false); }
+    try { setIsDeleting(true); for (const id of selectedClients) { await deleteClient(id); } loadClients(); setSelectedClients([]); setSelectAll(false); setError(""); } catch (err) { setError("Failed to delete selected participants"); console.error(err); } finally { setIsDeleting(false); }
   };
 
   const handleSelectAll = () => { if (selectAll) { setSelectedClients([]); } else { setSelectedClients(sortedClients.map((c) => c.id)); } setSelectAll(!selectAll); };
@@ -203,7 +203,7 @@ export default function ClientsPageClient() {
       if (!response.ok) throw new Error("Failed to download Excel");
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a"); link.href = url; link.download = `infinity_support_clients_${new Date().toISOString().split("T")[0]}.xlsx`;
+      const link = document.createElement("a"); link.href = url; link.download = `infinity_support_participants_${new Date().toISOString().split("T")[0]}.xlsx`;
       document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
     } catch (error) { console.error("Excel export failed:", error); alert("Failed to export Excel file."); } finally { setExcelLoading(false); }
   };
@@ -225,11 +225,11 @@ export default function ClientsPageClient() {
               <FaUserFriends className="text-xl" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-azure-700">Client Management</h1>
-              <p className="text-sm text-azure-400 mt-0.5">Manage your clients and their information efficiently</p>
+              <h1 className="text-xl font-bold text-azure-700">Participant Management</h1>
+              <p className="text-sm text-azure-400 mt-0.5">Manage your participants and their information efficiently</p>
               <div className="flex items-center gap-2 mt-1 text-sm text-azure-400">
                 <div className="w-2 h-2 bg-gold-500 rounded-full"></div>
-                <span className="font-medium">{pagination.totalCount} Total Clients</span>
+                <span className="font-medium">{pagination.totalCount} Total Participants</span>
               </div>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function ClientsPageClient() {
             </Link>
             <Link href="/admin/clients/create" className="flex items-center gap-2 text-sm text-white bg-azure-700 hover:bg-azure-600 px-4 py-2.5 rounded-xl font-semibold justify-center transition-all duration-200 shadow-soft hover:shadow-elevated">
               <FaUserPlus className="h-3.5 w-3.5" />
-              Add New Client
+              Add New Participant
             </Link>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default function ClientsPageClient() {
               <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-azure-300 w-3.5 h-3.5" />
               <input
                 type="text"
-                placeholder="Search clients by name, email, phone, NDIS number, state..."
+                placeholder="Search participants by name, email, phone, NDIS number, state..."
                 className="w-full pl-10 pr-4 py-2.5 border border-azure-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 transition-all duration-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -329,7 +329,7 @@ export default function ClientsPageClient() {
           <div className="flex justify-center items-center min-h-[60vh]">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-azure-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-sm text-azure-400">Loading clients...</p>
+              <p className="text-sm text-azure-400">Loading participants...</p>
             </div>
           </div>
         ) : (
@@ -358,7 +358,7 @@ export default function ClientsPageClient() {
                 </thead>
                 <tbody className="divide-y divide-azure-50">
                   {sortedClients.length === 0 ? (
-                    <tr><td colSpan={6} className="text-center py-12 text-azure-300 text-sm">No clients found.</td></tr>
+                    <tr><td colSpan={6} className="text-center py-12 text-azure-300 text-sm">No participants found.</td></tr>
                   ) : (
                     sortedClients.map((client: any) => {
                       const fullName = client?.commonFields?.name && client?.commonFields?.surname

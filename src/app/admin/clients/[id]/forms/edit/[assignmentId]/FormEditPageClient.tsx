@@ -338,10 +338,10 @@ export default function FormEditPageClient() {
               <div className="flex items-center">
                 <Link
                   href={`/admin/clients/${clientId}/forms`}
-                  className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
                 >
-                  <FaArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Forms
+                  <FaArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
+                  <span>Back to Forms</span>
                 </Link>
                 <div className="border-l border-azure-200 pl-4">
                   <h1 className="text-xl font-bold text-azure-700">
@@ -401,10 +401,10 @@ export default function FormEditPageClient() {
             <div className="flex items-center">
               <Link
                 href={`/admin/clients/${clientId}/forms`}
-                className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
+                className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-colors mr-4"
               >
-                <FaArrowLeft className="h-4 w-4 mr-2" />
-                Back to Forms
+                <FaArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>Back to Forms</span>
               </Link>
               <div className="border-l border-azure-200 pl-4">
                 <h1 className="text-xl font-bold text-azure-700">

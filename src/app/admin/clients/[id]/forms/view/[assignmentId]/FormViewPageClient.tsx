@@ -209,10 +209,10 @@ export default function FormViewPageClient() {
             <div className="flex items-center justify-center space-x-4">
               <Link 
                 href={`/admin/clients/${clientId}/forms`}
-                className="inline-flex items-center px-6 py-3 bg-azure-100 text-azure-600 rounded-lg hover:bg-azure-200 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-azure-100 text-azure-600 rounded-lg hover:bg-azure-200 transition-colors"
               >
-                <FaArrowLeft className="mr-2 h-4 w-4" />
-                Back to Forms List
+                <FaArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
+                <span>Back to Forms List</span>
               </Link>
               {assignment && (
                 <Link 
@@ -248,10 +248,10 @@ export default function FormViewPageClient() {
             </p>
             <Link 
               href={`/admin/clients/${clientId}/forms`}
-              className="inline-flex items-center px-6 py-3 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-azure-700 text-white rounded-lg hover:bg-azure-800 transition-colors"
             >
-              <FaArrowLeft className="mr-2 h-4 w-4" />
-              Back to Forms List
+              <FaArrowLeft className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>Back to Forms List</span>
             </Link>
           </div>
         </div>
@@ -313,14 +313,13 @@ function FormViewContent({
       {/* Enhanced Header */}
    <div className="bg-white shadow-sm border-b border-azure-100">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    {/* Back Button */}
-    <div className="flex items-center mb-4">
+    <div className="mb-4">
       <Link 
         href={`/admin/clients/${clientId}/forms`}
-        className="flex items-center px-3 py-2 text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-all duration-200 group"
+        className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-azure-500 hover:text-azure-700 hover:bg-azure-100 rounded-lg transition-all duration-200 group"
       >
-        <FaArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-        Back to Forms
+        <FaArrowLeft className="h-3.5 w-3.5 flex-shrink-0 group-hover:-translate-x-1 transition-transform duration-200" />
+        <span>Back to Forms</span>
       </Link>
     </div>
 

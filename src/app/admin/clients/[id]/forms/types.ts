@@ -21,6 +21,9 @@ export interface FormAssignmentWithDetails {
   adminFilledAt?: string;
   clientSignature?: string;
   clientSignedAt?: string;
+  staffSignature?: string;
+  staffSignedAt?: string;
+  adminSignature?: string;
   // NEW: Include form data for signature validation
   formData?: any;
   currentStatus: string;
