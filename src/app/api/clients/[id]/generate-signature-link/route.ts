@@ -56,6 +56,7 @@ export async function POST(
             isSubmitted: false,
             formKey: assignment.formKey,
             formTitle: assignment.formTitle,
+            versionNumber: 1,
           });
         }
 

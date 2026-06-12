@@ -5,6 +5,7 @@ import {
   QueryCommand,
   DeleteCommand,
   TransactWriteCommand,
+  BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { dynamodb, TABLE } from "../dynamodb";
 import { generateId, nowISO, ttlFromDate } from "../dynamodb-utils";
@@ -445,6 +446,12 @@ export interface FormSubmission {
   adminFilledAt?: string;
   clientSignature?: string;
   clientSignedAt?: string;
+  // Versioning
+  signedPdfS3Key?: string;
+  versionNumber: number;
+  isLocked?: boolean;
+  lockedAt?: string;
+  organizationId?: string;
   // Denormalized
   formKey: string;
   formTitle: string;
@@ -474,9 +481,31 @@ export async function upsertSubmission(data: Omit<FormSubmission, "id" | "update
 
   // Check if exists
   const existing = await getSubmission(data.clientId, data.formId, data.formVersion, data.instanceNumber);
-  const id = existing?.id || data.id || generateId();
 
-  const submission: FormSubmission = { ...data, id, updatedAt: now };
+  // AUTO-ARCHIVE: If existing submission is signed/locked and we're overwriting with new data, archive it first
+  if (existing && (existing.isLocked || existing.clientSignature === 'true') && !data.isLocked) {
+    const oldVersion = existing.versionNumber || 1;
+    const archiveSK = `SUBMISSION_ARCHIVE#${existing.formId}#${existing.formVersion}#${existing.instanceNumber}#v${oldVersion}`;
+    console.log(`📦 [AUTO-ARCHIVE] Preserving v${oldVersion} before overwrite, s3Key: ${existing.signedPdfS3Key || 'none'}`);
+    await dynamodb.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: {
+          PK: `CLIENT#${existing.clientId}`,
+          SK: archiveSK,
+          entityType: "SUBMISSION_ARCHIVE",
+          ...existing,
+        },
+      })
+    );
+  }
+
+  const id = existing?.id || data.id || generateId();
+  const newVersionNumber = (existing && (existing.isLocked || existing.clientSignature === 'true') && !data.isLocked)
+    ? (existing.versionNumber || 1) + 1
+    : data.versionNumber || existing?.versionNumber || 1;
+
+  const submission: FormSubmission = { ...data, id, updatedAt: now, versionNumber: newVersionNumber };
 
   await dynamodb.send(
     new TransactWriteCommand({
@@ -522,6 +551,120 @@ export async function getClientSubmissions(clientId: string): Promise<FormSubmis
       TableName: TABLE,
       KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
       ExpressionAttributeValues: { ":pk": `CLIENT#${clientId}`, ":sk": "SUBMISSION#" },
+    })
+  );
+  return (res.Items || []) as FormSubmission[];
+}
+
+/**
+ * Get all signed/completed submissions for an organization (for Documents page).
+ * Scans submissions via client assignments scoped to the org.
+ */
+export async function getOrgSignedDocuments(organizationId: string): Promise<FormSubmission[]> {
+  // Get all clients for this org
+  const { clients } = await import('./client').then(m => m.listClients({ organizationId, page: 1, pageSize: 100000 }));
+  const submissions: FormSubmission[] = [];
+  for (const client of clients) {
+    // Current signed submissions
+    const clientSubs = await getClientSubmissions(client.id);
+    const signed = clientSubs.filter(s => s.clientSignature === 'true' || s.isLocked);
+    submissions.push(...signed);
+    // Archived versions (old signed versions preserved during edit)
+    const archived = await getArchivedVersions(client.id);
+    submissions.push(...archived);
+  }
+  return submissions;
+}
+
+/**
+ * Lock a submission after signing (makes it immutable).
+ */
+export async function lockSubmission(id: string, clientId: string, formId: string, formVersion: number, instanceNumber: number, s3Key: string): Promise<void> {
+  const existing = await getSubmissionById(id);
+  await updateSubmission(id, clientId, formId, formVersion, instanceNumber, {
+    isLocked: true,
+    lockedAt: nowISO(),
+    signedPdfS3Key: s3Key,
+    versionNumber: existing?.versionNumber || 1,
+  } as any);
+}
+
+/**
+ * Create a new version of a locked submission (for editing after sign).
+ * Preserves the old version as an archived record, writes new version to the main key.
+ */
+export async function createNewSubmissionVersion(lockedSubmission: FormSubmission): Promise<FormSubmission> {
+  const oldVersion = lockedSubmission.versionNumber || 1;
+  const newVersion = oldVersion + 1;
+  const now = nowISO();
+
+  // 1. Archive the old version to a version-specific SK (preserves it permanently)
+  const archiveSK = `SUBMISSION_ARCHIVE#${lockedSubmission.formId}#${lockedSubmission.formVersion}#${lockedSubmission.instanceNumber}#v${oldVersion}`;
+  console.log(`📦 [VERSION] Archiving v${oldVersion} → SK: ${archiveSK}, s3Key: ${lockedSubmission.signedPdfS3Key || 'none'}`);
+  await dynamodb.send(
+    new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `CLIENT#${lockedSubmission.clientId}`,
+        SK: archiveSK,
+        entityType: "SUBMISSION_ARCHIVE",
+        ...lockedSubmission,
+        updatedAt: now,
+      },
+    })
+  );
+
+  // 2. Strip signature fields from data so the new version requires re-signing
+  const signatureKeys = [
+    'signature', 'participantSignature', 'authorSignature', 'assessorSignature',
+    'guardianSignature', 'nomineeSignature', 'providerSignature', 'supportWorkerSignature',
+    'supervisorSignature', 'managerSignature', 'employeeSignature', 'representativeSignature',
+    'authRepSignature', 'signatureRole', 'signatureDate', 'participantSignedAt', 'authorSignedAt',
+  ];
+  const cleanData = { ...lockedSubmission.data };
+  signatureKeys.forEach(key => delete cleanData[key]);
+
+  // 3. Overwrite the main submission record with the new (unlocked) version
+  const newSubmission: FormSubmission = {
+    id: lockedSubmission.id,
+    clientId: lockedSubmission.clientId,
+    formId: lockedSubmission.formId,
+    formVersion: lockedSubmission.formVersion,
+    instanceNumber: lockedSubmission.instanceNumber,
+    data: cleanData,
+    versionNumber: newVersion,
+    isLocked: false,
+    isSubmitted: false,
+    filledByAdmin: true,
+    adminFilledAt: now,
+    updatedAt: now,
+    formKey: lockedSubmission.formKey,
+    formTitle: lockedSubmission.formTitle,
+    organizationId: lockedSubmission.organizationId,
+  };
+
+  const compositeKey = `SUBMISSION#${lockedSubmission.formId}#${lockedSubmission.formVersion}#${lockedSubmission.instanceNumber}`;
+  await dynamodb.send(
+    new TransactWriteCommand({
+      TransactItems: [
+        { Put: { TableName: TABLE, Item: { PK: `CLIENT#${lockedSubmission.clientId}`, SK: compositeKey, entityType: "FORM_SUBMISSION", ...newSubmission } } },
+        { Put: { TableName: TABLE, Item: { PK: `SUBMISSION#${lockedSubmission.id}`, SK: "PROFILE", entityType: "SUBMISSION_LOOKUP", ...newSubmission } } },
+      ],
+    })
+  );
+
+  return newSubmission;
+}
+
+/**
+ * Get all archived versions for a client's submissions (for version history display).
+ */
+export async function getArchivedVersions(clientId: string): Promise<FormSubmission[]> {
+  const res = await dynamodb.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+      ExpressionAttributeValues: { ":pk": `CLIENT#${clientId}`, ":sk": "SUBMISSION_ARCHIVE#" },
     })
   );
   return (res.Items || []) as FormSubmission[];

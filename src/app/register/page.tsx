@@ -829,9 +829,13 @@ export default function RegisterPage() {
 
           {/* Footer */}
           <div className="card-footer flex justify-between">
-            <button onClick={() => { setFieldErrors({}); setStep((s) => s - 1); }} disabled={step === 0} className="btn btn-secondary">
-              <FaArrowLeft className="w-3.5 h-3.5 mr-2" />Back
-            </button>
+            {step > 0 ? (
+              <button onClick={() => { setFieldErrors({}); setStep((s) => s - 1); }} className="btn btn-secondary">
+                <FaArrowLeft className="w-3.5 h-3.5 mr-2" />Back
+              </button>
+            ) : (
+              <div></div>
+            )}
             {step < STEPS.length - 1 ? (
               <button onClick={handleNext} className="btn btn-primary">
                 Next<FaArrowRight className="w-3.5 h-3.5 ml-2" />

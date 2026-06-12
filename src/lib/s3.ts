@@ -115,3 +115,37 @@ export const ALLOWED_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
+
+/**
+ * Upload a signed PDF to S3 with a structured key.
+ * Key pattern: org/{orgId}/signed-forms/{clientId}/{formKey}/v{version}-{timestamp}.pdf
+ */
+export async function uploadSignedPdf(params: {
+  organizationId: string;
+  clientId: string;
+  formKey: string;
+  instanceNumber: number;
+  versionNumber: number;
+  buffer: Buffer;
+}): Promise<string> {
+  const { organizationId, clientId, formKey, instanceNumber, versionNumber, buffer } = params;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const key = `org/${organizationId}/signed-forms/${clientId}/${formKey}/instance-${instanceNumber}/v${versionNumber}-${timestamp}.pdf`;
+
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: 'application/pdf',
+      Metadata: {
+        'organization-id': organizationId,
+        'client-id': clientId,
+        'form-key': formKey,
+        'version': String(versionNumber),
+      },
+    })
+  );
+
+  return key;
+}

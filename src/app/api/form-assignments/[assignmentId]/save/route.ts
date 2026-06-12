@@ -37,6 +37,8 @@ export async function POST(
       assignment.clientId, assignment.formId, assignment.formVersion, assignment.instanceNumber
     );
 
+    // Note: upsertSubmission auto-archives signed submissions before overwriting
+
     // Validate signatures
     const signatureValidation = validateFormSignatures(formKey, formData);
     const hasAllSignatures = signatureValidation.isComplete;
@@ -81,6 +83,7 @@ export async function POST(
       clientSignedAt,
       formKey: assignment.formKey,
       formTitle: assignment.formTitle,
+      versionNumber: existingSubmission?.versionNumber || 1,
     });
 
     // Update common fields if provided

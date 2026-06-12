@@ -222,16 +222,55 @@ export async function POST(
       data: updatedFormData,
     });
 
-    // Update form assignment status
-    const assignments = await getClientAssignments(currentSubmission.clientId);
-    const formAssignment = assignments.find(a => a.formId === currentSubmission.formId && a.formVersion === currentSubmission.formVersion && a.instanceNumber === currentSubmission.instanceNumber);
+    // --- S3 PDF Snapshot: Generate and store immutable signed PDF ---
+    try {
+      const { generatePDFBuffer } = await import('@/lib/pdf-buffer');
+      const { uploadSignedPdf } = await import('@/lib/s3');
+      const { lockSubmission } = await import('@/lib/db/forms');
 
-    if (formAssignment) {
-      const newStatus = calculateFormStatus(formKey!, updatedFormData, true, !!currentSubmission.isSubmitted);
-      await updateAssignmentStatus(currentSubmission.clientId, formAssignment.id, newStatus, formAssignment.currentStatus || 'in_progress');
+      const orgId = currentSubmission.organizationId || 'default';
+      const pdfResult = await generatePDFBuffer({
+        formSubmissionId,
+        formId: currentSubmission.formId,
+        filename: `${currentSubmission.formTitle || formKey || 'form'}.pdf`,
+        adminId: '',
+      });
+
+      if (pdfResult.success && pdfResult.buffer) {
+        const s3Key = await uploadSignedPdf({
+          organizationId: orgId,
+          clientId: currentSubmission.clientId,
+          formKey: formKey || currentSubmission.formKey || 'unknown',
+          instanceNumber: currentSubmission.instanceNumber || 1,
+          versionNumber: currentSubmission.versionNumber || 1,
+          buffer: pdfResult.buffer,
+        });
+
+        await lockSubmission(
+          formSubmissionId,
+          currentSubmission.clientId,
+          currentSubmission.formId,
+          currentSubmission.formVersion,
+          currentSubmission.instanceNumber,
+          s3Key
+        );
+        console.log(`✅ [PDF SNAPSHOT] Stored signed PDF: ${s3Key}`);
+      }
+    } catch (snapshotErr) {
+      // Non-blocking: signature is saved even if snapshot fails
+      console.error('⚠️ [PDF SNAPSHOT] Failed to store signed PDF (non-blocking):', snapshotErr);
     }
 
-    const adminId = formAssignment?.assignedById;
+    // Update form assignment status
+    const assignments = await getClientAssignments(currentSubmission.clientId);
+    const formAssignment2 = assignments.find(a => a.formId === currentSubmission.formId && a.formVersion === currentSubmission.formVersion && a.instanceNumber === currentSubmission.instanceNumber);
+
+    if (formAssignment2) {
+      const newStatus = calculateFormStatus(formKey!, updatedFormData, true, !!currentSubmission.isSubmitted);
+      await updateAssignmentStatus(currentSubmission.clientId, formAssignment2.id, newStatus, formAssignment2.currentStatus || 'in_progress');
+    }
+
+    const adminId = formAssignment2?.assignedById;
 
     // Check if entire batch is complete
     let isNowComplete = true;
@@ -323,7 +362,7 @@ export async function POST(
 
     // Return final status
     let refreshedStatus = "in_progress";
-    if (formAssignment) {
+    if (formAssignment2) {
       const refreshedAssignments = await getClientAssignments(currentSubmission.clientId);
       const refreshedMatch = refreshedAssignments.find(a => a.formId === currentSubmission.formId && a.formVersion === currentSubmission.formVersion && a.instanceNumber === currentSubmission.instanceNumber);
       refreshedStatus = refreshedMatch?.currentStatus || "in_progress";
