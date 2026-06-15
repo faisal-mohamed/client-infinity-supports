@@ -286,29 +286,6 @@ export const FORM_SECTIONS: any = [
 
   },
   {
-    id: 'participantSafe',
-    title: 'Participant Household Safe Meeting Point',
-    icon: FaPills,
-    description: '',
-    fields: ['householdSafeAddress', 'householdSafeDesc'],
-    requiredFields: []
-  },
-  {
-    id: "participantSpecificEmergency",
-    title: "Participant Specific Emergencies",
-    icon: FaExclamationTriangle,
-    description: "Participant Specific Emergency Support Plan",
-    fields: Array.from({ length: 10 }, (_, i) => {
-      const idx = i + 1;
-      return [
-        `participantSpecificEmergencyScenario${idx}`,
-        `participantSpecificEmergencySupport${idx}`,
-      ];
-    }).flat(),
-    requiredFields: []
-  },
-
-  {
     id: "riskAssessmentTable",
     title: "Risk Assessment Table",
     icon: FaTable,
@@ -325,6 +302,14 @@ export const FORM_SECTIONS: any = [
 
   },
   {
+    id: 'participantSafe',
+    title: 'Participant Household Safe Meeting Point',
+    icon: FaPills,
+    description: '',
+    fields: ['householdSafeAddress', 'householdSafeDesc'],
+    requiredFields: []
+  },
+  {
     id: "communication",
     title: "Pandemic & Communication",
     icon: FaComments,
@@ -332,6 +317,20 @@ export const FORM_SECTIONS: any = [
     fields: ["scenario1", "mode1", "scenario2", "mode2"],
     requiredFields: []
 
+  },
+  {
+    id: "participantSpecificEmergency",
+    title: "Participant Specific Emergencies",
+    icon: FaExclamationTriangle,
+    description: "Participant Specific Emergency Support Plan",
+    fields: Array.from({ length: 10 }, (_, i) => {
+      const idx = i + 1;
+      return [
+        `participantSpecificEmergencyScenario${idx}`,
+        `participantSpecificEmergencySupport${idx}`,
+      ];
+    }).flat(),
+    requiredFields: []
   },
   {
     id: "signatures",
