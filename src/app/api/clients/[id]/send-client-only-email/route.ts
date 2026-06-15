@@ -98,10 +98,10 @@ import { prisma } from '@/lib/prisma';
 // The critical update is here: await "params" (can be Promise in Next 14/15 App Router)
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // Await params to get the actual params object
-  const { clientId: clientIdString } = await params;
+  const { id: clientIdString } = await params;
   const clientId = parseInt(clientIdString);
 
   try {

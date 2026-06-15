@@ -558,13 +558,15 @@ export async function DELETE(
   }
 }
 
-// PATCH /api/clients/[id]/form-batches/[batchId] - Update batch expiry
+// PATCH /api/clients/[id] - Update batch expiry (batchId from request body)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string; batchId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id, batchId } = await params;
+    const { id } = await params;
+    const url = new URL(req.url);
+    const batchId = url.searchParams.get('batchId') || '';
     // const clientId = parseInt(id || "0");
     // const batchId = parseInt(batchId || "0");
     const clientId = parseInt(id || "0");
