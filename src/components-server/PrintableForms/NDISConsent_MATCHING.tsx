@@ -168,7 +168,8 @@ const NDISConsent_MATCHING: React.FC<NDISConsentPDFProps> = ({
         const value = formData?.[key] || commonFieldsData?.[key] || defaults[key] || '';
 
         // Auto-capitalize first letter for consistency (e.g. for addresses, names, relationships)
-        if (typeof value === 'string' && value.length > 0) {
+        // Skip base64 data URIs (signatures, images)
+        if (typeof value === 'string' && value.length > 0 && !value.startsWith('data:')) {
             return value.charAt(0).toUpperCase() + value.slice(1);
         }
 
