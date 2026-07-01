@@ -161,25 +161,25 @@ export default function ScheduleOfSupports({
   };
 
   const tableRows = [
-    { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$702.30' },
-    { key: "row1", description: '01_013_0107_1_1 Assistance with Self-care weekday daytime', cost: '$70.23' },
-    { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$77.38' },
-    { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$98.83' },
-    { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$127.43' },
-    { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$156.03' },
+    { key: "row0", description: '01_049_0107_1_1 Establishment Fee', cost: '$735.80' },
+    { key: "row1", description: '01_011_0107_1_1 Assistance with Self-care weekday daytime', cost: '$73.58' },
+    { key: "row2", description: '01_015_0107_1_1 Assistance with Self-care weekday Evening', cost: '$81.07' },
+    { key: "row3", description: '01_013_0107_1_1 Assistance with Self-care Saturday', cost: '$103.54' },
+    { key: "row4", description: '01_014_0107_1_1 Assistance with Self-care Sunday', cost: '$133.50' },
+    { key: "row5", description: '01_012_0107_1_1 Assistance with Self-care Public Holiday', cost: '$163.46' },
     { key: "row6", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' },
-    { key: "row7", description: '01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime', cost: '$75.98' },
-    { key: "row8", description: '04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime', cost: '$70.23' },
-    { key: "row9", description: '04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening', cost: '$77.38' },
-    { key: "row10", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$98.83' },
-    { key: "row11", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$127.43' },
-    { key: "row12", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$156.03' },
-    { key: "row13", description: '09-009-0117-6-3 Skill Development and Training', cost: '$80.06' },
-    { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$70.23' },
-    { key: "row15", description: '04-590-0125-6-1 Activity based Transport', cost: '$1 Per km', isPerKm: true },
-    { key: "row16", description: '01-002-0107-1-1 Provider Travel', cost: '$17.55' },
-    { key: "row17", description: '04-104-0125-6-1 Provider Travel', cost: '$17.55' },
-    { key: "row18", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$59.06' }
+    { key: "row7", description: '01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime', cost: '$79.60' },
+    { key: "row8", description: '04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime', cost: '$73.58' },
+    { key: "row9", description: '04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening', cost: '$81.07' },
+    { key: "row10", description: '04_105_0125_6_1 Access community and Rec Saturday', cost: '$103.54' },
+    { key: "row11", description: '04_106_0125_6_1 Access Community and Rec Sunday', cost: '$133.50' },
+    { key: "row12", description: '04_102_0125_6_1 Access Community and Rec Public Holiday', cost: '$163.46' },
+    { key: "row13", description: '09_009_0117_6_3 Skill Development and Training', cost: '$83.87' },
+    { key: "row14", description: '15_037_0117_1_3 Skill Development and Training including Public Transport training', cost: '$73.58' },
+    { key: "row15", description: '04_590_0125_6_1 Activity based Transport', cost: '$1.02 Per km', isPerKm: true },
+    { key: "row16", description: '01_011_0107_1_1 Provider Travel', cost: '$18.39' },
+    { key: "row17", description: '04_104_0125_6_1 Provider Travel', cost: '$18.39' },
+    { key: "row18", description: '01_016_0104_1_1 Specialised Home-based care for a child', cost: '$61.16' }
   ];
 
   return (

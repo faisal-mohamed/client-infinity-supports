@@ -615,168 +615,169 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
 
 
     row0_weeks: {
-      label: "Total weeks for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
+      label: "Total weeks for 01_049_0107_1_1 Establishment Fee ($735.80/hr)",
       type: "text",
     },
     row0_totalHours: {
-      label: "Total Hours for 01_049_0107_1_1 Establishment Fee ($675.60/hr)",
+      label: "Total Hours for 01_049_0107_1_1 Establishment Fee ($735.80/hr)",
       type: "text",
     },
 
     row1_weeks: {
-      label: "Weeks for Assistance with Self-care weekday daytime ($67.56/hr)",
+      label: "Weeks for 01_011_0107_1_1 Assistance with Self-care weekday daytime ($73.58/hr)",
       type: "text",
     },
     row1_totalHours: {
-      label: "Total Hours for Assistance with Self-care weekday daytime ($67.56/hr)",
+      label: "Total Hours for 01_011_0107_1_1 Assistance with Self-care weekday daytime ($73.58/hr)",
       type: "text",
     },
 
     row2_weeks: {
-      label: "Weeks for Assistance with Self-care weekday Evening ($74.44/hr)",
+      label: "Weeks for 01_015_0107_1_1 Assistance with Self-care weekday Evening ($81.07/hr)",
       type: "text",
     },
     row2_totalHours: {
-      label: "Total Hours for Assistance with Self-care weekday Evening ($74.44/hr)",
+      label: "Total Hours for 01_015_0107_1_1 Assistance with Self-care weekday Evening ($81.07/hr)",
       type: "text",
     },
 
     row3_weeks: {
-      label: "Weeks for Assistance with Self-care Saturday ($95.07/hr)",
+      label: "Weeks for 01_013_0107_1_1 Assistance with Self-care Saturday ($103.54/hr)",
       type: "text",
     },
     row3_totalHours: {
-      label: "Total Hours for Assistance with Self-care Saturday ($95.07/hr)",
+      label: "Total Hours for 01_013_0107_1_1 Assistance with Self-care Saturday ($103.54/hr)",
       type: "text",
     },
 
     row4_weeks: {
-      label: "Weeks for Assistance with Self-care Sunday ($122.59/hr)",
+      label: "Weeks for 01_014_0107_1_1 Assistance with Self-care Sunday ($133.50/hr)",
       type: "text",
     },
     row4_totalHours: {
-      label: "Total Hours for Assistance with Self-care Sunday ($122.59/hr)",
+      label: "Total Hours for 01_014_0107_1_1 Assistance with Self-care Sunday ($133.50/hr)",
       type: "text",
     },
 
     row5_weeks: {
-      label: "Weeks for Assistance with Self-care Public Holiday ($150.10/hr)",
+      label: "Weeks for 01_012_0107_1_1 Assistance with Self-care Public Holiday ($163.46/hr)",
       type: "text",
     },
     row5_totalHours: {
-      label: "Total Hours for Assistance with Self-care Public Holiday ($150.10/hr)",
+      label: "Total Hours for 01_012_0107_1_1 Assistance with Self-care Public Holiday ($163.46/hr)",
       type: "text",
     },
 
     row6_weeks: {
-      label: "Weeks for Access Community and Rec weekday ($67.56/hr)",
+      label: "Weeks for 01_016_0104_1_1 Specialised Home-based care for a child ($59.06/hr)",
       type: "text",
     },
     row6_totalHours: {
-      label: "Total Hours for Access Community and Rec weekday ($67.56/hr)",
+      label: "Total Hours for 01_016_0104_1_1 Specialised Home-based care for a child ($59.06/hr)",
       type: "text",
     },
 
     row7_weeks: {
-      label: "Weeks for Access Community and Rec Saturday ($95.07/hr)",
+      label: "Weeks for 01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime ($79.60/hr)",
       type: "text",
     },
     row7_totalHours: {
-      label: "Total Hours for Access Community and Rec Saturday ($95.07/hr)",
+      label: "Total Hours for 01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime ($79.60/hr)",
       type: "text",
     },
 
     row8_weeks: {
-      label: "Weeks for Access Community and Rec Sunday ($122.59/hr)",
+      label: "Weeks for 04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime ($73.58/hr)",
       type: "text",
     },
     row8_totalHours: {
-      label: "Total Hours for Access Community and Rec Sunday ($122.59/hr)",
+      label: "Total Hours for 04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime ($73.58/hr)",
       type: "text",
     },
 
     row9_weeks: {
-      label: "Weeks for Access Community and Rec Public Holiday ($150.10/hr)",
+      label: "Weeks for 04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening ($81.07/hr)",
       type: "text",
     },
     row9_totalHours: {
-      label: "Total Hours for Access Community and Rec Public Holiday ($150.10/hr)",
+      label: "Total Hours for 04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening ($81.07/hr)",
       type: "text",
     },
 
     row10_weeks: {
-      label: "Weeks for Specialised Home-based care for a child ($57.23/hr)",
+      label: "Weeks for 04_105_0125_6_1 Access community and Rec Saturday ($103.54/hr)",
       type: "text",
     },
     row10_totalHours: {
-      label: "Total Hours for Specialised Home-based care for a child ($57.23/hr)",
+      label: "Total Hours for 04_105_0125_6_1 Access community and Rec Saturday ($103.54/hr)",
       type: "text",
     },
 
     row11_weeks: {
-      label: "Weeks for Skill Development and Training ($77.00/hr)",
+      label: "Weeks for 04_106_0125_6_1 Access Community and Rec Sunday ($133.50/hr)",
       type: "text",
     },
     row11_totalHours: {
-      label: "Total Hours for Skill Development and Training ($77.00/hr)",
+      label: "Total Hours for 04_106_0125_6_1 Access Community and Rec Sunday ($133.50/hr)",
       type: "text",
     },
 
-    row12_totalKms: {
-      label: "Total Kilometers for Activity based Transport ($1 per km)",
+    row12_weeks: {
+      label: "Weeks for 04_102_0125_6_1 Access Community and Rec Public Holiday ($163.46/hr)",
       type: "text",
     },
+    row12_totalHours: {
+      label: "Total Hours for 04_102_0125_6_1 Access Community and Rec Public Holiday ($163.46/hr)",
+      type: "text",
+    },
+
     row13_weeks: {
-      label: "Weeks for Non-Face-to-Face ($67.56/hr)",
+      label: "Weeks for 09_009_0117_6_3 Skill Development and Training ($83.87/hr)",
       type: "text",
     },
     row13_totalHours: {
-      label: "Total Hours for Non-Face-to-Face ($67.56/hr)",
+      label: "Total Hours for 09_009_0117_6_3 Skill Development and Training ($83.87/hr)",
       type: "text",
     },
 
     row14_weeks: {
-      label: "Weeks for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      label: "Weeks for 15_037_0117_1_3 Skill Development and Training including Public Transport training ($73.58/hr)",
       type: "text",
     },
     row14_totalHours: {
-      label: "Total Hours for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      label: "Total Hours for 15_037_0117_1_3 Skill Development and Training including Public Transport training ($73.58/hr)",
       type: "text",
     },
 
-    row15_weeks: {
-      label: "Weeks for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
-      type: "text",
-    },
-    row15_totalHours: {
-      label: "Total Hours for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+    row15_totalKms: {
+      label: "Total Kilometers for 04_590_0125_6_1 Activity based Transport ($1.02 per km)",
       type: "text",
     },
 
     row16_weeks: {
-      label: "Weeks for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      label: "Weeks for 01_011_0107_1_1 Provider Travel ($18.39/hr)",
       type: "text",
     },
     row16_totalHours: {
-      label: "Total Hours for Provider Travel (01-002-0107-1-1) ($17.55/hr)",
+      label: "Total Hours for 01_011_0107_1_1 Provider Travel ($18.39/hr)",
       type: "text",
     },
 
     row17_weeks: {
-      label: "Weeks for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      label: "Weeks for 04_104_0125_6_1 Provider Travel ($18.39/hr)",
       type: "text",
     },
     row17_totalHours: {
-      label: "Total Hours for Provider Travel (04-104-0125-6-1) ($17.55/hr)",
+      label: "Total Hours for 04_104_0125_6_1 Provider Travel ($18.39/hr)",
       type: "text",
     },
 
     row18_weeks: {
-      label: "Weeks for Specialised Home-based care for a child ($59.06/hr)",
+      label: "Weeks for 01_016_0104_1_1 Specialised Home-based care for a child ($61.16/hr)",
       type: "text",
     },
     row18_totalHours: {
-      label: "Total Hours for Specialised Home-based care for a child ($59.06/hr)",
+      label: "Total Hours for 01_016_0104_1_1 Specialised Home-based care for a child ($61.16/hr)",
       type: "text",
     },
 
@@ -977,25 +978,25 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   };
 
   const supportLineItems = [
-    { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 702.30 },
-    { code: "row1", label: "01_013_0107_1_1 Assistance with Self-care weekday daytime", rate: 70.23 },
-    { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 77.38 },
-    { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 98.83 },
-    { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 127.43 },
-    { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 156.03 },
+    { code: "row0", label: "01_049_0107_1_1 Establishment Fee", rate: 735.80 },
+    { code: "row1", label: "01_011_0107_1_1 Assistance with Self-care weekday daytime", rate: 73.58 },
+    { code: "row2", label: "01_015_0107_1_1 Assistance with Self-care weekday Evening", rate: 81.07 },
+    { code: "row3", label: "01_013_0107_1_1 Assistance with Self-care Saturday", rate: 103.54 },
+    { code: "row4", label: "01_014_0107_1_1 Assistance with Self-care Sunday", rate: 133.50 },
+    { code: "row5", label: "01_012_0107_1_1 Assistance with Self-care Public Holiday", rate: 163.46 },
     { code: "row6", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
-    { code: "row7", label: "01_400_0107_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime", rate: 75.98 },
-    { code: "row8", label: "04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime", rate: 70.23 },
-    { code: "row9", label: "04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening", rate: 77.38 },
-    { code: "row10", label: "04_105_0125_6_1 Access community and Rec Saturday", rate: 98.83 },
-    { code: "row11", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 127.43 },
-    { code: "row12", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 156.03 },
-    { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 80.06 },
-    { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 70.23 },
-    { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.0 }, // Assuming this is per km
-    { code: "row16", label: "01-002-0107-1-1 Provider Travel", rate: 17.55 },
-    { code: "row17", label: "04-104-0125-6-1 Provider Travel", rate: 17.55 },
-    { code: "row18", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 59.06 },
+    { code: "row7", label: "01_400_0104_1_1 Assistance with Self-Care Activities - High Intensity - Weekday Daytime", rate: 79.60 },
+    { code: "row8", label: "04_104_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Daytime", rate: 73.58 },
+    { code: "row9", label: "04_103_0125_6_1 Access Community Social and Rec Activ - Standard - Weekday Evening", rate: 81.07 },
+    { code: "row10", label: "04_105_0125_6_1 Access community and Rec Saturday", rate: 103.54 },
+    { code: "row11", label: "04_106_0125_6_1 Access Community and Rec Sunday", rate: 133.50 },
+    { code: "row12", label: "04_102_0125_6_1 Access Community and Rec Public Holiday", rate: 163.46 },
+    { code: "row13", label: "09_009_0117_6_3 Skill Development and Training", rate: 83.87 },
+    { code: "row14", label: "15_037_0117_1_3 Skill Development and Training including Public Transport training", rate: 73.58 },
+    { code: "row15", label: "04_590_0125_6_1 Activity based Transport", rate: 1.02 }, // Assuming this is per km
+    { code: "row16", label: "01_011_0107_1_1 Provider Travel", rate: 18.39 },
+    { code: "row17", label: "04_104_0125_6_1 Provider Travel", rate: 18.39 },
+    { code: "row18", label: "01_016_0104_1_1 Specialised Home-based care for a child", rate: 61.16 },
   ];
 
 
