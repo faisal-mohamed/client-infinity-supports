@@ -81,7 +81,7 @@ const Page2: React.FC<Page2Props> = ({ schema, formData, settings }) => {
               {isChecked('establishmentFeeAgreement') ? 'X' : ''}
             </span>
             <span>
-              If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
+              If you are a new participant to NDIS or Infinity Supports WA, you will be charged $735.80 as per the NDIS Price Guide.
             </span>
           </p>
 

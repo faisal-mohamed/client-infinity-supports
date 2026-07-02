@@ -142,7 +142,7 @@ const MDTDynamic: React.FC<Props> = ({ formData, settings, commonFieldsData }) =
         value: displayValue,
         isMeta: field.isMeta
       };
-    }).filter(section => section.value); // Only include sections with values
+    }); // Removed filter so empty fields are rendered
   }, [formData, commonFieldsData]);
 
   const PAGE_HEIGHT = 1123;
@@ -222,22 +222,21 @@ const MDTDynamic: React.FC<Props> = ({ formData, settings, commonFieldsData }) =
 
   const metaBlock = useMemo(() => {
     const metaSections = allSections.filter((section) => section.isMeta);
-    const filled = metaSections.filter((item) => item.value);
-    if (!filled.length) return null;
+    if (!metaSections.length) return null;
     return {
       key: "meta-block",
       type: "meta" as const,
       estimatedHeight: Math.min(
-        estimateMetaBlockHeight(filled),
+        estimateMetaBlockHeight(metaSections),
         MAX_PAGE_CONTENT_HEIGHT
       ),
-      items: filled,
+      items: metaSections,
     };
   }, [allSections, MAX_PAGE_CONTENT_HEIGHT]);
 
   const contentBlocks = useMemo(() => {
     const contentSections = allSections.filter(
-      (section) => !section.isMeta && section.value
+      (section) => !section.isMeta
     );
     return contentSections.flatMap((section) => splitSectionContent(section));
   }, [allSections, MAX_PAGE_CONTENT_HEIGHT]);

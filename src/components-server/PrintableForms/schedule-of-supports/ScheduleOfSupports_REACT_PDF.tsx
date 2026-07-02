@@ -307,7 +307,7 @@ export default function ScheduleOfSupports({
               {isChecked('establishmentFeeAgreement') && <Text style={styles.checkboxX}>X</Text>}
             </View>
             <Text style={[styles.paragraph, { flex: 1 }]}>
-              If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.
+              If you are a new participant to NDIS or Infinity Supports WA, you will be charged $735.80 as per the NDIS Price Guide.
             </Text>
           </View>
         </View>

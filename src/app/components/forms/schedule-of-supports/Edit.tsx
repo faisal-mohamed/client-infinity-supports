@@ -1381,7 +1381,7 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
                         {/* Establishment Fee & Travel */}
                         <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                           {renderDropdown(
-                            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $702.30 as per the NDIS Price Guide.",
+                            "If you are a new participant to NDIS or Infinity Supports WA, you will be charged $735.80 as per the NDIS Price Guide.",
                             "establishmentFeeAgreement",
                             yesNoOptions
                           )}
