@@ -164,7 +164,6 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
   const participantSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
   const nomineeSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
   const providerSigCanvasRef: any = useRef<SignatureCanvasRef | null>(null);
-  const prevSignatureRoleRef = useRef<string>("");
 
   // Combine first name and surname for full name
   const fullName = [commonFieldsData?.name, commonFieldsData?.surname].filter(Boolean).join(' ').trim();
@@ -175,17 +174,20 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     ndisNumber: formData?.ndisNumber || commonFieldsData?.ndis || '',
 
     signatureRole: formData?.signatureRole || "",
-    participantSignature: formData?.participantSignature || "",
-    participantSignatureDate: formData?.participantSignatureDate || "",
-    participantName: formData?.participantName || "",
+    
+    // Clear signatures on edit
+    participantSignature: "",
+    participantSignatureDate: "",
+    participantName: "",
 
-    nomineeSignature: formData?.nomineeSignature || "",
-    nomineeSignatureDate: formData?.nomineeSignatureDate || "",
-    nomineeName: formData?.nomineeName || "",
+    nomineeSignature: "",
+    nomineeSignatureDate: "",
+    nomineeName: "",
 
-    representativeSignature: formData?.representativeSignature || "",
-    representativeSignatureDate: formData?.representativeSignatureDate || new Date().toISOString().split("T")[0],
-    representativeName: formData?.representativeName || "",
+    representativeSignature: "",
+    representativeSignatureDate: new Date().toISOString().split("T")[0],
+    representativeName: "",
+    
     customSupportItems: formData?.customSupportItems || []
   };
 
@@ -256,6 +258,34 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     let newValue: any = value;
     if (type === 'checkbox') {
       newValue = (e.target as HTMLInputElement).checked;
+    }
+
+    // Signature role switch clears the other role's signature and metadata
+    if (name === 'signatureRole') {
+      const role = String(newValue);
+      const cleared: Record<string, any> = {};
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (role === 'Participant') {
+        cleared['nomineeSignature'] = '';
+        cleared['nomineeSignatureDate'] = '';
+        cleared['nomineeName'] = '';
+        if (!localValues['participantSignatureDate']) {
+          cleared['participantSignatureDate'] = today;
+        }
+      } else if (role === 'Nominee') {
+        cleared['participantSignature'] = '';
+        cleared['participantSignatureDate'] = '';
+        cleared['participantName'] = '';
+        if (!localValues['nomineeSignatureDate']) {
+          cleared['nomineeSignatureDate'] = today;
+        }
+      }
+      const merged = { ...localValues, [name]: newValue, ...cleared };
+      setLocalValues(merged);
+      onChange(merged, name, false);
+      Object.keys(cleared).forEach((k) => onChange(merged, k, false));
+      return;
     }
 
     const newValues = { ...localValues, [name]: newValue };
@@ -506,57 +536,6 @@ const SADeliveryOfSupportsEdit: React.FC<FormProps> = ({
     }
   }, [localValues["transportOption2"]]);
 
-  // Clear signature fields when signatureRole changes
-  useEffect(() => {
-    const currentRole = localValues["signatureRole"];
-    const prevRole = prevSignatureRoleRef.current;
-
-    // Only proceed if role actually changed
-    if (currentRole !== prevRole) {
-      const today = new Date().toISOString().split('T')[0];
-      let updated = { ...localValues };
-      let hasChanges = false;
-
-      // 1. Always default the date if role is selected and date is currently empty
-      if (currentRole === "Participant") {
-        if (!localValues["participantSignatureDate"]) {
-          updated = { ...updated, participantSignatureDate: today };
-          hasChanges = true;
-        }
-      } else if (currentRole === "Nominee") {
-        if (!localValues["nomineeSignatureDate"]) {
-          updated = { ...updated, nomineeSignatureDate: today };
-          hasChanges = true;
-        }
-      }
-
-      // 2. ONLY clear fields if shifting FROM a different role (prevRole was not empty)
-      if (prevRole !== "" && prevRole !== currentRole) {
-        if (currentRole === "Participant") {
-          // Clear Nominee fields
-          if (localValues["nomineeSignature"] || localValues["nomineeSignatureDate"] || localValues["nomineeName"]) {
-            updated = { ...updated, nomineeSignature: "", nomineeSignatureDate: "", nomineeName: "" };
-            hasChanges = true;
-          }
-          if (nomineeSigCanvasRef.current) nomineeSigCanvasRef.current.clear();
-        } else if (currentRole === "Nominee") {
-          // Clear Participant fields
-          if (localValues["participantSignature"] || localValues["participantSignatureDate"] || localValues["participantName"]) {
-            updated = { ...updated, participantSignature: "", participantSignatureDate: "", participantName: "" };
-            hasChanges = true;
-          }
-          if (participantSigCanvasRef.current) participantSigCanvasRef.current.clear();
-        }
-      }
-
-      if (hasChanges) {
-        setLocalValues(updated);
-      }
-    }
-
-    // Update the ref for next comparison
-    prevSignatureRoleRef.current = currentRole;
-  }, [localValues["signatureRole"]]);
 
   // Effect to default provider signature date if empty
   useEffect(() => {
